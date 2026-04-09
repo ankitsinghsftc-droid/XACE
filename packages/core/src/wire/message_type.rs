@@ -1,0 +1,1 @@
+// MessageType enum — SNAPSHOT|DELTA|INPUT|EVENT|CONTROL

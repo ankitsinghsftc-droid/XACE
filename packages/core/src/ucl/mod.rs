@@ -1,0 +1,27 @@
+// Universal Component Library v1 — FROZEN, 25 components
+pub mod transform_component;
+pub mod collider_component;
+pub mod rigidbody_component;
+pub mod velocity_component;
+pub mod movement_intent_component;
+pub mod surface_properties_component;
+pub mod render_component;
+pub mod animation_component;
+pub mod camera_component;
+pub mod identity_component;
+pub mod input_component;
+pub mod ai_component;
+pub mod authority_component;
+pub mod health_component;
+pub mod stats_component;
+pub mod inventory_component;
+pub mod damage_component;
+pub mod interaction_component;
+pub mod lifetime_component;
+pub mod spawner_component;
+pub mod game_state_component;
+pub mod event_component;
+pub mod trigger_zone_component;
+pub mod persistence_component;
+pub mod world_streaming_component;
+pub mod ucl_registry;

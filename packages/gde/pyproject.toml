@@ -1,0 +1,8 @@
+[project]
+name = "xace-gde"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.0.0", "xace-schema-factory"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]

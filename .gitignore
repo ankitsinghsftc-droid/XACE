@@ -1,0 +1,62 @@
+# ── Rust ──────────────────────────────────────────────────────
+target/
+Cargo.lock.bak
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+.env
+*.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# ── TypeScript / Node ─────────────────────────────────────────
+node_modules/
+.next/
+out/
+.turbo/
+
+# ── IDE ───────────────────────────────────────────────────────
+.cursor/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Secrets — NEVER COMMIT ────────────────────────────────────
+.env
+.env.local
+.env.production
+*.pem
+*.key
+
+# ── Logs ──────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Unity ─────────────────────────────────────────────────────
+adapters/unity/Library/
+adapters/unity/Temp/
+adapters/unity/obj/
+adapters/unity/Builds/
+adapters/unity/*.csproj
+adapters/unity/*.sln
+
+# ── Unreal ────────────────────────────────────────────────────
+adapters/unreal/Binaries/
+adapters/unreal/DerivedDataCache/
+adapters/unreal/Intermediate/
+adapters/unreal/Saved/
+adapters/unreal/.vs/

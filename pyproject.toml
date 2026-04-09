@@ -1,0 +1,10 @@
+[tool.uv.workspace]
+members = [
+    "packages/schema-factory",
+    "packages/gde",
+    "packages/prompt-intelligence",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

@@ -1,0 +1,12 @@
+{
+  "name": "xace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "workspace/builder"
+  ],
+  "scripts": {
+    "dev": "cd workspace/builder && npm run dev",
+    "build": "cd workspace/builder && npm run build"
+  }
+}

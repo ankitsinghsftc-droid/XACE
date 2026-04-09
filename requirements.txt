@@ -1,0 +1,27 @@
+# Anthropic SDK — for Prompt Intelligence Layer LLM calls
+anthropic>=0.20.0
+
+# Data validation — used across all Python packages
+pydantic>=2.0.0
+
+# UUID generation
+uuid
+
+# Type hints
+typing-extensions>=4.0.0
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# Async HTTP (for LLM API calls)
+httpx>=0.24.0
+
+# JSON schema validation
+jsonschema>=4.0.0
+
+# Hashing utilities
+hashlib
+
+# Logging
+loguru>=0.7.0

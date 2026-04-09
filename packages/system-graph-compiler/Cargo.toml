@@ -1,0 +1,9 @@
+[package]
+name = "xace-system-graph-compiler"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+xace-core = { path = "../core" }
+serde = { workspace = true }
+thiserror = { workspace = true }

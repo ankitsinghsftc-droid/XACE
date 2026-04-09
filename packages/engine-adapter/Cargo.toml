@@ -1,0 +1,11 @@
+[package]
+name = "xace-engine-adapter"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+xace-core = { path = "../core" }
+xace-runtime-core = { path = "../runtime-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
