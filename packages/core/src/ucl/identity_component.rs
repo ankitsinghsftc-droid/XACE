@@ -10,7 +10,7 @@
 //! This applies to every genre without exception.
 
 use serde::{Deserialize, Serialize};
-use crate::entity_id::EntityID;
+
 
 /// Component type ID for COMP_IDENTITY_V1. Frozen forever.
 pub const COMP_IDENTITY_V1_ID: u32 = 2;
