@@ -1,1 +1,702 @@
-// DSLOperation — op enum (SET/ADD/REMOVE/MULTIPLY/DIVIDE/APPEND/DELETE), target path, value, type_hint
+//! # DSL Operation
+//!
+//! A single atomic operation in a DSLTransaction. Represents one
+//! discrete change to a specific field in the CGS — a set, add,
+//! remove, multiply, divide, append, or delete.
+//!
+//! ## What a DSL Operation Is
+//! A DSLOperation is the smallest unit of mutation in XACE.
+//! Every schema change — no matter how complex the user's intent —
+//! is decomposed into one or more DSLOperations before commit.
+//!
+//! Example: "Make the player faster" becomes:
+//! DSLOperation {
+//!   op: OperationType::Multiply,
+//!   target_path: "modes.mode_arena.actors.actor_player.stats.move_speed",
+//!   value: DslValue::Float(1.5),
+//!   type_hint: TypeHint::Float,
+//! }
+//!
+//! ## Fully Qualified Paths (PAM)
+//! Target paths are ALWAYS fully qualified — no implicit or partial paths.
+//! "actor_player.stats.move_speed" is INVALID.
+//! "modes.mode_arena.actors.actor_player.stats.move_speed" is VALID.
+//!
+//! The GDE's path_parser.py validates all paths before operations
+//! reach this struct. Partial paths block commit entirely.
+//!
+//! ## Type Safety
+//! Every operation carries a TypeHint so the Mutation Gate can validate
+//! the value type matches the target field's declared type in the
+//! CompositeComponentRegistry. Type mismatches block commit.
+//!
+//! ## Atomicity
+//! DSLOperations are grouped into MutationTransactions (I8).
+//! Either all operations in a transaction succeed or none do.
+//! A single operation never commits in isolation from its transaction.
+
+use serde::{Deserialize, Serialize};
+
+// ── Operation Type ────────────────────────────────────────────────────────────
+
+/// The kind of mutation to apply to the target field.
+///
+/// Each operation type has strict semantics — the Mutation Gate
+/// validates that the operation is compatible with the target field's
+/// declared type before applying it.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum OperationType {
+    /// Replace the current value with a new value.
+    /// Compatible with all field types.
+    /// Example: SET entity.health = 100
+    Set,
+
+    /// Add a numeric value to the current value.
+    /// Compatible with numeric fields only (f32, f64, i32, i64, u32, u64).
+    /// Example: ADD entity.score += 10
+    Add,
+
+    /// Remove a numeric value from the current value.
+    /// Compatible with numeric fields only.
+    /// Example: SUBTRACT entity.health -= 25
+    Subtract,
+
+    /// Multiply the current value by a factor.
+    /// Compatible with numeric fields only.
+    /// Example: MULTIPLY entity.speed *= 1.5
+    Multiply,
+
+    /// Divide the current value by a divisor.
+    /// Compatible with numeric fields only.
+    /// Divisor of zero is a ValidationFailure — never applied.
+    /// Example: DIVIDE entity.mass /= 2.0
+    Divide,
+
+    /// Add an element to a list or set field.
+    /// Compatible with Vec and BTreeMap fields.
+    /// Example: APPEND entity.tags += "stunned"
+    Append,
+
+    /// Remove a specific element from a list or set field.
+    /// Compatible with Vec and BTreeMap fields.
+    /// No-op if the element does not exist — not an error.
+    /// Example: DELETE entity.tags -= "stunned"
+    Delete,
+}
+
+impl std::fmt::Display for OperationType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            OperationType::Set => write!(f, "SET"),
+            OperationType::Add => write!(f, "ADD"),
+            OperationType::Subtract => write!(f, "SUBTRACT"),
+            OperationType::Multiply => write!(f, "MULTIPLY"),
+            OperationType::Divide => write!(f, "DIVIDE"),
+            OperationType::Append => write!(f, "APPEND"),
+            OperationType::Delete => write!(f, "DELETE"),
+        }
+    }
+}
+
+impl OperationType {
+    /// Returns true if this operation requires a numeric target field.
+    pub fn requires_numeric(&self) -> bool {
+        matches!(
+            self,
+            OperationType::Add
+                | OperationType::Subtract
+                | OperationType::Multiply
+                | OperationType::Divide
+        )
+    }
+
+    /// Returns true if this operation requires a collection target field.
+    pub fn requires_collection(&self) -> bool {
+        matches!(self, OperationType::Append | OperationType::Delete)
+    }
+
+    /// Returns true if this operation type is compatible with any field type.
+    pub fn is_universal(&self) -> bool {
+        matches!(self, OperationType::Set)
+    }
+}
+
+// ── Type Hint ─────────────────────────────────────────────────────────────────
+
+/// A hint about the expected type of the target field.
+///
+/// Used by the Mutation Gate to validate value types before applying
+/// operations. The Mutation Gate compares this hint against the field's
+/// declared type in the CompositeComponentRegistry.
+///
+/// Generated by the GDE based on the component field definition.
+/// Never set manually by users or the PIL.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum TypeHint {
+    /// A 32-bit floating point number.
+    Float,
+    /// A 64-bit floating point number.
+    Float64,
+    /// A signed 32-bit integer.
+    Int,
+    /// A signed 64-bit integer.
+    Int64,
+    /// An unsigned 32-bit integer.
+    UInt,
+    /// An unsigned 64-bit integer.
+    UInt64,
+    /// A boolean true/false value.
+    Bool,
+    /// A UTF-8 string value.
+    String,
+    /// A list of values (Vec).
+    List,
+    /// A key-value map (BTreeMap).
+    Map,
+    /// A nested struct or enum value serialized as JSON.
+    Struct,
+    /// Type is unknown — GDE could not determine from context.
+    /// Operations with Unknown type hint are blocked by Mutation Gate.
+    Unknown,
+}
+
+impl std::fmt::Display for TypeHint {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TypeHint::Float => write!(f, "Float"),
+            TypeHint::Float64 => write!(f, "Float64"),
+            TypeHint::Int => write!(f, "Int"),
+            TypeHint::Int64 => write!(f, "Int64"),
+            TypeHint::UInt => write!(f, "UInt"),
+            TypeHint::UInt64 => write!(f, "UInt64"),
+            TypeHint::Bool => write!(f, "Bool"),
+            TypeHint::String => write!(f, "String"),
+            TypeHint::List => write!(f, "List"),
+            TypeHint::Map => write!(f, "Map"),
+            TypeHint::Struct => write!(f, "Struct"),
+            TypeHint::Unknown => write!(f, "Unknown"),
+        }
+    }
+}
+
+impl TypeHint {
+    /// Returns true if this type hint represents a numeric type.
+    pub fn is_numeric(&self) -> bool {
+        matches!(
+            self,
+            TypeHint::Float
+                | TypeHint::Float64
+                | TypeHint::Int
+                | TypeHint::Int64
+                | TypeHint::UInt
+                | TypeHint::UInt64
+        )
+    }
+
+    /// Returns true if this type hint represents a collection type.
+    pub fn is_collection(&self) -> bool {
+        matches!(self, TypeHint::List | TypeHint::Map)
+    }
+
+    /// Returns true if this type is known and can be validated.
+    pub fn is_known(&self) -> bool {
+        !matches!(self, TypeHint::Unknown)
+    }
+}
+
+// ── DSL Value ─────────────────────────────────────────────────────────────────
+
+/// The value carried by a DSL operation.
+///
+/// Typed union of all possible mutation values. The Mutation Gate
+/// validates that the variant matches the TypeHint and the target
+/// field's declared type before applying the operation.
+///
+/// ## Serialization
+/// DslValue must survive snapshot roundtrips (I10).
+/// All variants are serializable with stable representation (D11).
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum DslValue {
+    /// A 32-bit float value.
+    Float(f32),
+    /// A 64-bit float value.
+    Float64(f64),
+    /// A signed 32-bit integer.
+    Int(i32),
+    /// A signed 64-bit integer.
+    Int64(i64),
+    /// An unsigned 32-bit integer.
+    UInt(u32),
+    /// An unsigned 64-bit integer.
+    UInt64(u64),
+    /// A boolean value.
+    Bool(bool),
+    /// A string value.
+    String(String),
+    /// A list of values (for APPEND/DELETE operations on Vec fields).
+    List(Vec<DslValue>),
+    /// A JSON-serialized struct or enum value.
+    /// Used for complex field types that don't fit other variants.
+    Json(String),
+    /// Null / no value. Used for DELETE operations.
+    Null,
+}
+
+impl DslValue {
+    /// Returns the TypeHint that matches this value's variant.
+    pub fn type_hint(&self) -> TypeHint {
+        match self {
+            DslValue::Float(_) => TypeHint::Float,
+            DslValue::Float64(_) => TypeHint::Float64,
+            DslValue::Int(_) => TypeHint::Int,
+            DslValue::Int64(_) => TypeHint::Int64,
+            DslValue::UInt(_) => TypeHint::UInt,
+            DslValue::UInt64(_) => TypeHint::UInt64,
+            DslValue::Bool(_) => TypeHint::Bool,
+            DslValue::String(_) => TypeHint::String,
+            DslValue::List(_) => TypeHint::List,
+            DslValue::Json(_) => TypeHint::Struct,
+            DslValue::Null => TypeHint::Unknown,
+        }
+    }
+
+    /// Returns true if this value is numeric.
+    pub fn is_numeric(&self) -> bool {
+        self.type_hint().is_numeric()
+    }
+
+    /// Returns true if this value is null.
+    pub fn is_null(&self) -> bool {
+        matches!(self, DslValue::Null)
+    }
+
+    /// Attempts to extract an f64 from any numeric variant.
+    /// Returns None if the value is not numeric.
+    pub fn as_f64(&self) -> Option<f64> {
+        match self {
+            DslValue::Float(v) => Some(*v as f64),
+            DslValue::Float64(v) => Some(*v),
+            DslValue::Int(v) => Some(*v as f64),
+            DslValue::Int64(v) => Some(*v as f64),
+            DslValue::UInt(v) => Some(*v as f64),
+            DslValue::UInt64(v) => Some(*v as f64),
+            _ => None,
+        }
+    }
+
+    /// Attempts to extract a string reference.
+    /// Returns None if the value is not a string.
+    pub fn as_str(&self) -> Option<&str> {
+        match self {
+            DslValue::String(s) => Some(s.as_str()),
+            _ => None,
+        }
+    }
+}
+
+impl std::fmt::Display for DslValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DslValue::Float(v) => write!(f, "{}", v),
+            DslValue::Float64(v) => write!(f, "{}", v),
+            DslValue::Int(v) => write!(f, "{}", v),
+            DslValue::Int64(v) => write!(f, "{}", v),
+            DslValue::UInt(v) => write!(f, "{}", v),
+            DslValue::UInt64(v) => write!(f, "{}", v),
+            DslValue::Bool(v) => write!(f, "{}", v),
+            DslValue::String(v) => write!(f, "\"{}\"", v),
+            DslValue::List(v) => write!(f, "[{} items]", v.len()),
+            DslValue::Json(v) => write!(f, "Json({})", v),
+            DslValue::Null => write!(f, "null"),
+        }
+    }
+}
+
+// ── DSL Operation ─────────────────────────────────────────────────────────────
+
+/// A single atomic mutation operation on a CGS field.
+///
+/// The smallest unit of schema change in XACE. Multiple DSLOperations
+/// are grouped into a MutationTransaction to form an atomic unit (I8).
+///
+/// ## Path Format
+/// target_path must be a fully qualified CGS path using dot notation:
+/// "modes.{mode_id}.actors.{actor_id}.components.{component_name}.{field}"
+/// "modes.{mode_id}.systems.{system_id}.{field}"
+/// "global_systems.{system_id}.{field}"
+///
+/// The GDE's path_parser validates all paths before they reach this struct.
+/// Partial paths are rejected at the GDE level — they never appear here.
+///
+/// ## Execution
+/// DSLOperations are executed by the MutationGate in Phase 3.
+/// Execution order within a transaction follows the order declared
+/// in the MutationTransaction.operations vec — first to last.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct DslOperation {
+    /// The operation to apply to the target field.
+    pub op: OperationType,
+
+    /// Fully qualified path to the target CGS field.
+    /// Always dot-separated. Never partial or implicit.
+    /// Example: "modes.mode_arena.actors.actor_player.stats.move_speed"
+    pub target_path: String,
+
+    /// The value to apply with the operation.
+    pub value: DslValue,
+
+    /// Expected type of the target field.
+    /// Validated by Mutation Gate before application.
+    /// Unknown type hint blocks execution.
+    pub type_hint: TypeHint,
+}
+
+impl DslOperation {
+    /// Creates a SET operation — replace a field value.
+    pub fn set(
+        target_path: impl Into<String>,
+        value: DslValue,
+        type_hint: TypeHint,
+    ) -> Self {
+        Self {
+            op: OperationType::Set,
+            target_path: target_path.into(),
+            value,
+            type_hint,
+        }
+    }
+
+    /// Creates an ADD operation — increment a numeric field.
+    pub fn add(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        let type_hint = value.type_hint();
+        Self {
+            op: OperationType::Add,
+            target_path: target_path.into(),
+            value,
+            type_hint,
+        }
+    }
+
+    /// Creates a SUBTRACT operation — decrement a numeric field.
+    pub fn subtract(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        let type_hint = value.type_hint();
+        Self {
+            op: OperationType::Subtract,
+            target_path: target_path.into(),
+            value,
+            type_hint,
+        }
+    }
+
+    /// Creates a MULTIPLY operation — scale a numeric field.
+    pub fn multiply(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        let type_hint = value.type_hint();
+        Self {
+            op: OperationType::Multiply,
+            target_path: target_path.into(),
+            value,
+            type_hint,
+        }
+    }
+
+    /// Creates a DIVIDE operation — scale down a numeric field.
+    /// Caller must ensure value is not zero before creating this operation.
+    pub fn divide(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        let type_hint = value.type_hint();
+        Self {
+            op: OperationType::Divide,
+            target_path: target_path.into(),
+            value,
+            type_hint,
+        }
+    }
+
+    /// Creates an APPEND operation — add to a collection field.
+    pub fn append(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        Self {
+            op: OperationType::Append,
+            target_path: target_path.into(),
+            value,
+            type_hint: TypeHint::List,
+        }
+    }
+
+    /// Creates a DELETE operation — remove from a collection field.
+    pub fn delete(
+        target_path: impl Into<String>,
+        value: DslValue,
+    ) -> Self {
+        Self {
+            op: OperationType::Delete,
+            target_path: target_path.into(),
+            value,
+            type_hint: TypeHint::List,
+        }
+    }
+
+    /// Returns true if the target path appears to be fully qualified.
+    /// A fully qualified path contains at least two dot-separated segments.
+    /// Full validation is performed by GDE path_parser — this is a quick check.
+    pub fn has_qualified_path(&self) -> bool {
+        self.target_path.contains('.')
+            && !self.target_path.starts_with('.')
+            && !self.target_path.ends_with('.')
+    }
+
+    /// Returns true if this operation's type hint is compatible
+    /// with its operation type.
+    /// Unknown type hints and collection ops on non-collection types fail.
+    pub fn is_type_compatible(&self) -> bool {
+        if !self.type_hint.is_known() {
+            return false;
+        }
+        if self.op.requires_numeric() && !self.type_hint.is_numeric() {
+            return false;
+        }
+        if self.op.requires_collection() && !self.type_hint.is_collection() {
+            return false;
+        }
+        true
+    }
+
+    /// Validates this operation for basic correctness.
+    ///
+    /// Checks:
+    /// - Target path is not empty
+    /// - Target path appears fully qualified
+    /// - Type hint is known
+    /// - Operation and type hint are compatible
+    /// - DIVIDE operation value is not zero
+    ///
+    /// Full path and schema validation is performed by GDE (Phase 12).
+    pub fn validate(&self) -> Result<(), String> {
+        if self.target_path.is_empty() {
+            return Err("DSLOperation target_path must not be empty".into());
+        }
+
+        if !self.has_qualified_path() {
+            return Err(format!(
+                "DSLOperation target_path '{}' must be fully qualified \
+                 (dot-separated, minimum two segments)",
+                self.target_path
+            ));
+        }
+
+        if !self.type_hint.is_known() {
+            return Err(format!(
+                "DSLOperation on '{}' has Unknown type hint — \
+                 type must be resolved before commit",
+                self.target_path
+            ));
+        }
+
+        if !self.is_type_compatible() {
+            return Err(format!(
+                "DSLOperation {:?} is incompatible with type hint {} on '{}'",
+                self.op, self.type_hint, self.target_path
+            ));
+        }
+
+        // DIVIDE by zero check
+        if matches!(self.op, OperationType::Divide) {
+            if let Some(divisor) = self.value.as_f64() {
+                if divisor.abs() < 1e-10 {
+                    return Err(format!(
+                        "DSLOperation DIVIDE on '{}' has zero divisor — \
+                         division by zero is not allowed",
+                        self.target_path
+                    ));
+                }
+            }
+        }
+
+        Ok(())
+    }
+}
+
+impl std::fmt::Display for DslOperation {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} {} = {}", self.op, self.target_path, self.value)
+    }
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn valid_set() -> DslOperation {
+        DslOperation::set(
+            "modes.mode_arena.actors.actor_player.stats.move_speed",
+            DslValue::Float(5.0),
+            TypeHint::Float,
+        )
+    }
+
+    #[test]
+    fn set_operation_created_correctly() {
+        let op = valid_set();
+        assert_eq!(op.op, OperationType::Set);
+        assert_eq!(op.type_hint, TypeHint::Float);
+    }
+
+    #[test]
+    fn add_operation_infers_type_hint() {
+        let op = DslOperation::add(
+            "modes.mode_arena.actors.actor_player.stats.score",
+            DslValue::Int(10),
+        );
+        assert_eq!(op.type_hint, TypeHint::Int);
+        assert_eq!(op.op, OperationType::Add);
+    }
+
+    #[test]
+    fn multiply_operation_created_correctly() {
+        let op = DslOperation::multiply(
+            "modes.mode_arena.actors.actor_player.stats.speed",
+            DslValue::Float(1.5),
+        );
+        assert_eq!(op.op, OperationType::Multiply);
+    }
+
+    #[test]
+    fn valid_operation_passes_validation() {
+        assert!(valid_set().validate().is_ok());
+    }
+
+    #[test]
+    fn empty_path_fails_validation() {
+        let op = DslOperation::set("", DslValue::Float(1.0), TypeHint::Float);
+        assert!(op.validate().is_err());
+    }
+
+    #[test]
+    fn unqualified_path_fails_validation() {
+        let op = DslOperation::set(
+            "actor_player",
+            DslValue::Float(1.0),
+            TypeHint::Float,
+        );
+        assert!(op.validate().is_err());
+    }
+
+    #[test]
+    fn unknown_type_hint_fails_validation() {
+        let op = DslOperation {
+            op: OperationType::Set,
+            target_path: "modes.mode_arena.actors.actor_player.stats.x".into(),
+            value: DslValue::Float(1.0),
+            type_hint: TypeHint::Unknown,
+        };
+        assert!(op.validate().is_err());
+    }
+
+    #[test]
+    fn add_on_string_field_fails_type_check() {
+        let op = DslOperation {
+            op: OperationType::Add,
+            target_path: "modes.mode_arena.actors.actor_player.name".into(),
+            value: DslValue::String("hello".into()),
+            type_hint: TypeHint::String,
+        };
+        assert!(!op.is_type_compatible());
+        assert!(op.validate().is_err());
+    }
+
+    #[test]
+    fn divide_by_zero_fails_validation() {
+        let op = DslOperation::divide(
+            "modes.mode_arena.actors.actor_player.stats.speed",
+            DslValue::Float(0.0),
+        );
+        assert!(op.validate().is_err());
+    }
+
+    #[test]
+    fn divide_by_nonzero_passes_validation() {
+        let op = DslOperation::divide(
+            "modes.mode_arena.actors.actor_player.stats.speed",
+            DslValue::Float(2.0),
+        );
+        assert!(op.validate().is_ok());
+    }
+
+    #[test]
+    fn has_qualified_path_true_for_valid() {
+        assert!(valid_set().has_qualified_path());
+    }
+
+    #[test]
+    fn has_qualified_path_false_for_no_dot() {
+        let op = DslOperation::set("actorplayer", DslValue::Float(1.0), TypeHint::Float);
+        assert!(!op.has_qualified_path());
+    }
+
+    #[test]
+    fn dsl_value_type_hints_correct() {
+        assert_eq!(DslValue::Float(1.0).type_hint(), TypeHint::Float);
+        assert_eq!(DslValue::Int(1).type_hint(), TypeHint::Int);
+        assert_eq!(DslValue::Bool(true).type_hint(), TypeHint::Bool);
+        assert_eq!(DslValue::String("x".into()).type_hint(), TypeHint::String);
+        assert_eq!(DslValue::Null.type_hint(), TypeHint::Unknown);
+    }
+
+    #[test]
+    fn dsl_value_as_f64_works_for_numeric() {
+        assert_eq!(DslValue::Float(2.5).as_f64(), Some(2.5f64));
+        assert_eq!(DslValue::Int(10).as_f64(), Some(10.0f64));
+        assert_eq!(DslValue::UInt(5).as_f64(), Some(5.0f64));
+        assert_eq!(DslValue::String("x".into()).as_f64(), None);
+    }
+
+    #[test]
+    fn dsl_value_as_str_works() {
+        assert_eq!(DslValue::String("hello".into()).as_str(), Some("hello"));
+        assert_eq!(DslValue::Float(1.0).as_str(), None);
+    }
+
+    #[test]
+    fn operation_type_requires_numeric() {
+        assert!(OperationType::Add.requires_numeric());
+        assert!(OperationType::Multiply.requires_numeric());
+        assert!(!OperationType::Set.requires_numeric());
+        assert!(!OperationType::Append.requires_numeric());
+    }
+
+    #[test]
+    fn operation_type_requires_collection() {
+        assert!(OperationType::Append.requires_collection());
+        assert!(OperationType::Delete.requires_collection());
+        assert!(!OperationType::Set.requires_collection());
+    }
+
+    #[test]
+    fn set_is_universal() {
+        assert!(OperationType::Set.is_universal());
+        assert!(!OperationType::Add.is_universal());
+    }
+
+    #[test]
+    fn display_formats_correctly() {
+        let op = valid_set();
+        let display = op.to_string();
+        assert!(display.contains("SET"));
+        assert!(display.contains("move_speed"));
+    }
+}
