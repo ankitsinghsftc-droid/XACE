@@ -20,9 +20,8 @@
 //! holds regardless of cache state, table modification order, or
 //! the order in which component_type_ids are passed to query().
 
-use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
+use xace_core::errors::xace_error::XaceError;
 use crate::component_tables::component_table_store::ComponentTableStore;
 use super::query_cache::QueryCache;
 
