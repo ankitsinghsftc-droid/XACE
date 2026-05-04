@@ -172,6 +172,15 @@ impl ComponentTableSnapshot {
     }
 }
 
+/// A compact component table record for serialization/deserialization.
+/// Used by the minimal() snapshot constructor.
+#[derive(Debug, Clone)]
+pub struct ComponentTableRecord {
+    pub component_type_id: u32,
+    pub rows: std::collections::BTreeMap<u64, String>,
+    pub version: u64,
+}
+
 /// Snapshot of all component tables in the runtime.
 ///
 /// Contains one ComponentTableSnapshot per registered component type
@@ -496,6 +505,41 @@ impl WorldSnapshot {
             world_hash: String::new(),
             is_clean: true,
         }
+    }
+
+    /// Creates a minimal snapshot for testing and serializer use.
+    pub fn minimal(
+        tick: Tick,
+        schema_version: String,
+        world_hash: String,
+    ) -> Self {
+        Self {
+            tick,
+            time_seconds: 0.0,
+            schema_version,
+            execution_plan_version: 1,
+            cgs_hash: String::new(),
+            entity_store_snapshot: EntityStoreSnapshot {
+                entities: Vec::new(),
+                next_entity_id: 1,
+            },
+            component_tables_snapshot: ComponentTablesSnapshot {
+                tables: std::collections::BTreeMap::new(),
+            },
+            rng_state: RngState {
+                world_seed: 0,
+                stream_positions: std::collections::BTreeMap::new(),
+            },
+            event_queue_state: EventQueueState::empty(),
+            mutation_queue_state: MutationQueueState::empty(),
+            world_hash,
+            is_clean: true,
+        }
+    }
+
+    /// Creates a minimal clone for snapshot store storage.
+    pub fn clone_minimal(&self) -> Self {
+        self.clone()
     }
 
     /// Returns the total number of alive entities in this snapshot.

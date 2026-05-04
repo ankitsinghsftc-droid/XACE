@@ -1,0 +1,10 @@
+[package]
+name = "xace-engine-feedback"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+xace-core = { path = "../core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }

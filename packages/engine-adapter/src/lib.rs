@@ -4,3 +4,4 @@
 pub mod transport;
 pub mod adapter_contract;
 pub mod delta_sync;
+#[cfg(test)] mod tests;

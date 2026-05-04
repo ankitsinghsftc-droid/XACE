@@ -5,6 +5,7 @@ members = [
     "packages/runtime-core",
     "packages/system-graph-compiler",
     "packages/engine-adapter",
+    "packages/engine-feedback",
 ]
 
 [workspace.package]

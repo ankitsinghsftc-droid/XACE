@@ -9,3 +9,4 @@ xace-runtime-core = { path = "../runtime-core" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }
+memmap2 = "0.9"
