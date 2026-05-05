@@ -753,6 +753,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "xace-zombie-chase"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+ "sha2",
+ "xace-core",
+ "xace-runtime-core",
+]
+
+[[package]]
 name = "zmij"
 version = "1.0.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"

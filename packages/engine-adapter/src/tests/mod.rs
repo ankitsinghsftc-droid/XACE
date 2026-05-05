@@ -4,3 +4,5 @@ mod test_delta_sync;
 mod test_snapshot_recovery;
 #[cfg(test)]
 mod test_resync_detector;
+#[cfg(test)]
+mod test_delta_sync_integration;
