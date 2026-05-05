@@ -6,6 +6,7 @@ members = [
     "packages/system-graph-compiler",
     "packages/engine-adapter",
     "packages/engine-feedback",
+    "examples/zombie-chase"
 ]
 
 [workspace.package]
