@@ -1,0 +1,11 @@
+[package]
+name        = "xace-zombie-chase"
+version.workspace = true
+edition.workspace = true
+description = "Phase 9 — Minimal example game: zombie chase. Milestone 1 determinism proof."
+
+[dependencies]
+xace-core         = { path = "../../packages/core" }
+xace-runtime-core = { path = "../../packages/runtime-core" }
+sha2              = { workspace = true }
+serde_json        = { workspace = true }
