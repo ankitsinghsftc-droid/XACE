@@ -198,7 +198,8 @@ impl ConflictError {
                 "Systems '{}' and '{}' both write component type IDs {:?}. \
                  The SGC will serialize them (lexicographic order: '{}' before '{}').",
                 a, b, type_ids,
-                a.min(&b), a.max(&b)
+                // Fixed:
+                a.as_str().min(b.as_str()), a.as_str().max(b.as_str())
             ),
             system_a: a,
             system_b: b,

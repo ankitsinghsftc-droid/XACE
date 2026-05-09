@@ -19,18 +19,15 @@
 //!   EXPLICIT_DEPENDENCY > READ_AFTER_WRITE > WRITE_AFTER_WRITE > PHASE_ORDER
 //! This is enforced by RawSystemGraph::add_edge().
 //!
+//! ## Phase Conversion
+//! SystemDefinition.phase is ExecutionPhase (schema layer).
+//! SystemNode.phase is PhaseEnum (runtime layer).
+//! Both share identical u8 ordinals 0–4 — conversion via as_u8()/from_u8()
+//! is infallible for valid ExecutionPhase values.
+//!
 //! ## Determinism (D11)
 //! All iteration uses BTreeMap / BTreeSet sorted by system_id.
 //! Same input SystemDefinitions in any order → identical RawSystemGraph.
-//!
-//! ## Cross-Phase Edges
-//! For efficiency, cross-phase PHASE_ORDER edges are only added between
-//! systems with direct component overlap — if sys_init writes TRANSFORM
-//! and sys_sim reads TRANSFORM, a PHASE_ORDER edge is added even though
-//! a RAW edge would normally suffice. This makes the graph robust against
-//! future phase reorderings.
-//! In practice, the PhaseSegmentation layer filters cross-phase edges before
-//! passing phase-local subgraphs to the topological sorter.
 
 use std::collections::{BTreeMap, BTreeSet};
 use xace_core::runtime::phase_enum::PhaseEnum;
@@ -183,12 +180,19 @@ impl GraphConstructionLayer {
     }
 
     /// Builds a SystemNode from a SystemDefinition.
+    ///
+    /// Converts ExecutionPhase (schema layer) → PhaseEnum (runtime layer).
+    /// Both enums share identical u8 ordinals 0–4 — conversion is infallible
+    /// for any valid ExecutionPhase value.
     fn node_from_definition(def: &SystemDefinition) -> SystemNode {
-        SystemNode::new(&def.id, def.phase)
+        // ExecutionPhase and PhaseEnum share the same ordinals (0=Init … 4=Cleanup).
+        let phase = PhaseEnum::from_u8(def.phase.as_u8())
+            .expect("ExecutionPhase ordinal always maps to a valid PhaseEnum");
+        SystemNode::new(&def.id, phase)
             .with_reads(def.reads.iter().copied())
             .with_writes(def.writes.iter().copied())
             .with_depends_on(def.depends_on.iter().cloned())
-            .with_version(def.version)
+            .with_version(def.version.major)
     }
 
     /// Returns (earlier_phase_node, later_phase_node) based on phase ordinal.
@@ -209,32 +213,35 @@ impl GraphConstructionLayer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
+    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
     use crate::compilation_error::EdgeType;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
+    /// Builds a SystemDefinition with all required fields.
     fn def(
         id:         &str,
-        phase:      PhaseEnum,
+        phase:      ExecutionPhase,
         reads:      Vec<u32>,
         writes:     Vec<u32>,
         depends_on: Vec<&str>,
     ) -> SystemDefinition {
         SystemDefinition {
             id:            id.into(),
+            display_name:  id.into(),
             phase,
             reads,
             writes,
             depends_on:    depends_on.into_iter().map(String::from).collect(),
             deterministic: true,
-            version:       1,
+            version:       SystemVersion::INITIAL,
+            description:   String::new(),
         }
     }
 
+    /// Shorthand: Simulation phase, no deps.
     fn sim(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
-        def(id, PhaseEnum::Simulation, reads, writes, vec![])
+        def(id, ExecutionPhase::Simulation, reads, writes, vec![])
     }
 
     // ── Validation ────────────────────────────────────────────────────────────
@@ -258,7 +265,6 @@ mod tests {
     fn empty_system_id_rejected() {
         let defs = vec![sim("", vec![], vec![])];
         let err = GraphConstructionLayer::build(&defs).unwrap_err();
-        assert!(err.is_phase() == false);
         assert!(matches!(err, CompilationError::InvalidDefinition(_)));
     }
 
@@ -275,7 +281,7 @@ mod tests {
     #[test]
     fn unknown_dependency_rejected() {
         let defs = vec![def(
-            "sys_a", PhaseEnum::Simulation,
+            "sys_a", ExecutionPhase::Simulation,
             vec![], vec![],
             vec!["sys_ghost"], // doesn't exist
         )];
@@ -287,7 +293,7 @@ mod tests {
     #[test]
     fn self_dependency_rejected() {
         let defs = vec![def(
-            "sys_a", PhaseEnum::Simulation,
+            "sys_a", ExecutionPhase::Simulation,
             vec![], vec![],
             vec!["sys_a"], // self-reference
         )];
@@ -316,10 +322,9 @@ mod tests {
     fn explicit_dependency_edge_added() {
         let defs = vec![
             sim("sys_a", vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
+            def("sys_b", ExecutionPhase::Simulation, vec![], vec![], vec!["sys_a"]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
-        // Edge: sys_a → sys_b
         let key = ("sys_a".to_string(), "sys_b".to_string());
         let edge = graph.edges.get(&key).expect("explicit dep edge must exist");
         assert_eq!(edge.edge_type, EdgeType::ExplicitDependency);
@@ -329,13 +334,11 @@ mod tests {
 
     #[test]
     fn raw_edge_added_for_hazard() {
-        // sys_ai writes VELOCITY(5), sys_movement reads VELOCITY(5)
         let defs = vec![
             sim("sys_ai",       vec![160], vec![5]),
             sim("sys_movement", vec![5],   vec![1]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
-        // sys_ai must run before sys_movement
         let key = ("sys_ai".to_string(), "sys_movement".to_string());
         let edge = graph.edges.get(&key).expect("RAW edge must exist");
         assert_eq!(edge.edge_type, EdgeType::ReadAfterWrite);
@@ -345,13 +348,12 @@ mod tests {
 
     #[test]
     fn waw_edge_added_with_lex_tie_break() {
-        // Both write TRANSFORM(1). "sys_movement" < "sys_physics" lex
         let defs = vec![
             sim("sys_physics",  vec![], vec![1]),
             sim("sys_movement", vec![], vec![1]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
-        // sys_movement runs first (lex smaller)
+        // sys_movement < sys_physics lex → sys_movement runs first
         let key = ("sys_movement".to_string(), "sys_physics".to_string());
         let edge = graph.edges.get(&key).expect("WAW edge must exist");
         assert_eq!(edge.edge_type, EdgeType::WriteAfterWrite);
@@ -362,11 +364,10 @@ mod tests {
     #[test]
     fn phase_order_edge_added_for_cross_phase() {
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def("sys_init", ExecutionPhase::Initialization, vec![], vec![], vec![]),
+            def("sys_sim",  ExecutionPhase::Simulation,     vec![], vec![], vec![]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
-        // sys_init (Initialization) → sys_sim (Simulation)
         let key = ("sys_init".to_string(), "sys_sim".to_string());
         let edge = graph.edges.get(&key).expect("PhaseOrder edge must exist");
         assert_eq!(edge.edge_type, EdgeType::PhaseOrder);
@@ -374,7 +375,6 @@ mod tests {
 
     #[test]
     fn no_same_phase_edge_between_independent_systems() {
-        // No component overlap → no hazard edges
         let defs = vec![
             sim("sys_input",  vec![6],   vec![6]),
             sim("sys_health", vec![100], vec![100]),
@@ -401,16 +401,13 @@ mod tests {
         let graph1 = GraphConstructionLayer::build(&defs_order1).unwrap();
         let graph2 = GraphConstructionLayer::build(&defs_order2).unwrap();
 
-        // Same node count, same edge count
         assert_eq!(graph1.node_count(), graph2.node_count());
         assert_eq!(graph1.edge_count(), graph2.edge_count());
 
-        // Same node IDs in same order
         let ids1 = graph1.system_ids();
         let ids2 = graph2.system_ids();
         assert_eq!(ids1, ids2, "Node order must be deterministic (D11)");
 
-        // Same edge keys in same order
         let edges1: Vec<_> = graph1.edges.keys().collect();
         let edges2: Vec<_> = graph2.edges.keys().collect();
         assert_eq!(edges1, edges2, "Edge order must be deterministic (D11)");
@@ -420,13 +417,9 @@ mod tests {
 
     #[test]
     fn explicit_dependency_beats_phase_order_for_same_pair() {
-        // sys_init (Initialization) and sys_a (Simulation)
-        // sys_a depends_on sys_init → EXPLICIT_DEPENDENCY edge
-        // But they're also in different phases → PHASE_ORDER would also apply
-        // EXPLICIT_DEPENDENCY must win
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_a",    PhaseEnum::Simulation,     vec![], vec![], vec!["sys_init"]),
+            def("sys_init", ExecutionPhase::Initialization, vec![], vec![], vec![]),
+            def("sys_a",    ExecutionPhase::Simulation,     vec![], vec![], vec!["sys_init"]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         let key = ("sys_init".to_string(), "sys_a".to_string());
@@ -439,29 +432,24 @@ mod tests {
 
     #[test]
     fn zombie_chase_systems_produce_correct_graph() {
-        // Minimal zombie chase system graph (same as Phase 9 game)
         let defs = vec![
-            def("InputSystem",    PhaseEnum::Simulation, vec![6, 1],    vec![5],       vec![]),
-            def("MovementSystem", PhaseEnum::Simulation, vec![5, 1],    vec![1],       vec![]),
-            def("AISystem",       PhaseEnum::Simulation, vec![160, 1],  vec![5, 101],  vec![]),
-            def("DamageSystem",   PhaseEnum::Simulation, vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    PhaseEnum::Simulation, vec![100],     vec![],        vec![]),
+            def("InputSystem",    ExecutionPhase::Simulation, vec![6, 1],    vec![5],        vec![]),
+            def("MovementSystem", ExecutionPhase::Simulation, vec![5, 1],    vec![1],        vec![]),
+            def("AISystem",       ExecutionPhase::Simulation, vec![160, 1],  vec![5, 101],   vec![]),
+            def("DamageSystem",   ExecutionPhase::Simulation, vec![101, 100], vec![100, 101], vec![]),
+            def("DeathSystem",    ExecutionPhase::Simulation, vec![100],     vec![],          vec![]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         assert_eq!(graph.node_count(), 5);
 
-        // InputSystem writes VELOCITY(5), MovementSystem reads VELOCITY(5) → RAW edge
         let raw_key = ("InputSystem".to_string(), "MovementSystem".to_string());
         assert!(graph.edges.contains_key(&raw_key),
             "InputSystem must precede MovementSystem (RAW: VELOCITY)");
 
-        // AISystem writes VELOCITY(5), MovementSystem reads VELOCITY(5) → RAW edge
         let raw_key2 = ("AISystem".to_string(), "MovementSystem".to_string());
         assert!(graph.edges.contains_key(&raw_key2),
             "AISystem must precede MovementSystem (RAW: VELOCITY)");
 
-        // InputSystem and AISystem both write VELOCITY(5) → WAW edge
-        // "AISystem" < "InputSystem" lex → AISystem runs first
         let waw_key = ("AISystem".to_string(), "InputSystem".to_string());
         assert!(graph.edges.contains_key(&waw_key),
             "AISystem and InputSystem WAW on VELOCITY must be serialized");
