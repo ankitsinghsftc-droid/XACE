@@ -7,3 +7,4 @@ edition.workspace = true
 xace-core = { path = "../core" }
 serde = { workspace = true }
 thiserror = { workspace = true }
+sha2 = "0.10"

@@ -748,6 +748,7 @@ name = "xace-system-graph-compiler"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "sha2",
  "thiserror",
  "xace-core",
 ]
