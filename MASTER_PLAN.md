@@ -1,5 +1,5 @@
 # XACE MASTER BUILD PLAN
-# Version: Post-Audit (Audits 1-7 incorporated)
+# Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
@@ -14,6 +14,8 @@ Audit 4 - Zero-Experience User: Game Genesis Engine + Natural Language Translati
 Audit 5 - Multiplayer: Lockstep + rollback (auto-selected by game type), InputSynchroniser lockstep gate, cheat guard ALWAYS ON all modes, Phase 15
 Audit 6 - Engine Feedback: Bidirectional XACE-Engine, 10 feedback message types, feedback enters XACE at tick boundaries only, visibility queries one-tick delayed
 Audit 7 - Save/Load/Persistence: 3-layer save (game progress, player profile, schema version), 4 new DCL persistence components, schema migration on load, cloud sync abstraction
+Audit 8 - AI Inference Pipeline: packages/inference/ built BEFORE Phase 13 starts. All LLM calls go through inference_adapter.py — NO direct HTTP/API calls anywhere in PIL. complexity_classifier routes TIER_S intents to deterministic Phase 12 path (no LLM). prompt_cache.py wraps Anthropic cache_control on static prefix. telemetry_pipeline.py emits per-call cost events from day one of PIL. code_generation retry loop hard-capped at 2; escalate to clarification on third failure. No BYOK before beta.
+Audit 9 - Context Assembly: context_budgeter.py enforces 8K dynamic token hard cap per call — reject + telemetry on exceed. dependency_expander capped to 1-hop reads, 2-hop writes by default, configurable per mode. Static sections (determinism rules, constraints, stable memory layers) live in cached prefix via prompt_cache, NOT in per-prompt body. diagnostic_orchestrator.py handles explain/debug/replay-divergence prompts on a 2-pass explain→suggest path, NOT through the 5-pass mutation pipeline. memory layers Design/Structural/Behavioral go in cached prefix; Session/Safety go in per-prompt body.
 
 ---
 
@@ -32,7 +34,7 @@ Phase 9   - Minimal Example Game - MILESTONE 1 (3-5 days)
 Phase 10  - System Graph Compiler (1-2 weeks)
 Phase 11  - Schema Factory (1-2 weeks)
 Phase 12  - Game Definition Engine (2 weeks)
-Phase 13  - Prompt Intelligence Layer 13 submodules (4-5 weeks)
+Phase 13  - Prompt Intelligence Layer + Inference Package (6-8 weeks)
 Phase 14  - Builder Workspace UI (3-4 weeks)
 Phase 15  - Network Core Multiplayer (3-4 weeks)
 Phase 16  - Zero-Experience Layer (4-5 weeks)
@@ -417,8 +419,8 @@ Critical determinism test:
 
 MILESTONE 1: If hash test passes, architecture is proven real. Everything after is expansion.
 
-Phase 9 Status: [ ] Complete
-Notes:
+Phase 9 Status: [x] Complete
+Notes: hash@1000 = 0b1d495d59a76609fdd15511294f5e132c5b62b9b72fb22b0acf61fac2c3e178. Milestone 1 proven.
 
 ---
 
@@ -456,8 +458,8 @@ Target: 1-2 weeks
 - [ ] schema_factory.py, compiled_schema_package.py
 - [ ] tests/ - 3 files
 
-Phase 11 Status: [ ] Complete
-Notes:
+Phase 11 Status: [x] Complete
+Notes: 127/127 tests passing.
 
 ---
 
@@ -473,67 +475,162 @@ Target: 2 weeks
 - [ ] gde_orchestrator.py - checks if genesis session routes to GGE else normal mutation pipeline
 - [ ] tests/ - 5 files
 
-Phase 12 Status: [ ] Complete
-Notes:
+Phase 12 Status: [x] Complete
+Notes: All 187 tests passing (127 Phase 11 + 60 Phase 12 GDE).
 
 ---
 
-## PHASE 13 - PROMPT INTELLIGENCE LAYER (13 submodules)
-Target: 4-5 weeks
+## PHASE 13 - PROMPT INTELLIGENCE LAYER + INFERENCE PACKAGE
+Target: 6-8 weeks
+Note: Build 13.16 Inference Package FIRST before any other Phase 13 submodule. All PIL files import from packages/inference/ — never speak HTTP directly.
 
-### 13.1 Intent Intake
-- [ ] intent_intake_layer.py, prompt_normalizer.py, intent_classifier.py 9 categories, risk_prescanner.py, intent_envelope.py
+### 13.1 Intent Intake (packages/prompt-intelligence/src/)
+- [ ] intent_intake_layer.py - entry point normalise + classify + risk pre-scan + envelope
+- [ ] prompt_normalizer.py - trim, quote-normalise, control-char strip, language detect, token estimate
+- [ ] intent_classifier.py - 9 categories: CreateFeature|ModifyFeature|RemoveFeature|QueryExplain|DebugIssue|BalanceAdjustment|StructuralChange|WorldDesign|Unknown
+- [ ] risk_prescanner.py - blocks engine-internal mutation attempts, code injection, invalid scope — routes to Safety Guard
+- [ ] intent_envelope.py - IntentEnvelope struct: intent_category, normalised_text, assistance_mode, risk_score, confidence_estimate
 
-### 13.2 Context Assembler
-- [ ] context_assembler.py, relevance_extractor.py, dependency_expander.py, constraint_aggregator.py, scope_builder.py, schema_simplifier.py, llm_context_packet.py
+### 13.2 Context Assembler (packages/prompt-intelligence/src/)
+Note: All output fed to context_budgeter.py before reaching LLMContextPacket. dependency_expander capped 1-hop reads / 2-hop writes per Audit 9.
+- [ ] context_assembler.py - orchestrates assembly; calls context_budgeter to validate token count; FULL SCHEMA TRANSMISSION FORBIDDEN
+- [ ] relevance_extractor.py - identifies relevant entities/components/systems/rules from intent; excludes irrelevant
+- [ ] dependency_expander.py - expands to required dependencies; HARD CAP 1-hop reads 2-hop writes; feeds system_graph_pruner on overflow
+- [ ] constraint_aggregator.py - injects architectural constraints (D1-D15, R/W contracts, phase rules); OUTPUT GOES IN CACHED PREFIX not per-prompt body
+- [ ] scope_builder.py - builds AllowedMutationScope: allowed_paths, forbidden_paths, max_mutation_depth, structural_change_allowed per mode
+- [ ] schema_simplifier.py - converts ECS structures to compact LLM-friendly format; TARGET 60% size reduction vs raw CGS slice
+- [ ] llm_context_packet.py - LLMContextPacket struct: game_metadata, relevant entities/components/systems/rules, constraints, scope, simplified_schema
 
-### 13.3 LLM Orchestrator 5-pass
-- [ ] llm_orchestrator.py, pass1_planning.py, pass2_dsl_draft.py, pass3_self_critique.py, pass4_determinism_audit.py, pass5_final_output.py, retry_policy.py
+### 13.3 LLM Orchestrator 5-pass (packages/prompt-intelligence/src/)
+Note: All passes call inference_adapter.py from packages/inference/ — NO direct HTTP. Passes 3 and 4 routed to TIER_M by model_router (validation-shaped not generation-shaped).
+- [ ] llm_orchestrator.py - 5-pass pipeline orchestrator; consumes LLMContextPacket once; passes share cached context
+- [ ] pass1_planning.py - PASS 1 Structured Planning: ReasoningPlan target_entities + intended_mutation_type + risk_assessment; no DSL yet
+- [ ] pass2_dsl_draft.py - PASS 2 DSL Mutation Draft: DraftMutationTransaction with paths + operations + values
+- [ ] pass3_self_critique.py - PASS 3 Self-Critique: validates draft against path validity + constraints + scope; triggers regen on failure
+- [ ] pass4_determinism_audit.py - PASS 4 Determinism Audit: checks D-rules + hidden dependencies + flags required_execution_graph_recompile
+- [ ] pass5_final_output.py - PASS 5 Final Output: MutationTransaction with confidence_score + risk_level + schema_delta_type + required_recompile
+- [ ] pil_retry_policy.py - PIL-level retry: bounded max 3 total passes per re-attempt; escalate to ClarificationEngine on exhaustion; distinct from inference-level retry in packages/inference/
 
-### 13.4 Structured Output Parser
-- [ ] structured_output_parser.py, schema_path_validator.py, operation_type_validator.py
+### 13.4 Structured Output Parser (packages/prompt-intelligence/src/)
+- [ ] structured_output_parser.py - strict JSON→CanonicalMutation parser; safety boundary between probabilistic LLM output and deterministic pipeline; any deviation = reject
+- [ ] schema_path_validator.py - validates all paths in parsed mutation exist in current CGS; no hallucinated references
+- [ ] operation_type_validator.py - validates op types against USMC + value types match component field definitions + no extra keys
 
-### 13.5 Validation Loop
-- [ ] validation_loop.py
+### 13.5 Validation Loop (packages/prompt-intelligence/src/)
+- [ ] validation_loop.py - multi-layer validation: structural + type + dependency + invariant; runs Phase 12 ConsistencyValidator before any commit attempt
 
-### 13.6 Critique Engine
-- [ ] critique_engine.py
+### 13.6 Critique Engine (packages/prompt-intelligence/src/)
+- [ ] critique_engine.py - pre-commit internal review: cross-system impact + version compatibility + mutation completeness + side-effect analysis
 
-### 13.7 Clarification Engine
-- [ ] clarification_engine.py, clarification_session.py, question_generator.py
+### 13.7 Clarification Engine (packages/prompt-intelligence/src/)
+- [ ] clarification_engine.py - ambiguity resolution: detects ambiguous targets + generates CHOICE|CONFIRM|FILL|SCOPE_SELECT questions
+- [ ] clarification_session.py - session state: pending question + user response + pipeline resume point + timeout
+- [ ] question_generator.py - generates structured micro-form questions schema-aware validated against CGS
 
-### 13.8 Mutation Planner
-- [ ] mutation_planner.py, rollback_plan_builder.py
+### 13.8 Mutation Planner (packages/prompt-intelligence/src/)
+- [ ] mutation_planner.py - builds CommittedMutationPlan: operation ordering + dependency resolution + rollback plan
+- [ ] rollback_plan_builder.py - prepares rollback plan for each mutation: inverse operations + previous-state capture + atomicity
 
-### 13.9 Safety and Scope Guard
-- [ ] safety_scope_guard.py, scope_boundary_guard.py, destructive_change_guard.py, cascade_risk_guard.py
-- [ ] performance_risk_guard.py - uses real engine metrics from Phase 7 feedback handler
-- [ ] determinism_safety_guard.py
+### 13.9 Safety and Scope Guard (packages/prompt-intelligence/src/)
+- [ ] safety_scope_guard.py - final governance gate: 5 risk dimensions + risk threshold system → Approved|SoftWarning|Blocked
+- [ ] scope_boundary_guard.py - enforces mutation stays within allowed scope; blocks forbidden domains (engine core, runtime scheduler)
+- [ ] destructive_change_guard.py - prevents deletion of core components/systems; analyzes cascade impact; requires confirmation in ADVANCED mode
+- [ ] cascade_risk_guard.py - simulates indirect mutation impact across dependent systems; warns when too many systems affected
+- [ ] performance_risk_guard.py - estimates runtime cost of mutation using real engine metrics from Phase 7 feedback handler
+- [ ] determinism_safety_guard.py - blocks mutations that violate determinism: nondeterministic rules + unseeded random + cross-phase state changes
 
-### 13.10 Memory Model (5 layers)
-- [ ] memory_model.py, session_memory.py, design_memory.py, structural_memory.py, safety_memory.py, memory_lifecycle_manager.py
+### 13.10 Memory Model 5 layers (packages/prompt-intelligence/src/)
+Note: Design + Structural + Behavioral layers loaded into CACHED PREFIX via prompt_cache. Session + Safety loaded per-prompt per Audit 9.
+- [ ] memory_model.py - 5-layer architecture: Session|Design|Structural|Behavioral|Safety; memory influences reasoning ONLY never runtime
+- [ ] session_memory.py - SHORT TERM: recent prompts + mutations + clarifications + failures; cleared on session end; IN PER-PROMPT BODY
+- [ ] design_memory.py - PERSISTENT: game vision summary + difficulty philosophy + core constraints; flags contradictory drift; IN CACHED PREFIX
+- [ ] structural_memory.py - tracks all components/systems/rules created; assists DSL path resolution + prevents duplicates; IN CACHED PREFIX
+- [ ] behavioral_memory.py - tracks player-observable patterns + pacing concerns + known broken moments; IN CACHED PREFIX
+- [ ] safety_memory.py - records blocked mutations and accepted risk confirmations; prevents redundant safety alerts; IN PER-PROMPT BODY
+- [ ] memory_lifecycle_manager.py - load: cached layers assembled once + per-prompt layers assembled each call; update after commit only; versioned alongside CGS
 
-### 13.11 Mode Controller
-- [ ] mode_controller.py - FULLY_ASSISTED|COLLABORATIVE|ADVANCED|ARCHITECT_MODE
-- [ ] mode_profile.py
+### 13.11 Mode Controller (packages/prompt-intelligence/src/)
+- [ ] mode_controller.py - cross-cutting policy layer: FULLY_ASSISTED|COLLABORATIVE|ADVANCED|ARCHITECT_MODE profiles + mode switching logic
+- [ ] pil_mode_profile.py - PIL-specific ModeProfile: clarification_threshold + auto_assumption_level + risk_block_level + explanation_level + suggestion_policy
 
-### 13.12 History Manager
-- [ ] history_manager.py, session_store.py
+### 13.12 History Manager (packages/prompt-intelligence/src/)
+- [ ] history_manager.py - manages prompt history + mutation success/failure log + session lifecycle + history retrieval for context
+- [ ] session_store.py - session data: recent prompts + recent mutations + recent clarifications + recent validation failures
 
-### 13.13 Code Generation Engine - NEW
-- [ ] code_generation/code_generation_engine.py - orchestrates SystemSpec -> Claude API -> validated Rust implementation
-- [ ] code_generation/system_spec_builder.py - extracts complete spec from CGS
-- [ ] code_generation/rust_code_generator.py - calls Claude API generates ISystem implementation
-- [ ] code_generation/code_contract_validator.py - correct interface, correct components, writes via MutationGate
-- [ ] code_generation/cargo_compiler.py - cargo check self-correction on error
-- [ ] code_generation/determinism_code_checker.py - static: no OS RNG, no direct mutation, no unordered iteration
-- [ ] tests/test_code_generation.py
+### 13.13 Code Generation Engine (packages/prompt-intelligence/src/code_generation/)
+Note: rust_code_generator calls inference_adapter NOT direct Claude API. Retry loop hard-capped at 2 per Audit 8; third failure escalates to clarification.
+- [ ] code_generation_engine.py - orchestrates SystemSpec → inference_adapter → validated Rust implementation or error
+- [ ] system_spec_builder.py - extracts complete spec from CGS: component types + field names + phase + determinism constraints + performance targets + ISystem interface requirements
+- [ ] rust_code_generator.py - calls inference_adapter with full SystemSpec context; generates Rust struct implementing ISystem trait; max 2 retries on compile failure
+- [ ] code_contract_validator.py - validates generated code against XACE contracts: correct ISystem interface + only declared components accessed + all writes via MutationGate
+- [ ] cargo_compiler.py - runs cargo check on generated code + captures precise compile errors + feeds error + original spec back to generator for self-correction; HARD CAP 2 retries
+- [ ] determinism_code_checker.py - static analysis on generated Rust: detects rand::random + thread_rng + direct mutation bypassing MutationGate + unordered iteration
+- [ ] tests/test_code_generation.py - valid SystemSpec compiles; contract violations rejected; determinism violations caught; cargo error triggers self-correction; user diff shown before commit
 
-### 13.14 Pipeline Entry Point
-- [ ] pil_pipeline.py - orchestrates all 13 submodules
+### 13.14 Pipeline Entry Point (packages/prompt-intelligence/src/)
+- [ ] pil_pipeline.py - orchestrates all PIL submodules in sequence; returns MutationTransaction or ClarificationRequest or BlockedMutation
 
-### 13.15 Tests
-- [ ] tests/test_intent_intake.py, test_context_assembler.py, test_llm_orchestrator.py, test_safety_scope_guard.py, test_pil_pipeline.py
+### 13.15 Tests (packages/prompt-intelligence/src/tests/)
+- [ ] test_intent_intake.py - all 9 classifications + normalisation edge cases + risk detection + IntentEnvelope output
+- [ ] test_context_assembler.py - relevance extraction accuracy + dependency expansion cap enforcement + constraint injection + no full-schema leak + token budget rejection
+- [ ] test_llm_orchestrator.py - all 5 passes + self-critique regen + determinism audit flags + retry policy + escalation path
+- [ ] test_safety_scope_guard.py - all 4 risk levels + each guard module independently + determinism violations blocked + cascade detection
+- [ ] test_pil_pipeline.py - full integration: prompt→MutationTransaction + clarification triggers + blocking scenarios + mode behaviour
+
+### 13.16 Inference Package — BUILD FIRST (packages/inference/src/)
+Note: This entire submodule must be complete before any other Phase 13 file is written. Every PIL submodule imports from here. Zero direct HTTP/API calls permitted outside this package.
+
+Core dispatch:
+- [ ] inference_adapter.py - single provider-agnostic dispatch point for all LLM calls; accepts InferenceRequest returns InferenceResponse; every PIL submodule imports this only
+- [ ] provider_registry.py - maps logical model names (premium_reasoning|standard_mutation|cheap_validation|local_dev) to concrete provider client instances; hot-reloadable config
+- [ ] model_descriptor.py - per-model metadata struct: provider + model_id + context_window_tokens + price_per_1k_input + price_per_1k_output + supports_cache_control + max_output_tokens + capabilities[]
+
+Routing and classification:
+- [ ] model_router.py - given ComplexityTier + BudgetContext + FailureContext selects provider+model; routes TIER_S back to deterministic Phase 12 path with no LLM call
+- [ ] complexity_classifier.py - classifies IntentObject + LLMContextPacket size → TIER_S (deterministic shortcut no LLM)|TIER_M (cheap model)|TIER_L (standard model)|TIER_XL (premium + code generation); TIER_S must correctly classify all simple value-set mutations
+
+Token and cost:
+- [ ] token_estimator.py - pre-flight tokeniser wrapper; approximates prompt token count before inference call; used by cost_estimator and context_budgeter
+- [ ] cost_estimator.py - pre-flight cost calculation: token_estimate × price_per_1k → cents; validates against inference_budget; emits telemetry on over-budget
+- [ ] inference_budget.py - per-session + per-user + per-day token budget enforcement; default infinite; interface ready for hard-cutoff without restructure; emits telemetry on approach and breach
+
+Reliability:
+- [ ] fallback_policy.py - declarative provider chain definition and execution: try primary → secondary → tertiary → refuse_with_clarification; configurable per model_router tier
+- [ ] inference_retry_policy.py - tier-aware retry distinct from PIL's pil_retry_policy: transport errors (retry immediately) vs schema failures (retry with correction) vs model quality failures (escalate); max 2 per tier
+
+Caching:
+- [ ] prompt_cache.py - wraps Anthropic cache_control directive; marks static sections (architectural constraints from constraint_aggregator + stable memory layers) as cacheable prefix; transparent to callers
+- [ ] response_cache.py - deterministic output cache keyed by (intent_class + structural_cgs_hash + mode_profile); avoids re-inference on identical prompts against unchanged CGS; TTL configurable
+- [ ] cache_key_builder.py - stable cache key computation: structural_hash of CGS (excludes volatile metadata fields) + intent_classification + mode_name; ensures cache keys survive cosmetic CGS changes
+
+Telemetry and BYOK:
+- [ ] telemetry_pipeline.py - emits one InferenceTelemetryEvent per call: provider + model + prompt_tokens + completion_tokens + cache_read_tokens + cache_write_tokens + latency_ms + outcome + cost_cents + tier; append-only log
+- [ ] byok_manager.py - user-supplied API key management; encrypted at rest; per-user dispatch override in inference_adapter; pre-beta placeholder with full interface; activates in beta without restructure
+
+Context efficiency (per Audit 9):
+- [ ] context_budgeter.py - per-call token budget enforcer; hard-rejects context_assembler output exceeding 8K dynamic tokens (configurable); emits telemetry + raises ContextBudgetExceeded on breach; consumed by context_assembler.py
+- [ ] cgs_diff_packer.py - computes structural delta from last cached CGS for repeat-prompt optimisation; avoids re-sending unchanged component defaults; keys by structural_cgs_hash
+- [ ] rule_compactor.py - summarises rule expressions for context efficiency: sends compact rule_id + condition_outline + effect_summary instead of full expression strings; full text fetched only when needed
+- [ ] system_graph_pruner.py - caps dependency_expander output to 1-hop reads + 2-hop writes by default; configurable max_hops per mode; hard token-count fallback if hop budget still exceeds context budget
+
+Providers sub-package:
+- [ ] providers/anthropic_provider.py - concrete Anthropic API client implementing provider interface; handles cache_control headers + streaming + error normalisation
+- [ ] providers/openai_provider.py - concrete OpenAI-compatible client implementing provider interface; for future GPT-4o + local vLLM OpenAI-shim routing
+- [ ] providers/local_provider.py - Ollama adapter implementing provider interface; for local dev and enterprise self-hosted inference; strips cache_control directives unsupported by local models
+
+Prompt templates:
+- [ ] prompt_template_registry.py - named versioned prompt templates for all PIL passes; prevents string literals scattered across submodules; version-pinnable per model; loaded at startup
+
+Tests:
+- [ ] tests/test_model_router.py - all 4 tiers + TIER_S deterministic shortcut + budget enforcement + fallback chain execution + provider registry lookup
+- [ ] tests/test_complexity_classifier.py - TIER_S correctly classifies simple SET mutations + TIER_M covers balance changes + TIER_XL triggers code generation flag + edge cases
+- [ ] tests/test_inference_budget.py - per-session cap enforcement + per-user cap + day reset + hard cutoff behaviour + telemetry emission on approach
+- [ ] tests/test_prompt_cache.py - cache_control directives correct + static prefix cache hit + dynamic body always uncached + cache key stability across cosmetic CGS changes
+- [ ] tests/test_telemetry_pipeline.py - event emission on every call + cost calculation accuracy + cache token accounting + append-only guarantee
+
+### 13.17 Diagnostic Orchestrator — NEW (packages/prompt-intelligence/src/)
+Note: Explain/debug/replay-divergence prompts MUST NOT go through the 5-pass mutation pipeline. This 2-pass path returns explanation + optional suggested mutation, not a committed mutation.
+- [ ] diagnostic_orchestrator.py - routes diagnostic intent types (QueryExplain|DebugIssue) through 2-pass explain→suggest flow; PASS 1 analysis: reads relevant systems + hashes + runtime telemetry; PASS 2 suggest: optionally generates IntentObject for mutation pipeline if fix is clear; never commits directly
 
 Phase 13 Status: [ ] Complete
 Notes:
@@ -544,7 +641,7 @@ Notes:
 Target: 3-4 weeks
 
 - [ ] Left sidebar: CGS Explorer entities/components/systems/rules/versions
-- [ ] Builder canvas: prompt input, clarification cards CHOICE|CONFIRM|FILL|SCOPE_SELECT, diff viewer shows schema changes + generated code side by side, impact preview panel
+- [ ] Builder canvas: prompt input, clarification cards CHOICE|CONFIRM|FILL|SCOPE_SELECT, diff viewer shows schema changes + generated code side by side, impact preview panel, inference cost indicator per mutation
 - [ ] Right preview: engine viewport, entity inspector edit triggers prompt not direct mutation, runtime stats, tick debugger
 - [ ] Bottom bar: version timeline, snapshot history, branch manager
 - [ ] Command palette: Cmd+K search all schema nodes
@@ -552,6 +649,7 @@ Target: 3-4 weeks
 - [ ] Asset status panel: placeholder count, link options, game runs as grey boxes message
 - [ ] Technical details toggle: behavior varies per mode FULLY_ASSISTED shows translated technical ARCHITECT shows raw
 - [ ] In-game console inside engine adapters: Idle->PromptSubmitted->PreviewReceived->UserDecision state machine
+- [ ] Inference telemetry panel: per-session token spend + cost + cache hit rate + tier distribution (ARCHITECT_MODE only)
 
 Phase 14 Status: [ ] Complete
 Notes:
@@ -740,6 +838,21 @@ Notes:
 
 ---
 
+## INFERENCE INVARIANTS (LAWS — NEVER BREAK)
+
+II1  All LLM calls go through inference_adapter.py. No PIL submodule speaks HTTP directly.
+II2  complexity_classifier routes TIER_S intents to deterministic Phase 12 path. No LLM call for trivial SET mutations.
+II3  prompt_cache wraps all static prefix sections (constraints, stable memory, determinism rules). Never sends static text uncached.
+II4  context_budgeter enforces 8K dynamic token hard cap. Context that exceeds this is rejected before any LLM call.
+II5  dependency_expander runs behind system_graph_pruner. Max 1-hop reads, 2-hop writes. No unbounded graph traversal.
+II6  code_generation retry loop hard-capped at 2. Third failure escalates to ClarificationEngine.
+II7  diagnostic_orchestrator handles QueryExplain|DebugIssue. These prompts never enter the 5-pass mutation pipeline.
+II8  telemetry_pipeline emits per-call event for every inference call. Zero silent calls.
+II9  Design + Structural + Behavioral memory layers go in cached prefix. Session + Safety go in per-prompt body.
+II10 BYOK interface exists at startup. byok_manager.py is a pre-beta placeholder with full interface ready to activate.
+
+---
+
 ## CROSS-CUTTING
 
 ### Git Commit Convention
@@ -759,10 +872,11 @@ audit(N): description
 - [ ] docs/04_contracts.md
 - [ ] docs/05_mutation_lifecycle.md
 - [ ] docs/06_determinism_guarantees.md
-- [ ] docs/07_global_invariants.md - I1-I14
+- [ ] docs/07_global_invariants.md - I1-I14 + II1-II10
 - [ ] docs/08_failure_classification.md
 - [ ] docs/09_state_machines.md
 - [ ] docs/10_versioning_and_build_order.md
+- [ ] docs/11_inference_architecture.md - provider abstraction + routing + caching + telemetry + BYOK
 
 ---
 
@@ -770,20 +884,20 @@ audit(N): description
 
 | Phase | Name | Status | Started | Completed |
 |---|---|---|---|---|
-| 0 | Project Skeleton | [ ] | | |
-| 1 | Core Types + DCL + GCL | [ ] | | |
-| 2 | Runtime Core Foundation | [ ] | | |
-| 3 | Mutation Gate | [ ] | | |
-| 4 | System Executor + Event Bus | [ ] | | |
-| 5 | Snapshot Engine | [ ] | | |
-| 6 | Determinism Guard | [ ] | | |
-| 7 | Engine Adapter + Feedback | [ ] | | |
-| 8 | Delta Sync | [ ] | | |
-| 9 | Minimal Example Game | [ ] | | |
-| 10 | System Graph Compiler | [ ] | | |
-| 11 | Schema Factory | [ ] | | |
-| 12 | Game Definition Engine | [ ] | | |
-| 13 | Prompt Intelligence Layer | [ ] | | |
+| 0 | Project Skeleton | [x] | | |
+| 1 | Core Types + DCL + GCL | [x] | | |
+| 2 | Runtime Core Foundation | [x] | | |
+| 3 | Mutation Gate | [x] | | |
+| 4 | System Executor + Event Bus | [x] | | |
+| 5 | Snapshot Engine | [x] | | |
+| 6 | Determinism Guard | [x] | | |
+| 7 | Engine Adapter + Feedback | [x] | | |
+| 8 | Delta Sync | [x] | | |
+| 9 | Minimal Example Game | [x] | | |
+| 10 | System Graph Compiler | [x] | | |
+| 11 | Schema Factory | [x] | | |
+| 12 | Game Definition Engine | [x] | | |
+| 13 | Prompt Intelligence Layer + Inference | [ ] | | |
 | 14 | Builder Workspace | [ ] | | |
 | 15 | Network Core | [ ] | | |
 | 16 | Zero-Experience Layer | [ ] | | |
