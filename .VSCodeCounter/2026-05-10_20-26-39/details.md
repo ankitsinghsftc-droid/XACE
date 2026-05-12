@@ -1,10 +1,10 @@
 # Details
 
-Date : 2026-05-03 15:54:37
+Date : 2026-05-10 20:26:39
 
 Directory c:\\Users\\ankit\\Downloads\\xace
 
-Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
+Total : 451 files,  60972 codes, 21378 comments, 12494 blanks, all 94844 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -12,12 +12,12 @@ Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
 | filename | language | code | comment | blank | total |
 | :--- | :--- | ---: | ---: | ---: | ---: |
 | [CLAUDE.md](/CLAUDE.md) | Markdown | 316 | 0 | 90 | 406 |
-| [MASTER\_PLAN.md](/MASTER_PLAN.md) | Markdown | 651 | 0 | 151 | 802 |
-| [README.md](/README.md) | Markdown | 46 | 0 | 14 | 60 |
-| [adapters/unity/XaceConsoleWidget.cs](/adapters/unity/XaceConsoleWidget.cs) | C# | 0 | 1 | 1 | 2 |
-| [adapters/unity/XaceDeltaApplicator.cs](/adapters/unity/XaceDeltaApplicator.cs) | C# | 0 | 1 | 1 | 2 |
-| [adapters/unity/XaceInputCollector.cs](/adapters/unity/XaceInputCollector.cs) | C# | 0 | 1 | 1 | 2 |
-| [adapters/unity/XaceTransport.cs](/adapters/unity/XaceTransport.cs) | C# | 0 | 1 | 1 | 2 |
+| [MASTER\_PLAN.md](/MASTER_PLAN.md) | Markdown | 750 | 0 | 165 | 915 |
+| [README.md](/README.md) | Markdown | 147 | 0 | 202 | 349 |
+| [adapters/unity/XaceConsoleWidget.cs](/adapters/unity/XaceConsoleWidget.cs) | C# | 346 | 70 | 67 | 483 |
+| [adapters/unity/XaceDeltaApplicator.cs](/adapters/unity/XaceDeltaApplicator.cs) | C# | 405 | 85 | 112 | 602 |
+| [adapters/unity/XaceInputCollector.cs](/adapters/unity/XaceInputCollector.cs) | C# | 230 | 60 | 47 | 337 |
+| [adapters/unity/XaceTransport.cs](/adapters/unity/XaceTransport.cs) | C# | 299 | 82 | 66 | 447 |
 | [adapters/unreal/XaceConsoleWidget.cpp](/adapters/unreal/XaceConsoleWidget.cpp) | C++ | 0 | 1 | 1 | 2 |
 | [adapters/unreal/XaceConsoleWidget.h](/adapters/unreal/XaceConsoleWidget.h) | C++ | 0 | 1 | 1 | 2 |
 | [adapters/unreal/XaceDeltaApplicator.cpp](/adapters/unreal/XaceDeltaApplicator.cpp) | C++ | 0 | 1 | 1 | 2 |
@@ -37,8 +37,35 @@ Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
 | [docs/08\_failure\_classification.md](/docs/08_failure_classification.md) | Markdown | 2 | 0 | 2 | 4 |
 | [docs/09\_state\_machines.md](/docs/09_state_machines.md) | Markdown | 2 | 0 | 2 | 4 |
 | [docs/10\_versioning\_and\_build\_order.md](/docs/10_versioning_and_build_order.md) | Markdown | 2 | 0 | 2 | 4 |
+| [examples/zombie-chase/src/cgs.rs](/examples/zombie-chase/src/cgs.rs) | Rust | 168 | 62 | 38 | 268 |
+| [examples/zombie-chase/src/lib.rs](/examples/zombie-chase/src/lib.rs) | Rust | 6 | 31 | 2 | 39 |
+| [examples/zombie-chase/src/runner.rs](/examples/zombie-chase/src/runner.rs) | Rust | 290 | 94 | 62 | 446 |
+| [examples/zombie-chase/src/systems/ai\_system.rs](/examples/zombie-chase/src/systems/ai_system.rs) | Rust | 96 | 39 | 31 | 166 |
+| [examples/zombie-chase/src/systems/damage\_system.rs](/examples/zombie-chase/src/systems/damage_system.rs) | Rust | 77 | 32 | 21 | 130 |
+| [examples/zombie-chase/src/systems/death\_system.rs](/examples/zombie-chase/src/systems/death_system.rs) | Rust | 52 | 26 | 16 | 94 |
+| [examples/zombie-chase/src/systems/input\_system.rs](/examples/zombie-chase/src/systems/input_system.rs) | Rust | 53 | 27 | 18 | 98 |
+| [examples/zombie-chase/src/systems/mod.rs](/examples/zombie-chase/src/systems/mod.rs) | Rust | 5 | 8 | 1 | 14 |
+| [examples/zombie-chase/src/systems/movement\_system.rs](/examples/zombie-chase/src/systems/movement_system.rs) | Rust | 63 | 25 | 20 | 108 |
 | [package.json](/package.json) | JSON | 12 | 0 | 1 | 13 |
 | [packages/\_\_init\_\_.py](/packages/__init__.py) | Python | 0 | 0 | 1 | 1 |
+| [packages/asset registry/animation\_contract.py](/packages/asset%20registry/animation_contract.py) | Python | 206 | 95 | 54 | 355 |
+| [packages/asset registry/animation\_contract\_generator.py](/packages/asset%20registry/animation_contract_generator.py) | Python | 222 | 129 | 46 | 397 |
+| [packages/asset registry/asset\_cleanup\_manager.py](/packages/asset%20registry/asset_cleanup_manager.py) | Python | 126 | 119 | 41 | 286 |
+| [packages/asset registry/asset\_linker.py](/packages/asset%20registry/asset_linker.py) | Python | 171 | 82 | 40 | 293 |
+| [packages/asset registry/asset\_manifest.py](/packages/asset%20registry/asset_manifest.py) | Python | 198 | 124 | 52 | 374 |
+| [packages/asset registry/asset\_naming\_policy.py](/packages/asset%20registry/asset_naming_policy.py) | Python | 130 | 108 | 28 | 266 |
+| [packages/asset registry/asset\_reference.py](/packages/asset%20registry/asset_reference.py) | Python | 111 | 79 | 30 | 220 |
+| [packages/asset registry/asset\_registry\_manager.py](/packages/asset%20registry/asset_registry_manager.py) | Python | 203 | 123 | 61 | 387 |
+| [packages/asset registry/asset\_report.py](/packages/asset%20registry/asset_report.py) | Python | 231 | 80 | 54 | 365 |
+| [packages/asset registry/asset\_status\_enum.py](/packages/asset%20registry/asset_status_enum.py) | Python | 62 | 89 | 17 | 168 |
+| [packages/asset registry/asset\_type\_enum.py](/packages/asset%20registry/asset_type_enum.py) | Python | 54 | 91 | 26 | 171 |
+| [packages/asset registry/asset\_validator.py](/packages/asset%20registry/asset_validator.py) | Python | 235 | 86 | 39 | 360 |
+| [packages/asset registry/audio\_manifest.py](/packages/asset%20registry/audio_manifest.py) | Python | 277 | 99 | 64 | 440 |
+| [packages/asset registry/engine\_sync\_receiver.py](/packages/asset%20registry/engine_sync_receiver.py) | Python | 143 | 104 | 39 | 286 |
+| [packages/asset registry/game\_config\_loader.py](/packages/asset%20registry/game_config_loader.py) | Python | 214 | 120 | 57 | 391 |
+| [packages/asset registry/placeholder\_registry.py](/packages/asset%20registry/placeholder_registry.py) | Python | 136 | 102 | 45 | 283 |
+| [packages/asset registry/tests/test\_asset\_manifest.py](/packages/asset%20registry/tests/test_asset_manifest.py) | Python | 685 | 49 | 134 | 868 |
+| [packages/asset registry/tests/test\_asset\_validation.py](/packages/asset%20registry/tests/test_asset_validation.py) | Python | 781 | 58 | 150 | 989 |
 | [packages/core/src/assets/asset\_reference.rs](/packages/core/src/assets/asset_reference.rs) | Rust | 122 | 84 | 27 | 233 |
 | [packages/core/src/assets/asset\_status.rs](/packages/core/src/assets/asset_status.rs) | Rust | 119 | 88 | 26 | 233 |
 | [packages/core/src/assets/asset\_type.rs](/packages/core/src/assets/asset_type.rs) | Rust | 133 | 77 | 30 | 240 |
@@ -125,71 +152,97 @@ Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
 | [packages/dcl/stealth/\_\_init\_\_.py](/packages/dcl/stealth/__init__.py) | Python | 116 | 10 | 3 | 129 |
 | [packages/dcl/ui/\_\_init\_\_.py](/packages/dcl/ui/__init__.py) | Python | 114 | 10 | 2 | 126 |
 | [packages/dcl/world/\_\_init\_\_.py](/packages/dcl/world/__init__.py) | Python | 226 | 13 | 3 | 242 |
-| [packages/engine-adapter/src/adapter\_contract/adapter\_authority\_enforcer.rs](/packages/engine-adapter/src/adapter_contract/adapter_authority_enforcer.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/adapter\_contract/engine\_adapter\_interface.rs](/packages/engine-adapter/src/adapter_contract/engine_adapter_interface.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/adapter\_contract/mod.rs](/packages/engine-adapter/src/adapter_contract/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/engine-adapter/src/delta\_sync/delta\_builder.rs](/packages/engine-adapter/src/delta_sync/delta_builder.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/delta\_sync/delta\_compressor.rs](/packages/engine-adapter/src/delta_sync/delta_compressor.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/delta\_sync/delta\_sync\_engine.rs](/packages/engine-adapter/src/delta_sync/delta_sync_engine.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/delta\_sync/mod.rs](/packages/engine-adapter/src/delta_sync/mod.rs) | Rust | 5 | 0 | 1 | 6 |
-| [packages/engine-adapter/src/delta\_sync/resync\_detector.rs](/packages/engine-adapter/src/delta_sync/resync_detector.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/delta\_sync/snapshot\_recovery.rs](/packages/engine-adapter/src/delta_sync/snapshot_recovery.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/lib.rs](/packages/engine-adapter/src/lib.rs) | Rust | 3 | 2 | 2 | 7 |
-| [packages/engine-adapter/src/tests/test\_delta\_sync.rs](/packages/engine-adapter/src/tests/test_delta_sync.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/tests/test\_protocol\_handshake.rs](/packages/engine-adapter/src/tests/test_protocol_handshake.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/engine-adapter/src/tests/test\_transport.rs](/packages/engine-adapter/src/tests/test_transport.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/engine-adapter/src/adapter\_contract/adapter\_authority\_enforcer.rs](/packages/engine-adapter/src/adapter_contract/adapter_authority_enforcer.rs) | Rust | 380 | 141 | 84 | 605 |
+| [packages/engine-adapter/src/adapter\_contract/engine\_adapter\_interface.rs](/packages/engine-adapter/src/adapter_contract/engine_adapter_interface.rs) | Rust | 583 | 171 | 121 | 875 |
+| [packages/engine-adapter/src/adapter\_contract/mod.rs](/packages/engine-adapter/src/adapter_contract/mod.rs) | Rust | 4 | 0 | 2 | 6 |
+| [packages/engine-adapter/src/delta\_sync/delta\_builder.rs](/packages/engine-adapter/src/delta_sync/delta_builder.rs) | Rust | 239 | 65 | 44 | 348 |
+| [packages/engine-adapter/src/delta\_sync/delta\_compressor.rs](/packages/engine-adapter/src/delta_sync/delta_compressor.rs) | Rust | 333 | 132 | 98 | 563 |
+| [packages/engine-adapter/src/delta\_sync/delta\_sync\_engine.rs](/packages/engine-adapter/src/delta_sync/delta_sync_engine.rs) | Rust | 321 | 117 | 90 | 528 |
+| [packages/engine-adapter/src/delta\_sync/mod.rs](/packages/engine-adapter/src/delta_sync/mod.rs) | Rust | 12 | 0 | 3 | 15 |
+| [packages/engine-adapter/src/delta\_sync/resync\_detector.rs](/packages/engine-adapter/src/delta_sync/resync_detector.rs) | Rust | 380 | 145 | 79 | 604 |
+| [packages/engine-adapter/src/delta\_sync/snapshot\_recovery.rs](/packages/engine-adapter/src/delta_sync/snapshot_recovery.rs) | Rust | 274 | 98 | 57 | 429 |
+| [packages/engine-adapter/src/lib.rs](/packages/engine-adapter/src/lib.rs) | Rust | 4 | 2 | 2 | 8 |
+| [packages/engine-adapter/src/tests/mod.rs](/packages/engine-adapter/src/tests/mod.rs) | Rust | 8 | 0 | 0 | 8 |
+| [packages/engine-adapter/src/tests/test\_delta\_sync.rs](/packages/engine-adapter/src/tests/test_delta_sync.rs) | Rust | 461 | 38 | 66 | 565 |
+| [packages/engine-adapter/src/tests/test\_delta\_sync\_integration.rs](/packages/engine-adapter/src/tests/test_delta_sync_integration.rs) | Rust | 691 | 110 | 137 | 938 |
+| [packages/engine-adapter/src/tests/test\_protocol\_handshake.rs](/packages/engine-adapter/src/tests/test_protocol_handshake.rs) | Rust | 251 | 46 | 50 | 347 |
+| [packages/engine-adapter/src/tests/test\_transport.rs](/packages/engine-adapter/src/tests/test_transport.rs) | Rust | 412 | 36 | 65 | 513 |
 | [packages/engine-adapter/src/transport/message\_deserializer.rs](/packages/engine-adapter/src/transport/message_deserializer.rs) | Rust | 409 | 143 | 77 | 629 |
 | [packages/engine-adapter/src/transport/message\_serializer.rs](/packages/engine-adapter/src/transport/message_serializer.rs) | Rust | 375 | 130 | 72 | 577 |
 | [packages/engine-adapter/src/transport/mod.rs](/packages/engine-adapter/src/transport/mod.rs) | Rust | 6 | 0 | 1 | 7 |
 | [packages/engine-adapter/src/transport/protocol\_handshake.rs](/packages/engine-adapter/src/transport/protocol_handshake.rs) | Rust | 669 | 230 | 153 | 1,052 |
 | [packages/engine-adapter/src/transport/sequence\_tracker.rs](/packages/engine-adapter/src/transport/sequence_tracker.rs) | Rust | 651 | 204 | 122 | 977 |
-| [packages/engine-adapter/src/transport/shm\_transport.rs](/packages/engine-adapter/src/transport/shm_transport.rs) | Rust | 572 | 230 | 124 | 926 |
+| [packages/engine-adapter/src/transport/shm\_transport.rs](/packages/engine-adapter/src/transport/shm_transport.rs) | Rust | 278 | 0 | 44 | 322 |
 | [packages/engine-adapter/src/transport/tcp\_transport.rs](/packages/engine-adapter/src/transport/tcp_transport.rs) | Rust | 588 | 192 | 115 | 895 |
+| [packages/engine-feedback/src/feedback\_buffer.rs](/packages/engine-feedback/src/feedback_buffer.rs) | Rust | 277 | 103 | 63 | 443 |
+| [packages/engine-feedback/src/feedback\_log.rs](/packages/engine-feedback/src/feedback_log.rs) | Rust | 267 | 99 | 72 | 438 |
+| [packages/engine-feedback/src/feedback\_message.rs](/packages/engine-feedback/src/feedback_message.rs) | Rust | 267 | 52 | 41 | 360 |
+| [packages/engine-feedback/src/feedback\_replay\_loader.rs](/packages/engine-feedback/src/feedback_replay_loader.rs) | Rust | 308 | 101 | 74 | 483 |
+| [packages/engine-feedback/src/feedback\_router.rs](/packages/engine-feedback/src/feedback_router.rs) | Rust | 272 | 132 | 62 | 466 |
+| [packages/engine-feedback/src/feedback\_type\_enum.rs](/packages/engine-feedback/src/feedback_type_enum.rs) | Rust | 169 | 60 | 34 | 263 |
+| [packages/engine-feedback/src/feedback\_validator.rs](/packages/engine-feedback/src/feedback_validator.rs) | Rust | 330 | 95 | 69 | 494 |
+| [packages/engine-feedback/src/handlers/animation\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/animation_feedback_handler.rs) | Rust | 161 | 54 | 30 | 245 |
+| [packages/engine-feedback/src/handlers/audio\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/audio_feedback_handler.rs) | Rust | 184 | 30 | 36 | 250 |
+| [packages/engine-feedback/src/handlers/input\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/input_feedback_handler.rs) | Rust | 123 | 40 | 25 | 188 |
+| [packages/engine-feedback/src/handlers/mod.rs](/packages/engine-feedback/src/handlers/mod.rs) | Rust | 12 | 0 | 1 | 13 |
+| [packages/engine-feedback/src/handlers/performance\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/performance_feedback_handler.rs) | Rust | 209 | 42 | 41 | 292 |
+| [packages/engine-feedback/src/handlers/physics\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/physics_feedback_handler.rs) | Rust | 210 | 46 | 33 | 289 |
+| [packages/engine-feedback/src/handlers/visibility\_feedback\_handler.rs](/packages/engine-feedback/src/handlers/visibility_feedback_handler.rs) | Rust | 148 | 44 | 28 | 220 |
+| [packages/engine-feedback/src/lib.rs](/packages/engine-feedback/src/lib.rs) | Rust | 11 | 0 | 0 | 11 |
+| [packages/engine-feedback/src/mod.rs](/packages/engine-feedback/src/mod.rs) | Rust | 6 | 0 | 0 | 6 |
+| [packages/engine-feedback/src/tests/mod.rs](/packages/engine-feedback/src/tests/mod.rs) | Rust | 4 | 0 | 0 | 4 |
+| [packages/engine-feedback/src/tests/test\_feedback\_buffer.rs](/packages/engine-feedback/src/tests/test_feedback_buffer.rs) | Rust | 359 | 50 | 65 | 474 |
+| [packages/engine-feedback/src/tests/test\_visibility\_queries.rs](/packages/engine-feedback/src/tests/test_visibility_queries.rs) | Rust | 286 | 37 | 48 | 371 |
+| [packages/engine-feedback/src/visibility\_query/mod.rs](/packages/engine-feedback/src/visibility_query/mod.rs) | Rust | 3 | 0 | 2 | 5 |
+| [packages/engine-feedback/src/visibility\_query/visibility\_query.rs](/packages/engine-feedback/src/visibility_query/visibility_query.rs) | Rust | 161 | 66 | 35 | 262 |
+| [packages/engine-feedback/src/visibility\_query/visibility\_query\_batcher.rs](/packages/engine-feedback/src/visibility_query/visibility_query_batcher.rs) | Rust | 247 | 84 | 62 | 393 |
+| [packages/engine-feedback/src/visibility\_query/visibility\_result\_store.rs](/packages/engine-feedback/src/visibility_query/visibility_result_store.rs) | Rust | 215 | 78 | 48 | 341 |
 | [packages/gde/src/\_\_init\_\_.py](/packages/gde/src/__init__.py) | Python | 0 | 1 | 1 | 2 |
 | [packages/gde/src/cgs/\_\_init\_\_.py](/packages/gde/src/cgs/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/cgs/cgs\_manager.py](/packages/gde/src/cgs/cgs_manager.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/cgs/cgs\_serializer.py](/packages/gde/src/cgs/cgs_serializer.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/cgs/mutation\_target\_resolver.py](/packages/gde/src/cgs/mutation_target_resolver.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/cgs/cgs\_manager.py](/packages/gde/src/cgs/cgs_manager.py) | Python | 177 | 158 | 51 | 386 |
+| [packages/gde/src/cgs/cgs\_serializer.py](/packages/gde/src/cgs/cgs_serializer.py) | Python | 96 | 112 | 27 | 235 |
+| [packages/gde/src/cgs/mutation\_target\_resolver.py](/packages/gde/src/cgs/mutation_target_resolver.py) | Python | 171 | 158 | 42 | 371 |
 | [packages/gde/src/consistency\_validator/\_\_init\_\_.py](/packages/gde/src/consistency_validator/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/consistency\_validator/conflict\_detector.py](/packages/gde/src/consistency_validator/conflict_detector.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/consistency\_validator/consistency\_validator.py](/packages/gde/src/consistency_validator/consistency_validator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/consistency\_validator/invariant\_enforcer.py](/packages/gde/src/consistency_validator/invariant_enforcer.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/consistency\_validator/type\_checker.py](/packages/gde/src/consistency_validator/type_checker.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/consistency\_validator/conflict\_detector.py](/packages/gde/src/consistency_validator/conflict_detector.py) | Python | 155 | 105 | 40 | 300 |
+| [packages/gde/src/consistency\_validator/consistency\_validator.py](/packages/gde/src/consistency_validator/consistency_validator.py) | Python | 127 | 104 | 31 | 262 |
+| [packages/gde/src/consistency\_validator/invariant\_enforcer.py](/packages/gde/src/consistency_validator/invariant_enforcer.py) | Python | 247 | 74 | 44 | 365 |
+| [packages/gde/src/consistency\_validator/type\_checker.py](/packages/gde/src/consistency_validator/type_checker.py) | Python | 281 | 75 | 31 | 387 |
 | [packages/gde/src/domain\_dsl/\_\_init\_\_.py](/packages/gde/src/domain_dsl/__init__.py) | Python | 0 | 1 | 1 | 2 |
 | [packages/gde/src/domain\_dsl/mutation\_metadata/\_\_init\_\_.py](/packages/gde/src/domain_dsl/mutation_metadata/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/mutation\_metadata/mutation\_metadata\_model.py](/packages/gde/src/domain_dsl/mutation_metadata/mutation_metadata_model.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/domain\_dsl/mutation\_metadata/mutation\_metadata\_model.py](/packages/gde/src/domain_dsl/mutation_metadata/mutation_metadata_model.py) | Python | 129 | 84 | 20 | 233 |
 | [packages/gde/src/domain\_dsl/path\_addressing/\_\_init\_\_.py](/packages/gde/src/domain_dsl/path_addressing/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/path\_addressing/path\_parser.py](/packages/gde/src/domain_dsl/path_addressing/path_parser.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/path\_addressing/path\_resolver.py](/packages/gde/src/domain_dsl/path_addressing/path_resolver.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/domain\_dsl/path\_addressing/path\_parser.py](/packages/gde/src/domain_dsl/path_addressing/path_parser.py) | Python | 160 | 104 | 51 | 315 |
+| [packages/gde/src/domain\_dsl/path\_addressing/path\_resolver.py](/packages/gde/src/domain_dsl/path_addressing/path_resolver.py) | Python | 107 | 118 | 30 | 255 |
 | [packages/gde/src/domain\_dsl/rule\_grammar/\_\_init\_\_.py](/packages/gde/src/domain_dsl/rule_grammar/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/rule\_grammar/rule\_expression\_parser.py](/packages/gde/src/domain_dsl/rule_grammar/rule_expression_parser.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/rule\_grammar/rule\_expression\_validator.py](/packages/gde/src/domain_dsl/rule_grammar/rule_expression_validator.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/domain\_dsl/rule\_grammar/rule\_expression\_parser.py](/packages/gde/src/domain_dsl/rule_grammar/rule_expression_parser.py) | Python | 259 | 109 | 72 | 440 |
+| [packages/gde/src/domain\_dsl/rule\_grammar/rule\_expression\_validator.py](/packages/gde/src/domain_dsl/rule_grammar/rule_expression_validator.py) | Python | 206 | 85 | 48 | 339 |
 | [packages/gde/src/domain\_dsl/transaction\_model/\_\_init\_\_.py](/packages/gde/src/domain_dsl/transaction_model/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/transaction\_model/transaction\_builder.py](/packages/gde/src/domain_dsl/transaction_model/transaction_builder.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/transaction\_model/transaction\_executor.py](/packages/gde/src/domain_dsl/transaction_model/transaction_executor.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/domain\_dsl/transaction\_model/transaction\_builder.py](/packages/gde/src/domain_dsl/transaction_model/transaction_builder.py) | Python | 269 | 126 | 74 | 469 |
+| [packages/gde/src/domain\_dsl/transaction\_model/transaction\_executor.py](/packages/gde/src/domain_dsl/transaction_model/transaction_executor.py) | Python | 237 | 111 | 34 | 382 |
 | [packages/gde/src/domain\_dsl/usmc/\_\_init\_\_.py](/packages/gde/src/domain_dsl/usmc/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/domain\_dsl/usmc/usmc\_classifier.py](/packages/gde/src/domain_dsl/usmc/usmc_classifier.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/gde\_orchestrator.py](/packages/gde/src/gde_orchestrator.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/domain\_dsl/usmc/usmc\_classifier.py](/packages/gde/src/domain_dsl/usmc/usmc_classifier.py) | Python | 194 | 133 | 33 | 360 |
+| [packages/gde/src/gde\_orchestrator.py](/packages/gde/src/gde_orchestrator.py) | Python | 256 | 133 | 58 | 447 |
 | [packages/gde/src/mode\_profiles/\_\_init\_\_.py](/packages/gde/src/mode_profiles/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/mode\_profiles/mode\_profile.py](/packages/gde/src/mode_profiles/mode_profile.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/mode\_profiles/mode\_profile\_loader.py](/packages/gde/src/mode_profiles/mode_profile_loader.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/mode\_profiles/profile\_expander.py](/packages/gde/src/mode_profiles/profile_expander.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/mode\_profiles/mode\_profile.py](/packages/gde/src/mode_profiles/mode_profile.py) | Python | 127 | 127 | 32 | 286 |
+| [packages/gde/src/mode\_profiles/mode\_profile\_loader.py](/packages/gde/src/mode_profiles/mode_profile_loader.py) | Python | 201 | 103 | 41 | 345 |
+| [packages/gde/src/mode\_profiles/profile\_expander.py](/packages/gde/src/mode_profiles/profile_expander.py) | Python | 143 | 89 | 33 | 265 |
 | [packages/gde/src/prompt\_interpretation/\_\_init\_\_.py](/packages/gde/src/prompt_interpretation/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/ambiguity\_detector.py](/packages/gde/src/prompt_interpretation/ambiguity_detector.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/context\_loader.py](/packages/gde/src/prompt_interpretation/context_loader.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/intent\_classifier.py](/packages/gde/src/prompt_interpretation/intent_classifier.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/intent\_object.py](/packages/gde/src/prompt_interpretation/intent_object.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/scope\_resolver.py](/packages/gde/src/prompt_interpretation/scope_resolver.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/prompt\_interpretation/slot\_extractor.py](/packages/gde/src/prompt_interpretation/slot_extractor.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/prompt\_interpretation/ambiguity\_detector.py](/packages/gde/src/prompt_interpretation/ambiguity_detector.py) | Python | 248 | 115 | 45 | 408 |
+| [packages/gde/src/prompt\_interpretation/context\_loader.py](/packages/gde/src/prompt_interpretation/context_loader.py) | Python | 182 | 117 | 43 | 342 |
+| [packages/gde/src/prompt\_interpretation/intent\_classifier.py](/packages/gde/src/prompt_interpretation/intent_classifier.py) | Python | 173 | 95 | 47 | 315 |
+| [packages/gde/src/prompt\_interpretation/intent\_object.py](/packages/gde/src/prompt_interpretation/intent_object.py) | Python | 160 | 99 | 34 | 293 |
+| [packages/gde/src/prompt\_interpretation/scope\_resolver.py](/packages/gde/src/prompt_interpretation/scope_resolver.py) | Python | 230 | 108 | 52 | 390 |
+| [packages/gde/src/prompt\_interpretation/slot\_extractor.py](/packages/gde/src/prompt_interpretation/slot_extractor.py) | Python | 221 | 84 | 48 | 353 |
 | [packages/gde/src/question\_engine/\_\_init\_\_.py](/packages/gde/src/question_engine/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/question\_engine/question\_engine.py](/packages/gde/src/question_engine/question_engine.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/question\_engine/question\_session\_manager.py](/packages/gde/src/question_engine/question_session_manager.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/question\_engine/question\_types.py](/packages/gde/src/question_engine/question_types.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/tests/test\_cgs\_manager.py](/packages/gde/src/tests/test_cgs_manager.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/tests/test\_consistency\_validator.py](/packages/gde/src/tests/test_consistency_validator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/tests/test\_dsl\_path\_addressing.py](/packages/gde/src/tests/test_dsl_path_addressing.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/tests/test\_gde\_orchestrator.py](/packages/gde/src/tests/test_gde_orchestrator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/gde/src/tests/test\_transaction\_executor.py](/packages/gde/src/tests/test_transaction_executor.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/gde/src/question\_engine/question\_engine.py](/packages/gde/src/question_engine/question_engine.py) | Python | 215 | 71 | 36 | 322 |
+| [packages/gde/src/question\_engine/question\_session\_manager.py](/packages/gde/src/question_engine/question_session_manager.py) | Python | 171 | 154 | 57 | 382 |
+| [packages/gde/src/question\_engine/question\_types.py](/packages/gde/src/question_engine/question_types.py) | Python | 243 | 119 | 59 | 421 |
+| [packages/gde/src/tests/\_\_init\_\_.py](/packages/gde/src/tests/__init__.py) | Python | 0 | 0 | 1 | 1 |
+| [packages/gde/src/tests/test\_cgs\_manager.py](/packages/gde/src/tests/test_cgs_manager.py) | Python | 216 | 21 | 56 | 293 |
+| [packages/gde/src/tests/test\_consistency\_validator.py](/packages/gde/src/tests/test_consistency_validator.py) | Python | 325 | 13 | 74 | 412 |
+| [packages/gde/src/tests/test\_dsl\_path\_addressing.py](/packages/gde/src/tests/test_dsl_path_addressing.py) | Python | 277 | 13 | 66 | 356 |
+| [packages/gde/src/tests/test\_gde\_orchestrator.py](/packages/gde/src/tests/test_gde_orchestrator.py) | Python | 283 | 30 | 64 | 377 |
+| [packages/gde/src/tests/test\_transaction\_executor.py](/packages/gde/src/tests/test_transaction_executor.py) | Python | 313 | 16 | 71 | 400 |
 | [packages/prompt-intelligence/src/\_\_init\_\_.py](/packages/prompt-intelligence/src/__init__.py) | Python | 0 | 1 | 1 | 2 |
 | [packages/prompt-intelligence/src/clarification\_engine/\_\_init\_\_.py](/packages/prompt-intelligence/src/clarification_engine/__init__.py) | Python | 0 | 1 | 1 | 2 |
 | [packages/prompt-intelligence/src/clarification\_engine/clarification\_engine.py](/packages/prompt-intelligence/src/clarification_engine/clarification_engine.py) | Python | 0 | 1 | 1 | 2 |
@@ -325,64 +378,67 @@ Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
 | [packages/runtime-core/src/time\_controller/tests/test\_time\_controller.rs](/packages/runtime-core/src/time_controller/tests/test_time_controller.rs) | Rust | 80 | 7 | 12 | 99 |
 | [packages/runtime-core/src/time\_controller/time\_controller.rs](/packages/runtime-core/src/time_controller/time_controller.rs) | Rust | 289 | 128 | 71 | 488 |
 | [packages/schema-factory/src/\_\_init\_\_.py](/packages/schema-factory/src/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/compiled\_schema\_package.py](/packages/schema-factory/src/compiled_schema_package.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/compiled\_schema\_package.py](/packages/schema-factory/src/compiled_schema_package.py) | Python | 77 | 80 | 23 | 180 |
 | [packages/schema-factory/src/component\_registry/\_\_init\_\_.py](/packages/schema-factory/src/component_registry/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/component\_registry/component\_definition.py](/packages/schema-factory/src/component_registry/component_definition.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/component\_registry/component\_definition\_registry.py](/packages/schema-factory/src/component_registry/component_definition_registry.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/component\_registry/component\_definition.py](/packages/schema-factory/src/component_registry/component_definition.py) | Python | 127 | 120 | 31 | 278 |
+| [packages/schema-factory/src/component\_registry/component\_definition\_registry.py](/packages/schema-factory/src/component_registry/component_definition_registry.py) | Python | 150 | 113 | 41 | 304 |
 | [packages/schema-factory/src/diff\_migration/\_\_init\_\_.py](/packages/schema-factory/src/diff_migration/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/diff\_migration/migration\_rule\_generator.py](/packages/schema-factory/src/diff_migration/migration_rule_generator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/diff\_migration/schema\_diff\_engine.py](/packages/schema-factory/src/diff_migration/schema_diff_engine.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/diff\_migration/migration\_rule\_generator.py](/packages/schema-factory/src/diff_migration/migration_rule_generator.py) | Python | 268 | 126 | 48 | 442 |
+| [packages/schema-factory/src/diff\_migration/schema\_diff\_engine.py](/packages/schema-factory/src/diff_migration/schema_diff_engine.py) | Python | 247 | 111 | 56 | 414 |
 | [packages/schema-factory/src/entity\_blueprint/\_\_init\_\_.py](/packages/schema-factory/src/entity_blueprint/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/entity\_blueprint/blueprint\_compiler.py](/packages/schema-factory/src/entity_blueprint/blueprint_compiler.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/entity\_blueprint/blueprint\_registry.py](/packages/schema-factory/src/entity_blueprint/blueprint_registry.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/entity\_blueprint/entity\_blueprint.py](/packages/schema-factory/src/entity_blueprint/entity_blueprint.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/entity\_blueprint/blueprint\_compiler.py](/packages/schema-factory/src/entity_blueprint/blueprint_compiler.py) | Python | 184 | 121 | 52 | 357 |
+| [packages/schema-factory/src/entity\_blueprint/blueprint\_registry.py](/packages/schema-factory/src/entity_blueprint/blueprint_registry.py) | Python | 80 | 83 | 29 | 192 |
+| [packages/schema-factory/src/entity\_blueprint/entity\_blueprint.py](/packages/schema-factory/src/entity_blueprint/entity_blueprint.py) | Python | 71 | 106 | 24 | 201 |
 | [packages/schema-factory/src/mode\_composition/\_\_init\_\_.py](/packages/schema-factory/src/mode_composition/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/mode\_composition/mode\_composition\_engine.py](/packages/schema-factory/src/mode_composition/mode_composition_engine.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/mode\_composition/mode\_validator.py](/packages/schema-factory/src/mode_composition/mode_validator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/schema\_factory.py](/packages/schema-factory/src/schema_factory.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/mode\_composition/mode\_composition\_engine.py](/packages/schema-factory/src/mode_composition/mode_composition_engine.py) | Python | 176 | 128 | 45 | 349 |
+| [packages/schema-factory/src/mode\_composition/mode\_validator.py](/packages/schema-factory/src/mode_composition/mode_validator.py) | Python | 213 | 93 | 41 | 347 |
+| [packages/schema-factory/src/schema\_factory.py](/packages/schema-factory/src/schema_factory.py) | Python | 213 | 144 | 43 | 400 |
 | [packages/schema-factory/src/system\_registry/\_\_init\_\_.py](/packages/schema-factory/src/system_registry/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/system\_registry/system\_definition\_registry.py](/packages/schema-factory/src/system_registry/system_definition_registry.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/system\_registry/system\_validator.py](/packages/schema-factory/src/system_registry/system_validator.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/tests/test\_blueprint\_compiler.py](/packages/schema-factory/src/tests/test_blueprint_compiler.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/tests/test\_diff\_migration.py](/packages/schema-factory/src/tests/test_diff_migration.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/tests/test\_schema\_validation.py](/packages/schema-factory/src/tests/test_schema_validation.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/system\_registry/system\_definition\_registry.py](/packages/schema-factory/src/system_registry/system_definition_registry.py) | Python | 151 | 117 | 43 | 311 |
+| [packages/schema-factory/src/system\_registry/system\_validator.py](/packages/schema-factory/src/system_registry/system_validator.py) | Python | 173 | 102 | 36 | 311 |
+| [packages/schema-factory/src/tests/\_\_init\_\_.py](/packages/schema-factory/src/tests/__init__.py) | Python | 0 | 0 | 1 | 1 |
+| [packages/schema-factory/src/tests/test\_blueprint\_compiler.py](/packages/schema-factory/src/tests/test_blueprint_compiler.py) | Python | 304 | 28 | 73 | 405 |
+| [packages/schema-factory/src/tests/test\_diff\_migration.py](/packages/schema-factory/src/tests/test_diff_migration.py) | Python | 323 | 40 | 72 | 435 |
+| [packages/schema-factory/src/tests/test\_schema\_validation.py](/packages/schema-factory/src/tests/test_schema_validation.py) | Python | 434 | 18 | 82 | 534 |
 | [packages/schema-factory/src/validation/\_\_init\_\_.py](/packages/schema-factory/src/validation/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/validation/invariant\_checker.py](/packages/schema-factory/src/validation/invariant_checker.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/validation/schema\_validation\_contract.py](/packages/schema-factory/src/validation/schema_validation_contract.py) | Python | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/validation/invariant\_checker.py](/packages/schema-factory/src/validation/invariant_checker.py) | Python | 230 | 68 | 60 | 358 |
+| [packages/schema-factory/src/validation/schema\_validation\_contract.py](/packages/schema-factory/src/validation/schema_validation_contract.py) | Python | 283 | 74 | 53 | 410 |
 | [packages/schema-factory/src/versioning/\_\_init\_\_.py](/packages/schema-factory/src/versioning/__init__.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/versioning/schema\_snapshot.py](/packages/schema-factory/src/versioning/schema_snapshot.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/schema-factory/src/versioning/schema\_version\_manager.py](/packages/schema-factory/src/versioning/schema_version_manager.py) | Python | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/compilation\_error.rs](/packages/system-graph-compiler/src/compilation_error.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/conflict\_analyzer/conflict\_analyzer.rs](/packages/system-graph-compiler/src/conflict_analyzer/conflict_analyzer.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/schema-factory/src/versioning/schema\_snapshot.py](/packages/schema-factory/src/versioning/schema_snapshot.py) | Python | 112 | 111 | 29 | 252 |
+| [packages/schema-factory/src/versioning/schema\_version\_manager.py](/packages/schema-factory/src/versioning/schema_version_manager.py) | Python | 269 | 148 | 45 | 462 |
+| [packages/system-graph-compiler/src/compilation\_error.rs](/packages/system-graph-compiler/src/compilation_error.rs) | Rust | 254 | 63 | 45 | 362 |
+| [packages/system-graph-compiler/src/conflict\_analyzer/conflict\_analyzer.rs](/packages/system-graph-compiler/src/conflict_analyzer/conflict_analyzer.rs) | Rust | 256 | 85 | 51 | 392 |
 | [packages/system-graph-compiler/src/conflict\_analyzer/mod.rs](/packages/system-graph-compiler/src/conflict_analyzer/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/system-graph-compiler/src/conflict\_analyzer/serialization\_group\_builder.rs](/packages/system-graph-compiler/src/conflict_analyzer/serialization_group_builder.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/cycle\_detection/cycle\_detector.rs](/packages/system-graph-compiler/src/cycle_detection/cycle_detector.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/cycle\_detection/cycle\_diagnostics.rs](/packages/system-graph-compiler/src/cycle_detection/cycle_diagnostics.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/system-graph-compiler/src/conflict\_analyzer/serialization\_group\_builder.rs](/packages/system-graph-compiler/src/conflict_analyzer/serialization_group_builder.rs) | Rust | 235 | 73 | 38 | 346 |
+| [packages/system-graph-compiler/src/cycle\_detection/cycle\_detector.rs](/packages/system-graph-compiler/src/cycle_detection/cycle_detector.rs) | Rust | 378 | 132 | 58 | 568 |
+| [packages/system-graph-compiler/src/cycle\_detection/cycle\_diagnostics.rs](/packages/system-graph-compiler/src/cycle_detection/cycle_diagnostics.rs) | Rust | 490 | 129 | 82 | 701 |
 | [packages/system-graph-compiler/src/cycle\_detection/mod.rs](/packages/system-graph-compiler/src/cycle_detection/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/system-graph-compiler/src/dependency\_resolution/dependency\_resolution\_engine.rs](/packages/system-graph-compiler/src/dependency_resolution/dependency_resolution_engine.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/system-graph-compiler/src/dependency\_resolution/dependency\_resolution\_engine.rs](/packages/system-graph-compiler/src/dependency_resolution/dependency_resolution_engine.rs) | Rust | 281 | 75 | 56 | 412 |
 | [packages/system-graph-compiler/src/dependency\_resolution/mod.rs](/packages/system-graph-compiler/src/dependency_resolution/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/system-graph-compiler/src/dependency\_resolution/topological\_sorter.rs](/packages/system-graph-compiler/src/dependency_resolution/topological_sorter.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/graph\_construction/graph\_construction\_layer.rs](/packages/system-graph-compiler/src/graph_construction/graph_construction_layer.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/graph\_construction/hazard\_detector.rs](/packages/system-graph-compiler/src/graph_construction/hazard_detector.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/graph\_construction/mod.rs](/packages/system-graph-compiler/src/graph_construction/mod.rs) | Rust | 4 | 0 | 1 | 5 |
-| [packages/system-graph-compiler/src/graph\_construction/system\_edge.rs](/packages/system-graph-compiler/src/graph_construction/system_edge.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/graph\_construction/system\_node.rs](/packages/system-graph-compiler/src/graph_construction/system_node.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/lib.rs](/packages/system-graph-compiler/src/lib.rs) | Rust | 9 | 2 | 2 | 13 |
+| [packages/system-graph-compiler/src/dependency\_resolution/topological\_sorter.rs](/packages/system-graph-compiler/src/dependency_resolution/topological_sorter.rs) | Rust | 298 | 95 | 54 | 447 |
+| [packages/system-graph-compiler/src/graph\_construction/graph\_construction\_layer.rs](/packages/system-graph-compiler/src/graph_construction/graph_construction_layer.rs) | Rust | 317 | 84 | 56 | 457 |
+| [packages/system-graph-compiler/src/graph\_construction/hazard\_detector.rs](/packages/system-graph-compiler/src/graph_construction/hazard_detector.rs) | Rust | 229 | 89 | 49 | 367 |
+| [packages/system-graph-compiler/src/graph\_construction/mod.rs](/packages/system-graph-compiler/src/graph_construction/mod.rs) | Rust | 4 | 2 | 1 | 7 |
+| [packages/system-graph-compiler/src/graph\_construction/system\_edge.rs](/packages/system-graph-compiler/src/graph_construction/system_edge.rs) | Rust | 227 | 64 | 42 | 333 |
+| [packages/system-graph-compiler/src/graph\_construction/system\_node.rs](/packages/system-graph-compiler/src/graph_construction/system_node.rs) | Rust | 181 | 57 | 43 | 281 |
+| [packages/system-graph-compiler/src/lib.rs](/packages/system-graph-compiler/src/lib.rs) | Rust | 11 | 16 | 2 | 29 |
 | [packages/system-graph-compiler/src/parallelization/mod.rs](/packages/system-graph-compiler/src/parallelization/mod.rs) | Rust | 1 | 0 | 1 | 2 |
-| [packages/system-graph-compiler/src/parallelization/parallelization\_safety\_model.rs](/packages/system-graph-compiler/src/parallelization/parallelization_safety_model.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/phase\_segmentation/mod.rs](/packages/system-graph-compiler/src/phase_segmentation/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/system-graph-compiler/src/phase\_segmentation/phase\_segmentation\_layer.rs](/packages/system-graph-compiler/src/phase_segmentation/phase_segmentation_layer.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/phase\_segmentation/phase\_validator.rs](/packages/system-graph-compiler/src/phase_segmentation/phase_validator.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/scheduler/deterministic\_scheduler\_builder.rs](/packages/system-graph-compiler/src/scheduler/deterministic_scheduler_builder.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/system-graph-compiler/src/parallelization/parallelization\_safety\_model.rs](/packages/system-graph-compiler/src/parallelization/parallelization_safety_model.rs) | Rust | 277 | 54 | 33 | 364 |
+| [packages/system-graph-compiler/src/phase\_segmentation/mod.rs](/packages/system-graph-compiler/src/phase_segmentation/mod.rs) | Rust | 2 | 3 | 1 | 6 |
+| [packages/system-graph-compiler/src/phase\_segmentation/phase\_segmentation\_layer.rs](/packages/system-graph-compiler/src/phase_segmentation/phase_segmentation_layer.rs) | Rust | 321 | 91 | 51 | 463 |
+| [packages/system-graph-compiler/src/phase\_segmentation/phase\_validator.rs](/packages/system-graph-compiler/src/phase_segmentation/phase_validator.rs) | Rust | 211 | 62 | 28 | 301 |
+| [packages/system-graph-compiler/src/scheduler/deterministic\_scheduler\_builder.rs](/packages/system-graph-compiler/src/scheduler/deterministic_scheduler_builder.rs) | Rust | 275 | 77 | 40 | 392 |
 | [packages/system-graph-compiler/src/scheduler/mod.rs](/packages/system-graph-compiler/src/scheduler/mod.rs) | Rust | 2 | 0 | 1 | 3 |
-| [packages/system-graph-compiler/src/scheduler/parallel\_group\_analyzer.rs](/packages/system-graph-compiler/src/scheduler/parallel_group_analyzer.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/sgc\_pipeline.rs](/packages/system-graph-compiler/src/sgc_pipeline.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/tests/test\_conflict\_analyzer.rs](/packages/system-graph-compiler/src/tests/test_conflict_analyzer.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/tests/test\_cycle\_detection.rs](/packages/system-graph-compiler/src/tests/test_cycle_detection.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/tests/test\_dependency\_resolution.rs](/packages/system-graph-compiler/src/tests/test_dependency_resolution.rs) | Rust | 0 | 1 | 1 | 2 |
-| [packages/system-graph-compiler/src/tests/test\_graph\_construction.rs](/packages/system-graph-compiler/src/tests/test_graph_construction.rs) | Rust | 0 | 1 | 1 | 2 |
+| [packages/system-graph-compiler/src/scheduler/parallel\_group\_analyzer.rs](/packages/system-graph-compiler/src/scheduler/parallel_group_analyzer.rs) | Rust | 252 | 90 | 43 | 385 |
+| [packages/system-graph-compiler/src/sgc\_pipeline.rs](/packages/system-graph-compiler/src/sgc_pipeline.rs) | Rust | 221 | 43 | 44 | 308 |
+| [packages/system-graph-compiler/src/tests/mod.rs](/packages/system-graph-compiler/src/tests/mod.rs) | Rust | 5 | 4 | 1 | 10 |
+| [packages/system-graph-compiler/src/tests/test\_conflict\_analyzer.rs](/packages/system-graph-compiler/src/tests/test_conflict_analyzer.rs) | Rust | 117 | 14 | 21 | 152 |
+| [packages/system-graph-compiler/src/tests/test\_cycle\_detection.rs](/packages/system-graph-compiler/src/tests/test_cycle_detection.rs) | Rust | 304 | 11 | 46 | 361 |
+| [packages/system-graph-compiler/src/tests/test\_dependency\_resolution.rs](/packages/system-graph-compiler/src/tests/test_dependency_resolution.rs) | Rust | 165 | 9 | 20 | 194 |
+| [packages/system-graph-compiler/src/tests/test\_graph\_construction.rs](/packages/system-graph-compiler/src/tests/test_graph_construction.rs) | Rust | 116 | 9 | 19 | 144 |
 | [packages/system-graph-compiler/src/tests/test\_phase\_segmentation.rs](/packages/system-graph-compiler/src/tests/test_phase_segmentation.rs) | Rust | 0 | 1 | 1 | 2 |
 | [requirements.txt](/requirements.txt) | pip requirements | 10 | 9 | 9 | 28 |
+| [tests/determinism/mod.rs](/tests/determinism/mod.rs) | Rust | 1 | 0 | 0 | 1 |
 | [tests/determinism/test\_entity\_iteration\_order.rs](/tests/determinism/test_entity_iteration_order.rs) | Rust | 0 | 1 | 1 | 2 |
 | [tests/determinism/test\_event\_ordering.rs](/tests/determinism/test_event_ordering.rs) | Rust | 0 | 1 | 1 | 2 |
 | [tests/determinism/test\_execution\_order\_stability.rs](/tests/determinism/test_execution_order_stability.rs) | Rust | 0 | 1 | 1 | 2 |
@@ -393,7 +449,7 @@ Total : 395 files,  29606 codes, 10382 comments, 5760 blanks, all 45748 lines
 | [tests/determinism/test\_rng\_determinism.rs](/tests/determinism/test_rng_determinism.rs) | Rust | 0 | 1 | 1 | 2 |
 | [tests/determinism/test\_schema\_version\_lock.rs](/tests/determinism/test_schema_version_lock.rs) | Rust | 0 | 1 | 1 | 2 |
 | [tests/determinism/test\_snapshot\_roundtrip.rs](/tests/determinism/test_snapshot_roundtrip.rs) | Rust | 0 | 1 | 1 | 2 |
-| [tests/determinism/test\_vertical\_slice\_determinism.rs](/tests/determinism/test_vertical_slice_determinism.rs) | Rust | 0 | 1 | 1 | 2 |
+| [tests/determinism/test\_vertical\_slice\_determinism.rs](/tests/determinism/test_vertical_slice_determinism.rs) | Rust | 316 | 102 | 68 | 486 |
 | [tests/determinism/test\_world\_hash\_consistency.rs](/tests/determinism/test_world_hash_consistency.rs) | Rust | 0 | 1 | 1 | 2 |
 | [tests/fixtures/README.md](/tests/fixtures/README.md) | Markdown | 7 | 0 | 3 | 10 |
 | [tsconfig.json](/tsconfig.json) | JSON with Comments | 18 | 0 | 1 | 19 |

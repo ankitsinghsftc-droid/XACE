@@ -1,11 +1,11 @@
-"filename", "language", "Markdown", "JSON with Comments", "pip requirements", "C++", "JSON", "C#", "TypeScript JSX", "Python", "Rust", "comment", "blank", "total"
-"c:\Users\ankit\Downloads\xace\CLAUDE.md", "Markdown", 316, 0, 0, 0, 0, 0, 0, 0, 0, 0, 90, 406
-"c:\Users\ankit\Downloads\xace\MASTER_PLAN.md", "Markdown", 651, 0, 0, 0, 0, 0, 0, 0, 0, 0, 151, 802
-"c:\Users\ankit\Downloads\xace\README.md", "Markdown", 46, 0, 0, 0, 0, 0, 0, 0, 0, 0, 14, 60
-"c:\Users\ankit\Downloads\xace\adapters\unity\XaceConsoleWidget.cs", "C#", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\adapters\unity\XaceDeltaApplicator.cs", "C#", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\adapters\unity\XaceInputCollector.cs", "C#", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\adapters\unity\XaceTransport.cs", "C#", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"filename", "language", "C++", "JSON with Comments", "TypeScript JSX", "pip requirements", "C#", "Markdown", "JSON", "Python", "Rust", "comment", "blank", "total"
+"c:\Users\ankit\Downloads\xace\CLAUDE.md", "Markdown", 0, 0, 0, 0, 0, 316, 0, 0, 0, 0, 90, 406
+"c:\Users\ankit\Downloads\xace\MASTER_PLAN.md", "Markdown", 0, 0, 0, 0, 0, 750, 0, 0, 0, 0, 165, 915
+"c:\Users\ankit\Downloads\xace\README.md", "Markdown", 0, 0, 0, 0, 0, 147, 0, 0, 0, 0, 202, 349
+"c:\Users\ankit\Downloads\xace\adapters\unity\XaceConsoleWidget.cs", "C#", 0, 0, 0, 0, 346, 0, 0, 0, 0, 70, 67, 483
+"c:\Users\ankit\Downloads\xace\adapters\unity\XaceDeltaApplicator.cs", "C#", 0, 0, 0, 0, 405, 0, 0, 0, 0, 85, 112, 602
+"c:\Users\ankit\Downloads\xace\adapters\unity\XaceInputCollector.cs", "C#", 0, 0, 0, 0, 230, 0, 0, 0, 0, 60, 47, 337
+"c:\Users\ankit\Downloads\xace\adapters\unity\XaceTransport.cs", "C#", 0, 0, 0, 0, 299, 0, 0, 0, 0, 82, 66, 447
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceConsoleWidget.cpp", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceConsoleWidget.h", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceDeltaApplicator.cpp", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
@@ -14,19 +14,46 @@
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceInputCollector.h", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceTransport.cpp", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\adapters\unreal\XaceTransport.h", "C++", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\docs\00_philosophy.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\01_system_overview.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\02_canonical_data_models.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\03_module_specs.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\04_contracts.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\05_mutation_lifecycle.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\06_determinism_guarantees.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\07_global_invariants.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\08_failure_classification.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\09_state_machines.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\docs\10_versioning_and_build_order.md", "Markdown", 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 4
-"c:\Users\ankit\Downloads\xace\package.json", "JSON", 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 1, 13
+"c:\Users\ankit\Downloads\xace\docs\00_philosophy.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\01_system_overview.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\02_canonical_data_models.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\03_module_specs.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\04_contracts.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\05_mutation_lifecycle.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\06_determinism_guarantees.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\07_global_invariants.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\08_failure_classification.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\09_state_machines.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\docs\10_versioning_and_build_order.md", "Markdown", 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 4
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\cgs.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 168, 62, 38, 268
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 6, 31, 2, 39
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\runner.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 290, 94, 62, 446
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\ai_system.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 96, 39, 31, 166
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\damage_system.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 77, 32, 21, 130
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\death_system.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 52, 26, 16, 94
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\input_system.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 53, 27, 18, 98
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 1, 14
+"c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\movement_system.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 63, 25, 20, 108
+"c:\Users\ankit\Downloads\xace\package.json", "JSON", 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 1, 13
 "c:\Users\ankit\Downloads\xace\packages\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\ankit\Downloads\xace\packages\asset registry\animation_contract.py", "Python", 0, 0, 0, 0, 0, 0, 0, 206, 0, 95, 54, 355
+"c:\Users\ankit\Downloads\xace\packages\asset registry\animation_contract_generator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 222, 0, 129, 46, 397
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_cleanup_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 126, 0, 119, 41, 286
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_linker.py", "Python", 0, 0, 0, 0, 0, 0, 0, 171, 0, 82, 40, 293
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_manifest.py", "Python", 0, 0, 0, 0, 0, 0, 0, 198, 0, 124, 52, 374
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_naming_policy.py", "Python", 0, 0, 0, 0, 0, 0, 0, 130, 0, 108, 28, 266
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_reference.py", "Python", 0, 0, 0, 0, 0, 0, 0, 111, 0, 79, 30, 220
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_registry_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 203, 0, 123, 61, 387
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_report.py", "Python", 0, 0, 0, 0, 0, 0, 0, 231, 0, 80, 54, 365
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_status_enum.py", "Python", 0, 0, 0, 0, 0, 0, 0, 62, 0, 89, 17, 168
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_type_enum.py", "Python", 0, 0, 0, 0, 0, 0, 0, 54, 0, 91, 26, 171
+"c:\Users\ankit\Downloads\xace\packages\asset registry\asset_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 235, 0, 86, 39, 360
+"c:\Users\ankit\Downloads\xace\packages\asset registry\audio_manifest.py", "Python", 0, 0, 0, 0, 0, 0, 0, 277, 0, 99, 64, 440
+"c:\Users\ankit\Downloads\xace\packages\asset registry\engine_sync_receiver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 143, 0, 104, 39, 286
+"c:\Users\ankit\Downloads\xace\packages\asset registry\game_config_loader.py", "Python", 0, 0, 0, 0, 0, 0, 0, 214, 0, 120, 57, 391
+"c:\Users\ankit\Downloads\xace\packages\asset registry\placeholder_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 136, 0, 102, 45, 283
+"c:\Users\ankit\Downloads\xace\packages\asset registry\tests\test_asset_manifest.py", "Python", 0, 0, 0, 0, 0, 0, 0, 685, 0, 49, 134, 868
+"c:\Users\ankit\Downloads\xace\packages\asset registry\tests\test_asset_validation.py", "Python", 0, 0, 0, 0, 0, 0, 0, 781, 0, 58, 150, 989
 "c:\Users\ankit\Downloads\xace\packages\core\src\assets\asset_reference.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 122, 84, 27, 233
 "c:\Users\ankit\Downloads\xace\packages\core\src\assets\asset_status.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 119, 88, 26, 233
 "c:\Users\ankit\Downloads\xace\packages\core\src\assets\asset_type.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 133, 77, 30, 240
@@ -113,71 +140,97 @@
 "c:\Users\ankit\Downloads\xace\packages\dcl\stealth\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 116, 0, 10, 3, 129
 "c:\Users\ankit\Downloads\xace\packages\dcl\ui\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 114, 0, 10, 2, 126
 "c:\Users\ankit\Downloads\xace\packages\dcl\world\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 226, 0, 13, 3, 242
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\adapter_authority_enforcer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\engine_adapter_interface.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_compressor.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_sync_engine.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 1, 6
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\resync_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\snapshot_recovery.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 2, 7
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_delta_sync.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_protocol_handshake.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_transport.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\adapter_authority_enforcer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 380, 141, 84, 605
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\engine_adapter_interface.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 583, 171, 121, 875
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\adapter_contract\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 2, 6
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 239, 65, 44, 348
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_compressor.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 333, 132, 98, 563
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\delta_sync_engine.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 321, 117, 90, 528
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 3, 15
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\resync_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 380, 145, 79, 604
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\delta_sync\snapshot_recovery.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 274, 98, 57, 429
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 2, 8
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 8
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_delta_sync.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 461, 38, 66, 565
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_delta_sync_integration.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 691, 110, 137, 938
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_protocol_handshake.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 251, 46, 50, 347
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\tests\test_transport.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 412, 36, 65, 513
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\message_deserializer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 409, 143, 77, 629
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\message_serializer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 375, 130, 72, 577
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 1, 7
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\protocol_handshake.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 669, 230, 153, 1052
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\sequence_tracker.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 651, 204, 122, 977
-"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\shm_transport.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 572, 230, 124, 926
+"c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\shm_transport.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 278, 0, 44, 322
 "c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport\tcp_transport.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 588, 192, 115, 895
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_buffer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 277, 103, 63, 443
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_log.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 267, 99, 72, 438
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_message.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 267, 52, 41, 360
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_replay_loader.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 308, 101, 74, 483
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_router.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 272, 132, 62, 466
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_type_enum.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 169, 60, 34, 263
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\feedback_validator.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 330, 95, 69, 494
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\animation_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 161, 54, 30, 245
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\audio_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 184, 30, 36, 250
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\input_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 123, 40, 25, 188
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 12, 0, 1, 13
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\performance_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 209, 42, 41, 292
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\physics_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 210, 46, 33, 289
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\handlers\visibility_feedback_handler.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 148, 44, 28, 220
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 11, 0, 0, 11
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 6, 0, 0, 6
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\tests\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 4
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\tests\test_feedback_buffer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 359, 50, 65, 474
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\tests\test_visibility_queries.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 286, 37, 48, 371
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\visibility_query\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 5
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\visibility_query\visibility_query.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 161, 66, 35, 262
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\visibility_query\visibility_query_batcher.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 247, 84, 62, 393
+"c:\Users\ankit\Downloads\xace\packages\engine-feedback\src\visibility_query\visibility_result_store.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 215, 78, 48, 341
 "c:\Users\ankit\Downloads\xace\packages\gde\src\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\cgs_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\cgs_serializer.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\mutation_target_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\cgs_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 177, 0, 158, 51, 386
+"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\cgs_serializer.py", "Python", 0, 0, 0, 0, 0, 0, 0, 96, 0, 112, 27, 235
+"c:\Users\ankit\Downloads\xace\packages\gde\src\cgs\mutation_target_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 171, 0, 158, 42, 371
 "c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\conflict_detector.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\consistency_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\invariant_enforcer.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\type_checker.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\conflict_detector.py", "Python", 0, 0, 0, 0, 0, 0, 0, 155, 0, 105, 40, 300
+"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\consistency_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 127, 0, 104, 31, 262
+"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\invariant_enforcer.py", "Python", 0, 0, 0, 0, 0, 0, 0, 247, 0, 74, 44, 365
+"c:\Users\ankit\Downloads\xace\packages\gde\src\consistency_validator\type_checker.py", "Python", 0, 0, 0, 0, 0, 0, 0, 281, 0, 75, 31, 387
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\mutation_metadata\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\mutation_metadata\mutation_metadata_model.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\mutation_metadata\mutation_metadata_model.py", "Python", 0, 0, 0, 0, 0, 0, 0, 129, 0, 84, 20, 233
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\path_addressing\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\path_addressing\path_parser.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\path_addressing\path_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\path_addressing\path_parser.py", "Python", 0, 0, 0, 0, 0, 0, 0, 160, 0, 104, 51, 315
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\path_addressing\path_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 107, 0, 118, 30, 255
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\rule_grammar\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\rule_grammar\rule_expression_parser.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\rule_grammar\rule_expression_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\rule_grammar\rule_expression_parser.py", "Python", 0, 0, 0, 0, 0, 0, 0, 259, 0, 109, 72, 440
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\rule_grammar\rule_expression_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 206, 0, 85, 48, 339
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\transaction_model\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\transaction_model\transaction_builder.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\transaction_model\transaction_executor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\transaction_model\transaction_builder.py", "Python", 0, 0, 0, 0, 0, 0, 0, 269, 0, 126, 74, 469
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\transaction_model\transaction_executor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 237, 0, 111, 34, 382
 "c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\usmc\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\usmc\usmc_classifier.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\gde_orchestrator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\domain_dsl\usmc\usmc_classifier.py", "Python", 0, 0, 0, 0, 0, 0, 0, 194, 0, 133, 33, 360
+"c:\Users\ankit\Downloads\xace\packages\gde\src\gde_orchestrator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 256, 0, 133, 58, 447
 "c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\mode_profile.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\mode_profile_loader.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\profile_expander.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\mode_profile.py", "Python", 0, 0, 0, 0, 0, 0, 0, 127, 0, 127, 32, 286
+"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\mode_profile_loader.py", "Python", 0, 0, 0, 0, 0, 0, 0, 201, 0, 103, 41, 345
+"c:\Users\ankit\Downloads\xace\packages\gde\src\mode_profiles\profile_expander.py", "Python", 0, 0, 0, 0, 0, 0, 0, 143, 0, 89, 33, 265
 "c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\ambiguity_detector.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\context_loader.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\intent_classifier.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\intent_object.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\scope_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\slot_extractor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\ambiguity_detector.py", "Python", 0, 0, 0, 0, 0, 0, 0, 248, 0, 115, 45, 408
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\context_loader.py", "Python", 0, 0, 0, 0, 0, 0, 0, 182, 0, 117, 43, 342
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\intent_classifier.py", "Python", 0, 0, 0, 0, 0, 0, 0, 173, 0, 95, 47, 315
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\intent_object.py", "Python", 0, 0, 0, 0, 0, 0, 0, 160, 0, 99, 34, 293
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\scope_resolver.py", "Python", 0, 0, 0, 0, 0, 0, 0, 230, 0, 108, 52, 390
+"c:\Users\ankit\Downloads\xace\packages\gde\src\prompt_interpretation\slot_extractor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 221, 0, 84, 48, 353
 "c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_session_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_types.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_cgs_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_consistency_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_dsl_path_addressing.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_gde_orchestrator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_transaction_executor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 215, 0, 71, 36, 322
+"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_session_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 171, 0, 154, 57, 382
+"c:\Users\ankit\Downloads\xace\packages\gde\src\question_engine\question_types.py", "Python", 0, 0, 0, 0, 0, 0, 0, 243, 0, 119, 59, 421
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_cgs_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 216, 0, 21, 56, 293
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_consistency_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 325, 0, 13, 74, 412
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_dsl_path_addressing.py", "Python", 0, 0, 0, 0, 0, 0, 0, 277, 0, 13, 66, 356
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_gde_orchestrator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 283, 0, 30, 64, 377
+"c:\Users\ankit\Downloads\xace\packages\gde\src\tests\test_transaction_executor.py", "Python", 0, 0, 0, 0, 0, 0, 0, 313, 0, 16, 71, 400
 "c:\Users\ankit\Downloads\xace\packages\prompt-intelligence\src\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\packages\prompt-intelligence\src\clarification_engine\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\packages\prompt-intelligence\src\clarification_engine\clarification_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
@@ -313,64 +366,67 @@
 "c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\tests\test_time_controller.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 80, 7, 12, 99
 "c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\time_controller.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 289, 128, 71, 488
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\compiled_schema_package.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\compiled_schema_package.py", "Python", 0, 0, 0, 0, 0, 0, 0, 77, 0, 80, 23, 180
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\component_registry\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\component_registry\component_definition.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\component_registry\component_definition_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\component_registry\component_definition.py", "Python", 0, 0, 0, 0, 0, 0, 0, 127, 0, 120, 31, 278
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\component_registry\component_definition_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 150, 0, 113, 41, 304
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\diff_migration\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\diff_migration\migration_rule_generator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\diff_migration\schema_diff_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\diff_migration\migration_rule_generator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 268, 0, 126, 48, 442
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\diff_migration\schema_diff_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 247, 0, 111, 56, 414
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\blueprint_compiler.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\blueprint_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\entity_blueprint.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\blueprint_compiler.py", "Python", 0, 0, 0, 0, 0, 0, 0, 184, 0, 121, 52, 357
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\blueprint_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 80, 0, 83, 29, 192
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\entity_blueprint\entity_blueprint.py", "Python", 0, 0, 0, 0, 0, 0, 0, 71, 0, 106, 24, 201
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\mode_composition\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\mode_composition\mode_composition_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\mode_composition\mode_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\schema_factory.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\mode_composition\mode_composition_engine.py", "Python", 0, 0, 0, 0, 0, 0, 0, 176, 0, 128, 45, 349
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\mode_composition\mode_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 213, 0, 93, 41, 347
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\schema_factory.py", "Python", 0, 0, 0, 0, 0, 0, 0, 213, 0, 144, 43, 400
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\system_registry\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\system_registry\system_definition_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\system_registry\system_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_blueprint_compiler.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_diff_migration.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_schema_validation.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\system_registry\system_definition_registry.py", "Python", 0, 0, 0, 0, 0, 0, 0, 151, 0, 117, 43, 311
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\system_registry\system_validator.py", "Python", 0, 0, 0, 0, 0, 0, 0, 173, 0, 102, 36, 311
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_blueprint_compiler.py", "Python", 0, 0, 0, 0, 0, 0, 0, 304, 0, 28, 73, 405
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_diff_migration.py", "Python", 0, 0, 0, 0, 0, 0, 0, 323, 0, 40, 72, 435
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\tests\test_schema_validation.py", "Python", 0, 0, 0, 0, 0, 0, 0, 434, 0, 18, 82, 534
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\validation\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\validation\invariant_checker.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\validation\schema_validation_contract.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\validation\invariant_checker.py", "Python", 0, 0, 0, 0, 0, 0, 0, 230, 0, 68, 60, 358
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\validation\schema_validation_contract.py", "Python", 0, 0, 0, 0, 0, 0, 0, 283, 0, 74, 53, 410
 "c:\Users\ankit\Downloads\xace\packages\schema-factory\src\versioning\__init__.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\versioning\schema_snapshot.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\versioning\schema_version_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\compilation_error.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\conflict_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\versioning\schema_snapshot.py", "Python", 0, 0, 0, 0, 0, 0, 0, 112, 0, 111, 29, 252
+"c:\Users\ankit\Downloads\xace\packages\schema-factory\src\versioning\schema_version_manager.py", "Python", 0, 0, 0, 0, 0, 0, 0, 269, 0, 148, 45, 462
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\compilation_error.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 254, 63, 45, 362
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\conflict_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 256, 85, 51, 392
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\serialization_group_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_diagnostics.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\serialization_group_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 235, 73, 38, 346
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 378, 132, 58, 568
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_diagnostics.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 490, 129, 82, 701
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\dependency_resolution_engine.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\dependency_resolution_engine.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 281, 75, 56, 412
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\topological_sorter.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\graph_construction_layer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\hazard_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 1, 5
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_edge.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_node.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 9, 2, 2, 13
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\topological_sorter.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 298, 95, 54, 447
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\graph_construction_layer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 317, 84, 56, 457
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\hazard_detector.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 229, 89, 49, 367
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 4, 2, 1, 7
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_edge.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 227, 64, 42, 333
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_node.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 181, 57, 43, 281
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\lib.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 11, 16, 2, 29
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\parallelization\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\parallelization\parallelization_safety_model.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_segmentation_layer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_validator.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\deterministic_scheduler_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\parallelization\parallelization_safety_model.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 277, 54, 33, 364
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 1, 6
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_segmentation_layer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 321, 91, 51, 463
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_validator.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 211, 62, 28, 301
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\deterministic_scheduler_builder.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 275, 77, 40, 392
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 1, 3
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\parallel_group_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\sgc_pipeline.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_conflict_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_cycle_detection.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_dependency_resolution.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_graph_construction.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\parallel_group_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 252, 90, 43, 385
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\sgc_pipeline.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 221, 43, 44, 308
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 5, 4, 1, 10
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_conflict_analyzer.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 117, 14, 21, 152
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_cycle_detection.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 304, 11, 46, 361
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_dependency_resolution.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 165, 9, 20, 194
+"c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_graph_construction.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 116, 9, 19, 144
 "c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_phase_segmentation.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\requirements.txt", "pip requirements", 0, 0, 10, 0, 0, 0, 0, 0, 0, 9, 9, 28
+"c:\Users\ankit\Downloads\xace\requirements.txt", "pip requirements", 0, 0, 0, 10, 0, 0, 0, 0, 0, 9, 9, 28
+"c:\Users\ankit\Downloads\xace\tests\determinism\mod.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_entity_iteration_order.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_event_ordering.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_execution_order_stability.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
@@ -381,11 +437,11 @@
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_rng_determinism.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_schema_version_lock.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_snapshot_roundtrip.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\tests\determinism\test_vertical_slice_determinism.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
+"c:\Users\ankit\Downloads\xace\tests\determinism\test_vertical_slice_determinism.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 316, 102, 68, 486
 "c:\Users\ankit\Downloads\xace\tests\determinism\test_world_hash_consistency.rs", "Rust", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
-"c:\Users\ankit\Downloads\xace\tests\fixtures\README.md", "Markdown", 7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 10
+"c:\Users\ankit\Downloads\xace\tests\fixtures\README.md", "Markdown", 0, 0, 0, 0, 0, 7, 0, 0, 0, 0, 3, 10
 "c:\Users\ankit\Downloads\xace\tsconfig.json", "JSON with Comments", 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 1, 19
-"c:\Users\ankit\Downloads\xace\workspace\builder\package.json", "JSON", 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 1, 22
+"c:\Users\ankit\Downloads\xace\workspace\builder\package.json", "JSON", 0, 0, 0, 0, 0, 0, 21, 0, 0, 0, 1, 22
 "c:\Users\ankit\Downloads\xace\workspace\builder\src\bottom_bar\index.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\workspace\builder\src\canvas\index.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\workspace\builder\src\command_palette\index.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
@@ -394,4 +450,4 @@
 "c:\Users\ankit\Downloads\xace\workspace\builder\src\preview\index.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\workspace\builder\src\sidebar\index.tsx", "TypeScript JSX", 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2
 "c:\Users\ankit\Downloads\xace\workspace\builder\tsconfig.json", "JSON with Comments", 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 1, 15
-"Total", "-", 1042, 32, 10, 0, 33, 0, 0, 4075, 24414, 10382, 5760, 45748
+"Total", "-", 0, 32, 0, 10, 1280, 1242, 33, 19144, 39231, 21378, 12494, 94844
