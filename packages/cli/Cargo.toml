@@ -1,0 +1,43 @@
+[package]
+name        = "xace-cli"
+version     = "0.1.0"
+edition     = "2021"
+description = "XACE Game Runtime Compiler — build, test, run, and diagnose deterministic game backends"
+authors     = ["XACE Team"]
+default-run = "xace"
+
+# This is the XACE developer-facing binary.
+# It is a thin orchestration layer — it does not duplicate logic from
+# other packages. All schema validation, compilation, and inference calls
+# are delegated to the appropriate package via subprocess or library call.
+#
+# Architecture:
+#   Rust library calls:   runtime-core, system-graph-compiler (fast, in-process)
+#   Python subprocess:    gde, schema-factory, inference (clean cross-language boundary)
+#   Engine subprocess:    engine adapter (connect to running engine)
+
+[[bin]]
+name = "xace"
+path = "src/main.rs"
+
+[dependencies]
+# CLI argument parsing — derive macros give ergonomic subcommand definitions
+clap        = { version = "4", features = ["derive", "env", "color"] }
+
+# JSON I/O — for Python bridge protocol and --json output mode
+serde       = { version = "1", features = ["derive"] }
+serde_json  = { version = "1" }
+
+# YAML — for reading game_config.yaml without an external tool
+serde_yaml  = { version = "0.9" }
+
+# Error handling — anyhow is correct for binaries (no downstream consumers)
+anyhow      = { version = "1" }
+
+# Executable path detection — for doctor checks
+which       = { version = "6" }
+
+[dev-dependencies]
+tempfile    = { version = "3" }
+assert_cmd  = { version = "2" }   # CLI integration test helpers
+predicates  = { version = "3" }   # assertion helpers

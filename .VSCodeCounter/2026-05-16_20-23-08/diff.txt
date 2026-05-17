@@ -1,0 +1,131 @@
+Date : 2026-05-16 20:23:08
+Directory : c:\Users\ankit\Downloads\xace
+Total : 73 files,  7528 codes, 2804 comments, 1757 blanks, all 12089 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Rust     |         65 |      6,416 |      2,523 |      1,463 |     10,402 |
+| Python   |          7 |        889 |        196 |        231 |      1,316 |
+| C#       |          1 |        223 |         85 |         63 |        371 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                          | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                             |         73 |      7,528 |      2,804 |      1,757 |     12,089 |
+| adapters                                                                                      |          1 |        223 |         85 |         63 |        371 |
+| adapters\unity                                                                                |          1 |        223 |         85 |         63 |        371 |
+| packages                                                                                      |         72 |      7,305 |      2,719 |      1,694 |     11,718 |
+| packages\asset-runtime                                                                        |         20 |      1,561 |        634 |        378 |      2,573 |
+| packages\asset-runtime\src                                                                    |         17 |      1,137 |        569 |        277 |      1,983 |
+| packages\asset-runtime\src (Files)                                                            |          1 |         59 |         54 |         22 |        135 |
+| packages\asset-runtime\src\cdn                                                                |          6 |        332 |        172 |         85 |        589 |
+| packages\asset-runtime\src\hot_reload                                                         |          5 |        321 |        177 |         73 |        571 |
+| packages\asset-runtime\src\streaming                                                          |          5 |        425 |        166 |         97 |        688 |
+| packages\asset-runtime\tests                                                                  |          3 |        424 |         65 |        101 |        590 |
+| packages\cli                                                                                  |         12 |      1,667 |        398 |        309 |      2,374 |
+| packages\cli\src                                                                              |         10 |      1,498 |        370 |        292 |      2,160 |
+| packages\cli\src (Files)                                                                      |          4 |        681 |        219 |        142 |      1,042 |
+| packages\cli\src\commands                                                                     |          6 |        817 |        151 |        150 |      1,118 |
+| packages\cli\tests                                                                            |          2 |        169 |         28 |         17 |        214 |
+| packages\engine-adapter                                                                       |         11 |        882 |        487 |        199 |      1,568 |
+| packages\engine-adapter (Files)                                                               |          1 |         27 |         31 |          5 |         63 |
+| packages\engine-adapter\src                                                                   |         10 |        855 |        456 |        194 |      1,505 |
+| packages\engine-adapter\src (Files)                                                           |          2 |        118 |         48 |         28 |        194 |
+| packages\engine-adapter\src\ffi                                                               |          8 |        737 |        408 |        166 |      1,311 |
+| packages\engine-adapter\src\ffi (Files)                                                       |          6 |        517 |        338 |        121 |        976 |
+| packages\engine-adapter\src\ffi\tests                                                         |          2 |        220 |         70 |         45 |        335 |
+| packages\inference                                                                            |          7 |        889 |        196 |        231 |      1,316 |
+| packages\inference\src                                                                        |          4 |        511 |        150 |        106 |        767 |
+| packages\inference\tests                                                                      |          3 |        378 |         46 |        125 |        549 |
+| packages\observability                                                                        |         13 |      1,555 |        568 |        384 |      2,507 |
+| packages\observability\src                                                                    |         10 |      1,217 |        543 |        330 |      2,090 |
+| packages\observability\tests                                                                  |          3 |        338 |         25 |         54 |        417 |
+| packages\runtime-core                                                                         |          9 |        751 |        436 |        193 |      1,380 |
+| packages\runtime-core\src                                                                     |          9 |        751 |        436 |        193 |      1,380 |
+| packages\runtime-core\src\component_tables                                                    |          6 |        595 |        339 |        152 |      1,086 |
+| packages\runtime-core\src\query_engine                                                        |          3 |        156 |         97 |         41 |        294 |
++-----------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                      | language | code       | comment    | blank      | total      |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\ankit\Downloads\xace\adapters\unity\Xace_embedded.cs                                 | C#       |        223 |         85 |         63 |        371 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\cdn_adapter.rs                   | Rust     |         50 |         38 |         18 |        106 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\cloudfront_adapter.rs            | Rust     |         85 |         34 |         22 |        141 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\local_cdn_adapter.rs             | Rust     |         73 |         26 |         19 |        118 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\mod.rs                           | Rust     |          6 |          3 |          2 |         11 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\range_request.rs                 | Rust     |         22 |         33 |          4 |         59 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\cdn\s3_adapter.rs                    | Rust     |         96 |         38 |         20 |        154 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\hot_reload\file_watcher.rs           | Rust     |         94 |         42 |         21 |        157 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\hot_reload\mod.rs                    | Rust     |          7 |          3 |          2 |         12 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\hot_reload\reload_coordinator.rs     | Rust     |        133 |         49 |         27 |        209 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\hot_reload\tick_boundary_gate.rs     | Rust     |         62 |         56 |         15 |        133 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\hot_reload\version_hasher.rs         | Rust     |         25 |         27 |          8 |         60 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\lib.rs                               | Rust     |         59 |         54 |         22 |        135 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\streaming\asset_streamer.rs          | Rust     |        219 |         82 |         41 |        342 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\streaming\load_request.rs            | Rust     |         89 |         34 |         28 |        151 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\streaming\load_result.rs             | Rust     |         68 |         25 |         14 |        107 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\streaming\mod.rs                     | Rust     |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\src\streaming\priority_queue.rs          | Rust     |         49 |         25 |         13 |         87 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\tests\test_cdn_adapter.rs                | Rust     |        106 |         16 |         25 |        147 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\tests\test_hot_reload_determinism.rs     | Rust     |        138 |         35 |         37 |        210 |
+| c:\Users\ankit\Downloads\xace\packages\asset-runtime\tests\test_streaming.rs                  | Rust     |        180 |         14 |         39 |        233 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\build.rs                              | Rust     |        155 |         44 |         31 |        230 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\deploy.rs                             | Rust     |         20 |          8 |          7 |         35 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\doctor.rs                             | Rust     |        357 |         69 |         59 |        485 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\mod.rs                                | Rust     |         64 |          8 |         11 |         83 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\run.rs                                | Rust     |         60 |          9 |         12 |         81 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\commands\test.rs                               | Rust     |        161 |         13 |         30 |        204 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\config.rs                                      | Rust     |        190 |         56 |         34 |        280 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\error.rs                                       | Rust     |        184 |         34 |         42 |        260 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\main.rs                                        | Rust     |         74 |         44 |         23 |        141 |
+| c:\Users\ankit\Downloads\xace\packages\cli\src\python_bridge.rs                               | Rust     |        233 |         85 |         43 |        361 |
+| c:\Users\ankit\Downloads\xace\packages\cli\tests\test_build.rs                                | Rust     |         85 |         14 |          7 |        106 |
+| c:\Users\ankit\Downloads\xace\packages\cli\tests\test_doctor.rs                               | Rust     |         84 |         14 |         10 |        108 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\build.rs                                | Rust     |         27 |         31 |          5 |         63 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\error_codes.rs                  | Rust     |         20 |         52 |          3 |         75 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\ffi_transport.rs                | Rust     |        137 |         69 |         33 |        239 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\handle_type.rs                  | Rust     |         68 |         62 |         23 |        153 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\mod.rs                          | Rust     |          9 |         29 |          2 |         40 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\shared_buffer.rs                | Rust     |         84 |         61 |         23 |        168 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\tests\test_ffi_determinism.rs   | Rust     |         94 |         56 |         23 |        173 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\tests\test_ffi_memory.rs        | Rust     |        126 |         14 |         22 |        162 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\ffi\xace_ffi.rs                     | Rust     |        199 |         65 |         37 |        301 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport_mode.rs                   | Rust     |         33 |         22 |         10 |         65 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\src\transport_selector.rs               | Rust     |         85 |         26 |         18 |        129 |
+| c:\Users\ankit\Downloads\xace\packages\inference\src\credit_system.py                         | Python   |        182 |        136 |         43 |        361 |
+| c:\Users\ankit\Downloads\xace\packages\inference\src\local_model_manager.py                   | Python   |        303 |        120 |         62 |        485 |
+| c:\Users\ankit\Downloads\xace\packages\inference\src\model_router.py                          | Python   |         22 |       -106 |          1 |        -83 |
+| c:\Users\ankit\Downloads\xace\packages\inference\src\telemetry_pipeline.py                    | Python   |          4 |          0 |          0 |          4 |
+| c:\Users\ankit\Downloads\xace\packages\inference\tests\test_credit_system.py                  | Python   |        130 |          8 |         40 |        178 |
+| c:\Users\ankit\Downloads\xace\packages\inference\tests\test_hybrid_routing.py                 | Python   |        156 |         21 |         56 |        233 |
+| c:\Users\ankit\Downloads\xace\packages\inference\tests\test_local_model_manager.py            | Python   |         92 |         17 |         29 |        138 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\crash_reporter.rs                    | Rust     |        186 |         85 |         46 |        317 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\health_check.rs                      | Rust     |        108 |         47 |         23 |        178 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\http_server.rs                       | Rust     |        107 |         44 |         19 |        170 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\lib.rs                               | Rust     |         15 |         39 |          3 |         57 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\metrics.rs                           | Rust     |        176 |         58 |         46 |        280 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\metrics_registry.rs                  | Rust     |        104 |         28 |         28 |        160 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\observable.rs                        | Rust     |         96 |         76 |         41 |        213 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\tick_ring_buffer.rs                  | Rust     |        114 |         48 |         28 |        190 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\trace.rs                             | Rust     |        144 |         52 |         43 |        239 |
+| c:\Users\ankit\Downloads\xace\packages\observability\src\tracer.rs                            | Rust     |        167 |         66 |         53 |        286 |
+| c:\Users\ankit\Downloads\xace\packages\observability\tests\test_crash_reporter.rs             | Rust     |        102 |         10 |         18 |        130 |
+| c:\Users\ankit\Downloads\xace\packages\observability\tests\test_metrics.rs                    | Rust     |        139 |          7 |         23 |        169 |
+| c:\Users\ankit\Downloads\xace\packages\observability\tests\test_trace.rs                      | Rust     |         97 |          8 |         13 |        118 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype.rs         | Rust     |        169 |         86 |         39 |        294 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype_index.rs   | Rust     |         86 |         46 |         28 |        160 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype_storage.rs | Rust     |        230 |        104 |         55 |        389 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\mod.rs               | Rust     |          8 |          9 |          0 |         17 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\storage_router.rs    | Rust     |         59 |         35 |         12 |        106 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\storage_strategy.rs  | Rust     |         43 |         59 |         18 |        120 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\mod.rs                   | Rust     |          4 |          0 |          0 |          4 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\sorted_merge_iterator.rs | Rust     |         89 |         63 |         22 |        174 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\vectorized_query.rs      | Rust     |         63 |         34 |         19 |        116 |
+| Total                                                                                         |          |      7,528 |      2,804 |      1,757 |     12,089 |
++-----------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

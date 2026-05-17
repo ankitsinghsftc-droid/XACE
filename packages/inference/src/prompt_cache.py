@@ -1,374 +1,366 @@
 """
-fallback_policy.py — FallbackPolicy
-=======================================
-Defines and executes provider fallback chains when inference calls fail.
+prompt_cache.py — PromptCache
+================================
+Applies Anthropic cache_control directives to cacheable prompt sections
+and builds provider-specific prepared prompt structures.
 
-When InferenceAdapter catches InferenceTransportError from the primary
-provider, it consults FallbackPolicy for the next provider to try.
-The chain runs until either:
-    (a) a provider succeeds → return response
-    (b) all providers in the chain are exhausted → raise ProviderChainExhaustedError
+## What This Does
+PromptCache is the single place where PromptPart objects are converted
+into provider-specific wire formats. It serves two purposes:
 
-## Fallback Chain Structure
-A FallbackChain is an ordered list of (provider_name, logical_model_name) pairs.
-The first entry is always the primary. Each subsequent entry is a fallback.
+    1. Cache directive injection
+       For Anthropic: adds {"type": "ephemeral"} cache_control blocks
+       to segments marked cacheable=True in InferenceRequest.prompt_parts.
+       For all other providers: no directive added (they handle caching
+       automatically via prefix matching — no configuration required).
 
-    Example (TIER_L chain):
-        [("anthropic", "standard_mutation"),   # primary
-         ("deepseek",  "deepseek_premium"),    # fallback 1
-         ("openai",    "openai_standard")]     # fallback 2
+    2. Prompt format translation
+       Converts XACE's canonical PromptPart list into the wire format
+       each provider expects:
+           Anthropic    → {"messages": [...], "system": [...]}
+                          where each block is {"type": "text", "text": ...,
+                                              "cache_control": {...} | absent}
+           OpenAI-compat → {"messages": [{"role": "system", ...},
+                                         {"role": "user", ...}]}
 
-## Why Per-Tier Chains?
-Different tiers have different fallback logic:
-    TIER_XL: must have code_gen capability → OpenAI is a valid fallback, DeepSeek V4 Pro is
-    TIER_L:  any standard model works → DeepSeek Flash is acceptable
-    TIER_M:  cheapest model in any available provider
-    TIER_S:  no fallback needed (deterministic, never calls a provider)
+## Cache Strategy (Audit 9)
+Only static sections get cache_control:
+    ✅ constraint_aggregator output (determinism rules, R/W contracts)
+    ✅ stable memory layers (Design, Structural, Behavioral)
+    ✅ schema_simplifier base output (when CGS hasn't changed)
+    ❌ dynamic context (per-prompt CGS slice, slot extractions)
+    ❌ session memory (changes every call)
+    ❌ current intent and clarification history
 
-## FallbackAttempt
-Per-call mutable state. InferenceAdapter creates one FallbackAttempt
-per call and passes it through the retry loop. FallbackAttempt tracks
-which providers have been tried so model_router excludes them.
+## Cache TTL
+Anthropic's default prompt cache TTL is 5 minutes.
+For extended TTL (experimental), set use_extended_ttl=True in config.
+This is useful when the same project stays open for a long session.
 
-## ProviderChainExhaustedError
-Raised when all providers in the chain have failed.
-InferenceAdapter catches this, emits telemetry, then returns a
-ClarificationRequest to PIL ("cannot process now, please try again").
-This prevents infinite retry loops.
+## The Prepared Prompt Dict
+The return value of prepare() is an opaque dict consumed by provider
+clients (anthropic_provider.py, openai_provider.py). Each provider
+client knows how to unpack its own format key.
+
+Anthropic format:
+    {
+        "__format__": "anthropic",
+        "system": [
+            {"type": "text", "text": "...", "cache_control": {"type": "ephemeral"}},
+            {"type": "text", "text": "..."}  # dynamic — no cache_control
+        ],
+        "messages": [
+            {"role": "user", "content": [{"type": "text", "text": "..."}]}
+        ]
+    }
+
+OpenAI-compatible format:
+    {
+        "__format__": "openai",
+        "messages": [
+            {"role": "system", "content": "..."},
+            {"role": "user",   "content": "..."}
+        ]
+    }
 """
 
 from __future__ import annotations
 
-import time
-from dataclasses import dataclass, field
-from typing import Any
+from dataclasses import dataclass
+from typing import Any, TYPE_CHECKING
 
-from .model_descriptor import ModelDescriptor, ComplexityTier, BUILTIN_DESCRIPTORS
-from .provider_registry import ProviderRegistry
+from .model_descriptor import ModelDescriptor
 
-
-# ── Errors ────────────────────────────────────────────────────────────────────
-
-@dataclass
-class ProviderChainExhaustedError(Exception):
-    """
-    Raised when every provider in the fallback chain has been tried
-    and all have failed.
-
-    PIL catches this and generates a ClarificationRequest with a
-    "service unavailable" message — never silently drops the prompt.
-
-    Attributes
-    ----------
-    tier : str
-        The ComplexityTier that was being served.
-    tried_providers : tuple[str, ...]
-        All providers that were attempted.
-    call_label : str
-        The PIL pass label for diagnostics.
-    failure_reasons : tuple[str, ...]
-        Per-provider failure summary.
-    """
-
-    tier:              str
-    tried_providers:   tuple[str, ...]
-    call_label:        str             = ""
-    failure_reasons:   tuple[str, ...] = ()
-
-    def __str__(self) -> str:
-        return (
-            f"ProviderChainExhaustedError: all {len(self.tried_providers)} providers "
-            f"failed for tier '{self.tier}' [{self.call_label!r}]. "
-            f"Tried: {self.tried_providers}."
-        )
+if TYPE_CHECKING:
+    from .inference_adapter import PromptPart
 
 
-# ── Chain Link ────────────────────────────────────────────────────────────────
+# ── Cache Config ──────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
-class ChainLink:
+class CacheConfig:
     """
-    One step in a FallbackChain.
+    Configuration for prompt cache behaviour.
 
     Attributes
     ----------
-    provider : str
-        Provider identifier ("anthropic", "openai", "deepseek", etc.)
-    logical_model : str
-        Logical model name from ModelDescriptor registry.
-    max_attempts : int
-        How many times to retry this specific provider before skipping.
-        Usually 1 for fallbacks (the primary already retried via InferenceRetryPolicy).
-    required_capability : str
-        ModelCapability the model must have. Empty = no requirement.
-        Example: "code_gen" ensures fallback can generate Rust.
+    use_extended_ttl : bool
+        When True, uses extended cache TTL (beta, Anthropic only).
+        Default TTL is 5 minutes. Extended TTL is ~1 hour.
+        Use for long sessions where the same project is open for >5 min.
+    min_cacheable_tokens : int
+        Minimum tokens a section must have to be worth caching.
+        Anthropic caches sections above a minimum size automatically;
+        below this threshold the cache_control directive is added but
+        may not actually cache (provider-side decision).
+    cache_system_prompt : bool
+        Whether to apply cache_control to the system prompt.
+        Almost always True — system prompts rarely change per call.
+    split_at_cacheable : bool
+        When True, the prompt is split at the boundary between cached
+        and uncached sections for maximum cache efficiency.
+        When False, all cacheable blocks get cache_control individually.
     """
 
-    provider:              str
-    logical_model:         str
-    max_attempts:          int = 1
-    required_capability:   str = ""
-
-    def __repr__(self) -> str:
-        return f"ChainLink({self.provider!r} / {self.logical_model!r})"
+    use_extended_ttl:       bool = False
+    min_cacheable_tokens:   int  = 100     # ~400 chars — below this don't bother
+    cache_system_prompt:    bool = True
+    split_at_cacheable:     bool = True
 
 
-# ── Fallback Chain ────────────────────────────────────────────────────────────
+DEFAULT_CACHE_CONFIG = CacheConfig()
+
+
+# ── Prepared Prompt ───────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
-class FallbackChain:
+class PreparedPrompt:
     """
-    Ordered list of ChainLinks defining the fallback sequence for one tier.
-    The first link is the primary. Later links are fallbacks.
+    Provider-specific prompt structure ready for wire dispatch.
 
-    Built by FallbackPolicy from config + capability checks.
-    """
-
-    tier:  str
-    links: tuple[ChainLink, ...]
-
-    @property
-    def primary(self) -> ChainLink:
-        return self.links[0]
-
-    @property
-    def fallbacks(self) -> tuple[ChainLink, ...]:
-        return self.links[1:]
-
-    def has_provider(self, provider: str) -> bool:
-        return any(link.provider == provider for link in self.links)
-
-    def next_link_after(self, failed_providers: set[str]) -> ChainLink | None:
-        """Returns the first link whose provider has not failed yet."""
-        for link in self.links:
-            if link.provider not in failed_providers:
-                return link
-        return None
-
-    def __repr__(self) -> str:
-        chain = " → ".join(f"{l.provider}" for l in self.links)
-        return f"FallbackChain({self.tier}: {chain})"
-
-
-# ── Fallback Attempt ──────────────────────────────────────────────────────────
-
-@dataclass
-class FallbackAttempt:
-    """
-    Mutable per-call state tracking which providers have been tried.
-
-    InferenceAdapter creates one per call and updates it after each failure.
-    Used by model_router to exclude failed providers from routing.
-
-    Attributes
-    ----------
-    tier : str
-        The complexity tier for this call.
-    call_label : str
-        PIL pass label.
-    tried: list[tuple[str, str, str]]
-        List of (provider, model_id, failure_reason) tuples.
-    started_at : float
-        Unix timestamp when the call attempt began.
+    The inner dict structure varies by provider format.
+    Provider clients in providers/ unpack this via the __format__ key.
     """
 
-    tier:       str
-    call_label: str = ""
-    tried:      list[tuple[str, str, str]] = field(default_factory=list)
-    started_at: float = field(default_factory=time.time)
+    __format__:          str
+    payload:             dict[str, Any]
 
-    def record_failure(
-        self, provider: str, model_id: str, reason: str
-    ) -> None:
-        self.tried.append((provider, model_id, reason))
-
-    @property
-    def failed_providers(self) -> set[str]:
-        return {t[0] for t in self.tried}
-
-    @property
-    def failed_provider_tuple(self) -> tuple[str, ...]:
-        return tuple(self.failed_providers)
-
-    @property
-    def attempt_count(self) -> int:
-        return len(self.tried)
-
-    def elapsed_ms(self) -> float:
-        return (time.time() - self.started_at) * 1000.0
-
-    def failure_summary(self) -> tuple[str, ...]:
-        return tuple(
-            f"{provider}/{model}: {reason}"
-            for provider, model, reason in self.tried
-        )
+    # Stats for telemetry
+    cacheable_tokens:    int   = 0
+    dynamic_tokens:      int   = 0
+    system_tokens:       int   = 0
 
     def __repr__(self) -> str:
         return (
-            f"FallbackAttempt({self.tier}, "
-            f"tried={len(self.tried)}, "
-            f"failed={self.failed_providers})"
+            f"PreparedPrompt({self.__format__!r}, "
+            f"cache={self.cacheable_tokens}tok, "
+            f"dynamic={self.dynamic_tokens}tok)"
         )
 
 
-# ── Default Chains ────────────────────────────────────────────────────────────
+# ── Prompt Cache ──────────────────────────────────────────────────────────────
 
-def _default_chains() -> dict[str, FallbackChain]:
-    """Builds the default fallback chains from BUILTIN_DESCRIPTORS."""
-    from .model_descriptor import ModelCapability
-
-    return {
-        ComplexityTier.XL: FallbackChain(
-            tier=ComplexityTier.XL,
-            links=(
-                ChainLink("anthropic", "premium_reasoning",
-                          required_capability=ModelCapability.CODE_GEN),
-                ChainLink("openai",    "openai_premium",
-                          required_capability=ModelCapability.CODE_GEN),
-                # DeepSeek V4 Pro has code_gen — acceptable XL fallback
-                ChainLink("deepseek",  "deepseek_premium",
-                          required_capability=ModelCapability.CODE_GEN),
-            ),
-        ),
-        ComplexityTier.L: FallbackChain(
-            tier=ComplexityTier.L,
-            links=(
-                ChainLink("anthropic", "standard_mutation"),
-                ChainLink("deepseek",  "deepseek_premium"),
-                ChainLink("zai",       "zai_standard"),
-                ChainLink("openai",    "openai_standard"),
-            ),
-        ),
-        ComplexityTier.M: FallbackChain(
-            tier=ComplexityTier.M,
-            links=(
-                ChainLink("anthropic", "cheap_validation"),
-                ChainLink("deepseek",  "deepseek_standard"),
-                ChainLink("minimax",   "minimax_standard"),
-                ChainLink("local",     "local_dev"),
-            ),
-        ),
-        ComplexityTier.S: FallbackChain(
-            tier=ComplexityTier.S,
-            links=(),   # TIER_S never reaches a provider
-        ),
-    }
-
-
-# ── Fallback Policy ───────────────────────────────────────────────────────────
-
-class FallbackPolicy:
+class PromptCache:
     """
-    Manages fallback chains and executes provider failover for inference calls.
+    Converts XACE PromptPart lists into provider wire formats,
+    injecting Anthropic cache_control directives on cacheable sections.
 
     One instance is shared across InferenceAdapter calls.
-    Thread-safe — chains are immutable after construction.
+    Stateless — safe for concurrent use.
 
     Usage
     -----
-        policy   = FallbackPolicy(registry)
-        attempt  = FallbackAttempt(tier=ComplexityTier.L, call_label="pass2")
-
-        while True:
-            next_link = policy.next_link(attempt)
-            if next_link is None:
-                raise ProviderChainExhaustedError(...)
-
-            try:
-                descriptor = registry.get(next_link.logical_model)
-                response   = provider.complete(...)
-                break
-            except InferenceTransportError as exc:
-                attempt.record_failure(next_link.provider, descriptor.model_id, str(exc))
+        cache   = PromptCache()
+        prompt  = cache.prepare(request.prompt_parts, descriptor,
+                                system_prompt=request.system_prompt)
+        # prompt.__format__ == "anthropic" or "openai"
+        # Provider client reads prompt.payload
     """
 
-    def __init__(
+    def __init__(self, config: CacheConfig = DEFAULT_CACHE_CONFIG) -> None:
+        self._config = config
+
+    def prepare(
         self,
-        registry:        ProviderRegistry,
-        chain_overrides: dict[str, FallbackChain] | None = None,
-    ) -> None:
-        self._registry = registry
-        self._chains   = _default_chains()
-        if chain_overrides:
-            self._chains.update(chain_overrides)
-
-    # ── Public API ────────────────────────────────────────────────────────────
-
-    def next_link(self, attempt: FallbackAttempt) -> ChainLink | None:
+        prompt_parts:  list["PromptPart"],
+        descriptor:    ModelDescriptor,
+        system_prompt: str = "",
+    ) -> PreparedPrompt:
         """
-        Returns the next untried ChainLink for this attempt's tier,
-        or None if all links are exhausted.
+        Converts PromptParts to a provider-specific wire format.
 
-        Called by InferenceAdapter after each provider failure.
-        When None is returned, InferenceAdapter raises ProviderChainExhaustedError.
+        Parameters
+        ----------
+        prompt_parts : list[PromptPart]
+            Ordered prompt segments from InferenceRequest.
+        descriptor : ModelDescriptor
+            Determines which wire format to produce.
+        system_prompt : str
+            Optional system-level instruction.
+
+        Returns
+        -------
+        PreparedPrompt
+            Provider-specific payload ready for the provider client.
         """
-        chain = self._chains.get(attempt.tier)
-        if not chain or not chain.links:
-            return None
+        if descriptor.provider == "anthropic":
+            return self._prepare_anthropic(prompt_parts, descriptor, system_prompt)
+        else:
+            return self._prepare_openai_compat(prompt_parts, descriptor, system_prompt)
 
-        return chain.next_link_after(attempt.failed_providers)
+    # ── Anthropic Format ──────────────────────────────────────────────────────
 
-    def create_attempt(self, tier: str, call_label: str = "") -> FallbackAttempt:
-        """Creates a fresh FallbackAttempt for a new call."""
-        return FallbackAttempt(tier=tier, call_label=call_label)
+    def _prepare_anthropic(
+        self,
+        parts:         list["PromptPart"],
+        descriptor:    ModelDescriptor,
+        system_prompt: str,
+    ) -> PreparedPrompt:
+        """
+        Builds Anthropic Messages API format with cache_control on cacheable blocks.
 
-    def chain_for(self, tier: str) -> FallbackChain | None:
-        """Returns the FallbackChain for a tier, or None if undefined."""
-        return self._chains.get(tier)
+        Anthropic caches up to the LAST cache_control marker in the request.
+        Strategy: put all cacheable parts first, then dynamic parts.
+        Add cache_control to the last cacheable block only (most efficient).
+        """
+        system_blocks: list[dict[str, Any]] = []
+        user_blocks:   list[dict[str, Any]] = []
+        cacheable_tok  = 0
+        dynamic_tok    = 0
+        system_tok     = 0
 
-    def register_chain(self, chain: FallbackChain) -> None:
-        """Registers or replaces a fallback chain for a tier."""
-        self._chains[chain.tier] = chain
+        # ── System prompt ──────────────────────────────────────────────────────
+        if system_prompt and self._config.cache_system_prompt:
+            sys_block: dict[str, Any] = {"type": "text", "text": system_prompt}
+            if descriptor.supports_cache_control:
+                sys_block["cache_control"] = self._cache_directive()
+            system_blocks.append(sys_block)
+            system_tok = len(system_prompt) // 4   # rough estimate
 
-    def primary_link(self, tier: str) -> ChainLink | None:
-        """Returns the primary (first) link for a tier."""
-        chain = self._chains.get(tier)
-        return chain.primary if (chain and chain.links) else None
+        # ── Separate cacheable vs dynamic parts ───────────────────────────────
+        cacheable_parts = [p for p in parts if p.cacheable]
+        dynamic_parts   = [p for p in parts if not p.cacheable]
 
-    def all_providers_for_tier(self, tier: str) -> list[str]:
-        """Returns all provider names in the chain for a tier."""
-        chain = self._chains.get(tier)
-        if not chain:
-            return []
-        return [link.provider for link in chain.links]
+        # Build cacheable blocks (put first in message for cache efficiency)
+        for i, part in enumerate(cacheable_parts):
+            block: dict[str, Any] = {"type": "text", "text": part.text}
+            # Add cache_control only to the LAST cacheable block
+            # (Anthropic caches everything up to the marker)
+            if descriptor.supports_cache_control and i == len(cacheable_parts) - 1:
+                block["cache_control"] = self._cache_directive()
+            user_blocks.append(block)
+            cacheable_tok += len(part.text) // 4
 
-    def build_exhausted_error(
-        self, attempt: FallbackAttempt
-    ) -> ProviderChainExhaustedError:
-        """Constructs a ProviderChainExhaustedError from a completed attempt."""
-        return ProviderChainExhaustedError(
-            tier             = attempt.tier,
-            tried_providers  = attempt.failed_provider_tuple,
-            call_label       = attempt.call_label,
-            failure_reasons  = attempt.failure_summary(),
+        # Build dynamic blocks (never cached)
+        for part in dynamic_parts:
+            user_blocks.append({"type": "text", "text": part.text})
+            dynamic_tok += len(part.text) // 4
+
+        payload = {
+            "__format__":  "anthropic",
+            "system":      system_blocks,
+            "messages":    [
+                {"role": "user", "content": user_blocks}
+            ],
+        }
+
+        return PreparedPrompt(
+            __format__       = "anthropic",
+            payload          = payload,
+            cacheable_tokens = cacheable_tok,
+            dynamic_tokens   = dynamic_tok,
+            system_tokens    = system_tok,
         )
 
-    def validate_chains(self) -> list[str]:
-        """
-        Validates that all chain links reference registered logical model names.
-        Returns list of validation error strings (empty = all valid).
-        """
-        errors: list[str] = []
-        registered = set(self._registry.logical_model_names())
-        for tier, chain in self._chains.items():
-            for link in chain.links:
-                if link.logical_model not in registered:
-                    errors.append(
-                        f"Chain {tier}: link {link!r} references unregistered "
-                        f"logical_model '{link.logical_model}'. "
-                        f"Registered names: {sorted(registered)}"
-                    )
-        return errors
+    # ── OpenAI-Compatible Format ──────────────────────────────────────────────
 
-    def summary(self) -> dict[str, list[str]]:
-        """Returns human-readable chain summary keyed by tier."""
-        return {
-            tier: [f"{l.provider}/{l.logical_model}" for l in chain.links]
-            for tier, chain in sorted(self._chains.items())
+    def _prepare_openai_compat(
+        self,
+        parts:         list["PromptPart"],
+        descriptor:    ModelDescriptor,
+        system_prompt: str,
+    ) -> PreparedPrompt:
+        """
+        Builds OpenAI Chat Completions format.
+        Used for DeepSeek, GLM, MiniMax, OpenAI, and local providers.
+        No cache_control — these providers use automatic prefix matching.
+        """
+        messages: list[dict[str, Any]] = []
+        cacheable_tok = 0
+        dynamic_tok   = 0
+
+        # System message (all cacheable content prepended here for prefix efficiency)
+        system_parts = [p for p in parts if p.cacheable]
+        system_text  = system_prompt
+        if system_parts:
+            prefix = "\n\n".join(p.text for p in system_parts)
+            system_text = f"{system_prompt}\n\n{prefix}" if system_prompt else prefix
+            cacheable_tok = len(system_text) // 4
+
+        if system_text:
+            messages.append({"role": "system", "content": system_text})
+
+        # User message (dynamic parts only)
+        dynamic_parts = [p for p in parts if not p.cacheable]
+        user_text     = "\n\n".join(p.text for p in dynamic_parts)
+        dynamic_tok   = len(user_text) // 4
+
+        if user_text:
+            messages.append({"role": "user", "content": user_text})
+        elif not system_text:
+            # Safety: always have at least one message
+            messages.append({"role": "user", "content": "Continue."})
+
+        payload = {
+            "__format__": "openai",
+            "messages":   messages,
         }
+
+        return PreparedPrompt(
+            __format__       = "openai",
+            payload          = payload,
+            cacheable_tokens = cacheable_tok,
+            dynamic_tokens   = dynamic_tok,
+            system_tokens    = 0,
+        )
+
+    # ── Helpers ───────────────────────────────────────────────────────────────
+
+    def _cache_directive(self) -> dict[str, str]:
+        """Returns the cache_control dict for Anthropic's API."""
+        if self._config.use_extended_ttl:
+            # Extended TTL is a beta feature as of May 2026
+            return {"type": "ephemeral", "ttl": "extended"}
+        return {"type": "ephemeral"}
+
+    # ── Utility ───────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def mark_cacheable(text: str, label: str = "") -> "PromptPart":
+        """
+        Convenience factory for creating cacheable PromptParts.
+
+        Used by context_assembler.py and memory_lifecycle_manager.py
+        when injecting static sections:
+            constraints = PromptCache.mark_cacheable(constraints_text, "constraints")
+        """
+        # Import here to avoid circular import at module level
+        from .inference_adapter import PromptPart
+        return PromptPart(text=text, cacheable=True, label=label)
+
+    @staticmethod
+    def mark_dynamic(text: str, label: str = "") -> "PromptPart":
+        """Convenience factory for non-cacheable PromptParts."""
+        from .inference_adapter import PromptPart
+        return PromptPart(text=text, cacheable=False, label=label)
+
+    def split_for_cache(
+        self,
+        text:          str,
+        static_prefix: str,
+    ) -> tuple[str, str]:
+        """
+        Splits a combined prompt into (static_prefix, dynamic_suffix).
+        Used when the caller has a pre-assembled prompt string but wants
+        to mark the static portion as cacheable.
+
+        Returns
+        -------
+        tuple[str, str]
+            (static_text, dynamic_text) — split at the first occurrence
+            of the static_prefix boundary. If not found, treats all as dynamic.
+        """
+        if static_prefix and text.startswith(static_prefix):
+            return static_prefix, text[len(static_prefix):]
+        return "", text
+
+    def update_config(self, config: CacheConfig) -> None:
+        """Replaces the cache config. Takes effect on next prepare() call."""
+        self._config = config
 
     def __repr__(self) -> str:
-        chain_repr = {
-            tier: str(chain) for tier, chain in self._chains.items()
-        }
-        return f"FallbackPolicy({chain_repr})"
+        return (
+            f"PromptCache("
+            f"extended_ttl={self._config.use_extended_ttl}, "
+            f"cache_system={self._config.cache_system_prompt})"
+        )

@@ -27,34 +27,25 @@
 //! allow silent divergence from a mismatched execution plan.
 //!
 //! ## World Hash (D9)
-//! The guard calls compute_world_hash_placeholder() after every tick.
-//! TODO: Replace placeholder with WorldHasher::compute() from world_hasher.rs
-//! when that file is built in Phase 6.
+//! hook_tick_end calls WorldHasher::compute(snapshot) after every tick.
+//! WorldHasher produces a SHA-256 hash over the full entity store and all
+//! component tables, in deterministic order (D3, D11).
+//! The placeholder function has been removed — real hashing is active.
 
 use std::collections::{BTreeMap, BTreeSet};
+
 use xace_core::errors::determinism_error::{DeterminismRule, DeterminismViolation, GuardMode};
 use xace_core::errors::xace_error::{XaceError, ErrorContext};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
 use xace_core::runtime::phase_enum::PhaseEnum;
 
-// ── World Hash Placeholder ────────────────────────────────────────────────────
+// ── CHANGE 1: Import the real WorldHasher ────────────────────────────────────
+// Both files live in packages/runtime-core/src/determinism_guard/ as siblings.
+// `super` goes up to the determinism_guard module; world_hasher is a
+// sibling module declared in mod.rs as: pub mod world_hasher;
 
-/// Placeholder hash until world_hasher.rs is built in Phase 6.
-///
-/// TODO: Replace with `WorldHasher::compute(snapshot)` from world_hasher.rs.
-/// The real implementation hashes entity_store + component_tables + rng_state
-/// using stable key ordering and fixed float precision (D11).
-/// This placeholder is deterministic but not cryptographically sound.
-fn compute_world_hash_placeholder(snapshot: &WorldSnapshot) -> String {
-    format!(
-        "placeholder:tick={},entities={},components={},schema={},plan_v={}",
-        snapshot.tick,
-        snapshot.entity_store_snapshot.entity_count(),
-        snapshot.component_tables_snapshot.total_row_count(),
-        snapshot.schema_version,
-        snapshot.execution_plan_version,
-    )
-}
+use super::world_hasher::WorldHasher;
+
 
 // ── Guard State ───────────────────────────────────────────────────────────────
 
@@ -325,8 +316,9 @@ impl DeterminismGuard {
     /// complete final state of the tick.
     ///
     /// Enforces:
-    /// - D9: computes world_hash from snapshot and records it for replay validation
-    /// - D11: hash computation uses stable ordering (enforced in world_hasher.rs)
+    /// - D9: computes world_hash from snapshot using WorldHasher::compute()
+    /// - D11: hash uses BTreeMap iteration (type_id ASC, EntityID ASC)
+    /// - D3:  entity store fed in EntityID ASC order (SnapshotEngine guarantee)
     ///
     /// If the snapshot already carries a non-empty world_hash, this hook validates
     /// the computed hash matches it — this is the replay desync detection path (D9).
@@ -340,8 +332,18 @@ impl DeterminismGuard {
         let tick = snapshot.tick;
         self.state.inside_tick = false;
 
-        // D9: compute deterministic world hash for this tick
-        let computed_hash = compute_world_hash_placeholder(snapshot);
+        // ── CHANGE 2: Use WorldHasher::compute() — real SHA-256, not placeholder ──
+        //
+        // WorldHasher feeds into SHA-256 in this order (all stable / D11-compliant):
+        //   tick (u64 big-endian)
+        //   schema_version (length-prefixed bytes)
+        //   execution_plan_version (u32 big-endian)
+        //   entity store: entity records from SnapshotEngine in EntityID ASC order (D3)
+        //   component tables: BTreeMap<type_id, BTreeMap<EntityID, json>> (D11)
+        //
+        // Floats are never hashed directly — only as JSON strings produced by
+        // SnapshotSerializer with stable key ordering and fixed precision (D8, D11).
+        let computed_hash = WorldHasher::compute(snapshot);
 
         // Validate against an existing hash if present (replay / resync path)
         if !snapshot.world_hash.is_empty() && snapshot.world_hash != computed_hash {
@@ -646,7 +648,10 @@ mod tests {
         let result = g.hook_tick_end(&snap);
         assert!(result.is_ok());
         assert!(g.hash_at_tick(1).is_some());
-        assert!(!g.hash_at_tick(1).unwrap().is_empty());
+        // ── CHANGE 3: hash is now a real 64-char SHA-256 hex string ──
+        let hash = g.hash_at_tick(1).unwrap();
+        assert_eq!(hash.len(), 64, "WorldHasher must produce a 64-char SHA-256 hex");
+        assert!(!hash.is_empty());
     }
 
     #[test]
@@ -668,16 +673,33 @@ mod tests {
         assert_eq!(g.violations()[0].rule, DeterminismRule::D9WorldHashPerTick);
     }
 
+    // ── CHANGE 4: This test previously called compute_world_hash_placeholder()
+    // directly. Now it uses WorldHasher::compute() — the same function that
+    // hook_tick_end uses. Logic is identical: compute expected, set it, validate.
     #[test]
     fn tick_end_accepts_correct_precomputed_hash() {
-        // Compute the expected placeholder hash, set it, then validate
         let mut g = strict_guard();
         let mut snap = empty_snapshot(2);
-        // Compute what the placeholder will produce for this snapshot
-        let expected = compute_world_hash_placeholder(&snap);
+        // Ask WorldHasher what the hash for this snapshot will be,
+        // then set it — hook_tick_end must accept it without violation.
+        let expected = WorldHasher::compute(&snap);
         snap.world_hash = expected;
         assert!(g.hook_tick_end(&snap).is_ok());
         assert_eq!(g.violation_count(), 0);
+    }
+
+    // ── New test: hash is real SHA-256, not the old placeholder format ────────
+    #[test]
+    fn tick_end_hash_is_sha256_format_not_placeholder() {
+        let mut g = strict_guard();
+        let snap = empty_snapshot(1);
+        let hash = g.hook_tick_end(&snap).unwrap();
+        // Old placeholder started with "placeholder:" — real hash must not
+        assert!(!hash.starts_with("placeholder:"),
+            "hash must be real SHA-256, not the old placeholder string");
+        // Real SHA-256 is exactly 64 lowercase hex chars
+        assert_eq!(hash.len(), 64);
+        assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
     }
 
     // ── Hook 6: RNG Access ────────────────────────────────────────────────────
