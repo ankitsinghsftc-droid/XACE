@@ -1,12 +1,37 @@
 [package]
-name = "xace-engine-adapter"
-version.workspace = true
-edition.workspace = true
+name        = "xace-engine-adapter"
+version     = "0.1.0"
+edition     = "2021"
+description = "XACE Engine Adapter — TCP, SHM, and FFI transports for engine integration"
+authors     = ["XACE Team"]
+
+# cdylib: produces XaceEmbedded.dll / libxace.so / libxace.dylib
+#         Used by Unity/Unreal/Godot via P/Invoke or FFI
+# rlib:   keeps Rust library use working (xace-sgc, xace-cli, etc.)
+[lib]
+name        = "xace_engine_adapter"
+crate-type  = ["rlib", "cdylib"]
+path        = "src/lib.rs"
 
 [dependencies]
-xace-core = { path = "../core" }
-xace-runtime-core = { path = "../runtime-core" }
-serde = { workspace = true }
-serde_json = { workspace = true }
-tokio = { workspace = true }
-memmap2 = "0.9"
+# Serialisation — for state delta and input wire format
+serde        = { version = "1", features = ["derive"] }
+serde_json   = { version = "1" }
+
+# Runtime core — simulation state, entity store, phase orchestrator
+# Uncomment when the crate path is stabilised in the workspace
+# xace-runtime-core = { path = "../runtime-core" }
+
+[build-dependencies]
+# Header generator — produces include/xace.h from Rust #[no_mangle] exports
+cbindgen     = { version = "0.27" }
+
+[dev-dependencies]
+tempfile     = { version = "3" }
+
+# ── Feature flags ──────────────────────────────────────────────────────────────
+[features]
+default    = ["tcp", "ffi"]
+tcp        = []                # TCP transport (Phase 7 — always enabled)
+shm        = []                # Shared-memory transport (Linux/macOS only)
+ffi        = []                # C ABI transport — produces cdylib artifact

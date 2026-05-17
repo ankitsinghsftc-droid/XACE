@@ -39,7 +39,7 @@ from typing import Any, TYPE_CHECKING
 from .cgs_serializer import CGSSerializer, CGSSerializationError
 
 if TYPE_CHECKING:
-    from .mutation_metadata_model import MutationMetadata
+    from ..domain_dsl.mutation_metadata.mutation_metadata_model import MutationMetadata
 
 
 # ── Import SchemaVersionManager lazily to avoid circular imports ──────────────

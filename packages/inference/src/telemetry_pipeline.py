@@ -73,6 +73,7 @@ class InferenceTelemetryEvent:
     outcome:            str                = "success"
     cached:             bool               = False
     timestamp:          float              = field(default_factory=time.time)
+    provider_kind:      str                = "cloud"   # "cloud" | "local" | "deterministic" | "cache"
 
     @property
     def total_tokens(self) -> int:
@@ -119,6 +120,7 @@ class SessionTelemetrySummary:
     calls_by_tier:      dict[str, int]   = field(default_factory=dict)
     calls_by_provider:  dict[str, int]   = field(default_factory=dict)
     calls_by_outcome:   dict[str, int]   = field(default_factory=dict)
+    calls_by_provider_kind: dict[str, int] = field(default_factory=dict)  # cloud|local|deterministic|cache
 
     def absorb(self, event: InferenceTelemetryEvent) -> None:
         self.total_calls          += 1
@@ -140,6 +142,8 @@ class SessionTelemetrySummary:
             self.calls_by_provider.get(event.provider, 0) + 1
         self.calls_by_outcome[event.outcome]       = \
             self.calls_by_outcome.get(event.outcome, 0) + 1
+        self.calls_by_provider_kind[event.provider_kind] = \
+            self.calls_by_provider_kind.get(event.provider_kind, 0) + 1
 
     @property
     def cache_hit_rate(self) -> float:

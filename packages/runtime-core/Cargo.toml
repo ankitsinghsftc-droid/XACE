@@ -9,3 +9,28 @@ serde = { workspace = true }
 tokio = { workspace = true }
 log = { workspace = true }
 sha2 = { workspace = true }
+# ─────────────────────────────────────────────────────────────────────────────
+# packages/runtime-core/Cargo.toml — ADD THIS SECTION
+# ─────────────────────────────────────────────────────────────────────────────
+# This is an ADDITIVE patch to your existing Cargo.toml.
+# Merge the [dev-dependencies] entry and the [[bench]] section into your file.
+# Do NOT replace the whole file.
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+# Benchmarks under packages/runtime-core/benches/
+[[bench]]
+name    = "bench_entity_iteration"
+harness = false   # Required for Criterion to manage its own test harness
+
+# ─────────────────────────────────────────────────────────────────────────────
+# After applying this patch, run benchmarks with:
+#
+#   cargo bench -p xace-runtime-core --bench bench_entity_iteration
+#
+# The benchmark gate (per user decision 5–8):
+#   At 5000 entities, archetype storage must be >5x faster than BTreeMap.
+#   If the gate fails, do NOT merge — archetype storage is not worth its
+#   complexity unless it pays for itself in real performance gains.
+# ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,35 @@
+[package]
+name        = "xace-observability"
+version     = "0.1.0"
+edition     = "2021"
+description = "XACE Observability — Layer 0 foundation. Tracing, metrics, health, crash reporting. Importable by all layers; imports from none."
+authors     = ["XACE Team"]
+
+# Layer 0 invariant: this crate MUST NOT path-depend on any other xace-* crate.
+# If you add a path dependency here, you break the circular-dependency guarantee.
+# The CI dep-check script enforces this. Do not bypass it.
+
+[lib]
+name = "xace_observability"
+path = "src/lib.rs"
+
+[dependencies]
+# Serialisation — crash reports and metrics text format
+serde       = { version = "1",  features = ["derive"] }
+serde_json  = { version = "1" }
+
+# UUID for trace/span IDs — no external RNG, uses getrandom (OS entropy)
+uuid        = { version = "1",  features = ["v4"] }
+
+# Atomic types used in metrics counters — part of stdlib on all platforms
+# (no dep needed, listed here as documentation of the model)
+
+[dev-dependencies]
+# Assertions for test helpers — no additional deps needed beyond std
+
+[[bin]]
+# This crate is a library only. The health-check HTTP server runs as a background
+# thread spawned from the lib, not as a separate binary.
+# Uncomment only if you add a diagnostics CLI tool in future.
+# name = "xace-metrics"
+# path = "src/bin/metrics.rs"
