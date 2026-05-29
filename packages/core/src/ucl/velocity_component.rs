@@ -39,7 +39,11 @@ pub struct VelocityVec3 {
 }
 
 impl VelocityVec3 {
-    pub const ZERO: VelocityVec3 = VelocityVec3 { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: VelocityVec3 = VelocityVec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }

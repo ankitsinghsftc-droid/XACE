@@ -1,11 +1,9 @@
 //! # Animation Layer Manager Integration Tests
 
-use crate::dcl::character::animation_layer_manager::{
-    AnimationLayerManager, TransitionRequest,
-};
+use crate::dcl::character::animation_layer_manager::{AnimationLayerManager, TransitionRequest};
 use crate::dcl::character::animation_state_validator::{
-    AnimationControllerDefinition, AnimationStateValidator, ParameterType,
-    AnimationValidationErrorType,
+    AnimationControllerDefinition, AnimationStateValidator, AnimationValidationErrorType,
+    ParameterType,
 };
 
 fn standard_controller() -> AnimationControllerDefinition {
@@ -32,7 +30,8 @@ fn full_layer_lifecycle() {
     assert_eq!(m.current_state("Base"), Some("Idle"));
 
     // Transition Base to Run
-    m.request_transition(TransitionRequest::immediate("Base", "Run")).unwrap();
+    m.request_transition(TransitionRequest::immediate("Base", "Run"))
+        .unwrap();
     assert_eq!(m.current_state("Base"), Some("Run"));
 
     // Upper still Idle
@@ -44,9 +43,8 @@ fn blended_transition_completes_correctly() {
     let mut m = AnimationLayerManager::new();
     m.add_layer("Base", "Idle").unwrap();
 
-    m.request_transition(
-        TransitionRequest::blended("Base", "Run", 0.5)
-    ).unwrap();
+    m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
+        .unwrap();
 
     // Partial progress
     let done = m.tick_transitions(0.4);
@@ -99,15 +97,13 @@ fn validator_and_manager_integrated_workflow() {
     manager.add_layer("Base", "Idle").unwrap();
 
     // Validate before applying
-    let result = validator.validate_transition(
-        "Base", "Idle", "Run", &ctrl
-    );
+    let result = validator.validate_transition("Base", "Idle", "Run", &ctrl);
     assert!(result.is_valid());
 
     // Apply after validation
-    manager.request_transition(
-        TransitionRequest::immediate("Base", "Run")
-    ).unwrap();
+    manager
+        .request_transition(TransitionRequest::immediate("Base", "Run"))
+        .unwrap();
     assert_eq!(manager.current_state("Base"), Some("Run"));
 }
 
@@ -117,7 +113,7 @@ fn validator_blocks_invalid_state_before_manager() {
     let validator = AnimationStateValidator::new();
 
     let result = validator.validate_transition(
-        "Base", "Idle", "Flying", &ctrl // Invalid state
+        "Base", "Idle", "Flying", &ctrl, // Invalid state
     );
     assert!(!result.is_valid());
     assert_eq!(
@@ -132,8 +128,12 @@ fn all_valid_parameters_pass() {
     let ctrl = standard_controller();
     let v = AnimationStateValidator::new();
     assert!(v.validate_parameter("speed", "3.14", &ctrl).is_valid());
-    assert!(v.validate_parameter("is_grounded", "true", &ctrl).is_valid());
-    assert!(v.validate_parameter("attack_trigger", "true", &ctrl).is_valid());
+    assert!(v
+        .validate_parameter("is_grounded", "true", &ctrl)
+        .is_valid());
+    assert!(v
+        .validate_parameter("attack_trigger", "true", &ctrl)
+        .is_valid());
 }
 
 #[test]
@@ -156,12 +156,10 @@ fn determinism_two_managers_same_transitions_same_state() {
     m2.add_layer("Base", "Idle").unwrap();
 
     for (state, duration) in [("Run", 0.3), ("Jump", 0.2), ("Idle", 0.1)] {
-        m1.request_transition(
-            TransitionRequest::blended("Base", state, duration)
-        ).unwrap();
-        m2.request_transition(
-            TransitionRequest::blended("Base", state, duration)
-        ).unwrap();
+        m1.request_transition(TransitionRequest::blended("Base", state, duration))
+            .unwrap();
+        m2.request_transition(TransitionRequest::blended("Base", state, duration))
+            .unwrap();
         m1.tick_transitions(1.0);
         m2.tick_transitions(1.0);
     }

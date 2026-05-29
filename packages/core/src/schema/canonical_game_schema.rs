@@ -28,9 +28,9 @@
 //! No runtime system may modify the CGS directly.
 //! All modifications go through the mutation pipeline only.
 
-use serde::{Deserialize, Serialize};
 use crate::schema::game_mode::GameMode;
 use crate::schema::system_definition::SystemDefinition;
+use serde::{Deserialize, Serialize};
 
 // ── CGS Version ───────────────────────────────────────────────────────────────
 
@@ -59,7 +59,11 @@ impl CgsVersion {
     };
 
     pub fn new(major: u32, minor: u32, patch: u32) -> Self {
-        Self { major, minor, patch }
+        Self {
+            major,
+            minor,
+            patch,
+        }
     }
 
     /// Increments the patch version. Used for small value changes.
@@ -254,10 +258,7 @@ impl CanonicalGameSchema {
     /// Returns the total number of systems across all modes and global.
     /// Used for complexity estimation and performance risk assessment.
     pub fn total_system_count(&self) -> usize {
-        let mode_systems: usize = self.modes
-            .iter()
-            .map(|m| m.systems.len())
-            .sum();
+        let mode_systems: usize = self.modes.iter().map(|m| m.systems.len()).sum();
         self.global_systems.len() + mode_systems
     }
 
@@ -287,10 +288,7 @@ impl CanonicalGameSchema {
         let mut seen_ids = std::collections::HashSet::new();
         for mode in &self.modes {
             if !seen_ids.insert(&mode.id) {
-                return Err(format!(
-                    "Duplicate mode ID in CGS: {}",
-                    mode.id
-                ));
+                return Err(format!("Duplicate mode ID in CGS: {}", mode.id));
             }
         }
 
@@ -310,10 +308,7 @@ impl CanonicalGameSchema {
         let mut seen_systems = std::collections::HashSet::new();
         for system in &self.global_systems {
             if !seen_systems.insert(&system.id) {
-                return Err(format!(
-                    "Duplicate global system ID in CGS: {}",
-                    system.id
-                ));
+                return Err(format!("Duplicate global system ID in CGS: {}", system.id));
             }
         }
 
@@ -339,7 +334,8 @@ mod tests {
 
     fn minimal_valid_cgs() -> CanonicalGameSchema {
         let mut cgs = CanonicalGameSchema::new(test_metadata());
-        cgs.modes.push(GameMode::new("mode_main", "Main Mode", true));
+        cgs.modes
+            .push(GameMode::new("mode_main", "Main Mode", true));
         cgs
     }
 
@@ -389,7 +385,8 @@ mod tests {
     fn two_default_modes_fail_validation() {
         let mut cgs = CanonicalGameSchema::new(test_metadata());
         cgs.modes.push(GameMode::new("mode_arena", "Arena", true));
-        cgs.modes.push(GameMode::new("mode_survival", "Survival", true));
+        cgs.modes
+            .push(GameMode::new("mode_survival", "Survival", true));
         assert!(cgs.is_structurally_valid().is_err());
     }
 
@@ -447,9 +444,8 @@ mod tests {
     fn total_system_count_includes_global_and_mode() {
         let mut cgs = minimal_valid_cgs();
         assert_eq!(cgs.total_system_count(), 0);
-        cgs.global_systems.push(
-            SystemDefinition::new("sys_input", "InputSystem")
-        );
+        cgs.global_systems
+            .push(SystemDefinition::new("sys_input", "InputSystem"));
         assert_eq!(cgs.total_system_count(), 1);
     }
 }

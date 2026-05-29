@@ -114,11 +114,7 @@ impl ErrorContext {
         self
     }
 
-    pub fn with_detail(
-        mut self,
-        key: impl Into<String>,
-        value: impl Into<String>,
-    ) -> Self {
+    pub fn with_detail(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.details.insert(key.into(), value.into());
         self
     }
@@ -309,7 +305,10 @@ impl XaceError {
             XaceError::AssetUnresolved { .. } => ErrorSeverity::Error,
             XaceError::RetryableLLMFailure { .. } => ErrorSeverity::Warning,
             XaceError::ClarificationRequired { .. } => ErrorSeverity::Info,
-            XaceError::SaveVersionMismatch { migration_available, .. } => {
+            XaceError::SaveVersionMismatch {
+                migration_available,
+                ..
+            } => {
                 if *migration_available {
                     ErrorSeverity::Warning
                 } else {
@@ -388,35 +387,44 @@ impl XaceError {
     /// Zero technical vocabulary — safe for display to any user mode.
     pub fn user_message(&self) -> String {
         match self {
-            XaceError::FatalError { .. } =>
+            XaceError::FatalError { .. } => {
                 "Something went seriously wrong. Your game is being restored \
-                 to the last safe point.".into(),
-            XaceError::RecoverableError { message, .. } =>
-                format!("Something went wrong but we're fixing it: {}", message),
-            XaceError::ValidationFailure { message, .. } =>
-                format!("That change couldn't be applied: {}", message),
-            XaceError::ClarificationRequired { message, .. } =>
-                format!("I need a bit more information: {}", message),
-            XaceError::RetryableLLMFailure { .. } =>
-                "I'm having trouble understanding that. Let me try again.".into(),
-            XaceError::AssetUnresolved { asset_id, .. } =>
-                format!(
-                    "A visual asset ('{}') is missing from the project. \
+                 to the last safe point."
+                    .into()
+            }
+            XaceError::RecoverableError { message, .. } => {
+                format!("Something went wrong but we're fixing it: {}", message)
+            }
+            XaceError::ValidationFailure { message, .. } => {
+                format!("That change couldn't be applied: {}", message)
+            }
+            XaceError::ClarificationRequired { message, .. } => {
+                format!("I need a bit more information: {}", message)
+            }
+            XaceError::RetryableLLMFailure { .. } => {
+                "I'm having trouble understanding that. Let me try again.".into()
+            }
+            XaceError::AssetUnresolved { asset_id, .. } => format!(
+                "A visual asset ('{}') is missing from the project. \
                      Please link it before saving.",
-                    asset_id
-                ),
-            XaceError::NetworkDesync { peer_id, .. } =>
-                format!(
-                    "Player '{}' got out of sync. Reconnecting them now.",
-                    peer_id
-                ),
-            XaceError::SaveVersionMismatch { migration_available, .. } => {
+                asset_id
+            ),
+            XaceError::NetworkDesync { peer_id, .. } => format!(
+                "Player '{}' got out of sync. Reconnecting them now.",
+                peer_id
+            ),
+            XaceError::SaveVersionMismatch {
+                migration_available,
+                ..
+            } => {
                 if *migration_available {
                     "This save file is from an older version. \
-                     Updating it now.".into()
+                     Updating it now."
+                        .into()
                 } else {
                     "This save file is too old to load. \
-                     Please start a new game.".into()
+                     Please start a new game."
+                        .into()
                 }
             }
         }

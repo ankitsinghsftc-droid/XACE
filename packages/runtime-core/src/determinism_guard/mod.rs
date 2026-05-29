@@ -20,15 +20,15 @@
 //!    → calls ReplayValidator::record_tick() or validate_tick() depending on mode
 
 pub mod determinism_guard;
-pub mod world_hasher;
 pub mod replay_validator;
 pub mod rng_interceptor;
+pub mod world_hasher;
 
 #[cfg(test)]
 mod tests;
 
 // Re-export the most commonly used types at module level
 pub use determinism_guard::DeterminismGuard;
-pub use world_hasher::WorldHasher;
 pub use replay_validator::{GoldenLog, ReplayDivergenceReport, ReplayStatus, ReplayValidator};
 pub use rng_interceptor::{DeterministicWindow, InterceptorMetrics, RngInterceptor};
+pub use world_hasher::WorldHasher;

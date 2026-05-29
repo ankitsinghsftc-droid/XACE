@@ -26,16 +26,16 @@ use std::collections::BTreeMap;
 /// UCL Core component type IDs — frozen forever.
 pub mod component_ids {
     pub const TRANSFORM: u32 = 1;
-    pub const IDENTITY:  u32 = 2;
-    pub const VELOCITY:  u32 = 5;
-    pub const INPUT:     u32 = 6;
+    pub const IDENTITY: u32 = 2;
+    pub const VELOCITY: u32 = 5;
+    pub const INPUT: u32 = 6;
 
     // DCL combat
-    pub const HEALTH:    u32 = 100;
-    pub const DAMAGE:    u32 = 101;
+    pub const HEALTH: u32 = 100;
+    pub const DAMAGE: u32 = 101;
 
     // DCL ai
-    pub const AI:        u32 = 160;
+    pub const AI: u32 = 160;
 }
 
 // ── Actor IDs ─────────────────────────────────────────────────────────────────
@@ -47,11 +47,11 @@ pub const ACTOR_ZOMBIE: &str = "actor_zombie";
 // Must match exactly what each ISystem::system_id() returns.
 // Used for RNG seeding (D6) and ExecutionPlan ordering.
 
-pub const SYSTEM_INPUT:    &str = "InputSystem";
+pub const SYSTEM_INPUT: &str = "InputSystem";
 pub const SYSTEM_MOVEMENT: &str = "MovementSystem";
-pub const SYSTEM_AI:       &str = "AISystem";
-pub const SYSTEM_DAMAGE:   &str = "DamageSystem";
-pub const SYSTEM_DEATH:    &str = "DeathSystem";
+pub const SYSTEM_AI: &str = "AISystem";
+pub const SYSTEM_DAMAGE: &str = "DamageSystem";
+pub const SYSTEM_DEATH: &str = "DeathSystem";
 
 // ── Execution Order ───────────────────────────────────────────────────────────
 // D1: system order defined ONLY by ExecutionPlan, never by self-scheduling.
@@ -132,25 +132,21 @@ pub fn damage_consumed_json(amount: f32, source_entity_id: u64, applied_tick: u6
 pub fn player_initial_components(x: f32, z: f32) -> BTreeMap<u32, String> {
     let mut m = BTreeMap::new();
     m.insert(component_ids::TRANSFORM, transform_json(x, 0.0, z));
-    m.insert(component_ids::IDENTITY,  identity_json("Player", "PLAYER"));
-    m.insert(component_ids::VELOCITY,  velocity_json(0.0, 0.0, 0.0));
-    m.insert(component_ids::INPUT,     input_json(0, "HUMAN"));
-    m.insert(component_ids::HEALTH,    health_json(100.0, 100.0));
+    m.insert(component_ids::IDENTITY, identity_json("Player", "PLAYER"));
+    m.insert(component_ids::VELOCITY, velocity_json(0.0, 0.0, 0.0));
+    m.insert(component_ids::INPUT, input_json(0, "HUMAN"));
+    m.insert(component_ids::HEALTH, health_json(100.0, 100.0));
     m
 }
 
 /// Builds initial component maps for a zombie entity.
-pub fn zombie_initial_components(
-    x: f32,
-    z: f32,
-    target_player_id: u64,
-) -> BTreeMap<u32, String> {
+pub fn zombie_initial_components(x: f32, z: f32, target_player_id: u64) -> BTreeMap<u32, String> {
     let mut m = BTreeMap::new();
     m.insert(component_ids::TRANSFORM, transform_json(x, 0.0, z));
-    m.insert(component_ids::IDENTITY,  identity_json("Zombie", "ENEMY"));
-    m.insert(component_ids::VELOCITY,  velocity_json(0.0, 0.0, 0.0));
-    m.insert(component_ids::HEALTH,    health_json(30.0, 30.0));
-    m.insert(component_ids::AI,        ai_json(target_player_id, 20.0));
+    m.insert(component_ids::IDENTITY, identity_json("Zombie", "ENEMY"));
+    m.insert(component_ids::VELOCITY, velocity_json(0.0, 0.0, 0.0));
+    m.insert(component_ids::HEALTH, health_json(30.0, 30.0));
+    m.insert(component_ids::AI, ai_json(target_player_id, 20.0));
     m
 }
 
@@ -166,9 +162,10 @@ pub fn parse_position_xz(json: &str) -> (f32, f32) {
     const KEY: &str = "\"position\":";
     let start = match json.find(KEY) {
         Some(i) => i + KEY.len(),
-        None    => return (0.0, 0.0),
+        None => return (0.0, 0.0),
     };
-    let end = json[start..].find('}')
+    let end = json[start..]
+        .find('}')
         .map(|i| start + i + 1)
         .unwrap_or(json.len());
     let sub = &json[start..end];
@@ -188,9 +185,10 @@ pub fn parse_velocity_xz(json: &str) -> (f32, f32) {
     const KEY: &str = "\"linear\":";
     let start = match json.find(KEY) {
         Some(i) => i + KEY.len(),
-        None    => return (0.0, 0.0),
+        None => return (0.0, 0.0),
     };
-    let end = json[start..].find('}')
+    let end = json[start..]
+        .find('}')
         .map(|i| start + i + 1)
         .unwrap_or(json.len());
     let sub = &json[start..end];
@@ -239,10 +237,11 @@ pub fn parse_input_controller_id(json: &str) -> u32 {
 
 /// Extracts the first f32 value immediately after `key` in `json`.
 pub fn extract_f32(json: &str, key: &str) -> Option<f32> {
-    let pos   = json.find(key)? + key.len();
-    let rest  = json[pos..].trim_start_matches(' ');
-    let end   = rest.find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
-                    .unwrap_or(rest.len());
+    let pos = json.find(key)? + key.len();
+    let rest = json[pos..].trim_start_matches(' ');
+    let end = rest
+        .find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
+        .unwrap_or(rest.len());
     rest[..end].parse().ok()
 }
 
@@ -251,15 +250,18 @@ pub fn extract_f32(json: &str, key: &str) -> Option<f32> {
 pub fn extract_f32_after(json: &str, key: &str) -> Option<f32> {
     let pos = json.rfind(key)? + key.len();
     let rest = json[pos..].trim_start_matches(' ');
-    let end = rest.find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
-                  .unwrap_or(rest.len());
+    let end = rest
+        .find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
+        .unwrap_or(rest.len());
     rest[..end].parse().ok()
 }
 
 pub fn extract_u64(json: &str, key: &str) -> Option<u64> {
-    let pos  = json.find(key)? + key.len();
+    let pos = json.find(key)? + key.len();
     let rest = json[pos..].trim_start_matches(' ');
-    let end  = rest.find(|c: char| !c.is_ascii_digit()).unwrap_or(rest.len());
+    let end = rest
+        .find(|c: char| !c.is_ascii_digit())
+        .unwrap_or(rest.len());
     rest[..end].parse().ok()
 }
 

@@ -18,11 +18,11 @@
 //! Mode definitions live in the CGS only.
 //! The runtime never defines or modifies modes directly.
 
-use serde::{Deserialize, Serialize};
-use crate::schema::world_definition::WorldDefinition;
 use crate::schema::actor_definition::ActorDefinition;
-use crate::schema::system_definition::SystemDefinition;
 use crate::schema::rule_definition::RuleDefinition;
+use crate::schema::system_definition::SystemDefinition;
+use crate::schema::world_definition::WorldDefinition;
+use serde::{Deserialize, Serialize};
 
 // ── UI Configuration ──────────────────────────────────────────────────────────
 
@@ -143,11 +143,7 @@ impl GameMode {
     ///
     /// Used by the Game Genesis Engine and GDE when creating new modes.
     /// World defaults to a standard environment. UI defaults to empty.
-    pub fn new(
-        id: impl Into<String>,
-        description: impl Into<String>,
-        is_default: bool,
-    ) -> Self {
+    pub fn new(id: impl Into<String>, description: impl Into<String>, is_default: bool) -> Self {
         Self {
             id: id.into(),
             description: description.into(),
@@ -193,22 +189,14 @@ impl GameMode {
     /// Returns true if this mode has no actors, systems, or rules defined.
     /// An empty mode is valid structurally but not playable.
     pub fn is_empty(&self) -> bool {
-        self.actors.is_empty()
-            && self.systems.is_empty()
-            && self.rules.is_empty()
+        self.actors.is_empty() && self.systems.is_empty() && self.rules.is_empty()
     }
 
     /// Returns all active rule IDs sorted by priority descending.
     /// Used by the GDE when evaluating rule conflicts.
     pub fn active_rule_ids(&self) -> Vec<&str> {
-        let mut rules: Vec<&RuleDefinition> = self.rules
-            .iter()
-            .filter(|r| r.is_active)
-            .collect();
-        rules.sort_by(|a, b| {
-            b.priority.cmp(&a.priority)
-                .then(a.id.cmp(&b.id))
-        });
+        let mut rules: Vec<&RuleDefinition> = self.rules.iter().filter(|r| r.is_active).collect();
+        rules.sort_by(|a, b| b.priority.cmp(&a.priority).then(a.id.cmp(&b.id)));
         rules.iter().map(|r| r.id.as_str()).collect()
     }
 

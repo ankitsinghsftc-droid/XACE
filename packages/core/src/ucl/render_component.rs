@@ -154,9 +154,9 @@ pub struct RenderLayer(pub i32);
 
 impl RenderLayer {
     pub const BACKGROUND: RenderLayer = RenderLayer(-100);
-    pub const DEFAULT: RenderLayer    = RenderLayer(0);
+    pub const DEFAULT: RenderLayer = RenderLayer(0);
     pub const FOREGROUND: RenderLayer = RenderLayer(100);
-    pub const UI: RenderLayer         = RenderLayer(1000);
+    pub const UI: RenderLayer = RenderLayer(1000);
 }
 
 impl Default for RenderLayer {
@@ -242,9 +242,7 @@ impl RenderComponent {
     pub fn invisible() -> Self {
         Self {
             render_type: RenderType::Invisible,
-            asset_reference: AssetReference::placeholder(
-                "none", AssetType::Mesh
-            ),
+            asset_reference: AssetReference::placeholder("none", AssetType::Mesh),
             material_ref: None,
             visible: false,
             cast_shadows: false,
@@ -257,7 +255,8 @@ impl RenderComponent {
     /// Unresolved references block CGS commit (I12).
     pub fn has_unresolved_refs(&self) -> bool {
         !self.asset_reference.is_committable()
-            || self.material_ref
+            || self
+                .material_ref
                 .as_ref()
                 .map(|r| !r.is_committable())
                 .unwrap_or(false)

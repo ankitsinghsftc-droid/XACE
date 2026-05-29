@@ -42,23 +42,23 @@ impl ISystem for MovementSystem {
 
     fn execute(&self, context: &mut dyn ISystemContext) -> Result<(), XaceError> {
         // D3: EntityID ASC order guaranteed by query_entities
-        let entities = context.query_entities(&[
-            component_ids::VELOCITY,
-            component_ids::TRANSFORM,
-        ])?;
+        let entities =
+            context.query_entities(&[component_ids::VELOCITY, component_ids::TRANSFORM])?;
 
         for entity_id in entities {
             // Read current position
-            let transform_json_str = match context.get_component(entity_id, component_ids::TRANSFORM)? {
-                Some(j) => j.to_owned(),
-                None    => continue,
-            };
+            let transform_json_str =
+                match context.get_component(entity_id, component_ids::TRANSFORM)? {
+                    Some(j) => j.to_owned(),
+                    None => continue,
+                };
 
             // Read current velocity
-            let velocity_json_str = match context.get_component(entity_id, component_ids::VELOCITY)? {
-                Some(j) => j.to_owned(),
-                None    => continue,
-            };
+            let velocity_json_str =
+                match context.get_component(entity_id, component_ids::VELOCITY)? {
+                    Some(j) => j.to_owned(),
+                    None => continue,
+                };
 
             let (px, pz) = parse_position_xz(&transform_json_str);
             let (vx, vz) = parse_velocity_xz(&velocity_json_str);

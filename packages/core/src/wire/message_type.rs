@@ -122,9 +122,7 @@ impl MessageType {
     pub fn is_xace_to_engine(&self) -> bool {
         matches!(
             self,
-            MessageType::Snapshot
-                | MessageType::Delta
-                | MessageType::Event
+            MessageType::Snapshot | MessageType::Delta | MessageType::Event
         )
     }
 
@@ -175,7 +173,11 @@ mod tests {
         ];
         let mut seen = std::collections::HashSet::new();
         for t in types {
-            assert!(seen.insert(t.as_u8()), "Duplicate discriminant: {}", t.as_u8());
+            assert!(
+                seen.insert(t.as_u8()),
+                "Duplicate discriminant: {}",
+                t.as_u8()
+            );
         }
     }
 

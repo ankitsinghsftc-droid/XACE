@@ -100,9 +100,9 @@ impl CycleDetector {
                 if let Some(cycle_path) = Self::dfs(start, bucket, &mut colors) {
                     let edge_types = Self::extract_edge_types(&cycle_path, bucket);
                     let normalized = Self::normalize_cycle(cycle_path);
-                    return Err(CompilationError::Cycle(
-                        CycleError::new(normalized, edge_types),
-                    ));
+                    return Err(CompilationError::Cycle(CycleError::new(
+                        normalized, edge_types,
+                    )));
                 }
             }
         }
@@ -119,7 +119,7 @@ impl CycleDetector {
     ///
     /// Returns `Some(cycle_path)` on cycle, `None` if subtree is acyclic.
     fn dfs<'a>(
-        start:  &'a str,
+        start: &'a str,
         bucket: &'a PhaseBucket,
         colors: &mut BTreeMap<&'a str, VertexColor>,
     ) -> Option<Vec<String>> {
@@ -173,8 +173,7 @@ impl CycleDetector {
             .edges
             .iter()
             .filter(|((from, _), edge)| {
-                from.as_str() == node
-                    && edge.edge_type != EdgeType::PhaseOrder
+                from.as_str() == node && edge.edge_type != EdgeType::PhaseOrder
             })
             .map(|((_, to), _)| to.as_str())
             .collect()
@@ -193,11 +192,11 @@ impl CycleDetector {
     /// The implicit closing edge is `current → cycle_start`.
     fn reconstruct_cycle(
         cycle_start: &str,
-        current:     &str,
-        parent:      &BTreeMap<&str, Option<&str>>,
+        current: &str,
+        parent: &BTreeMap<&str, Option<&str>>,
     ) -> Vec<String> {
         let mut path: Vec<String> = Vec::new();
-        let mut node  = current;
+        let mut node = current;
 
         // Walk backwards from `current` to `cycle_start` via parent pointers.
         loop {
@@ -229,8 +228,8 @@ impl CycleDetector {
 
         for i in 0..n {
             let from = &cycle_path[i];
-            let to   = &cycle_path[(i + 1) % n]; // wraps around for closing edge
-            let key  = (from.clone(), to.clone());
+            let to = &cycle_path[(i + 1) % n]; // wraps around for closing edge
+            let key = (from.clone(), to.clone());
             let edge_type = bucket
                 .edges
                 .get(&key)
@@ -272,12 +271,12 @@ impl CycleDetector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
-    use xace_core::runtime::phase_enum::PhaseEnum;
     use crate::compilation_error::EdgeType;
     use crate::graph_construction::system_edge::SystemEdge;
     use crate::graph_construction::system_node::SystemNode;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+    use std::collections::BTreeMap;
+    use xace_core::runtime::phase_enum::PhaseEnum;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -292,7 +291,7 @@ mod tests {
             edges: edges
                 .iter()
                 .map(|&(from, to)| {
-                    let key  = (from.to_string(), to.to_string());
+                    let key = (from.to_string(), to.to_string());
                     let edge = SystemEdge::explicit_dependency(from, to);
                     (key, edge)
                 })
@@ -374,10 +373,15 @@ mod tests {
         assert!(result.is_err());
         if let Err(CompilationError::Cycle(ce)) = result {
             // Normalized: must start from lex-smallest
-            assert_eq!(ce.cycle_path[0], "sys_a",
-                "Cycle path must start from lex-smallest node (D11)");
-            assert_eq!(ce.cycle_path.len(), 3,
-                "Three-node cycle must have three path entries");
+            assert_eq!(
+                ce.cycle_path[0], "sys_a",
+                "Cycle path must start from lex-smallest node (D11)"
+            );
+            assert_eq!(
+                ce.cycle_path.len(),
+                3,
+                "Three-node cycle must have three path entries"
+            );
         } else {
             panic!("Expected Cycle error");
         }
@@ -393,8 +397,10 @@ mod tests {
             &[("sys_c", "sys_a"), ("sys_a", "sys_b"), ("sys_b", "sys_c")],
         );
         if let Err(CompilationError::Cycle(ce)) = CycleDetector::check(&bucket) {
-            assert_eq!(ce.cycle_path[0], "sys_a",
-                "Cycle must start from lex-smallest node sys_a (D11)");
+            assert_eq!(
+                ce.cycle_path[0], "sys_a",
+                "Cycle must start from lex-smallest node sys_a (D11)"
+            );
         } else {
             panic!("Expected Cycle error");
         }
@@ -422,8 +428,14 @@ mod tests {
             phase: PhaseEnum::Simulation,
             nodes: {
                 let mut m = BTreeMap::new();
-                m.insert("sys_a".into(), SystemNode::new("sys_a", PhaseEnum::Simulation));
-                m.insert("sys_b".into(), SystemNode::new("sys_b", PhaseEnum::Simulation));
+                m.insert(
+                    "sys_a".into(),
+                    SystemNode::new("sys_a", PhaseEnum::Simulation),
+                );
+                m.insert(
+                    "sys_b".into(),
+                    SystemNode::new("sys_b", PhaseEnum::Simulation),
+                );
                 m
             },
             edges: {
@@ -457,10 +469,19 @@ mod tests {
             &[("sys_a", "sys_b"), ("sys_b", "sys_a")],
         );
         if let Err(CompilationError::Cycle(ce)) = CycleDetector::check(&bucket) {
-            assert!(!ce.description.is_empty(), "CycleError must have a description");
-            assert!(!ce.suggestions.is_empty(), "CycleError must have suggestions");
-            assert_eq!(ce.edge_types.len(), ce.cycle_path.len(),
-                "One EdgeType per edge in the cycle path");
+            assert!(
+                !ce.description.is_empty(),
+                "CycleError must have a description"
+            );
+            assert!(
+                !ce.suggestions.is_empty(),
+                "CycleError must have suggestions"
+            );
+            assert_eq!(
+                ce.edge_types.len(),
+                ce.cycle_path.len(),
+                "One EdgeType per edge in the cycle path"
+            );
         } else {
             panic!("Expected Cycle error");
         }
@@ -500,7 +521,11 @@ mod tests {
 
     #[test]
     fn normalize_already_minimal_unchanged() {
-        let path = vec!["sys_a".to_string(), "sys_b".to_string(), "sys_c".to_string()];
+        let path = vec![
+            "sys_a".to_string(),
+            "sys_b".to_string(),
+            "sys_c".to_string(),
+        ];
         let result = CycleDetector::normalize_cycle(path.clone());
         assert_eq!(result, path);
     }
@@ -508,7 +533,11 @@ mod tests {
     #[test]
     fn normalize_rotates_to_lex_minimum() {
         // [sys_c, sys_a, sys_b] → [sys_a, sys_b, sys_c]
-        let path = vec!["sys_c".to_string(), "sys_a".to_string(), "sys_b".to_string()];
+        let path = vec![
+            "sys_c".to_string(),
+            "sys_a".to_string(),
+            "sys_b".to_string(),
+        ];
         let result = CycleDetector::normalize_cycle(path);
         assert_eq!(result, vec!["sys_a", "sys_b", "sys_c"]);
     }
@@ -516,7 +545,11 @@ mod tests {
     #[test]
     fn normalize_middle_element_minimum() {
         // [sys_z, sys_a, sys_m] — sys_a is minimum at index 1
-        let path = vec!["sys_z".to_string(), "sys_a".to_string(), "sys_m".to_string()];
+        let path = vec![
+            "sys_z".to_string(),
+            "sys_a".to_string(),
+            "sys_m".to_string(),
+        ];
         let result = CycleDetector::normalize_cycle(path);
         assert_eq!(result[0], "sys_a");
         assert_eq!(result.len(), 3);
@@ -526,36 +559,31 @@ mod tests {
 
     #[test]
     fn zombie_chase_five_systems_acyclic() {
-        use xace_core::schema::system_definition::SystemDefinition;
         use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
         use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
+        use xace_core::schema::system_definition::SystemDefinition;
 
-        fn def(
-            id:    &str,
-            reads: Vec<u32>,
-            writes: Vec<u32>,
-            deps:  Vec<&str>,
-        ) -> SystemDefinition {
-            SystemDefinition {
-                id: id.into(),
-                phase: PhaseEnum::Simulation,
+        fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>, deps: Vec<&str>) -> SystemDefinition {
+            let mut def = SystemDefinition::with_spec(
+                id,
+                id,
+                xace_core::schema::system_definition::ExecutionPhase::Simulation,
                 reads,
                 writes,
-                depends_on: deps.into_iter().map(String::from).collect(),
-                deterministic: true,
-                version: 1,
-            }
+            );
+            def.depends_on = deps.into_iter().map(String::from).collect();
+            def
         }
 
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5],        vec![]),
-            def("MovementSystem", vec![5, 1],     vec![1],        vec![]),
-            def("AISystem",       vec![160, 1],   vec![5, 101],   vec![]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    vec![100],      vec![],         vec![]),
+            def("InputSystem", vec![6, 1], vec![5], vec![]),
+            def("MovementSystem", vec![5, 1], vec![1], vec![]),
+            def("AISystem", vec![160, 1], vec![5, 101], vec![]),
+            def("DamageSystem", vec![101, 100], vec![100, 101], vec![]),
+            def("DeathSystem", vec![100], vec![], vec![]),
         ];
 
-        let graph   = GraphConstructionLayer::build(&defs).unwrap();
+        let graph = GraphConstructionLayer::build(&defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
 
         for bucket in &buckets {

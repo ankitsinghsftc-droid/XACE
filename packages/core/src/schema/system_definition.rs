@@ -29,6 +29,7 @@
 //! by the DeterminismGuard. Systems marked false are flagged as warnings
 //! during SGC compilation — all systems in XACE should be deterministic.
 
+use crate::runtime::phase_enum::PhaseEnum;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for system read/write declarations.
@@ -105,10 +106,20 @@ impl ExecutionPhase {
     pub fn allows_gameplay_writes(&self) -> bool {
         matches!(
             self,
-            ExecutionPhase::Initialization
-                | ExecutionPhase::Input
-                | ExecutionPhase::Simulation
+            ExecutionPhase::Initialization | ExecutionPhase::Input | ExecutionPhase::Simulation
         )
+    }
+}
+
+impl From<PhaseEnum> for ExecutionPhase {
+    fn from(value: PhaseEnum) -> Self {
+        match value {
+            PhaseEnum::Initialization => ExecutionPhase::Initialization,
+            PhaseEnum::Input => ExecutionPhase::Input,
+            PhaseEnum::Simulation => ExecutionPhase::Simulation,
+            PhaseEnum::PostSimulation => ExecutionPhase::PostSimulation,
+            PhaseEnum::Cleanup => ExecutionPhase::Cleanup,
+        }
     }
 }
 
@@ -341,10 +352,7 @@ impl SystemDefinition {
         // Reads must be sorted
         for window in self.reads.windows(2) {
             if window[0] >= window[1] {
-                return Err(format!(
-                    "System {} reads are not sorted ascending",
-                    self.id
-                ));
+                return Err(format!("System {} reads are not sorted ascending", self.id));
             }
         }
 
@@ -360,10 +368,7 @@ impl SystemDefinition {
 
         // No self-dependency
         if self.depends_on.iter().any(|d| d == &self.id) {
-            return Err(format!(
-                "System {} cannot depend on itself",
-                self.id
-            ));
+            return Err(format!("System {} cannot depend on itself", self.id));
         }
 
         Ok(())
@@ -411,7 +416,8 @@ mod tests {
     #[test]
     fn reads_sorted_on_creation() {
         let sys = SystemDefinition::with_spec(
-            "sys_test", "Test",
+            "sys_test",
+            "Test",
             ExecutionPhase::Simulation,
             vec![5, 1, 3],
             vec![],
@@ -422,7 +428,8 @@ mod tests {
     #[test]
     fn writes_sorted_on_creation() {
         let sys = SystemDefinition::with_spec(
-            "sys_test", "Test",
+            "sys_test",
+            "Test",
             ExecutionPhase::Simulation,
             vec![],
             vec![9, 2, 6],
@@ -465,18 +472,10 @@ mod tests {
 
     #[test]
     fn no_hazard_between_independent_systems() {
-        let sys_a = SystemDefinition::with_spec(
-            "sys_a", "A",
-            ExecutionPhase::Simulation,
-            vec![1],
-            vec![2],
-        );
-        let sys_b = SystemDefinition::with_spec(
-            "sys_b", "B",
-            ExecutionPhase::Simulation,
-            vec![3],
-            vec![4],
-        );
+        let sys_a =
+            SystemDefinition::with_spec("sys_a", "A", ExecutionPhase::Simulation, vec![1], vec![2]);
+        let sys_b =
+            SystemDefinition::with_spec("sys_b", "B", ExecutionPhase::Simulation, vec![3], vec![4]);
         assert!(!sys_a.has_raw_hazard_with(&sys_b));
         assert!(!sys_a.has_waw_hazard_with(&sys_b));
     }

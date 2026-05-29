@@ -24,9 +24,7 @@ use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
 
 use crate::cgs::component_ids;
-use crate::cgs::{
-    damage_json, parse_ai_target, parse_position_xz, velocity_json,
-};
+use crate::cgs::{damage_json, parse_ai_target, parse_position_xz, velocity_json};
 
 /// Zombie movement speed — world units per second.
 const ZOMBIE_SPEED: f32 = 2.0_f32;
@@ -62,32 +60,33 @@ impl ISystem for AISystem {
         let tick = context.current_tick();
 
         // D3: zombie entities in EntityID ASC order
-        let ai_entities = context.query_entities(&[
-            component_ids::AI,
-            component_ids::TRANSFORM,
-        ])?;
+        let ai_entities = context.query_entities(&[component_ids::AI, component_ids::TRANSFORM])?;
 
         for zombie_id in ai_entities {
             // Read AI component to get target
             let ai_json = match context.get_component(zombie_id, component_ids::AI)? {
                 Some(j) => j.to_owned(),
-                None    => continue,
+                None => continue,
             };
 
             let target_id = parse_ai_target(&ai_json);
-            if target_id == 0 { continue; }
+            if target_id == 0 {
+                continue;
+            }
 
             // Read zombie position
-            let zombie_transform = match context.get_component(zombie_id, component_ids::TRANSFORM)? {
-                Some(j) => j.to_owned(),
-                None    => continue,
-            };
+            let zombie_transform =
+                match context.get_component(zombie_id, component_ids::TRANSFORM)? {
+                    Some(j) => j.to_owned(),
+                    None => continue,
+                };
 
             // Read target (player) position
-            let target_transform = match context.get_component(target_id, component_ids::TRANSFORM)? {
-                Some(j) => j.to_owned(),
-                None    => continue,
-            };
+            let target_transform =
+                match context.get_component(target_id, component_ids::TRANSFORM)? {
+                    Some(j) => j.to_owned(),
+                    None => continue,
+                };
 
             let (zx, zz) = parse_position_xz(&zombie_transform);
             let (tx, tz) = parse_position_xz(&target_transform);
@@ -104,7 +103,8 @@ impl ISystem for AISystem {
                 context.submit_mutation(target_id, component_ids::DAMAGE, dmg_json)?;
                 // Zombie stays in place when attacking
                 context.submit_mutation(
-                    zombie_id, component_ids::VELOCITY,
+                    zombie_id,
+                    component_ids::VELOCITY,
                     velocity_json(0.0, 0.0, 0.0),
                 )?;
                 continue;

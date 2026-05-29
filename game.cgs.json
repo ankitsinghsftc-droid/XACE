@@ -1,0 +1,197 @@
+{
+  "metadata": {
+    "name": "HorrorGame_v1",
+    "cgs_hash": "0b1d495d59a76609",
+    "version": "0.1.0",
+    "schema_version": "0.1.0",
+    "description": "Starter horror game — zombie chase template"
+  },
+  "global_systems": [
+    {
+      "id": "InputSystem",
+      "phase": "Input",
+      "reads": [6],
+      "writes": [5],
+      "depends_on": [],
+      "deterministic": true
+    },
+    {
+      "id": "SaveSystem",
+      "phase": "PostSimulation",
+      "reads": [1, 100],
+      "writes": [],
+      "depends_on": [],
+      "deterministic": true
+    }
+  ],
+  "modes": [
+    {
+      "id": "mode_gameplay",
+      "schema_version": "0.1.0",
+      "is_default": true,
+      "actors": [
+        {
+          "id": "actor_player",
+          "actor_type": "PlayerCharacter",
+          "control_type": "Human",
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position_x": 0.0,
+                "position_y": 1.8,
+                "position_z": 0.0,
+                "rotation_y": 0.0
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "max_linear_speed": 5.0,
+                "max_angular_speed": 360.0,
+                "linear_x": 0.0,
+                "linear_z": 0.0
+              }
+            },
+            {
+              "type_id": 100,
+              "name": "COMP_HEALTH_V1",
+              "defaults": {
+                "current": 100.0,
+                "max": 100.0,
+                "regen_rate": 0.0,
+                "is_invincible": false
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "name": "Player",
+                "mesh_id": "player_mesh",
+                "mesh_id_path": ""
+              }
+            }
+          ]
+        },
+        {
+          "id": "actor_zombie",
+          "actor_type": "Enemy",
+          "control_type": "AiProxy",
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position_x": 5.0,
+                "position_y": 0.0,
+                "position_z": 5.0,
+                "rotation_y": 0.0
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "max_linear_speed": 3.5,
+                "max_angular_speed": 180.0,
+                "linear_x": 0.0,
+                "linear_z": 0.0
+              }
+            },
+            {
+              "type_id": 100,
+              "name": "COMP_HEALTH_V1",
+              "defaults": {
+                "current": 30.0,
+                "max": 30.0,
+                "regen_rate": 0.0,
+                "is_invincible": false
+              }
+            },
+            {
+              "type_id": 160,
+              "name": "COMP_AI_V1",
+              "defaults": {
+                "behavior_model": "CHASE",
+                "detection_radius": 20.0,
+                "attack_range": 1.5,
+                "attack_damage": 10.0,
+                "attack_cooldown": 1.0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "name": "Zombie",
+                "mesh_id": "zombie_mesh",
+                "mesh_id_path": ""
+              }
+            }
+          ]
+        }
+      ],
+      "systems": [
+        {
+          "id": "MovementSystem",
+          "phase": "Simulation",
+          "reads": [5, 6],
+          "writes": [1],
+          "depends_on": ["InputSystem"],
+          "deterministic": true
+        },
+        {
+          "id": "AISystem",
+          "phase": "Simulation",
+          "reads": [160, 1],
+          "writes": [5, 101],
+          "depends_on": ["MovementSystem"],
+          "deterministic": true
+        },
+        {
+          "id": "DamageSystem",
+          "phase": "Simulation",
+          "reads": [101, 100],
+          "writes": [100],
+          "depends_on": ["AISystem"],
+          "deterministic": true
+        },
+        {
+          "id": "DeathSystem",
+          "phase": "PostSimulation",
+          "reads": [100],
+          "writes": [100],
+          "depends_on": ["DamageSystem"],
+          "deterministic": true
+        }
+      ],
+      "rules": [
+        {
+          "id": "rule_player_death",
+          "condition": "actor_player.COMP_HEALTH_V1.current <= 0",
+          "effect": "game_over(reason='player_died')",
+          "priority": 1,
+          "is_active": true
+        },
+        {
+          "id": "rule_zombie_death",
+          "condition": "actor_zombie.COMP_HEALTH_V1.current <= 0",
+          "effect": "destroy_actor(actor_zombie)",
+          "priority": 2,
+          "is_active": true
+        }
+      ]
+    },
+    {
+      "id": "mode_main_menu",
+      "schema_version": "0.1.0",
+      "is_default": false,
+      "actors": [],
+      "systems": [],
+      "rules": []
+    }
+  ]
+}

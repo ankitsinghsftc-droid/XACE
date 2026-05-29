@@ -1,6 +1,6 @@
 //! # Time Controller Integration Tests
 
-use crate::time_controller::{TimeController, TimeMode, DeterministicRng};
+use crate::time_controller::{DeterministicRng, TimeController, TimeMode};
 
 #[test]
 fn fixed_timestep_math_correct() {
@@ -12,7 +12,7 @@ fn fixed_timestep_math_correct() {
 #[test]
 fn accumulator_carries_remainder_correctly() {
     let mut tc = TimeController::new(10.0, 100); // 10 Hz
-    // 0.15 seconds = 1 tick (0.1s) + 0.05s remainder
+                                                 // 0.15 seconds = 1 tick (0.1s) + 0.05s remainder
     let ticks = tc.update(0.15).unwrap();
     assert_eq!(ticks, 1);
     assert!((tc.accumulator() - 0.05).abs() < 1e-10);

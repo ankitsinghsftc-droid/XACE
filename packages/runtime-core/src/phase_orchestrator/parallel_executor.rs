@@ -20,15 +20,14 @@
 //! but requires careful lifetime management. For Phase 4 we implement
 //! the deterministic merge logic — actual parallelism can be toggled.
 
-
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use xace_core::events::event_struct::Event;
-use crate::entity_store::EntityStore;
 use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
 use crate::mutation_gate::MutationGate;
-use crate::query_engine::QueryEngine;
 use crate::phase_orchestrator::system_registry::SystemRegistry;
+use crate::query_engine::QueryEngine;
 use std::collections::BTreeMap;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::events::event_struct::Event;
 
 // ── Parallel Execution Result ─────────────────────────────────────────────────
 
@@ -81,8 +80,9 @@ impl ParallelExecutor {
         let mut all_events: Vec<Event> = Vec::new();
 
         for system_id in system_ids {
-            let system = registry.get(system_id).ok_or_else(|| {
-                XaceError::ValidationFailure {
+            let system = registry
+                .get(system_id)
+                .ok_or_else(|| XaceError::ValidationFailure {
                     message: format!(
                         "System '{}' not found in SystemRegistry during execution",
                         system_id
@@ -91,8 +91,7 @@ impl ParallelExecutor {
                         .with_tick(tick),
                     rule_violated: "D1".into(),
                     failed_path: format!("system:{}", system_id),
-                }
-            })?;
+                })?;
 
             let mut ctx = super::system_context::SystemContext::new(
                 system.system_id(),
@@ -111,7 +110,10 @@ impl ParallelExecutor {
                 XaceError::FatalError {
                     message: format!(
                         "System '{}' failed during phase {} tick {}: {}",
-                        system_id, phase, tick, e.message()
+                        system_id,
+                        phase,
+                        tick,
+                        e.message()
                     ),
                     context: ErrorContext::new("ParallelExecutor", "execute_sequential")
                         .with_tick(tick),
@@ -149,18 +151,15 @@ impl ParallelExecutor {
         // Execute each system (sequentially in Phase 4)
         // system_ids from parallel group are already sorted alphabetically (D11)
         for system_id in system_ids {
-            let system = registry.get(system_id).ok_or_else(|| {
-                XaceError::ValidationFailure {
-                    message: format!(
-                        "System '{}' not found in SystemRegistry",
-                        system_id
-                    ),
+            let system = registry
+                .get(system_id)
+                .ok_or_else(|| XaceError::ValidationFailure {
+                    message: format!("System '{}' not found in SystemRegistry", system_id),
                     context: ErrorContext::new("ParallelExecutor", "execute_parallel")
                         .with_tick(tick),
                     rule_violated: "D1".into(),
                     failed_path: format!("system:{}", system_id),
-                }
-            })?;
+                })?;
 
             let mut ctx = super::system_context::SystemContext::new(
                 system.system_id(),
@@ -174,17 +173,20 @@ impl ParallelExecutor {
                 world_seed,
             );
 
-            system.execute(&mut ctx).map_err(|e| {
-                XaceError::FatalError {
+            system
+                .execute(&mut ctx)
+                .map_err(|e| XaceError::FatalError {
                     message: format!(
                         "System '{}' failed in parallel group phase {} tick {}: {}",
-                        system_id, phase, tick, e.message()
+                        system_id,
+                        phase,
+                        tick,
+                        e.message()
                     ),
                     context: ErrorContext::new("ParallelExecutor", "execute_parallel")
                         .with_tick(tick),
                     snapshot_recovery_possible: true,
-                }
-            })?;
+                })?;
 
             results.insert(system_id.clone(), ctx.emitted_events);
         }
@@ -215,12 +217,18 @@ mod tests {
     }
 
     impl ISystem for CountingSystem {
-        fn system_id(&self) -> &str { &self.id }
+        fn system_id(&self) -> &str {
+            &self.id
+        }
         fn execute(&self, _ctx: &mut dyn ISystemContext) -> Result<(), XaceError> {
             Ok(())
         }
-        fn declared_reads(&self) -> &[u32] { &[] }
-        fn declared_writes(&self) -> &[u32] { &[] }
+        fn declared_reads(&self) -> &[u32] {
+            &[]
+        }
+        fn declared_writes(&self) -> &[u32] {
+            &[]
+        }
     }
 
     fn setup() -> (
@@ -230,15 +238,21 @@ mod tests {
         MutationGate,
         QueryEngine,
     ) {
-        use crate::entity_store::EntityStore;
         use crate::component_tables::ComponentTableStore;
+        use crate::entity_store::EntityStore;
         use crate::mutation_gate::MutationGate;
         use crate::query_engine::QueryEngine;
 
         let mut registry = SystemRegistry::new();
-        registry.register(Box::new(CountingSystem { id: "sys_a".into() })).unwrap();
-        registry.register(Box::new(CountingSystem { id: "sys_b".into() })).unwrap();
-        registry.register(Box::new(CountingSystem { id: "sys_c".into() })).unwrap();
+        registry
+            .register(Box::new(CountingSystem { id: "sys_a".into() }))
+            .unwrap();
+        registry
+            .register(Box::new(CountingSystem { id: "sys_b".into() }))
+            .unwrap();
+        registry
+            .register(Box::new(CountingSystem { id: "sys_c".into() }))
+            .unwrap();
 
         (
             registry,
@@ -254,9 +268,7 @@ mod tests {
         let (reg, es, ts, mut mg, mut qe) = setup();
         let executor = ParallelExecutor::new();
         let ids = vec!["sys_a".into(), "sys_b".into(), "sys_c".into()];
-        let result = executor.execute_sequential(
-            &ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2
-        );
+        let result = executor.execute_sequential(&ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2);
         assert!(result.is_ok());
     }
 
@@ -265,9 +277,7 @@ mod tests {
         let (reg, es, ts, mut mg, mut qe) = setup();
         let executor = ParallelExecutor::new();
         let ids = vec!["sys_a".into(), "sys_b".into()];
-        let result = executor.execute_parallel(
-            &ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2
-        );
+        let result = executor.execute_parallel(&ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2);
         assert!(result.is_ok());
     }
 
@@ -276,9 +286,7 @@ mod tests {
         let (reg, es, ts, mut mg, mut qe) = setup();
         let executor = ParallelExecutor::new();
         let ids = vec!["sys_missing".into()];
-        let result = executor.execute_sequential(
-            &ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2
-        );
+        let result = executor.execute_sequential(&ids, &reg, &es, &ts, &mut mg, &mut qe, 0, 42, 2);
         assert!(result.is_err());
     }
 }

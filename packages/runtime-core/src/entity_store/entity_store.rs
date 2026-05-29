@@ -19,13 +19,13 @@
 //! BTreeMap guarantees EntityID-ascending iteration order automatically (D3).
 //! No sorting needed at query time — the structure maintains it always.
 
+use super::entity_archive::EntityArchive;
+use super::entity_id_generator::EntityIdGenerator;
 use std::collections::BTreeMap;
 use xace_core::entity_id::{EntityID, NULL_ENTITY_ID};
-use xace_core::entity_state::EntityState;
 use xace_core::entity_metadata::{EntityMetadata, Tick};
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use super::entity_id_generator::EntityIdGenerator;
-use super::entity_archive::EntityArchive;
+use xace_core::entity_state::EntityState;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Entity Store ──────────────────────────────────────────────────────────────
 
@@ -99,21 +99,19 @@ impl EntityStore {
     /// Full destruction is completed by complete_destroy().
     ///
     /// Called by the MutationGate when processing destroy requests.
-    pub fn request_destroy(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError> {
+    pub fn request_destroy(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError> {
         let metadata = self.get_mut_or_error(entity_id, "request_destroy")?;
 
-        if !metadata.state.can_transition_to(EntityState::DestroyRequested) {
+        if !metadata
+            .state
+            .can_transition_to(EntityState::DestroyRequested)
+        {
             return Err(XaceError::ValidationFailure {
                 message: format!(
                     "Entity {} cannot transition from {:?} to DestroyRequested",
                     entity_id, metadata.state
                 ),
-                context: ErrorContext::new("EntityStore", "request_destroy")
-                    .with_tick(tick),
+                context: ErrorContext::new("EntityStore", "request_destroy").with_tick(tick),
                 rule_violated: "entity_lifecycle".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -130,11 +128,7 @@ impl EntityStore {
     /// Permanently archives the EntityID — it will never be reused (D2).
     ///
     /// Called by the MutationGate during apply_all() destroy phase.
-    pub fn complete_destroy(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError> {
+    pub fn complete_destroy(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError> {
         {
             let metadata = self.get_mut_or_error(entity_id, "complete_destroy")?;
 
@@ -145,8 +139,7 @@ impl EntityStore {
                          cannot complete destruction",
                         entity_id
                     ),
-                    context: ErrorContext::new("EntityStore", "complete_destroy")
-                        .with_tick(tick),
+                    context: ErrorContext::new("EntityStore", "complete_destroy").with_tick(tick),
                     rule_violated: "entity_lifecycle".into(),
                     failed_path: format!("entity:{}", entity_id),
                 });
@@ -167,11 +160,7 @@ impl EntityStore {
     ///
     /// Disabled entities are excluded from system queries
     /// but remain in the store with all components intact.
-    pub fn disable_entity(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError> {
+    pub fn disable_entity(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError> {
         let metadata = self.get_mut_or_error(entity_id, "disable_entity")?;
 
         if !metadata.state.can_transition_to(EntityState::Disabled) {
@@ -180,8 +169,7 @@ impl EntityStore {
                     "Entity {} cannot be disabled from state {:?}",
                     entity_id, metadata.state
                 ),
-                context: ErrorContext::new("EntityStore", "disable_entity")
-                    .with_tick(tick),
+                context: ErrorContext::new("EntityStore", "disable_entity").with_tick(tick),
                 rule_violated: "entity_lifecycle".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -192,11 +180,7 @@ impl EntityStore {
     }
 
     /// Transitions a Disabled entity back to Active state.
-    pub fn enable_entity(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError> {
+    pub fn enable_entity(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError> {
         let metadata = self.get_mut_or_error(entity_id, "enable_entity")?;
 
         if !metadata.state.can_transition_to(EntityState::Active) {
@@ -205,8 +189,7 @@ impl EntityStore {
                     "Entity {} cannot be enabled from state {:?}",
                     entity_id, metadata.state
                 ),
-                context: ErrorContext::new("EntityStore", "enable_entity")
-                    .with_tick(tick),
+                context: ErrorContext::new("EntityStore", "enable_entity").with_tick(tick),
                 rule_violated: "entity_lifecycle".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -220,22 +203,14 @@ impl EntityStore {
 
     /// Adds a tag to an entity's metadata.
     /// Tags are maintained in sorted order (D11).
-    pub fn add_tag(
-        &mut self,
-        entity_id: EntityID,
-        tag: String,
-    ) -> Result<(), XaceError> {
+    pub fn add_tag(&mut self, entity_id: EntityID, tag: String) -> Result<(), XaceError> {
         let metadata = self.get_mut_or_error(entity_id, "add_tag")?;
         metadata.add_tag(tag);
         Ok(())
     }
 
     /// Removes a tag from an entity's metadata.
-    pub fn remove_tag(
-        &mut self,
-        entity_id: EntityID,
-        tag: &str,
-    ) -> Result<(), XaceError> {
+    pub fn remove_tag(&mut self, entity_id: EntityID, tag: &str) -> Result<(), XaceError> {
         let metadata = self.get_mut_or_error(entity_id, "remove_tag")?;
         metadata.remove_tag(tag);
         Ok(())
@@ -373,17 +348,14 @@ impl EntityStore {
         entity_id: EntityID,
         operation: &str,
     ) -> Result<&mut EntityMetadata, XaceError> {
-        self.entities.get_mut(&entity_id).ok_or_else(|| {
-            XaceError::ValidationFailure {
-                message: format!(
-                    "Entity {} does not exist in EntityStore",
-                    entity_id
-                ),
+        self.entities
+            .get_mut(&entity_id)
+            .ok_or_else(|| XaceError::ValidationFailure {
+                message: format!("Entity {} does not exist in EntityStore", entity_id),
                 context: ErrorContext::new("EntityStore", operation),
                 rule_violated: "I1".into(),
                 failed_path: format!("entity:{}", entity_id),
-            }
-        })
+            })
     }
 }
 
@@ -550,10 +522,7 @@ mod tests {
         let id1 = s.create_entity(0).unwrap();
         let id2 = s.create_entity(0).unwrap();
 
-        let records: Vec<EntityMetadata> = s.all_metadata_sorted()
-            .into_iter()
-            .cloned()
-            .collect();
+        let records: Vec<EntityMetadata> = s.all_metadata_sorted().into_iter().cloned().collect();
         let next_id = s.peek_next_id();
 
         let mut s2 = EntityStore::new();

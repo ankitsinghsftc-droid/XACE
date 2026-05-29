@@ -20,10 +20,10 @@
 //! Every EntityID in a ComponentTable must exist in the EntityStore.
 //! This is enforced by the MutationGate before any add/update/remove.
 
+use super::sorted_entity_map::SortedEntityMap;
 use xace_core::entity_id::EntityID;
 use xace_core::entity_metadata::Tick;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use super::sorted_entity_map::SortedEntityMap;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Component Table ───────────────────────────────────────────────────────────
 
@@ -83,7 +83,8 @@ impl ComponentTable {
                 context: ErrorContext::new(
                     &format!("ComponentTable({})", self.component_type_name),
                     "add",
-                ).with_tick(tick),
+                )
+                .with_tick(tick),
                 rule_violated: "no_duplicate_components".into(),
                 failed_path: format!(
                     "entity:{}.component:{}",
@@ -115,7 +116,8 @@ impl ComponentTable {
                 context: ErrorContext::new(
                     &format!("ComponentTable({})", self.component_type_name),
                     "update",
-                ).with_tick(tick),
+                )
+                .with_tick(tick),
                 rule_violated: "component_must_exist".into(),
                 failed_path: format!(
                     "entity:{}.component:{}",
@@ -131,13 +133,10 @@ impl ComponentTable {
     /// Removes the component from an entity.
     ///
     /// Returns ValidationFailure if the entity does not have this component.
-    pub fn remove(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<String, XaceError> {
-        self.rows.remove(entity_id).ok_or_else(|| {
-            XaceError::ValidationFailure {
+    pub fn remove(&mut self, entity_id: EntityID, tick: Tick) -> Result<String, XaceError> {
+        self.rows
+            .remove(entity_id)
+            .ok_or_else(|| XaceError::ValidationFailure {
                 message: format!(
                     "Entity {} does not have component {} — cannot remove",
                     entity_id, self.component_type_name
@@ -145,17 +144,18 @@ impl ComponentTable {
                 context: ErrorContext::new(
                     &format!("ComponentTable({})", self.component_type_name),
                     "remove",
-                ).with_tick(tick),
+                )
+                .with_tick(tick),
                 rule_violated: "component_must_exist".into(),
                 failed_path: format!(
                     "entity:{}.component:{}",
                     entity_id, self.component_type_name
                 ),
-            }
-        }).map(|json| {
-            self.version += 1;
-            json
-        })
+            })
+            .map(|json| {
+                self.version += 1;
+                json
+            })
     }
 
     /// Removes all component data for an entity — used during entity destruction.
@@ -229,7 +229,11 @@ impl ComponentTable {
         for id in self.rows.keys() {
             // Advance set_iter to catch up with id
             while let Some(&&s) = set_iter.peek() {
-                if s < id { set_iter.next(); } else { break; }
+                if s < id {
+                    set_iter.next();
+                } else {
+                    break;
+                }
             }
             if set_iter.peek().map(|&&s| s == id).unwrap_or(false) {
                 result.push(id);
@@ -244,7 +248,8 @@ impl ComponentTable {
     /// Keys are EntityID strings, values are component JSON strings.
     /// BTreeMap guarantees stable key ordering (D11).
     pub fn to_snapshot_json(&self) -> String {
-        let pairs: Vec<String> = self.rows
+        let pairs: Vec<String> = self
+            .rows
             .iter()
             .map(|(id, json)| format!("\"{}\":{}", id, json))
             .collect();
@@ -268,10 +273,7 @@ impl ComponentTable {
 
     /// Restores this table from snapshot data.
     /// Replaces all current data with the provided entries.
-    pub fn restore_from_snapshot(
-        &mut self,
-        entries: Vec<(EntityID, String)>,
-    ) {
+    pub fn restore_from_snapshot(&mut self, entries: Vec<(EntityID, String)>) {
         self.rows.clear();
         for (entity_id, json) in entries {
             self.rows.insert(entity_id, json);

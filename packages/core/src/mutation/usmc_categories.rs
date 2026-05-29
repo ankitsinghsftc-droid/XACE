@@ -146,19 +146,13 @@ impl UsmcCategory {
     /// Returns true if this category requires dependency analysis
     /// before the mutation can be committed.
     pub fn requires_dependency_analysis(&self) -> bool {
-        matches!(
-            self,
-            UsmcCategory::Remove | UsmcCategory::Compose
-        )
+        matches!(self, UsmcCategory::Remove | UsmcCategory::Compose)
     }
 
     /// Returns true if this category may require user confirmation
     /// before committing in non-FULLY_ASSISTED mode.
     pub fn may_require_confirmation(&self) -> bool {
-        matches!(
-            self,
-            UsmcCategory::Remove | UsmcCategory::Compose
-        )
+        matches!(self, UsmcCategory::Remove | UsmcCategory::Compose)
     }
 
     /// Returns a plain-English label for this category.
@@ -258,8 +252,14 @@ mod tests {
     #[test]
     fn display_is_readable() {
         assert_eq!(UsmcCategory::Create.to_string(), "Create");
-        assert_eq!(UsmcCategory::ProgressionDefine.to_string(), "ProgressionDefine");
-        assert_eq!(UsmcCategory::EnvironmentDefine.to_string(), "EnvironmentDefine");
+        assert_eq!(
+            UsmcCategory::ProgressionDefine.to_string(),
+            "ProgressionDefine"
+        );
+        assert_eq!(
+            UsmcCategory::EnvironmentDefine.to_string(),
+            "EnvironmentDefine"
+        );
     }
 
     #[test]

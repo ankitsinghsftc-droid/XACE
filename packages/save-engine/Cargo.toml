@@ -1,0 +1,11 @@
+[package]
+name = "xace-save-engine"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+xace-core = { path = "../core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+

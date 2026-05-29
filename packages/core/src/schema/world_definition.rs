@@ -246,7 +246,11 @@ impl WorldSize {
     };
 
     pub fn new(width: f32, height: f32, depth: f32) -> Self {
-        Self { width, height, depth }
+        Self {
+            width,
+            height,
+            depth,
+        }
     }
 
     /// Returns true if this is a 2D world (depth is zero or near-zero).
@@ -278,16 +282,32 @@ pub struct Gravity {
 
 impl Gravity {
     /// Standard Earth-like gravity pulling downward on Y axis.
-    pub const EARTH: Gravity = Gravity { x: 0.0, y: -9.81, z: 0.0 };
+    pub const EARTH: Gravity = Gravity {
+        x: 0.0,
+        y: -9.81,
+        z: 0.0,
+    };
 
     /// No gravity — used for space and zero-g environments.
-    pub const ZERO: Gravity = Gravity { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: Gravity = Gravity {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     /// Low gravity — moon-like, good for floaty platformers.
-    pub const LOW: Gravity = Gravity { x: 0.0, y: -2.5, z: 0.0 };
+    pub const LOW: Gravity = Gravity {
+        x: 0.0,
+        y: -2.5,
+        z: 0.0,
+    };
 
     /// High gravity — heavy, oppressive, good for horror or weight.
-    pub const HIGH: Gravity = Gravity { x: 0.0, y: -20.0, z: 0.0 };
+    pub const HIGH: Gravity = Gravity {
+        x: 0.0,
+        y: -20.0,
+        z: 0.0,
+    };
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
@@ -410,10 +430,7 @@ impl WorldDefinition {
 
     /// Returns true if this world uses 2D movement constraints.
     pub fn is_2d(&self) -> bool {
-        matches!(
-            self.map_type,
-            MapType::Sidescroller2D | MapType::TopDown2D
-        )
+        matches!(self.map_type, MapType::Sidescroller2D | MapType::TopDown2D)
     }
 
     /// Returns true if this world has active physics simulation.
@@ -423,8 +440,7 @@ impl WorldDefinition {
 
     /// Returns true if this world has a dynamic day/night cycle.
     pub fn has_dynamic_time(&self) -> bool {
-        matches!(self.time_system, TimeSystem::Dynamic)
-            && self.day_length_ticks > 0
+        matches!(self.time_system, TimeSystem::Dynamic) && self.day_length_ticks > 0
     }
 
     /// Returns true if this world requires WorldStreaming.

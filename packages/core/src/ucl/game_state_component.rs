@@ -22,8 +22,8 @@
 //! Score and phase are written only via Mutation Gate (I2).
 //! The controller entity is defined in the CGS, not created at runtime.
 
-use serde::{Deserialize, Serialize};
 use crate::entity_metadata::Tick;
+use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_GAMESTATE_V1. Frozen forever.
 pub const COMP_GAMESTATE_V1_ID: u32 = 9;
@@ -217,16 +217,12 @@ impl GameStateComponent {
     /// Returns true if gameplay systems should be running.
     /// Only true when phase is Playing and match is Active.
     pub fn is_gameplay_active(&self) -> bool {
-        self.current_phase == GamePhase::Playing
-            && self.match_state == MatchState::Active
+        self.current_phase == GamePhase::Playing && self.match_state == MatchState::Active
     }
 
     /// Returns true if the game is in any terminal state.
     pub fn is_terminal(&self) -> bool {
-        matches!(
-            self.current_phase,
-            GamePhase::GameOver | GamePhase::Victory
-        )
+        matches!(self.current_phase, GamePhase::GameOver | GamePhase::Victory)
     }
 
     /// Returns true if player input should be accepted.
@@ -371,7 +367,9 @@ mod tests {
     #[test]
     fn elapsed_seconds_correct() {
         let mut gs = GameStateComponent::playing("mode_arena");
-        for _ in 0..60 { gs.tick_time(); }
+        for _ in 0..60 {
+            gs.tick_time();
+        }
         let secs = gs.elapsed_seconds(60.0);
         assert!((secs - 1.0).abs() < 1e-5);
     }

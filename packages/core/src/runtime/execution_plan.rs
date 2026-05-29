@@ -33,10 +33,10 @@
 //! - A system's explicit dependencies change
 //! The GDE flags MutationTransactions that require recompile (D10).
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
-use crate::runtime::phase_enum::PhaseEnum;
 use crate::runtime::execution_group::ExecutionGroup;
+use crate::runtime::phase_enum::PhaseEnum;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Phase Schedule ────────────────────────────────────────────────────────────
 
@@ -200,7 +200,9 @@ impl ExecutionPlan {
 
     /// Returns true if the given system ID is in this plan.
     pub fn contains_system(&self, system_id: &str) -> bool {
-        self.all_system_ids.binary_search_by(|s| s.as_str().cmp(system_id)).is_ok()
+        self.all_system_ids
+            .binary_search_by(|s| s.as_str().cmp(system_id))
+            .is_ok()
     }
 
     /// Returns which phase the given system runs in.
@@ -260,9 +262,7 @@ impl ExecutionPlan {
         }
 
         if self.compiled_from_cgs_hash.is_empty() {
-            return Err(
-                "ExecutionPlan compiled_from_cgs_hash must not be empty".into()
-            );
+            return Err("ExecutionPlan compiled_from_cgs_hash must not be empty".into());
         }
 
         // Validate all phase schedules and check for cross-phase duplicates
@@ -343,21 +343,11 @@ mod tests {
 
         let phases = vec![
             PhaseSchedule::new(PhaseEnum::Input, vec![input_group]),
-            PhaseSchedule::new(
-                PhaseEnum::Simulation,
-                vec![sim_group_1, sim_group_2],
-            ),
+            PhaseSchedule::new(PhaseEnum::Simulation, vec![sim_group_1, sim_group_2]),
             PhaseSchedule::new(PhaseEnum::Cleanup, vec![cleanup_group]),
         ];
 
-        ExecutionPlan::new(
-            "0.1.0",
-            1,
-            0,
-            "plan_hash_abc123",
-            phases,
-            "cgs_hash_xyz456",
-        )
+        ExecutionPlan::new("0.1.0", 1, 0, "plan_hash_abc123", phases, "cgs_hash_xyz456")
     }
 
     #[test]
@@ -398,10 +388,7 @@ mod tests {
     #[test]
     fn phase_for_system_correct() {
         let plan = test_plan();
-        assert_eq!(
-            plan.phase_for_system("sys_input"),
-            Some(PhaseEnum::Input)
-        );
+        assert_eq!(plan.phase_for_system("sys_input"), Some(PhaseEnum::Input));
         assert_eq!(
             plan.phase_for_system("sys_movement"),
             Some(PhaseEnum::Simulation)
@@ -482,10 +469,7 @@ mod tests {
             vec!["sys_movement".into(), "sys_ai".into()],
             1,
         );
-        let schedule = PhaseSchedule::new(
-            PhaseEnum::Simulation,
-            vec![group1, group2],
-        );
+        let schedule = PhaseSchedule::new(PhaseEnum::Simulation, vec![group1, group2]);
         let ids = schedule.all_system_ids();
         assert_eq!(ids[0], "sys_damage");
         // parallel group sorted: sys_ai < sys_movement

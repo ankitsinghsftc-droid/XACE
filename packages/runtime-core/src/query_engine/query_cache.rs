@@ -19,9 +19,9 @@
 //! The cache never affects query results — only performance.
 //! A cache miss produces the same result as a cache hit (D3).
 
+use super::query_engine::QueryCacheStats;
 use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
-use super::query_engine::QueryCacheStats;
 
 // ── Cache Entry ───────────────────────────────────────────────────────────────
 
@@ -70,11 +70,7 @@ impl QueryCache {
     /// the version when the entry was computed.
     ///
     /// Returns None on cache miss or stale entry.
-    pub fn get(
-        &mut self,
-        key: &[u32],
-        current_store_version: u64,
-    ) -> Option<&Vec<EntityID>> {
+    pub fn get(&mut self, key: &[u32], current_store_version: u64) -> Option<&Vec<EntityID>> {
         self.total_queries += 1;
 
         let entry = self.entries.get(key)?;
@@ -98,11 +94,14 @@ impl QueryCache {
         store_version: u64,
         current_tick: u64,
     ) {
-        self.entries.insert(key, CacheEntry {
-            entity_ids,
-            store_version,
-            last_accessed_tick: current_tick,
-        });
+        self.entries.insert(
+            key,
+            CacheEntry {
+                entity_ids,
+                store_version,
+                last_accessed_tick: current_tick,
+            },
+        );
         // Count as a miss since we had to compute it
         if self.total_queries > 0 && self.cache_hits + self.cache_misses < self.total_queries {
             self.cache_misses += 1;
@@ -114,7 +113,8 @@ impl QueryCache {
     /// Called when a component of this type is written to — any cached
     /// query that includes this component type may now be stale.
     pub fn invalidate_for_component(&mut self, component_type_id: u32) {
-        self.entries.retain(|key, _| !key.contains(&component_type_id));
+        self.entries
+            .retain(|key, _| !key.contains(&component_type_id));
     }
 
     /// Removes all cache entries.

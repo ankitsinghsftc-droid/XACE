@@ -196,7 +196,9 @@ impl RngInterceptor {
                     seed: Some(seed),
                 };
                 let mut inner = self.inner.lock().unwrap();
-                inner.access_log.insert((tick, system_id.to_string()), record);
+                inner
+                    .access_log
+                    .insert((tick, system_id.to_string()), record);
                 inner.metrics.legal_access_count += 1;
                 Ok(seed)
             }

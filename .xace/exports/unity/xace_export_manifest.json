@@ -1,0 +1,12 @@
+{
+  "target": "unity",
+  "label": "Unity C#",
+  "file_count": 5,
+  "files": [
+    "Xace_embedded.cs",
+    "XaceConsoleWidget.cs",
+    "XaceDeltaApplicator.cs",
+    "XaceInputCollector.cs",
+    "XaceTransport.cs"
+  ]
+}

@@ -1,9 +1,9 @@
 //! # Snapshot Engine Integration Tests
 
-use crate::snapshot_engine::snapshot_engine::SnapshotEngine;
-use crate::snapshot_engine::snapshot_store::{SnapshotStore, RetentionPolicy};
-use crate::entity_store::EntityStore;
 use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
+use crate::snapshot_engine::snapshot_engine::SnapshotEngine;
+use crate::snapshot_engine::snapshot_store::{RetentionPolicy, SnapshotStore};
 
 fn setup() -> (SnapshotEngine, EntityStore, ComponentTableStore) {
     let engine = SnapshotEngine::standard("0.1.0", 1, 12345);
@@ -20,7 +20,8 @@ fn setup() -> (SnapshotEngine, EntityStore, ComponentTableStore) {
 fn same_world_same_hash_three_times() {
     let (mut engine, mut es, mut ts) = setup();
     let id = es.create_entity(0).unwrap();
-    ts.add_component(id, 1, r#"{"x":1.0,"y":0.0}"#.into(), 0).unwrap();
+    ts.add_component(id, 1, r#"{"x":1.0,"y":0.0}"#.into(), 0)
+        .unwrap();
 
     let h1 = engine.take_snapshot(0, &es, &ts).unwrap().world_hash;
     let h2 = engine.take_snapshot(0, &es, &ts).unwrap().world_hash;
@@ -36,7 +37,8 @@ fn component_change_changes_hash() {
     ts.add_component(id, 1, r#"{"x":0.0}"#.into(), 0).unwrap();
     let h1 = engine.take_snapshot(0, &es, &ts).unwrap().world_hash;
 
-    ts.update_component(id, 1, r#"{"x":5.0}"#.into(), 1).unwrap();
+    ts.update_component(id, 1, r#"{"x":5.0}"#.into(), 1)
+        .unwrap();
     let h2 = engine.take_snapshot(0, &es, &ts).unwrap().world_hash;
     assert_ne!(h1, h2);
 }
@@ -74,7 +76,8 @@ fn snapshot_roundtrip_preserves_component_data() {
     let (mut engine, mut es, mut ts) = setup();
     let id = es.create_entity(0).unwrap();
     ts.add_component(id, 1, r#"{"x":3.14}"#.into(), 0).unwrap();
-    ts.add_component(id, 2, r#"{"name":"player"}"#.into(), 0).unwrap();
+    ts.add_component(id, 2, r#"{"name":"player"}"#.into(), 0)
+        .unwrap();
 
     let snap = engine.take_snapshot(0, &es, &ts).unwrap();
 
@@ -120,12 +123,15 @@ fn rollback_to_earlier_tick() {
     let snap0 = engine.take_and_store(0, &es, &ts).unwrap();
 
     // Advance to tick 10 — entity has x=10
-    ts.update_component(id, 1, r#"{"x":10.0}"#.into(), 10).unwrap();
+    ts.update_component(id, 1, r#"{"x":10.0}"#.into(), 10)
+        .unwrap();
     engine.take_and_store(10, &es, &ts).unwrap();
 
     // Rollback to tick 0
     let rollback_snap = engine.get_snapshot(0).unwrap().clone();
-    engine.restore_snapshot(&rollback_snap, &mut es, &mut ts).unwrap();
+    engine
+        .restore_snapshot(&rollback_snap, &mut es, &mut ts)
+        .unwrap();
 
     // World should be at tick 0 state
     assert_eq!(ts.get_component(id, 1), Some(r#"{"x":0.0}"#));

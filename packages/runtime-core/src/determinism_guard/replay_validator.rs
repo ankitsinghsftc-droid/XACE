@@ -38,8 +38,8 @@
 //! This enables CI replay testing: record a session once, store the GoldenLog,
 //! and assert determinism in every subsequent CI run.
 
-use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 use xace_core::errors::determinism_error::{DeterminismRule, DeterminismViolation, GuardMode};
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
@@ -75,11 +75,11 @@ pub enum ReplayStatus {
 impl std::fmt::Display for ReplayStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ReplayStatus::Idle       => write!(f, "IDLE"),
-            ReplayStatus::Recording  => write!(f, "RECORDING"),
+            ReplayStatus::Idle => write!(f, "IDLE"),
+            ReplayStatus::Recording => write!(f, "RECORDING"),
             ReplayStatus::Validating => write!(f, "VALIDATING"),
-            ReplayStatus::Passed     => write!(f, "PASSED"),
-            ReplayStatus::Diverged   => write!(f, "DIVERGED"),
+            ReplayStatus::Passed => write!(f, "PASSED"),
+            ReplayStatus::Diverged => write!(f, "DIVERGED"),
         }
     }
 }
@@ -111,9 +111,9 @@ pub enum DivergenceType {
 impl std::fmt::Display for DivergenceType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DivergenceType::WorldHashMismatch    => write!(f, "WORLD_HASH_MISMATCH"),
-            DivergenceType::MissingReplayTick    => write!(f, "MISSING_REPLAY_TICK"),
-            DivergenceType::UnrecordedTick       => write!(f, "UNRECORDED_TICK"),
+            DivergenceType::WorldHashMismatch => write!(f, "WORLD_HASH_MISMATCH"),
+            DivergenceType::MissingReplayTick => write!(f, "MISSING_REPLAY_TICK"),
+            DivergenceType::UnrecordedTick => write!(f, "UNRECORDED_TICK"),
             DivergenceType::SchemaVersionMismatch => write!(f, "SCHEMA_VERSION_MISMATCH"),
         }
     }
@@ -178,7 +178,11 @@ impl ReplayDivergence {
     }
 
     /// Creates an UnrecordedTick divergence — replay ran past the GoldenLog.
-    fn unrecorded_tick(tick: u64, replay_hash: impl Into<String>, schema_version: impl Into<String>) -> Self {
+    fn unrecorded_tick(
+        tick: u64,
+        replay_hash: impl Into<String>,
+        schema_version: impl Into<String>,
+    ) -> Self {
         Self {
             diagnosis: format!(
                 "Replay tick {} has no GoldenLog entry. The replay ran further than \
@@ -385,7 +389,9 @@ impl GoldenLog {
     /// Returns an iterator over (tick, hash) in ascending tick order.
     /// BTreeMap guarantees this without sorting.
     pub fn iter_ordered(&self) -> impl Iterator<Item = (u64, &str)> {
-        self.entries.iter().map(|(&tick, hash)| (tick, hash.as_str()))
+        self.entries
+            .iter()
+            .map(|(&tick, hash)| (tick, hash.as_str()))
     }
 
     /// Returns true if this log is compatible with the given schema contract.
@@ -510,10 +516,7 @@ impl ReplayValidator {
     pub fn finish_recording(&mut self) -> Result<GoldenLog, XaceError> {
         if self.status != ReplayStatus::Recording {
             return Err(XaceError::ValidationFailure {
-                message: format!(
-                    "finish_recording() called while in {} mode",
-                    self.status
-                ),
+                message: format!("finish_recording() called while in {} mode", self.status),
                 context: ErrorContext::new("ReplayValidator", "finish_recording"),
                 rule_violated: "D15".into(),
                 failed_path: String::new(),
@@ -613,11 +616,8 @@ impl ReplayValidator {
 
             // ── Tick not in GoldenLog → replay ran past recording ─────────────
             None => {
-                let divergence = ReplayDivergence::unrecorded_tick(
-                    tick,
-                    &computed,
-                    &self.replay_schema_version,
-                );
+                let divergence =
+                    ReplayDivergence::unrecorded_tick(tick, &computed, &self.replay_schema_version);
                 self.handle_divergence(divergence, tick, computed)
             }
         }
@@ -634,11 +634,7 @@ impl ReplayValidator {
         let unvalidated = golden_tick_count.saturating_sub(self.validated_ticks);
         let is_full_pass = self.divergences.is_empty() && unvalidated == 0;
 
-        let first_divergence_tick = self
-            .divergences
-            .first()
-            .map(|d| d.tick)
-            .unwrap_or(0);
+        let first_divergence_tick = self.divergences.first().map(|d| d.tick).unwrap_or(0);
 
         if is_full_pass {
             self.status = ReplayStatus::Passed;
@@ -927,7 +923,10 @@ mod tests {
         assert!(result.is_err(), "STRICT mode must return Err on divergence");
         assert_eq!(v.status(), ReplayStatus::Diverged);
         assert_eq!(v.divergences().len(), 1);
-        assert_eq!(v.divergences()[0].divergence_type, DivergenceType::WorldHashMismatch);
+        assert_eq!(
+            v.divergences()[0].divergence_type,
+            DivergenceType::WorldHashMismatch
+        );
     }
 
     #[test]
@@ -966,7 +965,10 @@ mod tests {
         // Tick 5 — not in GoldenLog
         v.validate_tick(&snap(5)).unwrap();
 
-        assert_eq!(v.divergences()[0].divergence_type, DivergenceType::UnrecordedTick);
+        assert_eq!(
+            v.divergences()[0].divergence_type,
+            DivergenceType::UnrecordedTick
+        );
     }
 
     #[test]

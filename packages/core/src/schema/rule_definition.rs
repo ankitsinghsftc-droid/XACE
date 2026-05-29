@@ -69,10 +69,7 @@ pub struct RuleCondition {
 }
 
 impl RuleCondition {
-    pub fn new(
-        expression: impl Into<String>,
-        description: impl Into<String>,
-    ) -> Self {
+    pub fn new(expression: impl Into<String>, description: impl Into<String>) -> Self {
         Self {
             expression: expression.into(),
             description: description.into(),
@@ -120,10 +117,7 @@ pub struct RuleEffect {
 }
 
 impl RuleEffect {
-    pub fn new(
-        expression: impl Into<String>,
-        description: impl Into<String>,
-    ) -> Self {
+    pub fn new(expression: impl Into<String>, description: impl Into<String>) -> Self {
         Self {
             expression: expression.into(),
             description: description.into(),
@@ -308,9 +302,7 @@ impl RuleDefinition {
     /// A rule is ready when it is active and both condition and effect
     /// expressions are defined.
     pub fn is_evaluable(&self) -> bool {
-        self.is_active
-            && self.condition.is_defined()
-            && self.effect.is_defined()
+        self.is_active && self.condition.is_defined() && self.effect.is_defined()
     }
 
     /// Deactivates this rule.
@@ -431,19 +423,21 @@ mod tests {
     #[test]
     fn sort_key_higher_priority_sorts_first() {
         let low = death_rule(); // priority 0
-        let high = win_rule();  // priority 100
+        let high = win_rule(); // priority 100
         assert!(high.sort_key() < low.sort_key());
     }
 
     #[test]
     fn sort_key_same_priority_sorts_by_id() {
         let rule_a = RuleDefinition::new(
-            "rule_aaa", "A",
+            "rule_aaa",
+            "A",
             RuleCondition::new("x > 0", ""),
             RuleEffect::new("SET x = 0", ""),
         );
         let rule_z = RuleDefinition::new(
-            "rule_zzz", "Z",
+            "rule_zzz",
+            "Z",
             RuleCondition::new("x > 0", ""),
             RuleEffect::new("SET x = 0", ""),
         );
@@ -503,8 +497,14 @@ mod tests {
     #[test]
     fn rule_scope_display() {
         assert_eq!(RuleScope::AllEntities.to_string(), "AllEntities");
-        assert_eq!(RuleScope::Tagged("enemy".into()).to_string(), "Tagged(enemy)");
-        assert_eq!(RuleScope::SpecificEntity(42).to_string(), "SpecificEntity(42)");
+        assert_eq!(
+            RuleScope::Tagged("enemy".into()).to_string(),
+            "Tagged(enemy)"
+        );
+        assert_eq!(
+            RuleScope::SpecificEntity(42).to_string(),
+            "SpecificEntity(42)"
+        );
     }
 
     #[test]
@@ -527,8 +527,7 @@ mod tests {
 
     #[test]
     fn with_description_sets_description() {
-        let rule = death_rule()
-            .with_description("Destroys entity when health hits zero");
+        let rule = death_rule().with_description("Destroys entity when health hits zero");
         assert!(!rule.description.is_empty());
     }
 }

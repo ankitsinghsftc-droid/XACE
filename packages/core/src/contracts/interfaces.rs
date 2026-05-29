@@ -31,18 +31,18 @@
 //! No interface method panics — errors are always propagated.
 //! The caller decides how to handle each error variant.
 
-use std::collections::BTreeMap;
 use crate::entity_id::EntityID;
 use crate::entity_metadata::Tick;
-use crate::errors::xace_error::XaceError;
 use crate::errors::determinism_error::DeterminismViolation;
-use crate::runtime::world_snapshot::WorldSnapshot;
-use crate::runtime::state_delta::StateDelta;
+use crate::errors::xace_error::XaceError;
 use crate::events::event_struct::Event;
 use crate::events::event_type::EventType;
+use crate::runtime::state_delta::StateDelta;
+use crate::runtime::world_snapshot::WorldSnapshot;
+use crate::wire::delta_payload::DeltaPayload;
 use crate::wire::feedback_payload::FeedbackPayload;
 use crate::wire::snapshot_payload::SnapshotPayload;
-use crate::wire::delta_payload::DeltaPayload;
+use std::collections::BTreeMap;
 
 // ── ISystem ───────────────────────────────────────────────────────────────────
 
@@ -116,10 +116,7 @@ pub trait ISystemContext {
 
     /// Returns all entity IDs that have all the given component types.
     /// Results are always sorted by EntityID ASC (D3).
-    fn query_entities(
-        &self,
-        component_type_ids: &[u32],
-    ) -> Result<Vec<EntityID>, XaceError>;
+    fn query_entities(&self, component_type_ids: &[u32]) -> Result<Vec<EntityID>, XaceError>;
 
     /// Submits a component mutation to the Mutation Gate.
     /// The mutation is deferred — applied after phase completion (D4).
@@ -259,20 +256,12 @@ pub trait IEntityStore: Send + Sync {
     /// Marks an entity for destruction at the given tick.
     /// Entity transitions to DestroyRequested state.
     /// Full destruction is completed by apply_destroy() after phase end.
-    fn request_destroy(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError>;
+    fn request_destroy(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError>;
 
     /// Completes destruction of a DestroyRequested entity.
     /// Transitions entity to Destroyed then Archived.
     /// EntityID is permanently reserved — never regenerated (D2).
-    fn apply_destroy(
-        &mut self,
-        entity_id: EntityID,
-        tick: Tick,
-    ) -> Result<(), XaceError>;
+    fn apply_destroy(&mut self, entity_id: EntityID, tick: Tick) -> Result<(), XaceError>;
 
     /// Returns true if the entity exists in any non-archived state.
     fn exists(&self, entity_id: EntityID) -> bool;
@@ -310,19 +299,11 @@ pub trait IComponentTable: Send + Sync {
 
     /// Adds a component instance for an entity.
     /// Returns error if the entity already has this component.
-    fn add(
-        &mut self,
-        entity_id: EntityID,
-        component_json: String,
-    ) -> Result<(), XaceError>;
+    fn add(&mut self, entity_id: EntityID, component_json: String) -> Result<(), XaceError>;
 
     /// Updates the component data for an entity.
     /// Returns error if the entity does not have this component.
-    fn update(
-        &mut self,
-        entity_id: EntityID,
-        component_json: String,
-    ) -> Result<(), XaceError>;
+    fn update(&mut self, entity_id: EntityID, component_json: String) -> Result<(), XaceError>;
 
     /// Removes the component from an entity.
     /// Returns error if the entity does not have this component.
@@ -401,11 +382,8 @@ pub trait ISnapshotEngine: Send + Sync {
     /// Verifies that two snapshots represent identical world state
     /// by comparing their world_hash values.
     /// Used by the DeterminismGuard for replay validation (D9, D14).
-    fn verify_snapshot_match(
-        &self,
-        snapshot_a: &WorldSnapshot,
-        snapshot_b: &WorldSnapshot,
-    ) -> bool;
+    fn verify_snapshot_match(&self, snapshot_a: &WorldSnapshot, snapshot_b: &WorldSnapshot)
+        -> bool;
 }
 
 // ── IEventBus ─────────────────────────────────────────────────────────────────
@@ -442,10 +420,7 @@ pub trait IEventBus: Send + Sync {
 
     /// Returns all pending events for a subscribed system.
     /// Called by the system during its execute() phase.
-    fn get_events_for_system(
-        &self,
-        system_id: &str,
-    ) -> Result<Vec<&Event>, XaceError>;
+    fn get_events_for_system(&self, system_id: &str) -> Result<Vec<&Event>, XaceError>;
 
     /// Marks an event as consumed by the receiving system.
     /// Consumed events are removed at the start of the next tick.
@@ -490,11 +465,7 @@ pub trait IDeterminismGuard: Send + Sync {
 
     /// Hook: called after all systems in a phase complete.
     /// Validates mutation gate is drained before next phase (D4).
-    fn after_phase_complete(
-        &mut self,
-        phase: u8,
-        tick: Tick,
-    ) -> Result<(), DeterminismViolation>;
+    fn after_phase_complete(&mut self, phase: u8, tick: Tick) -> Result<(), DeterminismViolation>;
 
     /// Hook: called after world_hash is computed each tick.
     /// Validates hash matches replay expected hash if in replay mode (D9).
@@ -508,11 +479,7 @@ pub trait IDeterminismGuard: Send + Sync {
     /// Hook: called when a system requests an RNG value.
     /// Validates the RNG is seeded correctly (D6).
     /// Blocks any attempt to use OS or language-native random.
-    fn validate_rng_usage(
-        &self,
-        system_id: &str,
-        tick: Tick,
-    ) -> Result<(), DeterminismViolation>;
+    fn validate_rng_usage(&self, system_id: &str, tick: Tick) -> Result<(), DeterminismViolation>;
 
     /// Hook: called when input arrives from the engine adapter.
     /// Validates input is applied at tick boundary only (D12).
@@ -596,10 +563,7 @@ pub trait IEngineAdapter: Send + Sync {
     /// XACE collects COMP_PERCEPTION_V1.visibility_query_pending flags
     /// each tick and sends them as a batch for the engine to raycast.
     /// Results return next tick as VISIBILITY_QUERY_RESULT feedback (I13).
-    fn send_visibility_queries(
-        &mut self,
-        queries: Vec<VisibilityQuery>,
-    ) -> Result<(), XaceError>;
+    fn send_visibility_queries(&mut self, queries: Vec<VisibilityQuery>) -> Result<(), XaceError>;
 
     /// Sends a game event notification to the engine.
     ///
@@ -655,11 +619,7 @@ pub trait ISaveEngine: Send + Sync {
     ///
     /// Serializes WorldSnapshot deterministically (D11).
     /// Save file carries schema_version for migration on load.
-    fn save_session(
-        &self,
-        snapshot: &WorldSnapshot,
-        slot_id: &str,
-    ) -> Result<(), XaceError>;
+    fn save_session(&self, snapshot: &WorldSnapshot, slot_id: &str) -> Result<(), XaceError>;
 
     /// Loads a previously saved world session.
     ///
@@ -672,11 +632,7 @@ pub trait ISaveEngine: Send + Sync {
     ///
     /// ProgressSave is separate from SessionSave — it survives
     /// session restarts and is never rolled back with snapshots.
-    fn save_progress(
-        &self,
-        slot_id: &str,
-        progress_json: &str,
-    ) -> Result<(), XaceError>;
+    fn save_progress(&self, slot_id: &str, progress_json: &str) -> Result<(), XaceError>;
 
     /// Loads persistent progress data.
     fn load_progress(&self, slot_id: &str) -> Result<String, XaceError>;
@@ -685,11 +641,7 @@ pub trait ISaveEngine: Send + Sync {
     ///
     /// WorldSave records changes to the game world that persist
     /// across sessions — separate from player progress.
-    fn save_world_state(
-        &self,
-        slot_id: &str,
-        world_state_json: &str,
-    ) -> Result<(), XaceError>;
+    fn save_world_state(&self, slot_id: &str, world_state_json: &str) -> Result<(), XaceError>;
 
     /// Loads world-state changes.
     fn load_world_state(&self, slot_id: &str) -> Result<String, XaceError>;
@@ -753,10 +705,7 @@ mod tests {
             &self.id
         }
 
-        fn execute(
-            &self,
-            _context: &mut dyn ISystemContext,
-        ) -> Result<(), XaceError> {
+        fn execute(&self, _context: &mut dyn ISystemContext) -> Result<(), XaceError> {
             Ok(())
         }
 

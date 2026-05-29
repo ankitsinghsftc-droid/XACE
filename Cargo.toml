@@ -6,6 +6,8 @@ members = [
     "packages/system-graph-compiler",
     "packages/engine-adapter",
     "packages/engine-feedback",
+    "packages/network-core",
+    "packages/save-engine",
     "examples/zombie-chase"
 ]
 

@@ -1,0 +1,355 @@
+Date : 2026-05-29 10:45:10
+Directory : c:\Users\ankit\Downloads\xace
+Total : 230 files,  6941 codes, 490 comments, 1127 blanks, all 8558 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| Rust       |        201 |      4,657 |        102 |        660 |      5,419 |
+| C#         |          5 |      1,503 |        382 |        355 |      2,240 |
+| Python     |          5 |        421 |         41 |         67 |        529 |
+| TypeScript |          8 |        322 |        -43 |         37 |        316 |
+| JSON       |          3 |         38 |          0 |          0 |         38 |
+| C++        |          8 |          0 |          8 |          8 |         16 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                   | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                      |        230 |      6,941 |        490 |      1,127 |      8,558 |
+| . (Files)                                                                                                              |          1 |        136 |         19 |         25 |        180 |
+| .xace                                                                                                                  |         16 |      1,541 |        390 |        363 |      2,294 |
+| .xace\exports                                                                                                          |         16 |      1,541 |        390 |        363 |      2,294 |
+| .xace\exports\godot                                                                                                    |          1 |         11 |          0 |          0 |         11 |
+| .xace\exports\unity                                                                                                    |          6 |      1,515 |        382 |        355 |      2,252 |
+| .xace\exports\unreal                                                                                                   |          9 |         15 |          8 |          8 |         31 |
+| examples                                                                                                               |          9 |         21 |          0 |          9 |         30 |
+| examples\zombie-chase                                                                                                  |          9 |         21 |          0 |          9 |         30 |
+| examples\zombie-chase\src                                                                                              |          9 |         21 |          0 |          9 |         30 |
+| examples\zombie-chase\src (Files)                                                                                      |          3 |         21 |          0 |          3 |         24 |
+| examples\zombie-chase\src\systems                                                                                      |          6 |          0 |          0 |          6 |          6 |
+| packages                                                                                                               |        204 |      5,243 |         81 |        730 |      6,054 |
+| packages\builder-workspace                                                                                             |         12 |        607 |        -21 |         79 |        665 |
+| packages\builder-workspace\server                                                                                      |          4 |        285 |         22 |         42 |        349 |
+| packages\builder-workspace\src                                                                                         |          8 |        322 |        -43 |         37 |        316 |
+| packages\builder-workspace\src (Files)                                                                                 |          1 |          1 |          0 |          0 |          1 |
+| packages\builder-workspace\src\api                                                                                     |          1 |          0 |          0 |          1 |          1 |
+| packages\builder-workspace\src\canvas                                                                                  |          1 |        -27 |        -12 |          3 |        -36 |
+| packages\builder-workspace\src\console                                                                                 |          1 |         42 |          0 |          8 |         50 |
+| packages\builder-workspace\src\layout                                                                                  |          1 |        118 |          0 |          8 |        126 |
+| packages\builder-workspace\src\panels                                                                                  |          1 |          1 |         -1 |          0 |          0 |
+| packages\builder-workspace\src\preview                                                                                 |          1 |        182 |        -32 |         16 |        166 |
+| packages\builder-workspace\src\state                                                                                   |          1 |          5 |          2 |          1 |          8 |
+| packages\core                                                                                                          |         43 |       -173 |          2 |         34 |       -137 |
+| packages\core\src                                                                                                      |         43 |       -173 |          2 |         34 |       -137 |
+| packages\core\src (Files)                                                                                              |          2 |          1 |          0 |          1 |          2 |
+| packages\core\src\contracts                                                                                            |          2 |        -61 |          0 |          2 |        -59 |
+| packages\core\src\errors                                                                                               |          3 |         35 |          0 |          3 |         38 |
+| packages\core\src\events                                                                                               |          3 |         -6 |          2 |          4 |          0 |
+| packages\core\src\mutation                                                                                             |          4 |        -44 |          0 |          4 |        -40 |
+| packages\core\src\runtime                                                                                              |          6 |        -63 |          0 |          6 |        -57 |
+| packages\core\src\schema                                                                                               |          6 |         -6 |          0 |          2 |         -4 |
+| packages\core\src\ucl                                                                                                  |         11 |         27 |          0 |          6 |         33 |
+| packages\core\src\wire                                                                                                 |          6 |        -56 |          0 |          6 |        -50 |
+| packages\engine-adapter                                                                                                |          1 |         -2 |          0 |          1 |         -1 |
+| packages\network-core                                                                                                  |         35 |      2,482 |          6 |        384 |      2,872 |
+| packages\network-core\src                                                                                              |         31 |      2,244 |          6 |        348 |      2,598 |
+| packages\network-core\src (Files)                                                                                      |          1 |         53 |          6 |         15 |         74 |
+| packages\network-core\src\authority                                                                                    |          4 |        179 |          0 |         26 |        205 |
+| packages\network-core\src\input                                                                                        |          7 |      1,413 |          0 |        189 |      1,602 |
+| packages\network-core\src\prediction                                                                                   |          5 |        163 |          0 |         28 |        191 |
+| packages\network-core\src\replication                                                                                  |          4 |         96 |          0 |         21 |        117 |
+| packages\network-core\src\session                                                                                      |          5 |        185 |          0 |         43 |        228 |
+| packages\network-core\src\synchronisation                                                                              |          5 |        155 |          0 |         26 |        181 |
+| packages\network-core\tests                                                                                            |          4 |        238 |          0 |         36 |        274 |
+| packages\runtime-core                                                                                                  |         82 |      1,139 |         88 |        142 |      1,369 |
+| packages\runtime-core\src                                                                                              |         78 |      1,112 |         88 |        152 |      1,352 |
+| packages\runtime-core\src (Files)                                                                                      |          8 |        827 |         95 |         98 |      1,020 |
+| packages\runtime-core\src\bin                                                                                          |          1 |         52 |         -9 |          7 |         50 |
+| packages\runtime-core\src\component_tables                                                                             |         11 |         64 |          0 |         -1 |         63 |
+| packages\runtime-core\src\component_tables (Files)                                                                     |          9 |         58 |          0 |         -3 |         55 |
+| packages\runtime-core\src\component_tables\tests                                                                       |          2 |          6 |          0 |          2 |          8 |
+| packages\runtime-core\src\dcl                                                                                          |          8 |        -42 |          0 |          7 |        -35 |
+| packages\runtime-core\src\dcl (Files)                                                                                  |          1 |          0 |          0 |          1 |          1 |
+| packages\runtime-core\src\dcl\character                                                                                |          7 |        -42 |          0 |          6 |        -36 |
+| packages\runtime-core\src\dcl\character (Files)                                                                        |          4 |        -46 |          0 |          3 |        -43 |
+| packages\runtime-core\src\dcl\character\tests                                                                          |          3 |          4 |          0 |          3 |          7 |
+| packages\runtime-core\src\determinism_guard                                                                            |          7 |         91 |          0 |          6 |         97 |
+| packages\runtime-core\src\determinism_guard (Files)                                                                    |          5 |         43 |          0 |          4 |         47 |
+| packages\runtime-core\src\determinism_guard\tests                                                                      |          2 |         48 |          0 |          2 |         50 |
+| packages\runtime-core\src\entity_store                                                                                 |          6 |        -28 |          0 |          6 |        -22 |
+| packages\runtime-core\src\entity_store (Files)                                                                         |          4 |        -24 |          0 |          4 |        -20 |
+| packages\runtime-core\src\entity_store\tests                                                                           |          2 |         -4 |          0 |          2 |         -2 |
+| packages\runtime-core\src\event_bus                                                                                    |          6 |        -25 |          0 |          6 |        -19 |
+| packages\runtime-core\src\event_bus (Files)                                                                            |          4 |        -20 |          0 |          4 |        -16 |
+| packages\runtime-core\src\event_bus\tests                                                                              |          2 |         -5 |          0 |          2 |         -3 |
+| packages\runtime-core\src\mutation_gate                                                                                |          6 |         45 |          0 |          6 |         51 |
+| packages\runtime-core\src\mutation_gate (Files)                                                                        |          4 |         31 |          0 |          4 |         35 |
+| packages\runtime-core\src\mutation_gate\tests                                                                          |          2 |         14 |          0 |          2 |         16 |
+| packages\runtime-core\src\phase_orchestrator                                                                           |          7 |         96 |          0 |          6 |        102 |
+| packages\runtime-core\src\phase_orchestrator (Files)                                                                   |          5 |         66 |          0 |          4 |         70 |
+| packages\runtime-core\src\phase_orchestrator\tests                                                                     |          2 |         30 |          0 |          2 |         32 |
+| packages\runtime-core\src\query_engine                                                                                 |          7 |         32 |          0 |         -1 |         31 |
+| packages\runtime-core\src\query_engine (Files)                                                                         |          5 |         28 |          0 |         -2 |         26 |
+| packages\runtime-core\src\query_engine\tests                                                                           |          2 |          4 |          0 |          1 |          5 |
+| packages\runtime-core\src\snapshot_engine                                                                              |          6 |         -7 |          0 |          6 |         -1 |
+| packages\runtime-core\src\snapshot_engine (Files)                                                                      |          4 |        -13 |          0 |          4 |         -9 |
+| packages\runtime-core\src\snapshot_engine\tests                                                                        |          2 |          6 |          0 |          2 |          8 |
+| packages\runtime-core\src\time_controller                                                                              |          5 |          7 |          2 |          6 |         15 |
+| packages\runtime-core\src\time_controller (Files)                                                                      |          3 |          7 |          2 |          4 |         13 |
+| packages\runtime-core\src\time_controller\tests                                                                        |          2 |          0 |          0 |          2 |          2 |
+| packages\runtime-core\tests                                                                                            |          4 |         27 |          0 |        -10 |         17 |
+| packages\save-engine                                                                                                   |          5 |        289 |          6 |         63 |        358 |
+| packages\save-engine\src                                                                                               |          4 |        225 |          6 |         45 |        276 |
+| packages\save-engine\tests                                                                                             |          1 |         64 |          0 |         18 |         82 |
+| packages\system-graph-compiler                                                                                         |         26 |        901 |          0 |         27 |        928 |
+| packages\system-graph-compiler\src                                                                                     |         26 |        901 |          0 |         27 |        928 |
+| packages\system-graph-compiler\src (Files)                                                                             |          4 |         71 |          0 |          4 |         75 |
+| packages\system-graph-compiler\src\conflict_analyzer                                                                   |          2 |         30 |          0 |          2 |         32 |
+| packages\system-graph-compiler\src\cycle_detection                                                                     |          2 |         86 |          0 |          2 |         88 |
+| packages\system-graph-compiler\src\dependency_resolution                                                               |          2 |        144 |          0 |          2 |        146 |
+| packages\system-graph-compiler\src\graph_construction                                                                  |          5 |        129 |          0 |          5 |        134 |
+| packages\system-graph-compiler\src\parallelization                                                                     |          1 |         -4 |          0 |          1 |         -3 |
+| packages\system-graph-compiler\src\phase_segmentation                                                                  |          3 |        136 |          0 |          3 |        139 |
+| packages\system-graph-compiler\src\scheduler                                                                           |          2 |         30 |          0 |          3 |         33 |
+| packages\system-graph-compiler\src\tests                                                                               |          5 |        279 |          0 |          5 |        284 |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                               | language   | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\ankit\Downloads\xace\.xace\exports\godot\xace_export_manifest.json                                            | JSON       |         11 |          0 |          0 |         11 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\XaceConsoleWidget.cs                                                 | C#         |        346 |         70 |         67 |        483 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\XaceDeltaApplicator.cs                                               | C#         |        405 |         85 |        112 |        602 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\XaceInputCollector.cs                                                | C#         |        230 |         60 |         47 |        337 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\XaceTransport.cs                                                     | C#         |        299 |         82 |         66 |        447 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\Xace_embedded.cs                                                     | C#         |        223 |         85 |         63 |        371 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unity\xace_export_manifest.json                                            | JSON       |         12 |          0 |          0 |         12 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceConsoleWidget.cpp                                               | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceConsoleWidget.h                                                 | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceDeltaApplicator.cpp                                             | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceDeltaApplicator.h                                               | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceInputCollector.cpp                                              | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceInputCollector.h                                                | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceTransport.cpp                                                   | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\XaceTransport.h                                                     | C++        |          0 |          1 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\.xace\exports\unreal\xace_export_manifest.json                                           | JSON       |         15 |          0 |          0 |         15 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\cgs.rs                                                         | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\lib.rs                                                         | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\runner.rs                                                      | Rust       |         19 |          0 |          1 |         20 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\ai_system.rs                                           | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\damage_system.rs                                       | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\death_system.rs                                        | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\input_system.rs                                        | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\mod.rs                                                 | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\examples\zombie-chase\src\systems\movement_system.rs                                     | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\server\builder_server.py                                      | Python     |        112 |         11 |         13 |        136 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\server\ollama_adapter.py                                      | Python     |        139 |         11 |         26 |        176 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\server\session_manager.py                                     | Python     |         32 |          0 |          2 |         34 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\server\ws_message_router.py                                   | Python     |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\api\message_types.ts                                      | TypeScript |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\app.ts                                                    | TypeScript |          1 |          0 |          0 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\canvas\model_selector.ts                                  | TypeScript |        -27 |        -12 |          3 |        -36 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\console\xace_terminal.ts                                  | TypeScript |         42 |          0 |          8 |         50 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\layout\main_layout.ts                                     | TypeScript |        118 |          0 |          8 |        126 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\panels\asset_status_panel.ts                              | TypeScript |          1 |         -1 |          0 |          0 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\preview\engine_viewport.ts                                | TypeScript |        182 |        -32 |         16 |        166 |
+| c:\Users\ankit\Downloads\xace\packages\builder-workspace\src\state\cgs_store.ts                                        | TypeScript |          5 |          2 |          1 |          8 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\contracts\interfaces.rs                                                | Rust       |        -51 |          0 |          1 |        -50 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\contracts\mod.rs                                                       | Rust       |        -10 |          0 |          1 |         -9 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\entity_metadata.rs                                                     | Rust       |         -2 |          0 |          0 |         -2 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\entity_state.rs                                                        | Rust       |          3 |          0 |          1 |          4 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\errors\determinism_error.rs                                            | Rust       |         27 |          0 |          1 |         28 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\errors\mod.rs                                                          | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\errors\xace_error.rs                                                   | Rust       |          8 |          0 |          1 |          9 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\events\event_struct.rs                                                 | Rust       |         -8 |          0 |          1 |         -7 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\events\event_type.rs                                                   | Rust       |          2 |          2 |          2 |          6 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\events\mod.rs                                                          | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\mutation\dsl_operation.rs                                              | Rust       |        -26 |          0 |          1 |        -25 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\mutation\mod.rs                                                        | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\mutation\mutation_transaction.rs                                       | Rust       |        -12 |          0 |          1 |        -11 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\mutation\schema_delta.rs                                               | Rust       |         -6 |          0 |          1 |         -5 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\execution_group.rs                                             | Rust       |        -10 |          0 |          1 |         -9 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\execution_plan.rs                                              | Rust       |        -16 |          0 |          1 |        -15 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\mod.rs                                                         | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\phase_enum.rs                                                  | Rust       |        -14 |          0 |          1 |        -13 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\state_delta.rs                                                 | Rust       |         -4 |          0 |          1 |         -3 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\runtime\world_snapshot.rs                                              | Rust       |        -19 |          0 |          1 |        -18 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\actor_definition.rs                                             | Rust       |         -3 |          0 |          0 |         -3 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\canonical_game_schema.rs                                        | Rust       |         -4 |          0 |          0 |         -4 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\game_mode.rs                                                    | Rust       |        -12 |          0 |          1 |        -11 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\rule_definition.rs                                              | Rust       |         -1 |          0 |          0 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\system_definition.rs                                            | Rust       |         -2 |          0 |          1 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\schema\world_definition.rs                                             | Rust       |         16 |          0 |          0 |         16 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\authority_component.rs                                             | Rust       |         -1 |          0 |          0 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\collider_component.rs                                              | Rust       |         19 |          0 |          1 |         20 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\event_component.rs                                                 | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\game_state_component.rs                                            | Rust       |         -2 |          0 |          1 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\identity_component.rs                                              | Rust       |         -1 |          0 |         -1 |         -2 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\input_component.rs                                                 | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\lifetime_component.rs                                              | Rust       |          1 |          0 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\render_component.rs                                                | Rust       |         -1 |          0 |          1 |          0 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\transform_component.rs                                             | Rust       |         17 |          0 |          0 |         17 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\ucl_registry.rs                                                    | Rust       |         -9 |          0 |          0 |         -9 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\ucl\velocity_component.rs                                              | Rust       |          4 |          0 |          1 |          5 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\delta_payload.rs                                                  | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\feedback_payload.rs                                               | Rust       |        -16 |          0 |          1 |        -15 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\message_type.rs                                                   | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\mod.rs                                                            | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\snapshot_payload.rs                                               | Rust       |         -7 |          0 |          1 |         -6 |
+| c:\Users\ankit\Downloads\xace\packages\core\src\wire\wire_message.rs                                                   | Rust       |        -35 |          0 |          1 |        -34 |
+| c:\Users\ankit\Downloads\xace\packages\engine-adapter\build.rs                                                         | Rust       |         -2 |          0 |          1 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\authority\authority_resolver.rs                                | Rust       |         35 |          0 |          8 |         43 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\authority\authority_transfer.rs                                | Rust       |         32 |          0 |          4 |         36 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\authority\cheat_guard.rs                                       | Rust       |        106 |          0 |         12 |        118 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\authority\mod.rs                                               | Rust       |          6 |          0 |          2 |          8 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_broadcaster.rs                                     | Rust       |         62 |          0 |          9 |         71 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_buffer.rs                                          | Rust       |        322 |          0 |         47 |        369 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_delay_manager.rs                                   | Rust       |        195 |          0 |         30 |        225 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_log.rs                                             | Rust       |        156 |          0 |         24 |        180 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_packet.rs                                          | Rust       |        366 |          0 |         37 |        403 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\input_synchroniser.rs                                    | Rust       |        293 |          0 |         40 |        333 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\input\mod.rs                                                   | Rust       |         19 |          0 |          2 |         21 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\lib.rs                                                         | Rust       |         53 |          6 |         15 |         74 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\prediction\client_predictor.rs                                 | Rust       |         35 |          0 |          5 |         40 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\prediction\mod.rs                                              | Rust       |          8 |          0 |          2 |         10 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\prediction\prediction_buffer.rs                                | Rust       |         29 |          0 |          7 |         36 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\prediction\reconciliation_engine.rs                            | Rust       |         48 |          0 |          6 |         54 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\prediction\rollback_manager.rs                                 | Rust       |         43 |          0 |          8 |         51 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\replication\interest_zone_manager.rs                           | Rust       |         29 |          0 |          7 |         36 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\replication\mod.rs                                             | Rust       |          6 |          0 |          2 |          8 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\replication\relevance_filter.rs                                | Rust       |         30 |          0 |          4 |         34 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\replication\replication_manager.rs                             | Rust       |         31 |          0 |          8 |         39 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\session\connection_state.rs                                    | Rust       |         19 |          0 |          4 |         23 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\session\mod.rs                                                 | Rust       |          8 |          0 |          2 |         10 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\session\peer.rs                                                | Rust       |         32 |          0 |          7 |         39 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\session\peer_manager.rs                                        | Rust       |         60 |          0 |         14 |         74 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\session\session_manager.rs                                     | Rust       |         66 |          0 |         16 |         82 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\synchronisation\desync_detector.rs                             | Rust       |         52 |          0 |          8 |         60 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\synchronisation\late_join_handler.rs                           | Rust       |         23 |          0 |          4 |         27 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\synchronisation\mod.rs                                         | Rust       |          8 |          0 |          2 |         10 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\synchronisation\resync_engine.rs                               | Rust       |         23 |          0 |          4 |         27 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\src\synchronisation\tick_barrier.rs                                | Rust       |         49 |          0 |          8 |         57 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\tests\test_cheat_guard.rs                                          | Rust       |         44 |          0 |          4 |         48 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\tests\test_client_prediction.rs                                    | Rust       |         41 |          0 |          5 |         46 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\tests\test_desync_detection.rs                                     | Rust       |         19 |          0 |          6 |         25 |
+| c:\Users\ankit\Downloads\xace\packages\network-core\tests\test_input_synchroniser.rs                                   | Rust       |        134 |          0 |         21 |        155 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\bin\xace_runtime.rs                                            | Rust       |         52 |         -9 |          7 |         50 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\builtin_systems.rs                                             | Rust       |         33 |        -26 |         -5 |          2 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\cgs_loader.rs                                                  | Rust       |         24 |          8 |          0 |         32 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype.rs                                  | Rust       |          6 |          0 |         -2 |          4 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype_index.rs                            | Rust       |          5 |          0 |         -1 |          4 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\archetype_storage.rs                          | Rust       |         60 |          0 |         -1 |         59 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\component_table.rs                            | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\component_table_store.rs                      | Rust       |        -25 |          0 |          1 |        -24 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\mod.rs                                        | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\sorted_entity_map.rs                          | Rust       |         -1 |          0 |          1 |          0 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\storage_router.rs                             | Rust       |          9 |          0 |          0 |          9 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\storage_strategy.rs                           | Rust       |          2 |          0 |         -3 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\tests\mod.rs                                  | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\component_tables\tests\test_component_tables.rs                | Rust       |          6 |          0 |          1 |          7 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\animation_event_system.rs                        | Rust       |        -19 |          0 |          0 |        -19 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\animation_layer_manager.rs                       | Rust       |         -9 |          0 |          1 |         -8 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\animation_state_validator.rs                     | Rust       |        -18 |          0 |          1 |        -17 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\mod.rs                                           | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\tests\mod.rs                                     | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\tests\test_animation_event_system.rs             | Rust       |          6 |          0 |          1 |          7 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\character\tests\test_animation_layers.rs                   | Rust       |         -2 |          0 |          1 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\dcl\mod.rs                                                     | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\determinism_guard.rs                         | Rust       |         37 |          0 |          0 |         37 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\mod.rs                                       | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\replay_validator.rs                          | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\rng_interceptor.rs                           | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\tests\mod.rs                                 | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\tests\test_determinism_guard.rs              | Rust       |         48 |          0 |          1 |         49 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\determinism_guard\world_hasher.rs                              | Rust       |          2 |          0 |          1 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\engine_bridge.rs                                               | Rust       |        227 |         37 |         31 |        295 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\engine_protocol.rs                                             | Rust       |        384 |         65 |         43 |        492 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\entity_archive.rs                                 | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\entity_id_generator.rs                            | Rust       |          7 |          0 |          1 |          8 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\entity_store.rs                                   | Rust       |        -31 |          0 |          1 |        -30 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\mod.rs                                            | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\tests\mod.rs                                      | Rust       |          1 |          0 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\entity_store\tests\test_entity_store.rs                        | Rust       |         -5 |          0 |          1 |         -4 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\event_bus.rs                                         | Rust       |         -3 |          0 |          1 |         -2 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\event_dispatcher.rs                                  | Rust       |        -10 |          0 |          1 |         -9 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\event_subscription_registry.rs                       | Rust       |         -7 |          0 |          1 |         -6 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\mod.rs                                               | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\tests\mod.rs                                         | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\event_bus\tests\test_event_bus.rs                              | Rust       |         -5 |          0 |          1 |         -4 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\lib.rs                                                         | Rust       |          3 |          1 |          2 |          6 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\mod.rs                                           | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\mutation_gate.rs                                 | Rust       |         37 |          0 |          1 |         38 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\mutation_queue.rs                                | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\mutation_validator.rs                            | Rust       |         -6 |          0 |          1 |         -5 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\tests\mod.rs                                     | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\mutation_gate\tests\test_mutation_gate.rs                      | Rust       |         14 |          0 |          1 |         15 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\mod.rs                                      | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\parallel_executor.rs                        | Rust       |          9 |          0 |          0 |          9 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\phase_orchestrator.rs                       | Rust       |         35 |          0 |          1 |         36 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\system_context.rs                           | Rust       |         21 |          0 |          1 |         22 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\system_registry.rs                          | Rust       |          1 |          0 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\tests\mod.rs                                | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\phase_orchestrator\tests\test_phase_orchestrator.rs            | Rust       |         30 |          0 |          1 |         31 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\mod.rs                                            | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\query_cache.rs                                    | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\query_engine.rs                                   | Rust       |          7 |          0 |          1 |          8 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\sorted_merge_iterator.rs                          | Rust       |         20 |          0 |         -3 |         17 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\tests\mod.rs                                      | Rust       |         -1 |          0 |          0 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\tests\test_query_engine.rs                        | Rust       |          5 |          0 |          1 |          6 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\query_engine\vectorized_query.rs                               | Rust       |          1 |          0 |         -2 |         -1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\runtime_orchestrator.rs                                        | Rust       |         85 |        -12 |          9 |         82 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\mod.rs                                         | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\snapshot_engine.rs                             | Rust       |        -16 |          0 |          1 |        -15 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\snapshot_serializer.rs                         | Rust       |          4 |          0 |          1 |          5 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\snapshot_store.rs                              | Rust       |         -1 |          0 |          1 |          0 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\tests\mod.rs                                   | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\snapshot_engine\tests\test_snapshot_engine.rs                  | Rust       |          6 |          0 |          1 |          7 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\state_printer.rs                                               | Rust       |          4 |          1 |          1 |          6 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\tcp_server.rs                                                  | Rust       |         67 |         21 |         17 |        105 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\deterministic_rng.rs                           | Rust       |          8 |          0 |          1 |          9 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\mod.rs                                         | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\tests\mod.rs                                   | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\tests\test_time_controller.rs                  | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\src\time_controller\time_controller.rs                             | Rust       |         -1 |          2 |          2 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\tests\mod.rs                                                       | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\tests\test_archetype.rs                                            | Rust       |          2 |          0 |         -2 |          0 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\tests\test_d3_preservation.rs                                      | Rust       |         10 |          0 |         -7 |          3 |
+| c:\Users\ankit\Downloads\xace\packages\runtime-core\tests\test_storage_router.rs                                       | Rust       |         15 |          0 |         -2 |         13 |
+| c:\Users\ankit\Downloads\xace\packages\save-engine\src\lib.rs                                                          | Rust       |         24 |          6 |         10 |         40 |
+| c:\Users\ankit\Downloads\xace\packages\save-engine\src\save_engine.rs                                                  | Rust       |        147 |          0 |         23 |        170 |
+| c:\Users\ankit\Downloads\xace\packages\save-engine\src\save_serializer.rs                                              | Rust       |         28 |          0 |          7 |         35 |
+| c:\Users\ankit\Downloads\xace\packages\save-engine\src\save_slot.rs                                                    | Rust       |         26 |          0 |          5 |         31 |
+| c:\Users\ankit\Downloads\xace\packages\save-engine\tests\test_save_roundtrip.rs                                        | Rust       |         64 |          0 |         18 |         82 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\compilation_error.rs                                  | Rust       |         33 |          0 |          1 |         34 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\conflict_analyzer.rs                | Rust       |         10 |          0 |          1 |         11 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\conflict_analyzer\serialization_group_builder.rs      | Rust       |         20 |          0 |          1 |         21 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_detector.rs                     | Rust       |         28 |          0 |          1 |         29 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\cycle_detection\cycle_diagnostics.rs                  | Rust       |         58 |          0 |          1 |         59 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\dependency_resolution_engine.rs | Rust       |        107 |          0 |          1 |        108 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\dependency_resolution\topological_sorter.rs           | Rust       |         37 |          0 |          1 |         38 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\graph_construction_layer.rs        | Rust       |         68 |          0 |          1 |         69 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\hazard_detector.rs                 | Rust       |         41 |          0 |          1 |         42 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\mod.rs                             | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_edge.rs                     | Rust       |          5 |          0 |          1 |          6 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\graph_construction\system_node.rs                     | Rust       |         15 |          0 |          1 |         16 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\lib.rs                                                | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\main.rs                                               | Rust       |          4 |          0 |          1 |          5 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\parallelization\parallelization_safety_model.rs       | Rust       |         -4 |          0 |          1 |         -3 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\mod.rs                             | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_segmentation_layer.rs        | Rust       |        135 |          0 |          1 |        136 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\phase_segmentation\phase_validator.rs                 | Rust       |          1 |          0 |          1 |          2 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\deterministic_scheduler_builder.rs          | Rust       |          9 |          0 |          1 |         10 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\scheduler\parallel_group_analyzer.rs                  | Rust       |         21 |          0 |          2 |         23 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\sgc_pipeline.rs                                       | Rust       |         34 |          0 |          1 |         35 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\mod.rs                                          | Rust       |          0 |          0 |          1 |          1 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_conflict_analyzer.rs                       | Rust       |         22 |          0 |          1 |         23 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_cycle_detection.rs                         | Rust       |        156 |          0 |          1 |        157 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_dependency_resolution.rs                   | Rust       |         33 |          0 |          1 |         34 |
+| c:\Users\ankit\Downloads\xace\packages\system-graph-compiler\src\tests\test_graph_construction.rs                      | Rust       |         68 |          0 |          1 |         69 |
+| c:\Users\ankit\Downloads\xace\test_m2_handshake.py                                                                     | Python     |        136 |         19 |         25 |        180 |
+| Total                                                                                                                  |            |      6,941 |        490 |      1,127 |      8,558 |
++------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

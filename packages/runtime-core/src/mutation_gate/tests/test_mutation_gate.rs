@@ -3,10 +3,10 @@
 //! Tests covering ordering enforcement, atomicity, phase-boundary
 //! application, and invalid mutation rejection.
 
-use std::collections::BTreeMap;
-use crate::mutation_gate::MutationGate;
-use crate::entity_store::EntityStore;
 use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
+use crate::mutation_gate::MutationGate;
+use std::collections::BTreeMap;
 
 fn setup() -> (MutationGate, EntityStore, ComponentTableStore) {
     let gate = MutationGate::new();
@@ -24,11 +24,13 @@ fn setup() -> (MutationGate, EntityStore, ComponentTableStore) {
 fn spawn_then_add_ordering_works() {
     let (mut gate, mut es, mut ts) = setup();
     // Request spawn with no initial components
-    gate.request_spawn("actor_player", BTreeMap::new(), &ts, 0).unwrap();
+    gate.request_spawn("actor_player", BTreeMap::new(), &ts, 0)
+        .unwrap();
     let delta = gate.apply_all(&mut es, &mut ts, 0).unwrap();
     let new_id = delta.spawned_entities[0].entity_id;
     // Now add a component to the spawned entity
-    gate.request_add_component(new_id, 1, "{}", &es, &ts, 1).unwrap();
+    gate.request_add_component(new_id, 1, "{}", &es, &ts, 1)
+        .unwrap();
     gate.apply_all(&mut es, &mut ts, 1).unwrap();
     assert!(ts.has_component(new_id, 1));
 }
@@ -38,10 +40,12 @@ fn add_before_modify_ordering_enforced() {
     let (mut gate, mut es, mut ts) = setup();
     let id = es.create_entity(0).unwrap();
     // Add in queue 2
-    gate.request_add_component(id, 1, r#"{"x":0}"#, &es, &ts, 0).unwrap();
+    gate.request_add_component(id, 1, r#"{"x":0}"#, &es, &ts, 0)
+        .unwrap();
     gate.apply_all(&mut es, &mut ts, 0).unwrap();
     // Modify in queue 3 (next tick)
-    gate.request_modify_component(id, 1, r#"{"x":5}"#, &es, &ts, 1).unwrap();
+    gate.request_modify_component(id, 1, r#"{"x":5}"#, &es, &ts, 1)
+        .unwrap();
     gate.apply_all(&mut es, &mut ts, 1).unwrap();
     assert_eq!(ts.get_component(id, 1), Some(r#"{"x":5}"#));
 }
@@ -73,18 +77,18 @@ fn destroy_applied_last_in_batch() {
 #[test]
 fn null_entity_always_rejected() {
     let (mut gate, es, ts) = setup();
-    assert!(gate.request_add_component(
-        xace_core::entity_id::NULL_ENTITY_ID, 1, "{}", &es, &ts, 0
-    ).is_err());
-    assert!(gate.request_modify_component(
-        xace_core::entity_id::NULL_ENTITY_ID, 1, "{}", &es, &ts, 0
-    ).is_err());
-    assert!(gate.request_remove_component(
-        xace_core::entity_id::NULL_ENTITY_ID, 1, &es, &ts, 0
-    ).is_err());
-    assert!(gate.request_destroy(
-        xace_core::entity_id::NULL_ENTITY_ID, &es, 0
-    ).is_err());
+    assert!(gate
+        .request_add_component(xace_core::entity_id::NULL_ENTITY_ID, 1, "{}", &es, &ts, 0)
+        .is_err());
+    assert!(gate
+        .request_modify_component(xace_core::entity_id::NULL_ENTITY_ID, 1, "{}", &es, &ts, 0)
+        .is_err());
+    assert!(gate
+        .request_remove_component(xace_core::entity_id::NULL_ENTITY_ID, 1, &es, &ts, 0)
+        .is_err());
+    assert!(gate
+        .request_destroy(xace_core::entity_id::NULL_ENTITY_ID, &es, 0)
+        .is_err());
     assert!(gate.is_empty());
 }
 
@@ -116,7 +120,8 @@ fn apply_empty_gate_is_noop() {
 fn multiple_spawns_in_one_apply() {
     let (mut gate, mut es, mut ts) = setup();
     for _ in 0..5 {
-        gate.request_spawn("actor", BTreeMap::new(), &ts, 0).unwrap();
+        gate.request_spawn("actor", BTreeMap::new(), &ts, 0)
+            .unwrap();
     }
     let delta = gate.apply_all(&mut es, &mut ts, 0).unwrap();
     assert_eq!(delta.spawned_entities.len(), 5);
@@ -128,7 +133,8 @@ fn spawned_entity_ids_are_unique_across_batches() {
     let (mut gate, mut es, mut ts) = setup();
     let mut all_ids = std::collections::HashSet::new();
     for tick in 0u64..5 {
-        gate.request_spawn("actor", BTreeMap::new(), &ts, tick).unwrap();
+        gate.request_spawn("actor", BTreeMap::new(), &ts, tick)
+            .unwrap();
         let delta = gate.apply_all(&mut es, &mut ts, tick).unwrap();
         let id = delta.spawned_entities[0].entity_id;
         assert!(all_ids.insert(id), "Duplicate entity ID: {}", id);
@@ -146,7 +152,9 @@ fn delta_records_spawn_correctly() {
     let delta = gate.apply_all(&mut es, &mut ts, 0).unwrap();
     assert_eq!(delta.spawned_entities.len(), 1);
     assert_eq!(delta.spawned_entities[0].actor_id, "actor_player");
-    assert!(delta.spawned_entities[0].initial_components.contains_key(&1));
+    assert!(delta.spawned_entities[0]
+        .initial_components
+        .contains_key(&1));
 }
 
 #[test]
@@ -163,15 +171,18 @@ fn delta_records_destroy_correctly() {
 fn delta_spawned_entities_sorted_ascending() {
     let (mut gate, mut es, mut ts) = setup();
     for _ in 0..5 {
-        gate.request_spawn("actor", BTreeMap::new(), &ts, 0).unwrap();
+        gate.request_spawn("actor", BTreeMap::new(), &ts, 0)
+            .unwrap();
     }
     let delta = gate.apply_all(&mut es, &mut ts, 0).unwrap();
-    let ids: Vec<u64> = delta.spawned_entities.iter()
-        .map(|e| e.entity_id)
-        .collect();
+    let ids: Vec<u64> = delta.spawned_entities.iter().map(|e| e.entity_id).collect();
     for window in ids.windows(2) {
-        assert!(window[0] < window[1],
-            "Spawned entities not sorted: {} >= {}", window[0], window[1]);
+        assert!(
+            window[0] < window[1],
+            "Spawned entities not sorted: {} >= {}",
+            window[0],
+            window[1]
+        );
     }
 }
 
@@ -180,7 +191,8 @@ fn delta_spawned_entities_sorted_ascending() {
 #[test]
 fn gate_empty_after_successful_apply() {
     let (mut gate, mut es, mut ts) = setup();
-    gate.request_spawn("actor", BTreeMap::new(), &ts, 0).unwrap();
+    gate.request_spawn("actor", BTreeMap::new(), &ts, 0)
+        .unwrap();
     assert!(!gate.is_empty());
     gate.apply_all(&mut es, &mut ts, 0).unwrap();
     assert!(gate.is_empty());
@@ -189,10 +201,12 @@ fn gate_empty_after_successful_apply() {
 #[test]
 fn gate_accepts_new_requests_after_apply() {
     let (mut gate, mut es, mut ts) = setup();
-    gate.request_spawn("actor1", BTreeMap::new(), &ts, 0).unwrap();
+    gate.request_spawn("actor1", BTreeMap::new(), &ts, 0)
+        .unwrap();
     gate.apply_all(&mut es, &mut ts, 0).unwrap();
     // Gate should accept new requests after apply
-    gate.request_spawn("actor2", BTreeMap::new(), &ts, 1).unwrap();
+    gate.request_spawn("actor2", BTreeMap::new(), &ts, 1)
+        .unwrap();
     let delta = gate.apply_all(&mut es, &mut ts, 1).unwrap();
     assert_eq!(delta.spawned_entities.len(), 1);
     assert_eq!(es.alive_count(), 2);

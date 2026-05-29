@@ -1,0 +1,11 @@
+{
+  "target": "godot",
+  "label": "Godot GDScript",
+  "file_count": 4,
+  "files": [
+    "xace_console_widget.gd",
+    "xace_delta_applicator.gd",
+    "xace_input_collector.gd",
+    "xace_transport.gd"
+  ]
+}

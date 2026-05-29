@@ -27,10 +27,10 @@
 //! The final groups are sorted: systems within each group sorted by system_id,
 //! groups sorted by their minimum member system_id.
 
-use std::collections::{BTreeMap, BTreeSet};
-use crate::graph_construction::system_edge::RawSystemGraph;
-use crate::graph_construction::hazard_detector::HazardDetector;
 use crate::compilation_error::EdgeType;
+use crate::graph_construction::hazard_detector::HazardDetector;
+use crate::graph_construction::system_edge::RawSystemGraph;
+use std::collections::{BTreeMap, BTreeSet};
 
 // ── Serialization Group ───────────────────────────────────────────────────────
 
@@ -85,7 +85,11 @@ impl UnionFind {
     fn find(&self, id: &str) -> String {
         let mut current = id.to_string();
         loop {
-            let parent = self.parent.get(&current).cloned().unwrap_or(current.clone());
+            let parent = self
+                .parent
+                .get(&current)
+                .cloned()
+                .unwrap_or(current.clone());
             if parent == current {
                 return current;
             }
@@ -98,7 +102,9 @@ impl UnionFind {
     fn union(&mut self, a: &str, b: &str) {
         let root_a = self.find(a);
         let root_b = self.find(b);
-        if root_a == root_b { return; }
+        if root_a == root_b {
+            return;
+        }
         // Lex-smaller root becomes the canonical parent (D11)
         let (parent, child) = if root_a <= root_b {
             (root_a, root_b)
@@ -131,10 +137,7 @@ impl SerializationGroupBuilder {
     ///
     /// Uses Union-Find over all WAW and RAW hazard pairs.
     /// Returns groups sorted by representative system_id (D11).
-    pub fn build_for_phase(
-        system_ids: &[&str],
-        graph:      &RawSystemGraph,
-    ) -> Vec<SerializationGroup> {
+    pub fn build_for_phase(system_ids: &[&str], graph: &RawSystemGraph) -> Vec<SerializationGroup> {
         if system_ids.is_empty() {
             return Vec::new();
         }
@@ -149,11 +152,11 @@ impl SerializationGroupBuilder {
 
                 let node_a = match graph.nodes.get(id_a) {
                     Some(n) => n,
-                    None    => continue,
+                    None => continue,
                 };
                 let node_b = match graph.nodes.get(id_b) {
                     Some(n) => n,
-                    None    => continue,
+                    None => continue,
                 };
 
                 // Union if any hazard exists between the pair
@@ -191,18 +194,16 @@ impl SerializationGroupBuilder {
     /// or None if the system is not in any of the provided groups.
     pub fn find_group<'a>(
         system_id: &str,
-        groups:    &'a [SerializationGroup],
+        groups: &'a [SerializationGroup],
     ) -> Option<&'a SerializationGroup> {
         groups.iter().find(|g| g.contains(system_id))
     }
 
     /// Returns true if system_a and system_b are in the same serialization group.
-    pub fn are_serialized(
-        system_a: &str,
-        system_b: &str,
-        groups:   &[SerializationGroup],
-    ) -> bool {
-        groups.iter().any(|g| g.contains(system_a) && g.contains(system_b))
+    pub fn are_serialized(system_a: &str, system_b: &str, groups: &[SerializationGroup]) -> bool {
+        groups
+            .iter()
+            .any(|g| g.contains(system_a) && g.contains(system_b))
     }
 }
 
@@ -211,15 +212,18 @@ impl SerializationGroupBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use xace_core::runtime::phase_enum::PhaseEnum;
     use xace_core::schema::system_definition::SystemDefinition;
-    use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
-        SystemDefinition {
-            id: id.into(), phase: PhaseEnum::Simulation, reads, writes,
-            depends_on: vec![], deterministic: true, version: 1,
-        }
+        SystemDefinition::with_spec(
+            id,
+            id,
+            xace_core::schema::system_definition::ExecutionPhase::Simulation,
+            reads,
+            writes,
+        )
     }
 
     fn build_and_group(defs: &[SystemDefinition]) -> Vec<SerializationGroup> {
@@ -233,7 +237,7 @@ mod tests {
     #[test]
     fn no_hazards_all_singletons() {
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
             def("sys_c", vec![160], vec![]),
         ];
@@ -248,7 +252,7 @@ mod tests {
         // Both write TRANSFORM(1) → WAW → same group
         let defs = vec![
             def("sys_movement", vec![], vec![1]),
-            def("sys_physics",  vec![], vec![1]),
+            def("sys_physics", vec![], vec![1]),
         ];
         let groups = build_and_group(&defs);
         // One constrained group containing both
@@ -261,10 +265,7 @@ mod tests {
     #[test]
     fn raw_hazard_groups_two_systems() {
         // sys_a writes VELOCITY(5), sys_b reads VELOCITY(5) → RAW → same group
-        let defs = vec![
-            def("sys_a", vec![],  vec![5]),
-            def("sys_b", vec![5], vec![]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![5]), def("sys_b", vec![5], vec![])];
         let groups = build_and_group(&defs);
         let constrained: Vec<_> = groups.iter().filter(|g| g.is_constrained()).collect();
         assert_eq!(constrained.len(), 1);
@@ -276,15 +277,18 @@ mod tests {
         // sys_a ↔ sys_b (WAW), sys_b ↔ sys_c (RAW), sys_a and sys_c no direct conflict
         // Transitivity: all three in same group
         let defs = vec![
-            def("sys_a", vec![],  vec![1, 5]),
-            def("sys_b", vec![5], vec![1]),   // WAW with sys_a (writes 1), RAW: reads sys_a's 5
-            def("sys_c", vec![1], vec![]),    // reads TRANSFORM written by sys_a and sys_b
+            def("sys_a", vec![], vec![1, 5]),
+            def("sys_b", vec![5], vec![1]), // WAW with sys_a (writes 1), RAW: reads sys_a's 5
+            def("sys_c", vec![1], vec![]),  // reads TRANSFORM written by sys_a and sys_b
         ];
         let groups = build_and_group(&defs);
         let constrained: Vec<_> = groups.iter().filter(|g| g.is_constrained()).collect();
         // All three must be in the same group due to transitivity
         let big_group = constrained.iter().find(|g| g.members.len() == 3);
-        assert!(big_group.is_some(), "Transitivity must group all three systems");
+        assert!(
+            big_group.is_some(),
+            "Transitivity must group all three systems"
+        );
     }
 
     #[test]
@@ -300,11 +304,23 @@ mod tests {
         ];
         let groups = build_and_group(&defs);
         let constrained: Vec<_> = groups.iter().filter(|g| g.is_constrained()).collect();
-        assert_eq!(constrained.len(), 2, "Two independent conflict pairs → two groups");
-        assert!(!SerializationGroupBuilder::are_serialized("sys_a", "sys_c", &groups));
-        assert!(!SerializationGroupBuilder::are_serialized("sys_b", "sys_d", &groups));
-        assert!(SerializationGroupBuilder::are_serialized("sys_a", "sys_b", &groups));
-        assert!(SerializationGroupBuilder::are_serialized("sys_c", "sys_d", &groups));
+        assert_eq!(
+            constrained.len(),
+            2,
+            "Two independent conflict pairs → two groups"
+        );
+        assert!(!SerializationGroupBuilder::are_serialized(
+            "sys_a", "sys_c", &groups
+        ));
+        assert!(!SerializationGroupBuilder::are_serialized(
+            "sys_b", "sys_d", &groups
+        ));
+        assert!(SerializationGroupBuilder::are_serialized(
+            "sys_a", "sys_b", &groups
+        ));
+        assert!(SerializationGroupBuilder::are_serialized(
+            "sys_c", "sys_d", &groups
+        ));
     }
 
     #[test]
@@ -316,7 +332,11 @@ mod tests {
         ];
         let groups = build_and_group(&defs);
         let reps: Vec<&str> = groups.iter().map(|g| g.representative()).collect();
-        assert_eq!(reps, sorted_reps(&reps), "Groups must be sorted by representative (D11)");
+        assert_eq!(
+            reps,
+            sorted_reps(&reps),
+            "Groups must be sorted by representative (D11)"
+        );
     }
 
     fn sorted_reps<'a>(reps: &[&'a str]) -> Vec<&'a str> {

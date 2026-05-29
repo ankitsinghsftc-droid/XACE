@@ -42,6 +42,10 @@ pub enum EventType {
     /// Emitted by the DestroySystem after Mutation Gate processes destroy.
     EntityDestroyed,
 
+    /// An entity took damage this tick.
+    /// Payload: source_entity_id, target_entity_id, amount, damage_type.
+    DamageTaken,
+
     /// An entity transitioned between Active and Disabled states.
     /// Payload: entity_id, previous_state, new_state.
     EntityStateChanged,
@@ -236,6 +240,7 @@ impl EventType {
         match self {
             EventType::EntitySpawned => "EntitySpawned".into(),
             EventType::EntityDestroyed => "EntityDestroyed".into(),
+            EventType::DamageTaken => "DamageTaken".into(),
             EventType::EntityStateChanged => "EntityStateChanged".into(),
             EventType::EntityTagsChanged => "EntityTagsChanged".into(),
             EventType::PlayerActionTriggered => "PlayerActionTriggered".into(),

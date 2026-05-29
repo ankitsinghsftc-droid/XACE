@@ -19,15 +19,15 @@
 //! D5: Events dispatched after phase, sorted deterministically
 //! I7: Schema version validated before any tick executes
 
-use xace_core::errors::xace_error::XaceError;
-use xace_core::runtime::state_delta::StateDelta;
-use crate::entity_store::EntityStore;
+use super::parallel_executor::ParallelExecutor;
+use super::system_registry::SystemRegistry;
 use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
+use crate::event_bus::event_bus::EventBus;
 use crate::mutation_gate::MutationGate;
 use crate::query_engine::QueryEngine;
-use crate::event_bus::event_bus::EventBus;
-use super::system_registry::SystemRegistry;
-use super::parallel_executor::ParallelExecutor;
+use xace_core::errors::xace_error::XaceError;
+use xace_core::runtime::state_delta::StateDelta;
 
 // ── Tick Result ───────────────────────────────────────────────────────────────
 
@@ -134,17 +134,27 @@ impl PhaseOrchestrator {
             // Execute system group
             let emitted_events = if *is_parallel {
                 self.executor.execute_parallel(
-                    system_ids, registry,
-                    entity_store, table_store,
-                    mutation_gate, query_engine,
-                    tick, self.world_seed, phase_byte,
+                    system_ids,
+                    registry,
+                    entity_store,
+                    table_store,
+                    mutation_gate,
+                    query_engine,
+                    tick,
+                    self.world_seed,
+                    phase_byte,
                 )?
             } else {
                 self.executor.execute_sequential(
-                    system_ids, registry,
-                    entity_store, table_store,
-                    mutation_gate, query_engine,
-                    tick, self.world_seed, phase_byte,
+                    system_ids,
+                    registry,
+                    entity_store,
+                    table_store,
+                    mutation_gate,
+                    query_engine,
+                    tick,
+                    self.world_seed,
+                    phase_byte,
                 )?
             };
 
@@ -154,9 +164,7 @@ impl PhaseOrchestrator {
             }
 
             // Apply deferred mutations (D4)
-            let phase_delta = mutation_gate.apply_all(
-                entity_store, table_store, tick
-            )?;
+            let phase_delta = mutation_gate.apply_all(entity_store, table_store, tick)?;
             total_mutations += phase_delta.change_count();
 
             // Merge phase delta into tick delta
@@ -223,20 +231,30 @@ impl PhaseOrchestrator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_store::EntityStore;
     use crate::component_tables::ComponentTableStore;
-    use crate::mutation_gate::MutationGate;
-    use crate::query_engine::QueryEngine;
+    use crate::entity_store::EntityStore;
     use crate::event_bus::event_bus::EventBus;
+    use crate::mutation_gate::MutationGate;
     use crate::phase_orchestrator::system_registry::SystemRegistry;
+    use crate::query_engine::QueryEngine;
     use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 
-    struct NoopSystem { id: String }
+    struct NoopSystem {
+        id: String,
+    }
     impl ISystem for NoopSystem {
-        fn system_id(&self) -> &str { &self.id }
-        fn execute(&self, _: &mut dyn ISystemContext) -> Result<(), XaceError> { Ok(()) }
-        fn declared_reads(&self) -> &[u32] { &[] }
-        fn declared_writes(&self) -> &[u32] { &[] }
+        fn system_id(&self) -> &str {
+            &self.id
+        }
+        fn execute(&self, _: &mut dyn ISystemContext) -> Result<(), XaceError> {
+            Ok(())
+        }
+        fn declared_reads(&self) -> &[u32] {
+            &[]
+        }
+        fn declared_writes(&self) -> &[u32] {
+            &[]
+        }
     }
 
     fn setup() -> (
@@ -249,9 +267,21 @@ mod tests {
         EventBus,
     ) {
         let mut registry = SystemRegistry::new();
-        registry.register(Box::new(NoopSystem { id: "sys_input".into() })).unwrap();
-        registry.register(Box::new(NoopSystem { id: "sys_movement".into() })).unwrap();
-        registry.register(Box::new(NoopSystem { id: "sys_cleanup".into() })).unwrap();
+        registry
+            .register(Box::new(NoopSystem {
+                id: "sys_input".into(),
+            }))
+            .unwrap();
+        registry
+            .register(Box::new(NoopSystem {
+                id: "sys_movement".into(),
+            }))
+            .unwrap();
+        registry
+            .register(Box::new(NoopSystem {
+                id: "sys_cleanup".into(),
+            }))
+            .unwrap();
 
         (
             PhaseOrchestrator::new(42, "0.1.0", 1),
@@ -273,7 +303,8 @@ mod tests {
             ("Simulation", vec!["sys_movement".to_string()], false),
             ("Cleanup", vec!["sys_cleanup".to_string()], false),
         ];
-        orch.tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb).unwrap();
+        orch.tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb)
+            .unwrap();
         assert_eq!(orch.current_tick(), 1);
     }
 
@@ -281,14 +312,18 @@ mod tests {
     fn tick_returns_correct_tick_number() {
         let (mut orch, reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
         let systems = vec![("Simulation", vec!["sys_movement".to_string()], false)];
-        let result = orch.tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb).unwrap();
+        let result = orch
+            .tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb)
+            .unwrap();
         assert_eq!(result.tick, 0);
     }
 
     #[test]
     fn empty_tick_produces_empty_delta() {
         let (mut orch, reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
-        let result = orch.tick(&[], &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb).unwrap();
+        let result = orch
+            .tick(&[], &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb)
+            .unwrap();
         assert!(result.state_delta.is_empty());
         assert_eq!(result.mutations_applied, 0);
     }
@@ -298,9 +333,9 @@ mod tests {
         let (mut orch, reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
         let systems = vec![("Simulation", vec!["sys_movement".to_string()], false)];
         for expected_tick in 0u64..5 {
-            let result = orch.tick(
-                &systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb
-            ).unwrap();
+            let result = orch
+                .tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb)
+                .unwrap();
             assert_eq!(result.tick, expected_tick);
         }
         assert_eq!(orch.current_tick(), 5);

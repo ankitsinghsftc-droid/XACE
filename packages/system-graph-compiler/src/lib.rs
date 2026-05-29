@@ -16,13 +16,13 @@
 //! Determinism guarantee (D1, D9, D11): identical input → identical plan.
 
 pub mod compilation_error;
-pub mod graph_construction;
-pub mod phase_segmentation;
-pub mod dependency_resolution;
 pub mod conflict_analyzer;
-pub mod scheduler;
 pub mod cycle_detection;
+pub mod dependency_resolution;
+pub mod graph_construction;
 pub mod parallelization;
+pub mod phase_segmentation;
+pub mod scheduler;
 pub mod sgc_pipeline;
 
 #[cfg(test)]

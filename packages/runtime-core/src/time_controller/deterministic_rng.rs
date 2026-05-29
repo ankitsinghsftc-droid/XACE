@@ -13,7 +13,7 @@
 //! xorshift64 with a well-chosen constant multiplier.
 //! Fast, deterministic, and sufficient for game simulation.
 
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Deterministic RNG ─────────────────────────────────────────────────────────
 
@@ -75,20 +75,26 @@ impl DeterministicRng {
 
     /// Returns a random u64 in [0, max).
     pub fn next_u64_below(&mut self, max: u64) -> u64 {
-        if max == 0 { return 0; }
+        if max == 0 {
+            return 0;
+        }
         self.next_u64() % max
     }
 
     /// Returns a random i64 in [min, max).
     pub fn next_i64_range(&mut self, min: i64, max: i64) -> i64 {
-        if min >= max { return min; }
+        if min >= max {
+            return min;
+        }
         let range = (max - min) as u64;
         min + (self.next_u64() % range) as i64
     }
 
     /// Returns a random f64 in [min, max).
     pub fn next_f64_range(&mut self, min: f64, max: f64) -> f64 {
-        if min >= max { return min; }
+        if min >= max {
+            return min;
+        }
         min + self.next_f64() * (max - min)
     }
 
@@ -122,7 +128,9 @@ impl DeterministicRng {
             .wrapping_add(system_id_hash.wrapping_mul(2654435761))
             .wrapping_add(tick.wrapping_mul(1442695040888963407));
         // Ensure non-zero state (xorshift requires non-zero)
-        if s == 0 { s = 1; }
+        if s == 0 {
+            s = 1;
+        }
         // Mix
         s ^= s << 13;
         s ^= s >> 7;
@@ -153,16 +161,12 @@ pub struct RngInterceptor;
 impl RngInterceptor {
     /// Validates that a system is using DeterministicRng correctly.
     /// Called by DeterminismGuard in Phase 6.
-    pub fn validate_rng_usage(
-        system_id: &str,
-        tick: u64,
-    ) -> Result<(), XaceError> {
+    pub fn validate_rng_usage(system_id: &str, tick: u64) -> Result<(), XaceError> {
         // Phase 4: basic validation — system_id and tick must be non-empty/non-zero
         if system_id.is_empty() {
             return Err(XaceError::FatalError {
                 message: "RNG used with empty system_id — D6 violation".into(),
-                context: ErrorContext::new("RngInterceptor", "validate_rng_usage")
-                    .with_tick(tick),
+                context: ErrorContext::new("RngInterceptor", "validate_rng_usage").with_tick(tick),
                 snapshot_recovery_possible: false,
             });
         }
@@ -252,8 +256,12 @@ mod tests {
         let trials = 10000;
         let hits = (0..trials).filter(|_| rng.chance(0.5)).count();
         // Should be roughly 5000 ± 500
-        assert!(hits > 4000 && hits < 6000,
-            "Chance 0.5 gave {} hits out of {}", hits, trials);
+        assert!(
+            hits > 4000 && hits < 6000,
+            "Chance 0.5 gave {} hits out of {}",
+            hits,
+            trials
+        );
     }
 
     #[test]

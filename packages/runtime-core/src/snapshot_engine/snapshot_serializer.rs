@@ -23,8 +23,8 @@
 //! This prevents platform-specific float formatting from breaking
 //! determinism across machines with different FPU behavior.
 
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
 
 // ── Float Precision ───────────────────────────────────────────────────────────
 
@@ -120,22 +120,22 @@ impl SnapshotSerializer {
         // Full deserialization uses the same field order as serialize().
 
         // Extract tick
-        let tick = self.extract_u64(json, "tick").map_err(|e| {
-            XaceError::ValidationFailure {
+        let tick = self
+            .extract_u64(json, "tick")
+            .map_err(|e| XaceError::ValidationFailure {
                 message: format!("Failed to deserialize snapshot tick: {}", e),
                 context: ErrorContext::new("SnapshotSerializer", "deserialize"),
                 rule_violated: "snapshot_format".into(),
                 failed_path: "tick".into(),
-            }
-        })?;
+            })?;
 
         // Extract schema_version
-        let schema_version = self.extract_string(json, "schema_version")
+        let schema_version = self
+            .extract_string(json, "schema_version")
             .unwrap_or_else(|_| "0.1.0".to_string());
 
         // Extract world_hash
-        let world_hash = self.extract_string(json, "world_hash")
-            .unwrap_or_default();
+        let world_hash = self.extract_string(json, "world_hash").unwrap_or_default();
 
         // Return a minimal snapshot — full field parsing in Phase 6
         // when we have a complete snapshot format stabilized.
@@ -175,7 +175,8 @@ impl SnapshotSerializer {
         parts.push(format!(r#""next_entity_id":{}"#, store.next_entity_id));
 
         // entities — sorted by id ASC (D3)
-        let entity_parts: Vec<String> = store.entities
+        let entity_parts: Vec<String> = store
+            .entities
             .iter()
             .map(|e| {
                 let destroyed = if e.destroyed_tick > 0 {
@@ -214,9 +215,7 @@ impl SnapshotSerializer {
 
                 let row_parts: Vec<String> = sorted_rows
                     .iter()
-                    .map(|(entity_id, json)| {
-                        format!(r#""{}":{}"#, entity_id, json)
-                    })
+                    .map(|(entity_id, json)| format!(r#""{}":{}"#, entity_id, json))
                     .collect();
 
                 format!(
@@ -258,23 +257,28 @@ impl SnapshotSerializer {
 
     fn extract_u64(&self, json: &str, key: &str) -> Result<u64, String> {
         let search = format!(r#""{}":"#, key);
-        let start = json.find(&search)
+        let start = json
+            .find(&search)
             .ok_or_else(|| format!("Key '{}' not found", key))?
             + search.len();
         let rest = &json[start..];
-        let end = rest.find(|c: char| !c.is_ascii_digit())
+        let end = rest
+            .find(|c: char| !c.is_ascii_digit())
             .unwrap_or(rest.len());
-        rest[..end].parse::<u64>()
+        rest[..end]
+            .parse::<u64>()
             .map_err(|e| format!("Failed to parse u64: {}", e))
     }
 
     fn extract_string(&self, json: &str, key: &str) -> Result<String, String> {
         let search = format!(r#""{}"":""#, key);
-        let start = json.find(&search)
+        let start = json
+            .find(&search)
             .ok_or_else(|| format!("Key '{}' not found", key))?
             + search.len();
         let rest = &json[start..];
-        let end = rest.find('"')
+        let end = rest
+            .find('"')
             .ok_or_else(|| "Unterminated string".to_string())?;
         Ok(rest[..end].to_string())
     }

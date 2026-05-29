@@ -19,7 +19,7 @@
 
 use std::collections::BTreeMap;
 use xace_core::entity_metadata::Tick;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
 
 // ── Retention Policy ──────────────────────────────────────────────────────────
@@ -91,10 +91,7 @@ impl SnapshotStore {
     /// Stores a snapshot according to the retention policy.
     ///
     /// Returns error if a snapshot already exists for this tick.
-    pub fn store(
-        &mut self,
-        snapshot: WorldSnapshot,
-    ) -> Result<(), XaceError> {
+    pub fn store(&mut self, snapshot: WorldSnapshot) -> Result<(), XaceError> {
         let tick = snapshot.tick;
 
         if self.snapshots.contains_key(&tick) {
@@ -200,7 +197,8 @@ impl SnapshotStore {
     ///
     /// Checkpoint-marked snapshots are never purged.
     pub fn purge_before(&mut self, tick: Tick) {
-        let to_remove: Vec<Tick> = self.snapshots
+        let to_remove: Vec<Tick> = self
+            .snapshots
             .range(..tick)
             .filter(|(t, _)| !self.checkpoint_ticks.contains_key(t))
             .map(|(t, _)| *t)
@@ -236,7 +234,8 @@ impl SnapshotStore {
     fn apply_keep_last_n(&mut self, max: usize) {
         while self.snapshots.len() > max {
             // Find oldest non-checkpoint tick to remove
-            let oldest_non_checkpoint = self.snapshots
+            let oldest_non_checkpoint = self
+                .snapshots
                 .keys()
                 .find(|t| !self.checkpoint_ticks.contains_key(t))
                 .copied();
@@ -323,7 +322,7 @@ mod tests {
         store.store(snap(1)).unwrap();
         store.store(snap(2)).unwrap();
         store.store(snap(3)).unwrap(); // Would normally evict tick=1
-        // tick=1 is a checkpoint — must not be purged
+                                       // tick=1 is a checkpoint — must not be purged
         assert!(store.has_snapshot(1));
     }
 
@@ -331,7 +330,7 @@ mod tests {
     fn checkpoint_policy_discards_non_checkpoints() {
         let mut store = SnapshotStore::new(RetentionPolicy::Checkpoint);
         store.mark_checkpoint(10);
-        store.store(snap(5)).unwrap();  // Not a checkpoint — discarded
+        store.store(snap(5)).unwrap(); // Not a checkpoint — discarded
         store.store(snap(10)).unwrap(); // Checkpoint — kept
         assert!(!store.has_snapshot(5));
         assert!(store.has_snapshot(10));

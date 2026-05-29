@@ -89,7 +89,10 @@ impl PhysicsMaterial {
     };
 
     pub fn new(friction: f32, bounciness: f32) -> Self {
-        Self { friction, bounciness }
+        Self {
+            friction,
+            bounciness,
+        }
     }
 }
 
@@ -114,7 +117,11 @@ pub struct ColliderOffset {
 }
 
 impl ColliderOffset {
-    pub const ZERO: ColliderOffset = ColliderOffset { x: 0.0, y: 0.0, z: 0.0 };
+    pub const ZERO: ColliderOffset = ColliderOffset {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
@@ -145,7 +152,11 @@ pub struct ColliderSize {
 
 impl ColliderSize {
     /// Unit box — 1x1x1 half-extents (2x2x2 total).
-    pub const UNIT: ColliderSize = ColliderSize { x: 0.5, y: 0.5, z: 0.5 };
+    pub const UNIT: ColliderSize = ColliderSize {
+        x: 0.5,
+        y: 0.5,
+        z: 0.5,
+    };
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
@@ -153,12 +164,20 @@ impl ColliderSize {
 
     /// Convenience for sphere colliders — sets radius uniformly.
     pub fn sphere(radius: f32) -> Self {
-        Self { x: radius, y: radius, z: radius }
+        Self {
+            x: radius,
+            y: radius,
+            z: radius,
+        }
     }
 
     /// Convenience for capsule colliders.
     pub fn capsule(radius: f32, half_height: f32) -> Self {
-        Self { x: radius, y: half_height, z: radius }
+        Self {
+            x: radius,
+            y: half_height,
+            z: radius,
+        }
     }
 }
 

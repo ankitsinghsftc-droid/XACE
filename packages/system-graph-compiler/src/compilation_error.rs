@@ -24,7 +24,7 @@ use xace_core::runtime::phase_enum::PhaseEnum;
 /// The type of a directed edge in the system dependency graph.
 ///
 /// Used by the graph construction layer and reported in cycle diagnostics.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EdgeType {
     /// Explicitly declared in SystemDefinition.depends_on.
     ExplicitDependency,
@@ -46,9 +46,9 @@ impl EdgeType {
     pub fn as_str(&self) -> &'static str {
         match self {
             EdgeType::ExplicitDependency => "EXPLICIT_DEPENDENCY",
-            EdgeType::ReadAfterWrite     => "READ_AFTER_WRITE",
-            EdgeType::WriteAfterWrite    => "WRITE_AFTER_WRITE",
-            EdgeType::PhaseOrder         => "PHASE_ORDER",
+            EdgeType::ReadAfterWrite => "READ_AFTER_WRITE",
+            EdgeType::WriteAfterWrite => "WRITE_AFTER_WRITE",
+            EdgeType::PhaseOrder => "PHASE_ORDER",
         }
     }
 }
@@ -96,7 +96,12 @@ impl CycleError {
             "Introduce an intermediate component that decouples the cyclic dependency.".into(),
             "Move one system to an earlier phase to break the cross-system dependency.".into(),
         ];
-        Self { cycle_path, edge_types, description: desc, suggestions }
+        Self {
+            cycle_path,
+            edge_types,
+            description: desc,
+            suggestions,
+        }
     }
 
     pub fn cycle_display(&self) -> String {
@@ -114,7 +119,10 @@ pub enum PhaseViolationKind {
     /// System references a phase that doesn't exist in PhaseEnum.
     InvalidSystemPhase { given: String },
     /// System A declares it depends_on System B, but B is in a later phase.
-    PhaseDependencyViolation { from_phase: PhaseEnum, to_phase: PhaseEnum },
+    PhaseDependencyViolation {
+        from_phase: PhaseEnum,
+        to_phase: PhaseEnum,
+    },
 }
 
 #[derive(Debug, Clone)]
@@ -139,8 +147,8 @@ impl PhaseViolation {
     }
 
     pub fn invalid_phase(system_id: impl Into<String>, given: impl Into<String>) -> Self {
-        let id  = system_id.into();
-        let ph  = given.into();
+        let id = system_id.into();
+        let ph = given.into();
         Self {
             description: format!(
                 "System '{}' declares phase '{}' which does not exist in PhaseEnum. \
@@ -153,9 +161,9 @@ impl PhaseViolation {
     }
 
     pub fn cross_phase_dependency(
-        system_id:  impl Into<String>,
+        system_id: impl Into<String>,
         from_phase: PhaseEnum,
-        to_phase:   PhaseEnum,
+        to_phase: PhaseEnum,
     ) -> Self {
         let id = system_id.into();
         Self {
@@ -164,7 +172,10 @@ impl PhaseViolation {
                  Dependencies must point to earlier or same phases only.",
                 id, from_phase, to_phase
             ),
-            kind: PhaseViolationKind::PhaseDependencyViolation { from_phase, to_phase },
+            kind: PhaseViolationKind::PhaseDependencyViolation {
+                from_phase,
+                to_phase,
+            },
             system_id: id,
         }
     }
@@ -187,9 +198,9 @@ pub struct ConflictError {
 
 impl ConflictError {
     pub fn write_write(
-        system_a:  impl Into<String>,
-        system_b:  impl Into<String>,
-        type_ids:  BTreeSet<u32>,
+        system_a: impl Into<String>,
+        system_b: impl Into<String>,
+        type_ids: BTreeSet<u32>,
     ) -> Self {
         let a = system_a.into();
         let b = system_b.into();
@@ -197,9 +208,12 @@ impl ConflictError {
             description: format!(
                 "Systems '{}' and '{}' both write component type IDs {:?}. \
                  The SGC will serialize them (lexicographic order: '{}' before '{}').",
-                a, b, type_ids,
+                a,
+                b,
+                type_ids,
                 // Fixed:
-                a.as_str().min(b.as_str()), a.as_str().max(b.as_str())
+                a.as_str().min(b.as_str()),
+                a.as_str().max(b.as_str())
             ),
             system_a: a,
             system_b: b,
@@ -214,17 +228,18 @@ impl ConflictError {
 #[derive(Debug, Clone)]
 pub struct InvalidSystemDefinition {
     pub system_id: String,
-    pub field:     String,
-    pub reason:    String,
+    pub field: String,
+    pub reason: String,
 }
 
 impl InvalidSystemDefinition {
     pub fn missing_id() -> Self {
         Self {
             system_id: String::new(),
-            field:     "system_id".into(),
-            reason:    "System definition has an empty system_id. \
-                        Every system must have a non-empty, unique system_id.".into(),
+            field: "system_id".into(),
+            reason: "System definition has an empty system_id. \
+                        Every system must have a non-empty, unique system_id."
+                .into(),
         }
     }
 
@@ -232,8 +247,8 @@ impl InvalidSystemDefinition {
         let dep = dep_id.into();
         Self {
             system_id: system_id.into(),
-            field:     "depends_on".into(),
-            reason:    format!(
+            field: "depends_on".into(),
+            reason: format!(
                 "System declares depends_on '{}' but no system with that ID \
                  is registered in the schema.",
                 dep
@@ -261,27 +276,33 @@ pub enum CompilationError {
 impl CompilationError {
     pub fn description(&self) -> &str {
         match self {
-            CompilationError::Cycle(e)             => &e.description,
-            CompilationError::Phase(e)             => &e.description,
-            CompilationError::Conflict(e)          => &e.description,
+            CompilationError::Cycle(e) => &e.description,
+            CompilationError::Phase(e) => &e.description,
+            CompilationError::Conflict(e) => &e.description,
             CompilationError::InvalidDefinition(e) => &e.reason,
-            CompilationError::InternalError(s)     => s,
+            CompilationError::InternalError(s) => s,
         }
     }
 
     pub fn stage(&self) -> &'static str {
         match self {
-            CompilationError::Cycle(_)             => "CycleDetection",
-            CompilationError::Phase(_)             => "PhaseSegmentation",
-            CompilationError::Conflict(_)          => "ConflictAnalyzer",
+            CompilationError::Cycle(_) => "CycleDetection",
+            CompilationError::Phase(_) => "PhaseSegmentation",
+            CompilationError::Conflict(_) => "ConflictAnalyzer",
             CompilationError::InvalidDefinition(_) => "GraphConstruction",
-            CompilationError::InternalError(_)     => "Internal",
+            CompilationError::InternalError(_) => "Internal",
         }
     }
 
-    pub fn is_cycle(&self)    -> bool { matches!(self, CompilationError::Cycle(_)) }
-    pub fn is_phase(&self)    -> bool { matches!(self, CompilationError::Phase(_)) }
-    pub fn is_conflict(&self) -> bool { matches!(self, CompilationError::Conflict(_)) }
+    pub fn is_cycle(&self) -> bool {
+        matches!(self, CompilationError::Cycle(_))
+    }
+    pub fn is_phase(&self) -> bool {
+        matches!(self, CompilationError::Phase(_))
+    }
+    pub fn is_conflict(&self) -> bool {
+        matches!(self, CompilationError::Conflict(_))
+    }
 }
 
 impl std::fmt::Display for CompilationError {
@@ -302,7 +323,11 @@ mod tests {
     fn cycle_error_display() {
         let e = CycleError::new(
             vec!["sys_a".into(), "sys_b".into(), "sys_c".into()],
-            vec![EdgeType::ExplicitDependency, EdgeType::ReadAfterWrite, EdgeType::WriteAfterWrite],
+            vec![
+                EdgeType::ExplicitDependency,
+                EdgeType::ReadAfterWrite,
+                EdgeType::WriteAfterWrite,
+            ],
         );
         assert!(e.cycle_display().contains("sys_a"));
         assert!(e.cycle_display().ends_with("sys_a"));
@@ -319,10 +344,15 @@ mod tests {
     #[test]
     fn phase_violation_cross_phase() {
         let e = PhaseViolation::cross_phase_dependency(
-            "sys_late", PhaseEnum::Simulation, PhaseEnum::PostSimulation
+            "sys_late",
+            PhaseEnum::Simulation,
+            PhaseEnum::PostSimulation,
         );
         assert!(e.description.contains("sys_late"));
-        assert!(matches!(e.kind, PhaseViolationKind::PhaseDependencyViolation { .. }));
+        assert!(matches!(
+            e.kind,
+            PhaseViolationKind::PhaseDependencyViolation { .. }
+        ));
     }
 
     #[test]
@@ -349,7 +379,10 @@ mod tests {
     fn edge_type_display() {
         assert_eq!(EdgeType::ReadAfterWrite.to_string(), "READ_AFTER_WRITE");
         assert_eq!(EdgeType::WriteAfterWrite.to_string(), "WRITE_AFTER_WRITE");
-        assert_eq!(EdgeType::ExplicitDependency.to_string(), "EXPLICIT_DEPENDENCY");
+        assert_eq!(
+            EdgeType::ExplicitDependency.to_string(),
+            "EXPLICIT_DEPENDENCY"
+        );
         assert_eq!(EdgeType::PhaseOrder.to_string(), "PHASE_ORDER");
     }
 

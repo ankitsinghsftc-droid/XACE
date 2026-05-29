@@ -18,22 +18,16 @@
 //! serialized state. The DeterminismGuard (Phase 6) validates
 //! this hash on every replay tick.
 
-use xace_core::entity_metadata::Tick;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use xace_core::runtime::world_snapshot::{
-    WorldSnapshot,
-    EntityStoreSnapshot,
-    EntityRecord,
-    ComponentTablesSnapshot,
-    ComponentTableRecord,
-    RngState,
-    EventQueueState,
-    MutationQueueState,
-};
-use crate::entity_store::EntityStore;
-use crate::component_tables::ComponentTableStore;
 use super::snapshot_serializer::SnapshotSerializer;
-use super::snapshot_store::{SnapshotStore, RetentionPolicy};
+use super::snapshot_store::{RetentionPolicy, SnapshotStore};
+use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
+use xace_core::entity_metadata::Tick;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::runtime::world_snapshot::{
+    ComponentTableRecord, ComponentTablesSnapshot, EntityRecord, EntityStoreSnapshot,
+    EventQueueState, MutationQueueState, RngState, WorldSnapshot,
+};
 
 // ── Snapshot Engine ───────────────────────────────────────────────────────────
 
@@ -199,18 +193,14 @@ impl SnapshotEngine {
         self.restore_component_tables(snapshot, table_store);
 
         // Verify world hash after restore (D9, I10)
-        let restored_snapshot = self.take_snapshot(
-            snapshot.tick, entity_store, table_store
-        )?;
+        let restored_snapshot = self.take_snapshot(snapshot.tick, entity_store, table_store)?;
 
         if restored_snapshot.world_hash != snapshot.world_hash {
             return Err(XaceError::FatalError {
                 message: format!(
                     "World hash mismatch after restore at tick {} — \
                      expected '{}', got '{}'. Snapshot restore failed (I10, D9)",
-                    snapshot.tick,
-                    snapshot.world_hash,
-                    restored_snapshot.world_hash,
+                    snapshot.tick, snapshot.world_hash, restored_snapshot.world_hash,
                 ),
                 context: ErrorContext::new("SnapshotEngine", "restore_snapshot")
                     .with_tick(snapshot.tick),
@@ -245,13 +235,8 @@ impl SnapshotEngine {
     }
 
     /// Verifies that two snapshots represent identical world state.
-    pub fn verify_match(
-        &self,
-        snapshot_a: &WorldSnapshot,
-        snapshot_b: &WorldSnapshot,
-    ) -> bool {
-        snapshot_a.world_hash == snapshot_b.world_hash
-            && !snapshot_a.world_hash.is_empty()
+    pub fn verify_match(&self, snapshot_a: &WorldSnapshot, snapshot_b: &WorldSnapshot) -> bool {
+        snapshot_a.world_hash == snapshot_b.world_hash && !snapshot_a.world_hash.is_empty()
     }
 
     /// Marks a tick as a checkpoint in the snapshot store.
@@ -276,11 +261,7 @@ impl SnapshotEngine {
 
     // ── Internal — Capture ─────────────────────────────────────────────────
 
-    fn capture_entity_store(
-        &self,
-        entity_store: &EntityStore,
-        tick: Tick,
-    ) -> EntityStoreSnapshot {
+    fn capture_entity_store(&self, entity_store: &EntityStore, tick: Tick) -> EntityStoreSnapshot {
         // All entity metadata sorted by EntityID ASC (D3)
         let entities: Vec<EntityRecord> = entity_store
             .all_metadata_sorted()
@@ -314,11 +295,14 @@ impl SnapshotEngine {
                 .map(|(entity_id, json)| (entity_id, json.to_string()))
                 .collect();
 
-            tables.insert(type_id, xace_core::runtime::world_snapshot::ComponentTableSnapshot {
-                component_type_id: type_id,
-                component_type_name: String::new(), // or fetch actual name if available
-                rows,
-            });
+            tables.insert(
+                type_id,
+                xace_core::runtime::world_snapshot::ComponentTableSnapshot {
+                    component_type_id: type_id,
+                    component_type_name: String::new(), // or fetch actual name if available
+                    rows,
+                },
+            );
         }
 
         ComponentTablesSnapshot { tables }
@@ -326,11 +310,7 @@ impl SnapshotEngine {
 
     // ── Internal — Restore ─────────────────────────────────────────────────
 
-    fn restore_entity_store(
-        &self,
-        snapshot: &WorldSnapshot,
-        entity_store: &mut EntityStore,
-    ) {
+    fn restore_entity_store(&self, snapshot: &WorldSnapshot, entity_store: &mut EntityStore) {
         let store_snap = &snapshot.entity_store_snapshot;
 
         // Rebuild entity metadata from snapshot records
@@ -376,8 +356,8 @@ impl SnapshotEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_store::EntityStore;
     use crate::component_tables::ComponentTableStore;
+    use crate::entity_store::EntityStore;
 
     fn setup() -> (SnapshotEngine, EntityStore, ComponentTableStore) {
         let engine = SnapshotEngine::standard("0.1.0", 1, 42);
@@ -394,7 +374,11 @@ mod tests {
         let id = es.create_entity(0).unwrap();
         let snap = engine.take_snapshot(10, &es, &ts).unwrap();
         assert_eq!(snap.tick, 10);
-        assert!(snap.entity_store_snapshot.entities.iter().any(|e| e.id == id));
+        assert!(snap
+            .entity_store_snapshot
+            .entities
+            .iter()
+            .any(|e| e.entity_id == id));
     }
 
     #[test]

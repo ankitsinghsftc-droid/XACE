@@ -34,9 +34,9 @@
 //! Identical world state + identical tick always produces identical
 //! WireMessage bytes. This is validated by test_transport.rs (Phase 7).
 
-use serde::{Deserialize, Serialize};
-use crate::wire::message_type::MessageType;
 use crate::entity_metadata::Tick;
+use crate::wire::message_type::MessageType;
+use serde::{Deserialize, Serialize};
 
 // ── Protocol Version ──────────────────────────────────────────────────────────
 
@@ -239,11 +239,7 @@ impl WireMessage {
     /// Returns true if this message's schema and plan versions match
     /// the given expected versions.
     /// Used by the engine adapter to validate before applying payload (D10).
-    pub fn is_version_compatible(
-        &self,
-        expected_schema: &str,
-        expected_plan_version: u32,
-    ) -> bool {
+    pub fn is_version_compatible(&self, expected_schema: &str, expected_plan_version: u32) -> bool {
         self.schema_version == expected_schema
             && self.execution_plan_version == expected_plan_version
     }
@@ -310,9 +306,7 @@ impl WireMessage {
         }
 
         if self.execution_plan_version == 0 {
-            return Err(
-                "WireMessage execution_plan_version must be >= 1".into()
-            );
+            return Err("WireMessage execution_plan_version must be >= 1".into());
         }
 
         if self.payload.is_empty() {
@@ -325,11 +319,9 @@ impl WireMessage {
 
         // INPUT messages must carry the tick they were generated on (I14)
         if matches!(self.message_type, MessageType::Input) && self.tick == 0 {
-            return Err(
-                "WireMessage INPUT must carry a non-zero tick — \
+            return Err("WireMessage INPUT must carry a non-zero tick — \
                  all input packets must be timestamped (I14)"
-                    .into(),
-            );
+                .into());
         }
 
         Ok(())
@@ -409,28 +401,14 @@ mod tests {
 
     #[test]
     fn snapshot_message_created_correctly() {
-        let msg = WireMessage::snapshot(
-            "default",
-            "0.1.0",
-            1,
-            0,
-            1,
-            r#"{"tick":0}"#,
-        );
+        let msg = WireMessage::snapshot("default", "0.1.0", 1, 0, 1, r#"{"tick":0}"#);
         assert!(msg.is_snapshot());
         assert!(msg.is_outbound());
     }
 
     #[test]
     fn feedback_message_is_inbound() {
-        let msg = WireMessage::feedback(
-            "default",
-            "0.1.0",
-            1,
-            42,
-            1,
-            r#"{"tick":42}"#,
-        );
+        let msg = WireMessage::feedback("default", "0.1.0", 1, 42, 1, r#"{"tick":42}"#);
         assert!(msg.is_feedback());
         assert!(msg.is_inbound());
         assert!(!msg.is_outbound());
@@ -438,13 +416,7 @@ mod tests {
 
     #[test]
     fn control_message_has_zero_tick() {
-        let msg = WireMessage::control(
-            "default",
-            "0.1.0",
-            1,
-            1,
-            r#"{"type":"handshake"}"#,
-        );
+        let msg = WireMessage::control("default", "0.1.0", 1, 1, r#"{"type":"handshake"}"#);
         assert_eq!(msg.tick, 0);
         assert!(msg.is_control());
     }
@@ -536,14 +508,7 @@ mod tests {
 
     #[test]
     fn world_id_stored_correctly() {
-        let msg = WireMessage::delta(
-            "world-session-abc",
-            "0.1.0",
-            1,
-            0,
-            1,
-            "{}",
-        );
+        let msg = WireMessage::delta("world-session-abc", "0.1.0", 1, 0, 1, "{}");
         assert_eq!(msg.world_id, "world-session-abc");
     }
 

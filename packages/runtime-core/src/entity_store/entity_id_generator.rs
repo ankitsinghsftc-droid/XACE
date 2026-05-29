@@ -185,11 +185,16 @@ mod tests {
     fn restore_prevents_id_collision() {
         let gen = EntityIdGenerator::new();
         // Simulate: IDs 1-5 were generated before snapshot
-        for _ in 0..5 { gen.next_id(); }
+        for _ in 0..5 {
+            gen.next_id();
+        }
         // Restore ensures next ID is beyond previous range
         gen.restore_to(6);
         let new_id = gen.next_id();
-        assert!(new_id >= 6, "Restored ID should not collide with pre-snapshot IDs");
+        assert!(
+            new_id >= 6,
+            "Restored ID should not collide with pre-snapshot IDs"
+        );
     }
 
     #[test]
@@ -211,22 +216,24 @@ mod tests {
 
     #[test]
     fn thread_safe_concurrent_generation() {
+        use std::collections::HashSet;
         use std::sync::Arc;
         use std::thread;
-        use std::collections::HashSet;
 
         let gen = Arc::new(EntityIdGenerator::new());
         let thread_count = 8;
         let ids_per_thread = 100;
 
-        let handles: Vec<_> = (0..thread_count).map(|_| {
-            let gen_clone = Arc::clone(&gen);
-            thread::spawn(move || {
-                (0..ids_per_thread)
-                    .map(|_| gen_clone.next_id())
-                    .collect::<Vec<_>>()
+        let handles: Vec<_> = (0..thread_count)
+            .map(|_| {
+                let gen_clone = Arc::clone(&gen);
+                thread::spawn(move || {
+                    (0..ids_per_thread)
+                        .map(|_| gen_clone.next_id())
+                        .collect::<Vec<_>>()
+                })
             })
-        }).collect();
+            .collect();
 
         let mut all_ids: HashSet<EntityID> = HashSet::new();
         for handle in handles {

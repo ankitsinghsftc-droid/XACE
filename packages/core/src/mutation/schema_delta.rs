@@ -23,9 +23,9 @@
 //! It is appended to the delta chain and permanently retained.
 //! The CGS hash after commit is the definitive fingerprint (D11).
 
-use serde::{Deserialize, Serialize};
 use crate::mutation::dsl_operation::DslOperation;
 use crate::mutation::usmc_categories::UsmcCategory;
+use serde::{Deserialize, Serialize};
 
 // ── Delta Entry ───────────────────────────────────────────────────────────────
 
@@ -71,10 +71,7 @@ impl DeltaEntry {
     }
 
     /// Creates a delta entry for a new field being added.
-    pub fn addition(
-        target_path: impl Into<String>,
-        value_after: impl Into<String>,
-    ) -> Self {
+    pub fn addition(target_path: impl Into<String>, value_after: impl Into<String>) -> Self {
         Self {
             target_path: target_path.into(),
             value_before: String::new(),
@@ -85,10 +82,7 @@ impl DeltaEntry {
     }
 
     /// Creates a delta entry for a field being deleted.
-    pub fn deletion(
-        target_path: impl Into<String>,
-        value_before: impl Into<String>,
-    ) -> Self {
+    pub fn deletion(target_path: impl Into<String>, value_before: impl Into<String>) -> Self {
         Self {
             target_path: target_path.into(),
             value_before: value_before.into(),
@@ -218,7 +212,10 @@ impl SchemaDelta {
 
     /// Returns all modification entries — fields changed by this delta.
     pub fn modifications(&self) -> Vec<&DeltaEntry> {
-        self.entries.iter().filter(|e| e.is_modification()).collect()
+        self.entries
+            .iter()
+            .filter(|e| e.is_modification())
+            .collect()
     }
 
     /// Returns true if this delta is structurally valid.
@@ -415,10 +412,7 @@ mod tests {
     #[test]
     fn plain_english_summary_no_entries() {
         let delta = test_delta();
-        assert_eq!(
-            delta.plain_english_summary(),
-            "No visible changes recorded"
-        );
+        assert_eq!(delta.plain_english_summary(), "No visible changes recorded");
     }
 
     #[test]

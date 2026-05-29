@@ -34,10 +34,10 @@
 //! Entity IDs are always processed in ascending order (D3).
 //! Component type IDs are always processed in ascending order (D11).
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::EntityID;
 use crate::entity_metadata::Tick;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Component Field Change ────────────────────────────────────────────────────
 
@@ -62,10 +62,7 @@ pub struct FieldChange {
 }
 
 impl FieldChange {
-    pub fn new(
-        field_name: impl Into<String>,
-        value_json: impl Into<String>,
-    ) -> Self {
+    pub fn new(field_name: impl Into<String>, value_json: impl Into<String>) -> Self {
         Self {
             field_name: field_name.into(),
             value_json: value_json.into(),
@@ -167,12 +164,9 @@ impl SpawnedEntity {
     }
 
     /// Adds an initial component to this spawned entity.
-    pub fn with_component(
-        mut self,
-        type_id: u32,
-        component_json: impl Into<String>,
-    ) -> Self {
-        self.initial_components.insert(type_id, component_json.into());
+    pub fn with_component(mut self, type_id: u32, component_json: impl Into<String>) -> Self {
+        self.initial_components
+            .insert(type_id, component_json.into());
         self
     }
 }
@@ -323,7 +317,9 @@ impl StateDelta {
             + self.destroyed_entities.len()
             + self.added_components.len()
             + self.removed_components.len()
-            + self.updated_components.values()
+            + self
+                .updated_components
+                .values()
                 .map(|m| m.len())
                 .sum::<usize>()
     }
@@ -331,7 +327,8 @@ impl StateDelta {
     /// Records an entity spawned this tick.
     /// Maintains EntityID ascending sort order (D3).
     pub fn record_spawn(&mut self, entity: SpawnedEntity) {
-        let pos = self.spawned_entities
+        let pos = self
+            .spawned_entities
             .partition_point(|e| e.entity_id < entity.entity_id);
         self.spawned_entities.insert(pos, entity);
     }
@@ -339,7 +336,8 @@ impl StateDelta {
     /// Records an entity destroyed this tick.
     /// Maintains EntityID ascending sort order (D3).
     pub fn record_destroy(&mut self, entity: DestroyedEntity) {
-        let pos = self.destroyed_entities
+        let pos = self
+            .destroyed_entities
             .partition_point(|e| e.entity_id < entity.entity_id);
         self.destroyed_entities.insert(pos, entity);
     }
@@ -349,7 +347,8 @@ impl StateDelta {
         self.added_components.push(added);
         // Sort by entity_id ASC, then component_type_id ASC (D3, D11)
         self.added_components.sort_by(|a, b| {
-            a.entity_id.cmp(&b.entity_id)
+            a.entity_id
+                .cmp(&b.entity_id)
                 .then(a.component_type_id.cmp(&b.component_type_id))
         });
     }
@@ -358,18 +357,15 @@ impl StateDelta {
     pub fn record_component_removed(&mut self, removed: RemovedComponent) {
         self.removed_components.push(removed);
         self.removed_components.sort_by(|a, b| {
-            a.entity_id.cmp(&b.entity_id)
+            a.entity_id
+                .cmp(&b.entity_id)
                 .then(a.component_type_id.cmp(&b.component_type_id))
         });
     }
 
     /// Records a component field change for an entity this tick.
     /// BTreeMap insertion maintains deterministic ordering (D3, D11).
-    pub fn record_component_update(
-        &mut self,
-        entity_id: EntityID,
-        change: ComponentChange,
-    ) {
+    pub fn record_component_update(&mut self, entity_id: EntityID, change: ComponentChange) {
         self.updated_components
             .entry(entity_id)
             .or_insert_with(BTreeMap::new)

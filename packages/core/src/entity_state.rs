@@ -72,7 +72,10 @@ impl EntityState {
     ///
     /// Destroyed and Archived entities are no longer in the store.
     pub fn is_present(&self) -> bool {
-        matches!(self, EntityState::Active | EntityState::Disabled | EntityState::DestroyRequested)
+        matches!(
+            self,
+            EntityState::Active | EntityState::Disabled | EntityState::DestroyRequested
+        )
     }
 
     /// Returns true if this entity has been fully removed.

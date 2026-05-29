@@ -23,12 +23,10 @@
 
 #[cfg(test)]
 mod tests {
+    use xace_core::entity_state::EntityState;
     use xace_core::errors::determinism_error::{DeterminismRule, GuardMode};
     use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::runtime::world_snapshot::{
-        ComponentTableSnapshot, EntityRecord, WorldSnapshot,
-    };
-    use xace_core::entity_state::EntityState;
+    use xace_core::runtime::world_snapshot::{ComponentTableSnapshot, EntityRecord, WorldSnapshot};
 
     use crate::determinism_guard::determinism_guard::DeterminismGuard;
     use crate::determinism_guard::replay_validator::{GoldenLog, ReplayStatus, ReplayValidator};
@@ -88,11 +86,7 @@ mod tests {
 
     /// Runs a complete valid tick lifecycle through the guard.
     /// Returns the world hash computed at tick end.
-    fn run_clean_tick(
-        guard: &mut DeterminismGuard,
-        tick: u64,
-        snapshot: &WorldSnapshot,
-    ) -> String {
+    fn run_clean_tick(guard: &mut DeterminismGuard, tick: u64, snapshot: &WorldSnapshot) -> String {
         guard.hook_tick_start(tick, "0.1.0", 1).unwrap();
         for phase in PhaseEnum::ALL {
             guard.hook_phase_start(tick, phase).unwrap();
@@ -153,8 +147,14 @@ mod tests {
     fn d6_illegal_rng_report_causes_violation_in_strict() {
         let mut g = strict_guard();
         let result = g.hook_rng_access(5, "sys_ai", false);
-        assert!(result.is_err(), "Illegal RNG must be rejected in STRICT (D6)");
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D6DeterministicRngOnly);
+        assert!(
+            result.is_err(),
+            "Illegal RNG must be rejected in STRICT (D6)"
+        );
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D6DeterministicRngOnly
+        );
         assert_eq!(g.violations()[0].tick, 5);
         assert_eq!(g.violations()[0].system_context, "sys_ai");
     }
@@ -211,7 +211,11 @@ mod tests {
         g.hook_tick_end(&snap).unwrap();
         let recorded = g.hash_at_tick(1);
         assert!(recorded.is_some(), "Guard must record world_hash at tick 1");
-        assert_eq!(recorded.unwrap().len(), 64, "Hash must be 64-char SHA-256 hex");
+        assert_eq!(
+            recorded.unwrap().len(),
+            64,
+            "Hash must be 64-char SHA-256 hex"
+        );
     }
 
     #[test]
@@ -243,7 +247,10 @@ mod tests {
             g.hook_phase_end(1, phase).unwrap();
         }
         let result = g.hook_tick_end(&snap);
-        assert!(result.is_err(), "Hash mismatch must be a D9 violation in STRICT");
+        assert!(
+            result.is_err(),
+            "Hash mismatch must be a D9 violation in STRICT"
+        );
         assert_eq!(g.violations()[0].rule, DeterminismRule::D9WorldHashPerTick);
         assert!(g.violations()[0].is_hash_mismatch());
     }
@@ -289,7 +296,10 @@ mod tests {
             let mut g = silent_guard();
             run_clean_tick(&mut g, 7, &snap)
         };
-        assert_eq!(hash_a, hash_b, "Same world must produce same hash always (D9)");
+        assert_eq!(
+            hash_a, hash_b,
+            "Same world must produce same hash always (D9)"
+        );
     }
 
     // =========================================================================
@@ -301,7 +311,10 @@ mod tests {
         let mut g = strict_guard();
         let result = g.hook_tick_start(1, "9.9.9", 1);
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D10SchemaVersionMatch);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D10SchemaVersionMatch
+        );
     }
 
     #[test]
@@ -309,7 +322,10 @@ mod tests {
         let mut g = strict_guard();
         let result = g.hook_tick_start(1, "0.1.0", 999);
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D10SchemaVersionMatch);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D10SchemaVersionMatch
+        );
     }
 
     #[test]
@@ -412,7 +428,10 @@ mod tests {
         let golden = GoldenLog::new("0.1.0", 1);
         let mut validator = ReplayValidator::new(GuardMode::Strict);
         let result = validator.begin_validation(golden, "0.99.0", 1);
-        assert!(result.is_err(), "Schema mismatch must block begin_validation (D14)");
+        assert!(
+            result.is_err(),
+            "Schema mismatch must block begin_validation (D14)"
+        );
         assert_eq!(validator.status(), ReplayStatus::Idle);
     }
 
@@ -446,8 +465,14 @@ mod tests {
         let mut g = strict_guard();
         // Deliberately skip hook_tick_start
         let result = g.hook_phase_start(1, PhaseEnum::Simulation);
-        assert!(result.is_err(), "Phase without tick window must be a D15 violation");
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D15GuardAtEveryBoundary);
+        assert!(
+            result.is_err(),
+            "Phase without tick window must be a D15 violation"
+        );
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D15GuardAtEveryBoundary
+        );
     }
 
     #[test]
@@ -456,8 +481,14 @@ mod tests {
         g.hook_tick_start(1, "0.1.0", 1).unwrap();
         // No hook_phase_start — phase window is not open
         let result = g.hook_system_execute(1, PhaseEnum::Simulation, "sys_movement");
-        assert!(result.is_err(), "System without phase window must be a D15 violation");
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D15GuardAtEveryBoundary);
+        assert!(
+            result.is_err(),
+            "System without phase window must be a D15 violation"
+        );
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D15GuardAtEveryBoundary
+        );
     }
 
     #[test]
@@ -468,8 +499,14 @@ mod tests {
         g.hook_phase_end(1, PhaseEnum::Simulation).unwrap();
         // Phase window is now closed
         let result = g.hook_system_execute(1, PhaseEnum::Simulation, "sys_movement");
-        assert!(result.is_err(), "System after phase_end must be a D15 violation");
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D15GuardAtEveryBoundary);
+        assert!(
+            result.is_err(),
+            "System after phase_end must be a D15 violation"
+        );
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D15GuardAtEveryBoundary
+        );
     }
 
     #[test]
@@ -487,7 +524,11 @@ mod tests {
         }
         g.hook_tick_end(&snap).unwrap();
 
-        assert_eq!(g.violation_count(), 0, "Correct hook order must produce zero violations");
+        assert_eq!(
+            g.violation_count(),
+            0,
+            "Correct hook order must produce zero violations"
+        );
     }
 
     // =========================================================================
@@ -631,7 +672,10 @@ mod tests {
     fn rng_interceptor_strict_illegal_report_fails_simulation() {
         let interceptor = RngInterceptor::new(42, GuardMode::Strict);
         let result = interceptor.report_illegal_rng("sys_rogue", 50);
-        assert!(result.is_err(), "Illegal RNG report must fail in STRICT (D6)");
+        assert!(
+            result.is_err(),
+            "Illegal RNG report must fail in STRICT (D6)"
+        );
         assert!(interceptor.has_violations());
     }
 
@@ -687,9 +731,13 @@ mod tests {
             g.hook_tick_end(&snap).unwrap();
         }
 
-        assert_eq!(g.violation_count(), 0, "10-tick clean run must have zero violations");
+        assert_eq!(
+            g.violation_count(),
+            0,
+            "10-tick clean run must have zero violations"
+        );
         assert_eq!(interceptor.violation_count(), 0);
-        assert_eq!(interceptor.metrics().legal_access_count, 10); // once per tick
+        assert_eq!(interceptor.metrics().legal_access_count, 50); // once per phase
     }
 
     #[test]

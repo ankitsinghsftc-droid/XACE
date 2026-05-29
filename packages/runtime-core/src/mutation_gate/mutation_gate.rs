@@ -25,21 +25,17 @@
 //! I9: Events never modify state directly
 //! D4: Mutations only after phase completion
 
+use super::mutation_queue::{
+    ComponentAddRequest, ComponentModifyRequest, ComponentRemoveRequest, DestroyRequest,
+    MutationQueues, SpawnRequest,
+};
+use super::mutation_validator::MutationValidator;
+use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
 use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
 use xace_core::errors::xace_error::XaceError;
 use xace_core::runtime::state_delta::StateDelta;
-use crate::entity_store::EntityStore;
-use crate::component_tables::ComponentTableStore;
-use super::mutation_queue::{
-    MutationQueues,
-    SpawnRequest,
-    ComponentAddRequest,
-    ComponentModifyRequest,
-    ComponentRemoveRequest,
-    DestroyRequest,
-};
-use super::mutation_validator::MutationValidator;
 
 // ── Mutation Gate ─────────────────────────────────────────────────────────────
 
@@ -79,9 +75,8 @@ impl MutationGate {
         tick: u64,
     ) -> Result<(), XaceError> {
         let actor_id = actor_id.into();
-        self.validator.validate_spawn(
-            &actor_id, &initial_components, table_store, tick
-        )?;
+        self.validator
+            .validate_spawn(&actor_id, &initial_components, table_store, tick)?;
         self.queues.spawn_queue.push(SpawnRequest {
             actor_id,
             initial_components,
@@ -101,8 +96,11 @@ impl MutationGate {
         tick: u64,
     ) -> Result<(), XaceError> {
         self.validator.validate_add_component(
-            entity_id, component_type_id,
-            entity_store, table_store, tick
+            entity_id,
+            component_type_id,
+            entity_store,
+            table_store,
+            tick,
         )?;
         self.queues.add_queue.push(ComponentAddRequest {
             entity_id,
@@ -124,8 +122,11 @@ impl MutationGate {
         tick: u64,
     ) -> Result<(), XaceError> {
         self.validator.validate_modify_component(
-            entity_id, component_type_id,
-            entity_store, table_store, tick
+            entity_id,
+            component_type_id,
+            entity_store,
+            table_store,
+            tick,
         )?;
         self.queues.modify_queue.push(ComponentModifyRequest {
             entity_id,
@@ -146,8 +147,11 @@ impl MutationGate {
         tick: u64,
     ) -> Result<(), XaceError> {
         self.validator.validate_remove_component(
-            entity_id, component_type_id,
-            entity_store, table_store, tick
+            entity_id,
+            component_type_id,
+            entity_store,
+            table_store,
+            tick,
         )?;
         self.queues.remove_queue.push(ComponentRemoveRequest {
             entity_id,
@@ -164,7 +168,8 @@ impl MutationGate {
         entity_store: &EntityStore,
         tick: u64,
     ) -> Result<(), XaceError> {
-        self.validator.validate_destroy(entity_id, entity_store, tick)?;
+        self.validator
+            .validate_destroy(entity_id, entity_store, tick)?;
         self.queues.destroy_queue.push(DestroyRequest {
             entity_id,
             requested_tick: tick,
@@ -202,13 +207,18 @@ impl MutationGate {
 
             // Record spawn in delta
             let mut spawned = xace_core::runtime::state_delta::SpawnedEntity::new(
-                entity_id, spawn.actor_id.clone()
+                entity_id,
+                spawn.actor_id.clone(),
             );
 
             // Apply initial components in type_id order (D11)
             for (type_id, json) in &spawn.initial_components {
-                table_store.add_component(entity_id, *type_id, json.clone(), tick)
-                    .map_err(|e| { self.queues.discard_all(); e })?;
+                table_store
+                    .add_component(entity_id, *type_id, json.clone(), tick)
+                    .map_err(|e| {
+                        self.queues.discard_all();
+                        e
+                    })?;
                 spawned = spawned.with_component(*type_id, json.clone());
             }
 
@@ -218,28 +228,40 @@ impl MutationGate {
         // ── Step 2: Add components ────────────────────────────────────────
         let adds: Vec<ComponentAddRequest> = self.queues.add_queue.drain(..).collect();
         for req in adds {
-            table_store.add_component(
-                req.entity_id, req.component_type_id,
-                req.component_json.clone(), tick,
-            ).map_err(|e| { self.queues.discard_all(); e })?;
+            table_store
+                .add_component(
+                    req.entity_id,
+                    req.component_type_id,
+                    req.component_json.clone(),
+                    tick,
+                )
+                .map_err(|e| {
+                    self.queues.discard_all();
+                    e
+                })?;
 
-            delta.record_component_added(
-                xace_core::runtime::state_delta::AddedComponent {
-                    entity_id: req.entity_id,
-                    component_type_id: req.component_type_id,
-                    component_type_name: String::new(), // filled by orchestrator
-                    component_json: req.component_json,
-                }
-            );
+            delta.record_component_added(xace_core::runtime::state_delta::AddedComponent {
+                entity_id: req.entity_id,
+                component_type_id: req.component_type_id,
+                component_type_name: String::new(), // filled by orchestrator
+                component_json: req.component_json,
+            });
         }
 
         // ── Step 3: Modify components ─────────────────────────────────────
         let modifies: Vec<ComponentModifyRequest> = self.queues.modify_queue.drain(..).collect();
         for req in modifies {
-            table_store.update_component(
-                req.entity_id, req.component_type_id,
-                req.component_json.clone(), tick,
-            ).map_err(|e| { self.queues.discard_all(); e })?;
+            table_store
+                .update_component(
+                    req.entity_id,
+                    req.component_type_id,
+                    req.component_json.clone(),
+                    tick,
+                )
+                .map_err(|e| {
+                    self.queues.discard_all();
+                    e
+                })?;
 
             let change = xace_core::runtime::state_delta::ComponentChange::single_field(
                 req.component_type_id,
@@ -253,17 +275,18 @@ impl MutationGate {
         // ── Step 4: Remove components ─────────────────────────────────────
         let removes: Vec<ComponentRemoveRequest> = self.queues.remove_queue.drain(..).collect();
         for req in removes {
-            table_store.remove_component(
-                req.entity_id, req.component_type_id, tick
-            ).map_err(|e| { self.queues.discard_all(); e })?;
+            table_store
+                .remove_component(req.entity_id, req.component_type_id, tick)
+                .map_err(|e| {
+                    self.queues.discard_all();
+                    e
+                })?;
 
-            delta.record_component_removed(
-                xace_core::runtime::state_delta::RemovedComponent {
-                    entity_id: req.entity_id,
-                    component_type_id: req.component_type_id,
-                    component_type_name: String::new(),
-                }
-            );
+            delta.record_component_removed(xace_core::runtime::state_delta::RemovedComponent {
+                entity_id: req.entity_id,
+                component_type_id: req.component_type_id,
+                component_type_name: String::new(),
+            });
         }
 
         // ── Step 5: Destroy entities ──────────────────────────────────────
@@ -273,18 +296,25 @@ impl MutationGate {
             table_store.remove_all_for_entity(req.entity_id);
 
             // Request destruction in entity store
-            entity_store.request_destroy(req.entity_id, tick)
-                .map_err(|e| { self.queues.discard_all(); e })?;
+            entity_store
+                .request_destroy(req.entity_id, tick)
+                .map_err(|e| {
+                    self.queues.discard_all();
+                    e
+                })?;
 
             // Complete destruction
-            entity_store.complete_destroy(req.entity_id, tick)
-                .map_err(|e| { self.queues.discard_all(); e })?;
+            entity_store
+                .complete_destroy(req.entity_id, tick)
+                .map_err(|e| {
+                    self.queues.discard_all();
+                    e
+                })?;
 
-            delta.record_destroy(
-                xace_core::runtime::state_delta::DestroyedEntity::new(
-                    req.entity_id, req.requested_tick
-                )
-            );
+            delta.record_destroy(xace_core::runtime::state_delta::DestroyedEntity::new(
+                req.entity_id,
+                req.requested_tick,
+            ));
         }
 
         Ok(delta)
@@ -324,8 +354,8 @@ impl Default for MutationGate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_store::EntityStore;
     use crate::component_tables::ComponentTableStore;
+    use crate::entity_store::EntityStore;
 
     fn setup() -> (MutationGate, EntityStore, ComponentTableStore) {
         let gate = MutationGate::new();
@@ -339,7 +369,8 @@ mod tests {
     #[test]
     fn spawn_creates_entity() {
         let (mut gate, mut es, mut ts) = setup();
-        gate.request_spawn("actor_player", BTreeMap::new(), &ts, 0).unwrap();
+        gate.request_spawn("actor_player", BTreeMap::new(), &ts, 0)
+            .unwrap();
         let delta = gate.apply_all(&mut es, &mut ts, 0).unwrap();
         assert_eq!(delta.spawned_entities.len(), 1);
         assert_eq!(es.alive_count(), 1);
@@ -350,7 +381,8 @@ mod tests {
         let (mut gate, mut es, mut ts) = setup();
         let mut components = BTreeMap::new();
         components.insert(1u32, r#"{"x":0.0}"#.to_string());
-        gate.request_spawn("actor_player", components, &ts, 0).unwrap();
+        gate.request_spawn("actor_player", components, &ts, 0)
+            .unwrap();
         let _ = gate.apply_all(&mut es, &mut ts, 0).unwrap();
         let alive = es.get_all_alive();
         assert_eq!(alive.len(), 1);
@@ -361,7 +393,8 @@ mod tests {
     fn add_component_to_existing_entity() {
         let (mut gate, mut es, mut ts) = setup();
         let id = es.create_entity(0).unwrap();
-        gate.request_add_component(id, 1, "{}", &es, &ts, 0).unwrap();
+        gate.request_add_component(id, 1, "{}", &es, &ts, 0)
+            .unwrap();
         let _ = gate.apply_all(&mut es, &mut ts, 0).unwrap();
         assert!(ts.has_component(id, 1));
     }
@@ -371,7 +404,8 @@ mod tests {
         let (mut gate, mut es, mut ts) = setup();
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, r#"{"x":0}"#.into(), 0).unwrap();
-        gate.request_modify_component(id, 1, r#"{"x":5}"#, &es, &ts, 1).unwrap();
+        gate.request_modify_component(id, 1, r#"{"x":5}"#, &es, &ts, 1)
+            .unwrap();
         let _ = gate.apply_all(&mut es, &mut ts, 1).unwrap();
         assert_eq!(ts.get_component(id, 1), Some(r#"{"x":5}"#));
     }
@@ -403,7 +437,8 @@ mod tests {
         // Spawn and destroy in same apply batch
         let existing = es.create_entity(0).unwrap();
         gate.request_destroy(existing, &es, 1).unwrap();
-        gate.request_spawn("new_entity", BTreeMap::new(), &ts, 1).unwrap();
+        gate.request_spawn("new_entity", BTreeMap::new(), &ts, 1)
+            .unwrap();
         let _ = gate.apply_all(&mut es, &mut ts, 1).unwrap();
         // New entity should exist (spawned first)
         // Existing entity should be destroyed (destroyed last)
@@ -440,7 +475,9 @@ mod tests {
     fn invalid_request_rejected_before_queuing() {
         let (mut gate, es, ts) = setup();
         // Entity 999 does not exist
-        assert!(gate.request_add_component(999, 1, "{}", &es, &ts, 0).is_err());
+        assert!(gate
+            .request_add_component(999, 1, "{}", &es, &ts, 0)
+            .is_err());
         // Gate should be empty — invalid request never queued
         assert!(gate.is_empty());
     }

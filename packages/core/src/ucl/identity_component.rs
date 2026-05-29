@@ -11,7 +11,6 @@
 
 use serde::{Deserialize, Serialize};
 
-
 /// Component type ID for COMP_IDENTITY_V1. Frozen forever.
 pub const COMP_IDENTITY_V1_ID: u32 = 2;
 
@@ -203,9 +202,8 @@ mod tests {
 
     #[test]
     fn runtime_spawned_flag_set() {
-        let id = IdentityComponent::runtime_spawned(
-            "Zombie_42", EntityType::Enemy, "prefab_zombie"
-        );
+        let id =
+            IdentityComponent::runtime_spawned("Zombie_42", EntityType::Enemy, "prefab_zombie");
         assert!(id.is_runtime_spawned);
         assert_eq!(id.prefab_id, "prefab_zombie");
     }

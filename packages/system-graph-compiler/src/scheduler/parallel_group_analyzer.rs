@@ -36,9 +36,9 @@
 //! The ConflictReport's serialization groups are BTreeMap-sorted.
 //! Same inputs → identical window boundaries → identical ExecutionPlan.
 
-use xace_core::runtime::phase_enum::PhaseEnum;
 use crate::conflict_analyzer::conflict_analyzer::ConflictReport;
 use crate::dependency_resolution::dependency_resolution_engine::OrderedGraph;
+use xace_core::runtime::phase_enum::PhaseEnum;
 
 // ── Parallel Window ───────────────────────────────────────────────────────────
 
@@ -90,7 +90,7 @@ impl ParallelGroupAnalyzer {
     ///
     /// Returns windows in execution order (left = earlier, right = later).
     pub fn analyze_phase(
-        phase:          PhaseEnum,
+        phase: PhaseEnum,
         ordered_systems: &[String],
         conflict_report: &ConflictReport,
     ) -> Vec<ParallelWindow> {
@@ -108,9 +108,9 @@ impl ParallelGroupAnalyzer {
                 current_window.push(system_id.clone());
             } else {
                 // Check if this system conflicts with any system in current window
-                let conflicts_with_window = current_window.iter().any(|existing| {
-                    conflict_report.must_serialize(existing, system_id, phase)
-                });
+                let conflicts_with_window = current_window
+                    .iter()
+                    .any(|existing| conflict_report.must_serialize(existing, system_id, phase));
 
                 if conflicts_with_window {
                     // Flush current window and start fresh
@@ -136,38 +136,33 @@ impl ParallelGroupAnalyzer {
     /// Analyzes all phases in the OrderedGraph.
     /// Returns all windows across all phases in execution order.
     pub fn analyze_all(
-        ordered_graph:   &OrderedGraph,
+        ordered_graph: &OrderedGraph,
         conflict_report: &ConflictReport,
     ) -> Vec<ParallelWindow> {
-        ordered_graph.phases
+        ordered_graph
+            .phases
             .iter()
             .flat_map(|phase| {
-                Self::analyze_phase(
-                    phase.phase,
-                    &phase.ordered_systems,
-                    conflict_report,
-                )
+                Self::analyze_phase(phase.phase, &phase.ordered_systems, conflict_report)
             })
             .collect()
     }
 
     /// Returns the total number of parallel windows across all phases.
-    pub fn window_count(
-        ordered_graph:   &OrderedGraph,
-        conflict_report: &ConflictReport,
-    ) -> usize {
+    pub fn window_count(ordered_graph: &OrderedGraph, conflict_report: &ConflictReport) -> usize {
         Self::analyze_all(ordered_graph, conflict_report).len()
     }
 
     // ── Internal ──────────────────────────────────────────────────────────────
 
-    fn make_window(
-        phase:        PhaseEnum,
-        systems:      Vec<String>,
-        window_index: usize,
-    ) -> ParallelWindow {
+    fn make_window(phase: PhaseEnum, systems: Vec<String>, window_index: usize) -> ParallelWindow {
         let is_parallel = systems.len() > 1;
-        ParallelWindow { systems, phase, is_parallel, window_index }
+        ParallelWindow {
+            systems,
+            phase,
+            is_parallel,
+            window_index,
+        }
     }
 }
 
@@ -176,25 +171,29 @@ impl ParallelGroupAnalyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
+    use crate::conflict_analyzer::conflict_analyzer::ConflictAnalyzer;
+    use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
-    use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
-    use crate::conflict_analyzer::conflict_analyzer::ConflictAnalyzer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition};
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
-        SystemDefinition {
-            id: id.into(), phase: PhaseEnum::Simulation, reads, writes,
-            depends_on: vec![], deterministic: true, version: 1,
-        }
+        SystemDefinition::with_spec(id, id, ExecutionPhase::Simulation, reads, writes)
+    }
+
+    fn dep(id: &str, depends_on: Vec<&str>) -> SystemDefinition {
+        let mut def =
+            SystemDefinition::with_spec(id, id, ExecutionPhase::Simulation, vec![], vec![]);
+        def.depends_on = depends_on.into_iter().map(String::from).collect();
+        def
     }
 
     fn full_pipeline(defs: &[SystemDefinition]) -> (OrderedGraph, ConflictReport) {
-        let graph   = GraphConstructionLayer::build(defs).unwrap();
+        let graph = GraphConstructionLayer::build(defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         let ordered = DependencyResolutionEngine::resolve(&buckets).unwrap();
-        let report  = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
+        let report = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
         (ordered, report)
     }
 
@@ -215,27 +214,33 @@ mod tests {
     fn two_independent_systems_one_parallel_window() {
         // No conflicts → both can run in parallel
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
         ];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
         assert_eq!(windows.len(), 1);
-        assert!(windows[0].is_parallel, "Two independent systems should form a parallel window");
+        assert!(
+            windows[0].is_parallel,
+            "Two independent systems should form a parallel window"
+        );
         assert_eq!(windows[0].system_count(), 2);
     }
 
     #[test]
     fn two_conflicting_systems_two_serial_windows() {
         // WAW conflict → cannot parallelize
-        let defs = vec![
-            def("sys_a", vec![], vec![1]),
-            def("sys_b", vec![], vec![1]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![1]), def("sys_b", vec![], vec![1])];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
-        assert_eq!(windows.len(), 2, "Two conflicting systems → two serial windows");
-        assert!(windows.iter().all(|w| !w.is_parallel || w.system_count() == 1));
+        assert_eq!(
+            windows.len(),
+            2,
+            "Two conflicting systems → two serial windows"
+        );
+        assert!(windows
+            .iter()
+            .all(|w| !w.is_parallel || w.system_count() == 1));
     }
 
     // ── Multi-system window scenarios ─────────────────────────────────────────
@@ -243,7 +248,7 @@ mod tests {
     #[test]
     fn three_independent_systems_all_parallel() {
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
             def("sys_c", vec![160], vec![]),
         ];
@@ -257,17 +262,10 @@ mod tests {
     #[test]
     fn chain_dependency_all_serial_windows() {
         // sys_a → sys_b → sys_c (chain via explicit deps, no parallelism)
-        use xace_core::schema::system_definition::SystemDefinition;
         let defs = vec![
-            SystemDefinition { id: "sys_a".into(), phase: PhaseEnum::Simulation,
-                reads: vec![], writes: vec![], depends_on: vec![],
-                deterministic: true, version: 1 },
-            SystemDefinition { id: "sys_b".into(), phase: PhaseEnum::Simulation,
-                reads: vec![], writes: vec![], depends_on: vec!["sys_a".into()],
-                deterministic: true, version: 1 },
-            SystemDefinition { id: "sys_c".into(), phase: PhaseEnum::Simulation,
-                reads: vec![], writes: vec![], depends_on: vec!["sys_b".into()],
-                deterministic: true, version: 1 },
+            dep("sys_a", vec![]),
+            dep("sys_b", vec!["sys_a"]),
+            dep("sys_c", vec!["sys_b"]),
         ];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
@@ -287,15 +285,18 @@ mod tests {
         // sys_c conflicts with sys_a → starts new window after sys_a/sys_b group
         // sys_d: no conflict with sys_c → joins sys_c window
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
-            def("sys_c", vec![6],   vec![6]),   // WAW with sys_a
+            def("sys_c", vec![6], vec![6]), // WAW with sys_a
             def("sys_d", vec![160], vec![]),
         ];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
         let parallel_windows: Vec<_> = windows.iter().filter(|w| w.is_parallel).collect();
-        assert!(!parallel_windows.is_empty(), "At least some systems should be parallel");
+        assert!(
+            !parallel_windows.is_empty(),
+            "At least some systems should be parallel"
+        );
     }
 
     // ── Window properties ─────────────────────────────────────────────────────
@@ -311,7 +312,11 @@ mod tests {
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
         let ids: Vec<String> = windows.iter().map(|w| w.group_id()).collect();
         let unique: std::collections::BTreeSet<_> = ids.iter().collect();
-        assert_eq!(ids.len(), unique.len(), "All window group_ids must be unique");
+        assert_eq!(
+            ids.len(),
+            unique.len(),
+            "All window group_ids must be unique"
+        );
     }
 
     #[test]
@@ -328,7 +333,11 @@ mod tests {
             .iter()
             .flat_map(|w| w.systems.iter().map(|s| s.as_str()))
             .collect();
-        assert_eq!(all_in_windows.len(), 4, "All 4 systems must appear in windows");
+        assert_eq!(
+            all_in_windows.len(),
+            4,
+            "All 4 systems must appear in windows"
+        );
         // No duplicates
         let unique: std::collections::BTreeSet<_> = all_in_windows.iter().copied().collect();
         assert_eq!(unique.len(), 4, "Each system appears in exactly one window");
@@ -338,17 +347,23 @@ mod tests {
 
     #[test]
     fn window_boundaries_deterministic() {
-        let make_defs = || vec![
-            def("sys_a", vec![6],   vec![6]),
-            def("sys_b", vec![100], vec![100]),
-            def("sys_c", vec![6],   vec![6]),  // conflict with sys_a
-        ];
+        let make_defs = || {
+            vec![
+                def("sys_a", vec![6], vec![6]),
+                def("sys_b", vec![100], vec![100]),
+                def("sys_c", vec![6], vec![6]), // conflict with sys_a
+            ]
+        };
         let (o1, r1) = full_pipeline(&make_defs());
         let (o2, r2) = full_pipeline(&make_defs());
         let w1: Vec<Vec<String>> = ParallelGroupAnalyzer::analyze_all(&o1, &r1)
-            .into_iter().map(|w| w.systems).collect();
+            .into_iter()
+            .map(|w| w.systems)
+            .collect();
         let w2: Vec<Vec<String>> = ParallelGroupAnalyzer::analyze_all(&o2, &r2)
-            .into_iter().map(|w| w.systems).collect();
+            .into_iter()
+            .map(|w| w.systems)
+            .collect();
         assert_eq!(w1, w2, "Window boundaries must be deterministic (D11)");
     }
 
@@ -357,11 +372,11 @@ mod tests {
     #[test]
     fn zombie_chase_window_analysis() {
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5]),
-            def("MovementSystem", vec![5, 1],     vec![1]),
-            def("AISystem",       vec![160, 1],   vec![5, 101]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101]),
-            def("DeathSystem",    vec![100],      vec![]),
+            def("InputSystem", vec![6, 1], vec![5]),
+            def("MovementSystem", vec![5, 1], vec![1]),
+            def("AISystem", vec![160, 1], vec![5, 101]),
+            def("DamageSystem", vec![101, 100], vec![100, 101]),
+            def("DeathSystem", vec![100], vec![]),
         ];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
@@ -372,14 +387,21 @@ mod tests {
 
         // All 5 systems must appear across all windows
         let total_systems: usize = windows.iter().map(|w| w.system_count()).sum();
-        assert_eq!(total_systems, 5, "All 5 zombie chase systems must appear in windows");
+        assert_eq!(
+            total_systems, 5,
+            "All 5 zombie chase systems must appear in windows"
+        );
 
         // Verify ordering: MovementSystem must not appear before AISystem in any window
-        let all_ids: Vec<&str> = windows.iter()
+        let all_ids: Vec<&str> = windows
+            .iter()
             .flat_map(|w| w.systems.iter().map(|s| s.as_str()))
             .collect();
-        let ai_pos   = all_ids.iter().position(|&s| s == "AISystem").unwrap();
-        let mov_pos  = all_ids.iter().position(|&s| s == "MovementSystem").unwrap();
-        assert!(ai_pos < mov_pos, "AISystem must precede MovementSystem in final windows");
+        let ai_pos = all_ids.iter().position(|&s| s == "AISystem").unwrap();
+        let mov_pos = all_ids.iter().position(|&s| s == "MovementSystem").unwrap();
+        assert!(
+            ai_pos < mov_pos,
+            "AISystem must precede MovementSystem in final windows"
+        );
     }
 }

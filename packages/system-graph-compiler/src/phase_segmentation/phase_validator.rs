@@ -28,9 +28,9 @@
 //! inserting PHASE_ORDER edges in GraphConstructionLayer. The phase
 //! validator only checks explicit depends_on declarations.
 
-use xace_core::runtime::phase_enum::PhaseEnum;
 use crate::compilation_error::{CompilationError, PhaseViolation};
 use crate::graph_construction::system_edge::RawSystemGraph;
+use xace_core::runtime::phase_enum::PhaseEnum;
 
 // ── Phase Validator ───────────────────────────────────────────────────────────
 
@@ -65,7 +65,7 @@ impl PhaseValidator {
             for dep_id in &node.depends_on {
                 let dep_node = match graph.nodes.get(dep_id) {
                     Some(n) => n,
-                    None    => continue, // missing dep caught by GraphConstructionLayer
+                    None => continue, // missing dep caught by GraphConstructionLayer
                 };
 
                 // Forward reference: dep is in a LATER phase than this system
@@ -75,7 +75,7 @@ impl PhaseValidator {
                             system_id.as_str(),
                             node.phase,
                             dep_node.phase,
-                        )
+                        ),
                     ));
                 }
             }
@@ -94,24 +94,23 @@ impl PhaseValidator {
             }
             let from_node = match graph.nodes.get(&edge.from_system) {
                 Some(n) => n,
-                None    => continue,
+                None => continue,
             };
             let to_node = match graph.nodes.get(&edge.to_system) {
                 Some(n) => n,
-                None    => continue,
+                None => continue,
             };
             if from_node.phase.as_u8() > to_node.phase.as_u8() {
                 return Err(CompilationError::Phase(PhaseViolation {
                     system_id: edge.from_system.clone(),
-                    kind:      crate::compilation_error::PhaseViolationKind::PhaseDependencyViolation {
+                    kind: crate::compilation_error::PhaseViolationKind::PhaseDependencyViolation {
                         from_phase: from_node.phase,
-                        to_phase:   to_node.phase,
+                        to_phase: to_node.phase,
                     },
                     description: format!(
                         "PHASE_ORDER edge goes backward: '{}' ({:?}) → '{}' ({:?}). \
                          Phase order edges must point forward in phase sequence.",
-                        edge.from_system, from_node.phase,
-                        edge.to_system,   to_node.phase,
+                        edge.from_system, from_node.phase, edge.to_system, to_node.phase,
                     ),
                 }));
             }
@@ -120,11 +119,9 @@ impl PhaseValidator {
     }
 
     /// Returns all systems assigned to the given phase, sorted by system_id (D11).
-    pub fn systems_in_phase<'a>(
-        graph: &'a RawSystemGraph,
-        phase: PhaseEnum,
-    ) -> Vec<&'a str> {
-        graph.nodes
+    pub fn systems_in_phase<'a>(graph: &'a RawSystemGraph, phase: PhaseEnum) -> Vec<&'a str> {
+        graph
+            .nodes
             .iter()
             .filter(|(_, n)| n.phase == phase)
             .map(|(id, _)| id.as_str())
@@ -134,10 +131,7 @@ impl PhaseValidator {
 
     /// Returns all distinct phases used in the graph, sorted by phase ordinal.
     pub fn active_phases(graph: &RawSystemGraph) -> Vec<PhaseEnum> {
-        let mut phases: Vec<PhaseEnum> = graph.nodes
-            .values()
-            .map(|n| n.phase)
-            .collect();
+        let mut phases: Vec<PhaseEnum> = graph.nodes.values().map(|n| n.phase).collect();
         phases.sort_by_key(|p| p.as_u8());
         phases.dedup();
         phases
@@ -149,27 +143,27 @@ impl PhaseValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::{SystemDefinition, SystemVersion};
 
-    fn def(
-        id:     &str,
-        phase:  PhaseEnum,
-        deps:   Vec<&str>,
-    ) -> SystemDefinition {
+    fn def(id: &str, phase: PhaseEnum, deps: Vec<&str>) -> SystemDefinition {
         SystemDefinition {
-            id:            id.into(),
-            phase,
-            reads:         vec![],
-            writes:        vec![],
-            depends_on:    deps.into_iter().map(String::from).collect(),
+            id: id.into(),
+            display_name: id.into(),
+            phase: phase.into(),
+            reads: vec![],
+            writes: vec![],
+            depends_on: deps.into_iter().map(String::from).collect(),
             deterministic: true,
-            version:       1,
+            version: SystemVersion::INITIAL,
+            description: String::new(),
         }
     }
 
-    fn build_graph(defs: &[SystemDefinition]) -> crate::graph_construction::system_edge::RawSystemGraph {
+    fn build_graph(
+        defs: &[SystemDefinition],
+    ) -> crate::graph_construction::system_edge::RawSystemGraph {
         GraphConstructionLayer::build(defs).unwrap()
     }
 
@@ -190,7 +184,7 @@ mod tests {
         // sys_b (Simulation) depends on sys_a (Initialization) — valid
         let defs = vec![
             def("sys_a", PhaseEnum::Initialization, vec![]),
-            def("sys_b", PhaseEnum::Simulation,     vec!["sys_a"]),
+            def("sys_b", PhaseEnum::Simulation, vec!["sys_a"]),
         ];
         let graph = build_graph(&defs);
         assert!(PhaseValidator::validate(&graph).is_ok());
@@ -206,8 +200,8 @@ mod tests {
     fn no_dependencies_validates() {
         let defs = vec![
             def("sys_init", PhaseEnum::Initialization, vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![]),
-            def("sys_post", PhaseEnum::PostSimulation,  vec![]),
+            def("sys_sim", PhaseEnum::Simulation, vec![]),
+            def("sys_post", PhaseEnum::PostSimulation, vec![]),
         ];
         let graph = build_graph(&defs);
         assert!(PhaseValidator::validate(&graph).is_ok());
@@ -222,19 +216,23 @@ mod tests {
         // We test it manually by manipulating the graph
         let mut graph = RawSystemGraph::new();
         let mut sim_node = crate::graph_construction::system_node::SystemNode::new(
-            "sys_sim", PhaseEnum::Simulation
+            "sys_sim",
+            PhaseEnum::Simulation,
         );
         sim_node.depends_on.insert("sys_post".into());
         graph.add_node(sim_node);
         graph.add_node(crate::graph_construction::system_node::SystemNode::new(
-            "sys_post", PhaseEnum::PostSimulation
+            "sys_post",
+            PhaseEnum::PostSimulation,
         ));
 
         let err = PhaseValidator::validate(&graph).unwrap_err();
         assert!(err.is_phase());
         let desc = err.description();
-        assert!(desc.contains("sys_sim") || desc.contains("PostSimulation"),
-            "Error must mention the violating system or phase");
+        assert!(
+            desc.contains("sys_sim") || desc.contains("PostSimulation"),
+            "Error must mention the violating system or phase"
+        );
     }
 
     // ── Active Phases ─────────────────────────────────────────────────────────
@@ -242,17 +240,20 @@ mod tests {
     #[test]
     fn active_phases_sorted_by_ordinal() {
         let defs = vec![
-            def("sys_a", PhaseEnum::PostSimulation,  vec![]),
-            def("sys_b", PhaseEnum::Initialization,  vec![]),
-            def("sys_c", PhaseEnum::Simulation,       vec![]),
+            def("sys_a", PhaseEnum::PostSimulation, vec![]),
+            def("sys_b", PhaseEnum::Initialization, vec![]),
+            def("sys_c", PhaseEnum::Simulation, vec![]),
         ];
         let graph = build_graph(&defs);
         let phases = PhaseValidator::active_phases(&graph);
-        assert_eq!(phases, vec![
-            PhaseEnum::Initialization,
-            PhaseEnum::Simulation,
-            PhaseEnum::PostSimulation,
-        ]);
+        assert_eq!(
+            phases,
+            vec![
+                PhaseEnum::Initialization,
+                PhaseEnum::Simulation,
+                PhaseEnum::PostSimulation,
+            ]
+        );
     }
 
     #[test]
@@ -282,7 +283,7 @@ mod tests {
             def("sys_z", PhaseEnum::Simulation, vec![]),
             def("sys_a", PhaseEnum::Simulation, vec![]),
             def("sys_m", PhaseEnum::Simulation, vec![]),
-            def("sys_x", PhaseEnum::Input,      vec![]),
+            def("sys_x", PhaseEnum::Input, vec![]),
         ];
         let graph = build_graph(&defs);
         let sim_systems = PhaseValidator::systems_in_phase(&graph, PhaseEnum::Simulation);

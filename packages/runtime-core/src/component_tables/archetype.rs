@@ -43,7 +43,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId, TypeId};
 
-
 // ── Component Column ──────────────────────────────────────────────────────────
 
 /// Type-erased column of component data for a single TypeId within an archetype.
@@ -54,12 +53,15 @@ use crate::component_tables::storage_strategy::{ArchetypeId, EntityId, TypeId};
 #[derive(Debug, Clone, Default)]
 pub struct ComponentColumn {
     pub type_id: TypeId,
-    pub rows:    Vec<Vec<u8>>,
+    pub rows: Vec<Vec<u8>>,
 }
 
 impl ComponentColumn {
     pub fn new(type_id: TypeId) -> Self {
-        Self { type_id, rows: Vec::new() }
+        Self {
+            type_id,
+            rows: Vec::new(),
+        }
     }
 
     /// Appends one component value, returning its row index.
@@ -94,8 +96,12 @@ impl ComponentColumn {
         }
     }
 
-    pub fn len(&self) -> usize { self.rows.len() }
-    pub fn is_empty(&self) -> bool { self.rows.is_empty() }
+    pub fn len(&self) -> usize {
+        self.rows.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.rows.is_empty()
+    }
 
     /// Iterates rows in column order (NOT EntityID order).
     /// Use Archetype::iter_sorted for EntityID-sorted iteration.
@@ -104,17 +110,16 @@ impl ComponentColumn {
     }
 }
 
-
 // ── Archetype ─────────────────────────────────────────────────────────────────
 
 /// One archetype: a collection of entities sharing identical component composition.
 #[derive(Debug, Clone)]
 pub struct Archetype {
-    pub id:            ArchetypeId,
-    pub component_set: BTreeSet<TypeId>,    // canonical sorted set
-    pub columns:       BTreeMap<TypeId, ComponentColumn>,
-    pub entity_ids:    Vec<EntityId>,        // aligned with column rows
-    pub entity_index:  BTreeMap<EntityId, usize>,  // entity_id → row (sorted)
+    pub id: ArchetypeId,
+    pub component_set: BTreeSet<TypeId>, // canonical sorted set
+    pub columns: BTreeMap<TypeId, ComponentColumn>,
+    pub entity_ids: Vec<EntityId>, // aligned with column rows
+    pub entity_index: BTreeMap<EntityId, usize>, // entity_id → row (sorted)
 }
 
 impl Archetype {
@@ -127,7 +132,7 @@ impl Archetype {
             id,
             component_set,
             columns,
-            entity_ids:   Vec::new(),
+            entity_ids: Vec::new(),
             entity_index: BTreeMap::new(),
         }
     }
@@ -141,26 +146,31 @@ impl Archetype {
     /// Use ArchetypeStorage::add_entity for safe archetype routing.
     pub fn add_entity(
         &mut self,
-        entity_id:  EntityId,
+        entity_id: EntityId,
         components: BTreeMap<TypeId, Vec<u8>>,
     ) -> usize {
         debug_assert_eq!(
             components.keys().copied().collect::<BTreeSet<_>>(),
             self.component_set,
             "Archetype {} expects components {:?}, got {:?}",
-            self.id, self.component_set, components.keys().collect::<Vec<_>>()
+            self.id,
+            self.component_set,
+            components.keys().collect::<Vec<_>>()
         );
         debug_assert!(
             !self.entity_index.contains_key(&entity_id),
             "Entity {} already exists in archetype {}",
-            entity_id, self.id
+            entity_id,
+            self.id
         );
 
         let row = self.entity_ids.len();
         self.entity_ids.push(entity_id);
         self.entity_index.insert(entity_id, row);
         for (type_id, value) in components {
-            let col = self.columns.get_mut(&type_id)
+            let col = self
+                .columns
+                .get_mut(&type_id)
                 .expect("column missing — invariant violated");
             col.push(value);
         }
@@ -176,10 +186,7 @@ impl Archetype {
     /// migration scenarios).
     ///
     /// Returns None if the entity is not in this archetype.
-    pub fn remove_entity(
-        &mut self,
-        entity_id: EntityId,
-    ) -> Option<BTreeMap<TypeId, Vec<u8>>> {
+    pub fn remove_entity(&mut self, entity_id: EntityId) -> Option<BTreeMap<TypeId, Vec<u8>>> {
         let row = self.entity_index.remove(&entity_id)?;
         let last_row = self.entity_ids.len() - 1;
 
@@ -205,11 +212,7 @@ impl Archetype {
     // ── Component Access ──────────────────────────────────────────────────────
 
     /// Reads a component for an entity in this archetype.
-    pub fn get_component(
-        &self,
-        entity_id: EntityId,
-        type_id:   TypeId,
-    ) -> Option<&[u8]> {
+    pub fn get_component(&self, entity_id: EntityId, type_id: TypeId) -> Option<&[u8]> {
         let row = *self.entity_index.get(&entity_id)?;
         self.columns.get(&type_id)?.get(row)
     }
@@ -219,18 +222,15 @@ impl Archetype {
     pub fn set_component(
         &mut self,
         entity_id: EntityId,
-        type_id:   TypeId,
-        value:     Vec<u8>,
+        type_id: TypeId,
+        value: Vec<u8>,
     ) -> Option<Vec<u8>> {
         let row = *self.entity_index.get(&entity_id)?;
         self.columns.get_mut(&type_id)?.set(row, value)
     }
 
     /// Returns all components for an entity as a BTreeMap.
-    pub fn get_entity_components(
-        &self,
-        entity_id: EntityId,
-    ) -> Option<BTreeMap<TypeId, Vec<u8>>> {
+    pub fn get_entity_components(&self, entity_id: EntityId) -> Option<BTreeMap<TypeId, Vec<u8>>> {
         let row = *self.entity_index.get(&entity_id)?;
         let mut bundle = BTreeMap::new();
         for (&type_id, col) in &self.columns {
@@ -260,8 +260,12 @@ impl Archetype {
         self.entity_ids.get(row).copied()
     }
 
-    pub fn entity_count(&self) -> usize { self.entity_ids.len() }
-    pub fn is_empty(&self) -> bool { self.entity_ids.is_empty() }
+    pub fn entity_count(&self) -> usize {
+        self.entity_ids.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.entity_ids.is_empty()
+    }
 
     /// Returns true if this archetype contains the given entity.
     pub fn contains(&self, entity_id: EntityId) -> bool {
@@ -275,7 +279,6 @@ impl Archetype {
     }
 }
 
-
 // ── Component Bundle (for queries) ────────────────────────────────────────────
 
 /// Borrowed snapshot of one entity's components within an archetype.
@@ -283,7 +286,7 @@ impl Archetype {
 #[derive(Debug)]
 pub struct ComponentBundle<'a> {
     pub entity_id: EntityId,
-    pub row:       usize,
+    pub row: usize,
     pub archetype: &'a Archetype,
 }
 

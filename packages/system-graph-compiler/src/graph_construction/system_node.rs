@@ -58,13 +58,13 @@ impl SystemNode {
     /// Creates a new SystemNode with the given identity and phase.
     pub fn new(system_id: impl Into<String>, phase: PhaseEnum) -> Self {
         Self {
-            system_id:     system_id.into(),
+            system_id: system_id.into(),
             phase,
-            read_set:      BTreeSet::new(),
-            write_set:     BTreeSet::new(),
-            depends_on:    BTreeSet::new(),
+            read_set: BTreeSet::new(),
+            write_set: BTreeSet::new(),
+            depends_on: BTreeSet::new(),
             deterministic: true,
-            version:       1,
+            version: 1,
         }
     }
 
@@ -112,20 +112,29 @@ impl SystemNode {
 
     /// Returns the set of component type IDs that this system both reads and writes.
     pub fn read_write_overlap(&self) -> BTreeSet<u32> {
-        self.read_set.intersection(&self.write_set).copied().collect()
+        self.read_set
+            .intersection(&self.write_set)
+            .copied()
+            .collect()
     }
 
     /// Returns the component type IDs written by both this node and another.
     /// These are the WAW (write-after-write) conflict candidates.
     pub fn write_overlap_with(&self, other: &SystemNode) -> BTreeSet<u32> {
-        self.write_set.intersection(&other.write_set).copied().collect()
+        self.write_set
+            .intersection(&other.write_set)
+            .copied()
+            .collect()
     }
 
     /// Returns the component type IDs written by this node that the other reads.
     /// These are the RAW (read-after-write) hazard candidates.
     /// `self` writes → `other` reads → `other` must run after `self`.
     pub fn raw_hazard_with(&self, other: &SystemNode) -> BTreeSet<u32> {
-        self.write_set.intersection(&other.read_set).copied().collect()
+        self.write_set
+            .intersection(&other.read_set)
+            .copied()
+            .collect()
     }
 
     /// Returns true if this system has an explicit dependency on `other_id`.
@@ -180,20 +189,20 @@ mod tests {
 
     fn movement_node() -> SystemNode {
         SystemNode::new("sys_movement", PhaseEnum::Simulation)
-            .with_reads([1, 5])     // TRANSFORM, VELOCITY
-            .with_writes([1])        // TRANSFORM
+            .with_reads([1, 5]) // TRANSFORM, VELOCITY
+            .with_writes([1]) // TRANSFORM
     }
 
     fn ai_node() -> SystemNode {
         SystemNode::new("sys_ai", PhaseEnum::Simulation)
-            .with_reads([160, 1])   // AI, TRANSFORM
-            .with_writes([5, 101])   // VELOCITY, DAMAGE
+            .with_reads([160, 1]) // AI, TRANSFORM
+            .with_writes([5, 101]) // VELOCITY, DAMAGE
     }
 
     fn velocity_node() -> SystemNode {
         SystemNode::new("sys_velocity", PhaseEnum::Simulation)
             .with_reads([5, 1])
-            .with_writes([1])        // also writes TRANSFORM — WAW with movement
+            .with_writes([1]) // also writes TRANSFORM — WAW with movement
     }
 
     #[test]
@@ -218,30 +227,36 @@ mod tests {
         let movement = movement_node();
         let ai = ai_node();
         let overlap = movement.write_overlap_with(&ai);
-        assert!(overlap.is_empty(), "movement writes [1], ai writes [5,101] — no WAW");
+        assert!(
+            overlap.is_empty(),
+            "movement writes [1], ai writes [5,101] — no WAW"
+        );
     }
 
     #[test]
     fn raw_hazard_movement_after_ai() {
-        let ai = ai_node();         // writes VELOCITY (5)
+        let ai = ai_node(); // writes VELOCITY (5)
         let movement = movement_node(); // reads VELOCITY (5)
         let hazard = ai.raw_hazard_with(&movement);
-        assert!(hazard.contains(&5), "ai writes VELOCITY that movement reads — RAW hazard");
+        assert!(
+            hazard.contains(&5),
+            "ai writes VELOCITY that movement reads — RAW hazard"
+        );
     }
 
     #[test]
     fn no_raw_hazard_when_no_overlap() {
         let movement = movement_node(); // writes TRANSFORM (1)
-        let ai = ai_node();             // reads AI (160), TRANSFORM (1)
-        // movement writes 1, ai reads 1 → ai must run after movement
+        let ai = ai_node(); // reads AI (160), TRANSFORM (1)
+                            // movement writes 1, ai reads 1 → ai must run after movement
         let hazard = movement.raw_hazard_with(&ai);
         assert!(hazard.contains(&1));
     }
 
     #[test]
     fn explicit_dependency() {
-        let n = SystemNode::new("sys_b", PhaseEnum::Simulation)
-            .with_depends_on(["sys_a".to_string()]);
+        let n =
+            SystemNode::new("sys_b", PhaseEnum::Simulation).with_depends_on(["sys_a".to_string()]);
         assert!(n.explicitly_depends_on("sys_a"));
         assert!(!n.explicitly_depends_on("sys_c"));
     }
@@ -273,7 +288,7 @@ mod tests {
         // A system that reads and writes the same component
         let n = SystemNode::new("sys_rw", PhaseEnum::Simulation)
             .with_reads([1, 5])
-            .with_writes([1]);      // reads and writes TRANSFORM
+            .with_writes([1]); // reads and writes TRANSFORM
         let overlap = n.read_write_overlap();
         assert!(overlap.contains(&1));
         assert!(!overlap.contains(&5)); // only reads 5

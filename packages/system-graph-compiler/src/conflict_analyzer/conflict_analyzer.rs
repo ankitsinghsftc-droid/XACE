@@ -31,8 +31,6 @@
 //! All lists in ConflictReport are sorted by (system_a, system_b) pairs.
 //! SerializationGroups are sorted by their representative system_id.
 
-use std::collections::{BTreeMap, BTreeSet};
-use xace_core::runtime::phase_enum::PhaseEnum;
 use crate::compilation_error::{CompilationError, EdgeType};
 use crate::conflict_analyzer::serialization_group_builder::{
     SerializationGroup, SerializationGroupBuilder,
@@ -41,6 +39,8 @@ use crate::dependency_resolution::dependency_resolution_engine::OrderedGraph;
 use crate::graph_construction::hazard_detector::HazardDetector;
 use crate::graph_construction::system_edge::RawSystemGraph;
 use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+use std::collections::{BTreeMap, BTreeSet};
+use xace_core::runtime::phase_enum::PhaseEnum;
 
 // ── Conflict Entry ────────────────────────────────────────────────────────────
 
@@ -65,7 +65,12 @@ impl ConflictEntry {
         } else {
             (b.to_string(), a.to_string())
         };
-        Self { system_a, system_b, component_type_ids: type_ids, phase }
+        Self {
+            system_a,
+            system_b,
+            component_type_ids: type_ids,
+            phase,
+        }
     }
 }
 
@@ -97,11 +102,11 @@ pub struct ConflictReport {
 impl ConflictReport {
     fn new() -> Self {
         Self {
-            write_conflicts:        Vec::new(),
-            read_write_hazards:     Vec::new(),
-            serialization_groups:   BTreeMap::new(),
+            write_conflicts: Vec::new(),
+            read_write_hazards: Vec::new(),
+            serialization_groups: BTreeMap::new(),
             total_systems_analyzed: 0,
-            total_conflicts:        0,
+            total_conflicts: 0,
         }
     }
 
@@ -157,12 +162,12 @@ impl ConflictAnalyzer {
     /// (Unresolvable conflicts were caught in Stage 1; Stage 4 only classifies.)
     pub fn analyze(
         buckets: &[PhaseBucket],
-        graph:   &RawSystemGraph,
+        graph: &RawSystemGraph,
     ) -> Result<ConflictReport, CompilationError> {
         let mut report = ConflictReport::new();
 
         for bucket in buckets {
-            let phase     = bucket.phase;
+            let phase = bucket.phase;
             let sys_ids: Vec<&str> = bucket.system_ids();
             report.total_systems_analyzed += sys_ids.len();
 
@@ -175,36 +180,36 @@ impl ConflictAnalyzer {
 
                     let node_a = match graph.nodes.get(id_a) {
                         Some(n) => n,
-                        None    => continue,
+                        None => continue,
                     };
                     let node_b = match graph.nodes.get(id_b) {
                         Some(n) => n,
-                        None    => continue,
+                        None => continue,
                     };
 
                     // WAW conflicts
                     let waw = HazardDetector::detect_waw(node_a, node_b);
                     if !waw.is_empty() {
-                        report.write_conflicts.push(
-                            ConflictEntry::new(id_a, id_b, waw, phase)
-                        );
+                        report
+                            .write_conflicts
+                            .push(ConflictEntry::new(id_a, id_b, waw, phase));
                         report.total_conflicts += 1;
                     }
 
                     // RAW hazards — both directions
                     let raw_a_to_b = HazardDetector::detect_raw_a_to_b(node_a, node_b);
                     if !raw_a_to_b.is_empty() {
-                        report.read_write_hazards.push(
-                            ConflictEntry::new(id_a, id_b, raw_a_to_b, phase)
-                        );
+                        report
+                            .read_write_hazards
+                            .push(ConflictEntry::new(id_a, id_b, raw_a_to_b, phase));
                         report.total_conflicts += 1;
                     }
 
                     let raw_b_to_a = HazardDetector::detect_raw_a_to_b(node_b, node_a);
                     if !raw_b_to_a.is_empty() {
-                        report.read_write_hazards.push(
-                            ConflictEntry::new(id_b, id_a, raw_b_to_a, phase)
-                        );
+                        report
+                            .read_write_hazards
+                            .push(ConflictEntry::new(id_b, id_a, raw_b_to_a, phase));
                         report.total_conflicts += 1;
                     }
                 }
@@ -224,20 +229,23 @@ impl ConflictAnalyzer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::SystemDefinition;
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
-        SystemDefinition {
-            id: id.into(), phase: PhaseEnum::Simulation, reads, writes,
-            depends_on: vec![], deterministic: true, version: 1,
-        }
+        SystemDefinition::with_spec(
+            id,
+            id,
+            xace_core::schema::system_definition::ExecutionPhase::Simulation,
+            reads,
+            writes,
+        )
     }
 
     fn analyze(defs: &[SystemDefinition]) -> ConflictReport {
-        let graph   = GraphConstructionLayer::build(defs).unwrap();
+        let graph = GraphConstructionLayer::build(defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         ConflictAnalyzer::analyze(&buckets, &graph).unwrap()
     }
@@ -247,7 +255,7 @@ mod tests {
     #[test]
     fn no_overlap_produces_no_conflicts() {
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
         ];
         let report = analyze(&defs);
@@ -259,7 +267,7 @@ mod tests {
     #[test]
     fn conflict_free_all_systems_parallelizable() {
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
         ];
         let report = analyze(&defs);
@@ -270,10 +278,7 @@ mod tests {
 
     #[test]
     fn waw_conflict_detected() {
-        let defs = vec![
-            def("sys_a", vec![], vec![1]),
-            def("sys_b", vec![], vec![1]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![1]), def("sys_b", vec![], vec![1])];
         let report = analyze(&defs);
         assert_eq!(report.write_conflicts.len(), 1);
         let c = &report.write_conflicts[0];
@@ -282,10 +287,7 @@ mod tests {
 
     #[test]
     fn waw_systems_must_serialize() {
-        let defs = vec![
-            def("sys_a", vec![], vec![1]),
-            def("sys_b", vec![], vec![1]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![1]), def("sys_b", vec![], vec![1])];
         let report = analyze(&defs);
         assert!(report.must_serialize("sys_a", "sys_b", PhaseEnum::Simulation));
         assert!(!report.can_parallelize("sys_a", "sys_b", PhaseEnum::Simulation));
@@ -296,7 +298,7 @@ mod tests {
     #[test]
     fn raw_hazard_detected() {
         let defs = vec![
-            def("sys_writer", vec![],  vec![5]),
+            def("sys_writer", vec![], vec![5]),
             def("sys_reader", vec![5], vec![]),
         ];
         let report = analyze(&defs);
@@ -320,10 +322,7 @@ mod tests {
 
     #[test]
     fn serialization_groups_built_per_phase() {
-        let defs = vec![
-            def("sys_a", vec![], vec![1]),
-            def("sys_b", vec![], vec![1]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![1]), def("sys_b", vec![], vec![1])];
         let report = analyze(&defs);
         let groups = report.groups_for_phase(PhaseEnum::Simulation);
         assert!(!groups.is_empty());
@@ -342,8 +341,11 @@ mod tests {
             def("sys_e", vec![], vec![]),  // no conflicts
         ];
         let report = analyze(&defs);
-        assert_eq!(report.constrained_group_count(), 2,
-            "Two independent conflict pairs → two constrained groups");
+        assert_eq!(
+            report.constrained_group_count(),
+            2,
+            "Two independent conflict pairs → two constrained groups"
+        );
     }
 
     // ── Total counts ──────────────────────────────────────────────────────────
@@ -364,29 +366,37 @@ mod tests {
     #[test]
     fn zombie_chase_conflict_report() {
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5]),
-            def("MovementSystem", vec![5, 1],     vec![1]),
-            def("AISystem",       vec![160, 1],   vec![5, 101]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101]),
-            def("DeathSystem",    vec![100],      vec![]),
+            def("InputSystem", vec![6, 1], vec![5]),
+            def("MovementSystem", vec![5, 1], vec![1]),
+            def("AISystem", vec![160, 1], vec![5, 101]),
+            def("DamageSystem", vec![101, 100], vec![100, 101]),
+            def("DeathSystem", vec![100], vec![]),
         ];
         let report = analyze(&defs);
         assert_eq!(report.total_systems_analyzed, 5);
 
         // InputSystem and AISystem both write VELOCITY(5) → WAW conflict
-        assert!(report.must_serialize("InputSystem", "AISystem", PhaseEnum::Simulation),
-            "InputSystem and AISystem must serialize (WAW: VELOCITY)");
+        assert!(
+            report.must_serialize("InputSystem", "AISystem", PhaseEnum::Simulation),
+            "InputSystem and AISystem must serialize (WAW: VELOCITY)"
+        );
 
         // AISystem writes VELOCITY(5) that MovementSystem reads → RAW
-        assert!(report.must_serialize("AISystem", "MovementSystem", PhaseEnum::Simulation),
-            "AISystem and MovementSystem must serialize (RAW: VELOCITY)");
+        assert!(
+            report.must_serialize("AISystem", "MovementSystem", PhaseEnum::Simulation),
+            "AISystem and MovementSystem must serialize (RAW: VELOCITY)"
+        );
 
         // AISystem writes DAMAGE(101) that DamageSystem reads → RAW
-        assert!(report.must_serialize("AISystem", "DamageSystem", PhaseEnum::Simulation),
-            "AISystem and DamageSystem must serialize (RAW: DAMAGE)");
+        assert!(
+            report.must_serialize("AISystem", "DamageSystem", PhaseEnum::Simulation),
+            "AISystem and DamageSystem must serialize (RAW: DAMAGE)"
+        );
 
         // DamageSystem writes HEALTH(100) that DeathSystem reads → RAW
-        assert!(report.must_serialize("DamageSystem", "DeathSystem", PhaseEnum::Simulation),
-            "DamageSystem and DeathSystem must serialize (RAW: HEALTH)");
+        assert!(
+            report.must_serialize("DamageSystem", "DeathSystem", PhaseEnum::Simulation),
+            "DamageSystem and DeathSystem must serialize (RAW: HEALTH)"
+        );
     }
 }

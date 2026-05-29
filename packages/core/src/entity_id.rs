@@ -148,4 +148,4 @@ mod tests {
     fn null_entity_id_is_zero() {
         assert_eq!(NULL_ENTITY_ID, 0u64);
     }
-}// EntityID type alias (u64), NULL_ENTITY_ID constant, EntityIdGenerator — monotonic, never reuses IDs, thread-safe
+} // EntityID type alias (u64), NULL_ENTITY_ID constant, EntityIdGenerator — monotonic, never reuses IDs, thread-safe

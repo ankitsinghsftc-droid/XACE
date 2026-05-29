@@ -23,19 +23,19 @@
 //! at runtime. The same ID always maps to the same component type across
 //! all machines, all sessions, all engine adapters (D11).
 
-use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
-use crate::ucl::transform_component::COMP_TRANSFORM_V1_ID;
-use crate::ucl::identity_component::COMP_IDENTITY_V1_ID;
-use crate::ucl::render_component::COMP_RENDER_V1_ID;
-use crate::ucl::collider_component::COMP_COLLIDER_V1_ID;
-use crate::ucl::velocity_component::COMP_VELOCITY_V1_ID;
-use crate::ucl::input_component::COMP_INPUT_V1_ID;
-use crate::ucl::event_component::COMP_EVENT_V1_ID;
-use crate::ucl::lifetime_component::COMP_LIFETIME_V1_ID;
-use crate::ucl::game_state_component::COMP_GAMESTATE_V1_ID;
 use crate::ucl::authority_component::COMP_AUTHORITY_V1_ID;
+use crate::ucl::collider_component::COMP_COLLIDER_V1_ID;
+use crate::ucl::event_component::COMP_EVENT_V1_ID;
+use crate::ucl::game_state_component::COMP_GAMESTATE_V1_ID;
+use crate::ucl::identity_component::COMP_IDENTITY_V1_ID;
+use crate::ucl::input_component::COMP_INPUT_V1_ID;
+use crate::ucl::lifetime_component::COMP_LIFETIME_V1_ID;
+use crate::ucl::render_component::COMP_RENDER_V1_ID;
+use crate::ucl::transform_component::COMP_TRANSFORM_V1_ID;
+use crate::ucl::velocity_component::COMP_VELOCITY_V1_ID;
 
 // ── Component Category ────────────────────────────────────────────────────────
 
@@ -86,11 +86,7 @@ pub struct ComponentMetadata {
 
 impl ComponentMetadata {
     /// Creates a UCL Core component metadata record.
-    const fn ucl_core(
-        type_id: u32,
-        type_name: &'static str,
-        description: &'static str,
-    ) -> Self {
+    const fn ucl_core(type_id: u32, type_name: &'static str, description: &'static str) -> Self {
         Self {
             type_id,
             type_name,
@@ -242,9 +238,7 @@ impl UclRegistry {
     /// Returns true if a component type name is registered.
     /// Used by the DSL path parser to validate component references.
     pub fn contains_name(&self, type_name: &str) -> bool {
-        self.components
-            .values()
-            .any(|m| m.type_name == type_name)
+        self.components.values().any(|m| m.type_name == type_name)
     }
 
     /// Returns the type ID for a given component name.
@@ -329,16 +323,16 @@ impl Default for UclRegistry {
 /// Used for iteration when a registry instance is not available.
 /// Order matches BTreeMap ascending key order.
 pub const UCL_CORE_TYPE_IDS: [u32; 10] = [
-    COMP_TRANSFORM_V1_ID,   // 1
-    COMP_IDENTITY_V1_ID,    // 2
-    COMP_RENDER_V1_ID,      // 3
-    COMP_COLLIDER_V1_ID,    // 4
-    COMP_VELOCITY_V1_ID,    // 5
-    COMP_INPUT_V1_ID,       // 6
-    COMP_EVENT_V1_ID,       // 7
-    COMP_LIFETIME_V1_ID,    // 8
-    COMP_GAMESTATE_V1_ID,   // 9
-    COMP_AUTHORITY_V1_ID,   // 10
+    COMP_TRANSFORM_V1_ID, // 1
+    COMP_IDENTITY_V1_ID,  // 2
+    COMP_RENDER_V1_ID,    // 3
+    COMP_COLLIDER_V1_ID,  // 4
+    COMP_VELOCITY_V1_ID,  // 5
+    COMP_INPUT_V1_ID,     // 6
+    COMP_EVENT_V1_ID,     // 7
+    COMP_LIFETIME_V1_ID,  // 8
+    COMP_GAMESTATE_V1_ID, // 9
+    COMP_AUTHORITY_V1_ID, // 10
 ];
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -396,10 +390,7 @@ mod tests {
     #[test]
     fn type_name_lookup_works() {
         let reg = registry();
-        assert_eq!(
-            reg.type_name(COMP_IDENTITY_V1_ID),
-            Some("COMP_IDENTITY_V1")
-        );
+        assert_eq!(reg.type_name(COMP_IDENTITY_V1_ID), Some("COMP_IDENTITY_V1"));
     }
 
     #[test]

@@ -13,13 +13,12 @@ use xace_runtime_core::component_tables::{
     storage_strategy::{StorageConfig, StorageStrategy},
 };
 
-
 // ── Default Config Tests ──────────────────────────────────────────────────────
 
 #[test]
 fn default_config_selects_btreemap() {
     // Default: expected_max_entities=100, threshold=1000
-    let config   = StorageConfig::default();
+    let config = StorageConfig::default();
     let strategy = StorageRouter::select(&config);
     assert_eq!(
         strategy,
@@ -31,9 +30,9 @@ fn default_config_selects_btreemap() {
 #[test]
 fn below_threshold_selects_btreemap() {
     let config = StorageConfig {
-        entity_threshold:      1000,
+        entity_threshold: 1000,
         expected_max_entities: 999,
-        forced_strategy:       None,
+        forced_strategy: None,
     };
     assert_eq!(StorageRouter::select(&config), StorageStrategy::BTreeMap);
 }
@@ -41,9 +40,9 @@ fn below_threshold_selects_btreemap() {
 #[test]
 fn at_threshold_selects_archetype() {
     let config = StorageConfig {
-        entity_threshold:      1000,
+        entity_threshold: 1000,
         expected_max_entities: 1000,
-        forced_strategy:       None,
+        forced_strategy: None,
     };
     assert_eq!(
         StorageRouter::select(&config),
@@ -55,22 +54,21 @@ fn at_threshold_selects_archetype() {
 #[test]
 fn above_threshold_selects_archetype() {
     let config = StorageConfig {
-        entity_threshold:      1000,
+        entity_threshold: 1000,
         expected_max_entities: 5000,
-        forced_strategy:       None,
+        forced_strategy: None,
     };
     assert_eq!(StorageRouter::select(&config), StorageStrategy::Archetype);
 }
-
 
 // ── Forced Strategy Tests ─────────────────────────────────────────────────────
 
 #[test]
 fn forced_archetype_overrides_small_entity_count() {
     let config = StorageConfig {
-        entity_threshold:      1000,
-        expected_max_entities: 10,   // would normally pick BTreeMap
-        forced_strategy:       Some(StorageStrategy::Archetype),
+        entity_threshold: 1000,
+        expected_max_entities: 10, // would normally pick BTreeMap
+        forced_strategy: Some(StorageStrategy::Archetype),
     };
     assert_eq!(
         StorageRouter::select(&config),
@@ -82,9 +80,9 @@ fn forced_archetype_overrides_small_entity_count() {
 #[test]
 fn forced_btreemap_overrides_large_entity_count() {
     let config = StorageConfig {
-        entity_threshold:      1000,
-        expected_max_entities: 50_000,   // would normally pick Archetype
-        forced_strategy:       Some(StorageStrategy::BTreeMap),
+        entity_threshold: 1000,
+        expected_max_entities: 50_000, // would normally pick Archetype
+        forced_strategy: Some(StorageStrategy::BTreeMap),
     };
     assert_eq!(
         StorageRouter::select(&config),
@@ -92,7 +90,6 @@ fn forced_btreemap_overrides_large_entity_count() {
         "forced_strategy=btreemap must override even large entity counts"
     );
 }
-
 
 // ── YAML Parsing Tests ────────────────────────────────────────────────────────
 
@@ -168,7 +165,7 @@ fn yaml_malformed_falls_back_to_btreemap() {
 #[test]
 fn explain_produces_non_empty_string() {
     let config = StorageConfig::default();
-    let msg    = StorageRouter::explain(&config);
+    let msg = StorageRouter::explain(&config);
     assert!(!msg.is_empty());
     assert!(msg.contains("btreemap") || msg.contains("archetype"));
 }
@@ -176,26 +173,41 @@ fn explain_produces_non_empty_string() {
 #[test]
 fn explain_mentions_threshold() {
     let config = StorageConfig {
-        entity_threshold:      1000,
+        entity_threshold: 1000,
         expected_max_entities: 500,
-        forced_strategy:       None,
+        forced_strategy: None,
     };
     let msg = StorageRouter::explain(&config);
-    assert!(msg.contains("500") || msg.contains("1000"),
-        "explain must mention entity counts, got: {}", msg);
+    assert!(
+        msg.contains("500") || msg.contains("1000"),
+        "explain must mention entity counts, got: {}",
+        msg
+    );
 }
 
 #[test]
 fn strategy_from_str_round_trips() {
-    assert_eq!(StorageStrategy::from_str("archetype"), Some(StorageStrategy::Archetype));
-    assert_eq!(StorageStrategy::from_str("btreemap"),  Some(StorageStrategy::BTreeMap));
-    assert_eq!(StorageStrategy::from_str("soa"),       Some(StorageStrategy::Archetype));
-    assert_eq!(StorageStrategy::from_str("ARCHETYPE"), Some(StorageStrategy::Archetype));
-    assert_eq!(StorageStrategy::from_str("unknown"),   None);
+    assert_eq!(
+        StorageStrategy::from_str("archetype"),
+        Some(StorageStrategy::Archetype)
+    );
+    assert_eq!(
+        StorageStrategy::from_str("btreemap"),
+        Some(StorageStrategy::BTreeMap)
+    );
+    assert_eq!(
+        StorageStrategy::from_str("soa"),
+        Some(StorageStrategy::Archetype)
+    );
+    assert_eq!(
+        StorageStrategy::from_str("ARCHETYPE"),
+        Some(StorageStrategy::Archetype)
+    );
+    assert_eq!(StorageStrategy::from_str("unknown"), None);
 }
 
 #[test]
 fn strategy_as_str_is_lowercase() {
     assert_eq!(StorageStrategy::Archetype.as_str(), "archetype");
-    assert_eq!(StorageStrategy::BTreeMap.as_str(),  "btreemap");
+    assert_eq!(StorageStrategy::BTreeMap.as_str(), "btreemap");
 }

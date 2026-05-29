@@ -11,8 +11,8 @@
 //! All float fields use f32. Precision is consistent and fixed across platforms (D8).
 //! Serialization uses fixed decimal precision to ensure identical bytes (D11).
 
-use serde::{Deserialize, Serialize};
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
+use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_TRANSFORM_V1.
 /// Unique u32 identifier used by ComponentTableStore to key tables.
@@ -28,8 +28,16 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
-    pub const ZERO: Vec3 = Vec3 { x: 0.0, y: 0.0, z: 0.0 };
-    pub const ONE: Vec3  = Vec3 { x: 1.0, y: 1.0, z: 1.0 };
+    pub const ZERO: Vec3 = Vec3 {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+    };
+    pub const ONE: Vec3 = Vec3 {
+        x: 1.0,
+        y: 1.0,
+        z: 1.0,
+    };
 
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
@@ -37,7 +45,9 @@ impl Vec3 {
 }
 
 impl Default for Vec3 {
-    fn default() -> Self { Self::ZERO }
+    fn default() -> Self {
+        Self::ZERO
+    }
 }
 
 /// Quaternion rotation (x, y, z, w).
@@ -55,7 +65,12 @@ pub struct Quat {
 
 impl Quat {
     /// Identity quaternion — no rotation.
-    pub const IDENTITY: Quat = Quat { x: 0.0, y: 0.0, z: 0.0, w: 1.0 };
+    pub const IDENTITY: Quat = Quat {
+        x: 0.0,
+        y: 0.0,
+        z: 0.0,
+        w: 1.0,
+    };
 
     pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
         Self { x, y, z, w }
@@ -63,7 +78,9 @@ impl Quat {
 }
 
 impl Default for Quat {
-    fn default() -> Self { Self::IDENTITY }
+    fn default() -> Self {
+        Self::IDENTITY
+    }
 }
 
 /// COMP_TRANSFORM_V1 — Spatial transform for any entity existing in 3D space.

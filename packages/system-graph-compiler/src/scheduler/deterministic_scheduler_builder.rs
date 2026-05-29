@@ -53,10 +53,10 @@ impl DeterministicSchedulerBuilder {
     /// - `schema_version`:  the CGS version this plan was compiled from
     /// - `plan_version`:    monotonically increasing plan identifier
     pub fn build(
-        ordered_graph:   &OrderedGraph,
+        ordered_graph: &OrderedGraph,
         conflict_report: &ConflictReport,
-        schema_version:  &str,
-        plan_version:    u32,
+        schema_version: &str,
+        plan_version: u32,
     ) -> ExecutionPlan {
         // Step 1: Get parallel windows across all phases from the analyzer.
         let windows = ParallelGroupAnalyzer::analyze_all(ordered_graph, conflict_report);
@@ -102,15 +102,15 @@ impl DeterministicSchedulerBuilder {
 
     /// Builds and verifies all expected systems appear in the plan.
     pub fn build_and_verify(
-        ordered_graph:   &OrderedGraph,
+        ordered_graph: &OrderedGraph,
         conflict_report: &ConflictReport,
-        schema_version:  &str,
-        plan_version:    u32,
+        schema_version: &str,
+        plan_version: u32,
     ) -> Result<ExecutionPlan, String> {
         let plan = Self::build(ordered_graph, conflict_report, schema_version, plan_version);
 
         let expected = ordered_graph.total_system_count();
-        let actual   = plan.total_system_count();
+        let actual = plan.total_system_count();
 
         if actual != expected {
             return Err(format!(
@@ -134,21 +134,20 @@ impl DeterministicSchedulerBuilder {
             systems.sort_unstable(); // lexicographic sort for deterministic merge (D11)
         }
 
-        let serialization_constraints: Vec<String> =
-            if !window.is_parallel && systems.len() > 1 {
-                systems
-                    .windows(2)
-                    .map(|pair| format!("{}_before_{}", pair[0], pair[1]))
-                    .collect()
-            } else {
-                Vec::new()
-            };
+        let serialization_constraints: Vec<String> = if !window.is_parallel && systems.len() > 1 {
+            systems
+                .windows(2)
+                .map(|pair| format!("{}_before_{}", pair[0], pair[1]))
+                .collect()
+        } else {
+            Vec::new()
+        };
 
         ExecutionGroup {
-            parallel:                  window.is_parallel,
+            parallel: window.is_parallel,
             systems,
-            group_id:                  window.group_id(),
-            phase:                     window.phase,
+            group_id: window.group_id(),
+            phase: window.phase,
             serialization_constraints,
             execution_index,
         }
@@ -159,9 +158,9 @@ impl DeterministicSchedulerBuilder {
     /// Inputs: all groups in phase ordinal order, schema_version, plan_version.
     /// Same input → identical 64-character hex string, always.
     fn compute_plan_hash(
-        groups:         &[ExecutionGroup],
+        groups: &[ExecutionGroup],
         schema_version: &str,
-        plan_version:   u32,
+        plan_version: u32,
     ) -> String {
         let mut h = Sha256::new();
         h.update((schema_version.len() as u64).to_be_bytes());
@@ -177,10 +176,7 @@ impl DeterministicSchedulerBuilder {
                 h.update(sys_id.as_bytes());
             }
         }
-        h.finalize()
-            .iter()
-            .map(|b| format!("{:02x}", b))
-            .collect()
+        h.finalize().iter().map(|b| format!("{:02x}", b)).collect()
     }
 }
 
@@ -227,7 +223,7 @@ impl PlanInspector {
     /// Returns all ExecutionGroups in the given phase, in execution_index order.
     /// Returns an empty Vec if the phase has no systems.
     pub fn groups_for_phase<'a>(
-        plan:  &'a ExecutionPlan,
+        plan: &'a ExecutionPlan,
         phase: PhaseEnum,
     ) -> Vec<&'a ExecutionGroup> {
         plan.get_phase(phase)
@@ -244,7 +240,7 @@ impl PlanInspector {
             all.iter().position(|&s| s == system_b),
         ) {
             (Some(a), Some(b)) => a < b,
-            _                  => false,
+            _ => false,
         }
     }
 }
@@ -254,33 +250,33 @@ impl PlanInspector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
+    use crate::conflict_analyzer::conflict_analyzer::ConflictAnalyzer;
+    use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
-    use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
-    use crate::conflict_analyzer::conflict_analyzer::ConflictAnalyzer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
 
     /// Builds a SystemDefinition in the Simulation phase.
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
         SystemDefinition {
-            id:            id.into(),
-            display_name:  id.into(),
-            phase:         ExecutionPhase::Simulation,
+            id: id.into(),
+            display_name: id.into(),
+            phase: ExecutionPhase::Simulation,
             reads,
             writes,
-            depends_on:    vec![],
+            depends_on: vec![],
             deterministic: true,
-            version:       SystemVersion::INITIAL,
-            description:   String::new(),
+            version: SystemVersion::INITIAL,
+            description: String::new(),
         }
     }
 
     fn build_plan(defs: &[SystemDefinition]) -> ExecutionPlan {
-        let graph   = GraphConstructionLayer::build(defs).unwrap();
+        let graph = GraphConstructionLayer::build(defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         let ordered = DependencyResolutionEngine::resolve(&buckets).unwrap();
-        let report  = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
+        let report = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
         DeterministicSchedulerBuilder::build(&ordered, &report, "0.1.0", 1)
     }
 
@@ -298,12 +294,16 @@ mod tests {
     #[test]
     fn two_independent_systems_parallel_group() {
         let defs = vec![
-            def("sys_a", vec![6],   vec![6]),
+            def("sys_a", vec![6], vec![6]),
             def("sys_b", vec![100], vec![100]),
         ];
         let plan = build_plan(&defs);
         let parallel = PlanInspector::parallel_groups(&plan);
-        assert_eq!(parallel.len(), 1, "Independent systems must be in one parallel group");
+        assert_eq!(
+            parallel.len(),
+            1,
+            "Independent systems must be in one parallel group"
+        );
         assert_eq!(parallel[0].systems.len(), 2);
     }
 
@@ -317,7 +317,10 @@ mod tests {
         // Both systems are in Simulation — one phase, two serial groups
         let groups = PlanInspector::groups_for_phase(&plan, PhaseEnum::Simulation);
         assert_eq!(groups.len(), 2, "WAW conflict produces two serial groups");
-        assert!(groups.iter().all(|g| !g.parallel), "WAW groups must be serial");
+        assert!(
+            groups.iter().all(|g| !g.parallel),
+            "WAW groups must be serial"
+        );
     }
 
     #[test]
@@ -329,7 +332,10 @@ mod tests {
 
     #[test]
     fn plan_hash_deterministic() {
-        let defs = vec![def("sys_a", vec![6], vec![6]), def("sys_b", vec![100], vec![100])];
+        let defs = vec![
+            def("sys_a", vec![6], vec![6]),
+            def("sys_b", vec![100], vec![100]),
+        ];
         assert_eq!(
             build_plan(&defs).plan_hash,
             build_plan(&defs).plan_hash,
@@ -339,21 +345,18 @@ mod tests {
 
     #[test]
     fn plan_carries_schema_and_version() {
-        let graph   = GraphConstructionLayer::build(&[def("sys_a", vec![], vec![])]).unwrap();
+        let graph = GraphConstructionLayer::build(&[def("sys_a", vec![], vec![])]).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         let ordered = DependencyResolutionEngine::resolve(&buckets).unwrap();
-        let report  = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
-        let plan    = DeterministicSchedulerBuilder::build(&ordered, &report, "1.2.3", 42);
+        let report = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
+        let plan = DeterministicSchedulerBuilder::build(&ordered, &report, "1.2.3", 42);
         assert_eq!(plan.schema_version, "1.2.3");
         assert_eq!(plan.plan_version, 42);
     }
 
     #[test]
     fn inspector_is_before_raw_ordering() {
-        let defs = vec![
-            def("sys_a", vec![],  vec![5]),
-            def("sys_b", vec![5], vec![]),
-        ];
+        let defs = vec![def("sys_a", vec![], vec![5]), def("sys_b", vec![5], vec![])];
         let plan = build_plan(&defs);
         assert!(PlanInspector::is_before(&plan, "sys_a", "sys_b"));
         assert!(!PlanInspector::is_before(&plan, "sys_b", "sys_a"));
@@ -362,13 +365,11 @@ mod tests {
     #[test]
     fn build_and_verify_counts_correct() {
         let defs = vec![def("sys_a", vec![], vec![]), def("sys_b", vec![], vec![])];
-        let graph   = GraphConstructionLayer::build(&defs).unwrap();
+        let graph = GraphConstructionLayer::build(&defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         let ordered = DependencyResolutionEngine::resolve(&buckets).unwrap();
-        let report  = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
-        let result  = DeterministicSchedulerBuilder::build_and_verify(
-            &ordered, &report, "0.1.0", 1
-        );
+        let report = ConflictAnalyzer::analyze(&buckets, &graph).unwrap();
+        let result = DeterministicSchedulerBuilder::build_and_verify(&ordered, &report, "0.1.0", 1);
         assert!(result.is_ok());
         assert_eq!(PlanInspector::total_system_count(&result.unwrap()), 2);
     }
@@ -376,17 +377,25 @@ mod tests {
     #[test]
     fn zombie_chase_plan_ordering_satisfied() {
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5]),
-            def("MovementSystem", vec![5, 1],     vec![1]),
-            def("AISystem",       vec![160, 1],   vec![5, 101]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101]),
-            def("DeathSystem",    vec![100],       vec![]),
+            def("InputSystem", vec![6, 1], vec![5]),
+            def("MovementSystem", vec![5, 1], vec![1]),
+            def("AISystem", vec![160, 1], vec![5, 101]),
+            def("DamageSystem", vec![101, 100], vec![100, 101]),
+            def("DeathSystem", vec![100], vec![]),
         ];
         let plan = build_plan(&defs);
         assert_eq!(PlanInspector::total_system_count(&plan), 5);
-        assert!(PlanInspector::is_before(&plan, "AISystem",     "MovementSystem"));
-        assert!(PlanInspector::is_before(&plan, "AISystem",     "DamageSystem"));
-        assert!(PlanInspector::is_before(&plan, "DamageSystem", "DeathSystem"));
+        assert!(PlanInspector::is_before(
+            &plan,
+            "AISystem",
+            "MovementSystem"
+        ));
+        assert!(PlanInspector::is_before(&plan, "AISystem", "DamageSystem"));
+        assert!(PlanInspector::is_before(
+            &plan,
+            "DamageSystem",
+            "DeathSystem"
+        ));
         assert!(!plan.plan_hash.is_empty());
     }
 }

@@ -36,12 +36,12 @@
 //! and EventDispatcher — it does not require an entity carrier.
 //! The two types share the same design but serve different roles.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
 use crate::entity_metadata::Tick;
 use crate::events::event_type::EventType;
 use crate::runtime::phase_enum::PhaseEnum;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Event ID ──────────────────────────────────────────────────────────────────
 
@@ -143,8 +143,7 @@ impl Event {
         creation_phase: PhaseEnum,
     ) -> Self {
         assert_ne!(
-            source_entity_id,
-            NULL_ENTITY_ID,
+            source_entity_id, NULL_ENTITY_ID,
             "Event source_entity_id must never be NULL_ENTITY_ID — \
              every event must have a valid source entity"
         );
@@ -173,13 +172,11 @@ impl Event {
         creation_phase: PhaseEnum,
     ) -> Self {
         assert_ne!(
-            source_entity_id,
-            NULL_ENTITY_ID,
+            source_entity_id, NULL_ENTITY_ID,
             "Event source_entity_id must never be NULL_ENTITY_ID"
         );
         assert_ne!(
-            target_entity_id,
-            NULL_ENTITY_ID,
+            target_entity_id, NULL_ENTITY_ID,
             "Directed event target_entity_id must never be NULL_ENTITY_ID — \
              use broadcast() for untargeted events"
         );
@@ -204,11 +201,7 @@ impl Event {
     /// //     .with_payload("delta", "10")
     /// //     .with_payload("reason", "enemy_killed");
     /// ```
-    pub fn with_payload(
-        mut self,
-        key: impl Into<String>,
-        value: impl Into<String>,
-    ) -> Self {
+    pub fn with_payload(mut self, key: impl Into<String>, value: impl Into<String>) -> Self {
         self.payload.insert(key.into(), value.into());
         self
     }
@@ -219,7 +212,11 @@ impl Event {
     /// Emission order never affects dispatch order — only these three
     /// fields determine when an event is processed relative to others.
     pub fn sort_key(&self) -> (Tick, u8, EventId) {
-        (self.creation_tick, self.creation_phase.as_u8(), self.event_id)
+        (
+            self.creation_tick,
+            self.creation_phase.as_u8(),
+            self.event_id,
+        )
     }
 
     /// Returns true if this event targets a specific entity.
@@ -308,12 +305,7 @@ mod tests {
     use super::*;
 
     fn test_broadcast() -> Event {
-        Event::broadcast(
-            1,
-            EventType::EntitySpawned,
-            10,
-            PhaseEnum::Simulation,
-        )
+        Event::broadcast(1, EventType::EntitySpawned, 10, PhaseEnum::Simulation)
     }
 
     fn test_directed() -> Event {

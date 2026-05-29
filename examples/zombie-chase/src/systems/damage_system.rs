@@ -26,9 +26,8 @@ use xace_core::errors::xace_error::XaceError;
 
 use crate::cgs::component_ids;
 use crate::cgs::{
-    damage_consumed_json, health_json, parse_damage_amount,
-    parse_damage_applied_tick, parse_damage_is_consumed,
-    parse_health_current, parse_health_max,
+    damage_consumed_json, health_json, parse_damage_amount, parse_damage_applied_tick,
+    parse_damage_is_consumed, parse_health_current, parse_health_max,
 };
 
 pub struct DamageSystem;
@@ -54,7 +53,7 @@ impl ISystem for DamageSystem {
             // Read the damage component
             let damage_json_str = match context.get_component(entity_id, component_ids::DAMAGE)? {
                 Some(j) => j.to_owned(),
-                None    => continue,
+                None => continue,
             };
 
             // Skip already-consumed damage (idempotent processing)
@@ -62,14 +61,15 @@ impl ISystem for DamageSystem {
                 continue;
             }
 
-            let damage_amount     = parse_damage_amount(&damage_json_str);
-            let damage_source     = crate::cgs::extract_u64(&damage_json_str, "\"source_entity_id\":").unwrap_or(0);
-            let damage_tick       = parse_damage_applied_tick(&damage_json_str);
+            let damage_amount = parse_damage_amount(&damage_json_str);
+            let damage_source =
+                crate::cgs::extract_u64(&damage_json_str, "\"source_entity_id\":").unwrap_or(0);
+            let damage_tick = parse_damage_applied_tick(&damage_json_str);
 
             // Read current health
             let health_json_str = match context.get_component(entity_id, component_ids::HEALTH)? {
                 Some(j) => j.to_owned(),
-                None    => {
+                None => {
                     // Entity has DAMAGE but no HEALTH — mark consumed and skip
                     let consumed = damage_consumed_json(damage_amount, damage_source, damage_tick);
                     context.submit_mutation(entity_id, component_ids::DAMAGE, consumed)?;
@@ -78,7 +78,7 @@ impl ISystem for DamageSystem {
             };
 
             let current_health = parse_health_current(&health_json_str);
-            let max_health     = parse_health_max(&health_json_str);
+            let max_health = parse_health_max(&health_json_str);
 
             // Apply damage — clamp to exactly 0.0, never negative
             let new_health = (current_health - damage_amount).max(0.0_f32);
