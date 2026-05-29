@@ -25,10 +25,10 @@
 //! The ConflictAnalyzer (Stage 4) and Scheduler (Stage 5) both consume
 //! the OrderedGraph to determine parallelization opportunities.
 
-use xace_core::runtime::phase_enum::PhaseEnum;
 use crate::compilation_error::CompilationError;
 use crate::dependency_resolution::topological_sorter::{SortedPhase, TopologicalSorter};
 use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+use xace_core::runtime::phase_enum::PhaseEnum;
 
 // ── Ordered Phase ─────────────────────────────────────────────────────────────
 
@@ -54,9 +54,11 @@ impl OrderedPhase {
     /// Returns true if system_a is ordered before system_b in this phase.
     /// Panics if either system is not in this phase.
     pub fn is_before(&self, system_a: &str, system_b: &str) -> bool {
-        let pos_a = self.position_of(system_a)
+        let pos_a = self
+            .position_of(system_a)
             .unwrap_or_else(|| panic!("system '{}' not in phase {:?}", system_a, self.phase));
-        let pos_b = self.position_of(system_b)
+        let pos_b = self
+            .position_of(system_b)
             .unwrap_or_else(|| panic!("system '{}' not in phase {:?}", system_b, self.phase));
         pos_a < pos_b
     }
@@ -146,7 +148,7 @@ impl DependencyResolutionEngine {
         for bucket in buckets {
             let sorted: SortedPhase = TopologicalSorter::sort(bucket)?;
             phases.push(OrderedPhase {
-                phase:           sorted.phase,
+                phase: sorted.phase,
                 ordered_systems: sorted.ordered_systems,
             });
         }
@@ -157,7 +159,7 @@ impl DependencyResolutionEngine {
     /// Resolves and validates that all system_ids from the original graph
     /// appear in the ordered output. Used as a post-condition check.
     pub fn resolve_and_verify(
-        buckets:     &[PhaseBucket],
+        buckets: &[PhaseBucket],
         expected_count: usize,
     ) -> Result<OrderedGraph, CompilationError> {
         let graph = Self::resolve(buckets)?;
@@ -180,27 +182,25 @@ impl DependencyResolutionEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::SystemDefinition;
 
     fn def(
-        id:    &str,
+        id: &str,
         phase: PhaseEnum,
         reads: Vec<u32>,
         writes: Vec<u32>,
-        deps:  Vec<&str>,
+        deps: Vec<&str>,
     ) -> SystemDefinition {
-        SystemDefinition {
-            id: id.into(), phase, reads, writes,
-            depends_on: deps.into_iter().map(String::from).collect(),
-            deterministic: true, version: 1,
-        }
+        let mut def = SystemDefinition::with_spec(id, id, phase.into(), reads, writes);
+        def.depends_on = deps.into_iter().map(String::from).collect();
+        def
     }
 
     fn resolve(defs: &[SystemDefinition]) -> Result<OrderedGraph, CompilationError> {
-        let graph   = GraphConstructionLayer::build(defs).unwrap();
+        let graph = GraphConstructionLayer::build(defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         DependencyResolutionEngine::resolve(&buckets)
     }
@@ -226,10 +226,22 @@ mod tests {
     #[test]
     fn multi_phase_all_systems_present() {
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_a",    PhaseEnum::Simulation,     vec![], vec![], vec![]),
-            def("sys_b",    PhaseEnum::Simulation,     vec![], vec![], vec![]),
-            def("sys_post", PhaseEnum::PostSimulation,  vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def(
+                "sys_post",
+                PhaseEnum::PostSimulation,
+                vec![],
+                vec![],
+                vec![],
+            ),
         ];
         let graph = resolve(&defs).unwrap();
         assert_eq!(graph.total_system_count(), 4);
@@ -241,9 +253,21 @@ mod tests {
     #[test]
     fn phases_in_ordinal_order() {
         let defs = vec![
-            def("sys_post", PhaseEnum::PostSimulation, vec![], vec![], vec![]),
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_post",
+                PhaseEnum::PostSimulation,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_sim", PhaseEnum::Simulation, vec![], vec![], vec![]),
         ];
         let graph = resolve(&defs).unwrap();
         let ordinals: Vec<u8> = graph.phases.iter().map(|p| p.phase.as_u8()).collect();
@@ -256,8 +280,20 @@ mod tests {
     fn position_of_returns_correct_index() {
         let defs = vec![
             def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
-            def("sys_c", PhaseEnum::Simulation, vec![], vec![], vec!["sys_b"]),
+            def(
+                "sys_b",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
+            def(
+                "sys_c",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_b"],
+            ),
         ];
         let graph = resolve(&defs).unwrap();
         let phase = graph.phase(PhaseEnum::Simulation).unwrap();
@@ -271,7 +307,13 @@ mod tests {
     fn is_before_correct() {
         let defs = vec![
             def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
+            def(
+                "sys_b",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
         ];
         let graph = resolve(&defs).unwrap();
         let phase = graph.phase(PhaseEnum::Simulation).unwrap();
@@ -284,9 +326,15 @@ mod tests {
     #[test]
     fn global_position_cross_phase() {
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_a",    PhaseEnum::Simulation,     vec![], vec![], vec![]),
-            def("sys_b",    PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec![]),
         ];
         let graph = resolve(&defs).unwrap();
         // sys_init is at global position 0 (first in Initialization)
@@ -302,14 +350,20 @@ mod tests {
     #[test]
     fn all_systems_in_order_concatenates_phases() {
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_sim", PhaseEnum::Simulation, vec![], vec![], vec![]),
         ];
         let graph = resolve(&defs).unwrap();
         let all = graph.all_systems_in_order();
         assert_eq!(all.len(), 2);
         assert_eq!(all[0], "sys_init"); // Initialization first
-        assert_eq!(all[1], "sys_sim");  // Simulation second
+        assert_eq!(all[1], "sys_sim"); // Simulation second
     }
 
     #[test]
@@ -325,9 +379,10 @@ mod tests {
     #[test]
     fn resolution_deterministic_across_input_orders() {
         let make_defs = |order: &[&str]| -> Vec<SystemDefinition> {
-            order.iter().map(|&id| {
-                def(id, PhaseEnum::Simulation, vec![], vec![], vec![])
-            }).collect()
+            order
+                .iter()
+                .map(|&id| def(id, PhaseEnum::Simulation, vec![], vec![], vec![]))
+                .collect()
         };
 
         let order_1 = make_defs(&["sys_z", "sys_a", "sys_m", "sys_b"]);
@@ -342,8 +397,14 @@ mod tests {
         let systems_2 = g2.systems_in_phase(PhaseEnum::Simulation);
         let systems_3 = g3.systems_in_phase(PhaseEnum::Simulation);
 
-        assert_eq!(systems_1, systems_2, "Resolution must be deterministic (D11)");
-        assert_eq!(systems_1, systems_3, "Resolution must be deterministic (D11)");
+        assert_eq!(
+            systems_1, systems_2,
+            "Resolution must be deterministic (D11)"
+        );
+        assert_eq!(
+            systems_1, systems_3,
+            "Resolution must be deterministic (D11)"
+        );
 
         // Independent systems → pure lex order: sys_a, sys_b, sys_m, sys_z
         assert_eq!(systems_1, &["sys_a", "sys_b", "sys_m", "sys_z"]);
@@ -354,13 +415,43 @@ mod tests {
     #[test]
     fn zombie_chase_resolve_and_verify() {
         let defs = vec![
-            def("InputSystem",    PhaseEnum::Simulation, vec![6, 1],     vec![5],       vec![]),
-            def("MovementSystem", PhaseEnum::Simulation, vec![5, 1],     vec![1],       vec![]),
-            def("AISystem",       PhaseEnum::Simulation, vec![160, 1],   vec![5, 101],  vec![]),
-            def("DamageSystem",   PhaseEnum::Simulation, vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    PhaseEnum::Simulation, vec![100],      vec![],        vec![]),
+            def(
+                "InputSystem",
+                PhaseEnum::Simulation,
+                vec![6, 1],
+                vec![5],
+                vec![],
+            ),
+            def(
+                "MovementSystem",
+                PhaseEnum::Simulation,
+                vec![5, 1],
+                vec![1],
+                vec![],
+            ),
+            def(
+                "AISystem",
+                PhaseEnum::Simulation,
+                vec![160, 1],
+                vec![5, 101],
+                vec![],
+            ),
+            def(
+                "DamageSystem",
+                PhaseEnum::Simulation,
+                vec![101, 100],
+                vec![100, 101],
+                vec![],
+            ),
+            def(
+                "DeathSystem",
+                PhaseEnum::Simulation,
+                vec![100],
+                vec![],
+                vec![],
+            ),
         ];
-        let graph   = GraphConstructionLayer::build(&defs).unwrap();
+        let graph = GraphConstructionLayer::build(&defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         let ordered = DependencyResolutionEngine::resolve_and_verify(&buckets, 5).unwrap();
 
@@ -369,21 +460,27 @@ mod tests {
         let sim = ordered.phase(PhaseEnum::Simulation).unwrap();
 
         // All RAW ordering constraints must be satisfied
-        assert!(sim.is_before("AISystem",    "MovementSystem"),
-            "AISystem must precede MovementSystem (RAW: VELOCITY)");
-        assert!(sim.is_before("AISystem",    "DamageSystem"),
-            "AISystem must precede DamageSystem (RAW: DAMAGE)");
-        assert!(sim.is_before("DamageSystem", "DeathSystem"),
-            "DamageSystem must precede DeathSystem (RAW: HEALTH)");
+        assert!(
+            sim.is_before("AISystem", "MovementSystem"),
+            "AISystem must precede MovementSystem (RAW: VELOCITY)"
+        );
+        assert!(
+            sim.is_before("AISystem", "DamageSystem"),
+            "AISystem must precede DamageSystem (RAW: DAMAGE)"
+        );
+        assert!(
+            sim.is_before("DamageSystem", "DeathSystem"),
+            "DamageSystem must precede DeathSystem (RAW: HEALTH)"
+        );
     }
 
     // ── Cycle propagation ─────────────────────────────────────────────────────
 
     #[test]
     fn cycle_in_bucket_propagates_as_error() {
-        use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
-        use crate::graph_construction::system_node::SystemNode;
         use crate::graph_construction::system_edge::SystemEdge;
+        use crate::graph_construction::system_node::SystemNode;
+        use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
         use std::collections::BTreeMap;
 
         // Hand-craft a cyclic bucket
@@ -391,16 +488,26 @@ mod tests {
             phase: PhaseEnum::Simulation,
             nodes: {
                 let mut m = BTreeMap::new();
-                m.insert("sys_a".into(), SystemNode::new("sys_a", PhaseEnum::Simulation));
-                m.insert("sys_b".into(), SystemNode::new("sys_b", PhaseEnum::Simulation));
+                m.insert(
+                    "sys_a".into(),
+                    SystemNode::new("sys_a", PhaseEnum::Simulation),
+                );
+                m.insert(
+                    "sys_b".into(),
+                    SystemNode::new("sys_b", PhaseEnum::Simulation),
+                );
                 m
             },
             edges: {
                 let mut m = BTreeMap::new();
-                m.insert(("sys_a".into(), "sys_b".into()),
-                         SystemEdge::explicit_dependency("sys_a", "sys_b"));
-                m.insert(("sys_b".into(), "sys_a".into()),
-                         SystemEdge::explicit_dependency("sys_b", "sys_a"));
+                m.insert(
+                    ("sys_a".into(), "sys_b".into()),
+                    SystemEdge::explicit_dependency("sys_a", "sys_b"),
+                );
+                m.insert(
+                    ("sys_b".into(), "sys_a".into()),
+                    SystemEdge::explicit_dependency("sys_b", "sys_a"),
+                );
                 m
             },
         };

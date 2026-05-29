@@ -353,11 +353,7 @@ pub struct DslOperation {
 
 impl DslOperation {
     /// Creates a SET operation — replace a field value.
-    pub fn set(
-        target_path: impl Into<String>,
-        value: DslValue,
-        type_hint: TypeHint,
-    ) -> Self {
+    pub fn set(target_path: impl Into<String>, value: DslValue, type_hint: TypeHint) -> Self {
         Self {
             op: OperationType::Set,
             target_path: target_path.into(),
@@ -367,10 +363,7 @@ impl DslOperation {
     }
 
     /// Creates an ADD operation — increment a numeric field.
-    pub fn add(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn add(target_path: impl Into<String>, value: DslValue) -> Self {
         let type_hint = value.type_hint();
         Self {
             op: OperationType::Add,
@@ -381,10 +374,7 @@ impl DslOperation {
     }
 
     /// Creates a SUBTRACT operation — decrement a numeric field.
-    pub fn subtract(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn subtract(target_path: impl Into<String>, value: DslValue) -> Self {
         let type_hint = value.type_hint();
         Self {
             op: OperationType::Subtract,
@@ -395,10 +385,7 @@ impl DslOperation {
     }
 
     /// Creates a MULTIPLY operation — scale a numeric field.
-    pub fn multiply(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn multiply(target_path: impl Into<String>, value: DslValue) -> Self {
         let type_hint = value.type_hint();
         Self {
             op: OperationType::Multiply,
@@ -410,10 +397,7 @@ impl DslOperation {
 
     /// Creates a DIVIDE operation — scale down a numeric field.
     /// Caller must ensure value is not zero before creating this operation.
-    pub fn divide(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn divide(target_path: impl Into<String>, value: DslValue) -> Self {
         let type_hint = value.type_hint();
         Self {
             op: OperationType::Divide,
@@ -424,10 +408,7 @@ impl DslOperation {
     }
 
     /// Creates an APPEND operation — add to a collection field.
-    pub fn append(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn append(target_path: impl Into<String>, value: DslValue) -> Self {
         Self {
             op: OperationType::Append,
             target_path: target_path.into(),
@@ -437,10 +418,7 @@ impl DslOperation {
     }
 
     /// Creates a DELETE operation — remove from a collection field.
-    pub fn delete(
-        target_path: impl Into<String>,
-        value: DslValue,
-    ) -> Self {
+    pub fn delete(target_path: impl Into<String>, value: DslValue) -> Self {
         Self {
             op: OperationType::Delete,
             target_path: target_path.into(),
@@ -588,11 +566,7 @@ mod tests {
 
     #[test]
     fn unqualified_path_fails_validation() {
-        let op = DslOperation::set(
-            "actor_player",
-            DslValue::Float(1.0),
-            TypeHint::Float,
-        );
+        let op = DslOperation::set("actor_player", DslValue::Float(1.0), TypeHint::Float);
         assert!(op.validate().is_err());
     }
 

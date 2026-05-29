@@ -120,14 +120,9 @@ impl GraphConstructionLayer {
 
     /// Validates all definitions before building the graph.
     /// Collects the first error found and returns it.
-    fn validate_definitions(
-        definitions: &[SystemDefinition],
-    ) -> Result<(), CompilationError> {
+    fn validate_definitions(definitions: &[SystemDefinition]) -> Result<(), CompilationError> {
         // Build ID set for dependency validation
-        let known_ids: BTreeSet<&str> = definitions
-            .iter()
-            .map(|d| d.id.as_str())
-            .collect();
+        let known_ids: BTreeSet<&str> = definitions.iter().map(|d| d.id.as_str()).collect();
 
         let mut seen_ids: BTreeSet<&str> = BTreeSet::new();
 
@@ -135,7 +130,7 @@ impl GraphConstructionLayer {
             // No empty system_id
             if def.id.is_empty() {
                 return Err(CompilationError::InvalidDefinition(
-                    InvalidSystemDefinition::missing_id()
+                    InvalidSystemDefinition::missing_id(),
                 ));
             }
 
@@ -144,12 +139,12 @@ impl GraphConstructionLayer {
                 return Err(CompilationError::InvalidDefinition(
                     InvalidSystemDefinition {
                         system_id: def.id.clone(),
-                        field:     "id".into(),
-                        reason:    format!(
+                        field: "id".into(),
+                        reason: format!(
                             "Duplicate system_id '{}' — every system must have a unique id.",
                             def.id
                         ),
-                    }
+                    },
                 ));
             }
 
@@ -157,7 +152,7 @@ impl GraphConstructionLayer {
             for dep in &def.depends_on {
                 if !known_ids.contains(dep.as_str()) {
                     return Err(CompilationError::InvalidDefinition(
-                        InvalidSystemDefinition::unknown_dependency(&def.id, dep)
+                        InvalidSystemDefinition::unknown_dependency(&def.id, dep),
                     ));
                 }
                 // A system cannot depend on itself
@@ -165,13 +160,13 @@ impl GraphConstructionLayer {
                     return Err(CompilationError::InvalidDefinition(
                         InvalidSystemDefinition {
                             system_id: def.id.clone(),
-                            field:     "depends_on".into(),
-                            reason:    format!(
+                            field: "depends_on".into(),
+                            reason: format!(
                                 "System '{}' lists itself in depends_on — \
                                  a system cannot depend on itself.",
                                 def.id
                             ),
-                        }
+                        },
                     ));
                 }
             }
@@ -213,29 +208,29 @@ impl GraphConstructionLayer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
     use crate::compilation_error::EdgeType;
+    use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     /// Builds a SystemDefinition with all required fields.
     fn def(
-        id:         &str,
-        phase:      ExecutionPhase,
-        reads:      Vec<u32>,
-        writes:     Vec<u32>,
+        id: &str,
+        phase: ExecutionPhase,
+        reads: Vec<u32>,
+        writes: Vec<u32>,
         depends_on: Vec<&str>,
     ) -> SystemDefinition {
         SystemDefinition {
-            id:            id.into(),
-            display_name:  id.into(),
+            id: id.into(),
+            display_name: id.into(),
             phase,
             reads,
             writes,
-            depends_on:    depends_on.into_iter().map(String::from).collect(),
+            depends_on: depends_on.into_iter().map(String::from).collect(),
             deterministic: true,
-            version:       SystemVersion::INITIAL,
-            description:   String::new(),
+            version: SystemVersion::INITIAL,
+            description: String::new(),
         }
     }
 
@@ -281,8 +276,10 @@ mod tests {
     #[test]
     fn unknown_dependency_rejected() {
         let defs = vec![def(
-            "sys_a", ExecutionPhase::Simulation,
-            vec![], vec![],
+            "sys_a",
+            ExecutionPhase::Simulation,
+            vec![],
+            vec![],
             vec!["sys_ghost"], // doesn't exist
         )];
         let err = GraphConstructionLayer::build(&defs).unwrap_err();
@@ -293,8 +290,10 @@ mod tests {
     #[test]
     fn self_dependency_rejected() {
         let defs = vec![def(
-            "sys_a", ExecutionPhase::Simulation,
-            vec![], vec![],
+            "sys_a",
+            ExecutionPhase::Simulation,
+            vec![],
+            vec![],
             vec!["sys_a"], // self-reference
         )];
         assert!(GraphConstructionLayer::build(&defs).is_err());
@@ -306,7 +305,7 @@ mod tests {
     fn nodes_built_from_definitions() {
         let defs = vec![
             sim("sys_movement", vec![1, 5], vec![1]),
-            sim("sys_ai",       vec![160, 1], vec![5]),
+            sim("sys_ai", vec![160, 1], vec![5]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         assert_eq!(graph.node_count(), 2);
@@ -322,7 +321,13 @@ mod tests {
     fn explicit_dependency_edge_added() {
         let defs = vec![
             sim("sys_a", vec![], vec![]),
-            def("sys_b", ExecutionPhase::Simulation, vec![], vec![], vec!["sys_a"]),
+            def(
+                "sys_b",
+                ExecutionPhase::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         let key = ("sys_a".to_string(), "sys_b".to_string());
@@ -335,8 +340,8 @@ mod tests {
     #[test]
     fn raw_edge_added_for_hazard() {
         let defs = vec![
-            sim("sys_ai",       vec![160], vec![5]),
-            sim("sys_movement", vec![5],   vec![1]),
+            sim("sys_ai", vec![160], vec![5]),
+            sim("sys_movement", vec![5], vec![1]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         let key = ("sys_ai".to_string(), "sys_movement".to_string());
@@ -349,7 +354,7 @@ mod tests {
     #[test]
     fn waw_edge_added_with_lex_tie_break() {
         let defs = vec![
-            sim("sys_physics",  vec![], vec![1]),
+            sim("sys_physics", vec![], vec![1]),
             sim("sys_movement", vec![], vec![1]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
@@ -364,8 +369,20 @@ mod tests {
     #[test]
     fn phase_order_edge_added_for_cross_phase() {
         let defs = vec![
-            def("sys_init", ExecutionPhase::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  ExecutionPhase::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                ExecutionPhase::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def(
+                "sys_sim",
+                ExecutionPhase::Simulation,
+                vec![],
+                vec![],
+                vec![],
+            ),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         let key = ("sys_init".to_string(), "sys_sim".to_string());
@@ -376,7 +393,7 @@ mod tests {
     #[test]
     fn no_same_phase_edge_between_independent_systems() {
         let defs = vec![
-            sim("sys_input",  vec![6],   vec![6]),
+            sim("sys_input", vec![6], vec![6]),
             sim("sys_health", vec![100], vec![100]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
@@ -389,13 +406,13 @@ mod tests {
     fn graph_deterministic_regardless_of_input_order() {
         let defs_order1 = vec![
             sim("sys_movement", vec![1, 5], vec![1]),
-            sim("sys_ai",       vec![160, 1], vec![5]),
-            sim("sys_damage",   vec![101, 100], vec![100]),
+            sim("sys_ai", vec![160, 1], vec![5]),
+            sim("sys_damage", vec![101, 100], vec![100]),
         ];
         let defs_order2 = vec![
-            sim("sys_damage",   vec![101, 100], vec![100]),
+            sim("sys_damage", vec![101, 100], vec![100]),
             sim("sys_movement", vec![1, 5], vec![1]),
-            sim("sys_ai",       vec![160, 1], vec![5]),
+            sim("sys_ai", vec![160, 1], vec![5]),
         ];
 
         let graph1 = GraphConstructionLayer::build(&defs_order1).unwrap();
@@ -418,14 +435,29 @@ mod tests {
     #[test]
     fn explicit_dependency_beats_phase_order_for_same_pair() {
         let defs = vec![
-            def("sys_init", ExecutionPhase::Initialization, vec![], vec![], vec![]),
-            def("sys_a",    ExecutionPhase::Simulation,     vec![], vec![], vec!["sys_init"]),
+            def(
+                "sys_init",
+                ExecutionPhase::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def(
+                "sys_a",
+                ExecutionPhase::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_init"],
+            ),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         let key = ("sys_init".to_string(), "sys_a".to_string());
         let edge = graph.edges.get(&key).unwrap();
-        assert_eq!(edge.edge_type, EdgeType::ExplicitDependency,
-            "ExplicitDependency must beat PhaseOrder for same (from, to) pair");
+        assert_eq!(
+            edge.edge_type,
+            EdgeType::ExplicitDependency,
+            "ExplicitDependency must beat PhaseOrder for same (from, to) pair"
+        );
     }
 
     // ── Full Zombie Chase Scenario ────────────────────────────────────────────
@@ -433,25 +465,61 @@ mod tests {
     #[test]
     fn zombie_chase_systems_produce_correct_graph() {
         let defs = vec![
-            def("InputSystem",    ExecutionPhase::Simulation, vec![6, 1],    vec![5],        vec![]),
-            def("MovementSystem", ExecutionPhase::Simulation, vec![5, 1],    vec![1],        vec![]),
-            def("AISystem",       ExecutionPhase::Simulation, vec![160, 1],  vec![5, 101],   vec![]),
-            def("DamageSystem",   ExecutionPhase::Simulation, vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    ExecutionPhase::Simulation, vec![100],     vec![],          vec![]),
+            def(
+                "InputSystem",
+                ExecutionPhase::Simulation,
+                vec![6, 1],
+                vec![5],
+                vec![],
+            ),
+            def(
+                "MovementSystem",
+                ExecutionPhase::Simulation,
+                vec![5, 1],
+                vec![1],
+                vec![],
+            ),
+            def(
+                "AISystem",
+                ExecutionPhase::Simulation,
+                vec![160, 1],
+                vec![5, 101],
+                vec![],
+            ),
+            def(
+                "DamageSystem",
+                ExecutionPhase::Simulation,
+                vec![101, 100],
+                vec![100, 101],
+                vec![],
+            ),
+            def(
+                "DeathSystem",
+                ExecutionPhase::Simulation,
+                vec![100],
+                vec![],
+                vec![],
+            ),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
         assert_eq!(graph.node_count(), 5);
 
         let raw_key = ("InputSystem".to_string(), "MovementSystem".to_string());
-        assert!(graph.edges.contains_key(&raw_key),
-            "InputSystem must precede MovementSystem (RAW: VELOCITY)");
+        assert!(
+            graph.edges.contains_key(&raw_key),
+            "InputSystem must precede MovementSystem (RAW: VELOCITY)"
+        );
 
         let raw_key2 = ("AISystem".to_string(), "MovementSystem".to_string());
-        assert!(graph.edges.contains_key(&raw_key2),
-            "AISystem must precede MovementSystem (RAW: VELOCITY)");
+        assert!(
+            graph.edges.contains_key(&raw_key2),
+            "AISystem must precede MovementSystem (RAW: VELOCITY)"
+        );
 
         let waw_key = ("AISystem".to_string(), "InputSystem".to_string());
-        assert!(graph.edges.contains_key(&waw_key),
-            "AISystem and InputSystem WAW on VELOCITY must be serialized");
+        assert!(
+            graph.edges.contains_key(&waw_key),
+            "AISystem and InputSystem WAW on VELOCITY must be serialized"
+        );
     }
 }

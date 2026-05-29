@@ -8,5 +8,8 @@
   "scripts": {
     "dev": "cd workspace/builder && npm run dev",
     "build": "cd workspace/builder && npm run build"
+  },
+  "devDependencies": {
+    "vite": "^4.5.14"
   }
 }

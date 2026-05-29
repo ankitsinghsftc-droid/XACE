@@ -146,9 +146,7 @@ impl PhaseEnum {
     pub fn allows_gameplay_writes(&self) -> bool {
         matches!(
             self,
-            PhaseEnum::Initialization
-                | PhaseEnum::Input
-                | PhaseEnum::Simulation
+            PhaseEnum::Initialization | PhaseEnum::Input | PhaseEnum::Simulation
         )
     }
 
@@ -214,32 +212,20 @@ mod tests {
 
     #[test]
     fn next_phase_progression() {
-        assert_eq!(
-            PhaseEnum::Initialization.next(),
-            Some(PhaseEnum::Input)
-        );
-        assert_eq!(
-            PhaseEnum::Input.next(),
-            Some(PhaseEnum::Simulation)
-        );
+        assert_eq!(PhaseEnum::Initialization.next(), Some(PhaseEnum::Input));
+        assert_eq!(PhaseEnum::Input.next(), Some(PhaseEnum::Simulation));
         assert_eq!(
             PhaseEnum::Simulation.next(),
             Some(PhaseEnum::PostSimulation)
         );
-        assert_eq!(
-            PhaseEnum::PostSimulation.next(),
-            Some(PhaseEnum::Cleanup)
-        );
+        assert_eq!(PhaseEnum::PostSimulation.next(), Some(PhaseEnum::Cleanup));
         assert_eq!(PhaseEnum::Cleanup.next(), None);
     }
 
     #[test]
     fn previous_phase_progression() {
         assert_eq!(PhaseEnum::Initialization.previous(), None);
-        assert_eq!(
-            PhaseEnum::Input.previous(),
-            Some(PhaseEnum::Initialization)
-        );
+        assert_eq!(PhaseEnum::Input.previous(), Some(PhaseEnum::Initialization));
         assert_eq!(
             PhaseEnum::Cleanup.previous(),
             Some(PhaseEnum::PostSimulation)

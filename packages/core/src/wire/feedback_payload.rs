@@ -27,9 +27,9 @@
 //! before processing. Same feedback sequence = same world state (D9).
 //! Feedback is included in replay files for exact replay fidelity.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::EntityID;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Feedback Type ─────────────────────────────────────────────────────────────
 
@@ -373,10 +373,7 @@ impl FeedbackPayload {
     }
 
     /// Returns all messages of a specific feedback type.
-    pub fn messages_of_type(
-        &self,
-        feedback_type: FeedbackType,
-    ) -> Vec<&FeedbackMessage> {
+    pub fn messages_of_type(&self, feedback_type: FeedbackType) -> Vec<&FeedbackMessage> {
         self.messages
             .iter()
             .filter(|m| m.feedback_type == feedback_type)
@@ -432,11 +429,7 @@ mod tests {
     #[test]
     fn add_message_increases_count() {
         let mut payload = FeedbackPayload::empty(1);
-        payload.add_message(make_message(
-            FeedbackType::AnimationStateUpdate,
-            1,
-            100,
-        ));
+        payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 100));
         assert_eq!(payload.message_count(), 1);
         assert!(!payload.is_empty());
     }
@@ -459,15 +452,9 @@ mod tests {
     #[test]
     fn messages_of_type_filters_correctly() {
         let mut payload = FeedbackPayload::empty(1);
-        payload.add_message(make_message(
-            FeedbackType::AnimationStateUpdate, 1, 0
-        ));
-        payload.add_message(make_message(
-            FeedbackType::AnimationStateUpdate, 2, 0
-        ));
-        payload.add_message(make_message(
-            FeedbackType::PhysicsSettled, 3, 0
-        ));
+        payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 0));
+        payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 2, 0));
+        payload.add_message(make_message(FeedbackType::PhysicsSettled, 3, 0));
         let anim = payload.messages_of_type(FeedbackType::AnimationStateUpdate);
         assert_eq!(anim.len(), 2);
         let physics = payload.messages_of_type(FeedbackType::PhysicsSettled);
@@ -485,10 +472,7 @@ mod tests {
             counts.get(&FeedbackType::AnimationStateUpdate.as_u8()),
             Some(&2)
         );
-        assert_eq!(
-            counts.get(&FeedbackType::PhysicsSettled.as_u8()),
-            Some(&1)
-        );
+        assert_eq!(counts.get(&FeedbackType::PhysicsSettled.as_u8()), Some(&1));
     }
 
     #[test]

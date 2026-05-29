@@ -13,9 +13,9 @@
 //! - Owned and managed by EntityStore (Phase 2)
 //! - Included in WorldSnapshot verbatim (Phase 5)
 
-use serde::{Deserialize, Serialize};
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
 use crate::entity_state::EntityState;
+use serde::{Deserialize, Serialize};
 
 // ── Tick Type ─────────────────────────────────────────────────────────────────
 
@@ -231,10 +231,8 @@ mod tests {
 
     #[test]
     fn tags_are_sorted_on_creation() {
-        let meta = EntityMetadata::new_with_tags(
-            1, 0,
-            vec!["zombie".into(), "enemy".into(), "ai".into()]
-        );
+        let meta =
+            EntityMetadata::new_with_tags(1, 0, vec!["zombie".into(), "enemy".into(), "ai".into()]);
         assert_eq!(meta.tags, vec!["ai", "enemy", "zombie"]);
     }
 

@@ -33,17 +33,17 @@
 //! The DependencyResolutionEngine (the layer above) calls it once per bucket
 //! and assembles the results into an OrderedGraph.
 
-use std::collections::{BTreeMap, BTreeSet};
 use crate::compilation_error::{CompilationError, CycleError, EdgeType};
 use crate::graph_construction::system_edge::SystemEdge;
 use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+use std::collections::{BTreeMap, BTreeSet};
 
 // ── Sort Result ───────────────────────────────────────────────────────────────
 
 /// The output of a successful topological sort on one phase bucket.
 #[derive(Debug, Clone)]
 pub struct SortedPhase {
-    pub phase:           xace_core::runtime::phase_enum::PhaseEnum,
+    pub phase: xace_core::runtime::phase_enum::PhaseEnum,
     /// System IDs in topological order — safe to execute left to right.
     /// Tie-broken lexicographically (D11).
     pub ordered_systems: Vec<String>,
@@ -63,8 +63,8 @@ impl TopologicalSorter {
     /// the lexicographically smallest system_id is processed first (D11).
     pub fn sort(bucket: &PhaseBucket) -> Result<SortedPhase, CompilationError> {
         // Build in-degree map and adjacency list from the bucket
-        let mut in_degree  = bucket.in_degree_map();
-        let adjacency      = Self::build_adjacency(bucket);
+        let mut in_degree = bucket.in_degree_map();
+        let adjacency = Self::build_adjacency(bucket);
 
         // Seed: all nodes with in-degree 0 — BTreeSet gives lex order (D11)
         let mut ready: BTreeSet<String> = in_degree
@@ -97,7 +97,7 @@ impl TopologicalSorter {
         }
 
         Ok(SortedPhase {
-            phase:           bucket.phase,
+            phase: bucket.phase,
             ordered_systems: ordered,
         })
     }
@@ -115,9 +115,7 @@ impl TopologicalSorter {
 
         // bucket.edges is BTreeMap — iteration is already (from, to) sorted (D11)
         for ((from, to), _) in &bucket.edges {
-            adj.entry(from.clone())
-               .or_default()
-               .push(to.clone());
+            adj.entry(from.clone()).or_default().push(to.clone());
         }
 
         // Sort each successor list for deterministic in-degree decrement order
@@ -166,21 +164,18 @@ impl TopologicalSorter {
     /// DFS to find a cycle path starting from `start`, restricted to `allowed` nodes.
     /// Returns the cycle as a Vec<String> starting from the lex-smallest node.
     fn dfs_cycle(
-        start:     &str,
-        allowed:   &BTreeSet<String>,
+        start: &str,
+        allowed: &BTreeSet<String>,
         adjacency: &BTreeMap<String, Vec<String>>,
     ) -> Vec<String> {
         let mut visited: Vec<String> = Vec::new();
-        let mut seen:    BTreeSet<String> = BTreeSet::new();
+        let mut seen: BTreeSet<String> = BTreeSet::new();
         let mut current = start.to_string();
 
         loop {
             if seen.contains(&current) {
                 // Found the cycle — extract the cycle portion
-                let cycle_start = visited
-                    .iter()
-                    .position(|s| s == &current)
-                    .unwrap_or(0);
+                let cycle_start = visited.iter().position(|s| s == &current).unwrap_or(0);
                 let mut cycle = visited[cycle_start..].to_vec();
                 cycle.push(current); // close the cycle
 
@@ -198,7 +193,7 @@ impl TopologicalSorter {
 
             match next {
                 Some(n) => current = n,
-                None    => break, // dead end — can happen with multi-cycle graphs
+                None => break, // dead end — can happen with multi-cycle graphs
             }
         }
 
@@ -208,7 +203,9 @@ impl TopologicalSorter {
 
     /// Rotates a cycle Vec to start from the lexicographically smallest element (D11).
     fn normalize_cycle(mut cycle: Vec<String>) -> Vec<String> {
-        if cycle.is_empty() { return cycle; }
+        if cycle.is_empty() {
+            return cycle;
+        }
         // Find the position of the lex-smallest element (excluding closing duplicate)
         let body = &cycle[..cycle.len().saturating_sub(1)];
         let min_pos = body
@@ -232,21 +229,25 @@ impl TopologicalSorter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::SystemDefinition;
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>, deps: Vec<&str>) -> SystemDefinition {
-        SystemDefinition {
-            id: id.into(), phase: PhaseEnum::Simulation, reads, writes,
-            depends_on: deps.into_iter().map(String::from).collect(),
-            deterministic: true, version: 1,
-        }
+        let mut def = SystemDefinition::with_spec(
+            id,
+            id,
+            xace_core::schema::system_definition::ExecutionPhase::Simulation,
+            reads,
+            writes,
+        );
+        def.depends_on = deps.into_iter().map(String::from).collect();
+        def
     }
 
     fn sort_defs(defs: &[SystemDefinition]) -> Result<SortedPhase, CompilationError> {
-        let graph   = GraphConstructionLayer::build(defs).unwrap();
+        let graph = GraphConstructionLayer::build(defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
         assert_eq!(buckets.len(), 1);
         TopologicalSorter::sort(&buckets[0])
@@ -314,13 +315,24 @@ mod tests {
         // sys_ai writes VELOCITY(5), sys_movement reads VELOCITY(5)
         // GraphConstructionLayer adds RAW edge: sys_ai → sys_movement
         let defs = vec![
-            def("sys_movement", vec![5], vec![1], vec![]),  // reads VELOCITY
-            def("sys_ai",       vec![],  vec![5], vec![]),  // writes VELOCITY
+            def("sys_movement", vec![5], vec![1], vec![]), // reads VELOCITY
+            def("sys_ai", vec![], vec![5], vec![]),        // writes VELOCITY
         ];
         let sorted = sort_defs(&defs).unwrap();
-        let ai_pos  = sorted.ordered_systems.iter().position(|s| s == "sys_ai").unwrap();
-        let mov_pos = sorted.ordered_systems.iter().position(|s| s == "sys_movement").unwrap();
-        assert!(ai_pos < mov_pos, "sys_ai must precede sys_movement (RAW: VELOCITY)");
+        let ai_pos = sorted
+            .ordered_systems
+            .iter()
+            .position(|s| s == "sys_ai")
+            .unwrap();
+        let mov_pos = sorted
+            .ordered_systems
+            .iter()
+            .position(|s| s == "sys_movement")
+            .unwrap();
+        assert!(
+            ai_pos < mov_pos,
+            "sys_ai must precede sys_movement (RAW: VELOCITY)"
+        );
     }
 
     // ── WAW tie-break ordering ────────────────────────────────────────────────
@@ -329,13 +341,24 @@ mod tests {
     fn waw_tie_break_lex_order() {
         // Both write TRANSFORM(1). "sys_movement" < "sys_physics" → movement first
         let defs = vec![
-            def("sys_physics",  vec![], vec![1], vec![]),
+            def("sys_physics", vec![], vec![1], vec![]),
             def("sys_movement", vec![], vec![1], vec![]),
         ];
         let sorted = sort_defs(&defs).unwrap();
-        let mov_pos  = sorted.ordered_systems.iter().position(|s| s == "sys_movement").unwrap();
-        let phys_pos = sorted.ordered_systems.iter().position(|s| s == "sys_physics").unwrap();
-        assert!(mov_pos < phys_pos, "sys_movement before sys_physics (WAW lex tie-break)");
+        let mov_pos = sorted
+            .ordered_systems
+            .iter()
+            .position(|s| s == "sys_movement")
+            .unwrap();
+        let phys_pos = sorted
+            .ordered_systems
+            .iter()
+            .position(|s| s == "sys_physics")
+            .unwrap();
+        assert!(
+            mov_pos < phys_pos,
+            "sys_movement before sys_physics (WAW lex tie-break)"
+        );
     }
 
     // ── Determinism ───────────────────────────────────────────────────────────
@@ -345,12 +368,12 @@ mod tests {
         // Same systems in different input order → same sorted output
         let defs_order_1 = vec![
             def("sys_movement", vec![5], vec![1], vec![]),
-            def("sys_ai",       vec![],  vec![5], vec![]),
-            def("sys_input",    vec![6], vec![5], vec![]),
+            def("sys_ai", vec![], vec![5], vec![]),
+            def("sys_input", vec![6], vec![5], vec![]),
         ];
         let defs_order_2 = vec![
-            def("sys_ai",       vec![],  vec![5], vec![]),
-            def("sys_input",    vec![6], vec![5], vec![]),
+            def("sys_ai", vec![], vec![5], vec![]),
+            def("sys_input", vec![6], vec![5], vec![]),
             def("sys_movement", vec![5], vec![1], vec![]),
         ];
         let sorted_1 = sort_defs(&defs_order_1).unwrap();
@@ -366,16 +389,22 @@ mod tests {
     #[test]
     fn two_node_cycle_detected() {
         // Manually build bucket with a 2-node cycle (bypassing GraphConstructionLayer)
-        use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
-        use crate::graph_construction::system_node::SystemNode;
         use crate::graph_construction::system_edge::SystemEdge;
+        use crate::graph_construction::system_node::SystemNode;
+        use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
 
         let mut bucket = PhaseBucket {
             phase: PhaseEnum::Simulation,
             nodes: {
                 let mut m = BTreeMap::new();
-                m.insert("sys_a".into(), SystemNode::new("sys_a", PhaseEnum::Simulation));
-                m.insert("sys_b".into(), SystemNode::new("sys_b", PhaseEnum::Simulation));
+                m.insert(
+                    "sys_a".into(),
+                    SystemNode::new("sys_a", PhaseEnum::Simulation),
+                );
+                m.insert(
+                    "sys_b".into(),
+                    SystemNode::new("sys_b", PhaseEnum::Simulation),
+                );
                 m
             },
             edges: {
@@ -416,32 +445,40 @@ mod tests {
     #[test]
     fn zombie_chase_produces_valid_order() {
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5],       vec![]),
-            def("MovementSystem", vec![5, 1],     vec![1],       vec![]),
-            def("AISystem",       vec![160, 1],   vec![5, 101],  vec![]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    vec![100],      vec![],        vec![]),
+            def("InputSystem", vec![6, 1], vec![5], vec![]),
+            def("MovementSystem", vec![5, 1], vec![1], vec![]),
+            def("AISystem", vec![160, 1], vec![5, 101], vec![]),
+            def("DamageSystem", vec![101, 100], vec![100, 101], vec![]),
+            def("DeathSystem", vec![100], vec![], vec![]),
         ];
         let sorted = sort_defs(&defs).unwrap();
         assert_eq!(sorted.ordered_systems.len(), 5);
 
         let order = &sorted.ordered_systems;
         // MovementSystem reads VELOCITY(5) — must come after both InputSystem and AISystem
-        let mov_pos    = order.iter().position(|s| s == "MovementSystem").unwrap();
-        let input_pos  = order.iter().position(|s| s == "InputSystem").unwrap();
-        let ai_pos     = order.iter().position(|s| s == "AISystem").unwrap();
+        let mov_pos = order.iter().position(|s| s == "MovementSystem").unwrap();
+        let input_pos = order.iter().position(|s| s == "InputSystem").unwrap();
+        let ai_pos = order.iter().position(|s| s == "AISystem").unwrap();
         let damage_pos = order.iter().position(|s| s == "DamageSystem").unwrap();
-        let death_pos  = order.iter().position(|s| s == "DeathSystem").unwrap();
+        let death_pos = order.iter().position(|s| s == "DeathSystem").unwrap();
 
-        assert!(input_pos < mov_pos,
-            "InputSystem must precede MovementSystem (both write VELOCITY)");
-        assert!(ai_pos < mov_pos,
-            "AISystem must precede MovementSystem (RAW: VELOCITY)");
+        assert!(
+            input_pos < mov_pos,
+            "InputSystem must precede MovementSystem (both write VELOCITY)"
+        );
+        assert!(
+            ai_pos < mov_pos,
+            "AISystem must precede MovementSystem (RAW: VELOCITY)"
+        );
         // DamageSystem reads DAMAGE(101) written by AISystem → DAM after AI
-        assert!(ai_pos < damage_pos,
-            "AISystem must precede DamageSystem (RAW: DAMAGE)");
+        assert!(
+            ai_pos < damage_pos,
+            "AISystem must precede DamageSystem (RAW: DAMAGE)"
+        );
         // DeathSystem reads HEALTH(100) written by DamageSystem
-        assert!(damage_pos < death_pos,
-            "DamageSystem must precede DeathSystem (RAW: HEALTH)");
+        assert!(
+            damage_pos < death_pos,
+            "DamageSystem must precede DeathSystem (RAW: HEALTH)"
+        );
     }
 }

@@ -1,7 +1,7 @@
 //! # Query Engine Integration Tests
 
-use crate::query_engine::query_engine::QueryEngine;
 use crate::component_tables::ComponentTableStore;
+use crate::query_engine::query_engine::QueryEngine;
 
 fn setup() -> (QueryEngine, ComponentTableStore) {
     let mut store = ComponentTableStore::new();
@@ -21,7 +21,12 @@ fn single_component_query_all_entities() {
     let result = qe.query(&[1], &store, 0).unwrap();
     let ids = result.entity_ids;
     for window in ids.windows(2) {
-        assert!(window[0] < window[1], "Not sorted: {} >= {}", window[0], window[1]);
+        assert!(
+            window[0] < window[1],
+            "Not sorted: {} >= {}",
+            window[0],
+            window[1]
+        );
     }
 }
 

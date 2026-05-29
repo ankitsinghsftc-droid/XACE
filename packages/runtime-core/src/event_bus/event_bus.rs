@@ -22,12 +22,12 @@
 //! I9: Events never modify state directly — all mutation via MutationGate
 //! D5: Events sorted by (tick, phase, event_id) before dispatch
 
+use super::event_dispatcher::EventDispatcher;
+use super::event_subscription_registry::EventSubscriptionRegistry;
 use std::collections::BTreeMap;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::events::event_struct::Event;
 use xace_core::events::event_type::EventType;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use super::event_subscription_registry::EventSubscriptionRegistry;
-use super::event_dispatcher::EventDispatcher;
 
 // ── Event ID Counter ──────────────────────────────────────────────────────────
 
@@ -44,7 +44,9 @@ fn next_event_id() -> u64 {
 
 /// Resets the event ID counter — used for snapshot restore and tests.
 pub fn reset_event_id_counter() {
-    unsafe { EVENT_ID_COUNTER = 0; }
+    unsafe {
+        EVENT_ID_COUNTER = 0;
+    }
 }
 
 // ── Dispatched Event Record ───────────────────────────────────────────────────
@@ -144,10 +146,7 @@ impl EventBus {
     /// Sorts events by (tick, phase, event_id) then routes to subscribers.
     ///
     /// Returns the number of events dispatched.
-    pub fn dispatch_phase_events(
-        &mut self,
-        phase: u8,
-    ) -> Result<usize, XaceError> {
+    pub fn dispatch_phase_events(&mut self, phase: u8) -> Result<usize, XaceError> {
         let Some(mut buffer) = self.phase_buffers.remove(&phase) else {
             return Ok(0); // No events for this phase
         };
@@ -159,7 +158,8 @@ impl EventBus {
 
         // Route each event to subscribed systems
         for event in &buffer {
-            let subscribers = self.subscription_registry
+            let subscribers = self
+                .subscription_registry
                 .subscribers_for(&event.event_type);
 
             for system_id in subscribers {
@@ -187,10 +187,7 @@ impl EventBus {
     /// Returns all pending events for a system, sorted (D5).
     ///
     /// Called by systems during execute() to read their event queue.
-    pub fn get_events_for_system(
-        &self,
-        system_id: &str,
-    ) -> Vec<&Event> {
+    pub fn get_events_for_system(&self, system_id: &str) -> Vec<&Event> {
         self.pending_for_systems
             .get(system_id)
             .map(|events| events.iter().collect())
@@ -201,10 +198,7 @@ impl EventBus {
     ///
     /// Consumed events are removed at the start of the next tick
     /// by purge_consumed().
-    pub fn mark_consumed(
-        &mut self,
-        event_id: u64,
-    ) -> Result<(), XaceError> {
+    pub fn mark_consumed(&mut self, event_id: u64) -> Result<(), XaceError> {
         let mut found = false;
         for events in self.pending_for_systems.values_mut() {
             for event in events.iter_mut() {
@@ -236,7 +230,8 @@ impl EventBus {
             events.retain(|e| !e.is_consumed);
         }
         // Remove empty system queues
-        self.pending_for_systems.retain(|_, events| !events.is_empty());
+        self.pending_for_systems
+            .retain(|_, events| !events.is_empty());
     }
 
     // ── Queries ────────────────────────────────────────────────────────────
@@ -290,20 +285,14 @@ mod tests {
         bus.register_subscription(
             "sys_combat",
             vec![EventType::DamageTaken, EventType::EntityDestroyed],
-        ).unwrap();
-        bus.register_subscription(
-            "sys_spawner",
-            vec![EventType::EntitySpawned],
-        ).unwrap();
+        )
+        .unwrap();
+        bus.register_subscription("sys_spawner", vec![EventType::EntitySpawned])
+            .unwrap();
         bus
     }
 
-    fn make_event(
-        source: u64,
-        event_type: EventType,
-        tick: u64,
-        phase: PhaseEnum,
-    ) -> Event {
+    fn make_event(source: u64, event_type: EventType, tick: u64, phase: PhaseEnum) -> Event {
         Event::broadcast(source, event_type, tick, phase)
     }
 
@@ -320,9 +309,9 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         bus.emit(e).unwrap();
-        let dispatched = bus.dispatch_phase_events(
-            PhaseEnum::Simulation as u8
-        ).unwrap();
+        let dispatched = bus
+            .dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         assert_eq!(dispatched, 1);
         let combat_events = bus.get_events_for_system("sys_combat");
         assert_eq!(combat_events.len(), 1);
@@ -333,7 +322,8 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         bus.emit(e).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         let spawner_events = bus.get_events_for_system("sys_spawner");
         assert!(spawner_events.is_empty());
     }
@@ -352,7 +342,8 @@ mod tests {
         bus.emit(e1).unwrap(); // tick=0, id=2
         bus.emit(e2).unwrap(); // tick=0, id=3
 
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         let events = bus.get_events_for_system("sys_combat");
 
         // Should be sorted: tick=0 before tick=1
@@ -371,9 +362,9 @@ mod tests {
         assert_eq!(bus.pending_count(), 2);
 
         // Dispatch only Simulation phase
-        let dispatched = bus.dispatch_phase_events(
-            PhaseEnum::Simulation as u8
-        ).unwrap();
+        let dispatched = bus
+            .dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         assert_eq!(dispatched, 1);
         assert_eq!(bus.pending_count(), 1); // Input event still pending
     }
@@ -383,7 +374,8 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         let event_id = bus.emit(e).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         bus.mark_consumed(event_id).unwrap();
         let events = bus.get_events_for_system("sys_combat");
         assert!(events[0].is_consumed);
@@ -394,7 +386,8 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         let event_id = bus.emit(e).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         bus.mark_consumed(event_id).unwrap();
         bus.purge_consumed();
         assert!(bus.get_events_for_system("sys_combat").is_empty());
@@ -414,7 +407,8 @@ mod tests {
             bus.emit(e).unwrap();
         }
         assert_eq!(bus.total_emitted(), 5);
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         assert_eq!(bus.total_dispatched(), 5);
     }
 
@@ -423,7 +417,8 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         bus.emit(e).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         assert_eq!(bus.dispatch_log().len(), 1);
     }
 
@@ -432,7 +427,8 @@ mod tests {
         let mut bus = setup();
         let e = make_event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
         bus.emit(e).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
         bus.clear_for_restore();
         assert_eq!(bus.pending_count(), 0);
         assert!(bus.dispatch_log().is_empty());
@@ -447,7 +443,8 @@ mod tests {
         bus.emit(e1).unwrap();
         bus.emit(e2).unwrap();
         bus.emit(e3).unwrap();
-        bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+        bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+            .unwrap();
 
         let combat = bus.get_events_for_system("sys_combat");
         assert_eq!(combat.len(), 2); // DamageTaken + EntityDestroyed

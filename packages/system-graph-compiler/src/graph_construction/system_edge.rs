@@ -52,13 +52,10 @@ impl SystemEdge {
         let f = from.into();
         let t = to.into();
         Self {
-            reason: format!(
-                "'{}' is listed in depends_on of '{}'",
-                f, t
-            ),
-            from_system:                 f,
-            to_system:                   t,
-            edge_type:                   EdgeType::ExplicitDependency,
+            reason: format!("'{}' is listed in depends_on of '{}'", f, t),
+            from_system: f,
+            to_system: t,
+            edge_type: EdgeType::ExplicitDependency,
             involved_component_type_ids: Vec::new(),
         }
     }
@@ -66,9 +63,9 @@ impl SystemEdge {
     /// Creates a read-after-write hazard edge.
     /// `from_system` writes component type(s) that `to_system` reads.
     pub fn read_after_write(
-        from:        impl Into<String>,
-        to:          impl Into<String>,
-        type_ids:    Vec<u32>,
+        from: impl Into<String>,
+        to: impl Into<String>,
+        type_ids: Vec<u32>,
     ) -> Self {
         let f = from.into();
         let t = to.into();
@@ -77,9 +74,9 @@ impl SystemEdge {
                 "'{}' reads component(s) {:?} written by '{}' — RAW hazard",
                 t, type_ids, f
             ),
-            from_system:                 f,
-            to_system:                   t,
-            edge_type:                   EdgeType::ReadAfterWrite,
+            from_system: f,
+            to_system: t,
+            edge_type: EdgeType::ReadAfterWrite,
             involved_component_type_ids: type_ids,
         }
     }
@@ -88,8 +85,8 @@ impl SystemEdge {
     /// Both systems write the same component type(s).
     /// Ordering is determined by lexicographic system_id tie-breaking.
     pub fn write_after_write(
-        from:     impl Into<String>,
-        to:       impl Into<String>,
+        from: impl Into<String>,
+        to: impl Into<String>,
         type_ids: Vec<u32>,
     ) -> Self {
         let f = from.into();
@@ -100,9 +97,9 @@ impl SystemEdge {
                  serialised by lexicographic system_id",
                 f, t, type_ids
             ),
-            from_system:                 f,
-            to_system:                   t,
-            edge_type:                   EdgeType::WriteAfterWrite,
+            from_system: f,
+            to_system: t,
+            edge_type: EdgeType::WriteAfterWrite,
             involved_component_type_ids: type_ids,
         }
     }
@@ -117,9 +114,9 @@ impl SystemEdge {
                 "'{}' is in an earlier phase than '{}' — global phase order enforced",
                 f, t
             ),
-            from_system:                 f,
-            to_system:                   t,
-            edge_type:                   EdgeType::PhaseOrder,
+            from_system: f,
+            to_system: t,
+            edge_type: EdgeType::PhaseOrder,
             involved_component_type_ids: Vec::new(),
         }
     }
@@ -168,7 +165,8 @@ impl PartialOrd for SystemEdge {
 impl Ord for SystemEdge {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         // (from, to) lexicographic ordering (D11)
-        self.from_system.cmp(&other.from_system)
+        self.from_system
+            .cmp(&other.from_system)
             .then(self.to_system.cmp(&other.to_system))
     }
 }
@@ -178,8 +176,7 @@ impl std::fmt::Display for SystemEdge {
         write!(
             f,
             "{} → {} [{}]: {}",
-            self.from_system, self.to_system,
-            self.edge_type, self.reason
+            self.from_system, self.to_system, self.edge_type, self.reason
         )
     }
 }
@@ -193,7 +190,8 @@ impl std::fmt::Display for SystemEdge {
 #[derive(Debug, Default)]
 pub struct RawSystemGraph {
     /// All system nodes, keyed by system_id ascending (D11).
-    pub nodes: std::collections::BTreeMap<String, crate::graph_construction::system_node::SystemNode>,
+    pub nodes:
+        std::collections::BTreeMap<String, crate::graph_construction::system_node::SystemNode>,
 
     /// All edges, keyed by (from_system_id, to_system_id) ascending (D11).
     /// One entry per unique (from, to) pair — deduplication prevents double-edges.
@@ -214,12 +212,15 @@ impl RawSystemGraph {
     /// the higher-priority type wins: ExplicitDependency > RAW > WAW > PhaseOrder.
     pub fn add_edge(&mut self, edge: SystemEdge) {
         let key = edge.key();
-        self.edges.entry(key).and_modify(|existing| {
-            // Higher-priority edge type takes precedence
-            if edge.edge_type < existing.edge_type {
-                *existing = edge.clone();
-            }
-        }).or_insert(edge);
+        self.edges
+            .entry(key)
+            .and_modify(|existing| {
+                // Higher-priority edge type takes precedence
+                if edge.edge_type < existing.edge_type {
+                    *existing = edge.clone();
+                }
+            })
+            .or_insert(edge);
     }
 
     /// Returns all edges from the given system_id, sorted (D11).
@@ -245,8 +246,12 @@ impl RawSystemGraph {
         self.nodes.keys().map(|s| s.as_str()).collect()
     }
 
-    pub fn node_count(&self) -> usize { self.nodes.len() }
-    pub fn edge_count(&self) -> usize { self.edges.len() }
+    pub fn node_count(&self) -> usize {
+        self.nodes.len()
+    }
+    pub fn edge_count(&self) -> usize {
+        self.edges.len()
+    }
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -254,8 +259,8 @@ impl RawSystemGraph {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
     use crate::graph_construction::system_node::SystemNode;
+    use xace_core::runtime::phase_enum::PhaseEnum;
 
     #[test]
     fn explicit_dependency_edge() {
@@ -305,7 +310,7 @@ mod tests {
         // Add same (from, to) pair twice — second should not duplicate
         g.add_edge(SystemEdge::phase_order("sys_a", "sys_b"));
         g.add_edge(SystemEdge::explicit_dependency("sys_a", "sys_b")); // higher priority
-        // Should be exactly 1 edge, with ExplicitDependency winning
+                                                                       // Should be exactly 1 edge, with ExplicitDependency winning
         assert_eq!(g.edge_count(), 1);
         let edge = g.edges.values().next().unwrap();
         assert_eq!(edge.edge_type, EdgeType::ExplicitDependency);

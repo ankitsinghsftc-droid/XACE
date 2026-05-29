@@ -26,8 +26,7 @@ produces C declarations that Unity's [DllImport] can bind to.
 */
 
 fn main() {
-    let crate_dir = std::env::var("CARGO_MANIFEST_DIR")
-        .expect("CARGO_MANIFEST_DIR not set");
+    let crate_dir = std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
 
     // Ensure include/ exists
     std::fs::create_dir_all(format!("{}/include", crate_dir))
@@ -58,6 +57,5 @@ fn main() {
 
 fn load_config(crate_dir: &str) -> cbindgen::Config {
     let config_path = format!("{}/cbindgen.toml", crate_dir);
-    cbindgen::Config::from_file(&config_path)
-        .unwrap_or_else(|_| cbindgen::Config::default())
+    cbindgen::Config::from_file(&config_path).unwrap_or_else(|_| cbindgen::Config::default())
 }

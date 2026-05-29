@@ -1,9 +1,9 @@
 //! # Phase Orchestrator Module
 
-pub mod system_registry;
-pub mod system_context;
 pub mod parallel_executor;
 pub mod phase_orchestrator;
+pub mod system_context;
+pub mod system_registry;
 
 #[cfg(test)]
 mod tests;

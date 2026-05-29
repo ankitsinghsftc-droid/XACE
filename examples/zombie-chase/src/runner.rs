@@ -4,7 +4,7 @@
 //! with the five zombie chase systems and runs N ticks.
 //!
 //! ## The Key Test
-//! ```
+//! ```text
 //! cargo test -p xace-zombie-chase three_runs_seed_42_tick_1000_hash_identical -- --nocapture
 //! ```
 //! Three calls with the same seed must return byte-identical Vec<String>.
@@ -36,9 +36,7 @@ use xace_runtime_core::entity_store::entity_store::EntityStore;
 use xace_runtime_core::mutation_gate::mutation_gate::MutationGate;
 use xace_runtime_core::time_controller::deterministic_rng::DeterministicRng;
 
-use crate::cgs::{
-    component_ids, player_initial_components, zombie_initial_components,
-};
+use crate::cgs::{component_ids, player_initial_components, zombie_initial_components};
 use crate::systems::{
     ai_system::AISystem, damage_system::DamageSystem, death_system::DeathSystem,
     input_system::InputSystem, movement_system::MovementSystem,
@@ -56,12 +54,12 @@ const PLAYER_ENTITY_ID: EntityID = 1;
 /// Must be registered in ComponentTableStore before simulation starts.
 const ALL_COMPONENT_TABLES: &[(u32, &str)] = &[
     (component_ids::TRANSFORM, "COMP_TRANSFORM_V1"),
-    (component_ids::IDENTITY,  "COMP_IDENTITY_V1"),
-    (component_ids::VELOCITY,  "COMP_VELOCITY_V1"),
-    (component_ids::INPUT,     "COMP_INPUT_V1"),
-    (component_ids::HEALTH,    "COMP_HEALTH_V1"),
-    (component_ids::DAMAGE,    "COMP_DAMAGE_V1"),
-    (component_ids::AI,        "COMP_AI_V1"),
+    (component_ids::IDENTITY, "COMP_IDENTITY_V1"),
+    (component_ids::VELOCITY, "COMP_VELOCITY_V1"),
+    (component_ids::INPUT, "COMP_INPUT_V1"),
+    (component_ids::HEALTH, "COMP_HEALTH_V1"),
+    (component_ids::DAMAGE, "COMP_DAMAGE_V1"),
+    (component_ids::AI, "COMP_AI_V1"),
 ];
 
 // ── Public Entry Point ────────────────────────────────────────────────────────
@@ -118,10 +116,10 @@ pub fn run(world_seed: u64, num_ticks: u64) -> Vec<String> {
 // ── World State ───────────────────────────────────────────────────────────────
 
 struct WorldState {
-    world_seed:       u64,
-    entity_store:     EntityStore,
+    world_seed: u64,
+    entity_store: EntityStore,
     component_tables: ComponentTableStore,
-    mutation_gate:    MutationGate,
+    mutation_gate: MutationGate,
 }
 
 impl WorldState {
@@ -152,7 +150,10 @@ impl WorldState {
             .entity_store
             .create_entity(0)
             .expect("Player entity creation must succeed");
-        assert_eq!(player_id, PLAYER_ENTITY_ID, "Player must receive entity ID 1");
+        assert_eq!(
+            player_id, PLAYER_ENTITY_ID,
+            "Player must receive entity ID 1"
+        );
 
         for (type_id, json) in player_initial_components(0.0, 0.0) {
             self.component_tables
@@ -202,9 +203,9 @@ impl WorldState {
 /// Does NOT require building a WorldSnapshot — hashes EntityStore and
 /// ComponentTableStore directly. Same world state → same 64-char hex string.
 fn compute_tick_hash(
-    entity_store:     &EntityStore,
+    entity_store: &EntityStore,
     component_tables: &ComponentTableStore,
-    tick:             u64,
+    tick: u64,
 ) -> String {
     let mut h = Sha256::new();
 
@@ -235,10 +236,7 @@ fn compute_tick_hash(
     }
 
     // Hex-encode 32-byte digest → 64 lowercase hex chars
-    h.finalize()
-        .iter()
-        .map(|b| format!("{:02x}", b))
-        .collect()
+    h.finalize().iter().map(|b| format!("{:02x}", b)).collect()
 }
 
 // ── ZombieChaseContext ─────────────────────────────────────────────────────────
@@ -248,25 +246,31 @@ fn compute_tick_hash(
 /// Each system gets a fresh context per tick with its own
 /// `DeterministicRng` stream seeded by (world_seed, system_id_str, tick). (D6)
 struct ZombieChaseContext<'a> {
-    entity_store:     &'a EntityStore,
+    entity_store: &'a EntityStore,
     component_tables: &'a ComponentTableStore,
-    mutation_gate:    &'a mut MutationGate,
-    tick:             Tick,
-    rng:              DeterministicRng,
+    mutation_gate: &'a mut MutationGate,
+    tick: Tick,
+    rng: DeterministicRng,
 }
 
 impl<'a> ZombieChaseContext<'a> {
     fn new(
-        entity_store:     &'a EntityStore,
+        entity_store: &'a EntityStore,
         component_tables: &'a ComponentTableStore,
-        mutation_gate:    &'a mut MutationGate,
-        tick:             Tick,
-        world_seed:       u64,
-        system_id:        &str,
+        mutation_gate: &'a mut MutationGate,
+        tick: Tick,
+        world_seed: u64,
+        system_id: &str,
     ) -> Self {
         // D6: RNG seeded by (world_seed, system_id_str, tick) — string system_id
         let rng = DeterministicRng::new(world_seed, system_id, tick);
-        Self { entity_store, component_tables, mutation_gate, tick, rng }
+        Self {
+            entity_store,
+            component_tables,
+            mutation_gate,
+            tick,
+            rng,
+        }
     }
 }
 
@@ -275,10 +279,12 @@ impl<'a> ISystemContext for ZombieChaseContext<'a> {
 
     fn get_component(
         &self,
-        entity_id:         EntityID,
+        entity_id: EntityID,
         component_type_id: u32,
     ) -> Result<Option<&str>, XaceError> {
-        Ok(self.component_tables.get_component(entity_id, component_type_id))
+        Ok(self
+            .component_tables
+            .get_component(entity_id, component_type_id))
     }
 
     fn query_entities(&self, component_type_ids: &[u32]) -> Result<Vec<EntityID>, XaceError> {
@@ -287,7 +293,8 @@ impl<'a> ISystemContext for ZombieChaseContext<'a> {
             return Ok(self.entity_store.get_all_alive());
         }
         // entities_with_all_components returns EntityID ASC (D3) guaranteed by BTreeMap
-        let candidates = self.component_tables
+        let candidates = self
+            .component_tables
             .entities_with_all_components(component_type_ids);
         // Filter to alive entities only (destroyed entities may still have component rows
         // until apply_all runs the destroy phase)
@@ -312,46 +319,55 @@ impl<'a> ISystemContext for ZombieChaseContext<'a> {
 
     fn submit_mutation(
         &mut self,
-        entity_id:         EntityID,
+        entity_id: EntityID,
         component_type_id: u32,
-        component_json:    String,
+        component_json: String,
     ) -> Result<(), XaceError> {
         // Split field borrows so mutation_gate can be borrowed mutably
         // while entity_store and component_tables are borrowed immutably.
         // References are Copy — copying them out is safe and idiomatic.
-        let es  = self.entity_store;
-        let ts  = self.component_tables;
+        let es = self.entity_store;
+        let ts = self.component_tables;
         let tick = self.tick;
 
         if ts.has_component(entity_id, component_type_id) {
             // Component exists → modify (D4 modify queue)
             self.mutation_gate.request_modify_component(
-                entity_id, component_type_id, component_json,
-                es, ts, tick,
+                entity_id,
+                component_type_id,
+                component_json,
+                es,
+                ts,
+                tick,
             )
         } else {
             // Component absent → add (D4 add queue)
             self.mutation_gate.request_add_component(
-                entity_id, component_type_id, component_json,
-                es, ts, tick,
+                entity_id,
+                component_type_id,
+                component_json,
+                es,
+                ts,
+                tick,
             )
         }
     }
 
     fn submit_spawn(
         &mut self,
-        actor_id:           String,
+        actor_id: String,
         initial_components: BTreeMap<u32, String>,
     ) -> Result<(), XaceError> {
-        let ts   = self.component_tables;
+        let ts = self.component_tables;
         let tick = self.tick;
-        self.mutation_gate.request_spawn(actor_id, initial_components, ts, tick)
+        self.mutation_gate
+            .request_spawn(actor_id, initial_components, ts, tick)
     }
 
     fn submit_destroy(&mut self, entity_id: EntityID) -> Result<(), XaceError> {
         // D4: destroy queue — applied last in apply_all()
         // I2: all structural changes through MutationGate
-        let es   = self.entity_store;
+        let es = self.entity_store;
         let tick = self.tick;
         self.mutation_gate.request_destroy(entity_id, es, tick)
     }
@@ -399,7 +415,10 @@ mod tests {
     fn different_seeds_produce_different_hashes() {
         let h42 = run(42, 50).pop().unwrap();
         let h43 = run(43, 50).pop().unwrap();
-        assert_ne!(h42, h43, "Different seeds must produce different final hashes");
+        assert_ne!(
+            h42, h43,
+            "Different seeds must produce different final hashes"
+        );
     }
 
     // ── THE KEY TEST ──────────────────────────────────────────────────────────
@@ -412,7 +431,7 @@ mod tests {
     #[test]
     fn three_runs_seed_42_tick_1000_hash_identical() {
         const TICKS: u64 = 1000;
-        const SEED: u64  = 42;
+        const SEED: u64 = 42;
 
         eprintln!("[Milestone1] Run A (seed={SEED}, ticks={TICKS})...");
         let hashes_a = run(SEED, TICKS);

@@ -30,8 +30,8 @@
 //! the SGC only groups systems with truly independent write sets.
 //! Thread-local event buffers are merged in system_id order at phase end.
 
-use serde::{Deserialize, Serialize};
 use crate::runtime::phase_enum::PhaseEnum;
+use serde::{Deserialize, Serialize};
 
 // ── Execution Group ───────────────────────────────────────────────────────────
 
@@ -151,7 +151,9 @@ impl ExecutionGroup {
 
     /// Returns true if a system in this group has a serialization constraint.
     pub fn has_serialization_constraint(&self, system_id: &str) -> bool {
-        self.serialization_constraints.iter().any(|s| s == system_id)
+        self.serialization_constraints
+            .iter()
+            .any(|s| s == system_id)
     }
 
     /// Returns true if this group is safe to run in parallel.
@@ -162,9 +164,7 @@ impl ExecutionGroup {
             return false;
         }
         // If every system has a serialization constraint, it's sequential
-        if self.systems.len() > 0
-            && self.serialization_constraints.len() >= self.systems.len()
-        {
+        if self.systems.len() > 0 && self.serialization_constraints.len() >= self.systems.len() {
             return false;
         }
         true
@@ -223,7 +223,11 @@ impl std::fmt::Display for ExecutionGroup {
             self.group_id,
             self.phase,
             self.systems.len(),
-            if self.parallel { "parallel" } else { "sequential" }
+            if self.parallel {
+                "parallel"
+            } else {
+                "sequential"
+            }
         )
     }
 }
@@ -263,11 +267,7 @@ mod tests {
         let group = ExecutionGroup::parallel(
             "Simulation_group_1",
             PhaseEnum::Simulation,
-            vec![
-                "sys_movement".into(),
-                "sys_ai".into(),
-                "sys_health".into(),
-            ],
+            vec!["sys_movement".into(), "sys_ai".into(), "sys_health".into()],
             1,
         );
         assert_eq!(group.systems[0], "sys_ai");
@@ -300,12 +300,8 @@ mod tests {
 
     #[test]
     fn empty_group_detected() {
-        let group = ExecutionGroup::sequential(
-            "Simulation_group_0",
-            PhaseEnum::Simulation,
-            vec![],
-            0,
-        );
+        let group =
+            ExecutionGroup::sequential("Simulation_group_0", PhaseEnum::Simulation, vec![], 0);
         assert!(group.is_empty());
     }
 
@@ -322,23 +318,15 @@ mod tests {
 
     #[test]
     fn validate_fails_for_empty_id() {
-        let group = ExecutionGroup::sequential(
-            "",
-            PhaseEnum::Simulation,
-            vec!["sys_input".into()],
-            0,
-        );
+        let group =
+            ExecutionGroup::sequential("", PhaseEnum::Simulation, vec!["sys_input".into()], 0);
         assert!(group.validate().is_err());
     }
 
     #[test]
     fn validate_fails_for_no_systems() {
-        let group = ExecutionGroup::sequential(
-            "Simulation_group_0",
-            PhaseEnum::Simulation,
-            vec![],
-            0,
-        );
+        let group =
+            ExecutionGroup::sequential("Simulation_group_0", PhaseEnum::Simulation, vec![], 0);
         assert!(group.validate().is_err());
     }
 
@@ -362,7 +350,9 @@ mod tests {
             vec!["sys_movement".into()],
             1,
         );
-        group.serialization_constraints.push("sys_nonexistent".into());
+        group
+            .serialization_constraints
+            .push("sys_nonexistent".into());
         assert!(group.validate().is_err());
     }
 

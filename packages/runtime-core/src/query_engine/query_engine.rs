@@ -20,10 +20,10 @@
 //! holds regardless of cache state, table modification order, or
 //! the order in which component_type_ids are passed to query().
 
+use super::query_cache::QueryCache;
+use crate::component_tables::component_table_store::ComponentTableStore;
 use xace_core::entity_id::EntityID;
 use xace_core::errors::xace_error::XaceError;
-use crate::component_tables::component_table_store::ComponentTableStore;
-use super::query_cache::QueryCache;
 
 // ── Query Result ──────────────────────────────────────────────────────────────
 
@@ -41,7 +41,10 @@ pub struct QueryResult {
 
 impl QueryResult {
     pub fn empty() -> Self {
-        Self { entity_ids: Vec::new(), from_cache: false }
+        Self {
+            entity_ids: Vec::new(),
+            from_cache: false,
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -137,7 +140,8 @@ impl QueryEngine {
         }
 
         // Store in cache
-        self.cache.store(key, entity_ids.clone(), store_version, current_tick);
+        self.cache
+            .store(key, entity_ids.clone(), store_version, current_tick);
 
         Ok(QueryResult {
             entity_ids,
@@ -165,7 +169,10 @@ impl QueryEngine {
             .filter(|&id| tag_lookup(id, tag))
             .collect();
         // Already sorted since we filtered from sorted list
-        Ok(QueryResult { entity_ids: filtered, from_cache: false })
+        Ok(QueryResult {
+            entity_ids: filtered,
+            from_cache: false,
+        })
     }
 
     /// Invalidates all cached results for queries that include
@@ -214,7 +221,9 @@ pub struct QueryCacheStats {
 
 impl QueryCacheStats {
     pub fn hit_rate(&self) -> f64 {
-        if self.total_queries == 0 { return 0.0; }
+        if self.total_queries == 0 {
+            return 0.0;
+        }
         self.cache_hits as f64 / self.total_queries as f64
     }
 }
@@ -314,13 +323,11 @@ mod tests {
         store.add_component(3, 1, "{}".into(), 0).unwrap();
 
         // Mock tag lookup — only entity 2 has "enemy" tag
-        let tag_lookup = |id: EntityID, tag: &str| -> bool {
-            id == 2 && tag == "enemy"
-        };
+        let tag_lookup = |id: EntityID, tag: &str| -> bool { id == 2 && tag == "enemy" };
 
-        let result = qe.query_with_tag(
-            &[1], "enemy", &store, &tag_lookup, 0
-        ).unwrap();
+        let result = qe
+            .query_with_tag(&[1], "enemy", &store, &tag_lookup, 0)
+            .unwrap();
         assert_eq!(result.entity_ids, vec![2]);
     }
 

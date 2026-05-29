@@ -249,8 +249,7 @@ impl AuthorityComponent {
 
     /// Returns true if a specific peer owns this entity.
     pub fn is_owned_by_peer(&self, peer_id: u32) -> bool {
-        matches!(self.authority_type, AuthorityType::ClientOwned)
-            && self.owner_peer_id == peer_id
+        matches!(self.authority_type, AuthorityType::ClientOwned) && self.owner_peer_id == peer_id
     }
 
     /// Returns true if this entity should be replicated this tick.

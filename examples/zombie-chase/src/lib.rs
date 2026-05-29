@@ -4,7 +4,7 @@
 //! that proves XACE's determinism guarantee (Milestone 1).
 //!
 //! ## How to Run the Key Test
-//! ```
+//! ```text
 //! cargo test -p xace-zombie-chase three_runs_seed_42_tick_1000_hash_identical
 //! ```
 //!

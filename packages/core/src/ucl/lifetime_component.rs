@@ -22,8 +22,8 @@
 //! The same entity always expires at exactly the same tick regardless
 //! of frame rate, machine speed, or rendering performance.
 
-use serde::{Deserialize, Serialize};
 use crate::entity_metadata::Tick;
+use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_LIFETIME_V1. Frozen forever.
 pub const COMP_LIFETIME_V1_ID: u32 = 8;
@@ -145,10 +145,7 @@ impl LifetimeComponent {
     /// Creates a looping lifetime component.
     /// Entity resets its counter when it expires — runs indefinitely.
     pub fn looping(cycle_ticks: Tick) -> Self {
-        assert!(
-            cycle_ticks > 0,
-            "cycle_ticks must be greater than zero"
-        );
+        assert!(cycle_ticks > 0, "cycle_ticks must be greater than zero");
         Self {
             max_lifetime_ticks: cycle_ticks,
             current_lifetime_ticks: 0,
@@ -190,8 +187,7 @@ impl LifetimeComponent {
         if self.max_lifetime_ticks == 0 {
             return 1.0;
         }
-        (self.current_lifetime_ticks as f32 / self.max_lifetime_ticks as f32)
-            .clamp(0.0, 1.0)
+        (self.current_lifetime_ticks as f32 / self.max_lifetime_ticks as f32).clamp(0.0, 1.0)
     }
 
     /// Advances the lifetime counter by one tick.
@@ -305,7 +301,9 @@ mod tests {
     #[test]
     fn lifetime_fraction_halfway() {
         let mut lt = LifetimeComponent::destroy_after(10);
-        for _ in 0..5 { lt.tick(); }
+        for _ in 0..5 {
+            lt.tick();
+        }
         assert!((lt.lifetime_fraction() - 0.5).abs() < 1e-5);
     }
 
@@ -330,7 +328,10 @@ mod tests {
     #[test]
     fn ticks_remaining_never_underflows() {
         let mut lt = LifetimeComponent::destroy_after(2);
-        lt.tick(); lt.tick(); lt.tick(); lt.tick();
+        lt.tick();
+        lt.tick();
+        lt.tick();
+        lt.tick();
         assert_eq!(lt.ticks_remaining(), 0);
     }
 }

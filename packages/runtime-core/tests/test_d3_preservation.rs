@@ -33,39 +33,36 @@ These tests verify:
 use std::collections::BTreeMap;
 
 use xace_runtime_core::component_tables::{
-    archetype_storage::ArchetypeStorage,
-    storage_strategy::TypeId,
+    archetype_storage::ArchetypeStorage, storage_strategy::TypeId,
 };
 use xace_runtime_core::query_engine::vectorized_query::Query;
-
 
 // ── Type IDs ──────────────────────────────────────────────────────────────────
 
 const POS: TypeId = 1;
 const VEL: TypeId = 5;
-const HP:  TypeId = 100;
-const AI:  TypeId = 160;
-
+const HP: TypeId = 100;
+const AI: TypeId = 160;
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 
-fn bytes(v: f32) -> Vec<u8> { v.to_le_bytes().to_vec() }
+fn bytes(v: f32) -> Vec<u8> {
+    v.to_le_bytes().to_vec()
+}
 
 fn assert_sorted_asc(ids: &[u64], context: &str) {
     for window in ids.windows(2) {
         assert!(
             window[0] < window[1],
             "D3 VIOLATION: EntityID {} appears before {} — not in ASC order. Context: {}",
-            window[0], window[1], context
+            window[0],
+            window[1],
+            context
         );
     }
 }
 
-fn insert_entity(
-    storage: &mut ArchetypeStorage,
-    eid:     u64,
-    types:   &[TypeId],
-) {
+fn insert_entity(storage: &mut ArchetypeStorage, eid: u64, types: &[TypeId]) {
     let mut comps = BTreeMap::new();
     for &t in types {
         comps.insert(t, bytes(eid as f32));
@@ -76,7 +73,6 @@ fn insert_entity(
 fn collect_sorted_ids(storage: &ArchetypeStorage) -> Vec<u64> {
     storage.iter_sorted().map(|(e, _)| e).collect()
 }
-
 
 // ── Single Archetype ──────────────────────────────────────────────────────────
 
@@ -103,7 +99,6 @@ fn d3_single_archetype_random_insertion_sorted() {
     assert_sorted_asc(&ids, "single archetype, random insertion order");
     assert_eq!(ids.len(), insert_order.len());
 }
-
 
 // ── Multiple Archetypes ───────────────────────────────────────────────────────
 
@@ -134,22 +129,21 @@ fn d3_four_archetypes_interleaved_ids() {
     let mut s = ArchetypeStorage::new();
 
     // EntityIDs interleave across archetypes
-    insert_entity(&mut s, 8,  &[POS]);
-    insert_entity(&mut s, 1,  &[POS, VEL]);
-    insert_entity(&mut s, 6,  &[POS]);
-    insert_entity(&mut s, 3,  &[POS, VEL, HP]);
+    insert_entity(&mut s, 8, &[POS]);
+    insert_entity(&mut s, 1, &[POS, VEL]);
+    insert_entity(&mut s, 6, &[POS]);
+    insert_entity(&mut s, 3, &[POS, VEL, HP]);
     insert_entity(&mut s, 10, &[VEL]);
-    insert_entity(&mut s, 2,  &[POS, VEL]);
-    insert_entity(&mut s, 9,  &[HP]);
-    insert_entity(&mut s, 5,  &[POS, VEL, HP]);
-    insert_entity(&mut s, 4,  &[POS, VEL]);
-    insert_entity(&mut s, 7,  &[POS]);
+    insert_entity(&mut s, 2, &[POS, VEL]);
+    insert_entity(&mut s, 9, &[HP]);
+    insert_entity(&mut s, 5, &[POS, VEL, HP]);
+    insert_entity(&mut s, 4, &[POS, VEL]);
+    insert_entity(&mut s, 7, &[POS]);
 
     let ids = collect_sorted_ids(&s);
     assert_eq!(ids, vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     assert_sorted_asc(&ids, "four archetypes with interleaved EntityIDs");
 }
-
 
 // ── After Removal ─────────────────────────────────────────────────────────────
 
@@ -202,7 +196,6 @@ fn d3_preserved_after_removal_across_archetypes() {
     assert_sorted_asc(&ids, "removal across two archetypes");
 }
 
-
 // ── After Add/Remove Component (Migration) ────────────────────────────────────
 
 #[test]
@@ -234,7 +227,10 @@ fn d3_preserved_after_remove_component_migration() {
 
     let ids = collect_sorted_ids(&s);
     assert_eq!(ids, vec![1, 2, 3, 4, 5]);
-    assert_sorted_asc(&ids, "after remove_component migration for entities 2 and 4");
+    assert_sorted_asc(
+        &ids,
+        "after remove_component migration for entities 2 and 4",
+    );
 }
 
 #[test]
@@ -249,16 +245,15 @@ fn d3_preserved_after_full_migration_sequence() {
     insert_entity(&mut s, 50, &[POS]);
 
     // Chain of migrations
-    s.add_component(10, VEL, bytes(0.0)).unwrap();   // 10: POS → POS+VEL
-    s.remove_component(40, HP).unwrap();              // 40: POS+VEL+HP → POS+VEL
-    s.add_component(30, VEL, bytes(0.0)).unwrap();    // 30: POS+HP → POS+VEL+HP
-    s.remove_entity(20).unwrap();                     // 20: removed
+    s.add_component(10, VEL, bytes(0.0)).unwrap(); // 10: POS → POS+VEL
+    s.remove_component(40, HP).unwrap(); // 40: POS+VEL+HP → POS+VEL
+    s.add_component(30, VEL, bytes(0.0)).unwrap(); // 30: POS+HP → POS+VEL+HP
+    s.remove_entity(20).unwrap(); // 20: removed
 
     let ids = collect_sorted_ids(&s);
     assert_eq!(ids, vec![10, 30, 40, 50]);
     assert_sorted_asc(&ids, "after mixed migration and removal sequence");
 }
-
 
 // ── Large Scale Stress Test ───────────────────────────────────────────────────
 
@@ -267,14 +262,16 @@ fn d3_large_random_insertion_order_across_many_archetypes() {
     use std::collections::HashSet;
 
     let mut s = ArchetypeStorage::new();
-    let n     = 500usize;
+    let n = 500usize;
 
     // Pseudo-random insertion order (deterministic seed via manual shuffle)
     let mut eids: Vec<u64> = (1..=(n as u64)).collect();
     // Simple knuth shuffle with fixed seed
     let mut seed = 12345u64;
     for i in (1..n).rev() {
-        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        seed = seed
+            .wrapping_mul(6364136223846793005)
+            .wrapping_add(1442695040888963407);
         let j = (seed >> 33) as usize % (i + 1);
         eids.swap(i, j);
     }
@@ -297,11 +294,14 @@ fn d3_large_random_insertion_order_across_many_archetypes() {
     assert_eq!(ids.len(), n, "all entities must be present");
 
     // D3: must be globally sorted
-    assert_sorted_asc(&ids, "large random insertion across 4 archetype compositions");
+    assert_sorted_asc(
+        &ids,
+        "large random insertion across 4 archetype compositions",
+    );
 
     // Must contain exactly the right entities
     let expected: HashSet<u64> = (1..=(n as u64)).collect();
-    let actual:   HashSet<u64> = ids.iter().copied().collect();
+    let actual: HashSet<u64> = ids.iter().copied().collect();
     assert_eq!(expected, actual, "no entities may be lost or duplicated");
 }
 
@@ -312,17 +312,19 @@ fn d3_query_filtered_results_also_sorted() {
         insert_entity(&mut s, eid, &[POS, VEL]);
     }
     for eid in [8, 2, 6, 4].iter().copied() {
-        insert_entity(&mut s, eid, &[POS]);  // no VEL
+        insert_entity(&mut s, eid, &[POS]); // no VEL
     }
 
     // Query for entities with VEL
-    let q   = Query::any_with(VEL);
+    let q = Query::any_with(VEL);
     let ids = q.entity_ids(&s);
 
     assert_eq!(ids, vec![1, 3, 5, 7, 9]);
-    assert_sorted_asc(&ids, "query-filtered results must also be in EntityID ASC order");
+    assert_sorted_asc(
+        &ids,
+        "query-filtered results must also be in EntityID ASC order",
+    );
 }
-
 
 // ── Archetype Index Consistency ───────────────────────────────────────────────
 
@@ -349,6 +351,6 @@ fn d3_index_consistent_after_swap_remove_chain() {
     assert_sorted_asc(&final_ids, "final state after swap-remove chain");
 
     // Verify component access still works for surviving entities
-    assert!(s.get_component(1,  POS).is_ok());
+    assert!(s.get_component(1, POS).is_ok());
     assert!(s.get_component(50, POS).is_ok());
 }

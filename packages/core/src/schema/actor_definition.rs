@@ -22,8 +22,8 @@
 //! Actor definitions live in the CGS only.
 //! The runtime never creates actor definitions — only entity instances.
 
-use serde::{Deserialize, Serialize};
 use crate::ucl::input_component::ControlType;
+use serde::{Deserialize, Serialize};
 
 // ── Actor Type ────────────────────────────────────────────────────────────────
 
@@ -119,10 +119,7 @@ pub struct ComponentDefault {
 impl ComponentDefault {
     /// Creates a component default using the component's built-in defaults.
     /// No field overrides — entity starts with the component's zero state.
-    pub fn from_defaults(
-        component_type_id: u32,
-        component_type_name: impl Into<String>,
-    ) -> Self {
+    pub fn from_defaults(component_type_id: u32, component_type_name: impl Into<String>) -> Self {
         Self {
             component_type_id,
             component_type_name: component_type_name.into(),
@@ -174,10 +171,7 @@ pub struct AbilityReference {
 }
 
 impl AbilityReference {
-    pub fn new(
-        ability_id: impl Into<String>,
-        display_name: impl Into<String>,
-    ) -> Self {
+    pub fn new(ability_id: impl Into<String>, display_name: impl Into<String>) -> Self {
         Self {
             ability_id: ability_id.into(),
             display_name: display_name.into(),
@@ -249,11 +243,7 @@ pub struct ActorDefinition {
 
 impl ActorDefinition {
     /// Creates a minimal actor definition with no components or abilities.
-    pub fn new(
-        id: impl Into<String>,
-        actor_type: ActorType,
-        control_type: ControlType,
-    ) -> Self {
+    pub fn new(id: impl Into<String>, actor_type: ActorType, control_type: ControlType) -> Self {
         Self {
             id: id.into(),
             actor_type,
@@ -284,12 +274,16 @@ impl ActorDefinition {
 
     /// Returns true if this actor has a component with the given type ID.
     pub fn has_component(&self, type_id: u32) -> bool {
-        self.components.iter().any(|c| c.component_type_id == type_id)
+        self.components
+            .iter()
+            .any(|c| c.component_type_id == type_id)
     }
 
     /// Returns the component default for the given type ID, if present.
     pub fn get_component(&self, type_id: u32) -> Option<&ComponentDefault> {
-        self.components.iter().find(|c| c.component_type_id == type_id)
+        self.components
+            .iter()
+            .find(|c| c.component_type_id == type_id)
     }
 
     /// Adds a component default, maintaining sorted order by type_id (D11).
@@ -298,7 +292,8 @@ impl ActorDefinition {
         if self.has_component(component.component_type_id) {
             return;
         }
-        let pos = self.components
+        let pos = self
+            .components
             .partition_point(|c| c.component_type_id < component.component_type_id);
         self.components.insert(pos, component);
     }
@@ -456,12 +451,12 @@ mod tests {
     #[test]
     fn validate_detects_duplicate_components() {
         let mut actor = ActorDefinition::player("actor_player");
-        actor.components.push(
-            ComponentDefault::from_defaults(1, "COMP_TRANSFORM_V1")
-        );
-        actor.components.push(
-            ComponentDefault::from_defaults(1, "COMP_TRANSFORM_V1")
-        );
+        actor
+            .components
+            .push(ComponentDefault::from_defaults(1, "COMP_TRANSFORM_V1"));
+        actor
+            .components
+            .push(ComponentDefault::from_defaults(1, "COMP_TRANSFORM_V1"));
         assert!(actor.validate().is_err());
     }
 
@@ -500,7 +495,9 @@ mod tests {
     #[test]
     fn has_ability_works() {
         let mut actor = ActorDefinition::player("actor_player");
-        actor.abilities.push(AbilityReference::new("ability_jump", "Jump"));
+        actor
+            .abilities
+            .push(AbilityReference::new("ability_jump", "Jump"));
         assert!(actor.has_ability("ability_jump"));
         assert!(!actor.has_ability("ability_dash"));
     }

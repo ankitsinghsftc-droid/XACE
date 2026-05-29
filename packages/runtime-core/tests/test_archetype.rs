@@ -21,14 +21,17 @@ use xace_runtime_core::component_tables::{
 
 const POS: TypeId = 1;
 const VEL: TypeId = 5;
-const HP:  TypeId = 100;
-const AI:  TypeId = 160;
-
+const HP: TypeId = 100;
+const AI: TypeId = 160;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-fn bytes(v: f32) -> Vec<u8> { v.to_le_bytes().to_vec() }
-fn u32_bytes(v: u32) -> Vec<u8> { v.to_le_bytes().to_vec() }
+fn bytes(v: f32) -> Vec<u8> {
+    v.to_le_bytes().to_vec()
+}
+fn u32_bytes(v: u32) -> Vec<u8> {
+    v.to_le_bytes().to_vec()
+}
 
 fn storage_with_entities(entity_specs: &[(EntityId, &[TypeId])]) -> ArchetypeStorage {
     let mut storage = ArchetypeStorage::new();
@@ -41,7 +44,6 @@ fn storage_with_entities(entity_specs: &[(EntityId, &[TypeId])]) -> ArchetypeSto
     }
     storage
 }
-
 
 // ── Archetype Tests ───────────────────────────────────────────────────────────
 
@@ -57,7 +59,7 @@ mod archetype_tests {
         let mut comps = BTreeMap::new();
         comps.insert(POS, bytes(eid as f32));
         comps.insert(VEL, bytes(0.0));
-        comps.insert(HP,  bytes(100.0));
+        comps.insert(HP, bytes(100.0));
         arch.add_entity(eid, comps)
     }
 
@@ -116,8 +118,8 @@ mod archetype_tests {
         add(&mut a, 1);
         add(&mut a, 2);
         add(&mut a, 3);
-        a.remove_entity(1);   // entity 3 moves to row 0
-        // entity 2 and 3 should still be accessible
+        a.remove_entity(1); // entity 3 moves to row 0
+                            // entity 2 and 3 should still be accessible
         assert!(a.get_component(2, POS).is_some());
         assert!(a.get_component(3, POS).is_some());
     }
@@ -156,7 +158,6 @@ mod archetype_tests {
     }
 }
 
-
 // ── ArchetypeStorage Tests ────────────────────────────────────────────────────
 
 mod archetype_storage_tests {
@@ -171,7 +172,7 @@ mod archetype_storage_tests {
         s.add_entity(1, c).unwrap();
 
         let val = s.get_component(1, POS).unwrap();
-        let f   = f32::from_le_bytes(val.try_into().unwrap());
+        let f = f32::from_le_bytes(val.try_into().unwrap());
         assert_eq!(f, 1.0);
     }
 
@@ -206,7 +207,7 @@ mod archetype_storage_tests {
         let mut s = storage_with_entities(&[(10, &[POS, HP])]);
         let old = s.modify_component(10, POS, bytes(99.0)).unwrap();
         let val = s.get_component(10, POS).unwrap();
-        let f   = f32::from_le_bytes(val.try_into().unwrap());
+        let f = f32::from_le_bytes(val.try_into().unwrap());
         assert_eq!(f, 99.0);
     }
 
@@ -230,11 +231,14 @@ mod archetype_storage_tests {
         s.add_component(1, VEL, bytes(1.0)).unwrap();
 
         let arch_after = s.archetype_of(1).unwrap();
-        assert_ne!(arch_before, arch_after, "entity must migrate to a new archetype");
+        assert_ne!(
+            arch_before, arch_after,
+            "entity must migrate to a new archetype"
+        );
 
         // Component must be accessible in new archetype
         let val = s.get_component(1, VEL).unwrap();
-        let f   = f32::from_le_bytes(val.try_into().unwrap());
+        let f = f32::from_le_bytes(val.try_into().unwrap());
         assert_eq!(f, 1.0);
 
         // Old component must still be accessible
@@ -255,10 +259,13 @@ mod archetype_storage_tests {
 
         let removed = s.remove_component(1, VEL).unwrap();
         let f = f32::from_le_bytes(removed.as_slice().try_into().unwrap());
-        assert_eq!(f, 1.0_f32);  // initial value = eid as f32 = 1.0
+        assert_eq!(f, 1.0_f32); // initial value = eid as f32 = 1.0
 
         let arch_after = s.archetype_of(1).unwrap();
-        assert_ne!(arch_before, arch_after, "entity must migrate to a new archetype");
+        assert_ne!(
+            arch_before, arch_after,
+            "entity must migrate to a new archetype"
+        );
 
         // Removed component must be gone
         assert!(s.get_component(1, VEL).is_err());
@@ -284,26 +291,22 @@ mod archetype_storage_tests {
             s.add_entity(eid, c).unwrap();
         }
         assert_eq!(s.entity_count(), 5);
-        assert_eq!(s.archetype_count(), 1, "all entities share the same archetype");
+        assert_eq!(
+            s.archetype_count(),
+            1,
+            "all entities share the same archetype"
+        );
     }
 
     #[test]
     fn different_component_sets_create_different_archetypes() {
-        let s = storage_with_entities(&[
-            (1, &[POS, VEL]),
-            (2, &[POS, HP]),
-            (3, &[POS, VEL, HP]),
-        ]);
+        let s = storage_with_entities(&[(1, &[POS, VEL]), (2, &[POS, HP]), (3, &[POS, VEL, HP])]);
         assert_eq!(s.archetype_count(), 3);
     }
 
     #[test]
     fn entity_distribution_tracks_per_archetype_count() {
-        let s = storage_with_entities(&[
-            (1, &[POS, VEL]),
-            (2, &[POS, VEL]),
-            (3, &[POS, HP]),
-        ]);
+        let s = storage_with_entities(&[(1, &[POS, VEL]), (2, &[POS, VEL]), (3, &[POS, HP])]);
         let dist = s.entity_distribution();
         let total: usize = dist.values().sum();
         assert_eq!(total, 3);
@@ -314,23 +317,19 @@ mod archetype_storage_tests {
         use xace_runtime_core::query_engine::vectorized_query::Query;
 
         let s = storage_with_entities(&[
-            (1, &[POS, VEL, HP]),   // matches
-            (2, &[POS, VEL]),       // matches
-            (3, &[POS, HP]),        // does NOT match (no VEL)
+            (1, &[POS, VEL, HP]), // matches
+            (2, &[POS, VEL]),     // matches
+            (3, &[POS, HP]),      // does NOT match (no VEL)
         ]);
 
-        let q    = Query::all([POS, VEL]);
-        let ids  = q.entity_ids(&s);
+        let q = Query::all([POS, VEL]);
+        let ids = q.entity_ids(&s);
         assert_eq!(ids, vec![1, 2], "only entities with both POS and VEL");
     }
 
     #[test]
     fn index_remains_consistent_after_swap_remove() {
-        let mut s = storage_with_entities(&[
-            (1, &[POS, VEL]),
-            (2, &[POS, VEL]),
-            (3, &[POS, VEL]),
-        ]);
+        let mut s = storage_with_entities(&[(1, &[POS, VEL]), (2, &[POS, VEL]), (3, &[POS, VEL])]);
 
         // Remove middle entity — triggers swap-remove (entity 3 moves to row 1)
         s.remove_entity(2).unwrap();
@@ -342,11 +341,11 @@ mod archetype_storage_tests {
 
         // Both must return correct component values
         let pos1 = s.get_component(1, POS).unwrap();
-        let f1   = f32::from_le_bytes(pos1.try_into().unwrap());
+        let f1 = f32::from_le_bytes(pos1.try_into().unwrap());
         assert_eq!(f1, 1.0);
 
         let pos3 = s.get_component(3, POS).unwrap();
-        let f3   = f32::from_le_bytes(pos3.try_into().unwrap());
+        let f3 = f32::from_le_bytes(pos3.try_into().unwrap());
         assert_eq!(f3, 3.0);
     }
 }

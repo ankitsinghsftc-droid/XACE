@@ -32,12 +32,12 @@
 //! All BTreeMaps in PhaseBucket are keyed by system_id / (from, to) pairs.
 //! Same RawSystemGraph → identical PhaseBuckets, always.
 
-use std::collections::BTreeMap;
-use xace_core::runtime::phase_enum::PhaseEnum;
 use crate::compilation_error::{CompilationError, EdgeType};
 use crate::graph_construction::system_edge::{RawSystemGraph, SystemEdge};
 use crate::graph_construction::system_node::SystemNode;
 use crate::phase_segmentation::phase_validator::PhaseValidator;
+use std::collections::BTreeMap;
+use xace_core::runtime::phase_enum::PhaseEnum;
 
 // ── Phase Bucket ──────────────────────────────────────────────────────────────
 
@@ -100,10 +100,8 @@ impl PhaseBucket {
     /// Used by Kahn's algorithm in the topological sorter.
     /// Returns BTreeMap<system_id, in_degree> sorted (D11).
     pub fn in_degree_map(&self) -> BTreeMap<String, usize> {
-        let mut degrees: BTreeMap<String, usize> = self.nodes
-            .keys()
-            .map(|id| (id.clone(), 0usize))
-            .collect();
+        let mut degrees: BTreeMap<String, usize> =
+            self.nodes.keys().map(|id| (id.clone(), 0usize)).collect();
 
         for ((_from, to), _) in &self.edges {
             *degrees.entry(to.clone()).or_insert(0) += 1;
@@ -156,9 +154,11 @@ impl PhaseSegmentationLayer {
                         continue; // Phase order is handled by bucket order, not edges
                     }
                     let from_in_phase = bucket.nodes.contains_key(from.as_str());
-                    let to_in_phase   = bucket.nodes.contains_key(to.as_str());
+                    let to_in_phase = bucket.nodes.contains_key(to.as_str());
                     if from_in_phase && to_in_phase {
-                        bucket.edges.insert((from.clone(), to.clone()), edge.clone());
+                        bucket
+                            .edges
+                            .insert((from.clone(), to.clone()), edge.clone());
                     }
                     // Cross-phase explicit dependencies: the earlier phase already
                     // completed by the time this phase runs — no edge needed here.
@@ -188,26 +188,28 @@ impl PhaseSegmentationLayer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use xace_core::schema::system_definition::SystemDefinition;
-    use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::compilation_error::EdgeType;
+    use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
+    use xace_core::runtime::phase_enum::PhaseEnum;
+    use xace_core::schema::system_definition::{SystemDefinition, SystemVersion};
 
     fn def(
-        id:     &str,
-        phase:  PhaseEnum,
-        reads:  Vec<u32>,
+        id: &str,
+        phase: PhaseEnum,
+        reads: Vec<u32>,
         writes: Vec<u32>,
-        deps:   Vec<&str>,
+        deps: Vec<&str>,
     ) -> SystemDefinition {
         SystemDefinition {
-            id:            id.into(),
-            phase,
+            id: id.into(),
+            display_name: id.into(),
+            phase: phase.into(),
             reads,
             writes,
-            depends_on:    deps.into_iter().map(String::from).collect(),
+            depends_on: deps.into_iter().map(String::from).collect(),
             deterministic: true,
-            version:       1,
+            version: SystemVersion::INITIAL,
+            description: String::new(),
         }
     }
 
@@ -240,9 +242,21 @@ mod tests {
     #[test]
     fn multiple_phases_produce_multiple_buckets() {
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization,  vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,       vec![], vec![], vec![]),
-            def("sys_post", PhaseEnum::PostSimulation,   vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_sim", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def(
+                "sys_post",
+                PhaseEnum::PostSimulation,
+                vec![],
+                vec![],
+                vec![],
+            ),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 3);
@@ -255,11 +269,23 @@ mod tests {
     fn buckets_in_phase_ordinal_order() {
         // Definitions in arbitrary order — buckets must be sorted by phase ordinal
         let defs = vec![
-            def("sys_post",    PhaseEnum::PostSimulation, vec![], vec![], vec![]),
-            def("sys_cleanup", PhaseEnum::Cleanup,        vec![], vec![], vec![]),
-            def("sys_init",    PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_input",   PhaseEnum::Input,          vec![], vec![], vec![]),
-            def("sys_sim",     PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_post",
+                PhaseEnum::PostSimulation,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_cleanup", PhaseEnum::Cleanup, vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_input", PhaseEnum::Input, vec![], vec![], vec![]),
+            def("sys_sim", PhaseEnum::Simulation, vec![], vec![], vec![]),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 5);
@@ -271,8 +297,14 @@ mod tests {
     fn empty_phases_omitted() {
         // Only Initialization and Cleanup used — Input, Simulation, PostSimulation empty
         let defs = vec![
-            def("sys_init",    PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_cleanup", PhaseEnum::Cleanup,        vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_cleanup", PhaseEnum::Cleanup, vec![], vec![], vec![]),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 2);
@@ -287,14 +319,23 @@ mod tests {
         // sys_init (Initialization) and sys_sim (Simulation) get a PHASE_ORDER edge
         // but it must NOT appear in either bucket's edge set
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![], vec![], vec![]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def("sys_sim", PhaseEnum::Simulation, vec![], vec![], vec![]),
         ];
         let buckets = segment(&defs);
         for bucket in &buckets {
             for edge in bucket.edges.values() {
-                assert_ne!(edge.edge_type, EdgeType::PhaseOrder,
-                    "PHASE_ORDER edges must never appear in phase buckets");
+                assert_ne!(
+                    edge.edge_type,
+                    EdgeType::PhaseOrder,
+                    "PHASE_ORDER edges must never appear in phase buckets"
+                );
             }
         }
     }
@@ -303,16 +344,24 @@ mod tests {
     fn intra_phase_raw_edges_retained_in_bucket() {
         // sys_ai writes VELOCITY(5), sys_movement reads VELOCITY(5) — same phase
         let defs = vec![
-            def("sys_ai",       PhaseEnum::Simulation, vec![160], vec![5],  vec![]),
-            def("sys_movement", PhaseEnum::Simulation, vec![5],   vec![1],  vec![]),
+            def("sys_ai", PhaseEnum::Simulation, vec![160], vec![5], vec![]),
+            def(
+                "sys_movement",
+                PhaseEnum::Simulation,
+                vec![5],
+                vec![1],
+                vec![],
+            ),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 1);
         let bucket = &buckets[0];
         // Edge sys_ai → sys_movement must be in the bucket
         let key = ("sys_ai".to_string(), "sys_movement".to_string());
-        assert!(bucket.edges.contains_key(&key),
-            "RAW edge must be retained in phase bucket");
+        assert!(
+            bucket.edges.contains_key(&key),
+            "RAW edge must be retained in phase bucket"
+        );
         assert_eq!(bucket.edges[&key].edge_type, EdgeType::ReadAfterWrite);
     }
 
@@ -321,16 +370,30 @@ mod tests {
         // sys_sim (Simulation) depends on sys_init (Initialization)
         // The explicit dep edge sys_init→sys_sim is cross-phase — excluded from both buckets
         let defs = vec![
-            def("sys_init", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_sim",  PhaseEnum::Simulation,     vec![], vec![], vec!["sys_init"]),
+            def(
+                "sys_init",
+                PhaseEnum::Initialization,
+                vec![],
+                vec![],
+                vec![],
+            ),
+            def(
+                "sys_sim",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_init"],
+            ),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 2);
         // Neither bucket should contain the cross-phase edge
         for bucket in &buckets {
             let cross_key = ("sys_init".to_string(), "sys_sim".to_string());
-            assert!(!bucket.edges.contains_key(&cross_key),
-                "Cross-phase edges must be excluded from phase buckets");
+            assert!(
+                !bucket.edges.contains_key(&cross_key),
+                "Cross-phase edges must be excluded from phase buckets"
+            );
         }
     }
 
@@ -338,14 +401,25 @@ mod tests {
     fn intra_phase_explicit_dep_retained() {
         let defs = vec![
             def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
+            def(
+                "sys_b",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
         ];
         let buckets = segment(&defs);
         assert_eq!(buckets.len(), 1);
         let key = ("sys_a".to_string(), "sys_b".to_string());
-        assert!(buckets[0].edges.contains_key(&key),
-            "Intra-phase explicit dep must be retained");
-        assert_eq!(buckets[0].edges[&key].edge_type, EdgeType::ExplicitDependency);
+        assert!(
+            buckets[0].edges.contains_key(&key),
+            "Intra-phase explicit dep must be retained"
+        );
+        assert_eq!(
+            buckets[0].edges[&key].edge_type,
+            EdgeType::ExplicitDependency
+        );
     }
 
     // ── In-Degree Map ─────────────────────────────────────────────────────────
@@ -355,8 +429,20 @@ mod tests {
         // sys_a → sys_b, sys_a → sys_c: sys_b and sys_c have in-degree 1
         let defs = vec![
             def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
-            def("sys_c", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
+            def(
+                "sys_b",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
+            def(
+                "sys_c",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
         ];
         let buckets = segment(&defs);
         let degrees = buckets[0].in_degree_map();
@@ -370,8 +456,20 @@ mod tests {
         // sys_a → sys_b → sys_c (via explicit deps)
         let defs = vec![
             def("sys_a", PhaseEnum::Simulation, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec!["sys_a"]),
-            def("sys_c", PhaseEnum::Simulation, vec![], vec![], vec!["sys_b"]),
+            def(
+                "sys_b",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_a"],
+            ),
+            def(
+                "sys_c",
+                PhaseEnum::Simulation,
+                vec![],
+                vec![],
+                vec!["sys_b"],
+            ),
         ];
         let buckets = segment(&defs);
         let degrees = buckets[0].in_degree_map();
@@ -384,9 +482,7 @@ mod tests {
 
     #[test]
     fn bucket_nodes_sorted_by_system_id() {
-        let defs = vec![
-            sim("sys_z"), sim("sys_a"), sim("sys_m"),
-        ];
+        let defs = vec![sim("sys_z"), sim("sys_a"), sim("sys_m")];
         let buckets = segment(&defs);
         let ids = buckets[0].system_ids();
         assert_eq!(ids, vec!["sys_a", "sys_m", "sys_z"]);
@@ -396,13 +492,16 @@ mod tests {
     fn each_system_in_exactly_one_bucket() {
         let defs = vec![
             def("sys_a", PhaseEnum::Initialization, vec![], vec![], vec![]),
-            def("sys_b", PhaseEnum::Simulation,     vec![], vec![], vec![]),
-            def("sys_c", PhaseEnum::Simulation,     vec![], vec![], vec![]),
-            def("sys_d", PhaseEnum::Cleanup,         vec![], vec![], vec![]),
+            def("sys_b", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def("sys_c", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def("sys_d", PhaseEnum::Cleanup, vec![], vec![], vec![]),
         ];
         let buckets = segment(&defs);
         let total_systems: usize = buckets.iter().map(|b| b.system_count()).sum();
-        assert_eq!(total_systems, 4, "Each system must appear in exactly one bucket");
+        assert_eq!(
+            total_systems, 4,
+            "Each system must appear in exactly one bucket"
+        );
     }
 
     // ── Phase Summary ─────────────────────────────────────────────────────────
@@ -410,8 +509,8 @@ mod tests {
     #[test]
     fn phase_summary_counts_correctly() {
         let defs = vec![
-            def("s1", PhaseEnum::Simulation,    vec![], vec![], vec![]),
-            def("s2", PhaseEnum::Simulation,    vec![], vec![], vec![]),
+            def("s1", PhaseEnum::Simulation, vec![], vec![], vec![]),
+            def("s2", PhaseEnum::Simulation, vec![], vec![], vec![]),
             def("s3", PhaseEnum::PostSimulation, vec![], vec![], vec![]),
         ];
         let graph = GraphConstructionLayer::build(&defs).unwrap();
@@ -428,12 +527,14 @@ mod tests {
         // Manually build a graph with a forward dep (bypassing GraphConstructionLayer)
         let mut graph = RawSystemGraph::new();
         let mut sim_node = crate::graph_construction::system_node::SystemNode::new(
-            "sys_sim", PhaseEnum::Simulation
+            "sys_sim",
+            PhaseEnum::Simulation,
         );
         sim_node.depends_on.insert("sys_post".into());
         graph.add_node(sim_node);
         graph.add_node(crate::graph_construction::system_node::SystemNode::new(
-            "sys_post", PhaseEnum::PostSimulation
+            "sys_post",
+            PhaseEnum::PostSimulation,
         ));
         let result = PhaseSegmentationLayer::segment(&graph);
         assert!(result.is_err());
@@ -445,14 +546,48 @@ mod tests {
     #[test]
     fn zombie_chase_all_simulation_one_bucket() {
         let defs = vec![
-            def("InputSystem",    PhaseEnum::Simulation, vec![6, 1],     vec![5],       vec![]),
-            def("MovementSystem", PhaseEnum::Simulation, vec![5, 1],     vec![1],       vec![]),
-            def("AISystem",       PhaseEnum::Simulation, vec![160, 1],   vec![5, 101],  vec![]),
-            def("DamageSystem",   PhaseEnum::Simulation, vec![101, 100], vec![100, 101], vec![]),
-            def("DeathSystem",    PhaseEnum::Simulation, vec![100],      vec![],        vec![]),
+            def(
+                "InputSystem",
+                PhaseEnum::Simulation,
+                vec![6, 1],
+                vec![5],
+                vec![],
+            ),
+            def(
+                "MovementSystem",
+                PhaseEnum::Simulation,
+                vec![5, 1],
+                vec![1],
+                vec![],
+            ),
+            def(
+                "AISystem",
+                PhaseEnum::Simulation,
+                vec![160, 1],
+                vec![5, 101],
+                vec![],
+            ),
+            def(
+                "DamageSystem",
+                PhaseEnum::Simulation,
+                vec![101, 100],
+                vec![100, 101],
+                vec![],
+            ),
+            def(
+                "DeathSystem",
+                PhaseEnum::Simulation,
+                vec![100],
+                vec![],
+                vec![],
+            ),
         ];
         let buckets = segment(&defs);
-        assert_eq!(buckets.len(), 1, "All zombie chase systems are in Simulation");
+        assert_eq!(
+            buckets.len(),
+            1,
+            "All zombie chase systems are in Simulation"
+        );
         assert_eq!(buckets[0].phase, PhaseEnum::Simulation);
         assert_eq!(buckets[0].system_count(), 5);
         // All intra-phase hazard edges retained, PHASE_ORDER excluded (none exist)

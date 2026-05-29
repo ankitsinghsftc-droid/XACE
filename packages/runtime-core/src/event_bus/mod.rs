@@ -9,5 +9,5 @@ pub mod event_subscription_registry;
 mod tests;
 
 pub use event_bus::EventBus;
-pub use event_subscription_registry::EventSubscriptionRegistry;
 pub use event_dispatcher::EventDispatcher;
+pub use event_subscription_registry::EventSubscriptionRegistry;

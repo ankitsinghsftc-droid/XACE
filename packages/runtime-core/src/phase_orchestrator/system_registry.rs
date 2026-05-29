@@ -16,8 +16,8 @@
 //! PhaseOrchestrator at tick start.
 
 use std::collections::BTreeMap;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
 use xace_core::contracts::interfaces::ISystem;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── System Registry ───────────────────────────────────────────────────────────
 
@@ -45,10 +45,7 @@ impl SystemRegistry {
     /// Returns error if a system with the same ID is already registered.
     /// System IDs must be unique — duplicate IDs indicate a bug in the
     /// schema compilation pipeline.
-    pub fn register(
-        &mut self,
-        system: Box<dyn ISystem>,
-    ) -> Result<(), XaceError> {
+    pub fn register(&mut self, system: Box<dyn ISystem>) -> Result<(), XaceError> {
         let id = system.system_id().to_string();
         if self.systems.contains_key(&id) {
             return Err(XaceError::ValidationFailure {
@@ -91,10 +88,7 @@ impl SystemRegistry {
     ///
     /// Called by the PhaseOrchestrator before executing an ExecutionPlan
     /// to ensure all required systems are available.
-    pub fn validate_execution_plan_systems(
-        &self,
-        system_ids: &[&str],
-    ) -> Result<(), XaceError> {
+    pub fn validate_execution_plan_systems(&self, system_ids: &[&str]) -> Result<(), XaceError> {
         for &system_id in system_ids {
             if !self.has_system(system_id) {
                 return Err(XaceError::ValidationFailure {
@@ -104,10 +98,7 @@ impl SystemRegistry {
                          are registered before execution",
                         system_id
                     ),
-                    context: ErrorContext::new(
-                        "SystemRegistry",
-                        "validate_execution_plan_systems",
-                    ),
+                    context: ErrorContext::new("SystemRegistry", "validate_execution_plan_systems"),
                     rule_violated: "D1".into(),
                     failed_path: format!("system:{}", system_id),
                 });
@@ -137,12 +128,18 @@ mod tests {
     }
 
     impl ISystem for MockSystem {
-        fn system_id(&self) -> &str { &self.id }
+        fn system_id(&self) -> &str {
+            &self.id
+        }
         fn execute(&self, _: &mut dyn ISystemContext) -> Result<(), XaceError> {
             Ok(())
         }
-        fn declared_reads(&self) -> &[u32] { &self.reads }
-        fn declared_writes(&self) -> &[u32] { &self.writes }
+        fn declared_reads(&self) -> &[u32] {
+            &self.reads
+        }
+        fn declared_writes(&self) -> &[u32] {
+            &self.writes
+        }
     }
 
     fn mock_system(id: &str) -> Box<dyn ISystem> {
@@ -189,14 +186,18 @@ mod tests {
         let mut reg = SystemRegistry::new();
         reg.register(mock_system("sys_a")).unwrap();
         reg.register(mock_system("sys_b")).unwrap();
-        assert!(reg.validate_execution_plan_systems(&["sys_a", "sys_b"]).is_ok());
+        assert!(reg
+            .validate_execution_plan_systems(&["sys_a", "sys_b"])
+            .is_ok());
     }
 
     #[test]
     fn validate_plan_systems_missing_fails() {
         let mut reg = SystemRegistry::new();
         reg.register(mock_system("sys_a")).unwrap();
-        assert!(reg.validate_execution_plan_systems(&["sys_a", "sys_missing"]).is_err());
+        assert!(reg
+            .validate_execution_plan_systems(&["sys_a", "sys_missing"])
+            .is_err());
     }
 
     #[test]

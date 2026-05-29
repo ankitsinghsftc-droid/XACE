@@ -10,4 +10,4 @@ mod tests;
 
 pub use snapshot_engine::SnapshotEngine;
 pub use snapshot_serializer::SnapshotSerializer;
-pub use snapshot_store::{SnapshotStore, RetentionPolicy};
+pub use snapshot_store::{RetentionPolicy, SnapshotStore};

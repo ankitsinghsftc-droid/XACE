@@ -254,8 +254,7 @@ mod tests {
         map.insert(3, 30);
         map.insert(1, 10);
         map.insert(2, 20);
-        let pairs: Vec<(EntityID, i32)> =
-            map.iter().map(|(id, v)| (id, *v)).collect();
+        let pairs: Vec<(EntityID, i32)> = map.iter().map(|(id, v)| (id, *v)).collect();
         assert_eq!(pairs, vec![(1, 10), (2, 20), (3, 30)]);
     }
 

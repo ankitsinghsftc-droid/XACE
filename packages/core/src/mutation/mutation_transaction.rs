@@ -31,10 +31,10 @@
 //! was created, the version check fails and the transaction is rejected.
 //! This prevents concurrent mutation conflicts.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::mutation::dsl_operation::DslOperation;
 use crate::mutation::usmc_categories::UsmcCategory;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Transaction ID ────────────────────────────────────────────────────────────
 
@@ -96,16 +96,20 @@ pub enum MutationSource {
 impl std::fmt::Display for MutationSource {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MutationSource::UserPrompt { session_id, .. } =>
-                write!(f, "UserPrompt(session={})", session_id),
-            MutationSource::ManualDsl { author_id } =>
-                write!(f, "ManualDsl(author={})", author_id),
-            MutationSource::Migration { from_version, to_version } =>
-                write!(f, "Migration({} → {})", from_version, to_version),
-            MutationSource::CodeGeneration { system_id } =>
-                write!(f, "CodeGeneration(system={})", system_id),
-            MutationSource::Genesis { template_id } =>
-                write!(f, "Genesis(template={})", template_id),
+            MutationSource::UserPrompt { session_id, .. } => {
+                write!(f, "UserPrompt(session={})", session_id)
+            }
+            MutationSource::ManualDsl { author_id } => write!(f, "ManualDsl(author={})", author_id),
+            MutationSource::Migration {
+                from_version,
+                to_version,
+            } => write!(f, "Migration({} → {})", from_version, to_version),
+            MutationSource::CodeGeneration { system_id } => {
+                write!(f, "CodeGeneration(system={})", system_id)
+            }
+            MutationSource::Genesis { template_id } => {
+                write!(f, "Genesis(template={})", template_id)
+            }
         }
     }
 }
@@ -188,10 +192,8 @@ impl std::fmt::Display for TransactionStatus {
             TransactionStatus::Critiqued => write!(f, "Critiqued"),
             TransactionStatus::Approved => write!(f, "Approved"),
             TransactionStatus::Committed => write!(f, "Committed"),
-            TransactionStatus::Rejected { reason } =>
-                write!(f, "Rejected({})", reason),
-            TransactionStatus::RolledBack { reason } =>
-                write!(f, "RolledBack({})", reason),
+            TransactionStatus::Rejected { reason } => write!(f, "Rejected({})", reason),
+            TransactionStatus::RolledBack { reason } => write!(f, "RolledBack({})", reason),
         }
     }
 }
@@ -399,11 +401,7 @@ impl MutationTransaction {
     }
 
     /// Adds a metadata key-value pair to this transaction.
-    pub fn add_metadata(
-        &mut self,
-        key: impl Into<String>,
-        value: impl Into<String>,
-    ) {
+    pub fn add_metadata(&mut self, key: impl Into<String>, value: impl Into<String>) {
         self.metadata.insert(key.into(), value.into());
     }
 
@@ -467,12 +465,8 @@ impl MutationTransaction {
 
         // Validate all operations
         for (i, op) in self.operations.iter().enumerate() {
-            op.validate().map_err(|e| {
-                format!(
-                    "MutationTransaction {} operation {}: {}",
-                    self.id, i, e
-                )
-            })?;
+            op.validate()
+                .map_err(|e| format!("MutationTransaction {} operation {}: {}", self.id, i, e))?;
         }
 
         Ok(())
@@ -623,10 +617,7 @@ mod tests {
             0.95,
             "2026-01-01T00:00:00Z",
         );
-        assert!(matches!(
-            txn.source,
-            MutationSource::UserPrompt { .. }
-        ));
+        assert!(matches!(txn.source, MutationSource::UserPrompt { .. }));
         assert_eq!(txn.confidence, 0.95);
     }
 
@@ -639,10 +630,7 @@ mod tests {
             "0.2.0",
             "2026-01-01T00:00:00Z",
         );
-        assert!(matches!(
-            txn.source,
-            MutationSource::Migration { .. }
-        ));
+        assert!(matches!(txn.source, MutationSource::Migration { .. }));
         assert_eq!(txn.confidence, 1.0);
     }
 

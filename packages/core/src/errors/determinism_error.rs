@@ -129,36 +129,51 @@ impl DeterminismRule {
     /// Returns a plain-English description of this rule.
     pub fn description(&self) -> &'static str {
         match self {
-            DeterminismRule::D1SystemOrderFromPlanOnly =>
-                "System execution order must come from ExecutionPlan only",
-            DeterminismRule::D2EntityIdNeverReused =>
-                "EntityIDs must never be reused after destruction",
-            DeterminismRule::D3EntityIterationSorted =>
-                "Entities must always be iterated in EntityID ascending order",
-            DeterminismRule::D4MutationsViaGateOnly =>
-                "All mutations must go through the Mutation Gate after phase end",
-            DeterminismRule::D5EventsSortedBeforeDispatch =>
-                "Events must be sorted by (tick, phase, event_id) before dispatch",
-            DeterminismRule::D6DeterministicRngOnly =>
-                "Only DeterministicRNG allowed — no OS or language-native random",
-            DeterminismRule::D7FixedTimestepOnly =>
-                "Fixed timestep only — frame rate must not affect simulation",
-            DeterminismRule::D8ConsistentFloatPrecision =>
-                "Float precision must be consistent — no frame-dependent accumulation",
-            DeterminismRule::D9WorldHashPerTick =>
-                "world_hash must be computed and validated after every tick",
-            DeterminismRule::D10SchemaVersionMatch =>
-                "Runtime schema version must match execution plan schema version",
-            DeterminismRule::D11StableSerializationOrder =>
-                "All serialization must use stable key ordering and fixed precision",
-            DeterminismRule::D12InputAtTickBoundariesOnly =>
-                "External input must only be applied at tick boundaries",
-            DeterminismRule::D13AdaptersReadOnly =>
-                "Engine adapters must never modify authoritative simulation state",
-            DeterminismRule::D14ReplayRequiresThreeInputs =>
-                "Replay requires initial snapshot, input stream, and identical schema",
-            DeterminismRule::D15GuardAtEveryBoundary =>
-                "DeterminismGuard must be active at every execution boundary",
+            DeterminismRule::D1SystemOrderFromPlanOnly => {
+                "System execution order must come from ExecutionPlan only"
+            }
+            DeterminismRule::D2EntityIdNeverReused => {
+                "EntityIDs must never be reused after destruction"
+            }
+            DeterminismRule::D3EntityIterationSorted => {
+                "Entities must always be iterated in EntityID ascending order"
+            }
+            DeterminismRule::D4MutationsViaGateOnly => {
+                "All mutations must go through the Mutation Gate after phase end"
+            }
+            DeterminismRule::D5EventsSortedBeforeDispatch => {
+                "Events must be sorted by (tick, phase, event_id) before dispatch"
+            }
+            DeterminismRule::D6DeterministicRngOnly => {
+                "Only DeterministicRNG allowed — no OS or language-native random"
+            }
+            DeterminismRule::D7FixedTimestepOnly => {
+                "Fixed timestep only — frame rate must not affect simulation"
+            }
+            DeterminismRule::D8ConsistentFloatPrecision => {
+                "Float precision must be consistent — no frame-dependent accumulation"
+            }
+            DeterminismRule::D9WorldHashPerTick => {
+                "world_hash must be computed and validated after every tick"
+            }
+            DeterminismRule::D10SchemaVersionMatch => {
+                "Runtime schema version must match execution plan schema version"
+            }
+            DeterminismRule::D11StableSerializationOrder => {
+                "All serialization must use stable key ordering and fixed precision"
+            }
+            DeterminismRule::D12InputAtTickBoundariesOnly => {
+                "External input must only be applied at tick boundaries"
+            }
+            DeterminismRule::D13AdaptersReadOnly => {
+                "Engine adapters must never modify authoritative simulation state"
+            }
+            DeterminismRule::D14ReplayRequiresThreeInputs => {
+                "Replay requires initial snapshot, input stream, and identical schema"
+            }
+            DeterminismRule::D15GuardAtEveryBoundary => {
+                "DeterminismGuard must be active at every execution boundary"
+            }
         }
     }
 
@@ -443,30 +458,39 @@ mod tests {
     fn all_rules_have_unique_ids() {
         let mut ids = std::collections::HashSet::new();
         for rule in DeterminismRule::all() {
-            assert!(ids.insert(rule.rule_id()), "Duplicate rule ID: {}", rule.rule_id());
+            assert!(
+                ids.insert(rule.rule_id()),
+                "Duplicate rule ID: {}",
+                rule.rule_id()
+            );
         }
     }
 
     #[test]
     fn all_rules_have_descriptions() {
         for rule in DeterminismRule::all() {
-            assert!(!rule.description().is_empty(), "Empty description for {}", rule.rule_id());
+            assert!(
+                !rule.description().is_empty(),
+                "Empty description for {}",
+                rule.rule_id()
+            );
         }
     }
 
     #[test]
     fn all_rules_have_nonzero_impact() {
         for rule in DeterminismRule::all() {
-            assert!(rule.impact_level() > 0, "Zero impact for {}", rule.rule_id());
+            assert!(
+                rule.impact_level() > 0,
+                "Zero impact for {}",
+                rule.rule_id()
+            );
         }
     }
 
     #[test]
     fn rule_ids_match_expected_format() {
-        let ids: Vec<&str> = DeterminismRule::all()
-            .iter()
-            .map(|r| r.rule_id())
-            .collect();
+        let ids: Vec<&str> = DeterminismRule::all().iter().map(|r| r.rule_id()).collect();
         assert_eq!(ids[0], "D1");
         assert_eq!(ids[14], "D15");
     }
@@ -515,7 +539,10 @@ mod tests {
     #[test]
     fn impact_level_delegates_to_rule() {
         let v = d6_violation();
-        assert_eq!(v.impact_level(), DeterminismRule::D6DeterministicRngOnly.impact_level());
+        assert_eq!(
+            v.impact_level(),
+            DeterminismRule::D6DeterministicRngOnly.impact_level()
+        );
     }
 
     #[test]

@@ -19,11 +19,11 @@
 //! a combined version signal for the QueryCache to detect any
 //! write to any table.
 
+use super::component_table::ComponentTable;
 use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
 use xace_core::entity_metadata::Tick;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use super::component_table::ComponentTable;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Component Table Store ─────────────────────────────────────────────────────
 
@@ -69,9 +69,7 @@ impl ComponentTableStore {
                     "ComponentTable for type_id {} already registered",
                     component_type_id
                 ),
-                context: ErrorContext::new(
-                    "ComponentTableStore", "register_table"
-                ),
+                context: ErrorContext::new("ComponentTableStore", "register_table"),
                 rule_violated: "no_duplicate_tables".into(),
                 failed_path: format!("component_type_id:{}", component_type_id),
             });
@@ -92,10 +90,7 @@ impl ComponentTableStore {
     }
 
     /// Returns a mutable reference to the table for the given component type.
-    pub fn get_table_mut(
-        &mut self,
-        component_type_id: u32,
-    ) -> Option<&mut ComponentTable> {
+    pub fn get_table_mut(&mut self, component_type_id: u32) -> Option<&mut ComponentTable> {
         self.tables.get_mut(&component_type_id)
     }
 
@@ -128,9 +123,7 @@ impl ComponentTableStore {
         component_json: String,
         tick: Tick,
     ) -> Result<(), XaceError> {
-        let table = self.get_table_mut_or_error(
-            component_type_id, "add_component"
-        )?;
+        let table = self.get_table_mut_or_error(component_type_id, "add_component")?;
         table.add(entity_id, component_json, tick)
     }
 
@@ -142,9 +135,7 @@ impl ComponentTableStore {
         component_json: String,
         tick: Tick,
     ) -> Result<(), XaceError> {
-        let table = self.get_table_mut_or_error(
-            component_type_id, "update_component"
-        )?;
+        let table = self.get_table_mut_or_error(component_type_id, "update_component")?;
         table.update(entity_id, component_json, tick)
     }
 
@@ -155,9 +146,7 @@ impl ComponentTableStore {
         component_type_id: u32,
         tick: Tick,
     ) -> Result<String, XaceError> {
-        let table = self.get_table_mut_or_error(
-            component_type_id, "remove_component"
-        )?;
+        let table = self.get_table_mut_or_error(component_type_id, "remove_component")?;
         table.remove(entity_id, tick)
     }
 
@@ -172,22 +161,14 @@ impl ComponentTableStore {
     }
 
     /// Returns the component JSON for an entity, if it has this component.
-    pub fn get_component(
-        &self,
-        entity_id: EntityID,
-        component_type_id: u32,
-    ) -> Option<&str> {
+    pub fn get_component(&self, entity_id: EntityID, component_type_id: u32) -> Option<&str> {
         self.tables
             .get(&component_type_id)
             .and_then(|t| t.get(entity_id))
     }
 
     /// Returns true if an entity has the given component.
-    pub fn has_component(
-        &self,
-        entity_id: EntityID,
-        component_type_id: u32,
-    ) -> bool {
+    pub fn has_component(&self, entity_id: EntityID, component_type_id: u32) -> bool {
         self.tables
             .get(&component_type_id)
             .map(|t| t.has(entity_id))
@@ -196,10 +177,7 @@ impl ComponentTableStore {
 
     /// Returns all component type IDs that the given entity has.
     /// Sorted ascending for determinism (D11).
-    pub fn component_types_for_entity(
-        &self,
-        entity_id: EntityID,
-    ) -> Vec<u32> {
+    pub fn component_types_for_entity(&self, entity_id: EntityID) -> Vec<u32> {
         self.tables
             .iter()
             .filter(|(_, table)| table.has(entity_id))
@@ -216,10 +194,7 @@ impl ComponentTableStore {
     /// This is the core of the QueryEngine's intersection query.
     /// Uses a progressive intersection approach — starts with the
     /// smallest table and intersects with each subsequent table.
-    pub fn entities_with_all_components(
-        &self,
-        component_type_ids: &[u32],
-    ) -> Vec<EntityID> {
+    pub fn entities_with_all_components(&self, component_type_ids: &[u32]) -> Vec<EntityID> {
         if component_type_ids.is_empty() {
             return Vec::new();
         }
@@ -281,8 +256,9 @@ impl ComponentTableStore {
         component_type_id: u32,
         operation: &str,
     ) -> Result<&mut ComponentTable, XaceError> {
-        self.tables.get_mut(&component_type_id).ok_or_else(|| {
-            XaceError::ValidationFailure {
+        self.tables
+            .get_mut(&component_type_id)
+            .ok_or_else(|| XaceError::ValidationFailure {
                 message: format!(
                     "No ComponentTable registered for type_id {} — \
                      component must be registered before use",
@@ -291,8 +267,7 @@ impl ComponentTableStore {
                 context: ErrorContext::new("ComponentTableStore", operation),
                 rule_violated: "table_must_exist".into(),
                 failed_path: format!("component_type_id:{}", component_type_id),
-            }
-        })
+            })
     }
 }
 

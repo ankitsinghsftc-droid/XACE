@@ -148,11 +148,11 @@ impl WorldHasher {
 
             // state — encode as u8 discriminant
             let state_byte: u8 = match record.state {
-                xace_core::entity_state::EntityState::Active           => 0,
-                xace_core::entity_state::EntityState::Disabled         => 1,
+                xace_core::entity_state::EntityState::Active => 0,
+                xace_core::entity_state::EntityState::Disabled => 1,
                 xace_core::entity_state::EntityState::DestroyRequested => 2,
-                xace_core::entity_state::EntityState::Destroyed        => 3,
-                xace_core::entity_state::EntityState::Archived         => 4,
+                xace_core::entity_state::EntityState::Destroyed => 3,
+                xace_core::entity_state::EntityState::Archived => 4,
             };
             Self::feed_u8(hasher, state_byte);
 
@@ -227,10 +227,8 @@ fn hex_encode(bytes: &[u8]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::world_snapshot::{
-        WorldSnapshot, ComponentTableSnapshot, EntityRecord,
-    };
     use xace_core::entity_state::EntityState;
+    use xace_core::runtime::world_snapshot::{ComponentTableSnapshot, EntityRecord, WorldSnapshot};
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -242,9 +240,9 @@ mod tests {
 
     fn snap_with_entity(tick: u64, entity_id: u64) -> WorldSnapshot {
         let mut s = empty_snap(tick);
-        s.entity_store_snapshot.entities.push(
-            EntityRecord::new(entity_id, EntityState::Active, 0)
-        );
+        s.entity_store_snapshot
+            .entities
+            .push(EntityRecord::new(entity_id, EntityState::Active, 0));
         s.entity_store_snapshot.next_entity_id = entity_id + 1;
         s
     }
@@ -335,9 +333,7 @@ mod tests {
     #[test]
     fn adding_component_changes_hash() {
         let base = WorldHasher::compute(&snap_with_entity(1, 1));
-        let with_comp = WorldHasher::compute(&snap_with_component(
-            1, 1, 1, r#"{"x":0}"#,
-        ));
+        let with_comp = WorldHasher::compute(&snap_with_component(1, 1, 1, r#"{"x":0}"#));
         assert_ne!(base, with_comp, "Adding a component must change the hash");
     }
 
@@ -345,14 +341,20 @@ mod tests {
     fn different_component_values_produce_different_hashes() {
         let a = WorldHasher::compute(&snap_with_component(1, 1, 1, r#"{"x":1}"#));
         let b = WorldHasher::compute(&snap_with_component(1, 1, 1, r#"{"x":2}"#));
-        assert_ne!(a, b, "Different component values must produce different hashes");
+        assert_ne!(
+            a, b,
+            "Different component values must produce different hashes"
+        );
     }
 
     #[test]
     fn same_component_values_produce_same_hash() {
         let a = WorldHasher::compute(&snap_with_component(1, 1, 1, r#"{"x":1}"#));
         let b = WorldHasher::compute(&snap_with_component(1, 1, 1, r#"{"x":1}"#));
-        assert_eq!(a, b, "Identical component data must produce identical hash (D9)");
+        assert_eq!(
+            a, b,
+            "Identical component data must produce identical hash (D9)"
+        );
     }
 
     // ── Schema Version Sensitivity ────────────────────────────────────────────

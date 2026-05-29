@@ -78,20 +78,12 @@ impl AnimationControllerDefinition {
         }
     }
 
-    pub fn with_parameter(
-        mut self,
-        name: impl Into<String>,
-        param_type: ParameterType,
-    ) -> Self {
+    pub fn with_parameter(mut self, name: impl Into<String>, param_type: ParameterType) -> Self {
         self.parameters.insert(name.into(), param_type);
         self
     }
 
-    pub fn with_transition(
-        mut self,
-        from: impl Into<String>,
-        to: impl Into<String>,
-    ) -> Self {
+    pub fn with_transition(mut self, from: impl Into<String>, to: impl Into<String>) -> Self {
         self.allowed_transitions.insert((from.into(), to.into()));
         self
     }
@@ -117,10 +109,7 @@ pub enum AnimationValidationErrorType {
 }
 
 impl AnimationValidationError {
-    pub fn new(
-        error_type: AnimationValidationErrorType,
-        message: impl Into<String>,
-    ) -> Self {
+    pub fn new(error_type: AnimationValidationErrorType, message: impl Into<String>) -> Self {
         Self {
             error_type,
             message: message.into(),
@@ -139,7 +128,10 @@ pub struct AnimationValidationResult {
 
 impl AnimationValidationResult {
     pub fn valid() -> Self {
-        Self { errors: Vec::new(), warnings: Vec::new() }
+        Self {
+            errors: Vec::new(),
+            warnings: Vec::new(),
+        }
     }
 
     pub fn is_valid(&self) -> bool {
@@ -191,9 +183,7 @@ impl AnimationStateValidator {
                 format!(
                     "Layer '{}' not found in controller '{}' — \
                      valid layers: {:?}",
-                    layer_name,
-                    controller.controller_id,
-                    controller.valid_layers,
+                    layer_name, controller.controller_id, controller.valid_layers,
                 ),
             ));
         }
@@ -205,9 +195,7 @@ impl AnimationStateValidator {
                 format!(
                     "State '{}' not found in controller '{}' — \
                      valid states: {:?}",
-                    to_state,
-                    controller.controller_id,
-                    controller.valid_states,
+                    to_state, controller.controller_id, controller.valid_states,
                 ),
             ));
         }
@@ -387,18 +375,14 @@ mod tests {
     #[test]
     fn valid_transition_passes() {
         let v = AnimationStateValidator::new();
-        let result = v.validate_transition(
-            "Base", "Idle", "Run", &controller()
-        );
+        let result = v.validate_transition("Base", "Idle", "Run", &controller());
         assert!(result.is_valid());
     }
 
     #[test]
     fn invalid_target_state_fails() {
         let v = AnimationStateValidator::new();
-        let result = v.validate_transition(
-            "Base", "Idle", "NonExistentState", &controller()
-        );
+        let result = v.validate_transition("Base", "Idle", "NonExistentState", &controller());
         assert!(!result.is_valid());
         assert!(result.errors[0].error_type == AnimationValidationErrorType::InvalidState);
     }
@@ -406,9 +390,7 @@ mod tests {
     #[test]
     fn invalid_layer_fails() {
         let v = AnimationStateValidator::new();
-        let result = v.validate_transition(
-            "NonExistentLayer", "Idle", "Run", &controller()
-        );
+        let result = v.validate_transition("NonExistentLayer", "Idle", "Run", &controller());
         assert!(!result.is_valid());
     }
 

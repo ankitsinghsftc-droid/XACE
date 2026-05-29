@@ -77,8 +77,12 @@ fn get_all_alive_sorted_ascending_d3() {
     let alive = store.get_all_alive();
     assert_eq!(alive, vec![a, b, c]);
     for window in alive.windows(2) {
-        assert!(window[0] < window[1],
-            "get_all_alive() not sorted: {} >= {}", window[0], window[1]);
+        assert!(
+            window[0] < window[1],
+            "get_all_alive() not sorted: {} >= {}",
+            window[0],
+            window[1]
+        );
     }
 }
 
@@ -325,10 +329,7 @@ fn snapshot_restore_preserves_alive_entities() {
     let id1 = store.create_entity(0).unwrap();
     let id2 = store.create_entity(0).unwrap();
 
-    let records: Vec<_> = store.all_metadata_sorted()
-        .into_iter()
-        .cloned()
-        .collect();
+    let records: Vec<_> = store.all_metadata_sorted().into_iter().cloned().collect();
     let next_id = store.peek_next_id();
     let archive_entries = store.archive().all_entries_sorted();
 
@@ -347,10 +348,7 @@ fn snapshot_restore_preserves_generator_state() {
     store.create_entity(0).unwrap();
     let next_before = store.peek_next_id();
 
-    let records: Vec<_> = store.all_metadata_sorted()
-        .into_iter()
-        .cloned()
-        .collect();
+    let records: Vec<_> = store.all_metadata_sorted().into_iter().cloned().collect();
 
     let mut restored = EntityStore::new();
     restored.restore_from_snapshot(records, next_before, vec![]);
@@ -369,10 +367,7 @@ fn snapshot_restore_preserves_archive() {
     store.request_destroy(id, 1).unwrap();
     store.complete_destroy(id, 2).unwrap();
 
-    let records: Vec<_> = store.all_metadata_sorted()
-        .into_iter()
-        .cloned()
-        .collect();
+    let records: Vec<_> = store.all_metadata_sorted().into_iter().cloned().collect();
     let next_id = store.peek_next_id();
     let archive_entries = store.archive().all_entries_sorted();
 

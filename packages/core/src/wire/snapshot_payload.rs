@@ -35,11 +35,11 @@
 //! Components within each entity are sorted by type_id ASC (D11).
 //! Identical world state always produces identical SnapshotPayload bytes.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::EntityID;
-use crate::entity_state::EntityState;
 use crate::entity_metadata::Tick;
+use crate::entity_state::EntityState;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Snapshot Entity Record ────────────────────────────────────────────────────
 
@@ -82,7 +82,8 @@ impl SnapshotEntityRecord {
     /// Adds a component record to this entity.
     /// BTreeMap insertion maintains type_id ascending order (D11).
     pub fn add_component(&mut self, component: SnapshotComponentRecord) {
-        self.components.insert(component.component_type_id, component);
+        self.components
+            .insert(component.component_type_id, component);
     }
 
     /// Returns the component record for a specific type, if present.
@@ -266,7 +267,8 @@ impl SnapshotPayload {
     /// Adds an entity record maintaining EntityID sort order (D3).
     /// Only Active and Disabled entities should be added.
     pub fn add_entity(&mut self, entity: SnapshotEntityRecord) {
-        let pos = self.entities
+        let pos = self
+            .entities
             .partition_point(|e| e.entity_id < entity.entity_id);
         self.entities.insert(pos, entity);
     }
@@ -316,15 +318,11 @@ impl SnapshotPayload {
     /// - No duplicate entity IDs
     pub fn validate(&self) -> Result<(), String> {
         if self.schema_version.is_empty() {
-            return Err(
-                "SnapshotPayload schema_version must not be empty".into()
-            );
+            return Err("SnapshotPayload schema_version must not be empty".into());
         }
 
         if self.execution_plan_version == 0 {
-            return Err(
-                "SnapshotPayload execution_plan_version must be >= 1".into()
-            );
+            return Err("SnapshotPayload execution_plan_version must be >= 1".into());
         }
 
         if self.world_hash.is_empty() {
@@ -418,16 +416,10 @@ mod tests {
     fn total_component_count_sums_correctly() {
         let mut snap = test_snapshot();
         let mut entity1 = SnapshotEntityRecord::new(1, EntityState::Active);
-        entity1.add_component(SnapshotComponentRecord::new(
-            1, "COMP_TRANSFORM_V1", "{}"
-        ));
-        entity1.add_component(SnapshotComponentRecord::new(
-            2, "COMP_IDENTITY_V1", "{}"
-        ));
+        entity1.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
+        entity1.add_component(SnapshotComponentRecord::new(2, "COMP_IDENTITY_V1", "{}"));
         let mut entity2 = SnapshotEntityRecord::new(2, EntityState::Active);
-        entity2.add_component(SnapshotComponentRecord::new(
-            1, "COMP_TRANSFORM_V1", "{}"
-        ));
+        entity2.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
         snap.add_entity(entity1);
         snap.add_entity(entity2);
         assert_eq!(snap.total_component_count(), 3);
@@ -476,8 +468,10 @@ mod tests {
     fn validate_fails_for_unsorted_entities() {
         let mut snap = test_snapshot();
         // Force unsorted insertion bypassing add_entity
-        snap.entities.push(SnapshotEntityRecord::new(5, EntityState::Active));
-        snap.entities.push(SnapshotEntityRecord::new(2, EntityState::Active));
+        snap.entities
+            .push(SnapshotEntityRecord::new(5, EntityState::Active));
+        snap.entities
+            .push(SnapshotEntityRecord::new(2, EntityState::Active));
         assert!(snap.validate().is_err());
     }
 
@@ -485,7 +479,9 @@ mod tests {
     fn entity_record_component_operations() {
         let mut entity = SnapshotEntityRecord::new(1, EntityState::Active);
         entity.add_component(SnapshotComponentRecord::new(
-            1, "COMP_TRANSFORM_V1", r#"{"position":{"x":0}}"#
+            1,
+            "COMP_TRANSFORM_V1",
+            r#"{"position":{"x":0}}"#,
         ));
         assert!(entity.has_component(1));
         assert!(!entity.has_component(99));
@@ -508,10 +504,7 @@ mod tests {
             SnapshotReason::InitialConnection.to_string(),
             "InitialConnection"
         );
-        assert_eq!(
-            SnapshotReason::DesyncRecovery.to_string(),
-            "DesyncRecovery"
-        );
+        assert_eq!(SnapshotReason::DesyncRecovery.to_string(), "DesyncRecovery");
     }
 
     #[test]

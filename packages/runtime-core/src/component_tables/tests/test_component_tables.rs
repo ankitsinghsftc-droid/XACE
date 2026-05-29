@@ -73,8 +73,12 @@ fn table_iteration_order_is_deterministic_d3() {
     let ids: Vec<u64> = table.iter().map(|(id, _)| id).collect();
     assert_eq!(ids, vec![1, 3, 5, 7, 10]);
     for window in ids.windows(2) {
-        assert!(window[0] < window[1],
-            "Iteration not sorted: {} >= {}", window[0], window[1]);
+        assert!(
+            window[0] < window[1],
+            "Iteration not sorted: {} >= {}",
+            window[0],
+            window[1]
+        );
     }
 }
 
@@ -256,7 +260,9 @@ fn store_deep_clone_produces_independent_copy() {
     store.add_component(1, 1, r#"{"x":1}"#.into(), 0).unwrap();
 
     let cloned = store.deep_clone_all();
-    store.update_component(1, 1, r#"{"x":999}"#.into(), 1).unwrap();
+    store
+        .update_component(1, 1, r#"{"x":999}"#.into(), 1)
+        .unwrap();
 
     let original_in_clone = cloned.get(&1).unwrap().get(1);
     assert_eq!(original_in_clone, Some(r#"{"x":1}"#));

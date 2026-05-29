@@ -59,7 +59,6 @@ use crate::component_tables::archetype::{Archetype, ComponentBundle};
 use crate::component_tables::archetype_index::{ArchetypeIndex, ArchetypeLocation};
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId, TypeId};
 
-
 // ── Storage Errors ────────────────────────────────────────────────────────────
 
 #[derive(Debug, thiserror::Error)]
@@ -81,7 +80,6 @@ pub enum ArchetypeStorageError {
 }
 
 pub type Result<T> = std::result::Result<T, ArchetypeStorageError>;
-
 
 // ── Archetype Storage ─────────────────────────────────────────────────────────
 
@@ -105,9 +103,9 @@ impl ArchetypeStorage {
     pub fn new() -> Self {
         Self {
             archetypes_by_set: BTreeMap::new(),
-            archetypes:        BTreeMap::new(),
-            index:             ArchetypeIndex::new(),
-            next_archetype_id: 1,    // 0 reserved for "no archetype"
+            archetypes: BTreeMap::new(),
+            index: ArchetypeIndex::new(),
+            next_archetype_id: 1, // 0 reserved for "no archetype"
         }
     }
 
@@ -122,7 +120,7 @@ impl ArchetypeStorage {
     /// Inserts a new entity with the given components.
     pub fn add_entity(
         &mut self,
-        entity_id:  EntityId,
+        entity_id: EntityId,
         components: BTreeMap<TypeId, Vec<u8>>,
     ) -> Result<()> {
         if self.index.contains(entity_id) {
@@ -132,17 +130,22 @@ impl ArchetypeStorage {
         let component_set: BTreeSet<TypeId> = components.keys().copied().collect();
         let archetype_id = self.get_or_create_archetype(component_set);
 
-        let archetype = self.archetypes.get_mut(&archetype_id)
+        let archetype = self
+            .archetypes
+            .get_mut(&archetype_id)
             .expect("archetype just created/looked up");
         let row = archetype.add_entity(entity_id, components);
 
-        self.index.insert(entity_id, ArchetypeLocation::new(archetype_id, row));
+        self.index
+            .insert(entity_id, ArchetypeLocation::new(archetype_id, row));
         Ok(())
     }
 
     /// Removes an entity entirely from storage.
     pub fn remove_entity(&mut self, entity_id: EntityId) -> Result<()> {
-        let location = self.index.remove(entity_id)
+        let location = self
+            .index
+            .remove(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
 
         self.swap_remove_and_reindex(entity_id, location)?;
@@ -152,18 +155,23 @@ impl ArchetypeStorage {
     // ── Component Lifecycle ───────────────────────────────────────────────────
 
     /// Reads a component value for an entity.
-    pub fn get_component(
-        &self,
-        entity_id: EntityId,
-        type_id:   TypeId,
-    ) -> Result<&[u8]> {
-        let loc = self.index.lookup(entity_id)
+    pub fn get_component(&self, entity_id: EntityId, type_id: TypeId) -> Result<&[u8]> {
+        let loc = self
+            .index
+            .lookup(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
-        let archetype = self.archetypes.get(&loc.archetype_id)
+        let archetype = self
+            .archetypes
+            .get(&loc.archetype_id)
             .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
-        archetype.columns.get(&type_id)
+        archetype
+            .columns
+            .get(&type_id)
             .and_then(|col| col.get(loc.row))
-            .ok_or(ArchetypeStorageError::ComponentNotFound { entity: entity_id, type_id })
+            .ok_or(ArchetypeStorageError::ComponentNotFound {
+                entity: entity_id,
+                type_id,
+            })
     }
 
     /// Modifies a component value in place.
@@ -171,34 +179,47 @@ impl ArchetypeStorage {
     pub fn modify_component(
         &mut self,
         entity_id: EntityId,
-        type_id:   TypeId,
+        type_id: TypeId,
         new_value: Vec<u8>,
     ) -> Result<Vec<u8>> {
-        let loc = self.index.lookup(entity_id)
+        let loc = self
+            .index
+            .lookup(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
-        let archetype = self.archetypes.get_mut(&loc.archetype_id)
+        let archetype = self
+            .archetypes
+            .get_mut(&loc.archetype_id)
             .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
-        archetype.set_component(entity_id, type_id, new_value)
-            .ok_or(ArchetypeStorageError::ComponentNotFound { entity: entity_id, type_id })
+        archetype
+            .set_component(entity_id, type_id, new_value)
+            .ok_or(ArchetypeStorageError::ComponentNotFound {
+                entity: entity_id,
+                type_id,
+            })
     }
 
     /// Adds a component to an entity. Migrates the entity to a new archetype.
     pub fn add_component(
         &mut self,
         entity_id: EntityId,
-        type_id:   TypeId,
-        value:     Vec<u8>,
+        type_id: TypeId,
+        value: Vec<u8>,
     ) -> Result<()> {
-        let loc = self.index.lookup(entity_id)
+        let loc = self
+            .index
+            .lookup(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
 
         // Check: does the entity already have this component?
         {
-            let archetype = self.archetypes.get(&loc.archetype_id)
+            let archetype = self
+                .archetypes
+                .get(&loc.archetype_id)
                 .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
             if archetype.component_set.contains(&type_id) {
                 return Err(ArchetypeStorageError::ComponentAlreadyExists {
-                    entity: entity_id, type_id,
+                    entity: entity_id,
+                    type_id,
                 });
             }
         }
@@ -210,21 +231,22 @@ impl ArchetypeStorage {
     }
 
     /// Removes a component from an entity. Migrates the entity to a new archetype.
-    pub fn remove_component(
-        &mut self,
-        entity_id: EntityId,
-        type_id:   TypeId,
-    ) -> Result<Vec<u8>> {
-        let loc = self.index.lookup(entity_id)
+    pub fn remove_component(&mut self, entity_id: EntityId, type_id: TypeId) -> Result<Vec<u8>> {
+        let loc = self
+            .index
+            .lookup(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
 
         // Verify the entity has this component
         {
-            let archetype = self.archetypes.get(&loc.archetype_id)
+            let archetype = self
+                .archetypes
+                .get(&loc.archetype_id)
                 .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
             if !archetype.component_set.contains(&type_id) {
                 return Err(ArchetypeStorageError::ComponentNotFound {
-                    entity: entity_id, type_id,
+                    entity: entity_id,
+                    type_id,
                 });
             }
         }
@@ -245,11 +267,20 @@ impl ArchetypeStorage {
     ///
     /// Uses the global index for sorted order; lookup back to archetype for components.
     pub fn iter_sorted(&self) -> impl Iterator<Item = (EntityId, ComponentBundle<'_>)> + '_ {
-        self.index.iter_sorted().filter_map(move |(entity_id, loc)| {
-            self.archetypes.get(&loc.archetype_id).map(|arch| {
-                (entity_id, ComponentBundle { entity_id, row: loc.row, archetype: arch })
+        self.index
+            .iter_sorted()
+            .filter_map(move |(entity_id, loc)| {
+                self.archetypes.get(&loc.archetype_id).map(|arch| {
+                    (
+                        entity_id,
+                        ComponentBundle {
+                            entity_id,
+                            row: loc.row,
+                            archetype: arch,
+                        },
+                    )
+                })
             })
-        })
     }
 
     /// Iterates entities matching the required component set.
@@ -259,19 +290,30 @@ impl ArchetypeStorage {
         required: &'a BTreeSet<TypeId>,
     ) -> impl Iterator<Item = (EntityId, ComponentBundle<'a>)> + 'a {
         // Filter to archetypes containing all required components
-        let matching_archetype_ids: BTreeSet<ArchetypeId> = self.archetypes.iter()
+        let matching_archetype_ids: BTreeSet<ArchetypeId> = self
+            .archetypes
+            .iter()
             .filter(|(_, a)| a.matches_query(required))
             .map(|(&id, _)| id)
             .collect();
 
-        self.index.iter_sorted().filter_map(move |(entity_id, loc)| {
-            if !matching_archetype_ids.contains(&loc.archetype_id) {
-                return None;
-            }
-            self.archetypes.get(&loc.archetype_id).map(|arch| {
-                (entity_id, ComponentBundle { entity_id, row: loc.row, archetype: arch })
+        self.index
+            .iter_sorted()
+            .filter_map(move |(entity_id, loc)| {
+                if !matching_archetype_ids.contains(&loc.archetype_id) {
+                    return None;
+                }
+                self.archetypes.get(&loc.archetype_id).map(|arch| {
+                    (
+                        entity_id,
+                        ComponentBundle {
+                            entity_id,
+                            row: loc.row,
+                            archetype: arch,
+                        },
+                    )
+                })
             })
-        })
     }
 
     /// Returns the archetype an entity belongs to.
@@ -292,9 +334,15 @@ impl ArchetypeStorage {
 
     // ── Diagnostics ───────────────────────────────────────────────────────────
 
-    pub fn entity_count(&self) -> usize { self.index.len() }
-    pub fn archetype_count(&self) -> usize { self.archetypes.len() }
-    pub fn contains_entity(&self, entity_id: EntityId) -> bool { self.index.contains(entity_id) }
+    pub fn entity_count(&self) -> usize {
+        self.index.len()
+    }
+    pub fn archetype_count(&self) -> usize {
+        self.archetypes.len()
+    }
+    pub fn contains_entity(&self, entity_id: EntityId) -> bool {
+        self.index.contains(entity_id)
+    }
 
     pub fn entity_distribution(&self) -> BTreeMap<ArchetypeId, usize> {
         self.index.count_by_archetype()
@@ -323,17 +371,20 @@ impl ArchetypeStorage {
     fn migrate_with_component_change<F>(
         &mut self,
         entity_id: EntityId,
-        loc:       ArchetypeLocation,
-        mutator:   F,
+        loc: ArchetypeLocation,
+        mutator: F,
     ) -> Result<()>
     where
         F: FnOnce(&mut BTreeMap<TypeId, Vec<u8>>),
     {
         // 1. Remove from current archetype, capturing all components
         let mut components = {
-            let arch = self.archetypes.get_mut(&loc.archetype_id)
+            let arch = self
+                .archetypes
+                .get_mut(&loc.archetype_id)
                 .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
-            let removed = arch.remove_entity(entity_id)
+            let removed = arch
+                .remove_entity(entity_id)
                 .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;
 
             // 1b. If swap-remove relocated another entity, update its index entry
@@ -347,19 +398,24 @@ impl ArchetypeStorage {
         // 3. Find / create destination archetype and insert
         let new_set: BTreeSet<TypeId> = components.keys().copied().collect();
         let new_arch_id = self.get_or_create_archetype(new_set);
-        let arch = self.archetypes.get_mut(&new_arch_id)
+        let arch = self
+            .archetypes
+            .get_mut(&new_arch_id)
             .expect("destination archetype just created");
         let new_row = arch.add_entity(entity_id, components);
 
         // 4. Update the index
-        self.index.update_location(entity_id, ArchetypeLocation::new(new_arch_id, new_row));
+        self.index
+            .update_location(entity_id, ArchetypeLocation::new(new_arch_id, new_row));
         Ok(())
     }
 
     /// After a swap-remove, the entity that was at the last row is now at `loc.row`.
     /// Update the global index for that entity.
     fn fix_swap_index(&mut self, loc: ArchetypeLocation) -> Result<()> {
-        let archetype = self.archetypes.get(&loc.archetype_id)
+        let archetype = self
+            .archetypes
+            .get(&loc.archetype_id)
             .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
         // After swap_remove, the entity now at loc.row is the one that was relocated.
         // (entity_ids[loc.row] is the swapped entity.) Update its index entry.
@@ -376,9 +432,11 @@ impl ArchetypeStorage {
     fn swap_remove_and_reindex(
         &mut self,
         entity_id: EntityId,
-        loc:       ArchetypeLocation,
+        loc: ArchetypeLocation,
     ) -> Result<()> {
-        let arch = self.archetypes.get_mut(&loc.archetype_id)
+        let arch = self
+            .archetypes
+            .get_mut(&loc.archetype_id)
             .ok_or(ArchetypeStorageError::ArchetypeNotFound(loc.archetype_id))?;
         arch.remove_entity(entity_id)
             .ok_or(ArchetypeStorageError::EntityNotFound(entity_id))?;

@@ -35,11 +35,11 @@
 //! StateDelta = what changed this tick (minimal, for engine sync)
 //! WorldSnapshot = complete world state (full, for rollback/replay)
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::EntityID;
-use crate::entity_state::EntityState;
 use crate::entity_metadata::Tick;
+use crate::entity_state::EntityState;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Entity Store Snapshot ─────────────────────────────────────────────────────
 
@@ -69,11 +69,7 @@ pub struct EntityRecord {
 }
 
 impl EntityRecord {
-    pub fn new(
-        entity_id: EntityID,
-        state: EntityState,
-        created_tick: Tick,
-    ) -> Self {
+    pub fn new(entity_id: EntityID, state: EntityState, created_tick: Tick) -> Self {
         Self {
             entity_id,
             state,
@@ -145,10 +141,7 @@ pub struct ComponentTableSnapshot {
 }
 
 impl ComponentTableSnapshot {
-    pub fn new(
-        component_type_id: u32,
-        component_type_name: impl Into<String>,
-    ) -> Self {
+    pub fn new(component_type_id: u32, component_type_name: impl Into<String>) -> Self {
         Self {
             component_type_id,
             component_type_name: component_type_name.into(),
@@ -261,15 +254,13 @@ impl RngState {
 
     /// Records the current stream position for a system.
     pub fn set_stream_position(&mut self, system_id: &str, position: u64) {
-        self.stream_positions.insert(system_id.to_string(), position);
+        self.stream_positions
+            .insert(system_id.to_string(), position);
     }
 
     /// Returns the stream position for a system, or 0 if not yet recorded.
     pub fn get_stream_position(&self, system_id: &str) -> u64 {
-        self.stream_positions
-            .get(system_id)
-            .copied()
-            .unwrap_or(0)
+        self.stream_positions.get(system_id).copied().unwrap_or(0)
     }
 }
 
@@ -508,11 +499,7 @@ impl WorldSnapshot {
     }
 
     /// Creates a minimal snapshot for testing and serializer use.
-    pub fn minimal(
-        tick: Tick,
-        schema_version: String,
-        world_hash: String,
-    ) -> Self {
+    pub fn minimal(tick: Tick, schema_version: String, world_hash: String) -> Self {
         Self {
             tick,
             time_seconds: 0.0,
@@ -585,25 +572,19 @@ impl WorldSnapshot {
         }
 
         if self.execution_plan_version == 0 {
-            return Err(
-                "WorldSnapshot execution_plan_version must be >= 1".into()
-            );
+            return Err("WorldSnapshot execution_plan_version must be >= 1".into());
         }
 
         if self.world_hash.is_empty() {
-            return Err(
-                "WorldSnapshot world_hash must not be empty — \
+            return Err("WorldSnapshot world_hash must not be empty — \
                  compute hash before calling validate()"
-                    .into(),
-            );
+                .into());
         }
 
         if self.entity_store_snapshot.next_entity_id == 0 {
-            return Err(
-                "WorldSnapshot entity_store next_entity_id must be > 0 — \
+            return Err("WorldSnapshot entity_store next_entity_id must be > 0 — \
                  NULL_ENTITY_ID (0) must never be generated (D2)"
-                    .into(),
-            );
+                .into());
         }
 
         // Verify all entity IDs in component tables exist in entity store
@@ -632,11 +613,7 @@ impl WorldSnapshot {
     /// Returns true if this snapshot is compatible with the given
     /// schema version and execution plan version.
     /// Used by the runtime before restoring a snapshot (I7, D10).
-    pub fn is_compatible(
-        &self,
-        schema_version: &str,
-        execution_plan_version: u32,
-    ) -> bool {
+    pub fn is_compatible(&self, schema_version: &str, execution_plan_version: u32) -> bool {
         self.schema_version == schema_version
             && self.execution_plan_version == execution_plan_version
     }
@@ -721,11 +698,9 @@ mod tests {
     fn validate_passes_when_component_entity_in_store() {
         let mut snap = test_snapshot();
         // Add entity to store
-        snap.entity_store_snapshot.entities.push(EntityRecord::new(
-            1,
-            EntityState::Active,
-            0,
-        ));
+        snap.entity_store_snapshot
+            .entities
+            .push(EntityRecord::new(1, EntityState::Active, 0));
         snap.entity_store_snapshot.next_entity_id = 2;
         // Add component for that entity
         let mut table = ComponentTableSnapshot::new(1, "COMP_TRANSFORM_V1");
@@ -759,9 +734,15 @@ mod tests {
     #[test]
     fn entity_store_snapshot_counts_correctly() {
         let mut store = EntityStoreSnapshot::empty();
-        store.entities.push(EntityRecord::new(1, EntityState::Active, 0));
-        store.entities.push(EntityRecord::new(2, EntityState::Active, 0));
-        store.entities.push(EntityRecord::new(3, EntityState::Archived, 5));
+        store
+            .entities
+            .push(EntityRecord::new(1, EntityState::Active, 0));
+        store
+            .entities
+            .push(EntityRecord::new(2, EntityState::Active, 0));
+        store
+            .entities
+            .push(EntityRecord::new(3, EntityState::Archived, 5));
         assert_eq!(store.entity_count(), 3);
         assert_eq!(store.alive_count(), 2);
     }
@@ -821,9 +802,9 @@ mod tests {
     fn total_component_count_delegates_correctly() {
         let mut snap = test_snapshot();
         let mut table = ComponentTableSnapshot::new(1, "COMP_TRANSFORM_V1");
-        snap.entity_store_snapshot.entities.push(
-            EntityRecord::new(1, EntityState::Active, 0)
-        );
+        snap.entity_store_snapshot
+            .entities
+            .push(EntityRecord::new(1, EntityState::Active, 0));
         snap.entity_store_snapshot.next_entity_id = 2;
         table.set(1, "{}");
         snap.component_tables_snapshot.set_table(table);

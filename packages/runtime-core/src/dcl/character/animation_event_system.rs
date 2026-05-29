@@ -23,7 +23,6 @@ use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
 use xace_core::events::event_type::EventType;
 
-
 // ── Animation Event ───────────────────────────────────────────────────────────
 
 /// A pending animation event defined in COMP_ANIMATION_V2.
@@ -178,23 +177,15 @@ impl AnimationEventSystem {
 
         // BTreeMap iteration is EntityID ascending (D3)
         for (entity_id, events) in entity_events.iter_mut() {
-            let normalized_time = normalized_times
-                .get(entity_id)
-                .copied()
-                .unwrap_or(0.0);
+            let normalized_time = normalized_times.get(entity_id).copied().unwrap_or(0.0);
 
             let active_state = active_states
                 .get(entity_id)
                 .map(|s| s.as_str())
                 .unwrap_or("");
 
-            let fired = self.process_entity_events(
-                *entity_id,
-                events,
-                normalized_time,
-                active_state,
-                tick,
-            );
+            let fired =
+                self.process_entity_events(*entity_id, events, normalized_time, active_state, tick);
             all_fired.extend(fired);
         }
 
@@ -205,11 +196,7 @@ impl AnimationEventSystem {
     ///
     /// When transitioning to a new state, unconsumed events from the
     /// previous state are no longer relevant and should be cleared.
-    pub fn reset_on_state_change(
-        &self,
-        pending_events: &mut Vec<AnimationEvent>,
-        new_state: &str,
-    ) {
+    pub fn reset_on_state_change(&self, pending_events: &mut Vec<AnimationEvent>, new_state: &str) {
         // Mark events from non-current states as consumed
         for event in pending_events.iter_mut() {
             if event.state_name != new_state {
@@ -232,21 +219,20 @@ impl Default for AnimationEventSystem {
 mod tests {
     use super::*;
 
-    fn make_event(
-        id: &str,
-        state: &str,
-        trigger_time: f32,
-    ) -> AnimationEvent {
-        AnimationEvent::new(id, state, trigger_time, EventType::Custom("anim_hit".into()))
+    fn make_event(id: &str, state: &str, trigger_time: f32) -> AnimationEvent {
+        AnimationEvent::new(
+            id,
+            state,
+            trigger_time,
+            EventType::Domain("animation.anim_hit".into()),
+        )
     }
 
     #[test]
     fn fires_event_when_time_reached() {
         let sys = AnimationEventSystem::new();
         let mut events = vec![make_event("evt_01", "Attack", 0.5)];
-        let fired = sys.process_entity_events(
-            1, &mut events, 0.6, "Attack", 10
-        );
+        let fired = sys.process_entity_events(1, &mut events, 0.6, "Attack", 10);
         assert_eq!(fired.len(), 1);
         assert_eq!(fired[0].event_id, "evt_01");
         assert!(events[0].is_consumed);
@@ -256,9 +242,7 @@ mod tests {
     fn does_not_fire_before_trigger_time() {
         let sys = AnimationEventSystem::new();
         let mut events = vec![make_event("evt_01", "Attack", 0.8)];
-        let fired = sys.process_entity_events(
-            1, &mut events, 0.5, "Attack", 10
-        );
+        let fired = sys.process_entity_events(1, &mut events, 0.5, "Attack", 10);
         assert!(fired.is_empty());
         assert!(!events[0].is_consumed);
     }
@@ -268,7 +252,11 @@ mod tests {
         let sys = AnimationEventSystem::new();
         let mut events = vec![make_event("evt_01", "Attack", 0.5)];
         let fired = sys.process_entity_events(
-            1, &mut events, 0.9, "Idle", 10 // Wrong state
+            1,
+            &mut events,
+            0.9,
+            "Idle",
+            10, // Wrong state
         );
         assert!(fired.is_empty());
     }
@@ -277,9 +265,7 @@ mod tests {
     fn fires_at_exact_trigger_time() {
         let sys = AnimationEventSystem::new();
         let mut events = vec![make_event("evt_01", "Run", 0.5)];
-        let fired = sys.process_entity_events(
-            1, &mut events, 0.5, "Run", 5
-        );
+        let fired = sys.process_entity_events(1, &mut events, 0.5, "Run", 5);
         assert_eq!(fired.len(), 1);
     }
 
@@ -291,9 +277,7 @@ mod tests {
             make_event("evt_a", "Attack", 0.3),
             make_event("evt_b", "Attack", 0.6),
         ];
-        let fired = sys.process_entity_events(
-            1, &mut events, 1.0, "Attack", 10
-        );
+        let fired = sys.process_entity_events(1, &mut events, 1.0, "Attack", 10);
         assert_eq!(fired.len(), 3);
         // Fired in trigger_time ascending order
         assert_eq!(fired[0].event_id, "evt_a");
@@ -308,9 +292,7 @@ mod tests {
         // Fire once
         sys.process_entity_events(1, &mut events, 0.6, "Attack", 10);
         // Fire again — should not re-fire
-        let fired2 = sys.process_entity_events(
-            1, &mut events, 0.9, "Attack", 11
-        );
+        let fired2 = sys.process_entity_events(1, &mut events, 0.9, "Attack", 11);
         assert!(fired2.is_empty());
     }
 
@@ -369,9 +351,7 @@ mod tests {
         states.insert(2u64, "Run".to_string());
         states.insert(3u64, "Run".to_string());
 
-        let fired = sys.process_batch(
-            &mut entity_events, &times, &states, 0
-        );
+        let fired = sys.process_batch(&mut entity_events, &times, &states, 0);
         assert_eq!(fired.len(), 3);
         // Entity IDs in ascending order (D3)
         assert_eq!(fired[0].entity_id, 1);

@@ -9,8 +9,8 @@
 //! iteration order when routing events to subscribers.
 
 use std::collections::BTreeMap;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::events::event_type::EventType;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
 
 // ── Event Subscription Registry ───────────────────────────────────────────────
 
@@ -43,13 +43,8 @@ impl EventSubscriptionRegistry {
         let id = system_id.into();
         if self.subscriptions.contains_key(&id) {
             return Err(XaceError::ValidationFailure {
-                message: format!(
-                    "System '{}' already has event subscriptions registered",
-                    id
-                ),
-                context: ErrorContext::new(
-                    "EventSubscriptionRegistry", "register"
-                ),
+                message: format!("System '{}' already has event subscriptions registered", id),
+                context: ErrorContext::new("EventSubscriptionRegistry", "register"),
                 rule_violated: "I4".into(),
                 failed_path: format!("system:{}", id),
             });
@@ -60,11 +55,9 @@ impl EventSubscriptionRegistry {
 
     /// Returns all system IDs subscribed to the given event type.
     /// Result sorted alphabetically for deterministic routing (D11).
-    pub fn subscribers_for(
-        &self,
-        event_type: &EventType,
-    ) -> Vec<&str> {
-        let mut result: Vec<&str> = self.subscriptions
+    pub fn subscribers_for(&self, event_type: &EventType) -> Vec<&str> {
+        let mut result: Vec<&str> = self
+            .subscriptions
             .iter()
             .filter(|(_, types)| types.contains(event_type))
             .map(|(id, _)| id.as_str())
@@ -82,11 +75,7 @@ impl EventSubscriptionRegistry {
     }
 
     /// Returns true if the system is subscribed to the event type.
-    pub fn is_subscribed(
-        &self,
-        system_id: &str,
-        event_type: &EventType,
-    ) -> bool {
+    pub fn is_subscribed(&self, system_id: &str, event_type: &EventType) -> bool {
         self.subscriptions
             .get(system_id)
             .map(|types| types.contains(event_type))
@@ -114,7 +103,8 @@ mod tests {
     #[test]
     fn register_and_query() {
         let mut reg = EventSubscriptionRegistry::new();
-        reg.register("sys_combat", vec![EventType::DamageTaken]).unwrap();
+        reg.register("sys_combat", vec![EventType::DamageTaken])
+            .unwrap();
         assert!(reg.is_subscribed("sys_combat", &EventType::DamageTaken));
         assert!(!reg.is_subscribed("sys_combat", &EventType::EntitySpawned));
     }
@@ -132,8 +122,11 @@ mod tests {
     #[test]
     fn duplicate_registration_fails() {
         let mut reg = EventSubscriptionRegistry::new();
-        reg.register("sys_combat", vec![EventType::DamageTaken]).unwrap();
-        assert!(reg.register("sys_combat", vec![EventType::EntitySpawned]).is_err());
+        reg.register("sys_combat", vec![EventType::DamageTaken])
+            .unwrap();
+        assert!(reg
+            .register("sys_combat", vec![EventType::EntitySpawned])
+            .is_err());
     }
 
     #[test]

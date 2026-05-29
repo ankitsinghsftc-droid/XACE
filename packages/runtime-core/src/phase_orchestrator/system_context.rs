@@ -14,16 +14,16 @@
 //! submit_mutation() and submit_spawn() do not modify world state directly.
 //! They queue requests in the MutationGate for application after the phase.
 
-use std::collections::BTreeMap;
-use xace_core::entity_id::EntityID;
-use xace_core::entity_metadata::Tick;
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use xace_core::events::event_struct::Event;
-use xace_core::contracts::interfaces::ISystemContext;
-use crate::entity_store::EntityStore;
 use crate::component_tables::ComponentTableStore;
+use crate::entity_store::EntityStore;
 use crate::mutation_gate::MutationGate;
 use crate::query_engine::QueryEngine;
+use std::collections::BTreeMap;
+use xace_core::contracts::interfaces::ISystemContext;
+use xace_core::entity_id::EntityID;
+use xace_core::entity_metadata::Tick;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::events::event_struct::Event;
 
 // ── System Context ────────────────────────────────────────────────────────────
 
@@ -124,19 +124,13 @@ impl<'a> ISystemContext for SystemContext<'a> {
                 context: ErrorContext::new(self.system_id, "get_component")
                     .with_tick(self.current_tick),
                 rule_violated: "undeclared_read".into(),
-                failed_path: format!(
-                    "system:{}.reads.{}",
-                    self.system_id, component_type_id
-                ),
+                failed_path: format!("system:{}.reads.{}", self.system_id, component_type_id),
             });
         }
         Ok(self.table_store.get_component(entity_id, component_type_id))
     }
 
-    fn query_entities(
-        &self,
-        component_type_ids: &[u32],
-    ) -> Result<Vec<EntityID>, XaceError> {
+    fn query_entities(&self, component_type_ids: &[u32]) -> Result<Vec<EntityID>, XaceError> {
         // Validate all queried components are readable
         for &type_id in component_type_ids {
             if !self.can_read(type_id) {
@@ -156,7 +150,9 @@ impl<'a> ISystemContext for SystemContext<'a> {
         // We need mutable access to query engine but have &self
         // In production this would use interior mutability or a different design.
         // For Phase 4 we return the store's direct intersection result.
-        Ok(self.table_store.entities_with_all_components(component_type_ids))
+        Ok(self
+            .table_store
+            .entities_with_all_components(component_type_ids))
     }
 
     fn submit_mutation(
@@ -176,23 +172,28 @@ impl<'a> ISystemContext for SystemContext<'a> {
                 context: ErrorContext::new(self.system_id, "submit_mutation")
                     .with_tick(self.current_tick),
                 rule_violated: "undeclared_write".into(),
-                failed_path: format!(
-                    "system:{}.writes.{}",
-                    self.system_id, component_type_id
-                ),
+                failed_path: format!("system:{}.writes.{}", self.system_id, component_type_id),
             });
         }
 
         // Determine if this is an add or modify
         if self.table_store.has_component(entity_id, component_type_id) {
             self.mutation_gate.request_modify_component(
-                entity_id, component_type_id, component_json,
-                self.entity_store, self.table_store, self.current_tick,
+                entity_id,
+                component_type_id,
+                component_json,
+                self.entity_store,
+                self.table_store,
+                self.current_tick,
             )
         } else {
             self.mutation_gate.request_add_component(
-                entity_id, component_type_id, component_json,
-                self.entity_store, self.table_store, self.current_tick,
+                entity_id,
+                component_type_id,
+                component_json,
+                self.entity_store,
+                self.table_store,
+                self.current_tick,
             )
         }
     }
@@ -203,15 +204,16 @@ impl<'a> ISystemContext for SystemContext<'a> {
         initial_components: BTreeMap<u32, String>,
     ) -> Result<(), XaceError> {
         self.mutation_gate.request_spawn(
-            actor_id, initial_components,
-            self.table_store, self.current_tick,
+            actor_id,
+            initial_components,
+            self.table_store,
+            self.current_tick,
         )
     }
 
     fn submit_destroy(&mut self, entity_id: EntityID) -> Result<(), XaceError> {
-        self.mutation_gate.request_destroy(
-            entity_id, self.entity_store, self.current_tick,
-        )
+        self.mutation_gate
+            .request_destroy(entity_id, self.entity_store, self.current_tick)
     }
 
     fn emit_event(&mut self, event: Event) -> Result<(), XaceError> {
@@ -226,7 +228,8 @@ impl<'a> ISystemContext for SystemContext<'a> {
     fn next_random(&mut self) -> Result<f64, XaceError> {
         // Deterministic RNG: seed = hash(world_seed, system_id, tick, index)
         // Simple deterministic hash for Phase 4 — full DeterministicRNG in Phase 6
-        let seed = self.world_seed
+        let seed = self
+            .world_seed
             .wrapping_mul(6364136223846793005)
             .wrapping_add(self.system_id.len() as u64)
             .wrapping_add(self.current_tick.wrapping_mul(2654435761))
@@ -245,8 +248,8 @@ impl<'a> ISystemContext for SystemContext<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_store::EntityStore;
     use crate::component_tables::ComponentTableStore;
+    use crate::entity_store::EntityStore;
     use crate::mutation_gate::MutationGate;
     use crate::query_engine::QueryEngine;
 
@@ -266,9 +269,7 @@ mod tests {
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, r#"{"x":1.0}"#.into(), 0).unwrap();
 
-        let mut ctx = SystemContext::new(
-            "sys_test", &[1], &[], &es, &ts, &mut mg, &mut qe, 0, 42
-        );
+        let mut ctx = SystemContext::new("sys_test", &[1], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
         let result = ctx.get_component(id, 1).unwrap();
         assert_eq!(result, Some(r#"{"x":1.0}"#));
     }
@@ -276,9 +277,7 @@ mod tests {
     #[test]
     fn get_component_undeclared_read_fails() {
         let (es, ts, mut mg, mut qe) = setup();
-        let mut ctx = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 42
-        );
+        let mut ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
         assert!(ctx.get_component(1, 1).is_err());
     }
 
@@ -287,8 +286,15 @@ mod tests {
         let (mut es, ts, mut mg, mut qe) = setup();
         let _ = es.create_entity(0).unwrap();
         let mut ctx = SystemContext::new(
-            "sys_test", &[1], &[], // reads 1 but does not write 1
-            &es, &ts, &mut mg, &mut qe, 0, 42
+            "sys_test",
+            &[1],
+            &[], // reads 1 but does not write 1
+            &es,
+            &ts,
+            &mut mg,
+            &mut qe,
+            0,
+            42,
         );
         assert!(ctx.submit_mutation(1, 1, "{}".into()).is_err());
     }
@@ -298,10 +304,7 @@ mod tests {
         let (mut es, mut ts, mut mg, mut qe) = setup();
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, "{}".into(), 0).unwrap();
-        let mut ctx = SystemContext::new(
-            "sys_test", &[1], &[1],
-            &es, &ts, &mut mg, &mut qe, 0, 42
-        );
+        let mut ctx = SystemContext::new("sys_test", &[1], &[1], &es, &ts, &mut mg, &mut qe, 0, 42);
         assert!(ctx.submit_mutation(id, 1, r#"{"x":5}"#.into()).is_ok());
         assert_eq!(mg.pending_count(), 1);
     }
@@ -312,8 +315,15 @@ mod tests {
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, "{}".into(), 0).unwrap();
         let mut ctx = SystemContext::new(
-            "sys_test", &[], &[1], // only writes, no explicit reads
-            &es, &ts, &mut mg, &mut qe, 0, 42
+            "sys_test",
+            &[],
+            &[1], // only writes, no explicit reads
+            &es,
+            &ts,
+            &mut mg,
+            &mut qe,
+            0,
+            42,
         );
         // Should succeed because writers can read their own components
         assert!(ctx.get_component(id, 1).is_ok());
@@ -322,9 +332,7 @@ mod tests {
     #[test]
     fn current_tick_correct() {
         let (es, ts, mut mg, mut qe) = setup();
-        let ctx = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 42, 0
-        );
+        let ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 42, 0);
         assert_eq!(ctx.current_tick(), 42);
     }
 
@@ -333,10 +341,26 @@ mod tests {
         let (es, ts, mut mg1, mut qe1) = setup();
         let (_, _, mut mg2, mut qe2) = setup();
         let mut ctx1 = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg1, &mut qe1, 10, 12345
+            "sys_test",
+            &[],
+            &[],
+            &es,
+            &ts,
+            &mut mg1,
+            &mut qe1,
+            10,
+            12345,
         );
         let mut ctx2 = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg2, &mut qe2, 10, 12345
+            "sys_test",
+            &[],
+            &[],
+            &es,
+            &ts,
+            &mut mg2,
+            &mut qe2,
+            10,
+            12345,
         );
         for _ in 0..10 {
             assert_eq!(ctx1.next_random().unwrap(), ctx2.next_random().unwrap());
@@ -346,9 +370,8 @@ mod tests {
     #[test]
     fn next_random_in_range() {
         let (es, ts, mut mg, mut qe) = setup();
-        let mut ctx = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 99999
-        );
+        let mut ctx =
+            SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 99999);
         for _ in 0..100 {
             let v = ctx.next_random().unwrap();
             assert!(v >= 0.0 && v < 1.0);
@@ -362,9 +385,7 @@ mod tests {
         use xace_core::runtime::phase_enum::PhaseEnum;
 
         let (es, ts, mut mg, mut qe) = setup();
-        let mut ctx = SystemContext::new(
-            "sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 0
-        );
+        let mut ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 0);
         let event = Event::broadcast(1, EventType::EntitySpawned, 0, PhaseEnum::Simulation);
         ctx.emit_event(event).unwrap();
         assert_eq!(ctx.emitted_events.len(), 1);

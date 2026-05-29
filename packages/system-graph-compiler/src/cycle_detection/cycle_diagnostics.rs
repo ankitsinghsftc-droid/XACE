@@ -69,7 +69,7 @@ impl ResolutionStrategy {
                 from, to
             ),
             target_edge: Some((from.to_string(), to.to_string())),
-            difficulty:  "Low",
+            difficulty: "Low",
         }
     }
 
@@ -83,7 +83,7 @@ impl ResolutionStrategy {
                 system_id
             ),
             target_edge: None,
-            difficulty:  "Low",
+            difficulty: "Low",
         }
     }
 
@@ -97,13 +97,16 @@ impl ResolutionStrategy {
                 from, to
             ),
             target_edge: Some((from.to_string(), to.to_string())),
-            difficulty:  "Medium",
+            difficulty: "Medium",
         }
     }
 
     fn introduce_intermediary(from: &str, to: &str) -> Self {
         Self {
-            label: format!("Introduce an intermediary component between '{}' and '{}'", from, to),
+            label: format!(
+                "Introduce an intermediary component between '{}' and '{}'",
+                from, to
+            ),
             description: format!(
                 "Create a new 'intent' or 'request' component. '{}' writes its \
                  desired outcome into the new component. '{}' reads from it instead \
@@ -112,7 +115,7 @@ impl ResolutionStrategy {
                 from, to, from
             ),
             target_edge: Some((from.to_string(), to.to_string())),
-            difficulty:  "High",
+            difficulty: "High",
         }
     }
 
@@ -121,16 +124,16 @@ impl ResolutionStrategy {
             label,
             description,
             target_edge: None,
-            difficulty:  "Medium",
+            difficulty: "Medium",
         }
     }
 
     /// Returns the numeric difficulty rank for sorting (Low=0, Medium=1, High=2).
     pub fn difficulty_rank(&self) -> u8 {
         match self.difficulty {
-            "Low"    => 0,
+            "Low" => 0,
             "Medium" => 1,
-            _        => 2,
+            _ => 2,
         }
     }
 }
@@ -143,11 +146,11 @@ pub struct CycleEdgeReport {
     /// System that must run first (the "from" side of the constraint).
     pub from_system: String,
     /// System that must run after `from_system`.
-    pub to_system:   String,
+    pub to_system: String,
     /// Why this ordering constraint exists.
-    pub edge_type:   EdgeType,
+    pub edge_type: EdgeType,
     /// Human-readable description of the constraint source.
-    pub reason:      String,
+    pub reason: String,
     /// Whether this edge is a candidate for removal to break the cycle.
     ///
     /// ExplicitDependency and WriteAfterWrite edges are breakable —
@@ -164,7 +167,11 @@ impl CycleEdgeReport {
             self.from_system,
             self.to_system,
             self.edge_type,
-            if self.is_breakable { " ← breakable" } else { "" }
+            if self.is_breakable {
+                " ← breakable"
+            } else {
+                ""
+            }
         )
     }
 }
@@ -207,8 +214,8 @@ impl CycleDiagnosticReport {
     /// ExplicitDependency with `is_breakable = true`.
     pub fn build(cycle_error: &CycleError, bucket: &PhaseBucket) -> Self {
         let edge_reports = Self::build_edge_reports(cycle_error, bucket);
-        let strategies   = Self::build_strategies(cycle_error, &edge_reports);
-        let summary      = Self::build_summary(cycle_error, &edge_reports);
+        let strategies = Self::build_strategies(cycle_error, &edge_reports);
+        let summary = Self::build_summary(cycle_error, &edge_reports);
 
         Self {
             cycle_error: cycle_error.clone(),
@@ -222,17 +229,14 @@ impl CycleDiagnosticReport {
 
     /// Builds one CycleEdgeReport per edge in the cycle path,
     /// including the closing edge (last → first).
-    fn build_edge_reports(
-        cycle_error: &CycleError,
-        bucket:      &PhaseBucket,
-    ) -> Vec<CycleEdgeReport> {
+    fn build_edge_reports(cycle_error: &CycleError, bucket: &PhaseBucket) -> Vec<CycleEdgeReport> {
         let n = cycle_error.cycle_path.len();
         let mut reports = Vec::with_capacity(n);
 
         for i in 0..n {
             let from = &cycle_error.cycle_path[i];
-            let to   = &cycle_error.cycle_path[(i + 1) % n];
-            let key  = (from.clone(), to.clone());
+            let to = &cycle_error.cycle_path[(i + 1) % n];
+            let key = (from.clone(), to.clone());
 
             let (edge_type, reason, is_breakable) = bucket
                 .edges
@@ -257,7 +261,7 @@ impl CycleDiagnosticReport {
 
             reports.push(CycleEdgeReport {
                 from_system: from.clone(),
-                to_system:   to.clone(),
+                to_system: to.clone(),
                 edge_type,
                 reason,
                 is_breakable,
@@ -278,7 +282,7 @@ impl CycleDiagnosticReport {
     /// 4. Introduce intermediary components for RAW edges (High) — new component
     /// 5. Generic CycleError suggestions (Medium) — fallback
     fn build_strategies(
-        cycle_error:  &CycleError,
+        cycle_error: &CycleError,
         edge_reports: &[CycleEdgeReport],
     ) -> Vec<ResolutionStrategy> {
         let mut strategies: Vec<ResolutionStrategy> = Vec::new();
@@ -365,8 +369,11 @@ impl CycleDiagnosticReport {
              {} of {} edges can be removed or restructured to fix this.",
             path_str,
             edge_reports.len(),
-            explicit_count, raw_count, waw_count,
-            breakable_count, edge_reports.len()
+            explicit_count,
+            raw_count,
+            waw_count,
+            breakable_count,
+            edge_reports.len()
         )
     }
 
@@ -374,7 +381,10 @@ impl CycleDiagnosticReport {
 
     /// Returns only the breakable edges — candidates for removal to fix the cycle.
     pub fn breakable_edges(&self) -> Vec<&CycleEdgeReport> {
-        self.edge_reports.iter().filter(|r| r.is_breakable).collect()
+        self.edge_reports
+            .iter()
+            .filter(|r| r.is_breakable)
+            .collect()
     }
 
     /// Returns the single easiest resolution strategy (lowest difficulty rank).
@@ -403,12 +413,12 @@ impl CycleDiagnosticReport {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
-    use xace_core::runtime::phase_enum::PhaseEnum;
     use crate::compilation_error::{CycleError, EdgeType};
     use crate::graph_construction::system_edge::SystemEdge;
     use crate::graph_construction::system_node::SystemNode;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+    use std::collections::BTreeMap;
+    use xace_core::runtime::phase_enum::PhaseEnum;
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -423,12 +433,14 @@ mod tests {
             edges: edges
                 .iter()
                 .map(|&(from, to, ref et)| {
-                    let key  = (from.to_string(), to.to_string());
+                    let key = (from.to_string(), to.to_string());
                     let edge = match et {
                         EdgeType::ExplicitDependency => SystemEdge::explicit_dependency(from, to),
-                        EdgeType::ReadAfterWrite     => SystemEdge::read_after_write(from, to, vec![1]),
-                        EdgeType::WriteAfterWrite    => SystemEdge::write_after_write(from, to, vec![1]),
-                        EdgeType::PhaseOrder         => SystemEdge::phase_order(from, to),
+                        EdgeType::ReadAfterWrite => SystemEdge::read_after_write(from, to, vec![1]),
+                        EdgeType::WriteAfterWrite => {
+                            SystemEdge::write_after_write(from, to, vec![1])
+                        }
+                        EdgeType::PhaseOrder => SystemEdge::phase_order(from, to),
                     };
                     (key, edge)
                 })
@@ -455,12 +467,18 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
 
-        assert_eq!(report.edge_reports.len(), 2, "Two edges in a two-node cycle");
-        assert!(report.edge_reports.iter().all(|r| r.is_breakable),
-            "ExplicitDependency edges are always breakable");
+        assert_eq!(
+            report.edge_reports.len(),
+            2,
+            "Two edges in a two-node cycle"
+        );
+        assert!(
+            report.edge_reports.iter().all(|r| r.is_breakable),
+            "ExplicitDependency edges are always breakable"
+        );
         assert!(!report.summary.is_empty());
         assert!(!report.strategies.is_empty());
     }
@@ -493,7 +511,11 @@ mod tests {
         assert_eq!(breakable.len(), 2, "explicit + WAW edges are breakable");
 
         // sys_b→sys_c (RAW) is NOT breakable
-        let raw_report = report.edge_reports.iter().find(|r| r.edge_type == EdgeType::ReadAfterWrite).unwrap();
+        let raw_report = report
+            .edge_reports
+            .iter()
+            .find(|r| r.edge_type == EdgeType::ReadAfterWrite)
+            .unwrap();
         assert!(!raw_report.is_breakable);
     }
 
@@ -509,11 +531,15 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
 
         // Must have the closing edge sys_b → sys_a
-        let closing = report.edge_reports.iter().find(|r| r.from_system == "sys_b").unwrap();
+        let closing = report
+            .edge_reports
+            .iter()
+            .find(|r| r.from_system == "sys_b")
+            .unwrap();
         assert_eq!(closing.to_system, "sys_a");
     }
 
@@ -526,14 +552,16 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
 
         for er in &report.edge_reports {
             let label = er.short_label();
             assert!(label.contains("→"), "label must contain arrow");
-            assert!(label.contains("EXPLICIT_DEPENDENCY") || label.contains("breakable"),
-                "label must identify edge type or breakability");
+            assert!(
+                label.contains("EXPLICIT_DEPENDENCY") || label.contains("breakable"),
+                "label must identify edge type or breakability"
+            );
         }
     }
 
@@ -541,7 +569,7 @@ mod tests {
     fn missing_edge_in_bucket_uses_fallback() {
         // Bucket has no edges — CycleDiagnosticReport must handle this gracefully.
         let bucket = make_bucket(&["sys_a", "sys_b"], &[]);
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
         // Should still produce edge reports (fallback path)
         assert_eq!(report.edge_reports.len(), 2);
@@ -561,16 +589,25 @@ mod tests {
         );
         let ce = make_cycle_error(
             &["sys_a", "sys_b", "sys_c"],
-            &[EdgeType::ReadAfterWrite, EdgeType::WriteAfterWrite, EdgeType::ExplicitDependency],
+            &[
+                EdgeType::ReadAfterWrite,
+                EdgeType::WriteAfterWrite,
+                EdgeType::ExplicitDependency,
+            ],
         );
         let report = CycleDiagnosticReport::build(&ce, &bucket);
 
         // Verify non-decreasing difficulty order
-        let ranks: Vec<u8> = report.strategies.iter().map(|s| s.difficulty_rank()).collect();
+        let ranks: Vec<u8> = report
+            .strategies
+            .iter()
+            .map(|s| s.difficulty_rank())
+            .collect();
         for window in ranks.windows(2) {
             assert!(
                 window[0] <= window[1],
-                "Strategies must be sorted Low → Medium → High: {:?}", ranks
+                "Strategies must be sorted Low → Medium → High: {:?}",
+                ranks
             );
         }
     }
@@ -584,11 +621,14 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
 
         let low_strategies = report.strategies_at_difficulty("Low");
-        assert!(!low_strategies.is_empty(), "Explicit dep cycle must have Low-difficulty strategies");
+        assert!(
+            !low_strategies.is_empty(),
+            "Explicit dep cycle must have Low-difficulty strategies"
+        );
         // Easiest strategy must be Low
         assert_eq!(report.easiest_strategy().unwrap().difficulty, "Low");
     }
@@ -602,9 +642,12 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ReadAfterWrite),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ReadAfterWrite; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ReadAfterWrite; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
-        assert!(!report.has_breakable_edge(), "RAW-only cycle has no breakable edges");
+        assert!(
+            !report.has_breakable_edge(),
+            "RAW-only cycle has no breakable edges"
+        );
     }
 
     // ── Summary ───────────────────────────────────────────────────────────────
@@ -618,9 +661,12 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
-        assert!(report.summary.contains("sys_a"), "Summary must name cycle systems");
+        assert!(
+            report.summary.contains("sys_a"),
+            "Summary must name cycle systems"
+        );
         assert!(report.summary.contains("sys_b"));
     }
 
@@ -636,12 +682,18 @@ mod tests {
         );
         let ce = make_cycle_error(
             &["sys_a", "sys_b", "sys_c"],
-            &[EdgeType::ExplicitDependency, EdgeType::ReadAfterWrite, EdgeType::WriteAfterWrite],
+            &[
+                EdgeType::ExplicitDependency,
+                EdgeType::ReadAfterWrite,
+                EdgeType::WriteAfterWrite,
+            ],
         );
         let report = CycleDiagnosticReport::build(&ce, &bucket);
         // Summary must mention the total edge count
-        assert!(report.summary.contains('3') || report.summary.contains("three"),
-            "Summary must reference the number of edges");
+        assert!(
+            report.summary.contains('3') || report.summary.contains("three"),
+            "Summary must reference the number of edges"
+        );
     }
 
     // ── easiest_strategy ──────────────────────────────────────────────────────
@@ -655,7 +707,7 @@ mod tests {
                 ("sys_b", "sys_a", EdgeType::ExplicitDependency),
             ],
         );
-        let ce     = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
+        let ce = make_cycle_error(&["sys_a", "sys_b"], &[EdgeType::ExplicitDependency; 2]);
         let report = CycleDiagnosticReport::build(&ce, &bucket);
         assert!(report.easiest_strategy().is_some());
     }
@@ -664,38 +716,44 @@ mod tests {
 
     #[test]
     fn zombie_chase_graph_is_acyclic_no_report_needed() {
-        use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition, SystemVersion};
+        use crate::cycle_detection::cycle_detector::CycleDetector;
         use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
         use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
-        use crate::cycle_detection::cycle_detector::CycleDetector;
+        use xace_core::schema::system_definition::{
+            ExecutionPhase, SystemDefinition, SystemVersion,
+        };
 
         fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {
             SystemDefinition {
-                id:            id.into(),
-                display_name:  id.into(),
-                phase:         ExecutionPhase::Simulation,
-                reads, writes,
-                depends_on:    vec![],
+                id: id.into(),
+                display_name: id.into(),
+                phase: ExecutionPhase::Simulation,
+                reads,
+                writes,
+                depends_on: vec![],
                 deterministic: true,
-                version:       SystemVersion::INITIAL,
-                description:   String::new(),
+                version: SystemVersion::INITIAL,
+                description: String::new(),
             }
         }
 
         let defs = vec![
-            def("InputSystem",    vec![6, 1],     vec![5]),
-            def("MovementSystem", vec![5, 1],     vec![1]),
-            def("AISystem",       vec![160, 1],   vec![5, 101]),
-            def("DamageSystem",   vec![101, 100], vec![100, 101]),
-            def("DeathSystem",    vec![100],       vec![]),
+            def("InputSystem", vec![6, 1], vec![5]),
+            def("MovementSystem", vec![5, 1], vec![1]),
+            def("AISystem", vec![160, 1], vec![5, 101]),
+            def("DamageSystem", vec![101, 100], vec![100, 101]),
+            def("DeathSystem", vec![100], vec![]),
         ];
 
-        let graph   = GraphConstructionLayer::build(&defs).unwrap();
+        let graph = GraphConstructionLayer::build(&defs).unwrap();
         let buckets = PhaseSegmentationLayer::segment(&graph).unwrap();
 
         for bucket in &buckets {
             let result = CycleDetector::check(bucket);
-            assert!(result.is_ok(), "Zombie chase must be acyclic — no diagnostic report needed");
+            assert!(
+                result.is_ok(),
+                "Zombie chase must be acyclic — no diagnostic report needed"
+            );
         }
     }
 }

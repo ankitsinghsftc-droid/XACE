@@ -19,10 +19,10 @@
 //! entity X in the same apply batch) is handled by the MutationGate
 //! during apply_all(), not here.
 
-use xace_core::entity_id::{EntityID, NULL_ENTITY_ID};
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use crate::entity_store::entity_store::EntityStore;
 use crate::component_tables::component_table_store::ComponentTableStore;
+use crate::entity_store::entity_store::EntityStore;
+use xace_core::entity_id::{EntityID, NULL_ENTITY_ID};
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Mutation Validator ────────────────────────────────────────────────────────
 
@@ -103,12 +103,9 @@ impl MutationValidator {
                      use modify to update existing components",
                     entity_id, component_type_id
                 ),
-                context: ErrorContext::new("MutationValidator", "add_component")
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", "add_component").with_tick(tick),
                 rule_violated: "no_duplicate_components".into(),
-                failed_path: format!(
-                    "entity:{}.component:{}", entity_id, component_type_id
-                ),
+                failed_path: format!("entity:{}.component:{}", entity_id, component_type_id),
             });
         }
         Ok(())
@@ -134,7 +131,10 @@ impl MutationValidator {
         self.validate_entity_id(entity_id, tick)?;
         self.validate_entity_exists(entity_id, entity_store, "modify_component", tick)?;
         self.validate_component_registered(
-            component_type_id, table_store, "modify_component", tick
+            component_type_id,
+            table_store,
+            "modify_component",
+            tick,
         )?;
 
         if !table_store.has_component(entity_id, component_type_id) {
@@ -144,12 +144,9 @@ impl MutationValidator {
                      use add to attach new components",
                     entity_id, component_type_id
                 ),
-                context: ErrorContext::new("MutationValidator", "modify_component")
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", "modify_component").with_tick(tick),
                 rule_violated: "component_must_exist".into(),
-                failed_path: format!(
-                    "entity:{}.component:{}", entity_id, component_type_id
-                ),
+                failed_path: format!("entity:{}.component:{}", entity_id, component_type_id),
             });
         }
         Ok(())
@@ -169,7 +166,10 @@ impl MutationValidator {
         self.validate_entity_id(entity_id, tick)?;
         self.validate_entity_exists(entity_id, entity_store, "remove_component", tick)?;
         self.validate_component_registered(
-            component_type_id, table_store, "remove_component", tick
+            component_type_id,
+            table_store,
+            "remove_component",
+            tick,
         )?;
 
         if !table_store.has_component(entity_id, component_type_id) {
@@ -178,12 +178,9 @@ impl MutationValidator {
                     "Entity {} does not have component type_id {} — cannot remove",
                     entity_id, component_type_id
                 ),
-                context: ErrorContext::new("MutationValidator", "remove_component")
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", "remove_component").with_tick(tick),
                 rule_violated: "component_must_exist".into(),
-                failed_path: format!(
-                    "entity:{}.component:{}", entity_id, component_type_id
-                ),
+                failed_path: format!("entity:{}.component:{}", entity_id, component_type_id),
             });
         }
         Ok(())
@@ -211,8 +208,7 @@ impl MutationValidator {
                     "Cannot destroy entity {} — entity does not exist",
                     entity_id
                 ),
-                context: ErrorContext::new("MutationValidator", "validate_destroy")
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", "validate_destroy").with_tick(tick),
                 rule_violated: "I1".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -220,14 +216,16 @@ impl MutationValidator {
 
         // Check not already in destruction pipeline
         let meta = entity_store.get_metadata(entity_id).unwrap();
-        if !meta.state.can_transition_to(xace_core::entity_state::EntityState::DestroyRequested) {
+        if !meta
+            .state
+            .can_transition_to(xace_core::entity_state::EntityState::DestroyRequested)
+        {
             return Err(XaceError::ValidationFailure {
                 message: format!(
                     "Entity {} is already in state {:?} — cannot request destruction",
                     entity_id, meta.state
                 ),
-                context: ErrorContext::new("MutationValidator", "validate_destroy")
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", "validate_destroy").with_tick(tick),
                 rule_violated: "entity_lifecycle".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -237,15 +235,12 @@ impl MutationValidator {
 
     // ── Shared Validation Helpers ──────────────────────────────────────────
 
-    fn validate_entity_id(
-        &self,
-        entity_id: EntityID,
-        tick: u64,
-    ) -> Result<(), XaceError> {
+    fn validate_entity_id(&self, entity_id: EntityID, tick: u64) -> Result<(), XaceError> {
         if entity_id == NULL_ENTITY_ID {
             return Err(XaceError::ValidationFailure {
                 message: "NULL_ENTITY_ID (0) is not a valid entity ID \
-                          for mutation requests".into(),
+                          for mutation requests"
+                    .into(),
                 context: ErrorContext::new("MutationValidator", "validate_entity_id")
                     .with_tick(tick),
                 rule_violated: "D2".into(),
@@ -269,8 +264,7 @@ impl MutationValidator {
                      component mutations require existing entities (I1)",
                     entity_id
                 ),
-                context: ErrorContext::new("MutationValidator", operation)
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", operation).with_tick(tick),
                 rule_violated: "I1".into(),
                 failed_path: format!("entity:{}", entity_id),
             });
@@ -298,7 +292,8 @@ impl MutationValidator {
                     context: ErrorContext::new(
                         "MutationValidator",
                         "validate_entity_not_destroy_requested",
-                    ).with_tick(tick),
+                    )
+                    .with_tick(tick),
                     rule_violated: "entity_lifecycle".into(),
                     failed_path: format!("entity:{}", entity_id),
                 });
@@ -321,8 +316,7 @@ impl MutationValidator {
                      register it during runtime initialization",
                     component_type_id
                 ),
-                context: ErrorContext::new("MutationValidator", operation)
-                    .with_tick(tick),
+                context: ErrorContext::new("MutationValidator", operation).with_tick(tick),
                 rule_violated: "component_must_be_registered".into(),
                 failed_path: format!("component_type_id:{}", component_type_id),
             });
@@ -342,8 +336,8 @@ impl Default for MutationValidator {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_store::EntityStore;
     use crate::component_tables::ComponentTableStore;
+    use crate::entity_store::EntityStore;
 
     fn setup() -> (MutationValidator, EntityStore, ComponentTableStore) {
         let validator = MutationValidator::new();
@@ -357,9 +351,9 @@ mod tests {
     #[test]
     fn null_entity_id_rejected() {
         let (v, es, ts) = setup();
-        assert!(v.validate_add_component(
-            NULL_ENTITY_ID, 1, &es, &ts, 0
-        ).is_err());
+        assert!(v
+            .validate_add_component(NULL_ENTITY_ID, 1, &es, &ts, 0)
+            .is_err());
     }
 
     #[test]

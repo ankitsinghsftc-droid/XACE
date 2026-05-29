@@ -52,7 +52,7 @@ impl ISystem for InputSystem {
         for entity_id in input_entities {
             let input_json = match context.get_component(entity_id, component_ids::INPUT)? {
                 Some(j) => j.to_owned(),
-                None    => continue,
+                None => continue,
             };
 
             // Only process HUMAN-controlled entities in Phase 9
@@ -62,7 +62,7 @@ impl ISystem for InputSystem {
 
             // Deterministic spiral input — same tick → same velocity (D7, D11)
             // Phase 9: no real Unity input yet. Player traces a slow outward spiral.
-            let angle  = tick as f32 * 0.05_f32;
+            let angle = tick as f32 * 0.05_f32;
             let radius = (tick as f32 * 0.01_f32).min(10.0_f32);
             let vx = angle.cos() * PLAYER_SPEED * radius.max(1.0_f32).min(10.0_f32) / 10.0_f32;
             let vz = angle.sin() * PLAYER_SPEED * radius.max(1.0_f32).min(10.0_f32) / 10.0_f32;

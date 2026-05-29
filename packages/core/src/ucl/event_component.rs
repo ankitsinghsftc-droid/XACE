@@ -28,10 +28,10 @@
 //! event_id ASC) before dispatch. Emission order never affects
 //! processing order — only these three fields matter.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
 use crate::entity_metadata::Tick;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 /// Component type ID for COMP_EVENT_V1. Frozen forever.
 pub const COMP_EVENT_V1_ID: u32 = 7;

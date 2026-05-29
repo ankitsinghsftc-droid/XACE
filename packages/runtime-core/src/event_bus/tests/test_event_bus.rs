@@ -1,6 +1,6 @@
 //! # Event Bus Integration Tests
 
-use crate::event_bus::event_bus::{EventBus, reset_event_id_counter};
+use crate::event_bus::event_bus::{reset_event_id_counter, EventBus};
 use xace_core::events::event_struct::Event;
 use xace_core::events::event_type::EventType;
 use xace_core::runtime::phase_enum::PhaseEnum;
@@ -8,24 +8,16 @@ use xace_core::runtime::phase_enum::PhaseEnum;
 fn setup() -> EventBus {
     reset_event_id_counter();
     let mut bus = EventBus::new();
-    bus.register_subscription(
-        "sys_combat", vec![EventType::DamageTaken]
-    ).unwrap();
-    bus.register_subscription(
-        "sys_death", vec![EventType::EntityDestroyed]
-    ).unwrap();
-    bus.register_subscription(
-        "sys_spawner", vec![EventType::EntitySpawned]
-    ).unwrap();
+    bus.register_subscription("sys_combat", vec![EventType::DamageTaken])
+        .unwrap();
+    bus.register_subscription("sys_death", vec![EventType::EntityDestroyed])
+        .unwrap();
+    bus.register_subscription("sys_spawner", vec![EventType::EntitySpawned])
+        .unwrap();
     bus
 }
 
-fn event(
-    source: u64,
-    event_type: EventType,
-    tick: u64,
-    phase: PhaseEnum,
-) -> Event {
+fn event(source: u64, event_type: EventType, tick: u64, phase: PhaseEnum) -> Event {
     Event::broadcast(source, event_type, tick, phase)
 }
 
@@ -45,7 +37,8 @@ fn events_visible_after_dispatch() {
     let mut bus = setup();
     let e = event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
     bus.emit(e).unwrap();
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
     assert_eq!(bus.get_events_for_system("sys_combat").len(), 1);
 }
 
@@ -55,15 +48,13 @@ fn events_visible_after_dispatch() {
 fn ordering_deterministic_across_two_buses() {
     reset_event_id_counter();
     let mut bus1 = EventBus::new();
-    bus1.register_subscription(
-        "sys_combat", vec![EventType::DamageTaken]
-    ).unwrap();
+    bus1.register_subscription("sys_combat", vec![EventType::DamageTaken])
+        .unwrap();
 
     reset_event_id_counter();
     let mut bus2 = EventBus::new();
-    bus2.register_subscription(
-        "sys_combat", vec![EventType::DamageTaken]
-    ).unwrap();
+    bus2.register_subscription("sys_combat", vec![EventType::DamageTaken])
+        .unwrap();
 
     // Same events emitted in same order
     for tick in [2u64, 0, 1] {
@@ -72,8 +63,10 @@ fn ordering_deterministic_across_two_buses() {
         bus2.emit(e).unwrap();
     }
 
-    bus1.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
-    bus2.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus1.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
+    bus2.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
 
     let e1 = bus1.get_events_for_system("sys_combat");
     let e2 = bus2.get_events_for_system("sys_combat");
@@ -98,10 +91,11 @@ fn input_phase_events_not_in_simulation_dispatch() {
     bus.emit(e_sim).unwrap();
 
     // Dispatch only Simulation
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
     let events = bus.get_events_for_system("sys_combat");
     assert_eq!(events.len(), 1);
-    assert_eq!(events[0].creation_phase, PhaseEnum::Simulation as u8);
+    assert_eq!(events[0].creation_phase, PhaseEnum::Simulation);
 }
 
 // ── Replay Compatibility Tests (D14) ─────────────────────────────────────────
@@ -113,7 +107,8 @@ fn dispatch_log_in_emission_order() {
         let e = event(1, EventType::DamageTaken, i, PhaseEnum::Simulation);
         bus.emit(e).unwrap();
     }
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
     let log = bus.dispatch_log();
     assert_eq!(log.len(), 5);
     // Log is in dispatch order (sorted)
@@ -130,7 +125,8 @@ fn consumed_events_survive_until_purge() {
     let mut bus = setup();
     let e = event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
     let id = bus.emit(e).unwrap();
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
     bus.mark_consumed(id).unwrap();
 
     // Still visible until purge
@@ -150,7 +146,8 @@ fn unconsumed_events_persist_across_purge() {
     let e2 = event(2, EventType::DamageTaken, 0, PhaseEnum::Simulation);
     let id1 = bus.emit(e1).unwrap();
     bus.emit(e2).unwrap();
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
 
     // Consume only first
     bus.mark_consumed(id1).unwrap();
@@ -165,19 +162,17 @@ fn unconsumed_events_persist_across_purge() {
 fn multiple_subscribers_all_receive_event() {
     reset_event_id_counter();
     let mut bus = EventBus::new();
-    bus.register_subscription(
-        "sys_a", vec![EventType::DamageTaken]
-    ).unwrap();
-    bus.register_subscription(
-        "sys_b", vec![EventType::DamageTaken]
-    ).unwrap();
-    bus.register_subscription(
-        "sys_c", vec![EventType::DamageTaken]
-    ).unwrap();
+    bus.register_subscription("sys_a", vec![EventType::DamageTaken])
+        .unwrap();
+    bus.register_subscription("sys_b", vec![EventType::DamageTaken])
+        .unwrap();
+    bus.register_subscription("sys_c", vec![EventType::DamageTaken])
+        .unwrap();
 
     let e = event(1, EventType::DamageTaken, 0, PhaseEnum::Simulation);
     bus.emit(e).unwrap();
-    bus.dispatch_phase_events(PhaseEnum::Simulation as u8).unwrap();
+    bus.dispatch_phase_events(PhaseEnum::Simulation as u8)
+        .unwrap();
 
     assert_eq!(bus.get_events_for_system("sys_a").len(), 1);
     assert_eq!(bus.get_events_for_system("sys_b").len(), 1);

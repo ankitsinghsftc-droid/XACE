@@ -35,9 +35,9 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use xace_core::errors::determinism_error::{DeterminismRule, DeterminismViolation, GuardMode};
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
-use xace_core::runtime::world_snapshot::WorldSnapshot;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::runtime::phase_enum::PhaseEnum;
+use xace_core::runtime::world_snapshot::WorldSnapshot;
 
 // ── CHANGE 1: Import the real WorldHasher ────────────────────────────────────
 // Both files live in packages/runtime-core/src/determinism_guard/ as siblings.
@@ -45,7 +45,6 @@ use xace_core::runtime::phase_enum::PhaseEnum;
 // sibling module declared in mod.rs as: pub mod world_hasher;
 
 use super::world_hasher::WorldHasher;
-
 
 // ── Guard State ───────────────────────────────────────────────────────────────
 
@@ -173,8 +172,8 @@ impl DeterminismGuard {
         execution_plan_version: u32,
     ) -> Result<(), XaceError> {
         self.state.current_tick = tick;
-        self.state.inside_tick = true;
         self.state.current_phase = None;
+        self.state.inside_phase = false;
 
         // D10: schema version must match locked version exactly.
         // Always fatal — no mode can suppress this.
@@ -207,6 +206,7 @@ impl DeterminismGuard {
             return Err(self.handle_violation_always_fatal(violation));
         }
 
+        self.state.inside_tick = true;
         Ok(())
     }
 
@@ -216,11 +216,7 @@ impl DeterminismGuard {
     ///
     /// Enforces:
     /// - D15: hook_tick_start must have been called first this tick
-    pub fn hook_phase_start(
-        &mut self,
-        tick: u64,
-        phase: PhaseEnum,
-    ) -> Result<(), XaceError> {
+    pub fn hook_phase_start(&mut self, tick: u64, phase: PhaseEnum) -> Result<(), XaceError> {
         // D15: must be inside an active tick window
         if !self.state.inside_tick {
             let violation = DeterminismViolation::new(
@@ -299,11 +295,7 @@ impl DeterminismGuard {
     ///
     /// Enforces:
     /// - D15: closes the phase window opened by hook_phase_start
-    pub fn hook_phase_end(
-        &mut self,
-        _tick: u64,
-        _phase: PhaseEnum,
-    ) -> Result<(), XaceError> {
+    pub fn hook_phase_end(&mut self, _tick: u64, _phase: PhaseEnum) -> Result<(), XaceError> {
         self.state.inside_phase = false;
         self.state.current_phase = None;
         Ok(())
@@ -325,10 +317,7 @@ impl DeterminismGuard {
     ///
     /// Returns the computed world_hash so the PhaseOrchestrator can store it
     /// in the committed WorldSnapshot.
-    pub fn hook_tick_end(
-        &mut self,
-        snapshot: &WorldSnapshot,
-    ) -> Result<String, XaceError> {
+    pub fn hook_tick_end(&mut self, snapshot: &WorldSnapshot) -> Result<String, XaceError> {
         let tick = snapshot.tick;
         self.state.inside_tick = false;
 
@@ -407,11 +396,7 @@ impl DeterminismGuard {
     /// If the hashes differ the replay has diverged — D14 violation.
     /// If no recorded hash exists for this tick it is treated as first-run
     /// and the hash is recorded (normal path during initial capture).
-    pub fn validate_replay_hash(
-        &mut self,
-        tick: u64,
-        replay_hash: &str,
-    ) -> Result<(), XaceError> {
+    pub fn validate_replay_hash(&mut self, tick: u64, replay_hash: &str) -> Result<(), XaceError> {
         match self.state.tick_hash_log.get(&tick) {
             Some(expected) if expected != replay_hash => {
                 let expected_owned = expected.clone();
@@ -427,7 +412,9 @@ impl DeterminismGuard {
             }
             None => {
                 // First run — record the hash for future replay comparison
-                self.state.tick_hash_log.insert(tick, replay_hash.to_string());
+                self.state
+                    .tick_hash_log
+                    .insert(tick, replay_hash.to_string());
                 Ok(())
             }
             _ => Ok(()), // Hash matches — determinism confirmed
@@ -453,7 +440,11 @@ impl DeterminismGuard {
 
     /// Returns all violations for a specific D-rule.
     pub fn violations_for_rule(&self, rule: DeterminismRule) -> Vec<&DeterminismViolation> {
-        self.state.violation_log.iter().filter(|v| v.rule == rule).collect()
+        self.state
+            .violation_log
+            .iter()
+            .filter(|v| v.rule == rule)
+            .collect()
     }
 
     /// Returns the world hash recorded at a specific tick, if any.
@@ -571,7 +562,10 @@ mod tests {
         let result = g.hook_tick_start(1, "0.2.0", 1);
         assert!(result.is_err());
         assert_eq!(g.violation_count(), 1);
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D10SchemaVersionMatch);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D10SchemaVersionMatch
+        );
     }
 
     #[test]
@@ -588,7 +582,10 @@ mod tests {
         let mut g = strict_guard();
         let result = g.hook_tick_start(1, "0.1.0", 99);
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D10SchemaVersionMatch);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D10SchemaVersionMatch
+        );
     }
 
     // ── Hook 2: Phase Start ───────────────────────────────────────────────────
@@ -599,7 +596,10 @@ mod tests {
         // Deliberately skip hook_tick_start
         let result = g.hook_phase_start(1, PhaseEnum::Simulation);
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D15GuardAtEveryBoundary);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D15GuardAtEveryBoundary
+        );
     }
 
     #[test]
@@ -618,7 +618,10 @@ mod tests {
         g.hook_phase_start(1, PhaseEnum::Simulation).unwrap();
         let result = g.hook_system_execute(1, PhaseEnum::Simulation, "sys_unknown");
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D1SystemOrderFromPlanOnly);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D1SystemOrderFromPlanOnly
+        );
     }
 
     #[test]
@@ -626,7 +629,9 @@ mod tests {
         let mut g = strict_guard();
         g.hook_tick_start(1, "0.1.0", 1).unwrap();
         g.hook_phase_start(1, PhaseEnum::Simulation).unwrap();
-        assert!(g.hook_system_execute(1, PhaseEnum::Simulation, "sys_movement").is_ok());
+        assert!(g
+            .hook_system_execute(1, PhaseEnum::Simulation, "sys_movement")
+            .is_ok());
     }
 
     #[test]
@@ -636,7 +641,10 @@ mod tests {
         // No hook_phase_start — phase window is closed
         let result = g.hook_system_execute(1, PhaseEnum::Simulation, "sys_movement");
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D15GuardAtEveryBoundary);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D15GuardAtEveryBoundary
+        );
     }
 
     // ── Hook 5: Tick End ──────────────────────────────────────────────────────
@@ -650,7 +658,11 @@ mod tests {
         assert!(g.hash_at_tick(1).is_some());
         // ── CHANGE 3: hash is now a real 64-char SHA-256 hex string ──
         let hash = g.hash_at_tick(1).unwrap();
-        assert_eq!(hash.len(), 64, "WorldHasher must produce a 64-char SHA-256 hex");
+        assert_eq!(
+            hash.len(),
+            64,
+            "WorldHasher must produce a 64-char SHA-256 hex"
+        );
         assert!(!hash.is_empty());
     }
 
@@ -695,8 +707,10 @@ mod tests {
         let snap = empty_snapshot(1);
         let hash = g.hook_tick_end(&snap).unwrap();
         // Old placeholder started with "placeholder:" — real hash must not
-        assert!(!hash.starts_with("placeholder:"),
-            "hash must be real SHA-256, not the old placeholder string");
+        assert!(
+            !hash.starts_with("placeholder:"),
+            "hash must be real SHA-256, not the old placeholder string"
+        );
         // Real SHA-256 is exactly 64 lowercase hex chars
         assert_eq!(hash.len(), 64);
         assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
@@ -715,7 +729,10 @@ mod tests {
         let mut g = strict_guard();
         let result = g.hook_rng_access(1, "sys_ai", false);
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D6DeterministicRngOnly);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D6DeterministicRngOnly
+        );
         assert_eq!(g.violations()[0].system_context, "sys_ai");
         assert_eq!(g.violations()[0].tick, 1);
     }
@@ -743,7 +760,10 @@ mod tests {
         g.validate_replay_hash(10, "original_hash").unwrap();
         let result = g.validate_replay_hash(10, "diverged_hash");
         assert!(result.is_err());
-        assert_eq!(g.violations()[0].rule, DeterminismRule::D14ReplayRequiresThreeInputs);
+        assert_eq!(
+            g.violations()[0].rule,
+            DeterminismRule::D14ReplayRequiresThreeInputs
+        );
         assert!(g.violations()[0].is_hash_mismatch());
     }
 
@@ -785,9 +805,21 @@ mod tests {
         g.hook_rng_access(2, "sys_b", false).ok(); // D6
         g.validate_replay_hash(5, "hash_1").unwrap();
         g.validate_replay_hash(5, "hash_2").ok(); // D14
-        assert_eq!(g.violations_for_rule(DeterminismRule::D6DeterministicRngOnly).len(), 2);
-        assert_eq!(g.violations_for_rule(DeterminismRule::D14ReplayRequiresThreeInputs).len(), 1);
-        assert_eq!(g.violations_for_rule(DeterminismRule::D3EntityIterationSorted).len(), 0);
+        assert_eq!(
+            g.violations_for_rule(DeterminismRule::D6DeterministicRngOnly)
+                .len(),
+            2
+        );
+        assert_eq!(
+            g.violations_for_rule(DeterminismRule::D14ReplayRequiresThreeInputs)
+                .len(),
+            1
+        );
+        assert_eq!(
+            g.violations_for_rule(DeterminismRule::D3EntityIterationSorted)
+                .len(),
+            0
+        );
     }
 
     #[test]
@@ -802,8 +834,12 @@ mod tests {
         g.register_systems(&["sys_x", "sys_y"]);
         g.hook_tick_start(1, "0.1.0", 1).unwrap();
         g.hook_phase_start(1, PhaseEnum::Simulation).unwrap();
-        assert!(g.hook_system_execute(1, PhaseEnum::Simulation, "sys_x").is_ok());
-        assert!(g.hook_system_execute(1, PhaseEnum::Simulation, "sys_y").is_ok());
+        assert!(g
+            .hook_system_execute(1, PhaseEnum::Simulation, "sys_x")
+            .is_ok());
+        assert!(g
+            .hook_system_execute(1, PhaseEnum::Simulation, "sys_y")
+            .is_ok());
     }
 
     #[test]

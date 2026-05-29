@@ -1,0 +1,15 @@
+{
+  "target": "unreal",
+  "label": "Unreal C++",
+  "file_count": 8,
+  "files": [
+    "XaceConsoleWidget.cpp",
+    "XaceConsoleWidget.h",
+    "XaceDeltaApplicator.cpp",
+    "XaceDeltaApplicator.h",
+    "XaceInputCollector.cpp",
+    "XaceInputCollector.h",
+    "XaceTransport.cpp",
+    "XaceTransport.h"
+  ]
+}

@@ -21,7 +21,7 @@
 //! SCRUB      — manual tick advancement for debugging/timeline scrubbing
 //! SERVER_AUTH — server-authoritative mode for multiplayer (Phase 15)
 
-use xace_core::errors::xace_error::{XaceError, ErrorContext};
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
 // ── Time Mode ─────────────────────────────────────────────────────────────────
 
@@ -134,7 +134,7 @@ impl TimeController {
 
     /// Creates a standard 60 Hz TimeController.
     pub fn standard_60hz() -> Self {
-        Self::new(60.0, 8)
+        Self::new(60.0, 60)
     }
 
     /// Creates a standard 20 Hz TimeController for server-authoritative mode.
@@ -182,20 +182,21 @@ impl TimeController {
         self.accumulator += scaled_elapsed;
         self.total_real_time += real_elapsed_seconds;
 
-        // Convert accumulated time to discrete ticks
-        let mut ticks_to_run: u32 = 0;
-        while self.accumulator >= self.fixed_timestep {
-            self.accumulator -= self.fixed_timestep;
-            ticks_to_run += 1;
+        // Convert accumulated time to discrete ticks. The small epsilon keeps
+        // exact boundaries like 1.0s at 60 Hz from truncating to 59 ticks due
+        // to binary floating point representation.
+        let available_ticks = ((self.accumulator / self.fixed_timestep) + 1e-9).floor() as u32;
+        let ticks_to_run = available_ticks.min(self.max_catchup_ticks);
 
-            // Spiral of death prevention
-            if ticks_to_run >= self.max_catchup_ticks {
-                // Cap the accumulator to prevent runaway catch-up
-                if self.accumulator > self.fixed_timestep {
-                    self.accumulator = self.fixed_timestep;
-                }
-                break;
-            }
+        self.accumulator -= ticks_to_run as f64 * self.fixed_timestep;
+        if self.accumulator.abs() < 1e-12 {
+            self.accumulator = 0.0;
+        }
+
+        // Spiral of death prevention: keep at most one tick of debt after a
+        // capped update so the runtime cannot enter runaway catch-up.
+        if available_ticks > self.max_catchup_ticks && self.accumulator > self.fixed_timestep {
+            self.accumulator = self.fixed_timestep;
         }
 
         self.total_ticks += ticks_to_run as u64;
@@ -387,9 +388,13 @@ mod tests {
     #[test]
     fn spiral_of_death_prevention() {
         let mut tc = TimeController::new(60.0, 5); // max 5 catchup ticks
-        // 10 seconds of real time — would be 600 ticks without cap
+                                                   // 10 seconds of real time — would be 600 ticks without cap
         let ticks = tc.update(10.0).unwrap();
-        assert!(ticks <= 5, "Should cap at max_catchup_ticks=5, got {}", ticks);
+        assert!(
+            ticks <= 5,
+            "Should cap at max_catchup_ticks=5, got {}",
+            ticks
+        );
     }
 
     #[test]
@@ -453,7 +458,7 @@ mod tests {
     #[test]
     fn mode_switch_resets_accumulator() {
         let mut tc = TimeController::standard_60hz();
-        tc.update(0.5).unwrap(); // accumulate 0.5s
+        tc.update(tc.fixed_timestep() * 0.5).unwrap(); // accumulate a partial tick
         assert!(tc.accumulator() > 0.0);
         tc.set_mode(TimeMode::Replay);
         assert_eq!(tc.accumulator(), 0.0);
@@ -464,10 +469,7 @@ mod tests {
         let mut tc1 = TimeController::standard_60hz();
         let mut tc2 = TimeController::standard_60hz();
         for elapsed in [0.016, 0.017, 0.033, 0.016] {
-            assert_eq!(
-                tc1.update(elapsed).unwrap(),
-                tc2.update(elapsed).unwrap()
-            );
+            assert_eq!(tc1.update(elapsed).unwrap(), tc2.update(elapsed).unwrap());
         }
     }
 

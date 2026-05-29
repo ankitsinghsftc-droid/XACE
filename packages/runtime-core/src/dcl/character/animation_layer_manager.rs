@@ -185,7 +185,9 @@ impl AnimationLayerManager {
 
     /// Returns the current animation state for the given layer.
     pub fn current_state(&self, layer_name: &str) -> Option<&str> {
-        self.layers.get(layer_name).map(|l| l.current_state.as_str())
+        self.layers
+            .get(layer_name)
+            .map(|l| l.current_state.as_str())
     }
 
     /// Returns all layer names in alphabetical order (D11).
@@ -205,13 +207,11 @@ impl AnimationLayerManager {
     /// Immediate transitions (duration=0) switch state instantly.
     /// Blended transitions set is_transitioning=true and begin
     /// progress tracking.
-    pub fn request_transition(
-        &mut self,
-        request: TransitionRequest,
-    ) -> Result<(), String> {
-        let layer = self.layers.get_mut(&request.layer_name).ok_or_else(|| {
-            format!("Layer '{}' not found", request.layer_name)
-        })?;
+    pub fn request_transition(&mut self, request: TransitionRequest) -> Result<(), String> {
+        let layer = self
+            .layers
+            .get_mut(&request.layer_name)
+            .ok_or_else(|| format!("Layer '{}' not found", request.layer_name))?;
 
         // Don't interrupt active transition unless forced
         if layer.is_transitioning && !request.force {
@@ -241,10 +241,7 @@ impl AnimationLayerManager {
     /// Completes transitions when progress reaches 1.0.
     ///
     /// Returns list of layer names that completed transitions this tick.
-    pub fn tick_transitions(
-        &mut self,
-        delta_normalized: f32,
-    ) -> Vec<String> {
+    pub fn tick_transitions(&mut self, delta_normalized: f32) -> Vec<String> {
         let mut completed = Vec::new();
 
         // BTreeMap iteration is alphabetical (D11)
@@ -272,14 +269,11 @@ impl AnimationLayerManager {
     // ── Weight Management ──────────────────────────────────────────────────
 
     /// Sets the blend weight for a layer.
-    pub fn set_weight(
-        &mut self,
-        layer_name: &str,
-        weight: f32,
-    ) -> Result<(), String> {
-        let layer = self.layers.get_mut(layer_name).ok_or_else(|| {
-            format!("Layer '{}' not found", layer_name)
-        })?;
+    pub fn set_weight(&mut self, layer_name: &str, weight: f32) -> Result<(), String> {
+        let layer = self
+            .layers
+            .get_mut(layer_name)
+            .ok_or_else(|| format!("Layer '{}' not found", layer_name))?;
         layer.weight = weight.clamp(0.0, 1.0);
         Ok(())
     }
@@ -356,9 +350,8 @@ mod tests {
     #[test]
     fn immediate_transition_snaps_state() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::immediate("Base", "Run")
-        ).unwrap();
+        m.request_transition(TransitionRequest::immediate("Base", "Run"))
+            .unwrap();
         assert_eq!(m.current_state("Base"), Some("Run"));
         assert!(!m.get_layer("Base").unwrap().is_transitioning());
     }
@@ -366,9 +359,8 @@ mod tests {
     #[test]
     fn blended_transition_sets_transitioning() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::blended("Base", "Run", 0.3)
-        ).unwrap();
+        m.request_transition(TransitionRequest::blended("Base", "Run", 0.3))
+            .unwrap();
         let layer = m.get_layer("Base").unwrap();
         assert!(layer.is_transitioning());
         assert_eq!(layer.transition_target, Some("Run".into()));
@@ -379,9 +371,8 @@ mod tests {
     #[test]
     fn tick_transitions_completes_when_progress_reaches_1() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::blended("Base", "Run", 0.5)
-        ).unwrap();
+        m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
+            .unwrap();
         let completed = m.tick_transitions(1.0); // Advance past 1.0
         assert_eq!(completed, vec!["Base"]);
         assert_eq!(m.current_state("Base"), Some("Run"));
@@ -391,9 +382,8 @@ mod tests {
     #[test]
     fn tick_transitions_partial_progress() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::blended("Base", "Run", 0.5)
-        ).unwrap();
+        m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
+            .unwrap();
         let completed = m.tick_transitions(0.3); // Partial progress
         assert!(completed.is_empty());
         assert!(m.get_layer("Base").unwrap().is_transitioning());
@@ -403,24 +393,25 @@ mod tests {
     #[test]
     fn non_forced_transition_blocked_during_active_transition() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::blended("Base", "Run", 0.5)
-        ).unwrap();
+        m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
+            .unwrap();
         // Non-forced transition while transitioning — should be ignored
-        m.request_transition(TransitionRequest::blended("Base", "Jump", 0.3)).unwrap();
-        assert_eq!(m.get_layer("Base").unwrap().transition_target, Some("Run".into()));
+        m.request_transition(TransitionRequest::blended("Base", "Jump", 0.3))
+            .unwrap();
+        assert_eq!(
+            m.get_layer("Base").unwrap().transition_target,
+            Some("Run".into())
+        );
     }
 
     #[test]
     fn forced_transition_interrupts_active_transition() {
         let mut m = manager_with_layers();
-        m.request_transition(
-            TransitionRequest::blended("Base", "Run", 0.5)
-        ).unwrap();
+        m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
+            .unwrap();
         // Forced transition interrupts
-        m.request_transition(
-            TransitionRequest::immediate("Base", "Jump")
-        ).unwrap();
+        m.request_transition(TransitionRequest::immediate("Base", "Jump"))
+            .unwrap();
         assert_eq!(m.current_state("Base"), Some("Jump"));
         assert!(!m.get_layer("Base").unwrap().is_transitioning());
     }
@@ -447,8 +438,8 @@ mod tests {
     #[test]
     fn transition_on_nonexistent_layer_fails() {
         let mut m = manager_with_layers();
-        assert!(m.request_transition(
-            TransitionRequest::immediate("NonExistent", "Run")
-        ).is_err());
+        assert!(m
+            .request_transition(TransitionRequest::immediate("NonExistent", "Run"))
+            .is_err());
     }
 }

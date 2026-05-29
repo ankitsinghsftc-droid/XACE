@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XACE Builder</title>
+  <meta name="description" content="XACE game schema builder — Prompt Intelligence Layer interface">
+
+  <!-- JetBrains Mono for code/paths, preloaded for instant render -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    /* ── CSS design tokens ──────────────────────────────────────────────── */
+    :root {
+      --bg:    #080c18;  /* page background */
+      --bgp:   #0c1020;  /* panel background */
+      --bgc:   #101523;  /* card/input background */
+      --bgh:   #161c2e;  /* hover state */
+      --bga:   #1c2438;  /* active/selected state */
+
+      --bd:    rgba(255,255,255,.07);   /* border default */
+      --bdh:   rgba(255,255,255,.14);   /* border hover */
+      --bda:   rgba(255,255,255,.22);   /* border active */
+
+      /* Brand colours */
+      --cyan:  #00d4ff;
+      --cynd:  rgba(0,212,255,.10);
+      --vlt:   #a855f7;
+      --vltd:  rgba(168,85,247,.10);
+      --amb:   #ff9f43;
+      --ambd:  rgba(255,159,67,.10);
+      --grn:   #10b981;
+      --grnd:  rgba(16,185,129,.10);
+      --red:   #ef4444;
+      --redd:  rgba(239,68,68,.10);
+
+      /* Text */
+      --txt:   #dde4f0;
+      --txt2:  #5a6880;
+      --txt3:  #2a3347;
+
+      /* Typography */
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+      /* Geometry */
+      --r:    6px;   /* default border-radius */
+      --rs:   3px;   /* small border-radius */
+      --rl:   10px;  /* large border-radius */
+
+      /* Animation */
+      --tr:   180ms ease-out;
+      --tr-f: 100ms ease-out;  /* fast transition */
+
+      /* Layout */
+      --sidebar-w:     230px;
+      --right-panel-w: 310px;
+      --topbar-h:      42px;
+      --bottombar-h:   80px;
+      --prompt-area-h: 76px;
+    }
+
+    /* ── Reset ──────────────────────────────────────────────────────────── */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin:  0;
+      padding: 0;
+    }
+
+    html, body {
+      height:           100%;
+      background-color: var(--bg);
+      color:            var(--txt);
+      font-family:      var(--font-sans);
+      font-size:        12px;
+      line-height:      1.5;
+      -webkit-font-smoothing:  antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Prevent layout shift from scrollbar appearing */
+    html { scrollbar-gutter: stable; }
+
+    ::-webkit-scrollbar        { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track  { background: transparent; }
+    ::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.08); border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.14); }
+
+    /* ── Typography utilities ───────────────────────────────────────────── */
+    .mono  { font-family: var(--font-mono); }
+    .txt2  { color: var(--txt2); }
+    .txt3  { color: var(--txt3); }
+    .cyan  { color: var(--cyan); }
+    .vlt   { color: var(--vlt); }
+    .amb   { color: var(--amb); }
+    .grn   { color: var(--grn); }
+    .red   { color: var(--red); }
+
+    /* ── Interactive utilities ──────────────────────────────────────────── */
+    button { cursor: pointer; font-family: inherit; font-size: inherit; }
+    a      { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    [data-tip] {
+      position: relative;
+    }
+    [data-tip]::after {
+      content:          attr(data-tip);
+      position:         absolute;
+      bottom:           calc(100% + 6px);
+      left:             50%;
+      transform:        translateX(-50%);
+      background:       var(--bga);
+      border:           1px solid var(--bdh);
+      border-radius:    var(--rs);
+      color:            var(--txt);
+      font-size:        10px;
+      padding:          3px 7px;
+      white-space:      nowrap;
+      pointer-events:   none;
+      opacity:          0;
+      transition:       opacity var(--tr-f);
+      z-index:          1000;
+    }
+    [data-tip]:hover::after { opacity: 1; }
+
+    /* ── Focus styles ───────────────────────────────────────────────────── */
+    :focus-visible {
+      outline:        2px solid var(--cyan);
+      outline-offset: 1px;
+    }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* ── Animations ─────────────────────────────────────────────────────── */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
+      50%       { opacity: .5; box-shadow: 0 0 10px currentColor; }
+    }
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .animate-fade-in { animation: fade-in 200ms ease-out forwards; }
+    .animate-spin     { animation: spin 600ms linear infinite; }
+
+    /* ── App root ───────────────────────────────────────────────────────── */
+    #app {
+      height:         100vh;
+      display:        flex;
+      flex-direction: column;
+      overflow:       hidden;
+    }
+
+    /* ── Loading splash ─────────────────────────────────────────────────── */
+    #splash {
+      position:        fixed;
+      inset:           0;
+      background:      var(--bg);
+      display:         flex;
+      flex-direction:  column;
+      align-items:     center;
+      justify-content: center;
+      gap:             14px;
+      z-index:         9999;
+      transition:      opacity 300ms ease-out;
+    }
+    #splash.hidden {
+      opacity:        0;
+      pointer-events: none;
+    }
+    .splash-logo {
+      width:           36px;
+      height:          36px;
+      background:      linear-gradient(135deg, var(--cyan), var(--vlt));
+      border-radius:   8px;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      font-size:       18px;
+      font-weight:     800;
+      color:           #000;
+    }
+    .splash-text {
+      font-size:   13px;
+      color:       var(--txt2);
+      font-family: var(--font-mono);
+    }
+    .splash-bar {
+      width:         160px;
+      height:        2px;
+      background:    var(--bd);
+      border-radius: 2px;
+      overflow:      hidden;
+    }
+    .splash-bar-fill {
+      height:           100%;
+      width:            0%;
+      background:       linear-gradient(90deg, var(--cyan), var(--vlt));
+      border-radius:    2px;
+      transition:       width 400ms ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading splash — hidden once app mounts -->
+  <div id="splash">
+    <div class="splash-logo">X</div>
+    <div class="splash-text">XACE Builder</div>
+    <div class="splash-bar">
+      <div class="splash-bar-fill" id="splash-bar"></div>
+    </div>
+  </div>
+
+  <!-- App root — MainLayout mounts here -->
+  <div id="app"></div>
+
+  <!-- Entry point (Vite resolves this) -->
+  <script type="module" src="/src/app.ts"></script>
+</body>
+</html>

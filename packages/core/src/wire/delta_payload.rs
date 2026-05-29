@@ -32,10 +32,10 @@
 //! All component lists are sorted by component_type_id ASC (D11).
 //! Identical state changes always produce identical DeltaPayload bytes.
 
-use std::collections::BTreeMap;
-use serde::{Deserialize, Serialize};
 use crate::entity_id::EntityID;
 use crate::entity_metadata::Tick;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 
 // ── Wire Component Data ───────────────────────────────────────────────────────
 
@@ -88,10 +88,7 @@ pub struct WireFieldChange {
 }
 
 impl WireFieldChange {
-    pub fn new(
-        field_name: impl Into<String>,
-        value_json: impl Into<String>,
-    ) -> Self {
+    pub fn new(field_name: impl Into<String>, value_json: impl Into<String>) -> Self {
         Self {
             field_name: field_name.into(),
             value_json: value_json.into(),
@@ -175,7 +172,8 @@ impl WireSpawnedEntity {
 
     /// Adds a component, maintaining sorted order by type_id (D11).
     pub fn add_component(&mut self, component: WireComponentData) {
-        let pos = self.initial_components
+        let pos = self
+            .initial_components
             .partition_point(|c| c.component_type_id < component.component_type_id);
         self.initial_components.insert(pos, component);
     }
@@ -361,14 +359,16 @@ impl DeltaPayload {
 
     /// Adds a spawned entity maintaining EntityID sort order (D3).
     pub fn add_spawn(&mut self, entity: WireSpawnedEntity) {
-        let pos = self.spawned_entities
+        let pos = self
+            .spawned_entities
             .partition_point(|e| e.entity_id < entity.entity_id);
         self.spawned_entities.insert(pos, entity);
     }
 
     /// Adds a destroyed entity maintaining EntityID sort order (D3).
     pub fn add_destroy(&mut self, entity: WireDestroyedEntity) {
-        let pos = self.destroyed_entities
+        let pos = self
+            .destroyed_entities
             .partition_point(|e| e.entity_id < entity.entity_id);
         self.destroyed_entities.insert(pos, entity);
     }
@@ -377,8 +377,11 @@ impl DeltaPayload {
     pub fn add_component_addition(&mut self, addition: WireAddedComponent) {
         self.added_components.push(addition);
         self.added_components.sort_by(|a, b| {
-            a.entity_id.cmp(&b.entity_id)
-                .then(a.component.component_type_id.cmp(&b.component.component_type_id))
+            a.entity_id.cmp(&b.entity_id).then(
+                a.component
+                    .component_type_id
+                    .cmp(&b.component.component_type_id),
+            )
         });
     }
 
@@ -386,18 +389,15 @@ impl DeltaPayload {
     pub fn add_component_removal(&mut self, removal: WireRemovedComponent) {
         self.removed_components.push(removal);
         self.removed_components.sort_by(|a, b| {
-            a.entity_id.cmp(&b.entity_id)
+            a.entity_id
+                .cmp(&b.entity_id)
                 .then(a.component_type_id.cmp(&b.component_type_id))
         });
     }
 
     /// Records a component field update for an entity.
     /// BTreeMap insertion maintains deterministic ordering (D3, D11).
-    pub fn add_component_update(
-        &mut self,
-        entity_id: EntityID,
-        update: WireComponentUpdate,
-    ) {
+    pub fn add_component_update(&mut self, entity_id: EntityID, update: WireComponentUpdate) {
         self.modified_entities
             .entry(entity_id)
             .or_insert_with(|| WireEntityUpdate::new(entity_id))

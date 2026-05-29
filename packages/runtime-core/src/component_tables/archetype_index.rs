@@ -28,14 +28,13 @@ use std::collections::BTreeMap;
 
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId};
 
-
 // ── Archetype Location ────────────────────────────────────────────────────────
 
 /// Where an entity lives in archetype storage.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ArchetypeLocation {
     pub archetype_id: ArchetypeId,
-    pub row:          usize,
+    pub row: usize,
 }
 
 impl ArchetypeLocation {
@@ -43,7 +42,6 @@ impl ArchetypeLocation {
         Self { archetype_id, row }
     }
 }
-
 
 // ── Archetype Index ───────────────────────────────────────────────────────────
 
@@ -54,7 +52,9 @@ pub struct ArchetypeIndex {
 
 impl ArchetypeIndex {
     pub fn new() -> Self {
-        Self { inner: BTreeMap::new() }
+        Self {
+            inner: BTreeMap::new(),
+        }
     }
 
     pub fn with_capacity(_cap: usize) -> Self {
@@ -69,7 +69,7 @@ impl ArchetypeIndex {
     pub fn insert(
         &mut self,
         entity_id: EntityId,
-        location:  ArchetypeLocation,
+        location: ArchetypeLocation,
     ) -> Option<ArchetypeLocation> {
         self.inner.insert(entity_id, location)
     }
@@ -81,11 +81,7 @@ impl ArchetypeIndex {
 
     /// Updates an existing entity's location.
     /// Used when swap-remove relocates the swapped entity to a different row.
-    pub fn update_location(
-        &mut self,
-        entity_id:    EntityId,
-        new_location: ArchetypeLocation,
-    ) {
+    pub fn update_location(&mut self, entity_id: EntityId, new_location: ArchetypeLocation) {
         self.inner.insert(entity_id, new_location);
     }
 
@@ -97,8 +93,12 @@ impl ArchetypeIndex {
         self.inner.contains_key(&entity_id)
     }
 
-    pub fn len(&self) -> usize { self.inner.len() }
-    pub fn is_empty(&self) -> bool { self.inner.is_empty() }
+    pub fn len(&self) -> usize {
+        self.inner.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
 
     // ── Iteration (D3-compliant) ──────────────────────────────────────────────
 
@@ -113,7 +113,8 @@ impl ArchetypeIndex {
         &self,
         archetype_id: ArchetypeId,
     ) -> impl Iterator<Item = (EntityId, ArchetypeLocation)> + '_ {
-        self.inner.iter()
+        self.inner
+            .iter()
             .filter(move |(_, loc)| loc.archetype_id == archetype_id)
             .map(|(&e, &l)| (e, l))
     }
@@ -156,5 +157,7 @@ impl ArchetypeIndex {
         self.iter_archetype(archetype_id).map(|(e, _)| e).collect()
     }
 
-    pub fn clear(&mut self) { self.inner.clear(); }
+    pub fn clear(&mut self) {
+        self.inner.clear();
+    }
 }

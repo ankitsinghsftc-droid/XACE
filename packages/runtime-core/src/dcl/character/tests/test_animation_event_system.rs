@@ -1,13 +1,16 @@
 //! # Animation Event System Integration Tests
 
-use crate::dcl::character::animation_event_system::{
-    AnimationEvent, AnimationEventSystem,
-};
+use crate::dcl::character::animation_event_system::{AnimationEvent, AnimationEventSystem};
 use std::collections::BTreeMap;
 use xace_core::events::event_type::EventType;
 
 fn make_event(id: &str, state: &str, trigger: f32) -> AnimationEvent {
-    AnimationEvent::new(id, state, trigger, EventType::Custom("test".into()))
+    AnimationEvent::new(
+        id,
+        state,
+        trigger,
+        EventType::Domain("animation.test".into()),
+    )
 }
 
 #[test]
@@ -53,7 +56,8 @@ fn batch_entity_ordering_is_ascending() {
         entity_events.insert(id, vec![make_event("e", "Run", 0.1)]);
     }
     let times: BTreeMap<u64, f32> = entity_events.keys().map(|&k| (k, 1.0)).collect();
-    let states: BTreeMap<u64, String> = entity_events.keys()
+    let states: BTreeMap<u64, String> = entity_events
+        .keys()
         .map(|&k| (k, "Run".to_string()))
         .collect();
 
@@ -78,11 +82,13 @@ fn state_change_clears_irrelevant_events() {
 #[test]
 fn determinism_same_input_same_output() {
     let sys = AnimationEventSystem::new();
-    let make_events = || vec![
-        make_event("c", "Attack", 0.9),
-        make_event("a", "Attack", 0.3),
-        make_event("b", "Attack", 0.6),
-    ];
+    let make_events = || {
+        vec![
+            make_event("c", "Attack", 0.9),
+            make_event("a", "Attack", 0.3),
+            make_event("b", "Attack", 0.6),
+        ]
+    };
     let mut e1 = make_events();
     let mut e2 = make_events();
     let fired1 = sys.process_entity_events(1, &mut e1, 1.0, "Attack", 10);

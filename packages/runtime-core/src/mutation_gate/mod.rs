@@ -1,9 +1,9 @@
 //! # Mutation Gate Module
 //! The enforced gateway for all world state mutations.
 
+pub mod mutation_gate;
 pub mod mutation_queue;
 pub mod mutation_validator;
-pub mod mutation_gate;
 
 #[cfg(test)]
 mod tests;

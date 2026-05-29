@@ -47,7 +47,7 @@ impl ISystem for DeathSystem {
         for entity_id in mortal_entities {
             let health_json_str = match context.get_component(entity_id, component_ids::HEALTH)? {
                 Some(j) => j.to_owned(),
-                None    => continue,
+                None => continue,
             };
 
             let current_health = parse_health_current(&health_json_str);
@@ -82,13 +82,13 @@ mod tests {
     #[test]
     fn declares_no_component_writes() {
         // DeathSystem uses submit_destroy, not submit_mutation
-        assert_eq!(DeathSystem.declared_writes(), &[]);
+        assert!(DeathSystem.declared_writes().is_empty());
     }
 
     #[test]
     fn death_threshold_is_zero_or_below() {
         // Any entity with health exactly 0 or somehow less must die
-        assert!(0.0_f32 <= 0.0_f32);      // exactly zero → dead
-        assert!(-0.1_f32 <= 0.0_f32);     // impossible via .max(0.0) but checked
+        assert!(0.0_f32 <= 0.0_f32); // exactly zero → dead
+        assert!(-0.1_f32 <= 0.0_f32); // impossible via .max(0.0) but checked
     }
 }

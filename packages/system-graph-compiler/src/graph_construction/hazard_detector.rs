@@ -33,9 +33,9 @@
 //! RawSystemGraph for the given pair of systems. The GraphConstructionLayer
 //! calls detect() for every (A, B) pair in the same phase.
 
-use std::collections::BTreeSet;
 use crate::graph_construction::system_edge::SystemEdge;
 use crate::graph_construction::system_node::SystemNode;
+use std::collections::BTreeSet;
 
 // ── Hazard Report ─────────────────────────────────────────────────────────────
 
@@ -114,26 +114,49 @@ impl HazardDetector {
 
         // ── RAW: node_a writes X that node_b reads ────────────────────────────
         let raw_a_to_b = node_a.raw_hazard_with(node_b);
+        let raw_b_to_a = node_b.raw_hazard_with(node_a);
+        report
+            .raw_hazard_type_ids
+            .extend(raw_a_to_b.iter().copied());
+        report
+            .raw_hazard_type_ids
+            .extend(raw_b_to_a.iter().copied());
+        let waw_order = if report.has_waw() {
+            let (first, second) = Self::lexicographic_order(node_a, node_b);
+            Some((first.system_id.as_str(), second.system_id.as_str()))
+        } else {
+            None
+        };
         if !raw_a_to_b.is_empty() {
             let type_ids: Vec<u32> = raw_a_to_b.iter().copied().collect();
-            report.raw_hazard_type_ids.extend(raw_a_to_b);
-            report.edges.push(SystemEdge::read_after_write(
-                node_a.system_id.clone(),
-                node_b.system_id.clone(),
-                type_ids,
-            ));
+            if waw_order.map_or(true, |(from, to)| {
+                from == node_a.system_id.as_str() && to == node_b.system_id.as_str()
+            }) {
+                report.edges.push(SystemEdge::read_after_write(
+                    node_a.system_id.clone(),
+                    node_b.system_id.clone(),
+                    type_ids,
+                ));
+            }
         }
 
         // ── RAW: node_b writes X that node_a reads ────────────────────────────
-        let raw_b_to_a = node_b.raw_hazard_with(node_a);
+        let raw_b_to_a = if !raw_a_to_b.is_empty() {
+            BTreeSet::new()
+        } else {
+            raw_b_to_a
+        };
         if !raw_b_to_a.is_empty() {
             let type_ids: Vec<u32> = raw_b_to_a.iter().copied().collect();
-            report.raw_hazard_type_ids.extend(raw_b_to_a);
-            report.edges.push(SystemEdge::read_after_write(
-                node_b.system_id.clone(),
-                node_a.system_id.clone(),
-                type_ids,
-            ));
+            if waw_order.map_or(true, |(from, to)| {
+                from == node_b.system_id.as_str() && to == node_a.system_id.as_str()
+            }) {
+                report.edges.push(SystemEdge::read_after_write(
+                    node_b.system_id.clone(),
+                    node_a.system_id.clone(),
+                    type_ids,
+                ));
+            }
         }
 
         report
@@ -172,7 +195,11 @@ impl HazardDetector {
         a: &'a SystemNode,
         b: &'a SystemNode,
     ) -> (&'a SystemNode, &'a SystemNode) {
-        if a.system_id <= b.system_id { (a, b) } else { (b, a) }
+        if a.system_id <= b.system_id {
+            (a, b)
+        } else {
+            (b, a)
+        }
     }
 }
 
@@ -181,9 +208,9 @@ impl HazardDetector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::phase_enum::PhaseEnum;
-    use crate::graph_construction::system_node::SystemNode;
     use crate::compilation_error::EdgeType;
+    use crate::graph_construction::system_node::SystemNode;
+    use xace_core::runtime::phase_enum::PhaseEnum;
 
     fn sim_node(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemNode {
         SystemNode::new(id, PhaseEnum::Simulation)
@@ -196,7 +223,7 @@ mod tests {
     #[test]
     fn no_hazard_when_no_overlap() {
         // sys_input reads/writes INPUT(6), sys_health reads/writes HEALTH(100)
-        let a = sim_node("sys_input",  vec![6],   vec![6]);
+        let a = sim_node("sys_input", vec![6], vec![6]);
         let b = sim_node("sys_health", vec![100], vec![100]);
         let report = HazardDetector::detect(&a, &b);
         assert!(!report.has_hazards());
@@ -217,13 +244,15 @@ mod tests {
     #[test]
     fn raw_detected_a_writes_b_reads() {
         // sys_ai writes VELOCITY(5), sys_movement reads VELOCITY(5)
-        let ai       = sim_node("sys_ai",       vec![160, 1], vec![5]);
-        let movement = sim_node("sys_movement", vec![1, 5],   vec![1]);
-        let report   = HazardDetector::detect(&ai, &movement);
+        let ai = sim_node("sys_ai", vec![160, 1], vec![5]);
+        let movement = sim_node("sys_movement", vec![1, 5], vec![1]);
+        let report = HazardDetector::detect(&ai, &movement);
         assert!(report.has_raw());
         assert!(report.raw_hazard_type_ids.contains(&5));
         // Edge: sys_ai → sys_movement (ai must run before movement)
-        let edge = report.edges.iter()
+        let edge = report
+            .edges
+            .iter()
             .find(|e| e.edge_type == EdgeType::ReadAfterWrite)
             .expect("RAW edge must exist");
         assert_eq!(edge.from_system, "sys_ai");
@@ -234,11 +263,13 @@ mod tests {
     fn raw_detected_b_writes_a_reads() {
         // sys_movement reads TRANSFORM(1), sys_ai writes TRANSFORM(1)
         let movement = sim_node("sys_movement", vec![1, 5], vec![1]);
-        let init     = sim_node("sys_init",     vec![],     vec![1]); // writes TRANSFORM
-        let report   = HazardDetector::detect(&movement, &init);
+        let init = sim_node("sys_init", vec![], vec![1]); // writes TRANSFORM
+        let report = HazardDetector::detect(&movement, &init);
         assert!(report.has_raw());
         // Edge: sys_init → sys_movement
-        let edge = report.edges.iter()
+        let edge = report
+            .edges
+            .iter()
             .find(|e| e.edge_type == EdgeType::ReadAfterWrite)
             .expect("RAW edge must exist");
         assert_eq!(edge.from_system, "sys_init");
@@ -247,8 +278,8 @@ mod tests {
 
     #[test]
     fn raw_involves_correct_component_ids() {
-        let a = sim_node("sys_a", vec![],  vec![1, 5]); // writes TRANSFORM and VELOCITY
-        let b = sim_node("sys_b", vec![5], vec![]);     // reads VELOCITY only
+        let a = sim_node("sys_a", vec![], vec![1, 5]); // writes TRANSFORM and VELOCITY
+        let b = sim_node("sys_b", vec![5], vec![]); // reads VELOCITY only
         let report = HazardDetector::detect(&a, &b);
         assert!(report.raw_hazard_type_ids.contains(&5));
         assert!(!report.raw_hazard_type_ids.contains(&1)); // b doesn't read TRANSFORM
@@ -259,7 +290,7 @@ mod tests {
     #[test]
     fn waw_detected_both_write_same_component() {
         let a = sim_node("sys_movement", vec![1, 5], vec![1]);
-        let b = sim_node("sys_physics",  vec![1],    vec![1]); // both write TRANSFORM
+        let b = sim_node("sys_physics", vec![1], vec![1]); // both write TRANSFORM
         let report = HazardDetector::detect(&a, &b);
         assert!(report.has_waw());
         assert!(report.waw_conflict_type_ids.contains(&1));
@@ -269,39 +300,49 @@ mod tests {
     fn waw_tie_break_lexicographic() {
         // "sys_movement" < "sys_physics" → sys_movement runs first
         let movement = sim_node("sys_movement", vec![], vec![1]);
-        let physics  = sim_node("sys_physics",  vec![], vec![1]);
-        let report   = HazardDetector::detect(&movement, &physics);
-        let waw_edge = report.edges.iter()
+        let physics = sim_node("sys_physics", vec![], vec![1]);
+        let report = HazardDetector::detect(&movement, &physics);
+        let waw_edge = report
+            .edges
+            .iter()
             .find(|e| e.edge_type == EdgeType::WriteAfterWrite)
             .expect("WAW edge must exist");
         assert_eq!(waw_edge.from_system, "sys_movement"); // lex smaller = first
-        assert_eq!(waw_edge.to_system,   "sys_physics");
+        assert_eq!(waw_edge.to_system, "sys_physics");
     }
 
     #[test]
     fn waw_tie_break_reversed_order_same_result() {
         // Order of arguments to detect() must not change the tie-break result
         let movement = sim_node("sys_movement", vec![], vec![1]);
-        let physics  = sim_node("sys_physics",  vec![], vec![1]);
+        let physics = sim_node("sys_physics", vec![], vec![1]);
 
         let report_ab = HazardDetector::detect(&movement, &physics);
         let report_ba = HazardDetector::detect(&physics, &movement);
 
-        let edge_ab = report_ab.edges.iter()
-            .find(|e| e.edge_type == EdgeType::WriteAfterWrite).unwrap();
-        let edge_ba = report_ba.edges.iter()
-            .find(|e| e.edge_type == EdgeType::WriteAfterWrite).unwrap();
+        let edge_ab = report_ab
+            .edges
+            .iter()
+            .find(|e| e.edge_type == EdgeType::WriteAfterWrite)
+            .unwrap();
+        let edge_ba = report_ba
+            .edges
+            .iter()
+            .find(|e| e.edge_type == EdgeType::WriteAfterWrite)
+            .unwrap();
 
         // Tie-break is deterministic regardless of argument order
-        assert_eq!(edge_ab.from_system, edge_ba.from_system,
-            "WAW tie-break must be argument-order independent (D11)");
+        assert_eq!(
+            edge_ab.from_system, edge_ba.from_system,
+            "WAW tie-break must be argument-order independent (D11)"
+        );
         assert_eq!(edge_ab.to_system, edge_ba.to_system);
     }
 
     #[test]
     fn waw_multiple_components_all_reported() {
         let a = sim_node("sys_a", vec![], vec![1, 5, 100]);
-        let b = sim_node("sys_b", vec![], vec![1, 5]);     // writes TRANSFORM and VELOCITY
+        let b = sim_node("sys_b", vec![], vec![1, 5]); // writes TRANSFORM and VELOCITY
         let report = HazardDetector::detect(&a, &b);
         assert!(report.waw_conflict_type_ids.contains(&1));
         assert!(report.waw_conflict_type_ids.contains(&5));
@@ -325,7 +366,7 @@ mod tests {
 
     #[test]
     fn parallel_safe_true_when_no_overlap() {
-        let a = sim_node("sys_input",  vec![6],   vec![6]);
+        let a = sim_node("sys_input", vec![6], vec![6]);
         let b = sim_node("sys_health", vec![100], vec![100]);
         assert!(HazardDetector::is_parallel_safe(&a, &b));
     }

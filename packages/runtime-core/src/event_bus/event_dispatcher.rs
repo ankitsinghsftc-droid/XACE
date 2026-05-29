@@ -12,8 +12,8 @@
 //! This order is unconditional — it holds regardless of emission
 //! order, thread scheduling, or system execution order.
 
-use xace_core::events::event_struct::Event;
 use super::event_subscription_registry::EventSubscriptionRegistry;
+use xace_core::events::event_struct::Event;
 
 // ── Event Dispatcher ──────────────────────────────────────────────────────────
 
@@ -46,9 +46,7 @@ impl EventDispatcher {
     ) -> Vec<&'a Event> {
         events
             .iter()
-            .filter(|e| {
-                registry.is_subscribed(system_id, &e.event_type)
-            })
+            .filter(|e| registry.is_subscribed(system_id, &e.event_type))
             .collect()
         // Events are already sorted — filter preserves order
     }
@@ -74,12 +72,7 @@ mod tests {
     use xace_core::events::event_type::EventType;
     use xace_core::runtime::phase_enum::PhaseEnum;
 
-    fn make_event(
-        event_id: u64,
-        tick: u64,
-        phase: PhaseEnum,
-        event_type: EventType,
-    ) -> Event {
+    fn make_event(event_id: u64, tick: u64, phase: PhaseEnum, event_type: EventType) -> Event {
         let mut e = Event::broadcast(1, event_type, tick, phase);
         e.event_id = event_id;
         e
@@ -103,7 +96,8 @@ mod tests {
     #[test]
     fn events_for_system_filters_correctly() {
         let mut reg = EventSubscriptionRegistry::new();
-        reg.register("sys_combat", vec![EventType::DamageTaken]).unwrap();
+        reg.register("sys_combat", vec![EventType::DamageTaken])
+            .unwrap();
 
         let events = vec![
             make_event(1, 0, PhaseEnum::Simulation, EventType::DamageTaken),
@@ -111,9 +105,7 @@ mod tests {
             make_event(3, 0, PhaseEnum::Simulation, EventType::DamageTaken),
         ];
 
-        let for_combat = EventDispatcher::events_for_system(
-            &events, "sys_combat", &reg
-        );
+        let for_combat = EventDispatcher::events_for_system(&events, "sys_combat", &reg);
         assert_eq!(for_combat.len(), 2);
         assert_eq!(for_combat[0].event_id, 1);
         assert_eq!(for_combat[1].event_id, 3);
@@ -127,9 +119,7 @@ mod tests {
         e1.is_consumed = true;
         e3.is_consumed = true;
 
-        let (consumed, unconsumed) = EventDispatcher::partition_consumed(
-            vec![e1, e2, e3]
-        );
+        let (consumed, unconsumed) = EventDispatcher::partition_consumed(vec![e1, e2, e3]);
         assert_eq!(consumed.len(), 2);
         assert_eq!(unconsumed.len(), 1);
         assert_eq!(unconsumed[0].event_id, 2);
