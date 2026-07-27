@@ -9,16 +9,18 @@ use xace_network_core::synchronisation::{
 fn desync_detection_respects_interval_and_reports_divergence() {
     let mut detector = DesyncDetector::new(30);
     let mut peer_hashes = BTreeMap::new();
-    peer_hashes.insert(1, "hash_ok".to_string());
-    peer_hashes.insert(2, "hash_bad".to_string());
+    let local_hash = "a".repeat(64);
+    let remote_hash = "b".repeat(64);
+    peer_hashes.insert(1, local_hash.clone());
+    peer_hashes.insert(2, remote_hash.clone());
 
     assert!(detector
-        .compare(29, "hash_ok", peer_hashes.clone())
+        .compare(29, &local_hash, peer_hashes.clone())
         .is_none());
 
-    let report = detector.compare(30, "hash_ok", peer_hashes).unwrap();
+    let report = detector.compare(30, &local_hash, peer_hashes).unwrap();
     assert_eq!(report.tick, 30);
-    assert_eq!(report.divergent_peers, vec![(2, "hash_bad".to_string())]);
+    assert_eq!(report.divergent_peers, vec![(2, remote_hash)]);
 
     let instructions = ResyncEngine::instructions_for_report(&report);
     assert_eq!(instructions.len(), 1);
@@ -36,11 +38,12 @@ fn desync_detector_tracks_missing_peers_and_consecutive_counts() {
     let expected = BTreeSet::from([1, 2, 3]);
 
     let mut peer_hashes = BTreeMap::new();
-    peer_hashes.insert(1, "ok".to_string());
-    peer_hashes.insert(2, "bad".to_string());
+    let local_hash = "a".repeat(64);
+    peer_hashes.insert(1, local_hash.clone());
+    peer_hashes.insert(2, "b".repeat(64));
 
     let first = detector
-        .compare_result(10, "ok", peer_hashes.clone(), expected.clone())
+        .compare_result(10, &local_hash, peer_hashes.clone(), expected.clone())
         .unwrap()
         .unwrap();
     assert_eq!(first.missing_peers, vec![3]);
@@ -48,7 +51,7 @@ fn desync_detector_tracks_missing_peers_and_consecutive_counts() {
     assert!(!first.is_confirmed(2));
 
     let second = detector
-        .compare_result(20, "ok", peer_hashes, expected)
+        .compare_result(20, &local_hash, peer_hashes, expected)
         .unwrap()
         .unwrap();
     assert!(second.is_confirmed(2));
@@ -83,8 +86,9 @@ fn tick_barrier_opens_only_when_required_peers_are_ready_for_tick() {
 fn resync_engine_retries_and_acknowledges_sessions() {
     let mut detector = DesyncDetector::new(5);
     let mut peer_hashes = BTreeMap::new();
-    peer_hashes.insert(9, "bad".to_string());
-    let report = detector.compare(5, "good", peer_hashes).unwrap();
+    peer_hashes.insert(9, "b".repeat(64));
+    let good_hash = "a".repeat(64);
+    let report = detector.compare(5, &good_hash, peer_hashes).unwrap();
 
     let mut resync = ResyncEngine::with_config(ResyncConfig {
         max_delta_ticks: 20,
@@ -101,9 +105,26 @@ fn resync_engine_retries_and_acknowledges_sessions() {
     assert_eq!(retries[0].attempt, 2);
 
     resync.mark_snapshot_sent(9, 12).unwrap();
-    resync.acknowledge(9, 13, "good").unwrap();
+    resync.acknowledge(9, 13, &good_hash).unwrap();
     assert_eq!(resync.session(9).unwrap().state, ResyncState::Complete);
     assert_eq!(resync.remove_terminal(), 1);
+}
+
+#[test]
+fn resync_ack_rejects_hash_mismatch() {
+    let good_hash = "a".repeat(64);
+    let mut resync = ResyncEngine::new();
+    resync
+        .begin_for_peers(BTreeSet::from([9]), 5, 5, good_hash.clone(), 5)
+        .unwrap();
+    resync.mark_snapshot_sent(9, 5).unwrap();
+    resync.mark_awaiting_ack(9).unwrap();
+
+    let err = resync.acknowledge(9, 6, &"b".repeat(64)).unwrap_err();
+    assert!(err
+        .to_string()
+        .contains("resync ack hash bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb did not match expected"));
+    assert_eq!(resync.session(9).unwrap().state, ResyncState::Failed);
 }
 
 #[test]

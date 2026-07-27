@@ -83,6 +83,12 @@ class GDEResult:
         Set when validation failed.
     error : str
         Human-readable error description if success=False.
+    code : str
+        Stable actionable code for blocked or failed outcomes.
+    action : str
+        User/developer action that can resolve a blocked or failed outcome.
+    unsupported : bool
+        True when the requested behavior is unsupported for this run.
     intent : IntentObject | None
         The classified intent for this run.
     new_cgs_hash : str
@@ -94,6 +100,9 @@ class GDEResult:
     clarification_request: ClarificationRequest | None = None
     consistency_report:    ConsistencyReport | None  = None
     error:                 str                       = ""
+    code:                  str                       = ""
+    action:                str                       = ""
+    unsupported:           bool                      = False
     intent:                IntentObject | None        = None
     new_cgs_hash:          str                       = ""
 
@@ -310,10 +319,15 @@ class GDEOrchestrator:
 
         if self._q_sessions.is_complete(session_id):
             # Merge resolved parameters back and proceed
-            resolved = self._q_sessions.resolved_parameters(session_id)
             self._q_sessions.close_session(session_id)
             # Reconstruct a minimal intent from resolved params
-            return GDEResult(success=True, error="Session complete — re-submit prompt to continue.")
+            return GDEResult(
+                success=False,
+                error="Clarification session is complete, but no CGS mutation was committed.",
+                code="GDE_CLARIFICATION_REPROMPT_REQUIRED",
+                action="Re-submit the original prompt with the resolved clarification details.",
+                unsupported=True,
+            )
 
         # More questions pending
         return GDEResult(success=False, error="")

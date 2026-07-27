@@ -8,13 +8,12 @@ Unit tests for:
 - ArchetypeIndex consistency after every mutation
 */
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 
 use xace_runtime_core::component_tables::{
     archetype::Archetype,
-    archetype_index::{ArchetypeIndex, ArchetypeLocation},
     archetype_storage::ArchetypeStorage,
-    storage_strategy::{ArchetypeId, EntityId, TypeId},
+    storage_strategy::{EntityId, TypeId},
 };
 
 // ── Type IDs ──────────────────────────────────────────────────────────────────
@@ -27,9 +26,6 @@ const AI: TypeId = 160;
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 fn bytes(v: f32) -> Vec<u8> {
-    v.to_le_bytes().to_vec()
-}
-fn u32_bytes(v: u32) -> Vec<u8> {
     v.to_le_bytes().to_vec()
 }
 
@@ -144,14 +140,14 @@ mod archetype_tests {
 
     #[test]
     fn matches_query_true_for_subset() {
-        let mut a = make_archetype();
+        let a = make_archetype();
         let req = [POS, VEL].iter().copied().collect();
         assert!(a.matches_query(&req));
     }
 
     #[test]
     fn matches_query_false_for_superset() {
-        let mut a = make_archetype();
+        let a = make_archetype();
         // AI is not in the archetype
         let req = [POS, VEL, AI].iter().copied().collect();
         assert!(!a.matches_query(&req));
@@ -206,6 +202,8 @@ mod archetype_storage_tests {
     fn modify_component_updates_value() {
         let mut s = storage_with_entities(&[(10, &[POS, HP])]);
         let old = s.modify_component(10, POS, bytes(99.0)).unwrap();
+        let old_f = f32::from_le_bytes(old.as_slice().try_into().unwrap());
+        assert_eq!(old_f, 10.0);
         let val = s.get_component(10, POS).unwrap();
         let f = f32::from_le_bytes(val.try_into().unwrap());
         assert_eq!(f, 99.0);

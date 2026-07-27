@@ -3,7 +3,7 @@
 use crate::component_tables::ComponentTableStore;
 use crate::entity_store::EntityStore;
 use crate::snapshot_engine::snapshot_engine::SnapshotEngine;
-use crate::snapshot_engine::snapshot_store::{RetentionPolicy, SnapshotStore};
+use crate::snapshot_engine::snapshot_store::RetentionPolicy;
 
 fn setup() -> (SnapshotEngine, EntityStore, ComponentTableStore) {
     let engine = SnapshotEngine::standard("0.1.0", 1, 12345);
@@ -120,7 +120,7 @@ fn rollback_to_earlier_tick() {
 
     // Snapshot at tick 0 — entity has x=0
     ts.add_component(id, 1, r#"{"x":0.0}"#.into(), 0).unwrap();
-    let snap0 = engine.take_and_store(0, &es, &ts).unwrap();
+    engine.take_and_store(0, &es, &ts).unwrap();
 
     // Advance to tick 10 — entity has x=10
     ts.update_component(id, 1, r#"{"x":10.0}"#.into(), 10)

@@ -290,6 +290,10 @@ mod tests {
     use super::*;
     use crate::mutation::dsl_operation::{DslValue, TypeHint};
 
+    const HASH_BEFORE: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const HASH_AFTER: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const HASH_NEXT: &str = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+
     fn test_operation() -> DslOperation {
         DslOperation::set(
             "modes.mode_arena.actors.actor_player.stats.move_speed",
@@ -303,8 +307,8 @@ mod tests {
             "delta-001",
             "0.1.0",
             "0.1.1",
-            "hash_before_abc",
-            "hash_after_xyz",
+            HASH_BEFORE,
+            HASH_AFTER,
             vec![test_operation()],
             UsmcCategory::Modify,
             "ManualDsl(author=test)",
@@ -392,8 +396,8 @@ mod tests {
         delta2.delta_id = "delta-002".into();
         delta2.version_before = "0.1.1".into();
         delta2.version_after = "0.1.2".into();
-        delta2.cgs_hash_before = "hash_after_xyz".into();
-        delta2.cgs_hash_after = "hash_after_pqr".into();
+        delta2.cgs_hash_before = HASH_AFTER.into();
+        delta2.cgs_hash_after = HASH_NEXT.into();
         assert!(delta2.links_to_previous(&delta1));
     }
 
@@ -405,7 +409,7 @@ mod tests {
         delta2.version_before = "0.1.1".into();
         delta2.version_after = "0.1.2".into();
         delta2.cgs_hash_before = "wrong_hash".into();
-        delta2.cgs_hash_after = "hash_after_pqr".into();
+        delta2.cgs_hash_after = HASH_NEXT.into();
         assert!(!delta2.links_to_previous(&delta1));
     }
 

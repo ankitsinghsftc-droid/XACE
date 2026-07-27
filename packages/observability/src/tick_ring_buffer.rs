@@ -35,38 +35,37 @@ use serde::{Deserialize, Serialize};
 
 use crate::trace::TraceId;
 
-
 // ── TickRecord ────────────────────────────────────────────────────────────────
 
 /// One tick's worth of observability data.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TickRecord {
-    pub tick_number:        u64,
-    pub world_hash:         String,    // hex-encoded u256/u64 hash
-    pub duration_ms:        f64,
-    pub entity_count:       u64,
-    pub mutation_count:     u64,
-    pub active_trace_id:    Option<TraceId>,
-    pub determinism_violations: u32,   // count of D-rule fires this tick
-    pub timestamp_ms:       u64,       // milliseconds since UNIX epoch
+    pub tick_number: u64,
+    pub world_hash: String, // hex-encoded u256/u64 hash
+    pub duration_ms: f64,
+    pub entity_count: u64,
+    pub mutation_count: u64,
+    pub active_trace_id: Option<TraceId>,
+    pub determinism_violations: u32, // count of D-rule fires this tick
+    pub timestamp_ms: u64,           // milliseconds since UNIX epoch
 }
 
 impl TickRecord {
     pub fn new(
-        tick_number:    u64,
-        world_hash:     impl Into<String>,
-        duration_ms:    f64,
-        entity_count:   u64,
+        tick_number: u64,
+        world_hash: impl Into<String>,
+        duration_ms: f64,
+        entity_count: u64,
         mutation_count: u64,
     ) -> Self {
         use std::time::{SystemTime, UNIX_EPOCH};
         Self {
             tick_number,
-            world_hash:         world_hash.into(),
+            world_hash: world_hash.into(),
             duration_ms,
             entity_count,
             mutation_count,
-            active_trace_id:    crate::tracer::current_trace_id(),
+            active_trace_id: crate::tracer::current_trace_id(),
             determinism_violations: 0,
             timestamp_ms: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
@@ -81,7 +80,6 @@ impl TickRecord {
     }
 }
 
-
 // ── Ring Buffer ───────────────────────────────────────────────────────────────
 
 /// Fixed-size ring buffer for `TickRecord`s.
@@ -90,9 +88,9 @@ impl TickRecord {
 /// Read: O(n) under a Mutex — only called during crash reporting.
 pub struct TickRingBuffer {
     capacity: usize,
-    slots:    Mutex<Vec<Option<TickRecord>>>,
-    head:     AtomicUsize,   // next write position (wraps around)
-    count:    AtomicUsize,   // number of valid records (caps at capacity)
+    slots: Mutex<Vec<Option<TickRecord>>>,
+    head: AtomicUsize,  // next write position (wraps around)
+    count: AtomicUsize, // number of valid records (caps at capacity)
 }
 
 impl TickRingBuffer {
@@ -102,7 +100,7 @@ impl TickRingBuffer {
         Self {
             capacity,
             slots: Mutex::new(slots),
-            head:  AtomicUsize::new(0),
+            head: AtomicUsize::new(0),
             count: AtomicUsize::new(0),
         }
     }
@@ -124,10 +122,10 @@ impl TickRingBuffer {
     /// Returns up to `n` most recent records, newest-first.
     /// Should only be called from crash_reporter — holds the Mutex.
     pub fn recent(&self, n: usize) -> Vec<TickRecord> {
-        let slots   = self.slots.lock().unwrap();
-        let count   = self.count.load(Ordering::Relaxed);
-        let head    = self.head.load(Ordering::Relaxed);
-        let take    = n.min(count);
+        let slots = self.slots.lock().unwrap();
+        let count = self.count.load(Ordering::Relaxed);
+        let head = self.head.load(Ordering::Relaxed);
+        let take = n.min(count);
 
         let mut result = Vec::with_capacity(take);
         for i in 0..take {
@@ -143,20 +141,26 @@ impl TickRingBuffer {
     /// Returns all records that had determinism violations.
     pub fn determinism_violations(&self) -> Vec<TickRecord> {
         let slots = self.slots.lock().unwrap();
-        slots.iter()
-             .flatten()
-             .filter(|r| r.determinism_violations > 0)
-             .cloned()
-             .collect()
+        slots
+            .iter()
+            .flatten()
+            .filter(|r| r.determinism_violations > 0)
+            .cloned()
+            .collect()
     }
 
-    pub fn capacity(&self) -> usize { self.capacity }
+    pub fn capacity(&self) -> usize {
+        self.capacity
+    }
 
-    pub fn len(&self) -> usize { self.count.load(Ordering::Relaxed) }
+    pub fn len(&self) -> usize {
+        self.count.load(Ordering::Relaxed)
+    }
 
-    pub fn is_empty(&self) -> bool { self.len() == 0 }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
-
 
 // ── Global Tick Buffer ────────────────────────────────────────────────────────
 

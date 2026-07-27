@@ -4,11 +4,10 @@ session_manager.py — Builder Session Manager (Phase 14.5)
 Maintains one PILPipeline instance per connected WebSocket session.
 
 ## Phase 14.5 changes vs Phase 14
-    - _create_pipeline() now builds the REAL InferenceAdapter when
-      ANTHROPIC_API_KEY is set in the environment.
+    - _create_pipeline() builds the configured real InferenceAdapter.
     - SessionManager accepts sgc_bin_path for SGC recompilation.
-    - _build_real_adapter() constructs InferenceAdapter with all 7 deps.
-      Falls back to _MockAdapter if packages/inference is not importable.
+    - Missing PIL or provider dependencies block visibly instead of using
+      test-double provider behavior.
     - BuilderSession gains a gde_orchestrator field (GDEOrchestrator per session).
 
 ## Thread Safety
@@ -21,8 +20,12 @@ Maintains one PILPipeline instance per connected WebSocket session.
 from __future__ import annotations
 
 import asyncio
+import copy
+import hashlib
+import json
 import logging
 import os
+import re
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -60,6 +63,7 @@ log.debug("  PIL: %s (found=%s)", _PIL_SRC, os.path.isdir(_PIL_SRC))
 log.debug("  GDE: %s (found=%s)", _GDE_SRC, os.path.isdir(_GDE_SRC))
 
 sys.path.insert(0, _PIL_SRC)
+sys.path.insert(0, _PKGS)
 for _sub in (
     "intent_intake", "context_assembler", "llm_orchestrator",
     "output_parser", "validation_loop", "critique_engine",
@@ -68,6 +72,10 @@ for _sub in (
 ):
     sys.path.insert(0, os.path.join(_PIL_SRC, _sub))
 sys.path.insert(0, _INF_SRC)
+
+from provider_settings import ProviderSettingsStore  # noqa: E402
+from prompt_classifier_gate import classify_prompt  # noqa: E402
+from sgc_plan_validator import SgcPlanValidationError, validate_sgc_plan_for_runtime_load  # noqa: E402
 
 # ── PIL import ────────────────────────────────────────────────────────────────
 
@@ -90,13 +98,22 @@ try:
     _GDEOrchestrator = GDEOrchestrator
     log.info("GDE imported successfully")
 except ImportError as e:
-    log.warning("GDE not importable (will use naive apply): %s", e)
+    log.warning("GDE not importable; production CGS mutation apply is disabled: %s", e)
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 
 MAX_SESSIONS         = 8
 IDLE_TIMEOUT_SECONDS = 3600
 EXECUTOR_WORKERS     = 4
+DETERMINISTIC_SIMPLE_EDIT_SCHEMA = "xace.deterministic_simple_edit.v1"
+DETERMINISTIC_SIMPLE_EDIT_MODEL = "gde-simple-edit-v1"
+_PLAYER_SPEED_PATH = "modes.mode_gameplay.actors.actor_player.components.5.defaults.max_linear_speed"
+_PLAYER_SPEED_SIMPLE_EDIT = re.compile(
+    r"^\s*(?:set|change|update)\s+(?:the\s+)?player\s+(?:movement\s+)?speed\s+to\s+"
+    r"(?P<value>\d+(?:\.\d+)?)\s*\.?\s*$",
+    re.IGNORECASE,
+)
+_MAX_DETERMINISTIC_PLAYER_SPEED = 1000.0
 
 # ── Streaming Inference Adapter ───────────────────────────────────────────────
 
@@ -159,6 +176,17 @@ class BuilderSession:
     project_path:     str                = ""
     pending_txn:      dict | None        = None
     pending_clar_id:  str | None         = None
+    pending_prompt_clarification: dict | None = None
+    prompt_clarification_log: list[dict] = field(default_factory=list)
+    pending_prompt_preview: dict | None = None
+    pending_prompt_result: dict | None = None
+    prompt_preview_approval_log: list[dict] = field(default_factory=list)
+    runtime_connected: bool              = False
+    runtime_adapter_type: str            = ""
+    runtime_engine_version: str          = ""
+    runtime_last_tick: dict | None       = None
+    runtime_last_hash: str               = ""
+    engine_edit_log: list[dict]          = field(default_factory=list)
 
     def touch(self) -> None:
         self.last_active = time.time()
@@ -166,6 +194,57 @@ class BuilderSession:
     @property
     def is_idle(self) -> bool:
         return time.time() - self.last_active > IDLE_TIMEOUT_SECONDS
+
+    def update_runtime_status(
+        self,
+        connected: bool,
+        adapter_type: str = "",
+        engine_version: str = "",
+        last_tick: dict | None = None,
+        last_hash: str = "",
+    ) -> None:
+        self.runtime_connected = connected
+        if adapter_type:
+            self.runtime_adapter_type = adapter_type
+        if engine_version:
+            self.runtime_engine_version = engine_version
+        if last_tick is not None:
+            self.runtime_last_tick = last_tick
+        if last_hash:
+            self.runtime_last_hash = last_hash
+        self.touch()
+
+    def record_engine_edit(self, edit: dict) -> None:
+        self.engine_edit_log.append({
+            "ts": time.time(),
+            **edit,
+        })
+        if len(self.engine_edit_log) > 256:
+            del self.engine_edit_log[:-256]
+        self.touch()
+
+
+@dataclass
+class SGCCompileResult:
+    status: str
+    plan_json: str = ""
+    validation: dict[str, Any] | None = None
+    error: dict[str, Any] | None = None
+    stdout: str = ""
+    stderr: str = ""
+    exit_code: int | None = None
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "ok"
+
+    @property
+    def skipped(self) -> bool:
+        return self.status == "skipped"
+
+    @property
+    def failed(self) -> bool:
+        return self.status == "failed"
 
 
 # ── Session Manager ───────────────────────────────────────────────────────────
@@ -178,15 +257,25 @@ class SessionManager:
     def __init__(
         self,
         sgc_bin_path:   str = "",
+        sgc_args:       list[str] | None = None,
         model_provider: str = "auto",
         model_name:     str = "",
         ollama_url:     str = "http://localhost:11434",
+        api_key:        str = "",
     ) -> None:
         self._sessions:       dict[str, BuilderSession] = {}
         self._sgc_bin:        str = sgc_bin_path
-        self._model_provider: str = model_provider
-        self._model_name:     str = model_name
-        self._ollama_url:     str = ollama_url
+        self._sgc_args:       list[str] = list(sgc_args or [])
+        self._provider_store = ProviderSettingsStore()
+        selection = self._provider_store.apply_launch_overrides(
+            provider=model_provider,
+            model=model_name,
+            api_key=api_key,
+            ollama_url=ollama_url,
+        )
+        self._model_provider: str = selection.provider
+        self._model_name:     str = selection.model
+        self._ollama_url:     str = selection.base_url or ollama_url
         self._executor = ThreadPoolExecutor(
             max_workers        = EXECUTOR_WORKERS,
             thread_name_prefix = "pil-worker",
@@ -258,7 +347,7 @@ class SessionManager:
         cgs:        dict,
         cgs_hash:   str,
         mode:       str = "COLLABORATIVE",
-        send_fn:    Any = None,   # needed to stream pass updates when using SimplePipeline
+        send_fn:    Any = None,
     ) -> dict:
         session = self._sessions.get(session_id)
         if session is None:
@@ -266,54 +355,278 @@ class SessionManager:
 
         session.touch()
         session.current_mode = mode
-
-        loop = asyncio.get_event_loop()
-
-        # ── Path A: Real PIL available ────────────────────────────────────────
-        if session.pipeline is not None:
-            def _run() -> dict:
-                result = session.pipeline.process(
-                    prompt   = prompt,
-                    cgs      = cgs,
-                    cgs_hash = cgs_hash,
-                    mode     = mode,
-                )
-                return _serialize_pil_result(result)
-
-            try:
-                result_dict = await loop.run_in_executor(self._executor, _run)
-            except Exception as exc:
-                log.exception("PIL execution error for session %s", session_id[:12])
-                result_dict = _err(str(exc)[:300])
-
-        # ── Path B: SimplePipeline (PIL not installed) ────────────────────────
+        session.pending_prompt_clarification = None
+        session.pending_clar_id = None
+        session.pending_prompt_preview = None
+        session.pending_prompt_result = None
+        result_dict = _deterministic_simple_edit_result(prompt, cgs)
+        if result_dict is not None:
+            readiness = _deterministic_simple_edit_readiness()
         else:
-            log.info(
-                "PIL not available — using SimplePipeline (direct LLM) "
-                "for session %s", session_id[:12]
-            )
-            # Build adapter fresh (same one the real pipeline would use)
-            adapter = _build_adapter(
-                provider   = self._model_provider,
-                model_name = self._model_name,
-                ollama_url = self._ollama_url,
-            )
-            streaming = StreamingInferenceAdapter(adapter, send_fn, loop) if send_fn else adapter
-            simple    = SimplePipeline(streaming, session_id=session_id)
+            readiness = self.provider_readiness()
+            if not readiness.get("ok"):
+                return _blocked(
+                    str(readiness.get("message") or "The selected prompt provider is not ready."),
+                    {
+                        "guard": "provider_readiness",
+                        "code": str(readiness.get("code") or "PROVIDER_NOT_READY"),
+                        "action": str(readiness.get("action") or "test_provider"),
+                        "ux_state": readiness.get("ux_state") if isinstance(readiness.get("ux_state"), dict) else {},
+                        "intent_category": "ProviderConfiguration",
+                        "confidence": 1.0,
+                    },
+                )
 
-            def _run_simple() -> dict:
-                return simple.process(prompt=prompt, cgs=cgs, cgs_hash=cgs_hash, mode=mode)
+            loop = asyncio.get_event_loop()
 
-            try:
-                result_dict = await loop.run_in_executor(self._executor, _run_simple)
-            except Exception as exc:
-                log.exception("SimplePipeline error for session %s", session_id[:12])
-                result_dict = _err(str(exc)[:300])
+            # ── Path A: Real PIL available ────────────────────────────────────
+            if session.pipeline is not None:
+                def _run() -> dict:
+                    result = session.pipeline.process(
+                        prompt   = prompt,
+                        cgs      = cgs,
+                        cgs_hash = cgs_hash,
+                        mode     = mode,
+                    )
+                    return _serialize_pil_result(result)
+
+                try:
+                    result_dict = await loop.run_in_executor(self._executor, _run)
+                except Exception as exc:
+                    log.exception("PIL execution error for session %s", session_id[:12])
+                    result_dict = _err(str(exc)[:300])
+
+            # ── Path B: PIL unavailable ───────────────────────────────────────
+            else:
+                log.error("PIL unavailable; blocking prompt execution for session %s", session_id[:12])
+                result_dict = _blocked(
+                    "Prompt processing is unavailable because PILPipeline could not be imported.",
+                    {
+                        "code": "PIL_UNAVAILABLE",
+                        "action": (
+                            "Repair the prompt-intelligence package before running prompts; "
+                            "XACE will not use test or fallback prompt helpers in production."
+                        ),
+                        "unsupported": True,
+                        "guard": "prompt_pipeline_runtime",
+                        "intent_category": "PromptPipelineUnavailable",
+                        "confidence": 1.0,
+                    },
+                )
 
         if result_dict.get("kind") == "mutation":
-            session.pending_txn = result_dict.get("transaction")
+            txn = result_dict.get("transaction")
+            _stamp_pending_transaction_authority(txn, cgs, cgs_hash)
+            block_reason = _pending_transaction_block_reason(txn)
+            if block_reason:
+                session.pending_txn = None
+                session.pending_prompt_preview = None
+                session.pending_prompt_result = None
+                return _blocked(block_reason, result_dict)
+            session.pending_txn = txn
+            preview = _build_prompt_diff_preview(
+                session=session,
+                prompt=prompt,
+                cgs=cgs,
+                submitted_hash=cgs_hash,
+                mode=mode,
+                result=result_dict,
+                readiness=readiness,
+            )
+            session.pending_prompt_preview = preview
+            result_dict["preview"] = preview
+            result_dict["approval_required"] = True
+            session.pending_prompt_result = copy.deepcopy(result_dict)
+        else:
+            session.pending_txn = None
+            session.pending_prompt_preview = None
+            session.pending_prompt_result = None
 
         return result_dict
+
+    def validate_prompt_preview_approval(
+        self,
+        session_id: str,
+        message:    dict,
+    ) -> dict:
+        session = self._sessions.get(session_id)
+        if session is None:
+            return {
+                "accepted": False,
+                "code": "NO_SESSION",
+                "message": "Session not found.",
+                "approval": {},
+            }
+
+        preview = session.pending_prompt_preview
+        if not isinstance(preview, dict):
+            return {
+                "accepted": False,
+                "code": "PROMPT_DIFF_PREVIEW_REQUIRED",
+                "message": "Review the structured prompt diff preview before applying this mutation.",
+                "approval": {},
+            }
+
+        override = _prompt_test_mode_override(message, preview)
+        if override is not None:
+            session.prompt_preview_approval_log.append(override)
+            _trim_prompt_preview_log(session)
+            if override.get("approved") is True:
+                return {"accepted": True, "code": "", "message": "", "approval": override}
+            return {
+                "accepted": False,
+                "code": "PROMPT_TEST_MODE_APPROVAL_REASON_REQUIRED",
+                "message": "Test-mode prompt apply overrides require an audited reason.",
+                "approval": override,
+            }
+
+        approval = message.get("approval")
+        if not isinstance(approval, dict):
+            return {
+                "accepted": False,
+                "code": "PROMPT_PREVIEW_APPROVAL_REQUIRED",
+                "message": "Apply requires the approval token from the structured prompt diff preview.",
+                "approval": {
+                    "schema": "xace.prompt_preview_approval.v1",
+                    "preview_id": str(preview.get("preview_id") or ""),
+                    "approved": False,
+                    "approval_source": "missing",
+                    "reason": "missing_approval",
+                    "timestamp": time.time(),
+                },
+            }
+
+        expected_id = str(preview.get("preview_id") or "")
+        expected_token = str(preview.get("approval_token") or "")
+        supplied_id = str(approval.get("preview_id") or "")
+        supplied_token = str(approval.get("approval_token") or "")
+        if supplied_id != expected_id or supplied_token != expected_token:
+            return {
+                "accepted": False,
+                "code": "PROMPT_PREVIEW_APPROVAL_MISMATCH",
+                "message": "Apply approval does not match the active structured prompt diff preview.",
+                "approval": {
+                    "schema": "xace.prompt_preview_approval.v1",
+                    "preview_id": supplied_id or expected_id,
+                    "approved": False,
+                    "approval_source": str(approval.get("approval_source") or "ui"),
+                    "approved_by": str(approval.get("approved_by") or ""),
+                    "reason": "approval_mismatch",
+                    "timestamp": time.time(),
+                },
+            }
+
+        accepted = {
+            "schema": "xace.prompt_preview_approval.v1",
+            "preview_id": expected_id,
+            "approval_token_hash": hashlib.sha256(expected_token.encode("utf-8")).hexdigest(),
+            "transaction_fingerprint": str(preview.get("transaction_fingerprint") or ""),
+            "approved": True,
+            "approval_source": str(approval.get("approval_source") or "ui"),
+            "approved_by": str(approval.get("approved_by") or "builder-user"),
+            "timestamp": time.time(),
+            "test_mode_override": False,
+        }
+        session.prompt_preview_approval_log.append(accepted)
+        _trim_prompt_preview_log(session)
+        return {"accepted": True, "code": "", "message": "", "approval": accepted}
+
+    def start_prompt_clarification(
+        self,
+        session_id: str,
+        prompt:     str,
+        classifier: Any,
+    ) -> dict:
+        session = self._sessions.get(session_id)
+        result = classifier.to_pil_result()
+        if session is None:
+            return result
+
+        session.touch()
+        session.pending_txn = None
+        session.pending_prompt_preview = None
+        session.pending_prompt_result = None
+        clar_id = _new_prompt_clarification_id(session, prompt, classifier)
+        questions = list(result.get("questions") or [])
+        record = {
+            "schema": "xace.prompt_clarification_session.v1",
+            "clarification_session_id": clar_id,
+            "prompt": prompt,
+            "classifier": classifier.to_dict(),
+            "questions": questions,
+            "created_at": time.time(),
+            "state": "pending",
+            "resolution": None,
+        }
+        session.pending_prompt_clarification = record
+        session.pending_clar_id = clar_id
+
+        result["clarification_session_id"] = clar_id
+        result["clarification_schema"] = record["schema"]
+        result["requires_user_resolution"] = True
+        result["resolution_required_before_mutation"] = True
+        return result
+
+    def submit_prompt_clarification_answer(
+        self,
+        session_id: str,
+        clar_id:    str,
+        answer:     str,
+    ) -> dict | None:
+        session = self._sessions.get(session_id)
+        if session is None:
+            return None
+
+        active = session.pending_prompt_clarification
+        if not active or active.get("clarification_session_id") != clar_id:
+            return None
+
+        session.touch()
+        questions = list(active.get("questions") or [])
+        question = questions[0] if questions else {}
+        selected, error = _bounded_prompt_clarification_answer(str(answer), question)
+        if error:
+            return {
+                "accepted": False,
+                "error": error,
+                "next_question": question or None,
+                "complete": False,
+            }
+
+        resolution = {
+            "schema": "xace.prompt_clarification_resolution.v1",
+            "clarification_session_id": clar_id,
+            "question_id": str(question.get("question_id") or ""),
+            "question_type": str(question.get("question_type") or ""),
+            "parameter_key": str(question.get("parameter_key") or ""),
+            "answer": str(answer).strip(),
+            "selected_options": selected,
+            "original_prompt": str(active.get("prompt") or ""),
+            "classifier": dict(active.get("classifier") or {}),
+            "answered_at": time.time(),
+            "mutation_generation_allowed": False,
+            "requires_reprompt": True,
+        }
+        active["state"] = "resolved"
+        active["resolution"] = resolution
+        session.prompt_clarification_log.append(resolution)
+        if len(session.prompt_clarification_log) > 256:
+            del session.prompt_clarification_log[:-256]
+        session.pending_prompt_clarification = None
+        session.pending_clar_id = None
+        session.pending_txn = None
+        session.pending_prompt_preview = None
+        session.pending_prompt_result = None
+
+        return {
+            "accepted": True,
+            "error": "",
+            "next_question": None,
+            "complete": True,
+            "clarification_result": resolution,
+            "requires_reprompt": True,
+            "resolved_prompt": _resolved_prompt_prefill(resolution),
+        }
 
     async def submit_clarification_answer(
         self,
@@ -336,7 +649,12 @@ class SessionManager:
 
     def clear_pending(self, session_id: str) -> None:
         if session_id in self._sessions:
-            self._sessions[session_id].pending_txn = None
+            session = self._sessions[session_id]
+            session.pending_txn = None
+            session.pending_prompt_clarification = None
+            session.pending_clar_id = None
+            session.pending_prompt_preview = None
+            session.pending_prompt_result = None
 
     # ── GDE commit ────────────────────────────────────────────────────────────
 
@@ -353,7 +671,8 @@ class SessionManager:
         through GDE validation pipeline (invariants, consistency checks),
         commits, returns the new CGS and metadata.
 
-        Falls back to naive apply if GDE is unavailable.
+        By default, fails clearly if GDE is unavailable. This avoids presenting
+        direct CGS edits as if the full PIL/GDE validation path succeeded.
 
         Returns GDEApplyResult with new_cgs, new_hash, snapshot, errors.
         """
@@ -361,94 +680,201 @@ class SessionManager:
         if session is None:
             return GDEApplyResult(error="Session not found.")
 
+        conflict_reason = _transaction_conflict_reason(txn_dict, current_cgs)
+        if conflict_reason:
+            return GDEApplyResult(error=conflict_reason)
+
         # ── Path A: GDE available ─────────────────────────────────────────────
         if session.gde is not None:
-            return _apply_via_gde(session.gde, txn_dict, current_cgs, session_id)
+            return _apply_via_gde(
+                session.gde,
+                txn_dict,
+                current_cgs,
+                session_id,
+            )
 
-        # ── Path B: GDE unavailable — naive apply (Phase 14 fallback) ────────
-        log.warning(
-            "GDE not available for session %s — using naive apply. "
-            "Invariants and consistency checks skipped.",
-            session_id[:12],
+        return GDEApplyResult(
+            error=(
+                "GDE is unavailable, so XACE did not apply this mutation. "
+                "Restart Builder after the GDE package is available."
+            )
         )
-        return _naive_apply(txn_dict, current_cgs)
 
     # ── SGC recompile ─────────────────────────────────────────────────────────
 
-    def recompile_sgc(self, cgs: dict) -> str | None:
+    def compile_sgc_plan(self, cgs: dict) -> SGCCompileResult:
         """
         Phase 14.5: Calls the compiled SGC binary to produce an ExecutionPlan.
 
-        Returns the ExecutionPlan JSON string, or None if SGC is unavailable
-        or the mutation doesn't require recompilation.
+        Returns a typed status so callers can distinguish a legitimate skip
+        from a compiler or plan-validation failure.
 
         The SGC binary reads JSON from stdin and writes ExecutionPlan to stdout:
             cat systems.json | xace_sgc > execution_plan.json
         """
         if not self._sgc_bin:
-            return None
+            return SGCCompileResult(status="skipped", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SGC_UNCONFIGURED",
+                "category": "unsupported_dependency",
+                "message": "No SGC binary is configured for this Builder session.",
+                "action": "Start Builder with --sgc-bin pointing to xace-system-graph-compiler before applying structural mutations.",
+                "unsupported": True,
+            })
 
         import subprocess, json as _json
 
         # Build the system definitions list that SGC expects
         systems = _extract_systems_for_sgc(cgs)
         if not systems:
-            return None
+            return SGCCompileResult(status="skipped", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SGC_NO_SYSTEMS",
+                "category": "unsupported_empty_graph",
+                "message": "CGS has no SystemDefinition records to compile.",
+                "action": "Add at least one SystemDefinition or apply a value-only mutation that does not require SGC.",
+                "unsupported": True,
+            })
 
-        payload = _json.dumps({"systems": systems, "cgs_hash": cgs.get("metadata", {}).get("cgs_hash", "")})
+        metadata = cgs.get("metadata", {}) if isinstance(cgs.get("metadata"), dict) else {}
+        payload_obj = {
+            "schema": "xace.sgc.cli.input.v1",
+            "schema_version": str(metadata.get("schema_version") or metadata.get("version") or "0.1.0"),
+            "plan_version": int(metadata.get("execution_plan_version") or 1),
+            "cgs_hash": str(metadata.get("cgs_hash") or ""),
+            "systems": systems,
+        }
+        payload = _json.dumps(payload_obj, sort_keys=True)
 
         try:
             result = subprocess.run(
-                [self._sgc_bin],
+                [self._sgc_bin, *self._sgc_args],
                 input          = payload.encode(),
                 capture_output = True,
                 timeout        = 30,
             )
+            stdout = result.stdout.decode(errors="replace").strip()
+            stderr = result.stderr.decode(errors="replace").strip()
             if result.returncode != 0:
-                log.error("SGC failed (exit %d): %s", result.returncode,
-                          result.stderr.decode()[:200])
-                return None
+                error = _parse_sgc_error(stderr, result.returncode)
+                log.error("SGC failed (exit %d): %s", result.returncode, error.get("message"))
+                return SGCCompileResult(
+                    status="failed",
+                    error=error,
+                    stdout=stdout,
+                    stderr=stderr,
+                    exit_code=result.returncode,
+                )
 
-            plan = result.stdout.decode().strip()
-            log.info("SGC recompile successful: %d bytes", len(plan))
-            return plan
+            try:
+                validation = validate_sgc_plan_for_runtime_load(cgs, stdout)
+            except SgcPlanValidationError as exc:
+                log.error("SGC plan validation failed: %s", exc)
+                return SGCCompileResult(
+                    status="failed",
+                    error={
+                        "schema": "xace.sgc.builder_error.v1",
+                        "code": "SGC_PLAN_VALIDATION_FAILED",
+                        "category": "plan_validation",
+                        "message": str(exc),
+                        "action": "Fix the CGS SystemDefinition metadata and re-run the mutation before loading this plan.",
+                    },
+                    validation=exc.report,
+                    stdout=stdout,
+                    stderr=stderr,
+                    exit_code=result.returncode,
+                )
+
+            log.info("SGC recompile successful: %d bytes", len(stdout))
+            return SGCCompileResult(
+                status="ok",
+                plan_json=stdout,
+                validation=validation,
+                stdout=stdout,
+                stderr=stderr,
+                exit_code=result.returncode,
+            )
 
         except subprocess.TimeoutExpired:
             log.error("SGC timed out after 30s")
-            return None
+            return SGCCompileResult(status="failed", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SGC_TIMEOUT",
+                "category": "timeout",
+                "message": "SGC compile timed out after 30 seconds.",
+                "action": "Reduce the system graph size or inspect the compiler for a hang before applying this mutation.",
+            })
         except FileNotFoundError:
             log.error("SGC binary not found: %s", self._sgc_bin)
-            return None
+            return SGCCompileResult(status="failed", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SGC_BINARY_NOT_FOUND",
+                "category": "configuration",
+                "message": f"SGC binary not found: {self._sgc_bin}",
+                "action": "Build xace-system-graph-compiler or fix the Builder SGC path.",
+            })
         except Exception as exc:
             log.error("SGC error: %s", exc)
-            return None
+            return SGCCompileResult(status="failed", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SGC_EXECUTION_FAILED",
+                "category": "runtime",
+                "message": str(exc)[:500],
+                "action": "Inspect Builder logs and retry after the SGC invocation path is fixed.",
+            })
+
+    def recompile_sgc(self, cgs: dict) -> str | None:
+        """Legacy wrapper retained for older wiring tests."""
+        result = self.compile_sgc_plan(cgs)
+        return result.plan_json if result.ok else None
 
     def get_available_models(self) -> dict:
         """Returns available models for the UI model selector dropdown."""
-        if self._model_provider in ("auto", "ollama"):
-            try:
-                from ollama_adapter import OllamaAdapter, preferred_model_list  # type: ignore[import]
-                adapter = OllamaAdapter(base_url=self._ollama_url)
-                models  = adapter.list_models()
-                healthy = adapter.is_healthy()
-                current = self._model_name or ("auto" if self._model_provider == "auto" else "llama3.2")
-                return {
-                    "provider": self._model_provider,
-                    "models":   preferred_model_list(models),
-                    "current":  current,
-                    "healthy":  healthy,
-                    "url":      self._ollama_url,
-                }
-            except ImportError:
-                return {"provider": self._model_provider, "models": ["auto", "llama3.2", "llama3.1"], "current": "auto",
-                        "healthy": False, "url": self._ollama_url}
-        return {
-            "provider": "anthropic",
-            "models":   ["claude-sonnet-4-20250514", "claude-haiku-4-5-20251001"],
-            "current":  "claude-sonnet-4-20250514",
-            "healthy":  bool(os.environ.get("ANTHROPIC_API_KEY")),
-            "url":      "https://api.anthropic.com",
-        }
+        return self._provider_store.payload(refresh_models=True)
+
+    def get_provider_settings(self) -> dict:
+        """Returns full local provider settings metadata for the Builder UI."""
+        return self._provider_store.payload(refresh_models=True)
+
+    def configure_provider(
+        self,
+        *,
+        provider: str,
+        model_name: str = "",
+        api_key: str | None = None,
+        base_url: str = "",
+        clear_key: bool = False,
+    ) -> dict:
+        """Persists and activates the selected provider/model."""
+        payload = self._provider_store.configure(
+            provider=provider,
+            model=model_name,
+            api_key=api_key,
+            base_url=base_url,
+            clear_key=clear_key,
+            make_active=True,
+        )
+        selection = self._provider_store.active_selection()
+        self._model_provider = selection.provider
+        self._model_name = selection.model
+        self._ollama_url = selection.base_url or self._ollama_url
+        return payload
+
+    def test_provider_config(self, payload: dict[str, Any] | None = None) -> dict:
+        """Runs a real provider health check: key, model, and test call."""
+        return self._provider_store.test_provider(payload or {})
+
+    def provider_readiness(self) -> dict:
+        """Returns whether the active provider can run prompt inference now."""
+        return self._provider_store.active_readiness(refresh_models=False)
+
+    def build_active_adapter(self) -> Any:
+        """Builds the currently configured real adapter."""
+        return self._provider_store.build_adapter(
+            provider=self._model_provider,
+            model=self._model_name,
+            ollama_url=self._ollama_url,
+        )
 
     # ── Internal ──────────────────────────────────────────────────────────────
 
@@ -503,7 +929,7 @@ class GDEApplyResult:
     snapshot     : dict        — commit metadata {version, cgs_hash, ...}
     error        : str         — non-empty if commit failed
     warnings     : list[str]   — non-fatal consistency warnings
-    used_gde     : bool        — True if real GDE was used, False if naive fallback
+    used_gde     : bool        — True if real GDE was used
     """
     new_cgs:   dict | None  = None
     new_hash:  str          = ""
@@ -517,7 +943,7 @@ class GDEApplyResult:
         return self.new_cgs is not None and not self.error
 
 
-# ── Adapter factory (routes between Anthropic and Ollama) ─────────────────────
+# ── Adapter factory ───────────────────────────────────────────────────────────
 
 def _build_adapter(
     provider:   str = "auto",
@@ -525,85 +951,51 @@ def _build_adapter(
     ollama_url: str = "http://localhost:11434",
 ) -> Any:
     """
-    Selects and constructs the right inference adapter.
+    Selects and constructs the configured real inference adapter.
 
-    auto/ollama -> create_ollama_adapter() (connects to local Ollama)
-    anthropic   -> _build_real_adapter() (reads ANTHROPIC_API_KEY)
+    This reads local provider settings for hosted API keys. Missing keys or
+    broken provider imports return an adapter that raises clearly on use.
     """
-    if provider in ("auto", "ollama"):
-        try:
-            from ollama_adapter import create_ollama_adapter  # type: ignore[import]
-            model = model_name or ("auto" if provider == "auto" else "llama3.2")
-            log.info("Using Ollama adapter: model=%s url=%s", model, ollama_url)
-            return create_ollama_adapter(model=model, base_url=ollama_url)
-        except ImportError:
-            log.error(
-                "ollama_adapter.py not found next to builder_server.py. "
-                "Falling back to MockAdapter."
-            )
-            return _MockAdapter()
-    else:
-        return _build_real_adapter()
+    try:
+        from provider_settings import build_provider_adapter  # type: ignore[import]
+
+        adapter = build_provider_adapter(
+            provider=provider,
+            model_name=model_name,
+            ollama_url=ollama_url,
+        )
+        log.info("Inference adapter constructed: provider=%s model=%s", provider, model_name or "default")
+        return adapter
+    except Exception as exc:
+        reason = str(exc)[:300]
+        log.error("Inference adapter unavailable: %s", reason)
+        return _UnavailableAdapter(reason)
 
 
 # ── Real Anthropic InferenceAdapter factory ───────────────────────────────────
 
 def _build_real_adapter() -> Any:
-    """
-    Builds the real InferenceAdapter with all 7 dependencies.
+    """Backward-compatible Anthropic adapter entry point."""
+    return _build_adapter(provider="anthropic")
 
-    Tries to import from packages/inference/src. If any import fails,
-    falls back to _MockAdapter.
 
-    The real adapter reads ANTHROPIC_API_KEY from the environment
-    (set by builder_server.py --api-key argument).
-    """
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        log.warning("ANTHROPIC_API_KEY not set — using MockAdapter")
-        return _MockAdapter()
-
-    try:
-        from inference_adapter import InferenceAdapter     # type: ignore[import]
-        from provider_registry import ProviderRegistry     # type: ignore[import]
-        from telemetry_pipeline import TelemetryPipeline   # type: ignore[import]
-        from inference_budget import InferenceBudget       # type: ignore[import]
-        from inference_retry_policy import InferenceRetryPolicy  # type: ignore[import]
-        from prompt_cache import PromptCache               # type: ignore[import]
-        from response_cache import ResponseCache           # type: ignore[import]
-        from cache_key_builder import CacheKeyBuilder      # type: ignore[import]
-
-        # Build each dependency with sensible defaults
-        registry      = ProviderRegistry.from_env()          # reads ANTHROPIC_API_KEY
-        telemetry     = TelemetryPipeline.create_default()
-        budget        = InferenceBudget.create_default()
-        retry         = InferenceRetryPolicy.create_default()
-        prompt_cache  = PromptCache.create_default()
-        resp_cache    = ResponseCache.create_in_memory()
-        key_builder   = CacheKeyBuilder()
-
-        adapter = InferenceAdapter(
-            provider_registry  = registry,
-            telemetry          = telemetry,
-            budget             = budget,
-            retry_policy       = retry,
-            prompt_cache       = prompt_cache,
-            response_cache     = resp_cache,
-            cache_key_builder  = key_builder,
-        )
-        log.info("Real InferenceAdapter constructed (provider: anthropic)")
-        return adapter
-
-    except ImportError as exc:
-        log.warning(
-            "packages/inference not importable (%s) — falling back to MockAdapter. "
-            "Copy packages/inference to the same parent directory as builder-server.",
-            exc,
-        )
-        return _MockAdapter()
-    except Exception as exc:
-        log.error("Failed to build real InferenceAdapter: %s — using MockAdapter", exc)
-        return _MockAdapter()
+def _transaction_conflict_reason(txn_dict: dict, current_cgs: dict) -> str:
+    current_hash = str(current_cgs.get("metadata", {}).get("cgs_hash", "") or "")
+    submitted_hashes = [
+        txn_dict.get("parent_cgs_hash"),
+        txn_dict.get("cgs_hash"),
+        (txn_dict.get("version_ids") or {}).get("cgs_hash")
+        if isinstance(txn_dict.get("version_ids"), dict)
+        else "",
+    ]
+    for submitted in submitted_hashes:
+        submitted_hash = str(submitted or "")
+        if submitted_hash and submitted_hash != current_hash:
+            return (
+                "GDE conflict: transaction targets CGS hash "
+                f"{submitted_hash} but current CGS hash is {current_hash}."
+            )
+    return ""
 
 
 # ── GDE application ───────────────────────────────────────────────────────────
@@ -630,8 +1022,6 @@ def _apply_via_gde(
         PIL op "ADD_RULE"      → GDE OpType.ADD_RULE
         PIL op "REMOVE_RULE"   → GDE OpType.REMOVE_RULE
     """
-    import copy
-
     try:
         from src.gde_orchestrator import GDEResult               # type: ignore[import]
         from src.domain_dsl.transaction_model.transaction_builder import (  # type: ignore[import]
@@ -641,8 +1031,7 @@ def _apply_via_gde(
             MutationMetadata,
         )
     except ImportError as exc:
-        log.warning("GDE internals not importable: %s — naive fallback", exc)
-        return _naive_apply(txn_dict, current_cgs)
+        return GDEApplyResult(error=f"GDE internals are not importable: {exc}")
 
     # ── 1. Ensure GDE has the current CGS loaded ──────────────────────────────
     try:
@@ -672,23 +1061,33 @@ def _apply_via_gde(
     cur_ver   = current_cgs.get("metadata", {}).get("version", "0.1.0")
 
     try:
-        metadata = MutationMetadata.for_manual_edit(
+        metadata = MutationMetadata.create(
+            source                = _gde_mutation_source(txn_dict),
             parent_cgs_hash       = cur_hash,
             schema_version_target = cur_ver,
             description           = summary,
             session_id            = session_id,
+            confidence            = float(txn_dict.get("confidence_score", 1.0) or 1.0),
+            risk_level            = str(txn_dict.get("risk_level", "low") or "low"),
+            transaction_id        = str(txn_dict.get("transaction_id") or "") or None,
+            extra                 = {
+                "version_ids": txn_dict.get("version_ids", {}),
+                "mutation_path": txn_dict.get("mutation_path", ""),
+            },
         )
         builder = TransactionBuilder(metadata)
 
         for op in ops:
             pil_op   = op.get("op", "SET")
-            gde_op   = PIL_TO_GDE_OP.get(pil_op, "SET")
+            gde_op   = PIL_TO_GDE_OP.get(pil_op)
             path     = op.get("path", "")
             value    = op.get("value")
             type_hint = op.get("type_hint", "float")
 
             if not path:
                 continue
+            if gde_op is None:
+                raise ValueError(f"Unsupported PIL operation: {pil_op}")
 
             # Map PIL op → TransactionBuilder method
             if gde_op == "SET":
@@ -716,9 +1115,7 @@ def _apply_via_gde(
 
     except Exception as exc:
         log.error("TransactionBuilder failed: %s", exc)
-        # Fallback to naive so designer isn't blocked
-        log.warning("Falling back to naive apply")
-        return _naive_apply(txn_dict, current_cgs)
+        return GDEApplyResult(error=f"GDE transaction build failed: {exc}")
 
     # ── 3. Run through GDE (execute → validate → commit) ─────────────────────
     try:
@@ -762,68 +1159,6 @@ def _apply_via_gde(
     )
 
 
-def _naive_apply(txn_dict: dict, current_cgs: dict) -> GDEApplyResult:
-    """
-    Fallback: applies PIL ops directly without GDE validation.
-    Used when GDE is unavailable or TransactionBuilder fails.
-    Exactly the same logic as the Phase 14 _apply_operations() helper.
-    """
-    import copy, hashlib, json, re
-
-    new_cgs = copy.deepcopy(current_cgs)
-    ops     = txn_dict.get("operations", [])
-
-    for op in ops:
-        op_type = op.get("op", "")
-        path    = op.get("path", "")
-        value   = op.get("value")
-        if op_type in ("SET", "SCALE"):
-            _naive_set(new_cgs, path, value, op_type)
-
-    # Recompute hash
-    stripped = copy.deepcopy(new_cgs)
-    stripped.get("metadata", {}).pop("cgs_hash", None)
-    canonical = json.dumps(stripped, sort_keys=True, ensure_ascii=False)
-    new_hash  = hashlib.sha256(canonical.encode()).hexdigest()[:16]
-    new_cgs["metadata"]["cgs_hash"] = new_hash
-
-    return GDEApplyResult(
-        new_cgs  = new_cgs,
-        new_hash = new_hash,
-        snapshot = {},
-        warnings = ["GDE unavailable — naive apply used, invariants not checked"],
-        used_gde = False,
-    )
-
-
-def _naive_set(cgs: dict, path: str, value: Any, op_type: str) -> None:
-    import re
-    try:
-        segments = re.split(r'\.|(?=\[)', path)
-        obj = cgs
-        for seg in segments[:-1]:
-            if seg.startswith("[") and seg.endswith("]"):
-                key = seg[1:-1]
-                if isinstance(obj, list):
-                    obj = next((x for x in obj if str(x.get("id", x.get("type_id", ""))) == key), obj)
-                elif isinstance(obj, dict):
-                    obj = obj.get(key, obj)
-            elif isinstance(obj, dict):
-                obj = obj.get(seg, {})
-        last = segments[-1]
-        if last.startswith("["):
-            last = last[1:-1]
-        if isinstance(obj, dict) and last in obj:
-            if op_type == "SCALE":
-                cur = obj[last]
-                if isinstance(cur, (int, float)):
-                    obj[last] = cur * value
-            else:
-                obj[last] = value
-    except Exception as exc:
-        log.warning("Naive set failed path=%r: %s", path, exc)
-
-
 # ── SGC helpers ───────────────────────────────────────────────────────────────
 
 def _extract_systems_for_sgc(cgs: dict) -> list[dict]:
@@ -839,228 +1174,486 @@ def _extract_systems_for_sgc(cgs: dict) -> list[dict]:
     return systems
 
 
-# ── Mock adapter (fallback when InferenceAdapter unavailable) ─────────────────
+def _parse_sgc_error(stderr: str, exit_code: int) -> dict[str, Any]:
+    import json as _json
 
-@dataclass
-class _SimplePromptPart:
-    text:      str
-    cacheable: bool = False
-    label:     str  = ""
-
-
-@dataclass
-class _SimpleInferenceRequest:
-    prompt_parts:          list[_SimplePromptPart]
-    system_prompt:         str = ""
-    logical_model:         str = "standard_mutation"
-    complexity_tier:       str = "TIER_L"
-    max_tokens:            int = 1200
-    temperature:           float = 0.0
-    session_id:            str = ""
-    call_label:            str = "simple_fallback"
-    request_id:            str = ""
-    cgs_structural_hash:   str = ""
-    intent_class:          str = "MutationRequest"
-    bypass_response_cache: bool = False
-
-    def full_prompt_text(self) -> str:
-        return "\n".join(part.text for part in self.prompt_parts)
-
-    def cacheable_text(self) -> str:
-        return "\n".join(part.text for part in self.prompt_parts if part.cacheable)
-
-
-XACE_ASSISTANT_POLICY = """
-You are the XACE builder assistant. XACE edits a Canonical Game Specification
-(CGS) through PIL/GDE mutation transactions and determinism checks.
-
-Current implemented abilities in the builder:
-- inspect and mutate CGS by returning a pending mutation transaction;
-- ask for missing design details when a safe mutation cannot be inferred;
-- link asset path fields into CGS when the user supplies or selects a path;
-- export adapter source files for Unity, Unreal, and Godot;
-- show a CGS-driven preview and run local deterministic smoke tests.
-
-Current limits:
-- do not claim Unity, Unreal, or Godot are live-connected;
-- do not claim bidirectional engine/world editing is implemented;
-- do not claim multiplayer, save systems, or real engine play mode are complete;
-- do not edit files, execute commands, or mutate CGS directly from the LLM;
-- do not bypass GDE, schema validation, determinism, invariants, or pil_apply.
-
-When mutation is requested, return conservative JSON only. If the request would
-break deterministic rules or needs a missing design choice, return no operations
-and describe the blocker in mutation_summary.
-""".strip()
-
-
-class SimplePipeline:
-    """
-    Minimal no-direct-mutation fallback used when PILPipeline cannot import.
-
-    It asks the configured adapter for a JSON MutationTransaction-shaped object
-    and lets the existing pil_apply path perform the actual CGS update.
-    """
-
-    def __init__(self, adapter: Any, session_id: str = "builder") -> None:
-        self._adapter    = adapter
-        self._session_id = session_id
-        self._turn_index = 0
-
-    def process(self, prompt: str, cgs: dict, cgs_hash: str, mode: str = "COLLABORATIVE") -> dict:
-        import json
-
-        self._turn_index += 1
-        request = _SimpleInferenceRequest(
-            prompt_parts=[
-                _SimplePromptPart(
-                    label="xace_policy",
-                    cacheable=True,
-                    text=XACE_ASSISTANT_POLICY,
-                ),
-                _SimplePromptPart(
-                    label="fallback_instructions",
-                    text=(
-                        "You are generating a safe XACE CGS mutation transaction. "
-                        "Return only JSON with keys: operations, schema_delta_type, "
-                        "confidence_score, risk_level, required_recompile, "
-                        "affected_systems, mutation_summary. Do not include prose. "
-                        "Use operations=[] when the safe action is to refuse, warn, "
-                        "or ask for a missing choice."
-                    ),
-                ),
-                _SimplePromptPart(label="active_mode", text=f"mode={mode}"),
-                _SimplePromptPart(label="designer_prompt", text=prompt),
-                _SimplePromptPart(
-                    label="current_cgs",
-                    text=json.dumps(cgs, ensure_ascii=False, sort_keys=True)[:20000],
-                ),
-            ],
-            system_prompt=XACE_ASSISTANT_POLICY,
-            session_id=self._session_id,
-            cgs_structural_hash=cgs_hash,
-        )
-
-        response = self._adapter.call(request)
-        raw_text = str(getattr(response, "text", "")).strip()
-
-        try:
-            txn = self._parse_transaction(raw_text)
-        except Exception as exc:
-            return _err(f"SimplePipeline could not parse adapter response: {exc}")
-
+    try:
+        error = _json.loads(stderr)
+    except _json.JSONDecodeError:
         return {
-            "kind":                  "mutation",
-            "turn_index":            self._turn_index,
-            "intent_category":       "MutationRequest",
-            "confidence":            float(txn.get("confidence_score", 0.0) or 0.0),
-            "mode_profile_warnings": [
-                "PIL unavailable; SimplePipeline fallback produced an unvalidated transaction."
-            ],
-            "auto_committed":        False,
-            "diff_text":             "",
-            "transaction":           txn,
+            "schema": "xace.sgc.builder_error.v1",
+            "code": "SGC_FAILED",
+            "category": "compiler",
+            "message": stderr[:1000] or f"SGC exited with code {exit_code}.",
+            "exit_code": exit_code,
+            "action": "Inspect the SGC stderr and fix the CGS SystemDefinition that failed compilation.",
         }
-
-    def _parse_transaction(self, raw_text: str) -> dict:
-        import json
-
-        if not raw_text:
-            raise ValueError("empty response")
-
-        try:
-            data = json.loads(raw_text)
-        except json.JSONDecodeError:
-            start = raw_text.find("{")
-            end   = raw_text.rfind("}")
-            if start < 0 or end <= start:
-                raise
-            data = json.loads(raw_text[start:end + 1])
-
-        operations = data.get("operations", [])
-        if not isinstance(operations, list):
-            raise ValueError("'operations' must be a list")
-
-        cleaned_ops = []
-        for op in operations:
-            if not isinstance(op, dict):
-                continue
-            cleaned_ops.append({
-                "path":       str(op.get("path", "")),
-                "op":         str(op.get("op", "SET")),
-                "value":      op.get("value"),
-                "type_hint":  str(op.get("type_hint", "")),
-                "field_name": str(op.get("field_name", "")),
-                "actor_id":   str(op.get("actor_id", "")),
-                "type_id":    op.get("type_id", ""),
-            })
-
-        affected = data.get("affected_systems", [])
-        if not isinstance(affected, list):
-            affected = []
-
+    if not isinstance(error, dict):
         return {
-            "operations":         cleaned_ops,
-            "schema_delta_type":  str(data.get("schema_delta_type", "value_mutation")),
-            "confidence_score":   float(data.get("confidence_score", data.get("confidence", 0.0)) or 0.0),
-            "risk_level":         str(data.get("risk_level", "low")),
-            "required_recompile": bool(data.get("required_recompile", False)),
-            "affected_systems":   [str(item) for item in affected],
-            "mutation_summary":   str(data.get("mutation_summary", "SimplePipeline fallback mutation."))[:200],
+            "schema": "xace.sgc.builder_error.v1",
+            "code": "SGC_FAILED",
+            "category": "compiler",
+            "message": f"SGC exited with code {exit_code} and emitted a non-object error payload.",
+            "exit_code": exit_code,
+            "action": "Inspect the SGC stderr and fix the compiler output contract.",
         }
+    error.setdefault("schema", "xace.sgc.cli.error.v1")
+    error.setdefault("code", "SGC_FAILED")
+    error.setdefault("category", "compiler")
+    error.setdefault("message", f"SGC exited with code {exit_code}.")
+    error.setdefault("exit_code", exit_code)
+    error.setdefault("action", _sgc_action_for(str(error.get("code") or "")))
+    return error
 
 
-class _MockAdapter:
-    """Returns valid-format responses for every PIL pass — no real LLM calls."""
+def _sgc_action_for(code: str) -> str:
+    return {
+        "INVALID_PHASE": "Choose one of Initialization, Input, Simulation, PostSimulation, or Cleanup for the listed system.",
+        "INVALID_PHASE_TYPE": "Set the system phase to a phase name string or valid phase ordinal.",
+        "EMPTY_SYSTEM_ID": "Give every CGS SystemDefinition a stable non-empty id.",
+        "INVALID_SYSTEM_DEFINITION": "Fix the listed SystemDefinition field and retry the mutation.",
+        "CYCLE_DETECTED": "Break the system dependency cycle by removing a depends_on edge or moving one system to an earlier phase.",
+        "CONFLICT_DETECTED": "Split or serialize the conflicting systems before loading this plan.",
+        "JSON_PARSE_ERROR": "Report this as a Builder-to-SGC payload bug; the compiler did not receive valid JSON.",
+    }.get(code, "Fix the CGS SystemDefinition issue reported by SGC and retry the mutation.")
+
+
+# ── Unavailable adapter ───────────────────────────────────────────────────────
+
+class _UnavailableAdapter:
+    """Blocks inference when no real provider can run."""
+
+    def __init__(self, reason: str) -> None:
+        self._reason = reason
 
     def call(self, request: Any) -> Any:
-        import json as _json
-        label = getattr(request, "call_label", "")
-
-        if "pass1" in label:
-            text = _json.dumps({
-                "target_entities": [], "intended_mutation_type": "field_value_set",
-                "component_targets": [], "risk_assessment": "low",
-                "reasoning": "Mock reasoning.", "requires_recompile": False,
-            })
-        elif "pass2" in label:
-            text = _json.dumps({
-                "operations": [], "schema_delta_type": "value_mutation",
-                "confidence": 0.8,
-            })
-        elif "pass3" in label:
-            text = _json.dumps({
-                "passed": True, "issues": [],
-                "check_scores": {
-                    "path_validity": True, "value_type_correctness": True,
-                    "scope_compliance": True, "unintended_modifications": True,
-                    "constraint_compliance": True,
-                },
-                "confidence": 0.9, "correction_hint": "",
-            })
-        elif "pass4" in label:
-            text = _json.dumps({
-                "passed": True, "violations": [], "hidden_dependencies": [],
-                "required_recompile": False, "affected_systems": [],
-                "determinism_risk": "low",
-            })
-        else:
-            text = _json.dumps({
-                "schema_delta_type": "value_mutation", "confidence_score": 0.85,
-                "risk_level": "low", "required_recompile": False,
-                "mutation_summary": "Mock mutation (no LLM — set --api-key to enable).",
-            })
-
-        return type("MockResp", (), {
-            "text": text, "input_tokens": 0, "output_tokens": 0,
-            "cache_read_tokens": 0, "cache_write_tokens": 0,
-            "cost_cents": 0.0, "model_id": "mock", "provider": "mock",
-            "latency_ms": 5.0, "call_label": label,
-            "request_id": "mock", "session_id": "mock", "cached": True,
-        })()
+        raise RuntimeError(self._reason)
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+def _deterministic_simple_edit_result(prompt: str, cgs: dict) -> dict | None:
+    match = _PLAYER_SPEED_SIMPLE_EDIT.match(str(prompt or ""))
+    if match is None:
+        return None
+
+    classifier = classify_prompt(str(prompt or ""))
+    if classifier.category_id != "certified_supported" or not classifier.mutation_allowed:
+        return None
+
+    try:
+        value = float(match.group("value"))
+    except (TypeError, ValueError):
+        return None
+    if value < 0.0 or value > _MAX_DETERMINISTIC_PLAYER_SPEED:
+        return None
+
+    old_value = _read_cgs_preview_path(cgs, _PLAYER_SPEED_PATH)
+    if isinstance(old_value, bool) or not isinstance(old_value, (int, float)):
+        return None
+
+    value_label = _format_simple_number(value)
+    classifier_payload = classifier.to_dict()
+    return {
+        "kind": "mutation",
+        "turn_index": 0,
+        "intent_category": "MutationRequest",
+        "confidence": 0.99,
+        "mode_profile_warnings": [],
+        "auto_committed": False,
+        "diff_text": "",
+        "tokens": 0,
+        "cost_cents": 0.0,
+        "cost_source": "deterministic_simple_edit_no_provider_call",
+        "provider": "deterministic",
+        "model": DETERMINISTIC_SIMPLE_EDIT_MODEL,
+        "classifier": classifier_payload,
+        "deterministic_simple_edit": {
+            "schema": DETERMINISTIC_SIMPLE_EDIT_SCHEMA,
+            "route": "gde_transaction",
+            "matched_rule": "certified_player_speed",
+            "provider_calls": 0,
+            "llm_calls": 0,
+            "pil_calls": 0,
+            "target_path": _PLAYER_SPEED_PATH,
+            "old_value": old_value,
+            "new_value": value,
+            "classifier_category_id": classifier.category_id,
+            "classifier_matrix_hash": classifier.matrix_hash,
+        },
+        "transaction": {
+            "operations": [
+                {
+                    "path": _PLAYER_SPEED_PATH,
+                    "op": "SET",
+                    "value": value,
+                    "type_hint": "float",
+                    "field_name": "max_linear_speed",
+                    "actor_id": "actor_player",
+                    "type_id": 5,
+                },
+            ],
+            "schema_delta_type": "value_mutation",
+            "confidence_score": 0.99,
+            "risk_level": "low",
+            "required_recompile": False,
+            "affected_systems": ["MovementSystem"],
+            "mutation_summary": f"Set player movement speed to {value_label}.",
+            "planner": {
+                "schema": DETERMINISTIC_SIMPLE_EDIT_SCHEMA,
+                "route": "gde_transaction",
+                "provider_calls": 0,
+                "pil_calls": 0,
+                "llm_calls": 0,
+            },
+        },
+    }
+
+
+def _deterministic_simple_edit_readiness() -> dict:
+    code = "DETERMINISTIC_NO_LLM_SIMPLE_EDIT"
+    return {
+        "ok": True,
+        "provider": "deterministic",
+        "model": DETERMINISTIC_SIMPLE_EDIT_MODEL,
+        "code": code,
+        "message": "This certified simple edit was planned locally without a provider call.",
+        "action": "review_prompt_diff",
+        "ux_state": {
+            "schema": "xace.provider_ux_state.v1",
+            "state": "deterministic_no_llm",
+            "code": code,
+            "label": "No provider needed",
+            "message": "This certified simple edit was planned locally without using a provider.",
+            "action": "Review and approve the generated CGS diff.",
+            "severity": "info",
+            "provider": "deterministic",
+            "model": DETERMINISTIC_SIMPLE_EDIT_MODEL,
+        },
+    }
+
+
+def _format_simple_number(value: float) -> str:
+    if value.is_integer():
+        return str(int(value))
+    return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
+def _new_prompt_clarification_id(session: BuilderSession, prompt: str, classifier: Any) -> str:
+    sequence = len(session.prompt_clarification_log) + 1
+    seed = "|".join(
+        (
+            session.session_id,
+            str(sequence),
+            str(time.time_ns()),
+            prompt,
+            str(getattr(classifier, "matrix_hash", "")),
+        )
+    )
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:12]
+    return f"prompt-clar-{int(time.time() * 1000):013d}-{digest}"
+
+
+def _build_prompt_diff_preview(
+    *,
+    session: BuilderSession,
+    prompt: str,
+    cgs: dict,
+    submitted_hash: str,
+    mode: str,
+    result: dict,
+    readiness: dict,
+) -> dict:
+    txn = result.get("transaction") if isinstance(result.get("transaction"), dict) else {}
+    operations = list(txn.get("operations", [])) if isinstance(txn.get("operations"), list) else []
+    parent_hash = str(submitted_hash or cgs.get("metadata", {}).get("cgs_hash", "") or "")
+    transaction_fingerprint = _hash_json({
+        "parent_cgs_hash": parent_hash,
+        "operations": operations,
+        "summary": txn.get("mutation_summary", ""),
+        "schema_delta_type": txn.get("schema_delta_type", ""),
+    })
+    preview_id = f"prompt-preview-{int(time.time() * 1000):013d}-{transaction_fingerprint[:12]}"
+    cgs_operations = [_preview_operation(cgs, op, index) for index, op in enumerate(operations)]
+    required_recompile = bool(txn.get("required_recompile")) or str(txn.get("schema_delta_type", "")).startswith("structural")
+    preview_core = {
+        "schema": "xace.prompt_diff_preview.v1",
+        "preview_id": preview_id,
+        "prompt": prompt,
+        "mode": mode,
+        "parent_cgs_hash": parent_hash,
+        "schema_version": str(cgs.get("metadata", {}).get("schema_version") or cgs.get("metadata", {}).get("version") or ""),
+        "transaction_fingerprint": transaction_fingerprint,
+        "mutation_summary": str(txn.get("mutation_summary") or ""),
+        "risk_level": str(txn.get("risk_level") or "low"),
+        "confidence": float(result.get("confidence") or txn.get("confidence_score") or 0.0),
+        "approval_required": True,
+        "generated_at": time.time(),
+        "cgs_diff": {
+            "schema": "xace.prompt_diff_preview.cgs.v1",
+            "operation_count": len(cgs_operations),
+            "operations": cgs_operations,
+        },
+        "system_diff": _preview_system_diff(txn, operations),
+        "asset_diff": _preview_asset_diff(operations),
+        "sgc_diff": {
+            "schema": "xace.prompt_diff_preview.sgc.v1",
+            "required_recompile": required_recompile,
+            "status": "required_before_persist" if required_recompile else "not_required",
+            "compile_will_run_on_apply": required_recompile,
+            "affected_systems": list(txn.get("affected_systems", [])),
+            "plan_hash_before": "unresolved",
+            "plan_hash_after": "computed_on_apply" if required_recompile else "unchanged",
+        },
+        "runtime_diff": {
+            "schema": "xace.prompt_diff_preview.runtime.v1",
+            "status": "not_run_pre_apply",
+            "runtime_connected": bool(session.runtime_connected),
+            "runtime_adapter_type": session.runtime_adapter_type,
+            "runtime_world_hash_before": session.runtime_last_hash or "unresolved",
+            "runtime_tick_before": (session.runtime_last_tick or {}).get("tick") if isinstance(session.runtime_last_tick, dict) else None,
+            "will_require_runtime_reload": True,
+            "runtime_validation": "deferred_until_apply_feedback",
+        },
+        "cost_diff": {
+            "schema": "xace.prompt_diff_preview.cost.v1",
+            "provider": str(readiness.get("provider") or ""),
+            "model": str(readiness.get("model") or ""),
+            "observed_cost_cents": float(result.get("cost_cents") or 0.0),
+            "estimated_apply_cost_cents": 0.0,
+            "token_count": int(result.get("tokens") or 0),
+            "source": str(result.get("cost_source") or "pil_result_or_streaming_updates_when_available"),
+        },
+    }
+    approval_token = _new_prompt_preview_token(session, preview_core)
+    preview_core["approval_token"] = approval_token
+    preview_core["approval_token_hash"] = hashlib.sha256(approval_token.encode("utf-8")).hexdigest()
+    return preview_core
+
+
+def _new_prompt_preview_token(session: BuilderSession, preview: dict) -> str:
+    seed = {
+        "session_id": session.session_id,
+        "preview": preview,
+        "nonce": time.time_ns(),
+    }
+    return "pat-" + _hash_json(seed)
+
+
+def _preview_operation(cgs: dict, op: Any, index: int) -> dict:
+    if not isinstance(op, dict):
+        return {
+            "index": index,
+            "op": "invalid",
+            "path": "",
+            "old_value": None,
+            "new_value": None,
+            "preview_value": None,
+            "type_hint": "",
+            "field_name": "",
+            "actor_id": "",
+            "component_type_id": None,
+        }
+    path = str(op.get("path", ""))
+    old_value = _read_cgs_preview_path(cgs, path)
+    op_name = str(op.get("op", "SET"))
+    new_value = op.get("value")
+    preview_value = new_value
+    if op_name == "SCALE" and isinstance(old_value, (int, float)) and isinstance(new_value, (int, float)):
+        preview_value = old_value * new_value
+    return {
+        "index": index,
+        "op": op_name,
+        "path": path,
+        "old_value": old_value,
+        "new_value": new_value,
+        "preview_value": preview_value,
+        "type_hint": str(op.get("type_hint", "")),
+        "field_name": str(op.get("field_name", "")),
+        "actor_id": str(op.get("actor_id", "")),
+        "component_type_id": op.get("type_id"),
+    }
+
+
+def _preview_system_diff(txn: dict, operations: list[Any]) -> dict:
+    added: list[str] = []
+    removed: list[str] = []
+    touched: list[str] = []
+    for op in operations:
+        if not isinstance(op, dict):
+            continue
+        path = str(op.get("path", ""))
+        op_name = str(op.get("op", ""))
+        if "system" in path.lower() or op_name in {"ADD_SYSTEM", "REMOVE_SYSTEM"}:
+            sid = _system_id_from_operation(op)
+            if sid and sid not in touched:
+                touched.append(sid)
+            if op_name == "ADD_SYSTEM" and sid:
+                added.append(sid)
+            if op_name == "REMOVE_SYSTEM" and sid:
+                removed.append(sid)
+    return {
+        "schema": "xace.prompt_diff_preview.system.v1",
+        "affected_systems": list(txn.get("affected_systems", [])),
+        "touched_systems": touched,
+        "added_systems": added,
+        "removed_systems": removed,
+        "required_recompile": bool(txn.get("required_recompile")),
+        "schema_delta_type": str(txn.get("schema_delta_type") or ""),
+    }
+
+
+def _system_id_from_operation(op: dict) -> str:
+    value = op.get("value")
+    if isinstance(value, dict):
+        for key in ("id", "system_id", "name"):
+            if value.get(key):
+                return str(value[key])
+    path = str(op.get("path", ""))
+    parts = [part for part in path.replace("/", ".").split(".") if part]
+    for index, part in enumerate(parts):
+        if part in {"systems", "global_systems"} and index + 1 < len(parts):
+            return parts[index + 1]
+    return ""
+
+
+def _preview_asset_diff(operations: list[Any]) -> dict:
+    touched: list[dict] = []
+    asset_markers = ("asset", "mesh", "audio", "animation", "semantic_binding", "binding", "prefab", "vfx")
+    for index, op in enumerate(operations):
+        if not isinstance(op, dict):
+            continue
+        path = str(op.get("path", ""))
+        value_text = json.dumps(op.get("value"), sort_keys=True, default=str)
+        if any(marker in path.lower() or marker in value_text.lower() for marker in asset_markers):
+            touched.append({
+                "index": index,
+                "op": str(op.get("op", "")),
+                "path": path,
+                "value": op.get("value"),
+            })
+    return {
+        "schema": "xace.prompt_diff_preview.asset.v1",
+        "operation_count": len(touched),
+        "operations": touched,
+        "status": "changed" if touched else "unchanged",
+    }
+
+
+def _read_cgs_preview_path(cgs: dict, path: str) -> Any:
+    if not path:
+        return None
+    current: Any = cgs
+    previous = ""
+    for segment in path.replace("/", ".").split("."):
+        if segment == "":
+            continue
+        if isinstance(current, list):
+            current = _list_item_for_preview_path(current, previous, segment)
+            if current is None:
+                return None
+        elif isinstance(current, dict):
+            if segment not in current:
+                return None
+            current = current[segment]
+        else:
+            return None
+        previous = segment
+    return current
+
+
+def _list_item_for_preview_path(items: list[Any], previous: str, segment: str) -> Any:
+    if previous == "components":
+        for item in items:
+            if isinstance(item, dict) and str(item.get("type_id")) == segment:
+                return item
+    for item in items:
+        if isinstance(item, dict) and str(item.get("id")) == segment:
+            return item
+    try:
+        index = int(segment)
+    except ValueError:
+        return None
+    return items[index] if 0 <= index < len(items) else None
+
+
+def _prompt_test_mode_override(message: dict, preview: dict) -> dict | None:
+    if not bool(message.get("test_mode_override")):
+        return None
+    reason = str(message.get("test_mode_reason") or "").strip()
+    if not reason:
+        return {
+            "schema": "xace.prompt_preview_approval.v1",
+            "preview_id": str(preview.get("preview_id") or ""),
+            "approved": False,
+            "approval_source": "test_mode_override",
+            "reason": "missing_test_mode_reason",
+            "timestamp": time.time(),
+            "test_mode_override": True,
+        }
+    return {
+        "schema": "xace.prompt_preview_approval.v1",
+        "preview_id": str(preview.get("preview_id") or ""),
+        "transaction_fingerprint": str(preview.get("transaction_fingerprint") or ""),
+        "approved": True,
+        "approval_source": "test_mode_override",
+        "approved_by": str(message.get("approved_by") or "automated-test"),
+        "reason": reason[:240],
+        "timestamp": time.time(),
+        "test_mode_override": True,
+    }
+
+
+def _trim_prompt_preview_log(session: BuilderSession) -> None:
+    if len(session.prompt_preview_approval_log) > 256:
+        del session.prompt_preview_approval_log[:-256]
+
+
+def _hash_json(value: Any) -> str:
+    return hashlib.sha256(
+        json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+    ).hexdigest()
+
+
+def _bounded_prompt_clarification_answer(
+    answer: str,
+    question: dict,
+) -> tuple[list[str], str]:
+    cleaned = answer.strip()
+    if not cleaned:
+        return [], "Choose one of the clarification options before continuing."
+    if len(cleaned) > 240:
+        return [], "Clarification answers are bounded to 240 characters."
+
+    options = [str(option) for option in question.get("options", [])]
+    question_type = str(question.get("question_type") or "")
+    if question_type == "SCOPE_SELECT":
+        selected = [part.strip() for part in cleaned.split(",") if part.strip()]
+        if not selected:
+            return [], "Choose at least one scope option before continuing."
+        unknown = [part for part in selected if part not in options]
+        if unknown:
+            return [], "Choose only the listed scope options before continuing."
+        if len(set(selected)) != len(selected):
+            return [], "Choose each listed scope option at most once."
+        if len(selected) > len(options):
+            return [], "Choose each listed scope option at most once."
+        return selected, ""
+
+    if options and cleaned not in options:
+        return [], "Choose one of the listed clarification options before continuing."
+    return [cleaned], ""
+
+
+def _resolved_prompt_prefill(resolution: dict) -> str:
+    prompt = str(resolution.get("original_prompt") or "").strip()
+    answer = str(resolution.get("answer") or "").strip()
+    if not prompt:
+        return ""
+    if not answer:
+        return prompt
+    return f"{prompt} [clarified scope: {answer}]"
+
 
 def _err(reason: str) -> dict:
     return {
@@ -1068,6 +1661,91 @@ def _err(reason: str) -> dict:
         "turn_index": 0, "intent_category": "", "confidence": 0.0,
         "mode_profile_warnings": [],
     }
+
+
+def _blocked(reason: str, source: dict | None = None) -> dict:
+    source = source or {}
+    result = {
+        "kind": "blocked",
+        "reason": reason,
+        "guard": str(source.get("guard") or "prompt_pipeline_contract"),
+        "turn_index": int(source.get("turn_index", 0) or 0),
+        "intent_category": str(source.get("intent_category", "MutationRequest")),
+        "confidence": float(source.get("confidence", 0.0) or 0.0),
+        "mode_profile_warnings": list(source.get("mode_profile_warnings", [])),
+    }
+    for key in ("code", "action", "unsupported", "ux_state"):
+        if key in source:
+            result[key] = source[key]
+    return result
+
+
+def _pending_transaction_block_reason(txn: Any) -> str:
+    if not isinstance(txn, dict):
+        return "PIL did not return a CGS mutation transaction."
+
+    operations = txn.get("operations")
+    if not isinstance(operations, list):
+        return "PIL returned a transaction with an invalid operations list."
+    if not operations:
+        summary = str(txn.get("mutation_summary", "")).strip()
+        return summary or (
+            "This prompt did not produce a safe CGS mutation. "
+            "Make the requested edit more specific and try again."
+        )
+
+    supported_ops = {
+        "SET",
+        "SCALE",
+        "ADD_ACTOR",
+        "REMOVE_ACTOR",
+        "ADD_COMPONENT",
+        "REMOVE_COMPONENT",
+        "ADD_SYSTEM",
+        "REMOVE_SYSTEM",
+        "ADD_RULE",
+        "REMOVE_RULE",
+    }
+    structural_adds = {"ADD_ACTOR", "ADD_COMPONENT", "ADD_SYSTEM", "ADD_RULE"}
+    for index, op in enumerate(operations):
+        if not isinstance(op, dict):
+            return f"Operation {index} is not a valid mutation object."
+        op_name = str(op.get("op", "SET"))
+        if op_name not in supported_ops:
+            return f"Operation {index} uses unsupported mutation op '{op_name}'."
+        if not str(op.get("path", "")).strip():
+            return f"Operation {index} is missing a CGS target path."
+        if op_name in structural_adds and not isinstance(op.get("value"), dict):
+            return f"Operation {index} must include a structural value object."
+
+    return ""
+
+
+def _stamp_pending_transaction_authority(txn: Any, cgs: dict, submitted_hash: str) -> None:
+    if not isinstance(txn, dict):
+        return
+    meta = cgs.get("metadata", {}) if isinstance(cgs, dict) else {}
+    current_hash = str(meta.get("cgs_hash", "") or "")
+    parent_hash = str(submitted_hash or current_hash)
+    schema_version = str(meta.get("schema_version") or meta.get("version") or "")
+    txn.setdefault("source", "prompt")
+    txn.setdefault("parent_cgs_hash", parent_hash)
+    txn.setdefault("cgs_hash", parent_hash)
+    version_ids = txn.setdefault("version_ids", {})
+    if isinstance(version_ids, dict):
+        version_ids.setdefault("cgs_hash", parent_hash)
+        version_ids.setdefault("schema_version", schema_version)
+        version_ids.setdefault("execution_plan_version", "unresolved")
+        version_ids.setdefault("runtime_world_hash", "unresolved")
+        version_ids.setdefault("runtime_tick", None)
+        version_ids.setdefault("engine_adapter_sequence", None)
+
+
+def _gde_mutation_source(txn_dict: dict) -> str:
+    source = str(txn_dict.get("source", "") or "")
+    if source in {"genesis", "prompt", "manual", "migration", "rollback", "import"}:
+        return source
+    return "manual"
 
 
 def _serialize_pil_result(result: Any) -> dict:

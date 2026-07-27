@@ -1,8 +1,9 @@
 //! # Replay Validator
 //!
-//! Validates that a replay run produces byte-identical world state to the
-//! original simulation run, tick by tick. This is the primary proof that
-//! XACE's determinism guarantees hold across sessions, machines, and time.
+//! Validates that a replay run produces byte-identical world state to an
+//! original simulation run, tick by tick. This is an isolated proof primitive;
+//! it becomes product evidence only after live runtime recording/replay wiring
+//! feeds it canonical snapshots and input logs.
 //!
 //! ## How Replay Works in XACE (D14)
 //! A replay is defined by three inputs:
@@ -29,9 +30,10 @@
 //! for diagnosis. This report feeds into the DeterminismGuard as a D14 violation.
 //!
 //! ## Integration with DeterminismGuard
-//! The DeterminismGuard calls validate_tick() inside hook_tick_end during replay
-//! mode. The ReplayValidator is not a replacement for the guard — it is a
-//! specialized instrument that the guard holds and delegates to.
+//! The intended production path is for DeterminismGuard to call validate_tick()
+//! inside hook_tick_end during replay mode. That delegation is not active in the
+//! live runtime yet. ReplayValidator is not a replacement for the guard; it is a
+//! specialized instrument the guard/runtime must explicitly own and call.
 //!
 //! ## GoldenLog Persistence
 //! The GoldenLog can be serialized to disk and loaded back for offline validation.

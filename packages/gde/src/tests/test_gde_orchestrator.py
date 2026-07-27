@@ -17,6 +17,7 @@ from ..cgs.cgs_serializer import CGSSerializer
 from ..domain_dsl.transaction_model.transaction_builder import TransactionBuilder
 from ..domain_dsl.mutation_metadata.mutation_metadata_model import MutationMetadata
 from ..prompt_interpretation.intent_object import IntentObject, GDEIntentType
+from ..question_engine.question_types import make_choice
 from ..mode_profiles.mode_profile import AssistanceMode, get_profile
 
 
@@ -211,6 +212,35 @@ class TestGDEOrchestratorTransactions:
         # CGS is unchanged
         assert self.orc.current_cgs["global_systems"][0]["deterministic"] is True
 
+    def test_static_conflict_analysis_prevents_commit(self) -> None:
+        old_hash = self.orc.current_hash
+        meta = _make_meta(self.orc)
+        txn = (
+            TransactionBuilder(meta)
+            .add_system(
+                "global_systems.sys_conflict",
+                {
+                    "id": "sys_conflict",
+                    "phase": "Input",
+                    "reads": [5],
+                    "writes": [5],
+                    "depends_on": [],
+                    "deterministic": True,
+                },
+            )
+            .build()
+        )
+
+        result = self.orc.process_transaction(txn)
+
+        assert not result.success
+        assert result.consistency_report is not None
+        assert any(
+            finding.code == "STATIC_READ_WRITE_HAZARD"
+            for finding in result.consistency_report.static_findings
+        )
+        assert self.orc.current_hash == old_hash
+
 
 # ── Prompt Processing ─────────────────────────────────────────────────────────
 
@@ -274,6 +304,31 @@ class TestGDEOrchestratorClarification:
         result = orc.process_prompt("make it faster")
         # ARCHITECT never asks — may succeed or fail but no clarification
         assert not result.needs_clarification
+
+    def test_completed_clarification_requires_reprompt_instead_of_success(self) -> None:
+        orc = _make_orchestrator()
+        old_hash = orc.current_hash
+        session = orc._q_sessions.create_session(
+            questions=[
+                make_choice(
+                    "target_actor_question",
+                    "Which actor?",
+                    ["Player", "Zombie"],
+                    "target_actor",
+                    option_values=["actor_player", "actor_zombie"],
+                )
+            ],
+            resume_point="transaction_build",
+            intent_snapshot={},
+        )
+
+        result = orc.resume_clarification(session.session_id, "Player")
+
+        assert not result.success
+        assert result.unsupported
+        assert result.code == "GDE_CLARIFICATION_REPROMPT_REQUIRED"
+        assert "Re-submit" in result.action
+        assert orc.current_hash == old_hash
 
 
 # ── Mode Profile Tests ────────────────────────────────────────────────────────

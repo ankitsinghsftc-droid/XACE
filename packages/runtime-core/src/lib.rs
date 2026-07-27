@@ -6,6 +6,8 @@ pub mod dcl;
 pub mod determinism_guard;
 pub mod entity_store;
 pub mod event_bus;
+pub mod fixed_json;
+pub mod generated_system_abi;
 pub mod mutation_gate;
 pub mod phase_orchestrator;
 pub mod query_engine;
@@ -22,6 +24,8 @@ pub mod runtime_orchestrator;
 pub mod state_printer;
 
 // ── M2: TCP engine bridge ────────────────────────────────────────────────────
+pub mod control_protocol;
+pub mod control_server;
 pub mod engine_bridge;
 pub mod engine_protocol;
 pub mod tcp_server;

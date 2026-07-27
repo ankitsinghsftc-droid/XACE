@@ -7,6 +7,7 @@ and InvariantEnforcer — all consistency sub-validators.
 
 from __future__ import annotations
 
+import copy
 import pytest
 from typing import Any
 
@@ -14,6 +15,9 @@ from ..consistency_validator.consistency_validator import ConsistencyValidator
 from ..consistency_validator.type_checker import TypeChecker, TypeCheckResult
 from ..consistency_validator.conflict_detector import ConflictDetector, ConflictReport
 from ..consistency_validator.invariant_enforcer import InvariantEnforcer, EnforcementResult
+from ..consistency_validator.static_mutation_conflict_analyzer import (
+    StaticMutationConflictAnalyzer,
+)
 from ..domain_dsl.transaction_model.transaction_builder import (
     TransactionBuilder, DSLOperation, OpType,
 )
@@ -23,10 +27,13 @@ from ..domain_dsl.mutation_metadata.mutation_metadata_model import MutationMetad
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
+TEST_CGS_HASH = "a" * 64
+
+
 def _meta() -> MutationMetadata:
     return MutationMetadata.create(
         source="manual",
-        parent_cgs_hash="abc123",
+        parent_cgs_hash=TEST_CGS_HASH,
         schema_version_target="0.1.0",
     )
 
@@ -36,7 +43,7 @@ def _valid_cgs() -> dict[str, Any]:
         "metadata": {
             "name":     "Test",
             "version":  "0.1.0",
-            "cgs_hash": "abc123",
+            "cgs_hash": TEST_CGS_HASH,
         },
         "global_systems": [
             {
@@ -410,3 +417,165 @@ class TestConsistencyValidatorIntegration:
         del cgs["modes"][0]["schema_version"]
         report = self.validator.validate_cgs_only(cgs)
         assert not report.is_valid
+
+    def test_static_system_hazard_fails_before_commit(self) -> None:
+        cgs = _valid_cgs()
+        system = {
+            "id": "sys_conflict",
+            "phase": "Input",
+            "reads": [5],
+            "writes": [5],
+            "depends_on": [],
+            "deterministic": True,
+        }
+        txn = _builder().add_system("global_systems.sys_conflict", system).build()
+        report = self._run(txn, cgs)
+
+        assert not report.is_valid
+        assert any(
+            finding.code == "STATIC_READ_WRITE_HAZARD"
+            for finding in report.static_findings
+        )
+
+
+class TestStaticMutationConflictAnalyzer:
+
+    def setup_method(self) -> None:
+        self.analyzer = StaticMutationConflictAnalyzer()
+
+    def test_dependency_cycle_is_blocked(self) -> None:
+        cgs = _valid_cgs()
+        cgs["global_systems"] = [
+            {
+                "id": "sys_a",
+                "phase": "Simulation",
+                "reads": [100],
+                "writes": [],
+                "depends_on": ["sys_b"],
+                "deterministic": True,
+            },
+            {
+                "id": "sys_b",
+                "phase": "Simulation",
+                "reads": [],
+                "writes": [100],
+                "depends_on": ["sys_a"],
+                "deterministic": True,
+            },
+        ]
+
+        report = self.analyzer.validate(cgs, _valid_cgs())
+
+        assert not report.is_valid
+        assert any(f.code == "STATIC_DEPENDENCY_CYCLE" for f in report.findings)
+
+    def test_same_phase_read_write_hazard_is_blocked(self) -> None:
+        cgs = _valid_cgs()
+        cgs["global_systems"] = [
+            {
+                "id": "sys_damage",
+                "phase": "Simulation",
+                "reads": [100],
+                "writes": [100],
+                "depends_on": [],
+                "deterministic": True,
+            },
+            {
+                "id": "sys_regen",
+                "phase": "Simulation",
+                "reads": [100],
+                "writes": [100],
+                "depends_on": [],
+                "deterministic": True,
+            },
+        ]
+
+        report = self.analyzer.validate(cgs, _valid_cgs())
+
+        assert not report.is_valid
+        assert any(f.code == "STATIC_READ_WRITE_HAZARD" for f in report.findings)
+
+    def test_incompatible_component_migration_is_blocked(self) -> None:
+        original = _valid_cgs()
+        original["component_schemas"] = [
+            {"type_id": 300, "name": "COMP_COUNTER_V1", "defaults": {"count": 0}},
+        ]
+        original["global_systems"] = [
+            {
+                "id": "sys_counter",
+                "phase": "Simulation",
+                "reads": [300],
+                "writes": [300],
+                "depends_on": [],
+                "deterministic": True,
+            }
+        ]
+        proposed = copy.deepcopy(original)
+        proposed["component_schemas"][0]["defaults"]["count"] = "zero"
+
+        report = self.analyzer.validate(proposed, original)
+
+        assert not report.is_valid
+        assert any(
+            f.code == "STATIC_COMPONENT_FIELD_TYPE_CHANGED"
+            for f in report.findings
+        )
+
+    def test_generated_runtime_executor_abi_mismatch_is_blocked(self) -> None:
+        cgs = _valid_cgs()
+        cgs["component_schemas"] = [
+            {"type_id": 301, "name": "COMP_LOOT_ROLL_V1", "defaults": {"enabled": True}},
+        ]
+        cgs["global_systems"] = [_generated_rng_system_with_bad_abi()]
+
+        report = self.analyzer.validate(cgs, _valid_cgs())
+
+        assert not report.is_valid
+        assert any(
+            f.code == "STATIC_RUNTIME_EXECUTOR_ABI_RNG_MISMATCH"
+            for f in report.findings
+        )
+
+
+def _generated_rng_system_with_bad_abi() -> dict[str, Any]:
+    return {
+        "id": "GeneratedLootRollSystem",
+        "phase": "Simulation",
+        "reads": [301],
+        "writes": [],
+        "depends_on": [],
+        "deterministic": True,
+        "source": "generated",
+        "runtime_executor": {
+            "kind": "generated.emit_event_on_rng_threshold",
+            "component_type_id": 301,
+            "chance": 1.0,
+            "event_type": "generated.loot_roll",
+            "payload": {"source": "generated"},
+            "abi": {
+                "schema": "xace.generated_system_abi.v1",
+                "version": 1,
+                "inputs": {
+                    "query_components": [301],
+                    "component_reads": [301],
+                    "current_tick": True,
+                },
+                "events": {
+                    "emits": [
+                        {
+                            "event_type": "generated.loot_roll",
+                            "broadcast": True,
+                            "payload": {"source": "generated"},
+                        }
+                    ]
+                },
+                "rng": {"allowed": False, "max_calls_per_entity": 0},
+                "errors": {"policy": "halt_and_rollback"},
+                "rollback": {
+                    "mutation_hook": "mutation_gate_deferred",
+                    "event_hook": "event_bus_phase_buffered",
+                    "rng_hook": "rng_windowed",
+                },
+            },
+        },
+    }

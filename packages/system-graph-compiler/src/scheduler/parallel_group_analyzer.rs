@@ -175,7 +175,6 @@ mod tests {
     use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
-    use xace_core::runtime::phase_enum::PhaseEnum;
     use xace_core::schema::system_definition::{ExecutionPhase, SystemDefinition};
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {

@@ -22,24 +22,24 @@
 
 use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
+use xace_core::fixed_point::Fixed64;
 
 use crate::cgs::component_ids;
 use crate::cgs::{damage_json, parse_ai_target, parse_position_xz, velocity_json};
 
 /// Zombie movement speed — world units per second.
-const ZOMBIE_SPEED: f32 = 2.0_f32;
-
-/// Fixed simulation timestep.
-const DT: f32 = 1.0_f32 / 60.0_f32;
+const ZOMBIE_SPEED: Fixed64 = Fixed64::from_units(2);
 
 /// Zombies attack when within this distance of their target.
-const ATTACK_RANGE: f32 = 1.5_f32;
+const ATTACK_RANGE: Fixed64 = Fixed64::from_millis(1500);
 
 /// Damage per attack.
-const ATTACK_DAMAGE: f32 = 5.0_f32;
+const ATTACK_DAMAGE: Fixed64 = Fixed64::from_units(5);
 
 /// Maximum random jitter applied to zombie velocity (keeps simulation interesting).
-const MAX_JITTER: f64 = 0.02_f64;
+const MAX_JITTER: Fixed64 = Fixed64::from_millis(20);
+const HALF: Fixed64 = Fixed64::from_millis(500);
+const TWO: Fixed64 = Fixed64::from_units(2);
 
 pub struct AISystem;
 
@@ -105,7 +105,7 @@ impl ISystem for AISystem {
                 context.submit_mutation(
                     zombie_id,
                     component_ids::VELOCITY,
-                    velocity_json(0.0, 0.0, 0.0),
+                    velocity_json(Fixed64::ZERO, Fixed64::ZERO, Fixed64::ZERO),
                 )?;
                 continue;
             }
@@ -113,15 +113,16 @@ impl ISystem for AISystem {
             // ── Chase movement ─────────────────────────────────────────────
             // D6: deterministic jitter via context.next_random()
             // seed = hash(world_seed, system_id, tick) — reproducible
-            let jitter_x = (context.next_random()? - 0.5) * MAX_JITTER * 2.0;
-            let jitter_z = (context.next_random()? - 0.5) * MAX_JITTER * 2.0;
+            let jitter_x = (context.next_random()? - HALF) * MAX_JITTER * TWO;
+            let jitter_z = (context.next_random()? - HALF) * MAX_JITTER * TWO;
 
-            let safe_dist = dist.max(0.001_f32);
+            let safe_dist = dist.max(Fixed64::from_micros(1000));
             // Normalize direction and scale by speed
-            let vx = (dx / safe_dist) * ZOMBIE_SPEED + jitter_x as f32;
-            let vz = (dz / safe_dist) * ZOMBIE_SPEED + jitter_z as f32;
+            let speed_scale = ZOMBIE_SPEED.checked_div(safe_dist).unwrap_or(Fixed64::ZERO);
+            let vx = dx * speed_scale + jitter_x;
+            let vz = dz * speed_scale + jitter_z;
 
-            let new_velocity = velocity_json(vx, 0.0, vz);
+            let new_velocity = velocity_json(vx, Fixed64::ZERO, vz);
 
             // D4: deferred mutation
             context.submit_mutation(zombie_id, component_ids::VELOCITY, new_velocity)?;
@@ -156,11 +157,11 @@ mod tests {
 
     #[test]
     fn attack_range_is_positive() {
-        assert!(ATTACK_RANGE > 0.0);
+        assert!(ATTACK_RANGE > Fixed64::ZERO);
     }
 
     #[test]
     fn zombie_speed_is_positive() {
-        assert!(ZOMBIE_SPEED > 0.0);
+        assert!(ZOMBIE_SPEED > Fixed64::ZERO);
     }
 }

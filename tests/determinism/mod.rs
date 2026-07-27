@@ -1,1 +1,3 @@
 mod test_vertical_slice_determinism;
+mod test_multiplayer_lockstep;
+mod test_feedback_determinism;

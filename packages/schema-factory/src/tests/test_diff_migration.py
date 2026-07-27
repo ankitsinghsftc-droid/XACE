@@ -34,6 +34,8 @@ from ..diff_migration.migration_rule_generator import (
     _RULE_ORDER,
 )
 
+TEST_CGS_HASH = "a" * 64
+
 
 # ── CGS Builder Helpers ───────────────────────────────────────────────────────
 
@@ -42,7 +44,7 @@ def _cgs(
     global_systems: list[dict] | None = None,
 ) -> dict[str, Any]:
     return {
-        "metadata": {"version": "0.1.0", "cgs_hash": "abc"},
+        "metadata": {"version": "0.1.0", "cgs_hash": TEST_CGS_HASH},
         "global_systems": global_systems or [],
         "modes": modes or [],
     }
@@ -81,8 +83,8 @@ def _sys(sys_id: str, phase: str = "Simulation") -> dict[str, Any]:
 def _diff(old: dict, new: dict) -> SchemaDiff:
     return SchemaDiffEngine.compute(
         old_cgs=old, new_cgs=new,
-        from_version="0.1.0", from_hash="old_hash",
-        to_version="0.2.0",   to_hash="new_hash",
+        from_version="0.1.0", from_hash="b" * 64,
+        to_version="0.2.0",   to_hash="c" * 64,
     )
 
 

@@ -21,7 +21,7 @@
 //! Every system must explicitly declare which component type IDs it
 //! reads and which it writes. The SGC uses these declarations to:
 //! - Detect read-after-write hazards (D1)
-//! - Build parallel execution groups
+//! - Build parallel-eligible execution groups
 //! - Validate no undeclared writes occur (enforced by SystemContext)
 //!
 //! ## Determinism Flag
@@ -45,8 +45,9 @@ pub type SystemId = String;
 ///
 /// Phases are fixed and immutable — defined by PhaseEnum in runtime/phase_enum.rs.
 /// The SGC validates that every system is assigned to exactly one phase.
-/// Systems in the same phase may run in parallel if their read/write
-/// declarations are conflict-free (determined by SGC conflict analyzer).
+/// Systems in the same phase may be grouped as parallel-eligible if their
+/// read/write declarations are conflict-free (determined by SGC conflict
+/// analyzer).
 ///
 /// ## Phase Order (fixed, immutable)
 /// Initialization → Input → Simulation → PostSimulation → Cleanup
@@ -185,7 +186,8 @@ impl std::fmt::Display for SystemVersion {
 /// The SGC uses these to:
 /// - Detect RAW hazards: system B reads what system A writes
 /// - Detect WAW hazards: systems A and B both write the same component
-/// - Build parallel groups: systems with no shared writes run in parallel
+/// - Build parallel-eligible groups: systems with no shared writes can be
+///   scheduled together
 ///
 /// Undeclared reads are permitted (read-only access is safe).
 /// Undeclared writes are a determinism violation — blocked by SystemContext.
@@ -229,7 +231,7 @@ pub struct SystemDefinition {
     /// Whether this system is deterministic across all runs.
     /// Must be true for all XACE systems — false triggers SGC warning.
     /// A system is deterministic if: same input state → same output state,
-    /// always, on any machine, in any order within its parallel group.
+    /// always, on any machine, in any order within its parallel-eligible group.
     pub deterministic: bool,
 
     /// Implementation version of this system.

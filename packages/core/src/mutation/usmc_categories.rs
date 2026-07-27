@@ -90,7 +90,7 @@ pub enum UsmcCategory {
     /// - "Link the health system to the animation system"
     ///
     /// Risk profile: MEDIUM-HIGH. Creates cross-system dependencies.
-    /// Validation: dependency graph analysis, parallel execution safety check.
+    /// Validation: dependency graph analysis, parallel-eligibility safety check.
     Compose,
 
     /// Defining progression, leveling, or advancement systems.

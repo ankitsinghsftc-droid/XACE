@@ -55,15 +55,28 @@ pub struct FeedbackLogEntry {
 
     /// Total message count cached for fast access.
     pub message_count: usize,
+
+    #[serde(default)]
+    pub payload_bytes: usize,
+
+    #[serde(default)]
+    pub entry_hash: u64,
 }
 
 impl FeedbackLogEntry {
     fn new(tick: Tick, messages: Vec<FeedbackMessage>) -> Self {
         let count = messages.len();
+        let payload_bytes = messages
+            .iter()
+            .map(|message| message.payload_json.len())
+            .sum();
+        let entry_hash = hash_entry(tick, &messages);
         Self {
             tick,
             messages,
             message_count: count,
+            payload_bytes,
+            entry_hash,
         }
     }
 
@@ -87,7 +100,44 @@ pub struct FeedbackLogMetrics {
     pub messages_trimmed: u64,
     /// Times `trim_before()` was called.
     pub trim_count: u64,
+    /// Attempts to record a tick that already exists.
+    pub duplicate_tick_rejections: u64,
+    /// Total payload bytes recorded in retained and trimmed entries.
+    pub total_payload_bytes_logged: u64,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FeedbackLogError {
+    DuplicateTick {
+        tick: Tick,
+    },
+    IntegrityMismatch {
+        tick: Tick,
+        expected_hash: u64,
+        actual_hash: u64,
+    },
+}
+
+impl std::fmt::Display for FeedbackLogError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DuplicateTick { tick } => {
+                write!(f, "feedback log already contains tick {}", tick)
+            }
+            Self::IntegrityMismatch {
+                tick,
+                expected_hash,
+                actual_hash,
+            } => write!(
+                f,
+                "feedback log integrity mismatch at tick {}: expected {:016x}, got {:016x}",
+                tick, expected_hash, actual_hash
+            ),
+        }
+    }
+}
+
+impl std::error::Error for FeedbackLogError {}
 
 // ── Feedback Log ──────────────────────────────────────────────────────────────
 
@@ -113,6 +163,9 @@ pub struct FeedbackLog {
     /// The most recently recorded tick.
     end_tick: Tick,
 
+    #[serde(default)]
+    session_hash: u64,
+
     #[serde(skip)]
     metrics: FeedbackLogMetrics,
 }
@@ -128,6 +181,7 @@ impl FeedbackLog {
             execution_plan_version,
             start_tick: 0,
             end_tick: 0,
+            session_hash: 0,
             metrics: FeedbackLogMetrics::default(),
         }
     }
@@ -141,24 +195,44 @@ impl FeedbackLog {
     /// An empty `messages` vec is still recorded — absence of feedback is meaningful
     /// for replay (the replay loader will inject no feedback at that tick).
     ///
-    /// Calling `record_tick()` for a tick that already has an entry overwrites it.
-    /// This should never happen in normal operation (one drain per tick).
     pub fn record_tick(&mut self, tick: Tick, messages: Vec<FeedbackMessage>) {
+        if let Err(err) = self.record_tick_checked(tick, messages) {
+            log::warn!("FeedbackLog: {}", err);
+        }
+    }
+
+    /// Strict append-only record API. Duplicate ticks are rejected.
+    pub fn record_tick_checked(
+        &mut self,
+        tick: Tick,
+        messages: Vec<FeedbackMessage>,
+    ) -> Result<(), FeedbackLogError> {
+        if self.entries.contains_key(&tick) {
+            self.metrics.duplicate_tick_rejections += 1;
+            return Err(FeedbackLogError::DuplicateTick { tick });
+        }
+
         let msg_count = messages.len();
         let is_empty = messages.is_empty();
+        let entry = FeedbackLogEntry::new(tick, messages);
 
         if self.entries.is_empty() {
             self.start_tick = tick;
+        } else {
+            self.start_tick = self.start_tick.min(tick);
         }
         self.end_tick = tick.max(self.end_tick);
 
-        self.entries.insert(tick, FeedbackLogEntry::new(tick, messages));
+        self.session_hash = mix_hash(self.session_hash, entry.entry_hash);
+        self.metrics.total_payload_bytes_logged += entry.payload_bytes as u64;
+        self.entries.insert(tick, entry);
 
         self.metrics.ticks_recorded += 1;
         self.metrics.total_messages_logged += msg_count as u64;
         if is_empty {
             self.metrics.empty_ticks += 1;
         }
+        Ok(())
     }
 
     /// Returns the log entry for a specific tick, if present.
@@ -202,7 +276,11 @@ impl FeedbackLog {
             // Update start_tick to reflect what remains
             if let Some(&new_start) = self.entries.keys().next() {
                 self.start_tick = new_start;
+            } else {
+                self.start_tick = 0;
+                self.end_tick = 0;
             }
+            self.recompute_session_hash();
         }
 
         removed_msgs
@@ -252,6 +330,24 @@ impl FeedbackLog {
         &self.metrics
     }
 
+    pub fn session_hash(&self) -> u64 {
+        self.session_hash
+    }
+
+    pub fn validate_integrity(&self) -> Result<(), FeedbackLogError> {
+        for (tick, entry) in &self.entries {
+            let actual = hash_entry(*tick, &entry.messages);
+            if entry.entry_hash != 0 && entry.entry_hash != actual {
+                return Err(FeedbackLogError::IntegrityMismatch {
+                    tick: *tick,
+                    expected_hash: entry.entry_hash,
+                    actual_hash: actual,
+                });
+            }
+        }
+        Ok(())
+    }
+
     /// Returns an iterator over all entries in tick ascending order.
     pub fn iter_ordered(&self) -> impl Iterator<Item = (Tick, &FeedbackLogEntry)> {
         self.entries.iter().map(|(&tick, entry)| (tick, entry))
@@ -261,6 +357,37 @@ impl FeedbackLog {
     pub fn total_message_count(&self) -> usize {
         self.entries.values().map(|e| e.message_count).sum()
     }
+
+    fn recompute_session_hash(&mut self) {
+        self.session_hash = self
+            .entries
+            .values()
+            .fold(0, |acc, entry| mix_hash(acc, entry.entry_hash));
+    }
+}
+
+fn hash_entry(tick: Tick, messages: &[FeedbackMessage]) -> u64 {
+    let mut hash = 0xcbf2_9ce4_8422_2325u64;
+    hash = hash_bytes(hash, &tick.to_le_bytes());
+    for message in messages {
+        hash = hash_bytes(hash, &[message.feedback_type.as_u8()]);
+        hash = hash_bytes(hash, &message.entity_id.to_le_bytes());
+        hash = hash_bytes(hash, &message.generated_frame.to_le_bytes());
+        hash = hash_bytes(hash, message.payload_json.as_bytes());
+    }
+    hash
+}
+
+fn hash_bytes(mut hash: u64, bytes: &[u8]) -> u64 {
+    for byte in bytes {
+        hash ^= *byte as u64;
+        hash = hash.wrapping_mul(0x1000_0000_01b3);
+    }
+    hash
+}
+
+fn mix_hash(hash: u64, value: u64) -> u64 {
+    hash_bytes(hash ^ 0x9e37_79b9_7f4a_7c15, &value.to_le_bytes())
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -327,8 +454,23 @@ mod tests {
         l.record_tick(5, vec![msg(1, 5)]);
         l.record_tick(10, vec![msg(1, 10)]);
         l.record_tick(3, vec![msg(1, 3)]);
-        assert_eq!(l.start_tick(), 5); // first recorded
-        assert_eq!(l.end_tick(), 10);  // max
+        assert_eq!(l.start_tick(), 3);
+        assert_eq!(l.end_tick(), 10); // max
+    }
+
+    #[test]
+    fn duplicate_tick_is_rejected_without_overwrite() {
+        let mut l = log();
+        l.record_tick(1, vec![msg(1, 1)]);
+
+        let result = l.record_tick_checked(1, vec![msg(2, 1)]);
+
+        assert!(matches!(
+            result,
+            Err(FeedbackLogError::DuplicateTick { tick: 1 })
+        ));
+        assert_eq!(l.messages_at(1)[0].entity_id, 1);
+        assert_eq!(l.metrics().duplicate_tick_rejections, 1);
     }
 
     #[test]
@@ -349,7 +491,7 @@ mod tests {
         }
         let removed = l.trim_before(5);
         assert_eq!(l.tick_count(), 5); // ticks 5–9 remain
-        assert_eq!(removed, 5);        // 5 messages removed (one per tick)
+        assert_eq!(removed, 5); // 5 messages removed (one per tick)
         assert_eq!(l.metrics().messages_trimmed, 5);
     }
 
@@ -419,6 +561,7 @@ mod tests {
         assert_eq!(restored.messages_at(1).len(), 2);
         assert_eq!(restored.messages_at(2).len(), 1);
         assert_eq!(restored.schema_version(), "0.1.0");
+        assert!(restored.validate_integrity().is_ok());
     }
 
     // ── Metrics ───────────────────────────────────────────────────────────────

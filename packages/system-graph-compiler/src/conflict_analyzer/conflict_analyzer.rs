@@ -31,11 +31,10 @@
 //! All lists in ConflictReport are sorted by (system_a, system_b) pairs.
 //! SerializationGroups are sorted by their representative system_id.
 
-use crate::compilation_error::{CompilationError, EdgeType};
+use crate::compilation_error::CompilationError;
 use crate::conflict_analyzer::serialization_group_builder::{
     SerializationGroup, SerializationGroupBuilder,
 };
-use crate::dependency_resolution::dependency_resolution_engine::OrderedGraph;
 use crate::graph_construction::hazard_detector::HazardDetector;
 use crate::graph_construction::system_edge::RawSystemGraph;
 use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;

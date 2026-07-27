@@ -187,7 +187,7 @@ class DSLTransaction:
     Attributes
     ----------
     transaction_id : str
-        UUID4 hex. Matches MutationMetadata.transaction_id.
+        Monotonic transaction identifier. Matches MutationMetadata.transaction_id.
     operations : tuple[DSLOperation, ...]
         Ordered operations to apply atomically.
     metadata : MutationMetadata

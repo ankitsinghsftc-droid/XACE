@@ -271,7 +271,6 @@ impl CycleDetector {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::compilation_error::EdgeType;
     use crate::graph_construction::system_edge::SystemEdge;
     use crate::graph_construction::system_node::SystemNode;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;

@@ -29,8 +29,10 @@ import type {
   PassUpdate,
   SessionTelemetry,
   ClarificationQuestion,
+  PromptApplyFeedback,
 } from '../types/pil';
 import { emptyTelemetry, addCall } from '../types/pil';
+import type { CgsUpdateMessage, ServerErrorMessage } from '../api/message_types';
 
 // ── State definitions ─────────────────────────────────────────────────────────
 
@@ -38,6 +40,7 @@ export type ConsoleStateName =
   | 'Idle'
   | 'Processing'
   | 'PreviewPending'
+  | 'ApplyingMutation'
   | 'ClarificationFlow'
   | 'BlockedView'
   | 'DiagnosticView'
@@ -70,6 +73,14 @@ export interface PreviewPendingState extends StateBase {
   readonly prompt: string;
 }
 
+export interface ApplyingMutationState extends StateBase {
+  readonly name:      'ApplyingMutation';
+  readonly result:    MutationResult;
+  readonly prompt:    string;
+  readonly summary:   string;
+  readonly startedAt: number;
+}
+
 export interface ClarificationFlowState extends StateBase {
   readonly name:               'ClarificationFlow';
   readonly result:             ClarificationResult;
@@ -94,12 +105,17 @@ export interface ErrorViewState extends StateBase {
   readonly name:   'ErrorView';
   readonly reason: string;
   readonly prompt: string;
+  readonly code?: string;
+  readonly stage?: string;
+  readonly transactionId?: string;
+  readonly applyFeedback?: PromptApplyFeedback;
 }
 
 export type ConsoleState =
   | IdleState
   | ProcessingState
   | PreviewPendingState
+  | ApplyingMutationState
   | ClarificationFlowState
   | BlockedViewState
   | DiagnosticViewState
@@ -110,6 +126,7 @@ export type ConsoleState =
 export const isIdle              = (s: ConsoleState): s is IdleState              => s.name === 'Idle';
 export const isProcessing        = (s: ConsoleState): s is ProcessingState        => s.name === 'Processing';
 export const isPreviewPending    = (s: ConsoleState): s is PreviewPendingState    => s.name === 'PreviewPending';
+export const isApplyingMutation  = (s: ConsoleState): s is ApplyingMutationState  => s.name === 'ApplyingMutation';
 export const isClarificationFlow = (s: ConsoleState): s is ClarificationFlowState => s.name === 'ClarificationFlow';
 export const isBlockedView       = (s: ConsoleState): s is BlockedViewState       => s.name === 'BlockedView';
 export const isDiagnosticView    = (s: ConsoleState): s is DiagnosticViewState    => s.name === 'DiagnosticView';
@@ -263,8 +280,43 @@ export class ConsoleSM {
   applyMutation(): void {
     if (!isPreviewPending(this._state)) return;
     const summary = this._state.result.transaction.mutation_summary;
+    this._set({
+      name: 'ApplyingMutation',
+      result: this._state.result,
+      prompt: this._state.prompt,
+      summary,
+      startedAt: Date.now(),
+    });
+  }
+
+  /**
+   * Server confirmed the apply through cgs_update.
+   * Valid from: ApplyingMutation.
+   */
+  completeApply(_message: CgsUpdateMessage): void {
+    if (!isApplyingMutation(this._state)) return;
+    const summary = this._state.summary;
     this._emit({ type: 'mutation_applied', summary });
     this._set({ name: 'Idle', lastSummary: summary });
+  }
+
+  /**
+   * Server rejected an apply with structured validation feedback.
+   */
+  receiveServerError(message: ServerErrorMessage): void {
+    const prompt =
+      isApplyingMutation(this._state) || isPreviewPending(this._state) || isProcessing(this._state)
+        ? this._state.prompt
+        : '';
+    this._set({
+      name: 'ErrorView',
+      reason: message.message,
+      prompt,
+      code: message.code,
+      stage: message.stage,
+      transactionId: message.transaction_id,
+      applyFeedback: message.apply_feedback,
+    });
   }
 
   /**
@@ -312,6 +364,18 @@ export class ConsoleSM {
         currentQuestion: nextQuestion,
       });
     }
+  }
+
+  /**
+   * Classifier-level clarifications record scope before a fresh prompt.
+   * They do not auto-generate a mutation from the ambiguous wording.
+   */
+  finishPromptClarification(prefillPrompt: string): void {
+    if (!isClarificationFlow(this._state)) return;
+    this._set({
+      name:          'Idle',
+      prefillPrompt: prefillPrompt || this._state.prompt,
+    });
   }
 
   /**

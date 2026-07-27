@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xace.dev/schemas/xace-sgc-execution-plan.schema.json",
+  "title": "XACE SGC ExecutionPlan",
+  "description": "Canonical persisted System Graph Compiler execution plan stored at .xace/execution_plans/<cgs_hash>.plan.json.",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schema_version",
+    "plan_version",
+    "adapter_protocol_version",
+    "migration_status",
+    "created_tick",
+    "plan_hash",
+    "phases",
+    "all_system_ids",
+    "compiled_from_cgs_hash",
+    "component_access_sets",
+    "system_metadata",
+    "proof_bundle"
+  ],
+  "properties": {
+    "kind": {
+      "type": "string",
+      "const": "ExecutionPlan",
+      "description": "Optional explicit document kind. Rust SGC output may omit this field before Builder persistence."
+    },
+    "schema_version": {
+      "type": "string",
+      "minLength": 1,
+      "description": "CGS schema version this plan was compiled against. Runtime must reject mismatches."
+    },
+    "plan_version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic execution-plan version for adapter/runtime compatibility."
+    },
+    "adapter_protocol_version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Runtime/engine adapter protocol version required to consume this plan."
+    },
+    "migration_status": {
+      "type": "string",
+      "const": "current",
+      "description": "Runtime-loadable migration status. Non-current plans must be regenerated or migrated before tick zero."
+    },
+    "created_tick": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Runtime tick at which this plan was created. Builder-compiled plans use 0 until runtime reload support exists."
+    },
+    "plan_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SGC-owned deterministic SHA-256 hash of the execution schedule."
+    },
+    "compiled_from_cgs_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical CGS hash this plan was compiled from. Must match the persisted filename stem."
+    },
+    "all_system_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true,
+      "description": "Sorted deterministic lookup list of every scheduled system id."
+    },
+    "phases": {
+      "type": "object",
+      "description": "Phase schedules keyed by phase ordinal string 0..4.",
+      "propertyNames": {
+        "pattern": "^[0-4]$"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/PhaseSchedule"
+      }
+    },
+    "component_access_sets": {
+      "$ref": "#/$defs/ComponentAccessSets"
+    },
+    "system_metadata": {
+      "$ref": "#/$defs/SystemMetadata"
+    },
+    "proof_bundle": {
+      "$ref": "#/$defs/ProofBundleReference"
+    }
+  },
+  "$defs": {
+    "PhaseName": {
+      "type": "string",
+      "enum": ["Initialization", "Input", "Simulation", "PostSimulation", "Cleanup"]
+    },
+    "PhaseSchedule": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["phase", "groups", "total_system_count"],
+      "properties": {
+        "phase": {
+          "$ref": "#/$defs/PhaseName"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExecutionGroup"
+          }
+        },
+        "total_system_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ExecutionGroup": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "group_id",
+        "phase",
+        "parallel",
+        "systems",
+        "serialization_constraints",
+        "execution_index"
+      ],
+      "properties": {
+        "group_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseName"
+        },
+        "parallel": {
+          "type": "boolean"
+        },
+        "systems": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "serialization_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "execution_index": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ComponentAccessSets": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "by_system", "all_reads", "all_writes", "component_ids"],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "xace.sgc.component_access_sets.v1"
+        },
+        "by_system": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SystemAccessSet"
+          }
+        },
+        "all_reads": {
+          "$ref": "#/$defs/ComponentIdArray"
+        },
+        "all_writes": {
+          "$ref": "#/$defs/ComponentIdArray"
+        },
+        "component_ids": {
+          "$ref": "#/$defs/ComponentIdArray"
+        }
+      }
+    },
+    "SystemAccessSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reads", "writes"],
+      "properties": {
+        "reads": {
+          "$ref": "#/$defs/ComponentIdArray"
+        },
+        "writes": {
+          "$ref": "#/$defs/ComponentIdArray"
+        }
+      }
+    },
+    "ComponentIdArray": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      },
+      "uniqueItems": true
+    },
+    "SystemMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "systems"],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "xace.sgc.system_metadata.v1"
+        },
+        "systems": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/SystemMetadataEntry"
+          }
+        }
+      }
+    },
+    "SystemMetadataEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["display_name", "phase", "depends_on", "deterministic", "version", "description"],
+      "properties": {
+        "display_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "phase": {
+          "$ref": "#/$defs/PhaseName"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "deterministic": {
+          "type": "boolean"
+        },
+        "version": {
+          "$ref": "#/$defs/SystemVersion"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "SystemVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major", "minor"],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ProofBundleReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "path",
+        "compiled_from_cgs_hash",
+        "plan_hash",
+        "input_hash",
+        "validation_hash"
+      ],
+      "properties": {
+        "schema": {
+          "type": "string",
+          "const": "xace.sgc.proof_ref.v1"
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^\\.xace/proof/sgc/[0-9a-f]{64}$"
+        },
+        "compiled_from_cgs_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "plan_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "input_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "validation_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

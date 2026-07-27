@@ -1,0 +1,100 @@
+{
+  "schema": "xace.production_path_rules.v1",
+  "updated": "2026-06-18",
+  "production_globs": [
+    "packages/**/*.py",
+    "packages/**/*.rs",
+    "packages/builder-workspace/src/**/*.ts",
+    "adapters/**/*.gd",
+    "adapters/**/*.cs",
+    "adapters/**/*.cpp",
+    "adapters/**/*.h",
+    "tools/*.py"
+  ],
+  "nonproduction_globs": [
+    "tests/**",
+    "packages/*/tests/**",
+    "packages/*/src/tests/**",
+    "packages/*/src/**/tests/**",
+    "packages/**/tests/**",
+    "packages/**/tests/fixtures/**",
+    "packages/**/test_fixtures/**",
+    "packages/**/src/tests/**",
+    "packages/**/benches/**",
+    "tools/*_smoke.py",
+    "tools/*_proof.py",
+    "tools/phase15_integration_check.py",
+    "tools/sgc_cli_integration.py",
+    "tools/sgc_cli_smoke.py",
+    "target*",
+    "node_modules/**",
+    "packages/**/node_modules/**",
+    "packages/**/dist/**"
+  ],
+  "blocked_import_fragments": [
+    "fake_sgc_wiring_test_only",
+    "prompt_pipeline_smoke",
+    "provider_readiness_smoke",
+    "runtime_bridge_smoke",
+    "three_engine_runtime_smoke",
+    "asset_playback_smoke",
+    "builder_onboarding_smoke",
+    "tests.fixtures",
+    "test_fixtures",
+    "fake_",
+    "mock_",
+    "determinism_proof",
+    "mutation_atomicity_proof",
+    "phase15_integration_check",
+    "sgc_cli_integration",
+    "tests.",
+    ".tests",
+    "unittest.mock",
+    "pytest",
+    "TestClient",
+    "MagicMock"
+  ],
+  "forbidden_patterns": [
+    {
+      "id": "PPR001",
+      "name": "fake helper in production",
+      "regex": "fake[_-]sgc|fake_sgc_wiring_test_only|fake helper|fake success",
+      "description": "Production code cannot call fake helpers or present fake success."
+    },
+    {
+      "id": "PPR002",
+      "name": "mock provider or mock adapter in production",
+      "regex": "_MockAdapter\\b|\\bMockAdapter\\b|mock provider|mock success|provider[\\s:=]+[\"']mock[\"']",
+      "description": "Production code cannot satisfy provider or adapter paths with mock implementations."
+    },
+    {
+      "id": "PPR003",
+      "name": "naive CGS mutation path",
+      "regex": "_naive_apply\\b|_naive_set\\b|allow_naive_apply|naive apply|naive _apply_operations",
+      "description": "Production CGS mutation paths must go through GDE/state authority, not naive JSON edits."
+    },
+    {
+      "id": "PPR004",
+      "name": "silent or optional skip in production gate",
+      "regex": "SGC skipped|status\\s*=\\s*[\"']skipped[\"']|skipped if absent|step is skipped|silently skip|skip for now|gracefully skip",
+      "description": "Production gates must block or emit explicit unsupported/skipped status, not silently succeed."
+    },
+    {
+      "id": "PPR005",
+      "name": "unsupported fallback in production",
+      "regex": "SimplePipeline|unvalidated transaction|unsafe fallback|fallback for isolated testing|Fallback for Test Environments",
+      "description": "Fallbacks must be test-only, visibly unsupported, or benchmark/proof-backed before product use."
+    }
+  ],
+  "allowed_findings": [
+    {"rule_id": "PPR004", "path": "packages/builder-workspace/server/session_manager.py", "contains": "status=\"skipped\"", "fsr_id": "FSR-003", "owner_task": "18, 21"},
+    {"rule_id": "PPR004", "path": "packages/engine-adapter/build.rs", "contains": "gracefully skip", "fsr_id": "FSR-013", "owner_task": "12, 95"},
+    {"rule_id": "PPR004", "path": "packages/prompt-intelligence/src/validation_loop/validation_loop.py", "contains": "silently skip", "fsr_id": "FSR-010", "owner_task": "17, 39"},
+    {"rule_id": "PPR004", "path": "packages/prompt-intelligence/src/validation_loop/validation_loop.py", "contains": "skip for now", "fsr_id": "FSR-010", "owner_task": "17, 39"},
+
+    {"rule_id": "PPR005", "path": "packages/builder-workspace/server/credential_store.py", "contains": "dev-only unsafe fallback", "fsr_id": "FSR-015", "owner_task": "54, 55, 126"},
+    {"rule_id": "PPR002", "path": "packages/builder-workspace/server/provider_settings.py", "contains": "not a mock success", "fsr_id": "FSR-014", "owner_task": "51, 54"},
+    {"rule_id": "PPR005", "path": "packages/prompt-intelligence/src/validation_loop/validation_loop.py", "contains": "fallback for isolated testing", "fsr_id": "FSR-010", "owner_task": "17, 39"},
+    {"rule_id": "PPR005", "path": "packages/prompt-intelligence/src/code_generation/cargo_compiler.py", "contains": "Fallback for Test Environments", "fsr_id": "FSR-010", "owner_task": "17, 28"}
+  ]
+}

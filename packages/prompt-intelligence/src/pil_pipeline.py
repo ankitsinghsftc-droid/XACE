@@ -11,7 +11,7 @@ any external system that wants the PIL to process a designer's prompt.
     result = pipeline.process(
         prompt     = "make the zombie faster",
         cgs        = current_cgs,
-        cgs_hash   = "0b1d495d...",
+        cgs_hash   = "0b1d495d00000000000000000000000000000000000000000000000000000000",
         mode       = "COLLABORATIVE",
         session_id = "s1",
     )
@@ -179,7 +179,7 @@ class PILPipeline:
         result = pipeline.process(
             prompt     = "make the zombie faster",
             cgs        = current_cgs,
-            cgs_hash   = "0b1d495d...",
+            cgs_hash   = "0b1d495d00000000000000000000000000000000000000000000000000000000",
             mode       = "COLLABORATIVE",
         )
     """

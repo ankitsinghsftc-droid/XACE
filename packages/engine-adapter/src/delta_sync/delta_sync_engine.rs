@@ -43,8 +43,8 @@ use xace_core::wire::snapshot_payload::SnapshotPayload;
 
 use crate::delta_sync::delta_builder::DeltaBuilder;
 use crate::delta_sync::delta_compressor::DeltaCompressor;
+use crate::delta_sync::resync_detector::{ResyncConfig, ResyncDetector, ResyncTrigger};
 use crate::delta_sync::snapshot_recovery::{SnapshotRecovery, SnapshotRecoveryMetrics};
-use crate::delta_sync::resync_detector::{ResyncDetector, ResyncConfig, ResyncTrigger};
 
 // ── Sync Output ───────────────────────────────────────────────────────────────
 
@@ -70,9 +70,9 @@ impl DeltaSyncOutput {
     /// Returns the tick this output was produced for.
     pub fn tick(&self) -> Option<u64> {
         match self {
-            DeltaSyncOutput::Delta(p)    => Some(p.tick),
+            DeltaSyncOutput::Delta(p) => Some(p.tick),
             DeltaSyncOutput::Snapshot(p) => Some(p.tick),
-            DeltaSyncOutput::Nothing     => None,
+            DeltaSyncOutput::Nothing => None,
         }
     }
 }
@@ -105,9 +105,6 @@ pub struct DeltaSyncMetrics {
 /// Create a new `DeltaSyncEngine` when the engine adapter connects.
 /// The compressor cache is pre-seeded with the initial SNAPSHOT.
 pub struct DeltaSyncEngine {
-    /// Builds wire-format DeltaPayload from StateDelta.
-    builder: DeltaBuilder,
-
     /// Eliminates unchanged fields from DeltaPayload.
     compressor: DeltaCompressor,
 
@@ -135,15 +132,12 @@ impl DeltaSyncEngine {
     pub fn new(
         schema_version: impl Into<String>,
         execution_plan_version: u32,
-        world_id: impl Into<String>,
+        _world_id: impl Into<String>,
         initial_delta_sequence_id: u64,
         resync_config: ResyncConfig,
     ) -> Self {
         let schema = schema_version.into();
-        let world  = world_id.into();
-
         let mut engine = Self {
-            builder: DeltaBuilder,
             compressor: DeltaCompressor::new(),
             recovery: SnapshotRecovery::new(&schema, execution_plan_version, 0),
             resync_detector: ResyncDetector::new(resync_config),
@@ -195,9 +189,8 @@ impl DeltaSyncEngine {
             let reason = trigger.snapshot_reason();
 
             // Update recovery with latest DELTA sequence before building
-            self.recovery.update_last_delta_sequence(
-                self.next_delta_sequence.saturating_sub(1),
-            );
+            self.recovery
+                .update_last_delta_sequence(self.next_delta_sequence.saturating_sub(1));
 
             let snapshot_payload = self.recovery.build_payload(world_snapshot, reason)?;
 
@@ -234,8 +227,7 @@ impl DeltaSyncEngine {
             .sum();
 
         self.metrics.delta_fields_sent += fields_after;
-        self.metrics.delta_fields_compressed +=
-            fields_before.saturating_sub(fields_after);
+        self.metrics.delta_fields_compressed += fields_before.saturating_sub(fields_after);
 
         // Update SnapshotRecovery with latest sequence in case resync fires next tick
         self.recovery.update_last_delta_sequence(seq);
@@ -266,7 +258,8 @@ impl DeltaSyncEngine {
 
     /// Reports a schema version mismatch from the engine adapter.
     pub fn report_schema_mismatch(&mut self, expected: &str, received: &str) {
-        self.resync_detector.report_schema_mismatch(expected, received);
+        self.resync_detector
+            .report_schema_mismatch(expected, received);
     }
 
     /// Reports a DELTA sequence gap.
@@ -313,27 +306,33 @@ impl DeltaSyncEngine {
 mod tests {
     use super::*;
     use xace_core::entity_state::EntityState;
-    use xace_core::runtime::state_delta::{SpawnedEntity, StateDelta, ComponentChange};
-    use xace_core::runtime::world_snapshot::{
-        EntityRecord, WorldSnapshot,
-    };
+    use xace_core::runtime::state_delta::{ComponentChange, SpawnedEntity, StateDelta};
+    use xace_core::runtime::world_snapshot::{EntityRecord, WorldSnapshot};
 
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     fn engine() -> DeltaSyncEngine {
-        DeltaSyncEngine::new("0.1.0", 1, "default", 1,
-            ResyncConfig { cooldown_ticks: 2, max_tick_drift: 100, tick_drift_detection: true }
+        DeltaSyncEngine::new(
+            "0.1.0",
+            1,
+            "default",
+            1,
+            ResyncConfig {
+                cooldown_ticks: 2,
+                max_tick_drift: 100,
+                tick_drift_detection: true,
+            },
         )
     }
 
     fn valid_snapshot(tick: u64) -> WorldSnapshot {
         let mut s = WorldSnapshot::empty("0.1.0", 1, 42);
         s.tick = tick;
-        s.world_hash = "hash_valid".into();
-        s.cgs_hash = "cgs_hash".into();
-        s.entity_store_snapshot.entities.push(
-            EntityRecord::new(1, EntityState::Active, 0)
-        );
+        s.world_hash = "a".repeat(64);
+        s.cgs_hash = "b".repeat(64);
+        s.entity_store_snapshot
+            .entities
+            .push(EntityRecord::new(1, EntityState::Active, 0));
         s.entity_store_snapshot.next_entity_id = 2;
         s
     }
@@ -442,8 +441,10 @@ mod tests {
 
         // Identical update: should be compressed away entirely
         let result = e.process_tick(&delta_with_update(2), &snap).unwrap();
-        assert!(matches!(result, DeltaSyncOutput::Nothing),
-            "Identical second update must be compressed to Nothing");
+        assert!(
+            matches!(result, DeltaSyncOutput::Nothing),
+            "Identical second update must be compressed to Nothing"
+        );
     }
 
     // ── Resync Path ───────────────────────────────────────────────────────────

@@ -49,10 +49,7 @@ pub enum ResyncTrigger {
         received_sequence: u64,
     },
     /// Schema or ExecutionPlan version mismatch detected.
-    SchemaVersionDrift {
-        expected: String,
-        received: String,
-    },
+    SchemaVersionDrift { expected: String, received: String },
     /// Engine adapter tick is too far behind the simulation.
     TickDrift {
         current_tick: u64,
@@ -69,11 +66,11 @@ impl ResyncTrigger {
     /// Returns the `SnapshotReason` to embed in the payload for this trigger.
     pub fn snapshot_reason(&self) -> SnapshotReason {
         match self {
-            ResyncTrigger::InitialConnection  => SnapshotReason::InitialConnection,
-            ResyncTrigger::ExplicitRequest    => SnapshotReason::ExplicitRequest,
+            ResyncTrigger::InitialConnection => SnapshotReason::InitialConnection,
+            ResyncTrigger::ExplicitRequest => SnapshotReason::ExplicitRequest,
             ResyncTrigger::SequenceGap { .. } => SnapshotReason::DesyncRecovery,
             ResyncTrigger::SchemaVersionDrift { .. } => SnapshotReason::DesyncRecovery,
-            ResyncTrigger::TickDrift { .. }   => SnapshotReason::DesyncRecovery,
+            ResyncTrigger::TickDrift { .. } => SnapshotReason::DesyncRecovery,
         }
     }
 }
@@ -81,19 +78,30 @@ impl ResyncTrigger {
 impl std::fmt::Display for ResyncTrigger {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ResyncTrigger::SequenceGap { expected_sequence, received_sequence } =>
-                write!(f, "SequenceGap(expected={}, received={})",
-                    expected_sequence, received_sequence),
-            ResyncTrigger::SchemaVersionDrift { expected, received } =>
-                write!(f, "SchemaVersionDrift(expected='{}', received='{}')",
-                    expected, received),
-            ResyncTrigger::TickDrift { current_tick, last_ack_tick, drift } =>
-                write!(f, "TickDrift(current={}, last_ack={}, drift={})",
-                    current_tick, last_ack_tick, drift),
-            ResyncTrigger::ExplicitRequest =>
-                write!(f, "ExplicitRequest"),
-            ResyncTrigger::InitialConnection =>
-                write!(f, "InitialConnection"),
+            ResyncTrigger::SequenceGap {
+                expected_sequence,
+                received_sequence,
+            } => write!(
+                f,
+                "SequenceGap(expected={}, received={})",
+                expected_sequence, received_sequence
+            ),
+            ResyncTrigger::SchemaVersionDrift { expected, received } => write!(
+                f,
+                "SchemaVersionDrift(expected='{}', received='{}')",
+                expected, received
+            ),
+            ResyncTrigger::TickDrift {
+                current_tick,
+                last_ack_tick,
+                drift,
+            } => write!(
+                f,
+                "TickDrift(current={}, last_ack={}, drift={})",
+                current_tick, last_ack_tick, drift
+            ),
+            ResyncTrigger::ExplicitRequest => write!(f, "ExplicitRequest"),
+            ResyncTrigger::InitialConnection => write!(f, "InitialConnection"),
         }
     }
 }
@@ -151,7 +159,7 @@ pub struct ResyncMetrics {
 /// Monitors delta sync health and triggers SNAPSHOT recovery when needed.
 ///
 /// ## Lifecycle
-/// ```ignore
+/// ```text
 /// // On engine adapter connect:
 /// let mut detector = ResyncDetector::new(ResyncConfig::default());
 /// detector.request_resync(ResyncTrigger::InitialConnection);
@@ -211,11 +219,11 @@ impl ResyncDetector {
     pub fn request_resync(&mut self, trigger: ResyncTrigger) {
         self.metrics.resync_requests += 1;
         match &trigger {
-            ResyncTrigger::SequenceGap { .. }      => self.metrics.sequence_gap_triggers += 1,
+            ResyncTrigger::SequenceGap { .. } => self.metrics.sequence_gap_triggers += 1,
             ResyncTrigger::SchemaVersionDrift { .. } => self.metrics.schema_drift_triggers += 1,
-            ResyncTrigger::TickDrift { .. }        => self.metrics.tick_drift_triggers += 1,
-            ResyncTrigger::ExplicitRequest         => self.metrics.explicit_request_triggers += 1,
-            ResyncTrigger::InitialConnection       => self.metrics.initial_connection_triggers += 1,
+            ResyncTrigger::TickDrift { .. } => self.metrics.tick_drift_triggers += 1,
+            ResyncTrigger::ExplicitRequest => self.metrics.explicit_request_triggers += 1,
+            ResyncTrigger::InitialConnection => self.metrics.initial_connection_triggers += 1,
         }
         // New trigger always overwrites pending — the most recent trigger wins
         self.pending = Some(trigger);
@@ -440,7 +448,10 @@ mod tests {
 
         // Tick 11 is past cooldown_ticks=10
         let result = d.check_and_consume(11);
-        assert!(result.is_some(), "Trigger must fire after cooldown at tick 11");
+        assert!(
+            result.is_some(),
+            "Trigger must fire after cooldown at tick 11"
+        );
     }
 
     #[test]

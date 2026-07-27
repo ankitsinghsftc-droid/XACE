@@ -17,8 +17,14 @@ from safety_memory import SafetyMemory
 from memory_model import MemoryModel
 from memory_lifecycle_manager import MemoryLifecycleManager, MemoryAssembly
 
+TEST_CGS_HASH = "0b1d495d00000000000000000000000000000000000000000000000000000000"
+HASH_A = "a" * 64
+HASH_B = "b" * 64
+HASH_OLD = "c" * 64
+HASH_NEW = "d" * 64
+
 CGS = {
-    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d",
+    "metadata": {"name": "Zombie Chase", "cgs_hash": TEST_CGS_HASH,
                  "version": "0.1.0", "schema_version": "0.1.0"},
     "global_systems": [
         {"id": "InputSystem", "phase": "Simulation",
@@ -390,37 +396,37 @@ class TestMemoryLifecycleManager:
         self.mgr = MemoryLifecycleManager(session_id="test")
 
     def test_assemble_returns_assembly(self):
-        assembly = self.mgr.assemble(CGS, cgs_hash="0b1d495d")
+        assembly = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         assert isinstance(assembly, MemoryAssembly)
 
     def test_structural_synced_on_first_assembly(self):
-        assembly = self.mgr.assemble(CGS, cgs_hash="0b1d495d")
+        assembly = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         assert assembly.structural_synced
 
     def test_structural_not_re_synced_same_hash(self):
-        self.mgr.assemble(CGS, cgs_hash="0b1d495d")
-        assembly2 = self.mgr.assemble(CGS, cgs_hash="0b1d495d")
+        self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
+        assembly2 = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         assert not assembly2.structural_synced
 
     def test_structural_re_synced_on_hash_change(self):
-        self.mgr.assemble(CGS, cgs_hash="hash_a")
-        assembly2 = self.mgr.assemble(CGS, cgs_hash="hash_b")
+        self.mgr.assemble(CGS, cgs_hash=HASH_A)
+        assembly2 = self.mgr.assemble(CGS, cgs_hash=HASH_B)
         assert assembly2.structural_synced
 
     def test_cached_prefix_text_in_assembly(self):
         self.mgr.set_game_vision("Zombie game.")
-        assembly = self.mgr.assemble(CGS, cgs_hash="abc")
+        assembly = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         assert "Zombie game." in assembly.cached_prefix_text
 
     def test_per_prompt_text_in_assembly(self):
         self.mgr.on_prompt("make zombie faster")
-        assembly = self.mgr.assemble(CGS, cgs_hash="abc")
+        assembly = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         # per_prompt_text should include session content
         assert isinstance(assembly.per_prompt_text, str)
 
     def test_token_estimates_positive(self):
         self.mgr.set_game_vision("x" * 100)
-        assembly = self.mgr.assemble(CGS, cgs_hash="abc")
+        assembly = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         assert assembly.cached_token_est >= 0
 
     def test_on_prompt_advances_turn(self):
@@ -430,16 +436,16 @@ class TestMemoryLifecycleManager:
     def test_on_commit_records_mutation(self):
         mr = MutationRecord(summary="Doubled speed.", schema_delta="value_mutation",
                              risk_level="low", turn_index=1)
-        self.mgr.on_commit(mr, CGS, new_cgs_hash="new_hash")
+        self.mgr.on_commit(mr, CGS, new_cgs_hash=HASH_NEW)
         assert self.mgr.model.session.last_mutation.summary == "Doubled speed."
 
     def test_on_commit_re_syncs_structural(self):
-        self.mgr.assemble(CGS, cgs_hash="old_hash")
+        self.mgr.assemble(CGS, cgs_hash=HASH_OLD)
         mr = MutationRecord(summary="x", schema_delta="value_mutation",
                              risk_level="low", turn_index=1)
-        self.mgr.on_commit(mr, CGS, new_cgs_hash="new_hash")
+        self.mgr.on_commit(mr, CGS, new_cgs_hash=HASH_NEW)
         # Next assemble with old hash should re-sync (hash invalidated by commit)
-        assembly = self.mgr.assemble(CGS, cgs_hash="new_hash")
+        assembly = self.mgr.assemble(CGS, cgs_hash=HASH_NEW)
         # hash matches new_hash → no re-sync needed
         assert not assembly.structural_synced
 
@@ -468,9 +474,9 @@ class TestMemoryLifecycleManager:
         assert self.mgr.model.design.game_vision == "Zombie survival."
 
     def test_cached_prefix_cache_invalidated_after_set_vision(self):
-        assembly1 = self.mgr.assemble(CGS, cgs_hash="abc")
+        assembly1 = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         self.mgr.set_game_vision("New vision.")
-        assembly2 = self.mgr.assemble(CGS, cgs_hash="abc")
+        assembly2 = self.mgr.assemble(CGS, cgs_hash=TEST_CGS_HASH)
         # cache cleared → new vision appears in second assembly
         assert "New vision." in assembly2.cached_prefix_text
 

@@ -232,7 +232,7 @@ class WSMessageRouter:
             log.error("CGS load failed: %s", exc)
             cgs_state.update({
                 "metadata": {
-                    "name": "New Project", "cgs_hash": "0000000",
+                    "name": "New Project", "cgs_hash": "0" * 64,
                     "version": "0.1.0", "schema_version": "0.1.0",
                 },
                 "global_systems": [], "modes": [],
@@ -417,9 +417,9 @@ def _link_asset(
 
 
 def _compute_hash(cgs: dict) -> str:
-    """Stable SHA-256 hash of the CGS content (excluding the hash field itself)."""
+    """Canonical SHA-256 hash of CGS content, excluding the hash field itself."""
     import copy
     stripped = copy.deepcopy(cgs)
     stripped.get("metadata", {}).pop("cgs_hash", None)
     canonical = json.dumps(stripped, sort_keys=True, ensure_ascii=False)
-    return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+    return hashlib.sha256(canonical.encode()).hexdigest()

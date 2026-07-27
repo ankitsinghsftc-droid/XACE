@@ -39,6 +39,7 @@
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
 use crate::entity_metadata::Tick;
 use crate::events::event_type::EventType;
+use crate::fixed_point::Fixed64;
 use crate::runtime::phase_enum::PhaseEnum;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -248,10 +249,14 @@ impl Event {
         self.payload.get(key).map(|s| s.as_str())
     }
 
-    /// Retrieves a payload value and parses it as f32.
+    /// Retrieves a payload value and parses it as a raw Fixed64 micro-unit integer.
     /// Returns None if the key is missing or the value cannot be parsed.
-    pub fn get_payload_f32(&self, key: &str) -> Option<f32> {
-        self.payload.get(key)?.parse().ok()
+    pub fn get_payload_fixed64(&self, key: &str) -> Option<Fixed64> {
+        self.payload
+            .get(key)?
+            .parse::<i64>()
+            .ok()
+            .map(Fixed64::from_raw)
     }
 
     /// Retrieves a payload value and parses it as i64.
@@ -393,10 +398,13 @@ mod tests {
     }
 
     #[test]
-    fn get_payload_f32_parses_correctly() {
-        let e = test_broadcast().with_payload("speed", "3.14");
-        assert!((e.get_payload_f32("speed").unwrap() - 3.14f32).abs() < 1e-5);
-        assert_eq!(e.get_payload_f32("missing"), None);
+    fn get_payload_fixed64_parses_correctly() {
+        let e = test_broadcast().with_payload("speed", "3140000");
+        assert_eq!(
+            e.get_payload_fixed64("speed"),
+            Some(Fixed64::from_millis(3140))
+        );
+        assert_eq!(e.get_payload_fixed64("missing"), None);
     }
 
     #[test]

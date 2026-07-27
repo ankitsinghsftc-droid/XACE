@@ -34,7 +34,6 @@
 //! and assembles the results into an OrderedGraph.
 
 use crate::compilation_error::{CompilationError, CycleError, EdgeType};
-use crate::graph_construction::system_edge::SystemEdge;
 use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -393,7 +392,7 @@ mod tests {
         use crate::graph_construction::system_node::SystemNode;
         use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
 
-        let mut bucket = PhaseBucket {
+        let bucket = PhaseBucket {
             phase: PhaseEnum::Simulation,
             nodes: {
                 let mut m = BTreeMap::new();

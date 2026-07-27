@@ -76,7 +76,7 @@ mod vertical_slice_determinism {
         let mut snap = WorldSnapshot::empty("0.1.0", 1, world_seed);
         snap.tick        = 0;
         snap.world_hash  = String::new(); // will be computed after first tick
-        snap.cgs_hash    = "zombie_chase_cgs_v1".into();
+        snap.cgs_hash    = "a".repeat(64);
 
         // Player entity (ID 1)
         snap.entity_store_snapshot

@@ -20,10 +20,11 @@
 //! write to any table.
 
 use super::component_table::ComponentTable;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use xace_core::entity_id::EntityID;
 use xace_core::entity_metadata::Tick;
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::runtime::world_snapshot::ComponentTablesSnapshot;
 
 // ── Component Table Store ─────────────────────────────────────────────────────
 
@@ -39,6 +40,10 @@ use xace_core::errors::xace_error::{ErrorContext, XaceError};
 pub struct ComponentTableStore {
     /// component_type_id → ComponentTable
     /// BTreeMap guarantees ascending type_id iteration order (D11).
+    tables: BTreeMap<u32, ComponentTable>,
+}
+
+pub struct ComponentTableStoreRollbackSnapshot {
     tables: BTreeMap<u32, ComponentTable>,
 }
 
@@ -242,6 +247,62 @@ impl ComponentTableStore {
             .iter()
             .map(|(&type_id, table)| (type_id, table.deep_clone()))
             .collect()
+    }
+
+    /// Captures an exact rollback image of all component tables, including
+    /// per-table write versions.
+    pub fn rollback_snapshot(&self) -> ComponentTableStoreRollbackSnapshot {
+        ComponentTableStoreRollbackSnapshot {
+            tables: self.deep_clone_all(),
+        }
+    }
+
+    /// Restores all component tables from a rollback image.
+    pub fn restore_rollback_snapshot(&mut self, snapshot: ComponentTableStoreRollbackSnapshot) {
+        self.tables = snapshot.tables;
+    }
+
+    /// Restores component rows from a WorldSnapshot component-tables image.
+    ///
+    /// Existing registered tables that are absent from the snapshot are cleared,
+    /// because an omitted table means it had no rows at capture time. Registered
+    /// empty tables are retained so the runtime schema remains usable after
+    /// rollback.
+    pub fn restore_from_tables_snapshot(
+        &mut self,
+        snapshot: &ComponentTablesSnapshot,
+    ) -> Result<(), XaceError> {
+        let snapshot_type_ids: BTreeSet<u32> = snapshot.tables.keys().copied().collect();
+
+        for type_id in self.all_type_ids() {
+            if !snapshot_type_ids.contains(&type_id) {
+                if let Some(table) = self.get_table_mut(type_id) {
+                    table.restore_from_snapshot(Vec::new());
+                }
+            }
+        }
+
+        for (type_id, table_record) in &snapshot.tables {
+            if !self.has_table(*type_id) {
+                let component_type_name = if table_record.component_type_name.is_empty() {
+                    format!("COMP_TYPE_{}", type_id)
+                } else {
+                    table_record.component_type_name.clone()
+                };
+                self.register_table(*type_id, component_type_name)?;
+            }
+
+            let entries: Vec<(EntityID, String)> = table_record
+                .rows
+                .iter()
+                .map(|(id, json)| (*id, json.clone()))
+                .collect();
+            self.get_table_mut(*type_id)
+                .expect("table was registered before restore")
+                .restore_from_snapshot(entries);
+        }
+
+        Ok(())
     }
 
     /// Returns all tables sorted by type_id ascending (D11).

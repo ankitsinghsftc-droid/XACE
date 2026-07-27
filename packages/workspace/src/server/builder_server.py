@@ -240,7 +240,7 @@ def _empty_cgs() -> dict[str, Any]:
     return {
         "metadata": {
             "name":           "New Project",
-            "cgs_hash":       "0000000000000000",
+            "cgs_hash":       "0" * 64,
             "version":        "0.1.0",
             "schema_version": "0.1.0",
         },

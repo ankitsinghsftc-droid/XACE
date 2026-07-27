@@ -233,10 +233,7 @@ mod tests {
     #[test]
     fn store_batch_stores_all() {
         let mut s = VisibilityResultStore::new();
-        s.store_batch(vec![
-            result(1, 2, true, 5),
-            result(3, 4, false, 5),
-        ]);
+        s.store_batch(vec![result(1, 2, true, 5), result(3, 4, false, 5)]);
         assert_eq!(s.stored_count(), 2);
     }
 
@@ -244,7 +241,7 @@ mod tests {
     fn newer_result_overwrites_older() {
         let mut s = VisibilityResultStore::new();
         s.store(result(1, 2, false, 5)); // can't see
-        s.store(result(1, 2, true, 6));  // now can see
+        s.store(result(1, 2, true, 6)); // now can see
         let r = s.get(1, 2, 6).unwrap();
         assert!(r.can_see);
     }
@@ -331,9 +328,9 @@ mod tests {
     fn metrics_track_hits_and_misses() {
         let mut s = VisibilityResultStore::new();
         s.store(result(1, 2, true, 5));
-        s.get(1, 2, 5);  // hit
-        s.get(1, 2, 5);  // hit
-        s.get(3, 4, 5);  // miss
+        s.get(1, 2, 5); // hit
+        s.get(1, 2, 5); // hit
+        s.get(3, 4, 5); // miss
         let m = s.metrics();
         assert_eq!(m.cache_hits, 2);
         assert_eq!(m.cache_misses, 1);

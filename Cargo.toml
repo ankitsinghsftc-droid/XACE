@@ -7,7 +7,10 @@ members = [
     "packages/engine-adapter",
     "packages/engine-feedback",
     "packages/network-core",
+    "packages/observability",
     "packages/save-engine",
+    "packages/asset-runtime",
+    "packages/cli",
     "examples/zombie-chase"
 ]
 

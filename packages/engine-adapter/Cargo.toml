@@ -17,6 +17,10 @@ path        = "src/lib.rs"
 # Serialisation — for state delta and input wire format
 serde        = { version = "1", features = ["derive"] }
 serde_json   = { version = "1" }
+sha2         = { workspace = true }
+xace-core    = { path = "../core" }
+memmap2      = { version = "0.9" }
+serde_yaml   = { version = "0.9" }
 
 # Runtime core — simulation state, entity store, phase orchestrator
 # Uncomment when the crate path is stabilised in the workspace

@@ -291,10 +291,11 @@ fn alive_count_accurate() {
     let mut store = EntityStore::new();
     let a = store.create_entity(0).unwrap();
     let b = store.create_entity(0).unwrap();
-    store.create_entity(0).unwrap();
+    let c = store.create_entity(0).unwrap();
     store.disable_entity(a, 1).unwrap();
     store.request_destroy(b, 1).unwrap();
     // Only c is alive
+    assert!(store.is_alive(c));
     assert_eq!(store.alive_count(), 1);
 }
 
@@ -308,6 +309,7 @@ fn present_count_includes_disabled_and_destroy_requested() {
     store.request_destroy(b, 1).unwrap();
     store.complete_destroy(b, 2).unwrap();
     // a (disabled) + c (active) = 2 present
+    assert!(store.is_alive(c));
     assert_eq!(store.present_count(), 2);
 }
 

@@ -14,6 +14,7 @@
 //! Fast, deterministic, and sufficient for game simulation.
 
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::fixed_point::{Fixed64, FIXED64_SCALE};
 
 // ── Deterministic RNG ─────────────────────────────────────────────────────────
 
@@ -43,6 +44,20 @@ impl DeterministicRng {
         }
     }
 
+    /// Creates an RNG from a seed issued by the runtime RngInterceptor.
+    ///
+    /// This is the live system-execution path: the interceptor validates the
+    /// open deterministic window and returns the authoritative per-system seed.
+    pub fn from_seed(seed: u64, world_seed: u64, system_id: &str, tick: u64) -> Self {
+        Self {
+            state: if seed == 0 { 1 } else { seed },
+            world_seed,
+            system_id_hash: Self::hash_str(system_id),
+            tick,
+            call_count: 0,
+        }
+    }
+
     /// Advances to a new tick — reseeds for this system at the new tick.
     pub fn advance_tick(&mut self, new_tick: u64) {
         self.tick = new_tick;
@@ -59,6 +74,11 @@ impl DeterministicRng {
     /// Returns the next f32 in [0.0, 1.0).
     pub fn next_f32(&mut self) -> f32 {
         self.next_f64() as f32
+    }
+
+    /// Returns the next Fixed64 value in [0, 1).
+    pub fn next_fixed64(&mut self) -> Fixed64 {
+        Fixed64::from_raw(self.next_u64_below(FIXED64_SCALE as u64) as i64)
     }
 
     /// Returns the next u64.
@@ -98,9 +118,29 @@ impl DeterministicRng {
         min + self.next_f64() * (max - min)
     }
 
+    /// Returns a random Fixed64 in [min, max).
+    pub fn next_fixed64_range(&mut self, min: Fixed64, max: Fixed64) -> Fixed64 {
+        if min >= max {
+            return min;
+        }
+        min + (max - min) * self.next_fixed64()
+    }
+
     /// Returns true with the given probability (0.0-1.0).
     pub fn chance(&mut self, probability: f64) -> bool {
         self.next_f64() < probability.clamp(0.0, 1.0)
+    }
+
+    /// Returns true with the given fixed-point probability.
+    pub fn chance_fixed64(&mut self, probability: Fixed64) -> bool {
+        let probability = if probability < Fixed64::ZERO {
+            Fixed64::ZERO
+        } else if probability > Fixed64::ONE {
+            Fixed64::ONE
+        } else {
+            probability
+        };
+        self.next_fixed64() < probability
     }
 
     /// Returns the number of values generated since last seed/tick advance.

@@ -20,7 +20,7 @@
 
 import type { CGSStore } from '../state/cgs_store';
 import type { UIStore }  from '../state/ui_store';
-import type { CGS, CGSActor, CGSComponent, CGSMode, CGSSystem } from '../types/cgs';
+import type { CGSActor, CGSComponent, CGSMode, CGSSystem } from '../types/cgs';
 
 const ACTOR_DOT_COLOR: Record<string, string> = {
   PlayerCharacter: '#3b8bd4',
@@ -188,7 +188,7 @@ export class EntityTree {
 
       // Entities section
       const entOpen = expSec.has(`entities:${mode.id}`);
-      frag.appendChild(this._sectionRow('Entities', `entities:${mode.id}`, entOpen, 14, true));
+      frag.appendChild(this._sectionRow('Entities', `entities:${mode.id}`, 14, true));
       if (entOpen) {
         for (const actor of mode.actors) {
           if (query && !actor.id.toLowerCase().includes(query)) continue;
@@ -211,7 +211,7 @@ export class EntityTree {
 
       // Systems section (condensed in tree)
       const sysOpen = expSec.has(`systems:${mode.id}`);
-      frag.appendChild(this._sectionRow('Systems', `systems:${mode.id}`, sysOpen, 14, true));
+      frag.appendChild(this._sectionRow('Systems', `systems:${mode.id}`, 14, true));
       if (sysOpen) {
         for (const sys of mode.systems) {
           if (query && !sys.id.toLowerCase().includes(query)) continue;
@@ -223,7 +223,7 @@ export class EntityTree {
     // ── Global Systems ───────────────────────────────────────────────────
     if (cgs.global_systems.length > 0) {
       const gsOpen = expSec.has('global_systems');
-      frag.appendChild(this._sectionRow('Global Systems', 'global_systems', gsOpen, 0, false));
+      frag.appendChild(this._sectionRow('Global Systems', 'global_systems', 0, false));
       if (gsOpen) {
         for (const sys of cgs.global_systems) {
           if (query && !sys.id.toLowerCase().includes(query)) continue;
@@ -252,7 +252,7 @@ export class EntityTree {
   }
 
   private _sectionRow(
-    label: string, key: string, isOpen: boolean,
+    label: string, key: string,
     indent: number, showAdd: boolean,
   ): HTMLElement {
     const row = document.createElement('div');

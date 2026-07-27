@@ -19,7 +19,7 @@
 import type { CGSStore }    from '../state/cgs_store';
 import type { UIStore }     from '../state/ui_store';
 import type { CGSComponent, CGSFieldValue } from '../types/cgs';
-import { allSystems, findActor }            from '../types/cgs';
+import { allSystems }                       from '../types/cgs';
 
 const STYLES = `
 .xb-ci {

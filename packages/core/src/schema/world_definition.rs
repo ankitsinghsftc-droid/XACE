@@ -20,6 +20,7 @@
 //! configures its physics engine, lighting system, and time-of-day
 //! system accordingly. XACE never calls physics or lighting APIs directly.
 
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 // ── Map Type ──────────────────────────────────────────────────────────────────
@@ -207,45 +208,45 @@ impl Default for TimeSystem {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WorldSize {
     /// Width of the world in world units (X axis).
-    pub width: f32,
+    pub width: Fixed64,
     /// Height of the world in world units (Y axis).
     /// For 2D games this is the vertical extent of the playfield.
-    pub height: f32,
+    pub height: Fixed64,
     /// Depth of the world in world units (Z axis).
     /// For 2D games this is typically set to 0.
-    pub depth: f32,
+    pub depth: Fixed64,
 }
 
 impl WorldSize {
     /// A small arena — suitable for tight combat or puzzle maps.
     pub const SMALL: WorldSize = WorldSize {
-        width: 100.0,
-        height: 50.0,
-        depth: 100.0,
+        width: Fixed64::from_units(100),
+        height: Fixed64::from_units(50),
+        depth: Fixed64::from_units(100),
     };
 
     /// A medium map — suitable for most action and adventure games.
     pub const MEDIUM: WorldSize = WorldSize {
-        width: 500.0,
-        height: 200.0,
-        depth: 500.0,
+        width: Fixed64::from_units(500),
+        height: Fixed64::from_units(200),
+        depth: Fixed64::from_units(500),
     };
 
     /// A large open world — suitable for exploration and sandbox games.
     pub const LARGE: WorldSize = WorldSize {
-        width: 2000.0,
-        height: 500.0,
-        depth: 2000.0,
+        width: Fixed64::from_units(2000),
+        height: Fixed64::from_units(500),
+        depth: Fixed64::from_units(2000),
     };
 
     /// Infinite world — used with Infinite3D map type and WorldStreaming.
     pub const INFINITE: WorldSize = WorldSize {
-        width: f32::MAX,
-        height: f32::MAX,
-        depth: f32::MAX,
+        width: Fixed64::MAX,
+        height: Fixed64::MAX,
+        depth: Fixed64::MAX,
     };
 
-    pub fn new(width: f32, height: f32, depth: f32) -> Self {
+    pub fn new(width: Fixed64, height: Fixed64, depth: Fixed64) -> Self {
         Self {
             width,
             height,
@@ -255,7 +256,7 @@ impl WorldSize {
 
     /// Returns true if this is a 2D world (depth is zero or near-zero).
     pub fn is_2d(&self) -> bool {
-        self.depth < 1.0
+        self.depth < Fixed64::ONE
     }
 }
 
@@ -270,56 +271,56 @@ impl Default for WorldSize {
 /// Gravity vector for this world's physics simulation.
 ///
 /// Expressed as acceleration in world units per second squared.
-/// Standard Earth gravity is approximately (0, -9.81, 0).
+/// Standard Earth gravity is approximately (0, -9.81, 0) in Fixed64 units.
 /// The engine adapter applies this to all rigidbody entities
 /// that do not have gravity disabled in COMP_RIGIDBODY_V1.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Gravity {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
 }
 
 impl Gravity {
     /// Standard Earth-like gravity pulling downward on Y axis.
     pub const EARTH: Gravity = Gravity {
-        x: 0.0,
-        y: -9.81,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::from_millis(-9810),
+        z: Fixed64::ZERO,
     };
 
     /// No gravity — used for space and zero-g environments.
     pub const ZERO: Gravity = Gravity {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::ZERO,
+        z: Fixed64::ZERO,
     };
 
     /// Low gravity — moon-like, good for floaty platformers.
     pub const LOW: Gravity = Gravity {
-        x: 0.0,
-        y: -2.5,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::from_millis(-2500),
+        z: Fixed64::ZERO,
     };
 
     /// High gravity — heavy, oppressive, good for horror or weight.
     pub const HIGH: Gravity = Gravity {
-        x: 0.0,
-        y: -20.0,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::from_units(-20),
+        z: Fixed64::ZERO,
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self { x, y, z }
     }
 
-    /// Returns true if gravity is effectively zero in all axes.
+    /// Returns true if gravity is zero in all axes.
     pub fn is_zero(&self) -> bool {
-        self.x.abs() < 1e-6 && self.y.abs() < 1e-6 && self.z.abs() < 1e-6
+        self.x.is_zero() && self.y.is_zero() && self.z.is_zero()
     }
 
     /// Returns the magnitude of the gravity vector.
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> Fixed64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 }
@@ -394,7 +395,11 @@ impl WorldDefinition {
         Self {
             map_type: MapType::Sidescroller2D,
             environment_type: EnvironmentType::Outdoor,
-            size: WorldSize::new(1000.0, 200.0, 0.0),
+            size: WorldSize::new(
+                Fixed64::from_units(1000),
+                Fixed64::from_units(200),
+                Fixed64::ZERO,
+            ),
             physics_profile: PhysicsProfile::Simple,
             time_system: TimeSystem::Static,
             day_length_ticks: 0,
@@ -407,7 +412,11 @@ impl WorldDefinition {
         Self {
             map_type: MapType::TopDown2D,
             environment_type: EnvironmentType::Outdoor,
-            size: WorldSize::new(500.0, 0.0, 500.0),
+            size: WorldSize::new(
+                Fixed64::from_units(500),
+                Fixed64::ZERO,
+                Fixed64::from_units(500),
+            ),
             physics_profile: PhysicsProfile::Simple,
             time_system: TimeSystem::Static,
             day_length_ticks: 0,
@@ -466,7 +475,7 @@ mod tests {
     fn standard_3d_has_earth_gravity() {
         let w = WorldDefinition::standard_3d();
         assert!(!w.gravity.is_zero());
-        assert!((w.gravity.y - (-9.81)).abs() < 1e-5);
+        assert_eq!(w.gravity.y, Fixed64::from_millis(-9810));
     }
 
     #[test]
@@ -531,7 +540,7 @@ mod tests {
     #[test]
     fn gravity_magnitude_earth() {
         let g = Gravity::EARTH;
-        assert!((g.magnitude() - 9.81).abs() < 1e-3);
+        assert_eq!(g.magnitude(), Fixed64::from_millis(9810));
     }
 
     #[test]
@@ -541,7 +550,11 @@ mod tests {
 
     #[test]
     fn world_size_2d_detection() {
-        let size = WorldSize::new(500.0, 200.0, 0.0);
+        let size = WorldSize::new(
+            Fixed64::from_units(500),
+            Fixed64::from_units(200),
+            Fixed64::ZERO,
+        );
         assert!(size.is_2d());
     }
 

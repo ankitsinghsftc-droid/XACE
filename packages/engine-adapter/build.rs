@@ -41,7 +41,6 @@ fn main() {
     {
         Ok(bindings) => {
             bindings.write_to_file(format!("{}/include/xace.h", crate_dir));
-            println!("cargo:warning=xace.h generated successfully");
         }
         Err(e) => {
             // Non-fatal: the committed header is still valid for P/Invoke

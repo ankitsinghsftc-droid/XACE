@@ -128,22 +128,21 @@ impl SnapshotRecovery {
         reason: SnapshotReason,
     ) -> Result<SnapshotPayload, XaceError> {
         // Validate the snapshot before building — don't send a corrupted snapshot
-        world_snapshot.validate().map_err(|e| XaceError::FatalError {
-            message: format!(
-                "SnapshotRecovery: WorldSnapshot validation failed — {}",
-                e
-            ),
-            context: ErrorContext::new("SnapshotRecovery", "build_payload")
-                .with_tick(world_snapshot.tick),
-            snapshot_recovery_possible: false,
-        })?;
+        world_snapshot
+            .validate()
+            .map_err(|e| XaceError::FatalError {
+                message: format!("SnapshotRecovery: WorldSnapshot validation failed — {}", e),
+                context: ErrorContext::new("SnapshotRecovery", "build_payload")
+                    .with_tick(world_snapshot.tick),
+                snapshot_recovery_possible: false,
+            })?;
 
         // Update metrics counter for this reason type
         match reason {
-            SnapshotReason::InitialConnection  => self.metrics.initial_connection_count += 1,
-            SnapshotReason::DesyncRecovery     => self.metrics.desync_recovery_count += 1,
-            SnapshotReason::ExplicitRequest    => self.metrics.explicit_request_count += 1,
-            SnapshotReason::PeriodicRefresh    => {}
+            SnapshotReason::InitialConnection => self.metrics.initial_connection_count += 1,
+            SnapshotReason::DesyncRecovery => self.metrics.desync_recovery_count += 1,
+            SnapshotReason::ExplicitRequest => self.metrics.explicit_request_count += 1,
+            SnapshotReason::PeriodicRefresh => {}
         }
 
         let mut payload = SnapshotPayload::new(
@@ -170,10 +169,8 @@ impl SnapshotRecovery {
                 _ => continue,
             }
 
-            let mut wire_entity = SnapshotEntityRecord::new(
-                entity_record.entity_id,
-                entity_record.state.clone(),
-            );
+            let mut wire_entity =
+                SnapshotEntityRecord::new(entity_record.entity_id, entity_record.state.clone());
             wire_entity.tags = entity_record.tags.clone();
 
             // Collect all component data for this entity from all tables
@@ -214,8 +211,7 @@ impl SnapshotRecovery {
         payload.is_full = false;
 
         // Filter to only the requested entity IDs
-        let id_set: std::collections::BTreeSet<u64> =
-            entity_ids.iter().copied().collect();
+        let id_set: std::collections::BTreeSet<u64> = entity_ids.iter().copied().collect();
         payload.entities.retain(|e| id_set.contains(&e.entity_id));
 
         Ok(payload)
@@ -240,29 +236,30 @@ impl SnapshotRecovery {
 mod tests {
     use super::*;
     use xace_core::entity_state::EntityState;
-    use xace_core::runtime::world_snapshot::{
-        ComponentTableSnapshot, EntityRecord, WorldSnapshot,
-    };
+    use xace_core::runtime::world_snapshot::{ComponentTableSnapshot, EntityRecord, WorldSnapshot};
 
     fn recovery() -> SnapshotRecovery {
         SnapshotRecovery::new("0.1.0", 1, 0)
     }
 
-    fn world_snapshot_with_entities(
-        tick: u64,
-        entities: Vec<(u64, EntityState)>,
-    ) -> WorldSnapshot {
+    fn world_snapshot_with_entities(tick: u64, entities: Vec<(u64, EntityState)>) -> WorldSnapshot {
         let mut snap = WorldSnapshot::empty("0.1.0", 1, 42);
         snap.tick = tick;
-        snap.world_hash = "hash_abc".into();
-        snap.cgs_hash = "cgs_hash".into();
+        snap.world_hash = "a".repeat(64);
+        snap.cgs_hash = "b".repeat(64);
 
         for (id, state) in entities {
             snap.entity_store_snapshot
                 .entities
                 .push(EntityRecord::new(id, state, 0));
         }
-        if let Some(max_id) = snap.entity_store_snapshot.entities.iter().map(|e| e.entity_id).max() {
+        if let Some(max_id) = snap
+            .entity_store_snapshot
+            .entities
+            .iter()
+            .map(|e| e.entity_id)
+            .max()
+        {
             snap.entity_store_snapshot.next_entity_id = max_id + 1;
         }
         snap
@@ -273,11 +270,13 @@ mod tests {
     #[test]
     fn build_payload_includes_active_entities() {
         let mut r = recovery();
-        let snap = world_snapshot_with_entities(1, vec![
-            (1, EntityState::Active),
-            (2, EntityState::Active),
-        ]);
-        let payload = r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
+        let snap = world_snapshot_with_entities(
+            1,
+            vec![(1, EntityState::Active), (2, EntityState::Active)],
+        );
+        let payload = r
+            .build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
         assert_eq!(payload.entity_count(), 2);
         assert!(payload.contains_entity(1));
         assert!(payload.contains_entity(2));
@@ -286,24 +285,31 @@ mod tests {
     #[test]
     fn build_payload_includes_disabled_entities() {
         let mut r = recovery();
-        let snap = world_snapshot_with_entities(1, vec![
-            (1, EntityState::Active),
-            (2, EntityState::Disabled),
-        ]);
-        let payload = r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
+        let snap = world_snapshot_with_entities(
+            1,
+            vec![(1, EntityState::Active), (2, EntityState::Disabled)],
+        );
+        let payload = r
+            .build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
         assert_eq!(payload.entity_count(), 2);
     }
 
     #[test]
     fn build_payload_excludes_destroyed_and_archived() {
         let mut r = recovery();
-        let snap = world_snapshot_with_entities(1, vec![
-            (1, EntityState::Active),
-            (2, EntityState::Destroyed),
-            (3, EntityState::Archived),
-            (4, EntityState::DestroyRequested),
-        ]);
-        let payload = r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
+        let snap = world_snapshot_with_entities(
+            1,
+            vec![
+                (1, EntityState::Active),
+                (2, EntityState::Destroyed),
+                (3, EntityState::Archived),
+                (4, EntityState::DestroyRequested),
+            ],
+        );
+        let payload = r
+            .build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
         assert_eq!(payload.entity_count(), 1);
         assert!(payload.contains_entity(1));
         assert!(!payload.contains_entity(2));
@@ -317,9 +323,11 @@ mod tests {
         let snap = world_snapshot_with_entities(42, vec![]);
         // Empty snap needs a world_hash — re-add manually
         let mut snap2 = snap;
-        snap2.world_hash = "h".into();
+        snap2.world_hash = "a".repeat(64);
         // validate() requires world_hash non-empty and plan_version >= 1
-        let payload = r.build_payload(&snap2, SnapshotReason::InitialConnection).unwrap();
+        let payload = r
+            .build_payload(&snap2, SnapshotReason::InitialConnection)
+            .unwrap();
         assert_eq!(payload.tick, 42);
     }
 
@@ -327,8 +335,10 @@ mod tests {
     fn build_payload_carries_last_delta_sequence_id() {
         let mut r = SnapshotRecovery::new("0.1.0", 1, 55);
         let mut snap = world_snapshot_with_entities(1, vec![]);
-        snap.world_hash = "h".into();
-        let payload = r.build_payload(&snap, SnapshotReason::DesyncRecovery).unwrap();
+        snap.world_hash = "a".repeat(64);
+        let payload = r
+            .build_payload(&snap, SnapshotReason::DesyncRecovery)
+            .unwrap();
         assert_eq!(payload.last_delta_sequence_id, 55);
     }
 
@@ -338,13 +348,15 @@ mod tests {
     fn build_payload_includes_component_data() {
         let mut r = recovery();
         let mut snap = world_snapshot_with_entities(1, vec![(1, EntityState::Active)]);
-        snap.world_hash = "h".into();
+        snap.world_hash = "a".repeat(64);
 
         let mut table = ComponentTableSnapshot::new(1, "COMP_TRANSFORM_V1");
         table.set(1, r#"{"x":10,"y":20}"#);
         snap.component_tables_snapshot.set_table(table);
 
-        let payload = r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
+        let payload = r
+            .build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
         let entity = payload.get_entity(1).unwrap();
         assert_eq!(entity.component_count(), 1);
         assert!(entity.has_component(1));
@@ -357,12 +369,15 @@ mod tests {
     #[test]
     fn build_partial_payload_filters_to_requested_entities() {
         let mut r = recovery();
-        let mut snap = world_snapshot_with_entities(1, vec![
-            (1, EntityState::Active),
-            (2, EntityState::Active),
-            (3, EntityState::Active),
-        ]);
-        snap.world_hash = "h".into();
+        let mut snap = world_snapshot_with_entities(
+            1,
+            vec![
+                (1, EntityState::Active),
+                (2, EntityState::Active),
+                (3, EntityState::Active),
+            ],
+        );
+        snap.world_hash = "a".repeat(64);
 
         let payload = r
             .build_partial_payload(&snap, &[1, 3], SnapshotReason::InitialConnection)
@@ -389,11 +404,14 @@ mod tests {
     fn metrics_count_snapshots_by_reason() {
         let mut r = recovery();
         let mut snap = world_snapshot_with_entities(1, vec![(1, EntityState::Active)]);
-        snap.world_hash = "h".into();
+        snap.world_hash = "a".repeat(64);
 
-        r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
-        r.build_payload(&snap, SnapshotReason::DesyncRecovery).unwrap();
-        r.build_payload(&snap, SnapshotReason::ExplicitRequest).unwrap();
+        r.build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
+        r.build_payload(&snap, SnapshotReason::DesyncRecovery)
+            .unwrap();
+        r.build_payload(&snap, SnapshotReason::ExplicitRequest)
+            .unwrap();
 
         let m = r.metrics();
         assert_eq!(m.snapshots_built, 3);
@@ -405,14 +423,15 @@ mod tests {
     #[test]
     fn metrics_count_entities_and_components() {
         let mut r = recovery();
-        let snap = world_snapshot_with_entities(1, vec![
-            (1, EntityState::Active),
-            (2, EntityState::Active),
-        ]);
+        let snap = world_snapshot_with_entities(
+            1,
+            vec![(1, EntityState::Active), (2, EntityState::Active)],
+        );
         let mut snap = snap;
-        snap.world_hash = "h".into();
+        snap.world_hash = "a".repeat(64);
 
-        r.build_payload(&snap, SnapshotReason::InitialConnection).unwrap();
+        r.build_payload(&snap, SnapshotReason::InitialConnection)
+            .unwrap();
         assert_eq!(r.metrics().total_entities_sent, 2);
     }
 

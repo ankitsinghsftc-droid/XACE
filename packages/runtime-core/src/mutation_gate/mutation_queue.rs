@@ -2,7 +2,9 @@
 //!
 //! Per-type deferred mutation queues. The MutationGate maintains five
 //! queues — one per mutation operation type. All mutations submitted
-//! during a phase are deferred here and applied atomically at phase end.
+//! during a phase are deferred here and applied in deterministic order at phase
+//! end. MutationGate captures and restores these queues as part of its
+//! apply-time atomic rollback contract.
 //!
 //! ## Queue Types (D4 application order)
 //! 1. spawn_queue    — new entity creation with initial components
@@ -21,13 +23,14 @@
 //! The MutationValidator pre-validates before enqueueing to prevent
 //! invalid operations from reaching apply time.
 
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use xace_core::entity_id::EntityID;
 
 // ── Spawn Request ─────────────────────────────────────────────────────────────
 
 /// A request to spawn a new entity with initial component data.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SpawnRequest {
     /// The actor definition ID this entity is spawned from.
     /// Empty string if spawned without a blueprint.
@@ -44,7 +47,7 @@ pub struct SpawnRequest {
 // ── Component Add Request ─────────────────────────────────────────────────────
 
 /// A request to add a component to an existing entity.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComponentAddRequest {
     pub entity_id: EntityID,
     pub component_type_id: u32,
@@ -55,7 +58,7 @@ pub struct ComponentAddRequest {
 // ── Component Modify Request ──────────────────────────────────────────────────
 
 /// A request to update a component on an existing entity.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComponentModifyRequest {
     pub entity_id: EntityID,
     pub component_type_id: u32,
@@ -66,7 +69,7 @@ pub struct ComponentModifyRequest {
 // ── Component Remove Request ──────────────────────────────────────────────────
 
 /// A request to remove a component from an entity.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ComponentRemoveRequest {
     pub entity_id: EntityID,
     pub component_type_id: u32,
@@ -76,7 +79,7 @@ pub struct ComponentRemoveRequest {
 // ── Destroy Request ───────────────────────────────────────────────────────────
 
 /// A request to destroy an entity.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DestroyRequest {
     pub entity_id: EntityID,
     pub requested_tick: u64,
@@ -88,7 +91,7 @@ pub struct DestroyRequest {
 ///
 /// Queues accumulate during phase execution.
 /// Applied in strict order by MutationGate.apply_all() (D4).
-#[derive(Default)]
+#[derive(Clone, Default, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MutationQueues {
     /// Queue 1 — entity spawns (applied first)
     pub spawn_queue: Vec<SpawnRequest>,
@@ -130,7 +133,8 @@ impl MutationQueues {
     }
 
     /// Clears all queues without applying them.
-    /// Used for rollback when a transaction fails.
+    /// Atomic apply-time rollback restores the captured queue image before
+    /// reporting failure; callers may still explicitly discard a failed batch.
     pub fn discard_all(&mut self) {
         self.spawn_queue.clear();
         self.add_queue.clear();

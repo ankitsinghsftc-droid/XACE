@@ -38,8 +38,7 @@ use std::sync::OnceLock;
 
 use crate::metrics::METRICS;
 use crate::observable::Observable;
-use crate::trace::{Span, SpanId, SpanRecord, SpanStatus, TraceId, TraceLog};
-
+use crate::trace::{Span, SpanId, SpanRecord, TraceId, TraceLog};
 
 // ── Global Tracer ─────────────────────────────────────────────────────────────
 
@@ -82,7 +81,6 @@ impl TracerRef {
     }
 }
 
-
 // ── Tracer ────────────────────────────────────────────────────────────────────
 
 #[derive(Default)]
@@ -92,11 +90,11 @@ pub struct Tracer {
 
 impl Tracer {
     pub fn enter(&self, name: &str, explicit_parent: Option<SpanId>) -> SpanId {
-        let trace_id  = THREAD_CONTEXT.with(|ctx| ctx.borrow().active_trace_id);
-        let parent_id = explicit_parent
-            .or_else(|| THREAD_CONTEXT.with(|ctx| ctx.borrow().current_span_id()));
-        let span      = Span::new(name, trace_id, parent_id);
-        let id        = span.span_id;
+        let trace_id = THREAD_CONTEXT.with(|ctx| ctx.borrow().active_trace_id);
+        let parent_id =
+            explicit_parent.or_else(|| THREAD_CONTEXT.with(|ctx| ctx.borrow().current_span_id()));
+        let span = Span::new(name, trace_id, parent_id);
+        let id = span.span_id;
 
         THREAD_CONTEXT.with(|ctx| {
             ctx.borrow_mut().push(span);
@@ -109,11 +107,11 @@ impl Tracer {
     }
 
     pub fn exit(&self, id: SpanId) {
-        let record = THREAD_CONTEXT.with(|ctx| {
-            ctx.borrow_mut().pop(id)
-        });
+        let record = THREAD_CONTEXT.with(|ctx| ctx.borrow_mut().pop(id));
         if let Some(record) = record {
-            METRICS.histogram("span_duration_us").record(record.duration_us as f64);
+            METRICS
+                .histogram("span_duration_us")
+                .record(record.duration_us as f64);
             self.log.push(record);
         }
     }
@@ -134,10 +132,9 @@ impl Tracer {
         // Swap the log path. Existing log object is replaced.
         // This is safe to call only at startup before any spans are emitted.
         let _ = log_path; // TraceLog path is set at construction — for now, log to memory
-        // TODO: reinitialise log with new path
+                          // TODO: reinitialise log with new path
     }
 }
-
 
 // ── Thread-Local Context ──────────────────────────────────────────────────────
 
@@ -148,7 +145,7 @@ thread_local! {
 #[derive(Default)]
 struct ThreadSpanContext {
     active_trace_id: TraceId,
-    stack:           Vec<Span>,    // innermost span is at the back
+    stack: Vec<Span>, // innermost span is at the back
 }
 
 impl ThreadSpanContext {
@@ -174,7 +171,6 @@ impl ThreadSpanContext {
     }
 }
 
-
 // ── ScopedSpan (RAII) ─────────────────────────────────────────────────────────
 
 /// A span that automatically closes when dropped.
@@ -186,16 +182,19 @@ impl ThreadSpanContext {
 /// }  // span closed here
 /// ```
 pub struct ScopedSpan {
-    id:        SpanId,
+    id: SpanId,
     has_error: std::sync::atomic::AtomicBool,
 }
 
 impl ScopedSpan {
-    pub fn id(&self) -> SpanId { self.id }
+    pub fn id(&self) -> SpanId {
+        self.id
+    }
 
     /// Marks this span as failed. The status is recorded when the span closes.
     pub fn mark_error(&self) {
-        self.has_error.store(true, std::sync::atomic::Ordering::Relaxed);
+        self.has_error
+            .store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub fn add_attribute(&self, key: &str, value: &str) {
@@ -216,7 +215,7 @@ impl Drop for ScopedSpan {
 /// let _span = enter_span("tick", [("tick_number", &tick.to_string())]);
 /// ```
 pub fn enter_span<'a>(
-    name:       &str,
+    name: &str,
     attributes: impl IntoIterator<Item = (&'a str, &'a str)>,
 ) -> ScopedSpan {
     let id = TRACER.enter(name, None);
@@ -232,9 +231,12 @@ pub fn enter_span<'a>(
 /// Returns the currently active TraceId on this thread.
 pub fn current_trace_id() -> Option<TraceId> {
     let id = THREAD_CONTEXT.with(|ctx| ctx.borrow().active_trace_id);
-    if id.is_zero() { None } else { Some(id) }
+    if id.is_zero() {
+        None
+    } else {
+        Some(id)
+    }
 }
-
 
 // ── GlobalObservable ──────────────────────────────────────────────────────────
 
@@ -272,7 +274,8 @@ impl Observable for GlobalObservable {
     }
 
     fn log_event(&self, message: &str, attributes: &[(&str, &str)]) {
-        let attrs: String = attributes.iter()
+        let attrs: String = attributes
+            .iter()
             .map(|(k, v)| format!(" {}={}", k, v))
             .collect();
         // TODO: structured log sink; for now write to stderr in dev builds

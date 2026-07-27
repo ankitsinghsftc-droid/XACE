@@ -128,6 +128,50 @@ export interface MutationTransaction {
   readonly mutation_summary:  string;
 }
 
+export interface PromptPreviewApproval {
+  readonly schema?: 'xace.prompt_preview_approval.v1';
+  readonly preview_id: string;
+  readonly approval_token: string;
+  readonly approval_source?: string;
+  readonly approved_by?: string;
+}
+
+export interface PromptDiffPreviewOperation {
+  readonly index: number;
+  readonly op: string;
+  readonly path: string;
+  readonly old_value: unknown;
+  readonly new_value: unknown;
+  readonly preview_value: unknown;
+  readonly type_hint: string;
+  readonly field_name: string;
+  readonly actor_id: string;
+  readonly component_type_id: number | null;
+}
+
+export interface PromptDiffPreview {
+  readonly schema: 'xace.prompt_diff_preview.v1';
+  readonly preview_id: string;
+  readonly approval_token: string;
+  readonly approval_token_hash: string;
+  readonly approval_required: boolean;
+  readonly parent_cgs_hash: string;
+  readonly transaction_fingerprint: string;
+  readonly mutation_summary: string;
+  readonly risk_level: string;
+  readonly confidence: number;
+  readonly cgs_diff: {
+    readonly schema: 'xace.prompt_diff_preview.cgs.v1';
+    readonly operation_count: number;
+    readonly operations: PromptDiffPreviewOperation[];
+  };
+  readonly system_diff: Record<string, unknown>;
+  readonly asset_diff: Record<string, unknown>;
+  readonly sgc_diff: Record<string, unknown>;
+  readonly runtime_diff: Record<string, unknown>;
+  readonly cost_diff: Record<string, unknown>;
+}
+
 // ── Clarification ─────────────────────────────────────────────────────────────
 
 export type QuestionType =
@@ -143,6 +187,62 @@ export interface ClarificationQuestion {
   readonly options:       string[];
   readonly hint:          string;
   readonly parameter_key: string;
+}
+
+export interface PromptClassifierResult {
+  readonly schema: 'xace.prompt_classifier_result.v1';
+  readonly matrix_hash: string;
+  readonly matrix_version: number;
+  readonly category_id: string;
+  readonly category_label: string;
+  readonly builder_decision: string;
+  readonly builder_result_kind: string;
+  readonly provider_call_policy: string;
+  readonly mutation_policy: string;
+  readonly product_wording: string;
+  readonly builder_copy: string;
+  readonly confidence: number;
+  readonly reason: string;
+  readonly route: string;
+  readonly matched_example_id: string;
+  readonly signals: string[];
+  readonly provider_call_allowed: boolean;
+  readonly mutation_allowed: boolean;
+  readonly may_continue_to_pil: boolean;
+}
+
+export interface PromptApplyFeedbackSection {
+  readonly schema?: string;
+  readonly required?: boolean;
+  readonly attempted?: boolean;
+  readonly accepted?: boolean | null;
+  readonly ok?: boolean | null;
+  readonly status?: string;
+  readonly reason?: string;
+  readonly [key: string]: unknown;
+}
+
+export interface PromptApplyFeedback {
+  readonly schema: 'xace.prompt_apply_feedback.v1';
+  readonly ok: boolean;
+  readonly stage: string;
+  readonly code: string;
+  readonly message: string;
+  readonly transaction_id: string;
+  readonly classifier: PromptClassifierResult | null;
+  readonly diff: PromptDiffPreview | null;
+  readonly sgc: PromptApplyFeedbackSection;
+  readonly runtime_load: PromptApplyFeedbackSection;
+  readonly replay: PromptApplyFeedbackSection;
+  readonly adapter: PromptApplyFeedbackSection;
+  readonly rollback: PromptApplyFeedbackSection;
+  readonly cost: PromptApplyFeedbackSection;
+  readonly latency: PromptApplyFeedbackSection;
+  readonly proof_links: PromptApplyFeedbackSection;
+  readonly approval: Record<string, unknown>;
+  readonly authority: PromptApplyFeedbackSection;
+  readonly warnings: unknown[];
+  readonly error: PromptApplyFeedbackSection;
 }
 
 // ── Safety ────────────────────────────────────────────────────────────────────
@@ -166,6 +266,7 @@ interface PILResultBase {
   readonly intent_category:     string;
   readonly confidence:          number;
   readonly mode_profile_warnings: string[];
+  readonly classifier?: PromptClassifierResult;
 }
 
 export interface MutationResult extends PILResultBase {
@@ -173,6 +274,8 @@ export interface MutationResult extends PILResultBase {
   readonly transaction:    MutationTransaction;
   readonly auto_committed: boolean;
   readonly diff_text:      string;
+  readonly approval_required?: boolean;
+  readonly preview?:       PromptDiffPreview;
 }
 
 export interface ClarificationResult extends PILResultBase {
@@ -180,6 +283,9 @@ export interface ClarificationResult extends PILResultBase {
   readonly questions:                ClarificationQuestion[];
   readonly clarification_session_id: string;
   readonly reason:                   string;
+  readonly clarification_schema?:    string;
+  readonly requires_user_resolution?: boolean;
+  readonly resolution_required_before_mutation?: boolean;
 }
 
 export interface BlockedResult extends PILResultBase {

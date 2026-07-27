@@ -38,6 +38,7 @@
 use crate::entity_id::EntityID;
 use crate::entity_metadata::Tick;
 use crate::entity_state::EntityState;
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
@@ -399,10 +400,9 @@ pub struct WorldSnapshot {
     /// Immutable after creation.
     pub tick: Tick,
 
-    /// Real time in seconds at snapshot time.
-    /// Derived from tick × (1.0 / simulation_rate).
-    /// Informational only — runtime always uses tick, never time_seconds.
-    pub time_seconds: f64,
+    /// Fixed-point seconds at snapshot time.
+    /// Informational only; runtime authority remains `tick`.
+    pub time_seconds: Fixed64,
 
     /// The CGS semantic version active when this snapshot was taken.
     /// Must match current CGS version on restore (I7, D10).
@@ -448,7 +448,7 @@ impl WorldSnapshot {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         tick: Tick,
-        time_seconds: f64,
+        time_seconds: Fixed64,
         schema_version: impl Into<String>,
         execution_plan_version: u32,
         cgs_hash: impl Into<String>,
@@ -484,7 +484,7 @@ impl WorldSnapshot {
     ) -> Self {
         Self {
             tick: 0,
-            time_seconds: 0.0,
+            time_seconds: Fixed64::ZERO,
             schema_version: schema_version.into(),
             execution_plan_version,
             cgs_hash: String::new(),
@@ -502,7 +502,7 @@ impl WorldSnapshot {
     pub fn minimal(tick: Tick, schema_version: String, world_hash: String) -> Self {
         Self {
             tick,
-            time_seconds: 0.0,
+            time_seconds: Fixed64::ZERO,
             schema_version,
             execution_plan_version: 1,
             cgs_hash: String::new(),
@@ -625,10 +625,14 @@ impl WorldSnapshot {
 mod tests {
     use super::*;
 
+    const TEST_WORLD_HASH: &str =
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const TEST_CGS_HASH: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
     fn test_snapshot() -> WorldSnapshot {
         let mut snapshot = WorldSnapshot::empty("0.1.0", 1, 12345);
-        snapshot.world_hash = "hash_abc123".into();
-        snapshot.cgs_hash = "cgs_hash_xyz".into();
+        snapshot.world_hash = TEST_WORLD_HASH.into();
+        snapshot.cgs_hash = TEST_CGS_HASH.into();
         snapshot
     }
 
@@ -636,7 +640,7 @@ mod tests {
     fn empty_snapshot_is_at_tick_zero() {
         let snap = WorldSnapshot::empty("0.1.0", 1, 42);
         assert_eq!(snap.tick, 0);
-        assert_eq!(snap.time_seconds, 0.0);
+        assert_eq!(snap.time_seconds, Fixed64::ZERO);
     }
 
     #[test]
@@ -680,7 +684,7 @@ mod tests {
 
     #[test]
     fn validate_fails_for_empty_world_hash() {
-        let mut snap = WorldSnapshot::empty("0.1.0", 1, 42);
+        let snap = WorldSnapshot::empty("0.1.0", 1, 42);
         assert!(snap.validate().is_err());
     }
 

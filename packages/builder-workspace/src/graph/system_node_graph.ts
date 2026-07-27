@@ -13,7 +13,6 @@
  *   - Clicking a system box selects it in uiStore → populates entity inspector
  */
 
-import type { CGSGraph, CGSGraphNode, LocatedSystem } from '../types/cgs';
 import type { UIStore } from '../state/ui_store';
 import type { CGSStore } from '../state/cgs_store';
 import { allSystems } from '../types/cgs';

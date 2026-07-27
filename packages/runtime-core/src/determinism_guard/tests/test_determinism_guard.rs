@@ -619,7 +619,7 @@ mod tests {
 
     #[test]
     fn world_hasher_schema_version_change_changes_hash() {
-        let mut a = empty_snap(1);
+        let a = empty_snap(1);
         let mut b = empty_snap(1);
         b.schema_version = "0.2.0".into();
         assert_ne!(
@@ -797,7 +797,7 @@ mod tests {
     fn golden_log_round_trip_via_json_preserves_all_entries() {
         let mut log = GoldenLog::new("0.1.0", 1);
         for tick in 0..5 {
-            log.record(tick, format!("hash_{}", tick));
+            log.record(tick, format!("{tick:064x}"));
         }
 
         // Serialize and deserialize via serde_json
@@ -807,7 +807,7 @@ mod tests {
 
         assert_eq!(restored.tick_count(), 5);
         for tick in 0..5 {
-            assert_eq!(restored.get(tick), Some(format!("hash_{}", tick).as_str()));
+            assert_eq!(restored.get(tick), Some(format!("{tick:064x}").as_str()));
         }
     }
 

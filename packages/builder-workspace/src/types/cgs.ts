@@ -74,6 +74,11 @@ export interface CGSComponent {
   readonly defaults: CGSComponentDefaults;
 }
 
+export interface CGSComponentSchema extends CGSComponent {
+  /** Provenance label for schema-only tables, e.g. "generated" or "plugin" */
+  readonly source?: string;
+}
+
 export interface CGSActor {
   readonly id:           string;
   readonly actor_type:   ActorType;
@@ -90,6 +95,7 @@ export interface CGSSystem {
   readonly writes:        readonly number[];
   readonly depends_on:    readonly string[];
   readonly deterministic: boolean;
+  readonly runtime_executor?: Record<string, CGSFieldValue>;
 }
 
 export interface CGSRule {
@@ -119,6 +125,7 @@ export interface CGSMetadata {
 /** The complete Canonical Game Schema — root document */
 export interface CGS {
   readonly metadata:       CGSMetadata;
+  readonly component_schemas?: CGSComponentSchema[];
   readonly global_systems: CGSSystem[];
   readonly modes:          CGSMode[];
 }

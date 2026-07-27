@@ -23,6 +23,7 @@
 //! The controller entity is defined in the CGS, not created at runtime.
 
 use crate::entity_metadata::Tick;
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_GAMESTATE_V1. Frozen forever.
@@ -249,13 +250,14 @@ impl GameStateComponent {
         }
     }
 
-    /// Returns elapsed time in seconds given a simulation rate.
-    /// `simulation_rate` is ticks per second (e.g. 60.0 for 60Hz).
-    pub fn elapsed_seconds(&self, simulation_rate: f32) -> f32 {
-        if simulation_rate <= 0.0 {
-            return 0.0;
+    /// Returns elapsed time in fixed-point seconds given a simulation rate.
+    /// `simulation_rate_hz` is ticks per second.
+    pub fn elapsed_seconds(&self, simulation_rate_hz: u32) -> Fixed64 {
+        if simulation_rate_hz == 0 {
+            return Fixed64::ZERO;
         }
-        self.time_elapsed_ticks as f32 / simulation_rate
+        Fixed64::from_u64_ratio(self.time_elapsed_ticks, u64::from(simulation_rate_hz))
+            .unwrap_or(Fixed64::MAX)
     }
 
     /// Returns true if a specific game mode is active.
@@ -370,8 +372,8 @@ mod tests {
         for _ in 0..60 {
             gs.tick_time();
         }
-        let secs = gs.elapsed_seconds(60.0);
-        assert!((secs - 1.0).abs() < 1e-5);
+        let secs = gs.elapsed_seconds(60);
+        assert_eq!(secs, Fixed64::ONE);
     }
 
     #[test]

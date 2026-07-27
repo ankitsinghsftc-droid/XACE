@@ -1,11 +1,11 @@
 //! # Mutation Gate Integration Tests
 //!
-//! Tests covering ordering enforcement, atomicity, phase-boundary
-//! application, and invalid mutation rejection.
+//! Tests covering ordering enforcement, current failure-contract behavior,
+//! phase-boundary application, and invalid mutation rejection.
 
 use crate::component_tables::ComponentTableStore;
 use crate::entity_store::EntityStore;
-use crate::mutation_gate::MutationGate;
+use crate::mutation_gate::{MutationGate, MutationRollbackStatus};
 use std::collections::BTreeMap;
 
 fn setup() -> (MutationGate, EntityStore, ComponentTableStore) {
@@ -105,7 +105,29 @@ fn invalid_requests_never_enter_queue() {
     assert_eq!(gate.pending_count(), 0);
 }
 
-// ── Atomicity Tests (I8) ──────────────────────────────────────────────────────
+#[test]
+fn x10_017_public_apply_uses_atomic_transaction_path() {
+    let (mut gate, mut es, mut ts) = setup();
+    let id = es.create_entity(0).unwrap();
+
+    gate.request_add_component(id, 2, r#"{"name":"queued"}"#, &es, &ts, 1)
+        .unwrap();
+    ts.add_component(id, 2, r#"{"name":"preexisting"}"#.into(), 1)
+        .unwrap();
+
+    let err = gate.apply_all(&mut es, &mut ts, 1).unwrap_err();
+    let diagnostic = gate.last_failure_diagnostic().unwrap();
+
+    assert!(err.to_string().contains("rolled back"));
+    assert_eq!(gate.pending_count(), 1);
+    assert_eq!(diagnostic.operation_type, "add_component");
+    assert_eq!(diagnostic.entity_id, Some(id));
+    assert_eq!(diagnostic.component_type_id, Some(2));
+    assert_eq!(diagnostic.rollback_status, MutationRollbackStatus::Restored);
+    assert_eq!(ts.get_component(id, 2), Some(r#"{"name":"preexisting"}"#));
+}
+
+// -- Apply-time atomic rollback tests (I8) -------------------------------------
 
 #[test]
 fn apply_empty_gate_is_noop() {

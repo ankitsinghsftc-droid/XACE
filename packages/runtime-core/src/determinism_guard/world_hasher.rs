@@ -1,22 +1,17 @@
 //! # World Hasher
 //!
-//! Produces a deterministic SHA-256 hash of the entire world state
-//! after every simulation tick. Same world state = same hash, always,
-//! on any machine, any OS, any platform. (D9, D11)
+//! Produces a deterministic SHA-256 hash for a WorldSnapshot. Same snapshot
+//! content should produce the same hash on any supported platform when the
+//! snapshot is built through XACE's canonical serializer/order rules. (D9, D11)
 //!
 //! ## What Is Hashed
-//! The hash is computed from three inputs in strict order:
-//!   1. tick                   — the simulation tick number
-//!   2. entity_store_snapshot  — all entity IDs and their states, sorted ASC (D3)
-//!   3. component_tables_snapshot — all component rows, sorted by type_id then
-//!                                  EntityID ASC (D3, D11)
+//! The hash is computed from tick, schema_version, execution_plan_version,
+//! cgs_hash, RNG snapshot state, pending event queue state, pending mutation
+//! queue state, clean-boundary status, entity store, and component tables.
 //!
-//! RNG state, event queue, and mutation queue are intentionally excluded:
-//! - RNG stream positions are a function of (world_seed, system_id, tick) and
-//!   are therefore already determinism-guaranteed by D6.
-//! - Event queue and mutation queue are empty at clean tick boundaries (I10).
-//!   Including transient queue state would produce different hashes for
-//!   snapshots taken at identical world states but different queue positions.
+//! Channels outside WorldSnapshot, such as engine feedback buffers, network
+//! input buffers before materialization, save-slot metadata, and adapter
+//! playback side effects, are covered by side_channel_hash_policy.
 //!
 //! ## Why Not DefaultHasher
 //! std::collections::hash_map::DefaultHasher is explicitly randomized per
@@ -26,8 +21,8 @@
 //! ## Feed Order (D11)
 //! All fields are fed into the hasher in a fixed, documented order.
 //! BTreeMap iteration in WorldSnapshot guarantees ascending key order.
-//! Floats are never hashed directly — they are serialized to fixed-precision
-//! strings first to avoid platform-specific float representation differences (D8).
+//! Authoritative numeric values are hashed as integers/fixed-point component
+//! JSON strings. Raw floating point values must not enter authoritative state.
 //!
 //! ## Output Format
 //! Returns a lowercase hex-encoded SHA-256 digest string (64 characters).
@@ -40,9 +35,8 @@ use xace_core::runtime::world_snapshot::WorldSnapshot;
 
 /// Computes deterministic SHA-256 hashes of world state.
 ///
-/// Stateless — all methods are associated functions.
-/// The PhaseOrchestrator constructs one WorldHasher and uses it
-/// every tick. The DeterminismGuard calls compute() via hook_tick_end.
+/// Stateless — all methods are associated functions. The live runtime computes
+/// this hash every tick through DeterminismGuard::hook_tick_end.
 pub struct WorldHasher;
 
 impl WorldHasher {
@@ -53,9 +47,8 @@ impl WorldHasher {
     /// Feeds tick + entity_store + component_tables into SHA-256 in a fixed,
     /// documented order. Returns a lowercase hex string (64 chars).
     ///
-    /// This replaces `compute_world_hash_placeholder()` in determinism_guard.rs.
-    /// After world_hasher.rs is integrated, update DeterminismGuard::hook_tick_end
-    /// to call `WorldHasher::compute(snapshot)` instead of the placeholder.
+    /// DeterminismGuard::hook_tick_end calls this after the live runtime builds
+    /// the canonical end-of-tick snapshot.
     pub fn compute(snapshot: &WorldSnapshot) -> String {
         let mut hasher = Sha256::new();
 
@@ -68,10 +61,25 @@ impl WorldHasher {
         // Field 3: execution_plan_version
         Self::feed_u32(&mut hasher, snapshot.execution_plan_version);
 
-        // Field 4: entity store — all entity records in EntityID ASC order (D3)
+        // Field 4: cgs_hash - locks CGS and asset-binding authority into hash.
+        Self::feed_str(&mut hasher, &snapshot.cgs_hash);
+
+        // Field 5: RNG snapshot state.
+        Self::feed_rng_state(&mut hasher, snapshot);
+
+        // Field 6: pending event queue state.
+        Self::feed_event_queue_state(&mut hasher, snapshot);
+
+        // Field 7: pending mutation queue state.
+        Self::feed_mutation_queue_state(&mut hasher, snapshot);
+
+        // Field 8: clean boundary flag.
+        Self::feed_bool(&mut hasher, snapshot.is_clean);
+
+        // Field 9: entity store - all entity records in EntityID ASC order (D3)
         Self::feed_entity_store(&mut hasher, snapshot);
 
-        // Field 5: component tables — all rows in type_id ASC, EntityID ASC (D11)
+        // Field 10: component tables - all rows in type_id ASC, EntityID ASC (D11)
         Self::feed_component_tables(&mut hasher, snapshot);
 
         // Finalize and hex-encode
@@ -128,6 +136,47 @@ impl WorldHasher {
     /// Feeds a u8 as a single byte.
     fn feed_u8(hasher: &mut Sha256, value: u8) {
         hasher.update([value]);
+    }
+
+    /// Feeds a bool as a single byte.
+    fn feed_bool(hasher: &mut Sha256, value: bool) {
+        Self::feed_u8(hasher, u8::from(value));
+    }
+
+    /// Feeds an ordered string vector with a count prefix.
+    fn feed_string_vec(hasher: &mut Sha256, values: &[String]) {
+        Self::feed_u64(hasher, values.len() as u64);
+        for value in values {
+            Self::feed_str(hasher, value);
+        }
+    }
+
+    /// Feeds RNG state in stable system_id order.
+    fn feed_rng_state(hasher: &mut Sha256, snapshot: &WorldSnapshot) {
+        let rng = &snapshot.rng_state;
+        Self::feed_u64(hasher, rng.world_seed);
+        Self::feed_u64(hasher, rng.stream_positions.len() as u64);
+        for (system_id, stream_position) in &rng.stream_positions {
+            Self::feed_str(hasher, system_id);
+            Self::feed_u64(hasher, *stream_position);
+        }
+    }
+
+    /// Feeds pending EventBus state for mid-phase and debug snapshots.
+    fn feed_event_queue_state(hasher: &mut Sha256, snapshot: &WorldSnapshot) {
+        let queue = &snapshot.event_queue_state;
+        Self::feed_string_vec(hasher, &queue.pending_events);
+        Self::feed_u64(hasher, queue.next_event_id);
+    }
+
+    /// Feeds pending MutationGate state for mid-phase and debug snapshots.
+    fn feed_mutation_queue_state(hasher: &mut Sha256, snapshot: &WorldSnapshot) {
+        let queue = &snapshot.mutation_queue_state;
+        Self::feed_string_vec(hasher, &queue.pending_spawns);
+        Self::feed_string_vec(hasher, &queue.pending_additions);
+        Self::feed_string_vec(hasher, &queue.pending_modifications);
+        Self::feed_string_vec(hasher, &queue.pending_removals);
+        Self::feed_string_vec(hasher, &queue.pending_destroys);
     }
 
     /// Feeds the entity store into the hasher.
@@ -318,7 +367,7 @@ mod tests {
 
     #[test]
     fn entity_state_changes_hash() {
-        let mut active = snap_with_entity(1, 1);
+        let active = snap_with_entity(1, 1);
         let mut disabled = snap_with_entity(1, 1);
         disabled.entity_store_snapshot.entities[0].state = EntityState::Disabled;
         assert_ne!(
@@ -361,13 +410,78 @@ mod tests {
 
     #[test]
     fn different_schema_versions_produce_different_hashes() {
-        let mut a = empty_snap(1);
+        let a = empty_snap(1);
         let mut b = empty_snap(1);
         b.schema_version = "0.2.0".into();
         assert_ne!(
             WorldHasher::compute(&a),
             WorldHasher::compute(&b),
             "Schema version must be part of the hash (D10)"
+        );
+    }
+
+    #[test]
+    fn different_cgs_hashes_produce_different_hashes() {
+        let mut a = empty_snap(1);
+        let mut b = empty_snap(1);
+        a.cgs_hash = "a".repeat(64);
+        b.cgs_hash = "b".repeat(64);
+        assert_ne!(
+            WorldHasher::compute(&a),
+            WorldHasher::compute(&b),
+            "CGS hash must be part of the world hash"
+        );
+    }
+
+    #[test]
+    fn different_rng_state_produces_different_hashes() {
+        let a = empty_snap(1);
+        let mut b = empty_snap(1);
+        b.rng_state.set_stream_position("sys_loot", 3);
+        assert_ne!(
+            WorldHasher::compute(&a),
+            WorldHasher::compute(&b),
+            "RNG stream positions must be part of the world hash"
+        );
+    }
+
+    #[test]
+    fn different_event_queue_state_produces_different_hashes() {
+        let a = empty_snap(1);
+        let mut b = empty_snap(1);
+        b.event_queue_state
+            .pending_events
+            .push(r#"{"event_id":7,"kind":"spawned"}"#.into());
+        assert_ne!(
+            WorldHasher::compute(&a),
+            WorldHasher::compute(&b),
+            "Pending event queue state must be part of the world hash"
+        );
+    }
+
+    #[test]
+    fn different_mutation_queue_state_produces_different_hashes() {
+        let a = empty_snap(1);
+        let mut b = empty_snap(1);
+        b.mutation_queue_state
+            .pending_modifications
+            .push(r#"{"entity_id":1,"component":5}"#.into());
+        assert_ne!(
+            WorldHasher::compute(&a),
+            WorldHasher::compute(&b),
+            "Pending mutation queue state must be part of the world hash"
+        );
+    }
+
+    #[test]
+    fn clean_boundary_flag_produces_different_hashes() {
+        let a = empty_snap(1);
+        let mut b = empty_snap(1);
+        b.is_clean = false;
+        assert_ne!(
+            WorldHasher::compute(&a),
+            WorldHasher::compute(&b),
+            "Clean boundary status must be part of the world hash"
         );
     }
 

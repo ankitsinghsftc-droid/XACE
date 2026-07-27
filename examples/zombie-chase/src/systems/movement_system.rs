@@ -18,12 +18,11 @@
 
 use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
+use xace_core::fixed_point::Fixed64;
+use xace_runtime_core::fixed_json::fixed_tick_delta_60hz;
 
 use crate::cgs::component_ids;
 use crate::cgs::{parse_position_xz, parse_velocity_xz, transform_json};
-
-/// Fixed simulation timestep: 1 / 60 Hz.
-const DT: f32 = 1.0_f32 / 60.0_f32;
 
 pub struct MovementSystem;
 
@@ -64,11 +63,12 @@ impl ISystem for MovementSystem {
             let (vx, vz) = parse_velocity_xz(&velocity_json_str);
 
             // D7: fixed timestep integration — no wall-clock dt
-            let new_x = px + vx * DT;
-            let new_z = pz + vz * DT;
+            let dt = fixed_tick_delta_60hz();
+            let new_x = px + vx * dt;
+            let new_z = pz + vz * dt;
 
             // D11: stable 6-decimal format — same result = same bytes
-            let new_transform = transform_json(new_x, 0.0, new_z);
+            let new_transform = transform_json(new_x, Fixed64::ZERO, new_z);
 
             // D4: deferred via Mutation Gate
             context.submit_mutation(entity_id, component_ids::TRANSFORM, new_transform)?;
@@ -103,6 +103,6 @@ mod tests {
     #[test]
     fn fixed_dt_is_one_sixtieth() {
         // D7: delta_time = 1/simulation_rate. Rendering FPS must never affect sim.
-        assert!((DT - 1.0 / 60.0).abs() < 1e-7);
+        assert_eq!(fixed_tick_delta_60hz(), Fixed64::from_raw(16_666));
     }
 }

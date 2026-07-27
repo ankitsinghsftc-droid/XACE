@@ -20,6 +20,8 @@
 //!   AI=160
 
 use std::collections::BTreeMap;
+use xace_core::fixed_point::Fixed64;
+use xace_runtime_core::fixed_json::{fixed_from_json, IntegerEncoding};
 
 // ── Component Type IDs ────────────────────────────────────────────────────────
 
@@ -70,17 +72,33 @@ pub fn execution_order() -> Vec<&'static str> {
 // ── Initial Component JSON Builders ───────────────────────────────────────────
 // Stable field ordering (D11) — all maps use BTreeMap or sorted keys.
 
-pub fn transform_json(x: f32, y: f32, z: f32) -> String {
+pub fn transform_json(x: Fixed64, y: Fixed64, z: Fixed64) -> String {
     format!(
-        r#"{{"position":{{"x":{:.6},"y":{:.6},"z":{:.6}}},"rotation":{{"x":0.0,"y":0.0,"z":0.0,"w":1.0}},"scale":{{"x":1.0,"y":1.0,"z":1.0}},"parent_entity_id":0}}"#,
-        x, y, z
+        r#"{{"position":{{"x":{},"y":{},"z":{}}},"rotation":{{"x":{},"y":{},"z":{},"w":{}}},"scale":{{"x":{},"y":{},"z":{}}},"parent_entity_id":0}}"#,
+        x.raw(),
+        y.raw(),
+        z.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::ONE.raw(),
+        Fixed64::ONE.raw(),
+        Fixed64::ONE.raw(),
+        Fixed64::ONE.raw()
     )
 }
 
-pub fn velocity_json(vx: f32, vy: f32, vz: f32) -> String {
+pub fn velocity_json(vx: Fixed64, vy: Fixed64, vz: Fixed64) -> String {
     format!(
-        r#"{{"linear":{{"x":{:.6},"y":{:.6},"z":{:.6}}},"angular":{{"x":0.0,"y":0.0,"z":0.0}},"max_linear_speed":10.0,"max_angular_speed":360.0}}"#,
-        vx, vy, vz
+        r#"{{"linear":{{"x":{},"y":{},"z":{}}},"angular":{{"x":{},"y":{},"z":{}}},"max_linear_speed":{},"max_angular_speed":{}}}"#,
+        vx.raw(),
+        vy.raw(),
+        vz.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::ZERO.raw(),
+        Fixed64::from_units(10).raw(),
+        Fixed64::from_units(360).raw()
     )
 }
 
@@ -98,55 +116,88 @@ pub fn input_json(controller_id: u32, control_type: &str) -> String {
     )
 }
 
-pub fn health_json(current: f32, max: f32) -> String {
+pub fn health_json(current: Fixed64, max: Fixed64) -> String {
     format!(
-        r#"{{"current":{:.2},"max":{:.2},"regen_rate":0.0,"is_invincible":false,"death_behavior":"DESTROY","last_damage_tick":0}}"#,
-        current, max
+        r#"{{"current":{},"max":{},"regen_rate":{},"is_invincible":false,"death_behavior":"DESTROY","last_damage_tick":0}}"#,
+        current.raw(),
+        max.raw(),
+        Fixed64::ZERO.raw()
     )
 }
 
-pub fn ai_json(target_entity_id: u64, detection_radius: f32) -> String {
+pub fn ai_json(target_entity_id: u64, detection_radius: Fixed64) -> String {
     format!(
-        r#"{{"behavior_model":"CHASE","current_state":"ACTIVE","target_entity_id":{},"detection_radius":{:.2},"aggression_level":1.0,"memory":{{}}}}"#,
-        target_entity_id, detection_radius
+        r#"{{"behavior_model":"CHASE","current_state":"ACTIVE","target_entity_id":{},"detection_radius":{},"aggression_level":{},"memory":{{}}}}"#,
+        target_entity_id,
+        detection_radius.raw(),
+        Fixed64::ONE.raw()
     )
 }
 
-pub fn damage_json(amount: f32, source_entity_id: u64, applied_tick: u64) -> String {
+pub fn damage_json(amount: Fixed64, source_entity_id: u64, applied_tick: u64) -> String {
     format!(
-        r#"{{"damage_type":"PHYSICAL","amount":{:.2},"source_entity_id":{},"applied_tick":{},"is_consumed":false}}"#,
-        amount, source_entity_id, applied_tick
+        r#"{{"damage_type":"PHYSICAL","amount":{},"source_entity_id":{},"applied_tick":{},"is_consumed":false}}"#,
+        amount.raw(),
+        source_entity_id,
+        applied_tick
     )
 }
 
-pub fn damage_consumed_json(amount: f32, source_entity_id: u64, applied_tick: u64) -> String {
+pub fn damage_consumed_json(amount: Fixed64, source_entity_id: u64, applied_tick: u64) -> String {
     format!(
-        r#"{{"damage_type":"PHYSICAL","amount":{:.2},"source_entity_id":{},"applied_tick":{},"is_consumed":true}}"#,
-        amount, source_entity_id, applied_tick
+        r#"{{"damage_type":"PHYSICAL","amount":{},"source_entity_id":{},"applied_tick":{},"is_consumed":true}}"#,
+        amount.raw(),
+        source_entity_id,
+        applied_tick
     )
 }
 
 // ── Initial World Builder ─────────────────────────────────────────────────────
 
 /// Builds initial component maps for the player entity.
-pub fn player_initial_components(x: f32, z: f32) -> BTreeMap<u32, String> {
+pub fn player_initial_components(x: Fixed64, z: Fixed64) -> BTreeMap<u32, String> {
     let mut m = BTreeMap::new();
-    m.insert(component_ids::TRANSFORM, transform_json(x, 0.0, z));
+    m.insert(
+        component_ids::TRANSFORM,
+        transform_json(x, Fixed64::ZERO, z),
+    );
     m.insert(component_ids::IDENTITY, identity_json("Player", "PLAYER"));
-    m.insert(component_ids::VELOCITY, velocity_json(0.0, 0.0, 0.0));
+    m.insert(
+        component_ids::VELOCITY,
+        velocity_json(Fixed64::ZERO, Fixed64::ZERO, Fixed64::ZERO),
+    );
     m.insert(component_ids::INPUT, input_json(0, "HUMAN"));
-    m.insert(component_ids::HEALTH, health_json(100.0, 100.0));
+    m.insert(
+        component_ids::HEALTH,
+        health_json(Fixed64::from_units(100), Fixed64::from_units(100)),
+    );
     m
 }
 
 /// Builds initial component maps for a zombie entity.
-pub fn zombie_initial_components(x: f32, z: f32, target_player_id: u64) -> BTreeMap<u32, String> {
+pub fn zombie_initial_components(
+    x: Fixed64,
+    z: Fixed64,
+    target_player_id: u64,
+) -> BTreeMap<u32, String> {
     let mut m = BTreeMap::new();
-    m.insert(component_ids::TRANSFORM, transform_json(x, 0.0, z));
+    m.insert(
+        component_ids::TRANSFORM,
+        transform_json(x, Fixed64::ZERO, z),
+    );
     m.insert(component_ids::IDENTITY, identity_json("Zombie", "ENEMY"));
-    m.insert(component_ids::VELOCITY, velocity_json(0.0, 0.0, 0.0));
-    m.insert(component_ids::HEALTH, health_json(30.0, 30.0));
-    m.insert(component_ids::AI, ai_json(target_player_id, 20.0));
+    m.insert(
+        component_ids::VELOCITY,
+        velocity_json(Fixed64::ZERO, Fixed64::ZERO, Fixed64::ZERO),
+    );
+    m.insert(
+        component_ids::HEALTH,
+        health_json(Fixed64::from_units(30), Fixed64::from_units(30)),
+    );
+    m.insert(
+        component_ids::AI,
+        ai_json(target_player_id, Fixed64::from_units(20)),
+    );
     m
 }
 
@@ -157,22 +208,12 @@ pub fn zombie_initial_components(x: f32, z: f32, target_player_id: u64) -> BTree
 ///
 /// Searches within the "position":{...} sub-object only, so z is
 /// never confused with rotation.z or scale.z.
-pub fn parse_position_xz(json: &str) -> (f32, f32) {
+pub fn parse_position_xz(json: &str) -> (Fixed64, Fixed64) {
     // Locate "position":{ and find its closing }
-    const KEY: &str = "\"position\":";
-    let start = match json.find(KEY) {
-        Some(i) => i + KEY.len(),
-        None => return (0.0, 0.0),
-    };
-    let end = json[start..]
-        .find('}')
-        .map(|i| start + i + 1)
-        .unwrap_or(json.len());
-    let sub = &json[start..end];
+    let x = nested_fixed(json, "position", "x").unwrap_or(Fixed64::ZERO);
+    let z = nested_fixed(json, "position", "z").unwrap_or(Fixed64::ZERO);
     // "sub" is e.g. {"x":1.0,"y":0.0,"z":2.0}
     // extract_f32 finds the FIRST occurrence of each key — correct here
-    let x = extract_f32(sub, "\"x\":").unwrap_or(0.0);
-    let z = extract_f32(sub, "\"z\":").unwrap_or(0.0);
     (x, z)
 }
 
@@ -180,32 +221,22 @@ pub fn parse_position_xz(json: &str) -> (f32, f32) {
 ///
 /// Searches within the "linear":{...} sub-object only, so z is
 /// never confused with angular.z.
-pub fn parse_velocity_xz(json: &str) -> (f32, f32) {
+pub fn parse_velocity_xz(json: &str) -> (Fixed64, Fixed64) {
     // Locate "linear":{ and find its closing }
-    const KEY: &str = "\"linear\":";
-    let start = match json.find(KEY) {
-        Some(i) => i + KEY.len(),
-        None => return (0.0, 0.0),
-    };
-    let end = json[start..]
-        .find('}')
-        .map(|i| start + i + 1)
-        .unwrap_or(json.len());
-    let sub = &json[start..end];
+    let vx = nested_fixed(json, "linear", "x").unwrap_or(Fixed64::ZERO);
+    let vz = nested_fixed(json, "linear", "z").unwrap_or(Fixed64::ZERO);
     // "sub" is e.g. {"x":vx,"y":vy,"z":vz}
-    let vx = extract_f32(sub, "\"x\":").unwrap_or(0.0);
-    let vz = extract_f32(sub, "\"z\":").unwrap_or(0.0);
     (vx, vz)
 }
 
 /// Extracts COMP_HEALTH_V1.current.
-pub fn parse_health_current(json: &str) -> f32 {
-    extract_f32(json, "\"current\":").unwrap_or(0.0)
+pub fn parse_health_current(json: &str) -> Fixed64 {
+    top_fixed(json, "current").unwrap_or(Fixed64::ZERO)
 }
 
 /// Extracts COMP_HEALTH_V1.max.
-pub fn parse_health_max(json: &str) -> f32 {
-    extract_f32(json, "\"max\":").unwrap_or(100.0)
+pub fn parse_health_max(json: &str) -> Fixed64 {
+    top_fixed(json, "max").unwrap_or(Fixed64::from_units(100))
 }
 
 /// Extracts COMP_AI_V1.target_entity_id.
@@ -214,8 +245,8 @@ pub fn parse_ai_target(json: &str) -> u64 {
 }
 
 /// Extracts COMP_DAMAGE_V1.amount.
-pub fn parse_damage_amount(json: &str) -> f32 {
-    extract_f32(json, "\"amount\":").unwrap_or(0.0)
+pub fn parse_damage_amount(json: &str) -> Fixed64 {
+    top_fixed(json, "amount").unwrap_or(Fixed64::ZERO)
 }
 
 /// Extracts COMP_DAMAGE_V1.applied_tick.
@@ -235,25 +266,17 @@ pub fn parse_input_controller_id(json: &str) -> u32 {
 
 // ── Internal parse helpers ────────────────────────────────────────────────────
 
-/// Extracts the first f32 value immediately after `key` in `json`.
-pub fn extract_f32(json: &str, key: &str) -> Option<f32> {
-    let pos = json.find(key)? + key.len();
-    let rest = json[pos..].trim_start_matches(' ');
-    let end = rest
-        .find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
-        .unwrap_or(rest.len());
-    rest[..end].parse().ok()
+fn nested_fixed(json: &str, object_key: &str, field_key: &str) -> Option<Fixed64> {
+    let value: serde_json::Value = serde_json::from_str(json).ok()?;
+    fixed_from_json(
+        value.get(object_key)?.get(field_key)?,
+        IntegerEncoding::RawMicroUnits,
+    )
 }
 
-/// Extracts the LAST occurrence of `key` in `json` as f32.
-/// Used for 'z' which appears multiple times in transform JSON.
-pub fn extract_f32_after(json: &str, key: &str) -> Option<f32> {
-    let pos = json.rfind(key)? + key.len();
-    let rest = json[pos..].trim_start_matches(' ');
-    let end = rest
-        .find(|c: char| !c.is_ascii_digit() && c != '.' && c != '-' && c != 'e')
-        .unwrap_or(rest.len());
-    rest[..end].parse().ok()
+fn top_fixed(json: &str, field_key: &str) -> Option<Fixed64> {
+    let value: serde_json::Value = serde_json::from_str(json).ok()?;
+    fixed_from_json(value.get(field_key)?, IntegerEncoding::RawMicroUnits)
 }
 
 pub fn extract_u64(json: &str, key: &str) -> Option<u64> {

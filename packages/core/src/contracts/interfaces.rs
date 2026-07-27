@@ -37,6 +37,7 @@ use crate::errors::determinism_error::DeterminismViolation;
 use crate::errors::xace_error::XaceError;
 use crate::events::event_struct::Event;
 use crate::events::event_type::EventType;
+use crate::fixed_point::Fixed64;
 use crate::runtime::state_delta::StateDelta;
 use crate::runtime::world_snapshot::WorldSnapshot;
 use crate::wire::delta_payload::DeltaPayload;
@@ -149,7 +150,7 @@ pub trait ISystemContext {
 
     /// Returns the next deterministic random value for this system.
     /// Seed is hash(world_seed, system_id, tick) — always reproducible (D6).
-    fn next_random(&mut self) -> Result<f64, XaceError>;
+    fn next_random(&mut self) -> Result<Fixed64, XaceError>;
 }
 
 // ── IMutationGate ─────────────────────────────────────────────────────────────

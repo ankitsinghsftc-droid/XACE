@@ -51,9 +51,7 @@ use std::path::PathBuf;
 use clap::Args;
 
 use crate::commands::Context;
-use crate::error::{CliError, DoctorIssue, Severity, print_issue, print_header};
-use crate::python_bridge::PythonBridge;
-
+use crate::error::{print_header, print_issue, CliError, DoctorIssue, Severity};
 
 // ── Args ──────────────────────────────────────────────────────────────────────
 
@@ -63,7 +61,6 @@ pub struct DoctorArgs {
     #[arg(long)]
     pub only: Option<String>,
 }
-
 
 // ── Entry Point ───────────────────────────────────────────────────────────────
 
@@ -76,50 +73,92 @@ pub fn run(args: DoctorArgs, ctx: &Context) -> Result<i32, CliError> {
     let mut all_issues: Vec<DoctorIssue> = Vec::new();
 
     if filter.is_none() || filter == Some("runtime") {
-        print_header("Runtime", ctx.no_color);
+        if !ctx.json {
+            print_header("Runtime", ctx.no_color);
+        }
         let issues = check_runtime();
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     if filter.is_none() || filter == Some("python") {
-        print_header("Python Packages", ctx.no_color);
+        if !ctx.json {
+            print_header("Python Packages", ctx.no_color);
+        }
         let issues = check_python_packages(ctx.verbose);
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     if filter.is_none() || filter == Some("keys") {
-        print_header("LLM API Keys", ctx.no_color);
+        if !ctx.json {
+            print_header("LLM API Keys", ctx.no_color);
+        }
         let issues = check_api_keys();
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     if filter.is_none() || filter == Some("local") {
-        print_header("Local Models", ctx.no_color);
+        if !ctx.json {
+            print_header("Local Models", ctx.no_color);
+        }
         let issues = check_local_models();
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     if filter.is_none() || filter == Some("adapters") {
-        print_header("Engine Adapters", ctx.no_color);
+        if !ctx.json {
+            print_header("Engine Adapters", ctx.no_color);
+        }
         let issues = check_engine_adapters();
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     if filter.is_none() || filter == Some("system") {
-        print_header("System", ctx.no_color);
+        if !ctx.json {
+            print_header("System", ctx.no_color);
+        }
         let issues = check_system();
-        for issue in &issues { print_issue(issue, ctx.no_color); }
+        if !ctx.json {
+            for issue in &issues {
+                print_issue(issue, ctx.no_color);
+            }
+        }
         all_issues.extend(issues);
     }
 
     // ── Summary ───────────────────────────────────────────────────────────────
-    let errors   = all_issues.iter().filter(|i| i.severity == Severity::Error).count();
-    let warnings = all_issues.iter().filter(|i| i.severity == Severity::Warning).count();
+    let errors = all_issues
+        .iter()
+        .filter(|i| i.severity == Severity::Error)
+        .count();
+    let warnings = all_issues
+        .iter()
+        .filter(|i| i.severity == Severity::Warning)
+        .count();
 
     if ctx.json {
         let report = serde_json::json!({
@@ -139,14 +178,19 @@ pub fn run(args: DoctorArgs, ctx: &Context) -> Result<i32, CliError> {
         if errors == 0 && warnings == 0 {
             println!("Status: \x1b[32mall checks passed\x1b[0m.");
         } else {
-            let status = format!(
-                "Status: {} error(s), {} warning(s).",
-                errors, warnings
-            );
+            let status = format!("Status: {} error(s), {} warning(s).", errors, warnings);
             if errors > 0 {
-                println!("\x1b[31m{}\x1b[0m", status);
+                if ctx.no_color {
+                    println!("{}", status);
+                } else {
+                    println!("\x1b[31m{}\x1b[0m", status);
+                }
             } else {
-                println!("\x1b[33m{}\x1b[0m", status);
+                if ctx.no_color {
+                    println!("{}", status);
+                } else {
+                    println!("\x1b[33m{}\x1b[0m", status);
+                }
             }
             if errors > 0 {
                 println!("Fix errors above before running `xace build`.");
@@ -156,7 +200,6 @@ pub fn run(args: DoctorArgs, ctx: &Context) -> Result<i32, CliError> {
 
     Ok(if errors > 0 { 4 } else { 0 })
 }
-
 
 // ── Check Functions ───────────────────────────────────────────────────────────
 
@@ -181,7 +224,9 @@ fn check_runtime() -> Vec<DoctorIssue> {
     match run_command("cargo", &["--version"]) {
         Some(version) => issues.push(DoctorIssue::ok("Cargo", version)),
         None => issues.push(DoctorIssue::error(
-            "Cargo", "not found", "Install via rustup: rustup update",
+            "Cargo",
+            "not found",
+            "Install via rustup: rustup update",
         )),
     }
 
@@ -208,45 +253,52 @@ fn check_runtime() -> Vec<DoctorIssue> {
     issues
 }
 
-fn check_python_packages(verbose: bool) -> Vec<DoctorIssue> {
+fn check_python_packages(_verbose: bool) -> Vec<DoctorIssue> {
     let mut issues = Vec::new();
 
     // Detect Python binary for checking packages
     let python_bin = find_python_bin();
 
     let packages: &[(&str, &str)] = &[
-        ("xace_gde",       "packages/gde"),
+        ("xace_gde", "packages/gde"),
         ("xace_inference", "packages/inference"),
     ];
 
     for (module, source) in packages {
-        let importable = python_bin.as_ref().map(|py| {
-            std::process::Command::new(py)
-                .args(["-c", &format!("import {}", module)])
-                .output()
-                .map(|o| o.status.success())
-                .unwrap_or(false)
-        }).unwrap_or(false);
+        let importable = python_bin
+            .as_ref()
+            .map(|py| {
+                std::process::Command::new(py)
+                    .args(["-c", &format!("import {}", module)])
+                    .output()
+                    .map(|o| o.status.success())
+                    .unwrap_or(false)
+            })
+            .unwrap_or(false);
 
         if importable {
             // Try to get version
-            let version = python_bin.as_ref()
+            let version = python_bin
+                .as_ref()
                 .and_then(|py| {
                     std::process::Command::new(py)
-                        .args(["-c", &format!(
-                            "import {m}; print(getattr({m}, '__version__', 'installed'))",
-                            m = module
-                        )])
+                        .args([
+                            "-c",
+                            &format!(
+                                "import {m}; print(getattr({m}, '__version__', 'installed'))",
+                                m = module
+                            ),
+                        ])
                         .output()
                         .ok()
                         .filter(|o| o.status.success())
                         .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
                 })
                 .unwrap_or_else(|| "installed".to_string());
-            issues.push(DoctorIssue::ok(module, version));
+            issues.push(DoctorIssue::ok(*module, version));
         } else {
             issues.push(DoctorIssue::error(
-                module,
+                *module,
                 "not installed",
                 &format!("Run from XACE root: pip install -e {}", source),
             ));
@@ -261,14 +313,30 @@ fn check_api_keys() -> Vec<DoctorIssue> {
 
     let keys: &[(&str, &str, bool, &str)] = &[
         // (env_var, display_name, required, purpose)
-        ("ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY",
-         true,  "Required for TIER_XL (Opus) and TIER_L fallback"),
-        ("DEEPSEEK_API_KEY",  "DEEPSEEK_API_KEY",
-         false, "Needed for TIER_L cheap routing (DeepSeek V4 Pro)"),
-        ("OPENAI_API_KEY",    "OPENAI_API_KEY",
-         false, "Needed for OpenAI TIER_XL fallback"),
-        ("XACE_ZAI_API_KEY",  "XACE_ZAI_API_KEY",
-         false, "Needed for GLM-5.1 routing (Z.AI)"),
+        (
+            "ANTHROPIC_API_KEY",
+            "ANTHROPIC_API_KEY",
+            true,
+            "Required for TIER_XL (Opus) and TIER_L fallback",
+        ),
+        (
+            "DEEPSEEK_API_KEY",
+            "DEEPSEEK_API_KEY",
+            false,
+            "Needed for TIER_L cheap routing (DeepSeek V4 Pro)",
+        ),
+        (
+            "OPENAI_API_KEY",
+            "OPENAI_API_KEY",
+            false,
+            "Needed for OpenAI TIER_XL fallback",
+        ),
+        (
+            "XACE_ZAI_API_KEY",
+            "XACE_ZAI_API_KEY",
+            false,
+            "Needed for GLM-5.1 routing (Z.AI)",
+        ),
     ];
 
     for &(var, name, required, purpose) in keys {
@@ -276,7 +344,7 @@ fn check_api_keys() -> Vec<DoctorIssue> {
             Ok(val) if !val.is_empty() => {
                 // Show last 4 chars of key for confirmation without exposing the key
                 let preview = if val.len() > 8 {
-                    format!("...{}", &val[val.len()-4..])
+                    format!("...{}", &val[val.len() - 4..])
                 } else {
                     "set".to_string()
                 };
@@ -319,18 +387,24 @@ fn check_local_models() -> Vec<DoctorIssue> {
         return issues;
     }
 
-    issues.push(DoctorIssue::ok("Ollama", "running at http://localhost:11434"));
+    issues.push(DoctorIssue::ok(
+        "Ollama",
+        "running at http://localhost:11434",
+    ));
 
     // Check default TIER_M models
     let default_models = &["llama3.1:70b", "qwen2.5:72b"];
-    let loaded_models  = get_ollama_models();
+    let loaded_models = get_ollama_models();
 
     for model in default_models {
         if loaded_models.iter().any(|m: &String| m == model) {
-            issues.push(DoctorIssue::ok(model, "loaded (TIER_M local routing ready)"));
+            issues.push(DoctorIssue::ok(
+                *model,
+                "loaded (TIER_M local routing ready)",
+            ));
         } else {
             issues.push(DoctorIssue::warn(
-                model,
+                *model,
                 "not loaded",
                 &format!("Run: ollama pull {}", model),
             ));
@@ -363,7 +437,10 @@ fn check_engine_adapters() -> Vec<DoctorIssue> {
             issues.push(DoctorIssue::warn(
                 name,
                 "not found in standard location",
-                &format!("Copy {0} to your engine project, or run: xace build --target unity", path),
+                &format!(
+                    "Copy {0} to your engine project, or run: xace build --target unity",
+                    path
+                ),
             ));
         }
     }
@@ -402,7 +479,6 @@ fn check_system() -> Vec<DoctorIssue> {
     issues
 }
 
-
 // ── System Helpers ────────────────────────────────────────────────────────────
 
 fn run_command(bin: &str, args: &[&str]) -> Option<String> {
@@ -415,14 +491,24 @@ fn run_command(bin: &str, args: &[&str]) -> Option<String> {
             // Some binaries print version to stderr
             let out = String::from_utf8_lossy(&o.stdout).trim().to_string();
             let err = String::from_utf8_lossy(&o.stderr).trim().to_string();
-            if out.is_empty() { err } else { out }
+            if out.is_empty() {
+                err
+            } else {
+                out
+            }
         })
 }
 
 fn find_python_bin() -> Option<String> {
-    if let Ok(p) = std::env::var("XACE_PYTHON") { return Some(p); }
-    if which::which("python3").is_ok() { return Some("python3".to_string()); }
-    if which::which("python").is_ok()  { return Some("python".to_string()); }
+    if let Ok(p) = std::env::var("XACE_PYTHON") {
+        return Some(p);
+    }
+    if which::which("python3").is_ok() {
+        return Some("python3".to_string());
+    }
+    if which::which("python").is_ok() {
+        return Some("python".to_string());
+    }
     None
 }
 
@@ -437,7 +523,12 @@ fn reqwest_or_curl_check(url: &str) -> bool {
 
 fn get_ollama_models() -> Vec<String> {
     let output = std::process::Command::new("curl")
-        .args(["--silent", "--max-time", "2", "http://localhost:11434/api/tags"])
+        .args([
+            "--silent",
+            "--max-time",
+            "2",
+            "http://localhost:11434/api/tags",
+        ])
         .output()
         .ok();
 
@@ -450,19 +541,19 @@ fn get_ollama_models() -> Vec<String> {
         .collect()
 }
 
-fn available_disk_gb(path: &str) -> Option<f64> {
+fn available_disk_gb(_path: &str) -> Option<f64> {
     // Cross-platform via `df`
     #[cfg(unix)]
     {
         let output = std::process::Command::new("df")
-            .args(["-k", path])
+            .args(["-k", _path])
             .output()
             .ok()?;
-        let text  = String::from_utf8_lossy(&output.stdout);
-        let line  = text.lines().nth(1)?;
+        let text = String::from_utf8_lossy(&output.stdout);
+        let line = text.lines().nth(1)?;
         let avail = line.split_whitespace().nth(3)?;
         let kb: f64 = avail.parse().ok()?;
-        Some(kb / 1_048_576.0)   // KB → GB
+        Some(kb / 1_048_576.0) // KB → GB
     }
     #[cfg(windows)]
     {
@@ -475,11 +566,13 @@ fn available_disk_gb(path: &str) -> Option<f64> {
             let s = line.trim();
             if !s.is_empty() {
                 let bytes: f64 = s.parse().ok()?;
-                return Some(bytes / 1_073_741_824.0);   // bytes → GB
+                return Some(bytes / 1_073_741_824.0); // bytes → GB
             }
         }
         None
     }
     #[cfg(not(any(unix, windows)))]
-    { None }
+    {
+        None
+    }
 }

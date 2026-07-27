@@ -215,7 +215,11 @@ impl AnimationLayerManager {
 
         // Don't interrupt active transition unless forced
         if layer.is_transitioning && !request.force {
-            return Ok(()); // Silently ignore non-forced transition request
+            return Err(format!(
+                "ANIMATION_TRANSITION_IN_PROGRESS: layer '{}' is already transitioning to '{}'; set force=true to interrupt it.",
+                request.layer_name,
+                layer.transition_target.as_deref().unwrap_or("<unknown>")
+            ));
         }
 
         if request.duration_normalized <= 0.0 {
@@ -395,9 +399,11 @@ mod tests {
         let mut m = manager_with_layers();
         m.request_transition(TransitionRequest::blended("Base", "Run", 0.5))
             .unwrap();
-        // Non-forced transition while transitioning — should be ignored
-        m.request_transition(TransitionRequest::blended("Base", "Jump", 0.3))
-            .unwrap();
+        // Non-forced transition while transitioning returns an actionable error.
+        let err = m
+            .request_transition(TransitionRequest::blended("Base", "Jump", 0.3))
+            .unwrap_err();
+        assert!(err.contains("ANIMATION_TRANSITION_IN_PROGRESS"));
         assert_eq!(
             m.get_layer("Base").unwrap().transition_target,
             Some("Run".into())

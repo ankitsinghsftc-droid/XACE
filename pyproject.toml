@@ -3,6 +3,10 @@ members = [
     "packages/schema-factory",
     "packages/gde",
     "packages/prompt-intelligence",
+    "packages/asset-registry",
+    "packages/dcl",
+    "packages/inference",
+    "packages/project-system",
 ]
 
 [build-system]

@@ -16,12 +16,11 @@
  * On submit: fires consoleSM.submitPrompt() and sends pil_process over WS.
  */
 
-import type { BuilderClient }  from '../api/builder_client';
-import type { ConsoleSM }      from '../state/console_state_machine';
+import type { BuilderClient, PromptProviderStatus } from '../api/builder_client';
+import type { ConsoleSM, ConsoleState } from '../state/console_state_machine';
 import type { CGSStore }       from '../state/cgs_store';
 import type { UIStore }        from '../state/ui_store';
 import { makePilProcess }      from '../api/message_types';
-import { formatCost, formatTokens } from '../types/pil';
 import { ModelSelector }       from './model_selector';
 
 const STYLES = `
@@ -32,6 +31,66 @@ const STYLES = `
   flex-shrink:     0;
   position:        relative;
   z-index:         10;
+}
+.xb-p-status {
+  display:         flex;
+  align-items:     center;
+  gap:             5px;
+  margin-bottom:   6px;
+  min-width:       0;
+  flex-wrap:       wrap;
+}
+.xb-p-status-chip {
+  border:          1px solid var(--bd);
+  border-radius:   999px;
+  color:           var(--txt3);
+  background:      rgba(255,255,255,.025);
+  font-size:       8.5px;
+  font-weight:     700;
+  letter-spacing:  .06em;
+  line-height:     1;
+  padding:         3px 6px;
+  text-transform:  uppercase;
+}
+.xb-p-status-chip.active {
+  border-color:    rgba(0,212,255,.32);
+  color:           var(--cyan);
+  background:      var(--cynd);
+}
+.xb-p-status-chip.failed.active {
+  border-color:    rgba(239,68,68,.32);
+  color:           var(--red);
+  background:      rgba(239,68,68,.08);
+}
+.xb-p-status-chip.applied.active {
+  border-color:    rgba(16,185,129,.34);
+  color:           var(--grn);
+  background:      rgba(16,185,129,.08);
+}
+.xb-p-status-text {
+  min-width:       120px;
+  flex:            1;
+  color:           var(--txt3);
+  font-size:       9.5px;
+  overflow:        hidden;
+  text-overflow:   ellipsis;
+  white-space:     nowrap;
+}
+.xb-p-provider-btn {
+  border:          1px solid rgba(255,159,67,.34);
+  background:      rgba(255,159,67,.08);
+  color:           var(--amb);
+  border-radius:   999px;
+  cursor:          pointer;
+  font-family:     inherit;
+  font-size:       9px;
+  font-weight:     700;
+  padding:         3px 7px;
+  white-space:     nowrap;
+}
+.xb-p-provider-btn:hover {
+  border-color:    rgba(255,159,67,.62);
+  color:           #ffd7a6;
 }
 .xb-prompt-box {
   background:      var(--bgc);
@@ -51,6 +110,9 @@ const STYLES = `
   border-color:    var(--bd);
   opacity:         .6;
   pointer-events:  none;
+}
+.xb-prompt-box.provider-blocked {
+  border-color:    rgba(255,159,67,.34);
 }
 .xb-p-ai-icon {
   color:           var(--cyan);
@@ -173,7 +235,23 @@ export class PromptInput {
   private _aiIcon!:   HTMLElement;
   private _costEl!:   HTMLElement;
   private _ctxBtn!:   HTMLButtonElement;
+  private _statusEl!: HTMLElement;
+  private _consoleState!: ConsoleState;
+  private _providerNotice = '';
+  private _providerStatus: PromptProviderStatus = {
+    checked: false,
+    ready: false,
+    provider: '',
+    model: '',
+    message: 'Checking provider setup...',
+    action: '',
+  };
   private readonly _unsubs: Array<() => void> = [];
+  private readonly _onPrefillBound = (event: Event) => this._onPrefill(event as CustomEvent);
+  private readonly _onFocusPrompt = () => {
+    this._textarea?.focus();
+    this._textarea?.setSelectionRange(this._textarea.value.length, this._textarea.value.length);
+  };
 
   constructor(deps: PromptInputDeps) {
     this._deps = deps;
@@ -186,18 +264,24 @@ export class PromptInput {
     this._wireReactive();
 
     // Listen for pre-fill events from graph context menus, inspector buttons, etc.
-    window.addEventListener('xace:prefill-prompt', this._onPrefill.bind(this) as EventListener);
+    window.addEventListener('xace:prefill-prompt', this._onPrefillBound);
+    window.addEventListener('xace:focus-prompt', this._onFocusPrompt);
   }
 
   unmount(): void {
     this._unsubs.forEach(fn => fn());
-    window.removeEventListener('xace:prefill-prompt', this._onPrefill.bind(this) as EventListener);
+    window.removeEventListener('xace:prefill-prompt', this._onPrefillBound);
+    window.removeEventListener('xace:focus-prompt', this._onFocusPrompt);
     this._el?.remove();
   }
 
   private _build(): HTMLElement {
     const root = document.createElement('div');
     root.className = 'xb-prompt-area';
+
+    this._statusEl = document.createElement('div');
+    this._statusEl.className = 'xb-p-status';
+    root.appendChild(this._statusEl);
 
     // ── Prompt box ────────────────────────────────────────────────────────
     const box = document.createElement('div');
@@ -304,6 +388,12 @@ export class PromptInput {
 
     const { consoleSM, client, cgsStore, uiStore } = this._deps;
     if (!['Idle', 'DiagnosticView', 'BlockedView', 'ErrorView'].includes(consoleSM.stateName)) return;
+    if (!this._providerStatus.ready) {
+      this._providerNotice = this._providerSetupMessage();
+      this._renderStatus(consoleSM.state);
+      window.dispatchEvent(new CustomEvent('xace:open-model-settings'));
+      return;
+    }
 
     // Fire state machine
     consoleSM.submitPrompt(prompt);
@@ -326,14 +416,20 @@ export class PromptInput {
   private _wireReactive(): void {
     const { consoleSM, uiStore } = this._deps;
 
+    this._consoleState = consoleSM.state;
+    this._renderStatus(consoleSM.state);
     this._unsubs.push(
       consoleSM.subscribe(state => {
-        const processing = state.name === 'Processing';
+        this._consoleState = state;
+        this._renderStatus(state);
+        const processing = state.name === 'Processing' || state.name === 'ApplyingMutation';
         this._aiIcon.classList.toggle('spinning', processing);
         const box = this._el.querySelector<HTMLElement>('.xb-prompt-box');
         box?.classList.toggle('disabled', processing);
-        this._sendBtn.disabled = processing;
+        box?.classList.toggle('provider-blocked', !this._providerStatus.ready && !processing);
+        this._sendBtn.disabled = processing || !this._providerStatus.ready;
         this._textarea.disabled = processing;
+        this._sendBtn.title = this._providerStatus.ready ? 'Submit (Enter)' : this._providerSetupMessage();
         if (state.name === 'Idle' && state.prefillPrompt) {
           this._prefill(state.prefillPrompt, true);
         }
@@ -346,6 +442,99 @@ export class PromptInput {
         this._ctxBtn.textContent = `📎 Context: ${label ?? '—'}`;
       }),
     );
+
+    this._unsubs.push(
+      this._deps.client.onProviderStatus(status => {
+        this._providerStatus = status;
+        if (status.ready) {
+          this._providerNotice = '';
+        }
+        const state = this._consoleState ?? consoleSM.state;
+        this._renderStatus(state);
+        const processing = state.name === 'Processing' || state.name === 'ApplyingMutation';
+        const box = this._el.querySelector<HTMLElement>('.xb-prompt-box');
+        box?.classList.toggle('provider-blocked', !status.ready && !processing);
+        this._sendBtn.disabled = processing || !status.ready;
+        this._sendBtn.title = status.ready ? 'Submit (Enter)' : this._providerSetupMessage();
+      }),
+    );
+  }
+
+  private _renderStatus(state: ConsoleState): void {
+    const active = new Set<string>();
+    let message = 'Ready. Type a change, then review it before it is saved.';
+    const providerBlocked = !this._providerStatus.ready;
+
+    if (state.name === 'Processing') {
+      active.add('validating');
+      message = 'Validating your request through the XACE pipeline.';
+    } else if (state.name === 'ApplyingMutation') {
+      active.add('validating');
+      message = 'Applying and validating the reviewed change.';
+    } else if (state.name === 'PreviewPending') {
+      active.add('proposed');
+      active.add('safe');
+      message = 'Safe proposal ready. Apply saves it; Revise or Discard leaves the project unchanged.';
+    } else if (state.name === 'ClarificationFlow') {
+      active.add('proposed');
+      message = 'XACE needs one answer before it can validate the change.';
+    } else if (state.name === 'BlockedView') {
+      active.add('failed');
+      message = 'XACE blocked this change before saving anything.';
+    } else if (state.name === 'ErrorView') {
+      active.add('failed');
+      message = 'XACE could not finish that request. You can retry or rephrase it.';
+    } else if (state.name === 'Idle' && state.lastSummary) {
+      active.add('applied');
+      message = `Applied: ${state.lastSummary}`;
+    }
+    if (providerBlocked && state.name !== 'Processing' && state.name !== 'ApplyingMutation') {
+      active.add('failed');
+      message = this._providerNotice || this._providerSetupMessage();
+    }
+
+    this._statusEl.innerHTML = '';
+    for (const id of ['proposed', 'validating', 'safe', 'applied', 'failed']) {
+      const chip = document.createElement('span');
+      chip.className = `xb-p-status-chip ${id}${active.has(id) ? ' active' : ''}`;
+      chip.textContent = id;
+      this._statusEl.appendChild(chip);
+    }
+    const text = document.createElement('span');
+    text.className = 'xb-p-status-text';
+    text.title = message;
+    text.textContent = message;
+    this._statusEl.appendChild(text);
+    if (providerBlocked && state.name !== 'Processing' && state.name !== 'ApplyingMutation') {
+      const button = document.createElement('button');
+      button.className = 'xb-p-provider-btn';
+      button.type = 'button';
+      button.textContent = 'Provider Settings';
+      button.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('xace:open-model-settings'));
+      });
+      this._statusEl.appendChild(button);
+    }
+  }
+
+  private _providerSetupMessage(): string {
+    const status = this._providerStatus;
+    if (!status.checked) return 'Checking provider setup...';
+    const stateMessages: Record<string, string> = {
+      no_key: 'Add a provider API key, save it, then run Test before prompting.',
+      invalid_key: 'The saved provider key was rejected. Replace it, save, then run Test.',
+      stale_health_proof: 'Provider settings changed. Run Test again before prompting.',
+      quota_failure: 'Provider quota or billing blocked the last Test. Add quota or choose another provider.',
+      rate_limit: 'Provider rate limit blocked the last Test. Wait, lower traffic, or choose another provider.',
+      provider_outage: 'Provider is unreachable or returned a service error. Try again or choose another provider.',
+    };
+    const uxState = status.ux_state?.state || '';
+    if (uxState && stateMessages[uxState]) return stateMessages[uxState];
+    if (status.ux_state?.message) return status.ux_state.message;
+    if (status.message) return status.message;
+    if (status.action === 'save_key_and_test') return 'Save a provider key, then run Test before prompting.';
+    if (status.action === 'test_provider') return 'Choose provider and run Test before prompting.';
+    return 'Choose provider and run Test before prompting.';
   }
 
   private _onPrefill(e: CustomEvent): void {

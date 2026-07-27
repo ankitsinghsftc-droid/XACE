@@ -42,6 +42,18 @@ fn next_event_id() -> u64 {
     }
 }
 
+fn current_event_id_counter() -> u64 {
+    // Safety: single-threaded access guaranteed by PhaseOrchestrator.
+    unsafe { EVENT_ID_COUNTER }
+}
+
+fn restore_event_id_counter(value: u64) {
+    // Safety: restore happens at a phase boundary with no concurrent systems.
+    unsafe {
+        EVENT_ID_COUNTER = value;
+    }
+}
+
 /// Resets the event ID counter — used for snapshot restore and tests.
 pub fn reset_event_id_counter() {
     unsafe {
@@ -79,9 +91,6 @@ pub struct EventBus {
     /// Subscription registry — which systems receive which event types.
     subscription_registry: EventSubscriptionRegistry,
 
-    /// Dispatcher for sort and route logic.
-    dispatcher: EventDispatcher,
-
     /// All events ever dispatched — for replay log (D14).
     dispatch_log: Vec<DispatchedEventRecord>,
 
@@ -92,13 +101,22 @@ pub struct EventBus {
     total_dispatched: u64,
 }
 
+#[derive(Clone)]
+pub struct EventBusRollbackSnapshot {
+    phase_buffers: BTreeMap<u8, Vec<Event>>,
+    pending_for_systems: BTreeMap<String, Vec<Event>>,
+    dispatch_log: Vec<DispatchedEventRecord>,
+    total_emitted: u64,
+    total_dispatched: u64,
+    event_id_counter: u64,
+}
+
 impl EventBus {
     pub fn new() -> Self {
         Self {
             phase_buffers: BTreeMap::new(),
             pending_for_systems: BTreeMap::new(),
             subscription_registry: EventSubscriptionRegistry::new(),
-            dispatcher: EventDispatcher::new(),
             dispatch_log: Vec::new(),
             total_emitted: 0,
             total_dispatched: 0,
@@ -262,6 +280,28 @@ impl EventBus {
         self.pending_for_systems.clear();
         self.dispatch_log.clear();
         reset_event_id_counter();
+    }
+
+    /// Captures all replay-visible event state for transaction rollback.
+    pub fn rollback_snapshot(&self) -> EventBusRollbackSnapshot {
+        EventBusRollbackSnapshot {
+            phase_buffers: self.phase_buffers.clone(),
+            pending_for_systems: self.pending_for_systems.clone(),
+            dispatch_log: self.dispatch_log.clone(),
+            total_emitted: self.total_emitted,
+            total_dispatched: self.total_dispatched,
+            event_id_counter: current_event_id_counter(),
+        }
+    }
+
+    /// Restores event state captured by `rollback_snapshot()`.
+    pub fn restore_rollback_snapshot(&mut self, snapshot: EventBusRollbackSnapshot) {
+        self.phase_buffers = snapshot.phase_buffers;
+        self.pending_for_systems = snapshot.pending_for_systems;
+        self.dispatch_log = snapshot.dispatch_log;
+        self.total_emitted = snapshot.total_emitted;
+        self.total_dispatched = snapshot.total_dispatched;
+        restore_event_id_counter(snapshot.event_id_counter);
     }
 }
 

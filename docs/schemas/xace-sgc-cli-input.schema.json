@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xace.dev/schemas/xace-sgc-cli-input.schema.json",
+  "title": "XACE SGC CLI Input",
+  "description": "Canonical stdin envelope for xace-system-graph-compiler. The systems array contains CGS SystemDefinition records.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["systems"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "xace.sgc.cli.input.v1",
+      "description": "Optional schema marker. If present, it must be this value."
+    },
+    "schema_version": {
+      "type": "string",
+      "minLength": 1,
+      "default": "0.1.0",
+      "description": "CGS schema version used to compile this plan."
+    },
+    "plan_version": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 1,
+      "description": "Monotonic execution plan version for the target CGS."
+    },
+    "cgs_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "Canonical 64-character lowercase SHA-256 CGS hash."
+    },
+    "systems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SystemDefinition"
+      },
+      "description": "All global and mode-local CGS SystemDefinition records to compile."
+    }
+  },
+  "$defs": {
+    "SystemDefinition": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "phase"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique system id within the CGS."
+        },
+        "display_name": {
+          "type": "string",
+          "default": "",
+          "description": "Human-readable label. Defaults to id if omitted."
+        },
+        "phase": {
+          "oneOf": [
+            {
+              "type": "string",
+              "enum": ["Initialization", "Input", "Simulation", "PostSimulation", "Cleanup", "init", "sim", "post"]
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4
+            }
+          ],
+          "description": "Execution phase, matching CGS SystemDefinition.phase."
+        },
+        "reads": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "default": [],
+          "description": "Component type IDs this system reads."
+        },
+        "writes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "default": [],
+          "description": "Component type IDs this system writes."
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": [],
+          "description": "Explicit predecessor system IDs."
+        },
+        "deterministic": {
+          "type": "boolean",
+          "default": true
+        },
+        "version": {
+          "$ref": "#/$defs/SystemVersion"
+        },
+        "version_major": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1,
+          "description": "Legacy shorthand accepted by the CLI when version is omitted."
+        },
+        "version_minor": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Legacy shorthand accepted by the CLI when version is omitted."
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "SystemVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["major", "minor"],
+      "properties": {
+        "major": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "minor": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

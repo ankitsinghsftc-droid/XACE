@@ -23,6 +23,7 @@
 //! of frame rate, machine speed, or rendering performance.
 
 use crate::entity_metadata::Tick;
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_LIFETIME_V1. Frozen forever.
@@ -84,7 +85,7 @@ impl std::fmt::Display for OnExpireAction {
 ///
 /// ## Tick-Based Timing
 /// To convert real time to ticks: ticks = seconds × simulation_rate.
-/// At 60Hz simulation rate: 1 second = 60 ticks, 0.5 seconds = 30 ticks.
+/// At 60Hz simulation rate: 1 second = 60 ticks, half a second = 30 ticks.
 /// The simulation rate is defined in the CGS TimeController settings.
 ///
 /// ## Pausing Lifetime
@@ -181,13 +182,20 @@ impl LifetimeComponent {
             .saturating_sub(self.current_lifetime_ticks)
     }
 
-    /// Returns the fraction of lifetime consumed (0.0 = fresh, 1.0 = expired).
+    /// Returns the fraction of lifetime consumed (zero = fresh, one = expired).
     /// Useful for fading effects, progress bars, visual feedback.
-    pub fn lifetime_fraction(&self) -> f32 {
+    pub fn lifetime_fraction(&self) -> Fixed64 {
         if self.max_lifetime_ticks == 0 {
-            return 1.0;
+            return Fixed64::ONE;
         }
-        (self.current_lifetime_ticks as f32 / self.max_lifetime_ticks as f32).clamp(0.0, 1.0)
+        let consumed =
+            Fixed64::from_u64_ratio(self.current_lifetime_ticks, self.max_lifetime_ticks)
+                .unwrap_or(Fixed64::ONE);
+        if consumed > Fixed64::ONE {
+            Fixed64::ONE
+        } else {
+            consumed
+        }
     }
 
     /// Advances the lifetime counter by one tick.
@@ -288,14 +296,14 @@ mod tests {
     #[test]
     fn lifetime_fraction_zero_when_fresh() {
         let lt = LifetimeComponent::destroy_after(100);
-        assert_eq!(lt.lifetime_fraction(), 0.0);
+        assert_eq!(lt.lifetime_fraction(), Fixed64::ZERO);
     }
 
     #[test]
     fn lifetime_fraction_one_when_expired() {
         let mut lt = LifetimeComponent::destroy_after(1);
         lt.tick();
-        assert_eq!(lt.lifetime_fraction(), 1.0);
+        assert_eq!(lt.lifetime_fraction(), Fixed64::ONE);
     }
 
     #[test]
@@ -304,7 +312,7 @@ mod tests {
         for _ in 0..5 {
             lt.tick();
         }
-        assert!((lt.lifetime_fraction() - 0.5).abs() < 1e-5);
+        assert_eq!(lt.lifetime_fraction(), Fixed64::from_millis(500));
     }
 
     #[test]

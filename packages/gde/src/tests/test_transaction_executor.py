@@ -23,10 +23,13 @@ from ..domain_dsl.mutation_metadata.mutation_metadata_model import MutationMetad
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
+TEST_CGS_HASH = "a" * 64
+
+
 def _meta(version: str = "0.1.0") -> MutationMetadata:
     return MutationMetadata.create(
         source="manual",
-        parent_cgs_hash="abc123def456",
+        parent_cgs_hash=TEST_CGS_HASH,
         schema_version_target=version,
         description="test",
     )
@@ -34,7 +37,7 @@ def _meta(version: str = "0.1.0") -> MutationMetadata:
 
 def _cgs() -> dict[str, Any]:
     return {
-        "metadata": {"name": "Test", "version": "0.1.0", "cgs_hash": "abc"},
+        "metadata": {"name": "Test", "version": "0.1.0", "cgs_hash": TEST_CGS_HASH},
         "global_systems": [],
         "modes": [
             {

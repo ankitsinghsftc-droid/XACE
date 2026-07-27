@@ -24,7 +24,6 @@ This is the cache-friendly vectorized path.
 
 use std::collections::BTreeSet;
 
-use crate::component_tables::archetype::ComponentBundle;
 use crate::component_tables::archetype_storage::ArchetypeStorage;
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId, TypeId};
 use crate::query_engine::sorted_merge_iterator::SortedMergeIterator;

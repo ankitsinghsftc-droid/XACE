@@ -21,7 +21,7 @@ from pil_pipeline import PILPipeline, PILResult
 # ── CGS fixture ───────────────────────────────────────────────────────────────
 
 CGS = {
-    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d",
+    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d00000000000000000000000000000000000000000000000000000000",
                  "version": "0.1.0", "schema_version": "0.1.0"},
     "global_systems": [
         {"id": "InputSystem", "phase": "Simulation",
@@ -59,7 +59,7 @@ CGS = {
         ],
     }],
 }
-CG_HASH = "0b1d495d"
+CG_HASH = "0b1d495d00000000000000000000000000000000000000000000000000000000"
 
 # ── Sequence of LLM responses for a complete happy-path run ──────────────────
 

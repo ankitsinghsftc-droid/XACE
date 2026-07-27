@@ -1,38 +1,26 @@
-// Unity TCP client — // XaceTransport.cs
-// Unity TCP client — connects to the XACE runtime, sends and receives
-// WireMessages using the 4-byte big-endian length-prefix framing protocol.
+// XaceTransport.cs
+// Unity TCP client for the Phase 15 runtime bridge.
 //
-// ## Architecture
-// XACE is the TCP server. Unity is the client. XaceTransport owns the socket,
-// the receive loop, and the outbound queue. All other Unity adapter scripts
-// call XaceTransport.Send() to push messages, and subscribe to OnMessageReceived
-// to get inbound messages.
+// Contract source:
+//   packages/runtime-core/src/engine_protocol.rs
 //
-// ## Reconnect
-// If the connection drops, XaceTransport attempts reconnect with exponential
-// backoff (1s, 2s, 4s, 8s, cap 30s). All queued outbound messages are
-// discarded on disconnect — the XACE runtime will send a fresh SNAPSHOT
-// on reconnect.
+// Frames are:
+//   [u32 little-endian payload_length][UTF-8 JSON payload]
 //
-// ## Thread Safety
-// The receive loop runs on a background Thread. Inbound messages are queued
-// in a thread-safe ConcurrentQueue and dispatched on the Unity main thread
-// in Update(). Send() is also safe to call from any thread.
+// Runtime messages use the lightweight engine bridge schema:
+//   engine -> runtime: handshake, input_packet, feedback_payload
+//   runtime -> engine: handshake_ack, tick_snapshot, disconnect, error
 //
-// ## Asset Resolution on Connect
-// When the handshake completes, XaceTransport scans all loaded Unity assets
-// and sends an AssetResolutionUpdateFeedback containing all asset_ids that
-// Unity has successfully loaded. This transitions PLACEHOLDER → LINKED in
-// the XACE Asset Registry (Audit 2, Audit 6).
-//
-// ## Wire Protocol
-// Each WireMessage is framed as:
-//   [4 bytes big-endian uint32 = payload length][JSON payload bytes]
-// Maximum message size: 16 MiB (enforced on receive, matches Rust).
+// This file also exposes a small dictionary JSON reader because Unity's
+// JsonUtility cannot deserialize arbitrary JSON objects such as the component
+// maps inside EntityState.
 
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -40,407 +28,1115 @@ using UnityEngine;
 
 namespace Xace.Adapter.Unity
 {
-    /// <summary>
-    /// Manages the TCP connection between Unity and the XACE runtime.
-    /// Attach to a persistent GameObject in your scene (DontDestroyOnLoad).
-    /// </summary>
-    public class XaceTransport : MonoBehaviour
+    public sealed class XaceTransport : MonoBehaviour
     {
-        // ── Inspector Configuration ────────────────────────────────────────
+        public const uint ProtocolVersion = 1;
+        public const int DefaultPort = 7777;
+        public const int MaxFrameBytes = 4 * 1024 * 1024;
 
         [Header("Connection")]
-        [Tooltip("IP address of the XACE runtime host.")]
-        [SerializeField] private string _host = "127.0.0.1";
+        [SerializeField] private string host = "127.0.0.1";
+        [SerializeField] private int port = DefaultPort;
+        [SerializeField] private bool autoConnect = true;
+        [SerializeField] private bool reconnect = true;
+        [SerializeField] private float initialReconnectDelaySeconds = 1f;
+        [SerializeField] private float maxReconnectDelaySeconds = 30f;
+        [SerializeField] private bool disableCompanionComponents = false;
 
-        [Tooltip("TCP port the XACE runtime is listening on.")]
-        [SerializeField] private int _port = 7890;
+        [Header("Validation Feedback")]
+        [SerializeField] private bool disableLiveValidationFeedback = false;
+        [SerializeField] private int liveValidationFeedbackEverySnapshots = 30;
 
-        [Tooltip("World ID — must match world_id in game_config.yaml.")]
-        [SerializeField] private string _worldId = "default";
+        [Header("Handshake")]
+        [SerializeField] private string engineName = "Unity";
+        [SerializeField] private string adapterVersion = "0.1.0";
+        [SerializeField] private string cgsHash = "";
+        [SerializeField] private string[] capabilities =
+        {
+            "length_prefixed_json",
+            "tick_snapshot_v1",
+            "input_packet_v1",
+            "feedback_payload_v1",
+            "unity"
+        };
 
-        [Header("Reconnect")]
-        [SerializeField] private float _initialReconnectDelaySec = 1f;
-        [SerializeField] private float _maxReconnectDelaySec     = 30f;
-
-        [Header("Protocol")]
-        [SerializeField] private string _schemaVersion       = "0.1.0";
-        [SerializeField] private uint   _executionPlanVersion = 1;
-
-        // ── Events ─────────────────────────────────────────────────────────
-
-        /// <summary>Fired on the Unity main thread when a WireMessage arrives.</summary>
-        public event Action<WireMessage> OnMessageReceived;
-
-        /// <summary>Fired on the Unity main thread when the connection state changes.</summary>
         public event Action<bool> OnConnectionChanged;
+        public event Action<XaceHandshakeAck> OnHandshakeAccepted;
+        public event Action<string> OnHandshakeRejected;
+        public event Action<XaceRuntimeMessage> OnMessageReceived;
+        public event Action<XaceTickSnapshot> OnTickSnapshot;
+        public event Action<string> OnProtocolError;
 
-        // ── State ──────────────────────────────────────────────────────────
+        private readonly ConcurrentQueue<string> outboundJson = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<XaceRuntimeMessage> inboundMessages = new ConcurrentQueue<XaceRuntimeMessage>();
+        private readonly ConcurrentQueue<Action> mainThreadActions = new ConcurrentQueue<Action>();
+        private readonly object streamLock = new object();
 
-        private TcpClient             _client;
-        private NetworkStream         _stream;
-        private Thread                _receiveThread;
-        private volatile bool         _connected;
-        private volatile bool         _shutdown;
-        private float                 _reconnectDelay;
-        private float                 _reconnectTimer;
+        private TcpClient client;
+        private NetworkStream stream;
+        private Thread receiveThread;
+        private volatile bool connected;
+        private volatile bool stopping;
+        private volatile bool handshakeComplete;
+        private float reconnectDelay;
+        private float reconnectTimer;
+        private ulong sequenceId = 1;
+        private ulong snapshotsDispatched;
+        private XaceTransportStats stats;
+        private string lastError = "";
 
-        // Outbound queue — filled by Send(), drained in Update()
-        private readonly ConcurrentQueue<byte[]> _sendQueue    = new();
-        // Inbound queue — filled by receive thread, dispatched in Update()
-        private readonly ConcurrentQueue<WireMessage> _recvQueue = new();
+        public bool IsConnected => connected;
+        public bool IsHandshakeComplete => handshakeComplete;
+        public ulong NextSequenceId() => sequenceId++;
+        public XaceTransportStats Stats => stats;
+        public string LastError => lastError;
 
-        // Sequence counters (one per outbound message type)
-        private uint _deltaSequence    = 0;
-        private uint _feedbackSequence = 0;
-        private uint _inputSequence    = 0;
-        private uint _controlSequence  = 0;
+        private void Awake()
+        {
+            reconnectDelay = Mathf.Max(0.1f, initialReconnectDelaySeconds);
+            EnsureCompanionComponents();
+        }
 
-        // Maximum frame size — matches Rust MAX_MESSAGE_SIZE
-        private const int MaxFrameSize = 16 * 1024 * 1024;
-
-        // ── Unity Lifecycle ────────────────────────────────────────────────
+        private void OnEnable()
+        {
+            EnsureCompanionComponents();
+        }
 
         private void Start()
         {
-            DontDestroyOnLoad(gameObject);
-            _reconnectDelay = _initialReconnectDelaySec;
-            BeginConnect();
+            EnsureCompanionComponents();
+            if (autoConnect)
+                Connect();
         }
 
         private void Update()
         {
-            // Dispatch inbound messages on the main thread
-            while (_recvQueue.TryDequeue(out WireMessage msg))
-                OnMessageReceived?.Invoke(msg);
+            PumpOnce();
+        }
 
-            // Flush outbound queue to socket
-            if (_connected && _stream != null)
-                FlushSendQueue();
+        public void ConfigureConnection(string newHost, int newPort, string newCgsHash = null)
+        {
+            if (!string.IsNullOrWhiteSpace(newHost))
+                host = newHost.Trim();
+            port = Mathf.Clamp(newPort, 1, 65535);
+            if (newCgsHash != null)
+                cgsHash = PortableText(newCgsHash, 128, "");
+        }
 
-            // Reconnect timer
-            if (!_connected && !_shutdown)
-            {
-                _reconnectTimer += Time.unscaledDeltaTime;
-                if (_reconnectTimer >= _reconnectDelay)
-                {
-                    _reconnectTimer = 0f;
-                    _reconnectDelay = Mathf.Min(_reconnectDelay * 2f, _maxReconnectDelaySec);
-                    BeginConnect();
-                }
-            }
+        public void PumpOnce()
+        {
+            while (mainThreadActions.TryDequeue(out var action))
+                action?.Invoke();
+
+            while (inboundMessages.TryDequeue(out var message))
+                DispatchInbound(message);
+
+            if (connected)
+                FlushOutbound();
+            else if (!stopping && reconnect)
+                TickReconnectTimer();
         }
 
         private void OnDestroy()
         {
-            _shutdown = true;
-            Disconnect();
+            stopping = true;
+            Disconnect("destroyed");
         }
 
-        // ── Public API ─────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Sends a WireMessage to the XACE runtime.
-        /// Thread-safe — can be called from any thread.
-        /// </summary>
-        public void Send(WireMessage msg)
+        public void Connect()
         {
-            if (!_connected) return;
-            byte[] frame = FrameMessage(msg);
-            _sendQueue.Enqueue(frame);
-        }
+            if (connected)
+                return;
 
-        /// <summary>Sends a FEEDBACK WireMessage.</summary>
-        public void SendFeedback(object feedbackPayload)
-        {
-            string json = JsonUtility.ToJson(feedbackPayload);
-            Send(BuildMessage(MessageType.Feedback, json, ref _feedbackSequence));
-        }
-
-        /// <summary>Whether the transport is currently connected to XACE.</summary>
-        public bool IsConnected => _connected;
-
-        // ── Connection Management ──────────────────────────────────────────
-
-        private void BeginConnect()
-        {
             try
             {
-                _client = new TcpClient();
-                _client.Connect(_host, _port);
-                _stream = _client.GetStream();
-                _connected = true;
-                _reconnectDelay = _initialReconnectDelaySec;
+                Disconnect("reconnect");
+                stopping = false;
+                client = new TcpClient();
+                client.NoDelay = true;
+                client.Connect(host, Mathf.Clamp(port, 1, 65535));
+                stream = client.GetStream();
+                connected = true;
+                handshakeComplete = false;
+                reconnectDelay = Mathf.Max(0.1f, initialReconnectDelaySeconds);
+                reconnectTimer = 0f;
 
-                Debug.Log($"[XaceTransport] Connected to XACE at {_host}:{_port}");
-                OnConnectionChanged?.Invoke(true);
-
-                PerformHandshake();
-                SendInitialAssetResolution();
-
-                _receiveThread = new Thread(ReceiveLoop)
+                SendHandshakeImmediately();
+                receiveThread = new Thread(ReceiveLoop)
                 {
                     IsBackground = true,
-                    Name = "XaceReceiveThread",
+                    Name = "XACE Unity Receive"
                 };
-                _receiveThread.Start();
+                receiveThread.Start();
+
+                mainThreadActions.Enqueue(() => OnConnectionChanged?.Invoke(true));
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[XaceTransport] Connect failed: {ex.Message}. " +
-                                 $"Retrying in {_reconnectDelay:F1}s...");
-                _connected = false;
+                Fail("connect failed: " + ex.Message);
+                connected = false;
+                handshakeComplete = false;
+                CloseSocket();
             }
         }
 
-        private void Disconnect()
+        public void Disconnect(string reason = "disconnect")
         {
-            _connected = false;
-            try { _stream?.Close(); } catch { /* ignored */ }
-            try { _client?.Close(); } catch { /* ignored */ }
-            _stream = null;
-            _client = null;
-            OnConnectionChanged?.Invoke(false);
+            connected = false;
+            handshakeComplete = false;
+            ClearOutboundQueue();
+            CloseSocket();
+            mainThreadActions.Enqueue(() => OnConnectionChanged?.Invoke(false));
+            if (!string.IsNullOrEmpty(reason))
+                Debug.Log("[XACE] Unity transport disconnected: " + reason);
         }
 
-        // ── Handshake ──────────────────────────────────────────────────────
-
-        private void PerformHandshake()
+        public bool SendInputPacket(XaceInputPacket packet)
         {
-            var hello = new HandshakeHello
+            if (packet == null)
+                return false;
+            packet.msg_type = XaceProtocolNames.InputPacket;
+            if (packet.peer_id <= 0)
+                packet.peer_id = 1;
+            if (packet.sequence_id == 0)
+                packet.sequence_id = NextSequenceId();
+            return SendJson(XaceJson.Serialize(packet.ToDictionary()));
+        }
+
+        public bool SendDictionary(IDictionary<string, object> message)
+        {
+            if (message == null)
+                return false;
+            return SendJson(XaceJson.Serialize(message));
+        }
+
+        public bool SendDictionaryImmediately(IDictionary<string, object> message)
+        {
+            if (message == null)
+                return false;
+            return SendJsonImmediately(XaceJson.Serialize(message));
+        }
+
+        public bool SendJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return false;
+            if (!connected || stream == null)
+                return false;
+            outboundJson.Enqueue(json);
+            stats.queuedMessages = outboundJson.Count;
+            return connected;
+        }
+
+        public bool SendJsonImmediately(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                return false;
+            if (!connected || stream == null)
+                return false;
+            try
             {
-                control_type          = "Hello",
-                protocol_version      = WireProtocol.ProtocolVersion,
-                schema_version        = _schemaVersion,
-                execution_plan_version = _executionPlanVersion,
-                world_id              = _worldId,
-                engine_name           = "Unity",
-                adapter_version       = Application.unityVersion,
+                WriteFrame(json);
+                stats.framesSent++;
+                stats.queuedMessages = outboundJson.Count;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Fail("send failed: " + ex.Message);
+                connected = false;
+                handshakeComplete = false;
+                CloseSocket();
+                return false;
+            }
+        }
+
+        private void TickReconnectTimer()
+        {
+            reconnectTimer += Time.unscaledDeltaTime;
+            if (reconnectTimer < reconnectDelay)
+                return;
+            reconnectTimer = 0f;
+            reconnectDelay = Mathf.Min(Mathf.Max(0.1f, reconnectDelay * 2f), maxReconnectDelaySeconds);
+            Connect();
+        }
+
+        private void SendHandshakeImmediately()
+        {
+            var hello = new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["msg_type"] = XaceProtocolNames.Handshake,
+                ["protocol_version"] = ProtocolVersion,
+                ["engine_name"] = PortableText(engineName, 96, "Unity"),
+                ["engine_version"] = PortableText(Application.unityVersion, 64, "unknown"),
+                ["adapter_version"] = PortableText(adapterVersion, 64, "0.1.0"),
+                ["cgs_hash"] = PortableText(cgsHash, 128, ""),
+                ["capabilities"] = NormaliseCapabilities(capabilities)
             };
-            Send(BuildMessage(MessageType.Control, JsonUtility.ToJson(hello), ref _controlSequence));
-            Debug.Log("[XaceTransport] Handshake Hello sent.");
+            WriteFrame(XaceJson.Serialize(hello));
+            stats.framesSent++;
         }
 
-        // ── Asset Resolution on Connect (Audit 2 + Audit 6) ───────────────
-
-        /// <summary>
-        /// Scans all loaded Unity assets and sends an AssetResolutionUpdateFeedback
-        /// to transition PLACEHOLDER → LINKED in the XACE Asset Registry.
-        /// Called once after the handshake completes.
-        /// </summary>
-        private void SendInitialAssetResolution()
+        private void FlushOutbound()
         {
-            var resolved = new Dictionary<string, string>();
-
-            // Scan all loaded prefabs and meshes for XACE asset_id naming pattern
-            // In production, this is populated from the project's AssetManifest
-            // (imported via a Unity Editor tool that maps asset_ids to GUIDs).
-            // In Phase 7 we send all loaded resources that match the naming convention.
-            var resources = Resources.LoadAll<UnityEngine.Object>("");
-            foreach (var resource in resources)
-            {
-                string assetId = AssetIdFromUnityName(resource.name);
-                if (!string.IsNullOrEmpty(assetId))
-                    resolved[assetId] = $"unity_resource://{resource.name}";
-            }
-
-            if (resolved.Count == 0) return;
-
-            var payload = new AssetResolutionUpdateFeedback
-            {
-                resolved_assets = resolved,
-                generated_frame = 0,
-            };
-
-            SendFeedback(payload);
-            Debug.Log($"[XaceTransport] Sent initial asset resolution: {resolved.Count} assets.");
-        }
-
-        /// <summary>
-        /// Derives an XACE canonical asset_id from a Unity resource name.
-        /// Only returns a value if the name matches the XACE naming pattern.
-        /// Pattern: [entity_type]_[entity_name]_[suffix]_v[N]
-        /// </summary>
-        private static string AssetIdFromUnityName(string unityName)
-        {
-            // Simple pattern check — matches known XACE asset suffixes
-            string[] knownSuffixes = { "_mesh_v", "_tex_v", "_mat_v", "_anim_v",
-                                       "_sfx_v", "_music_v", "_sprite_v", "_vfx_v",
-                                       "_prefab_v", "_font_v" };
-            string lower = unityName.ToLowerInvariant();
-            foreach (string suffix in knownSuffixes)
-            {
-                if (lower.Contains(suffix))
-                    return lower; // already in XACE format
-            }
-            return null;
-        }
-
-        // ── Receive Loop (Background Thread) ──────────────────────────────
-
-        private void ReceiveLoop()
-        {
-            byte[] lenBuf = new byte[4];
-            while (_connected && !_shutdown)
+            while (connected && outboundJson.TryDequeue(out var json))
             {
                 try
                 {
-                    // Read 4-byte big-endian length prefix
-                    if (!ReadExact(lenBuf, 4)) break;
-                    uint payloadLen = ReadUInt32BigEndian(lenBuf);
-
-                    if (payloadLen > MaxFrameSize)
-                    {
-                        Debug.LogError($"[XaceTransport] Frame too large: {payloadLen} bytes. Disconnecting.");
-                        break;
-                    }
-
-                    // Read payload
-                    byte[] payload = new byte[payloadLen];
-                    if (!ReadExact(payload, (int)payloadLen)) break;
-
-                    string json = Encoding.UTF8.GetString(payload);
-                    WireMessage msg = JsonUtility.FromJson<WireMessage>(json);
-
-                    if (msg != null)
-                        _recvQueue.Enqueue(msg);
+                    WriteFrame(json);
+                    stats.framesSent++;
+                    stats.queuedMessages = outboundJson.Count;
                 }
-                catch (Exception ex) when (!_shutdown)
+                catch (Exception ex)
                 {
-                    Debug.LogWarning($"[XaceTransport] Receive error: {ex.Message}");
+                    Fail("send failed: " + ex.Message);
+                    connected = false;
+                    CloseSocket();
+                    break;
+                }
+            }
+        }
+
+        private void ReceiveLoop()
+        {
+            var lengthBytes = new byte[4];
+            while (connected && !stopping)
+            {
+                try
+                {
+                    if (!ReadExact(lengthBytes, 4))
+                        break;
+
+                    var length = ReadUInt32LittleEndian(lengthBytes);
+                    if (length == 0 || length > MaxFrameBytes)
+                        throw new InvalidDataException("invalid frame length: " + length);
+
+                    var payload = new byte[length];
+                    if (!ReadExact(payload, (int)length))
+                        break;
+
+                    stats.bytesReceived += length + 4;
+                    var json = Encoding.UTF8.GetString(payload);
+                    var parsed = XaceJson.DeserializeObject(json);
+                    if (parsed == null)
+                        throw new InvalidDataException("frame payload is not a JSON object");
+
+                    var message = new XaceRuntimeMessage(json, parsed);
+                    inboundMessages.Enqueue(message);
+                    stats.framesReceived++;
+                }
+                catch (Exception ex)
+                {
+                    if (!stopping)
+                        Fail("receive failed: " + ex.Message);
                     break;
                 }
             }
 
-            if (!_shutdown)
+            if (!stopping)
             {
-                _connected = false;
-                Debug.LogWarning("[XaceTransport] Connection lost. Will reconnect...");
+                connected = false;
+                handshakeComplete = false;
+                CloseSocket();
+                mainThreadActions.Enqueue(() => OnConnectionChanged?.Invoke(false));
             }
         }
 
         private bool ReadExact(byte[] buffer, int count)
         {
-            int offset = 0;
-            while (offset < count)
+            var offset = 0;
+            while (offset < count && connected && !stopping)
             {
-                try
-                {
-                    int read = _stream.Read(buffer, offset, count - offset);
-                    if (read == 0) return false; // connection closed
-                    offset += read;
-                }
-                catch { return false; }
+                var read = stream.Read(buffer, offset, count - offset);
+                if (read <= 0)
+                    return false;
+                offset += read;
             }
-            return true;
+            return offset == count;
         }
 
-        // ── Send Queue Flush ───────────────────────────────────────────────
-
-        private void FlushSendQueue()
+        private void WriteFrame(string json)
         {
-            while (_sendQueue.TryDequeue(out byte[] frame))
+            var payload = Encoding.UTF8.GetBytes(json);
+            if (payload.Length <= 0 || payload.Length > MaxFrameBytes)
+                throw new InvalidDataException("outbound frame size invalid: " + payload.Length);
+
+            var frame = new byte[payload.Length + 4];
+            WriteUInt32LittleEndian(frame, 0, (uint)payload.Length);
+            Buffer.BlockCopy(payload, 0, frame, 4, payload.Length);
+
+            lock (streamLock)
+            {
+                if (stream == null)
+                    throw new IOException("not connected");
+                stream.Write(frame, 0, frame.Length);
+                stream.Flush();
+            }
+            stats.bytesSent += (ulong)frame.Length;
+        }
+
+        private void DispatchInbound(XaceRuntimeMessage message)
+        {
+            var type = message.MessageType;
+            switch (type)
+            {
+                case XaceProtocolNames.HandshakeAck:
+                    DispatchHandshakeAck(message);
+                    break;
+                case XaceProtocolNames.TickSnapshot:
+                    var snapshot = XaceTickSnapshot.FromMessage(message);
+                    QueueLiveValidationFeedback(snapshot);
+                    DispatchTickSnapshot(snapshot);
+                    OnMessageReceived?.Invoke(message);
+                    break;
+                case XaceProtocolNames.Disconnect:
+                    Disconnect(message.GetString("reason", "runtime disconnect"));
+                    break;
+                case XaceProtocolNames.Error:
+                    Fail(message.GetString("message", "runtime error"));
+                    OnMessageReceived?.Invoke(message);
+                    break;
+                default:
+                    OnMessageReceived?.Invoke(message);
+                    break;
+            }
+        }
+
+        private void DispatchHandshakeAck(XaceRuntimeMessage message)
+        {
+            var ack = XaceHandshakeAck.FromMessage(message);
+            if (ack.accepted)
+            {
+                handshakeComplete = true;
+                OnHandshakeAccepted?.Invoke(ack);
+                OnMessageReceived?.Invoke(message);
+            }
+            else
+            {
+                handshakeComplete = false;
+                var reason = string.IsNullOrEmpty(ack.reject_reason) ? "handshake rejected" : ack.reject_reason;
+                OnHandshakeRejected?.Invoke(reason);
+                Disconnect(reason);
+            }
+        }
+
+        private void DispatchTickSnapshot(XaceTickSnapshot snapshot)
+        {
+            var handlers = OnTickSnapshot;
+            if (handlers == null)
+                return;
+
+            foreach (Action<XaceTickSnapshot> handler in handlers.GetInvocationList())
             {
                 try
                 {
-                    _stream.Write(frame, 0, frame.Length);
+                    handler?.Invoke(snapshot);
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"[XaceTransport] Send error: {ex.Message}");
-                    Disconnect();
-                    return;
+                    Fail("tick snapshot listener failed: " + ex.Message);
                 }
             }
         }
 
-        // ── Wire Helpers ───────────────────────────────────────────────────
-
-        private WireMessage BuildMessage(MessageType type, string payload, ref uint sequence)
+        private void CloseSocket()
         {
-            return new WireMessage
+            try { stream?.Close(); } catch { }
+            try { client?.Close(); } catch { }
+            stream = null;
+            client = null;
+        }
+
+        private void ClearOutboundQueue()
+        {
+            while (outboundJson.TryDequeue(out _)) { }
+            stats.queuedMessages = 0;
+        }
+
+        private void Fail(string message)
+        {
+            lastError = message;
+            stats.protocolErrors++;
+            Debug.LogWarning("[XACE] " + message);
+            mainThreadActions.Enqueue(() => OnProtocolError?.Invoke(message));
+        }
+
+        private void EnsureCompanionComponents()
+        {
+            if (disableCompanionComponents)
+                return;
+            EnsureComponent<XaceInputCollector>();
+            EnsureComponent<XaceDeltaApplicator>();
+            EnsureComponent<XaceConsoleWidget>();
+        }
+
+        private void EnsureComponent<T>() where T : Component
+        {
+            if (GetComponent<T>() == null)
+                gameObject.AddComponent<T>();
+        }
+
+        private void QueueLiveValidationFeedback(XaceTickSnapshot snapshot)
+        {
+            if (disableLiveValidationFeedback || snapshot == null || !connected)
+                return;
+            snapshotsDispatched++;
+            var stride = Mathf.Max(1, liveValidationFeedbackEverySnapshots);
+            if (snapshotsDispatched != 1 && snapshotsDispatched % (ulong)stride != 0)
+                return;
+
+            var payload = new SortedDictionary<string, object>(StringComparer.Ordinal)
             {
-                protocol_version       = WireProtocol.ProtocolVersion,
-                world_id               = _worldId,
-                schema_version         = _schemaVersion,
-                execution_plan_version = _executionPlanVersion,
-                tick                   = 0,
-                sequence_id            = sequence++,
-                message_type           = (int)type,
-                payload                = payload,
+                ["adapter_engine"] = "unity",
+                ["delta_applicator_present"] = GetComponent<XaceDeltaApplicator>() != null,
+                ["draw_calls"] = 0,
+                ["engine_delta_apply_ms"] = 0f,
+                ["engine_entity_count"] = snapshot.entities != null ? snapshot.entities.Count : 0,
+                ["generated_frame"] = snapshot.tick,
+                ["input_collector_present"] = GetComponent<XaceInputCollector>() != null,
+                ["message_type"] = "tick_snapshot_dispatched",
+                ["physics_contacts"] = 0,
+                ["runtime_tick"] = snapshot.tick,
+                ["transport_frames_received"] = stats.framesReceived,
+                ["xace_live_validation"] = true
+            };
+            var message = new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["feedback_type"] = "PerformanceMetrics",
+                ["entity_id"] = 0,
+                ["generated_frame"] = snapshot.tick,
+                ["payload_json"] = XaceJson.Serialize(payload)
+            };
+            var batch = new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["msg_type"] = "feedback_payload",
+                ["tick"] = snapshot.tick,
+                ["messages"] = new List<object> { message }
+            };
+            SendDictionaryImmediately(batch);
+        }
+
+        private static uint ReadUInt32LittleEndian(byte[] bytes)
+        {
+            return (uint)(bytes[0] | (bytes[1] << 8) | (bytes[2] << 16) | (bytes[3] << 24));
+        }
+
+        private static void WriteUInt32LittleEndian(byte[] bytes, int offset, uint value)
+        {
+            bytes[offset] = (byte)(value & 0xff);
+            bytes[offset + 1] = (byte)((value >> 8) & 0xff);
+            bytes[offset + 2] = (byte)((value >> 16) & 0xff);
+            bytes[offset + 3] = (byte)((value >> 24) & 0xff);
+        }
+
+        private static string[] NormaliseCapabilities(IEnumerable<string> input)
+        {
+            var set = new SortedSet<string>(StringComparer.Ordinal);
+            if (input != null)
+            {
+                foreach (var item in input)
+                {
+                    var normalised = PortableText(item, 64, "");
+                    if (!string.IsNullOrEmpty(normalised))
+                        set.Add(normalised);
+                }
+            }
+            return new List<string>(set).ToArray();
+        }
+
+        private static string PortableText(string value, int maxBytes, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return fallback;
+
+            var builder = new StringBuilder();
+            foreach (var ch in value.Trim())
+            {
+                if ((ch >= 'a' && ch <= 'z') ||
+                    (ch >= 'A' && ch <= 'Z') ||
+                    (ch >= '0' && ch <= '9') ||
+                    ch == '_' || ch == '-' || ch == '.' || ch == '/' || ch == ' ')
+                {
+                    builder.Append(ch);
+                }
+            }
+
+            var text = builder.ToString();
+            while (Encoding.UTF8.GetByteCount(text) > maxBytes && text.Length > 0)
+                text = text.Substring(0, text.Length - 1);
+            return string.IsNullOrEmpty(text) ? fallback : text;
+        }
+    }
+
+    public static class XaceProtocolNames
+    {
+        public const string Handshake = "handshake";
+        public const string HandshakeAck = "handshake_ack";
+        public const string TickSnapshot = "tick_snapshot";
+        public const string PlaybackCommands = "playback_commands";
+        public const string InputPacket = "input_packet";
+        public const string Disconnect = "disconnect";
+        public const string Error = "error";
+    }
+
+    [Serializable]
+    public sealed class XaceHandshake
+    {
+        public string msg_type;
+        public uint protocol_version;
+        public string engine_name;
+        public string engine_version;
+        public string adapter_version;
+        public string cgs_hash;
+        public string[] capabilities;
+    }
+
+    [Serializable]
+    public sealed class XaceInputPacket
+    {
+        public string msg_type = XaceProtocolNames.InputPacket;
+        public ulong peer_id = 1;
+        public ulong tick;
+        public ulong player_id;
+        public ulong sequence_id;
+        public XaceInputAction[] actions = new XaceInputAction[0];
+        public ulong timestamp_ms;
+        public string device_id = "unity";
+        public bool predicted;
+
+        public SortedDictionary<string, object> ToDictionary()
+        {
+            var actionList = new List<object>();
+            if (actions != null)
+            {
+                foreach (var action in actions)
+                {
+                    if (action == null)
+                        continue;
+                    actionList.Add(action.ToDictionary());
+                }
+            }
+
+            return new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["msg_type"] = string.IsNullOrEmpty(msg_type) ? XaceProtocolNames.InputPacket : msg_type,
+                ["peer_id"] = peer_id,
+                ["tick"] = tick,
+                ["player_id"] = player_id,
+                ["sequence_id"] = sequence_id,
+                ["actions"] = actionList,
+                ["timestamp_ms"] = timestamp_ms,
+                ["device_id"] = device_id ?? "",
+                ["predicted"] = predicted
             };
         }
+    }
 
-        private static byte[] FrameMessage(WireMessage msg)
+    [Serializable]
+    public sealed class XaceInputAction
+    {
+        public string action;
+        public float value;
+        public float secondary_value;
+        public string kind;
+        public string phase;
+
+        public SortedDictionary<string, object> ToDictionary()
         {
-            byte[] payload = Encoding.UTF8.GetBytes(JsonUtility.ToJson(msg));
-            byte[] frame   = new byte[4 + payload.Length];
-            WriteUInt32BigEndian(frame, 0, (uint)payload.Length);
-            Buffer.BlockCopy(payload, 0, frame, 4, payload.Length);
-            return frame;
+            return new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["action"] = action ?? "",
+                ["value"] = value,
+                ["secondary_value"] = secondary_value,
+                ["kind"] = kind ?? "custom",
+                ["phase"] = phase ?? "performed"
+            };
+        }
+    }
+
+    public struct XaceTransportStats
+    {
+        public ulong framesSent;
+        public ulong framesReceived;
+        public ulong bytesSent;
+        public ulong bytesReceived;
+        public ulong protocolErrors;
+        public int queuedMessages;
+    }
+
+    public sealed class XaceRuntimeMessage
+    {
+        public readonly string RawJson;
+        public readonly Dictionary<string, object> Data;
+
+        public XaceRuntimeMessage(string rawJson, Dictionary<string, object> data)
+        {
+            RawJson = rawJson ?? "";
+            Data = data ?? new Dictionary<string, object>();
         }
 
-        private static uint ReadUInt32BigEndian(byte[] buf)
-            => (uint)((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]);
+        public string MessageType => GetString("msg_type", "");
+        public ulong Tick => GetUInt64("tick", 0);
 
-        private static void WriteUInt32BigEndian(byte[] buf, int offset, uint value)
+        public string GetString(string key, string fallback)
         {
-            buf[offset + 0] = (byte)(value >> 24);
-            buf[offset + 1] = (byte)(value >> 16);
-            buf[offset + 2] = (byte)(value >> 8);
-            buf[offset + 3] = (byte)(value);
+            return Data.TryGetValue(key, out var value) && value != null ? Convert.ToString(value, CultureInfo.InvariantCulture) : fallback;
+        }
+
+        public ulong GetUInt64(string key, ulong fallback)
+        {
+            if (!Data.TryGetValue(key, out var value) || value == null)
+                return fallback;
+            try { return Convert.ToUInt64(value, CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        public bool GetBool(string key, bool fallback)
+        {
+            if (!Data.TryGetValue(key, out var value) || value == null)
+                return fallback;
+            try { return Convert.ToBoolean(value, CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        public List<object> GetList(string key)
+        {
+            return Data.TryGetValue(key, out var value) && value is List<object> list ? list : new List<object>();
+        }
+
+        public Dictionary<string, object> GetObject(string key)
+        {
+            return Data.TryGetValue(key, out var value) && value is Dictionary<string, object> obj ? obj : new Dictionary<string, object>();
         }
     }
 
-    // ── Wire Protocol Constants ────────────────────────────────────────────────
-
-    public static class WireProtocol
+    public sealed class XaceHandshakeAck
     {
-        public const uint ProtocolVersion = 1;
-    }
-
-    public enum MessageType { Snapshot = 0, Delta = 1, Input = 2, Event = 3, Control = 4, Feedback = 5 }
-
-    // ── Wire Message (matches Rust WireMessage) ────────────────────────────────
-
-    [Serializable]
-    public class WireMessage
-    {
-        public uint   protocol_version;
-        public string world_id;
+        public bool accepted;
+        public string reject_reason;
+        public string session_id;
+        public uint tick_rate;
+        public string cgs_hash;
         public string schema_version;
-        public uint   execution_plan_version;
-        public ulong  tick;
-        public ulong  sequence_id;
-        public int    message_type;
-        public string payload;
+        public List<XaceEntityState> initial_entities = new List<XaceEntityState>();
 
-        public bool IsSnapshot => message_type == (int)MessageType.Snapshot;
-        public bool IsDelta    => message_type == (int)MessageType.Delta;
-        public bool IsInput    => message_type == (int)MessageType.Input;
-        public bool IsFeedback => message_type == (int)MessageType.Feedback;
-        public bool IsControl  => message_type == (int)MessageType.Control;
+        public static XaceHandshakeAck FromMessage(XaceRuntimeMessage message)
+        {
+            var ack = new XaceHandshakeAck
+            {
+                accepted = message.GetBool("accepted", false),
+                reject_reason = message.GetString("reject_reason", ""),
+                session_id = message.GetString("session_id", ""),
+                tick_rate = (uint)message.GetUInt64("tick_rate", 60),
+                cgs_hash = message.GetString("cgs_hash", ""),
+                schema_version = message.GetString("schema_version", "")
+            };
+            foreach (var item in message.GetList("initial_entities"))
+            {
+                if (item is Dictionary<string, object> obj)
+                    ack.initial_entities.Add(XaceEntityState.FromDictionary(obj));
+            }
+            return ack;
+        }
     }
 
-    // ── Handshake Payloads ─────────────────────────────────────────────────────
-
-    [Serializable]
-    public class HandshakeHello
+    public sealed class XaceTickSnapshot
     {
-        public string control_type;
-        public uint   protocol_version;
-        public string schema_version;
-        public uint   execution_plan_version;
-        public string world_id;
-        public string engine_name;
-        public string adapter_version;
+        public ulong tick;
+        public ulong timestamp_ms;
+        public List<XaceEntityState> entities = new List<XaceEntityState>();
+        public List<ulong> spawned_ids = new List<ulong>();
+        public List<ulong> destroyed_ids = new List<ulong>();
+        public List<XacePlaybackCommand> playback_commands = new List<XacePlaybackCommand>();
+
+        public static XaceTickSnapshot FromMessage(XaceRuntimeMessage message)
+        {
+            var snapshot = new XaceTickSnapshot
+            {
+                tick = message.GetUInt64("tick", 0),
+                timestamp_ms = message.GetUInt64("timestamp_ms", 0)
+            };
+            foreach (var item in message.GetList("entities"))
+            {
+                if (item is Dictionary<string, object> obj)
+                    snapshot.entities.Add(XaceEntityState.FromDictionary(obj));
+            }
+            foreach (var id in message.GetList("spawned_ids"))
+                snapshot.spawned_ids.Add(XaceJsonValue.ToUInt64(id, 0));
+            foreach (var id in message.GetList("destroyed_ids"))
+                snapshot.destroyed_ids.Add(XaceJsonValue.ToUInt64(id, 0));
+            foreach (var item in message.GetList("playback_commands"))
+            {
+                if (item is Dictionary<string, object> obj)
+                    snapshot.playback_commands.Add(XacePlaybackCommand.FromDictionary(obj));
+            }
+            return snapshot;
+        }
     }
 
-    // ── Asset Resolution Feedback Payload ──────────────────────────────────────
-
-    [Serializable]
-    public class AssetResolutionUpdateFeedback
+    public sealed class XaceAssetReference
     {
-        public Dictionary<string, string> resolved_assets;
-        public ulong generated_frame;
+        public string id = "";
+        public string asset_type = "";
+        public string status = "";
+
+        public static XaceAssetReference FromDictionary(Dictionary<string, object> obj)
+        {
+            if (obj == null)
+                return new XaceAssetReference();
+            return new XaceAssetReference
+            {
+                id = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "id"), ""),
+                asset_type = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "asset_type"), ""),
+                status = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "status"), "")
+            };
+        }
     }
-}connects to XACE runtime, sends/receives WireMessages, handles reconnect — Phase 7
+
+    public sealed class XacePlaybackCommand
+    {
+        public string binding_id = "";
+        public string event_name = "";
+        public string playback_kind = "";
+        public ulong entity_id;
+        public XaceAssetReference asset = new XaceAssetReference();
+        public string semantic_action = "";
+        public SortedDictionary<string, string> parameters = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        public int priority;
+
+        public static XacePlaybackCommand FromDictionary(Dictionary<string, object> obj)
+        {
+            var command = new XacePlaybackCommand();
+            if (obj == null)
+                return command;
+
+            command.binding_id = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "binding_id"), "");
+            command.event_name = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "event_name"), "");
+            command.playback_kind = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "playback_kind"), "");
+            command.entity_id = XaceJsonValue.ToUInt64(XaceJsonValue.Get(obj, "entity_id"), 0);
+            command.semantic_action = XaceJsonValue.ToString(XaceJsonValue.Get(obj, "semantic_action"), "");
+            command.priority = XaceJsonValue.ToInt32(XaceJsonValue.Get(obj, "priority"), 0);
+
+            if (XaceJsonValue.Get(obj, "asset") is Dictionary<string, object> asset)
+                command.asset = XaceAssetReference.FromDictionary(asset);
+            if (XaceJsonValue.Get(obj, "parameters") is Dictionary<string, object> parameters)
+            {
+                foreach (var pair in parameters)
+                    command.parameters[pair.Key] = XaceJsonValue.ToString(pair.Value, "");
+            }
+            return command;
+        }
+    }
+
+    public sealed class XaceEntityState
+    {
+        public ulong id;
+        public string actor_id;
+        public SortedDictionary<uint, string> components = new SortedDictionary<uint, string>();
+
+        public static XaceEntityState FromDictionary(Dictionary<string, object> obj)
+        {
+            var state = new XaceEntityState
+            {
+                id = XaceJsonValue.ToUInt64(XaceJsonValue.Get(obj, "id"), 0),
+                actor_id = Convert.ToString(XaceJsonValue.Get(obj, "actor_id") ?? "", CultureInfo.InvariantCulture)
+            };
+
+            if (XaceJsonValue.Get(obj, "components") is Dictionary<string, object> components)
+            {
+                foreach (var pair in components)
+                {
+                    if (uint.TryParse(pair.Key, NumberStyles.Integer, CultureInfo.InvariantCulture, out var typeId))
+                        state.components[typeId] = Convert.ToString(pair.Value ?? "", CultureInfo.InvariantCulture);
+                }
+            }
+            return state;
+        }
+    }
+
+    internal static class XaceJson
+    {
+        public static Dictionary<string, object> DeserializeObject(string json)
+        {
+            var value = Parser.Parse(json);
+            return value as Dictionary<string, object>;
+        }
+
+        public static string Serialize(object value)
+        {
+            var builder = new StringBuilder();
+            WriteValue(builder, value);
+            return builder.ToString();
+        }
+
+        private static void WriteValue(StringBuilder builder, object value)
+        {
+            if (value == null)
+            {
+                builder.Append("null");
+            }
+            else if (value is string str)
+            {
+                WriteString(builder, str);
+            }
+            else if (value is bool boolean)
+            {
+                builder.Append(boolean ? "true" : "false");
+            }
+            else if (value is IDictionary<string, object> dict)
+            {
+                builder.Append('{');
+                var first = true;
+                var keys = new List<string>(dict.Keys);
+                keys.Sort(StringComparer.Ordinal);
+                foreach (var key in keys)
+                {
+                    if (!first) builder.Append(',');
+                    first = false;
+                    WriteString(builder, key);
+                    builder.Append(':');
+                    WriteValue(builder, dict[key]);
+                }
+                builder.Append('}');
+            }
+            else if (value is IDictionary genericDict)
+            {
+                var sorted = new SortedDictionary<string, object>(StringComparer.Ordinal);
+                foreach (DictionaryEntry entry in genericDict)
+                    sorted[Convert.ToString(entry.Key, CultureInfo.InvariantCulture)] = entry.Value;
+                WriteValue(builder, sorted);
+            }
+            else if (value is IEnumerable enumerable && !(value is string))
+            {
+                builder.Append('[');
+                var first = true;
+                foreach (var item in enumerable)
+                {
+                    if (!first) builder.Append(',');
+                    first = false;
+                    WriteValue(builder, item);
+                }
+                builder.Append(']');
+            }
+            else if (value is float f)
+            {
+                builder.Append((!float.IsNaN(f) && !float.IsInfinity(f)) ? f.ToString("R", CultureInfo.InvariantCulture) : "0");
+            }
+            else if (value is double d)
+            {
+                builder.Append((!double.IsNaN(d) && !double.IsInfinity(d)) ? d.ToString("R", CultureInfo.InvariantCulture) : "0");
+            }
+            else if (value is IFormattable formattable)
+            {
+                builder.Append(formattable.ToString(null, CultureInfo.InvariantCulture));
+            }
+            else
+            {
+                WriteString(builder, Convert.ToString(value, CultureInfo.InvariantCulture));
+            }
+        }
+
+        private static void WriteString(StringBuilder builder, string value)
+        {
+            builder.Append('"');
+            foreach (var ch in value ?? "")
+            {
+                switch (ch)
+                {
+                    case '"': builder.Append("\\\""); break;
+                    case '\\': builder.Append("\\\\"); break;
+                    case '\b': builder.Append("\\b"); break;
+                    case '\f': builder.Append("\\f"); break;
+                    case '\n': builder.Append("\\n"); break;
+                    case '\r': builder.Append("\\r"); break;
+                    case '\t': builder.Append("\\t"); break;
+                    default:
+                        if (ch < ' ')
+                            builder.Append("\\u").Append(((int)ch).ToString("x4", CultureInfo.InvariantCulture));
+                        else
+                            builder.Append(ch);
+                        break;
+                }
+            }
+            builder.Append('"');
+        }
+
+        private sealed class Parser
+        {
+            private readonly string json;
+            private int index;
+
+            private Parser(string json) { this.json = json ?? ""; }
+
+            public static object Parse(string json)
+            {
+                var parser = new Parser(json);
+                var value = parser.ParseValue();
+                parser.SkipWhitespace();
+                return parser.index == parser.json.Length ? value : null;
+            }
+
+            private object ParseValue()
+            {
+                SkipWhitespace();
+                if (index >= json.Length) return null;
+                switch (json[index])
+                {
+                    case '{': return ParseObject();
+                    case '[': return ParseArray();
+                    case '"': return ParseString();
+                    case 't': return Consume("true") ? true : null;
+                    case 'f': return Consume("false") ? false : null;
+                    case 'n': return Consume("null") ? null : null;
+                    default: return ParseNumber();
+                }
+            }
+
+            private Dictionary<string, object> ParseObject()
+            {
+                var obj = new Dictionary<string, object>(StringComparer.Ordinal);
+                index++;
+                SkipWhitespace();
+                if (Peek('}')) { index++; return obj; }
+                while (index < json.Length)
+                {
+                    var key = ParseString();
+                    SkipWhitespace();
+                    if (!Peek(':')) return null;
+                    index++;
+                    obj[key] = ParseValue();
+                    SkipWhitespace();
+                    if (Peek('}')) { index++; return obj; }
+                    if (!Peek(',')) return null;
+                    index++;
+                }
+                return null;
+            }
+
+            private List<object> ParseArray()
+            {
+                var list = new List<object>();
+                index++;
+                SkipWhitespace();
+                if (Peek(']')) { index++; return list; }
+                while (index < json.Length)
+                {
+                    list.Add(ParseValue());
+                    SkipWhitespace();
+                    if (Peek(']')) { index++; return list; }
+                    if (!Peek(',')) return null;
+                    index++;
+                }
+                return null;
+            }
+
+            private string ParseString()
+            {
+                if (!Peek('"')) return null;
+                index++;
+                var builder = new StringBuilder();
+                while (index < json.Length)
+                {
+                    var ch = json[index++];
+                    if (ch == '"') return builder.ToString();
+                    if (ch != '\\')
+                    {
+                        builder.Append(ch);
+                        continue;
+                    }
+                    if (index >= json.Length) return null;
+                    var esc = json[index++];
+                    switch (esc)
+                    {
+                        case '"': builder.Append('"'); break;
+                        case '\\': builder.Append('\\'); break;
+                        case '/': builder.Append('/'); break;
+                        case 'b': builder.Append('\b'); break;
+                        case 'f': builder.Append('\f'); break;
+                        case 'n': builder.Append('\n'); break;
+                        case 'r': builder.Append('\r'); break;
+                        case 't': builder.Append('\t'); break;
+                        case 'u':
+                            if (index + 4 > json.Length) return null;
+                            var hex = json.Substring(index, 4);
+                            if (!ushort.TryParse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var code)) return null;
+                            builder.Append((char)code);
+                            index += 4;
+                            break;
+                        default:
+                            return null;
+                    }
+                }
+                return null;
+            }
+
+            private object ParseNumber()
+            {
+                var start = index;
+                if (Peek('-')) index++;
+                while (index < json.Length && char.IsDigit(json[index])) index++;
+                var isFloat = false;
+                if (Peek('.'))
+                {
+                    isFloat = true;
+                    index++;
+                    while (index < json.Length && char.IsDigit(json[index])) index++;
+                }
+                if (index < json.Length && (json[index] == 'e' || json[index] == 'E'))
+                {
+                    isFloat = true;
+                    index++;
+                    if (index < json.Length && (json[index] == '+' || json[index] == '-')) index++;
+                    while (index < json.Length && char.IsDigit(json[index])) index++;
+                }
+                var text = json.Substring(start, index - start);
+                if (isFloat && double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var d)) return d;
+                if (long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var l)) return l;
+                return null;
+            }
+
+            private bool Consume(string text)
+            {
+                if (index + text.Length > json.Length) return false;
+                if (string.CompareOrdinal(json, index, text, 0, text.Length) != 0) return false;
+                index += text.Length;
+                return true;
+            }
+
+            private bool Peek(char ch) => index < json.Length && json[index] == ch;
+
+            private void SkipWhitespace()
+            {
+                while (index < json.Length && char.IsWhiteSpace(json[index]))
+                    index++;
+            }
+        }
+    }
+
+    internal static class XaceJsonValue
+    {
+        public static object Get(Dictionary<string, object> obj, string key)
+        {
+            return obj != null && obj.TryGetValue(key, out var value) ? value : null;
+        }
+
+        public static ulong ToUInt64(object value, ulong fallback)
+        {
+            if (value == null) return fallback;
+            try { return Convert.ToUInt64(value, CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        public static int ToInt32(object value, int fallback)
+        {
+            if (value == null) return fallback;
+            try { return Convert.ToInt32(value, CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        public static string ToString(object value, string fallback)
+        {
+            return value == null ? fallback : Convert.ToString(value, CultureInfo.InvariantCulture);
+        }
+    }
+}

@@ -122,7 +122,7 @@ class PreparedPrompt:
     Provider clients in providers/ unpack this via the __format__ key.
     """
 
-    __format__:          str
+    format:              str
     payload:             dict[str, Any]
 
     # Stats for telemetry
@@ -132,10 +132,15 @@ class PreparedPrompt:
 
     def __repr__(self) -> str:
         return (
-            f"PreparedPrompt({self.__format__!r}, "
+            f"PreparedPrompt({self.format!r}, "
             f"cache={self.cacheable_tokens}tok, "
             f"dynamic={self.dynamic_tokens}tok)"
         )
+
+    def __getattribute__(self, name: str) -> Any:
+        if name == "__format__":
+            return object.__getattribute__(self, "format")
+        return object.__getattribute__(self, name)
 
 
 # ── Prompt Cache ──────────────────────────────────────────────────────────────
@@ -162,7 +167,7 @@ class PromptCache:
 
     def prepare(
         self,
-        prompt_parts:  list["PromptPart"],
+        prompt_parts:  list["PromptPart"] | dict[str, Any],
         descriptor:    ModelDescriptor,
         system_prompt: str = "",
     ) -> PreparedPrompt:
@@ -171,8 +176,9 @@ class PromptCache:
 
         Parameters
         ----------
-        prompt_parts : list[PromptPart]
-            Ordered prompt segments from InferenceRequest.
+        prompt_parts : list[PromptPart] | dict
+            Ordered prompt segments from InferenceRequest, or an already
+            prepared provider payload that must be normalized for a new provider.
         descriptor : ModelDescriptor
             Determines which wire format to produce.
         system_prompt : str
@@ -183,10 +189,15 @@ class PromptCache:
         PreparedPrompt
             Provider-specific payload ready for the provider client.
         """
+        normalized_parts, normalized_system = self._normalize_prompt_input(
+            prompt_parts,
+            system_prompt,
+        )
+
         if descriptor.provider == "anthropic":
-            return self._prepare_anthropic(prompt_parts, descriptor, system_prompt)
+            return self._prepare_anthropic(normalized_parts, descriptor, normalized_system)
         else:
-            return self._prepare_openai_compat(prompt_parts, descriptor, system_prompt)
+            return self._prepare_openai_compat(normalized_parts, descriptor, normalized_system)
 
     # ── Anthropic Format ──────────────────────────────────────────────────────
 
@@ -245,7 +256,7 @@ class PromptCache:
         }
 
         return PreparedPrompt(
-            __format__       = "anthropic",
+            format           = "anthropic",
             payload          = payload,
             cacheable_tokens = cacheable_tok,
             dynamic_tokens   = dynamic_tok,
@@ -297,7 +308,7 @@ class PromptCache:
         }
 
         return PreparedPrompt(
-            __format__       = "openai",
+            format           = "openai",
             payload          = payload,
             cacheable_tokens = cacheable_tok,
             dynamic_tokens   = dynamic_tok,
@@ -314,6 +325,55 @@ class PromptCache:
         return {"type": "ephemeral"}
 
     # ── Utility ───────────────────────────────────────────────────────────────
+
+    def _normalize_prompt_input(
+        self,
+        prompt_parts: list["PromptPart"] | dict[str, Any],
+        system_prompt: str,
+    ) -> tuple[list["PromptPart"], str]:
+        """Converts already prepared provider payloads back to canonical parts."""
+        if not isinstance(prompt_parts, dict):
+            return prompt_parts, system_prompt
+
+        from .inference_adapter import PromptPart
+
+        system_texts: list[str] = []
+        dynamic_parts: list[PromptPart] = []
+
+        for block in prompt_parts.get("system", []) or []:
+            text = self._content_to_text(block)
+            if text:
+                system_texts.append(text)
+
+        for message in prompt_parts.get("messages", []) or []:
+            if not isinstance(message, dict):
+                continue
+            text = self._content_to_text(message.get("content", ""))
+            if not text:
+                continue
+            if message.get("role") == "system":
+                system_texts.append(text)
+            else:
+                dynamic_parts.append(
+                    PromptPart(text=text, cacheable=False, label=str(message.get("role", "message")))
+                )
+
+        normalized_system = "\n\n".join(
+            text for text in [system_prompt, *system_texts] if text
+        )
+        return dynamic_parts, normalized_system
+
+    @classmethod
+    def _content_to_text(cls, content: Any) -> str:
+        if isinstance(content, str):
+            return content
+        if isinstance(content, dict):
+            return cls._content_to_text(content.get("text", ""))
+        if isinstance(content, list):
+            return "\n\n".join(
+                text for text in (cls._content_to_text(item) for item in content) if text
+            )
+        return ""
 
     @staticmethod
     def mark_cacheable(text: str, label: str = "") -> "PromptPart":

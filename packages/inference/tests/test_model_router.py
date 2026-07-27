@@ -6,20 +6,25 @@ Tests for ModelRouter and FallbackPolicy.
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 import pytest
 from typing import Any
 
 from ..src.model_descriptor import (
     ModelDescriptor, ComplexityTier, ModelCapability,
     ANTHROPIC_SONNET_4_6, ANTHROPIC_HAIKU_4_5, ANTHROPIC_OPUS_4_7,
-    DEEPSEEK_V4_FLASH, GLM_5_1, GOOGLE_GEMINI_31_PRO,
+    DEEPSEEK_V4_FLASH, GLM_5_1, GOOGLE_GEMINI_31_PRO, BUILTIN_DESCRIPTORS,
 )
 from ..src.model_router import ModelRouter, RoutingContext, RoutingDecision, CostPressure, ModelRoutingError
+from ..src.route_evidence import RouteEvidencePolicy
 from ..src.fallback_policy import (
     FallbackPolicy, FallbackChain, ChainLink, FallbackAttempt,
     ProviderChainExhaustedError, _default_chains,
 )
 from ..src.provider_registry import ProviderRegistry, IProviderClient
+
+
+_NOW = datetime(2026, 7, 3, tzinfo=timezone.utc)
 
 
 # ── Fake Provider Client ──────────────────────────────────────────────────────
@@ -57,7 +62,28 @@ def _make_registry(providers: list[str] = None, healthy: bool = True) -> Provide
 
 
 def _make_router(providers: list[str] = None, healthy: bool = True) -> ModelRouter:
-    return ModelRouter(_make_registry(providers, healthy))
+    return ModelRouter(_make_registry(providers, healthy), route_evidence_policy=_route_evidence_policy())
+
+
+def _route_evidence_policy(*, only: list[ModelDescriptor] | None = None, stale: bool = False) -> RouteEvidencePolicy:
+    descriptors = only or list(BUILTIN_DESCRIPTORS.values())
+    expires = "2026-07-02T00:00:00Z" if stale else "2027-07-03T00:00:00Z"
+    rows = [
+        {
+            "provider": descriptor.provider,
+            "logical_name": descriptor.logical_name,
+            "model_id": descriptor.model_id,
+            "tier": descriptor.default_tier,
+            "benchmark_id": f"task56-{descriptor.provider}-{descriptor.logical_name}",
+            "benchmark_hash": f"sha256:{descriptor.provider}:{descriptor.logical_name}:{descriptor.model_id}",
+            "benchmarked_at_utc": "2026-07-01T00:00:00Z",
+            "expires_at_utc": expires,
+            "status": "passed",
+            "metrics": {"route_accuracy": 1.0, "sample_count": 3},
+        }
+        for descriptor in descriptors
+    ]
+    return RouteEvidencePolicy.from_records(rows, now_utc=_NOW)
 
 
 # ── TIER_S Tests ──────────────────────────────────────────────────────────────
@@ -110,35 +136,66 @@ class TestTierRouting:
         # Anthropic has supports_cache_control=True → highest capability score
         assert decision.descriptor.provider == "anthropic"
 
-    def test_tier_l_prefers_anthropic_by_default(self) -> None:
+    def test_tier_l_prefers_deepseek_by_default(self) -> None:
         decision = self.router.route(ComplexityTier.L)
-        assert decision.descriptor.provider == "anthropic"
+        assert decision.descriptor.provider == "deepseek"
 
-    def test_tier_m_prefers_cheapest_anthropic_by_default(self) -> None:
+    def test_tier_m_prefers_deepseek_cloud_when_local_manager_absent(self) -> None:
         decision = self.router.route(ComplexityTier.M)
-        # Anthropic Haiku is TIER_M with cache_control support → wins
-        assert decision.descriptor.provider == "anthropic"
+        assert decision.descriptor.provider == "deepseek"
 
     def test_no_providers_raises_routing_error(self) -> None:
         registry = ProviderRegistry()  # no clients registered
-        router   = ModelRouter(registry)
+        router   = ModelRouter(registry, route_evidence_policy=_route_evidence_policy())
         with pytest.raises(ModelRoutingError):
             router.route(ComplexityTier.L)
+
+
+class TestRouteEvidenceGate:
+
+    def test_unbenchmarked_route_is_rejected_with_user_visible_code(self) -> None:
+        router = ModelRouter(_make_registry(["deepseek"]), route_evidence_policy=RouteEvidencePolicy(now_utc=_NOW))
+        with pytest.raises(ModelRoutingError) as err:
+            router.route(ComplexityTier.L)
+        message = str(err.value)
+        assert "MODEL_ROUTE_EVIDENCE_BLOCKED" in message
+        assert "MODEL_ROUTE_EVIDENCE_MISSING" in message
+        assert "deepseek" in message
+
+    def test_stale_route_is_rejected_with_user_visible_code(self) -> None:
+        router = ModelRouter(
+            _make_registry(["deepseek"]),
+            route_evidence_policy=_route_evidence_policy(only=[BUILTIN_DESCRIPTORS["deepseek_premium"]], stale=True),
+        )
+        with pytest.raises(ModelRoutingError) as err:
+            router.route(ComplexityTier.L)
+        message = str(err.value)
+        assert "MODEL_ROUTE_EVIDENCE_STALE" in message
+        assert "expired" in message
+
+    def test_benchmarked_route_is_allowed(self) -> None:
+        router = ModelRouter(
+            _make_registry(["deepseek"]),
+            route_evidence_policy=_route_evidence_policy(only=[BUILTIN_DESCRIPTORS["deepseek_premium"]]),
+        )
+        decision = router.route(ComplexityTier.L)
+        assert decision.descriptor.provider == "deepseek"
+        assert decision.route_evidence_id.startswith("TIER_L:deepseek:")
 
 
 # ── Failed Provider Exclusion ─────────────────────────────────────────────────
 
 class TestFailedProviderExclusion:
 
-    def test_failed_anthropic_routes_to_fallback(self) -> None:
+    def test_failed_deepseek_routes_to_fallback(self) -> None:
         router   = _make_router()
         context  = RoutingContext(
             session_id       = "sess1",
-            failed_providers = ("anthropic",),
+            failed_providers = ("deepseek",),
         )
         decision = router.route(ComplexityTier.L, context)
         assert decision.descriptor is not None
-        assert decision.descriptor.provider != "anthropic"
+        assert decision.descriptor.provider != "deepseek"
         assert decision.fallback_applied
 
     def test_all_providers_failed_raises(self) -> None:
@@ -186,11 +243,11 @@ class TestCostPressureRouting:
         cheapest = min(all_m, key=lambda d: d.input_price_per_1k)
         assert decision.descriptor.input_price_per_1k <= cheapest.input_price_per_1k + 0.001
 
-    def test_normal_cost_pressure_picks_anthropic(self) -> None:
+    def test_normal_cost_pressure_uses_hybrid_tier_l_preference(self) -> None:
         router   = _make_router()
         context  = RoutingContext(cost_pressure=CostPressure.NORMAL)
         decision = router.route(ComplexityTier.L, context)
-        assert decision.descriptor.provider == "anthropic"
+        assert decision.descriptor.provider == "deepseek"
 
     def test_extreme_cost_pressure_picks_cheapest_available(self) -> None:
         router   = _make_router()
@@ -214,6 +271,7 @@ class TestProviderPreference:
         router = ModelRouter(
             _make_registry(),
             config={"provider_preference": {"TIER_M": "deepseek"}},
+            route_evidence_policy=_route_evidence_policy(),
         )
         decision = router.route(ComplexityTier.M)
         assert decision.descriptor.provider == "deepseek"

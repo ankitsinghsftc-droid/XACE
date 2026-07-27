@@ -14,19 +14,23 @@
 //! Copy-on-write optimization is planned for v2.
 //!
 //! ## Determinism (D9)
-//! Every snapshot includes a world_hash computed from the full
-//! serialized state. The DeterminismGuard (Phase 6) validates
-//! this hash on every replay tick.
+//! Every snapshot includes a world_hash computed through the canonical
+//! WorldHasher path. The DeterminismGuard validates this hash on live and
+//! replay ticks.
 
-use super::snapshot_serializer::SnapshotSerializer;
 use super::snapshot_store::{RetentionPolicy, SnapshotStore};
+use super::{
+    archived_entries_for_restore, validate_restorable_snapshot, SnapshotRestoreCompletenessError,
+};
 use crate::component_tables::ComponentTableStore;
+use crate::determinism_guard::world_hasher::WorldHasher;
 use crate::entity_store::EntityStore;
 use xace_core::entity_metadata::Tick;
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::fixed_point::Fixed64;
 use xace_core::runtime::world_snapshot::{
-    ComponentTableRecord, ComponentTablesSnapshot, EntityRecord, EntityStoreSnapshot,
-    EventQueueState, MutationQueueState, RngState, WorldSnapshot,
+    ComponentTablesSnapshot, EntityRecord, EntityStoreSnapshot, EventQueueState,
+    MutationQueueState, RngState, WorldSnapshot,
 };
 
 // ── Snapshot Engine ───────────────────────────────────────────────────────────
@@ -38,9 +42,6 @@ use xace_core::runtime::world_snapshot::{
 pub struct SnapshotEngine {
     /// Snapshot storage with retention policy.
     store: SnapshotStore,
-
-    /// Deterministic serializer for hash computation (D9).
-    serializer: SnapshotSerializer,
 
     /// Current schema version — embedded in every snapshot.
     schema_version: String,
@@ -62,7 +63,6 @@ impl SnapshotEngine {
     ) -> Self {
         Self {
             store: SnapshotStore::new(policy),
-            serializer: SnapshotSerializer::new(),
             schema_version: schema_version.into(),
             execution_plan_version,
             world_seed,
@@ -118,7 +118,7 @@ impl SnapshotEngine {
         // Build snapshot with empty hash first
         let mut snapshot = WorldSnapshot {
             tick,
-            time_seconds: tick as f64 / 60.0,
+            time_seconds: Fixed64::from_u64_ratio(tick, 60).unwrap_or(Fixed64::MAX),
             schema_version: self.schema_version.clone(),
             execution_plan_version: self.execution_plan_version,
             cgs_hash: String::new(),
@@ -131,8 +131,8 @@ impl SnapshotEngine {
             world_hash: String::new(),
         };
 
-        // Compute world hash from serialized state (D9)
-        let world_hash = self.serializer.compute_hash(&snapshot)?;
+        // Compute world hash through the canonical runtime path (D9).
+        let world_hash = WorldHasher::compute(&snapshot);
         snapshot.world_hash = world_hash;
 
         Ok(snapshot)
@@ -185,15 +185,21 @@ impl SnapshotEngine {
                 failed_path: "schema_version".into(),
             });
         }
+        if let Err(reason) = validate_restorable_snapshot(snapshot) {
+            return Err(Self::restore_completeness_error(snapshot.tick, reason));
+        }
 
         // Restore EntityStore
         self.restore_entity_store(snapshot, entity_store);
 
         // Restore ComponentTableStore
-        self.restore_component_tables(snapshot, table_store);
+        self.restore_component_tables(snapshot, table_store)?;
 
         // Verify world hash after restore (D9, I10)
-        let restored_snapshot = self.take_snapshot(snapshot.tick, entity_store, table_store)?;
+        let mut restored_snapshot = self.take_snapshot(snapshot.tick, entity_store, table_store)?;
+        restored_snapshot.cgs_hash = snapshot.cgs_hash.clone();
+        restored_snapshot.world_hash.clear();
+        restored_snapshot.world_hash = WorldHasher::compute(&restored_snapshot);
 
         if restored_snapshot.world_hash != snapshot.world_hash {
             return Err(XaceError::FatalError {
@@ -261,7 +267,7 @@ impl SnapshotEngine {
 
     // ── Internal — Capture ─────────────────────────────────────────────────
 
-    fn capture_entity_store(&self, entity_store: &EntityStore, tick: Tick) -> EntityStoreSnapshot {
+    fn capture_entity_store(&self, entity_store: &EntityStore, _tick: Tick) -> EntityStoreSnapshot {
         // All entity metadata sorted by EntityID ASC (D3)
         let entities: Vec<EntityRecord> = entity_store
             .all_metadata_sorted()
@@ -289,6 +295,10 @@ impl SnapshotEngine {
 
         // Tables in type_id ascending order (D11)
         for (type_id, table) in table_store.all_tables() {
+            if table.is_empty() {
+                continue;
+            }
+
             // Rows in EntityID ascending order (D3)
             let rows: std::collections::BTreeMap<u64, String> = table
                 .iter()
@@ -299,7 +309,7 @@ impl SnapshotEngine {
                 type_id,
                 xace_core::runtime::world_snapshot::ComponentTableSnapshot {
                     component_type_id: type_id,
-                    component_type_name: String::new(), // or fetch actual name if available
+                    component_type_name: table.component_type_name().to_string(),
                     rows,
                 },
             );
@@ -329,7 +339,7 @@ impl SnapshotEngine {
         entity_store.restore_from_snapshot(
             records,
             store_snap.next_entity_id,
-            vec![], // archived_ids not in snapshot struct yet — added in Phase 6
+            archived_entries_for_restore(snapshot),
         );
     }
 
@@ -337,16 +347,22 @@ impl SnapshotEngine {
         &self,
         snapshot: &WorldSnapshot,
         table_store: &mut ComponentTableStore,
-    ) {
-        for (type_id, table_record) in &snapshot.component_tables_snapshot.tables {
-            if let Some(table) = table_store.get_table_mut(*type_id) {
-                let entries: Vec<(u64, String)> = table_record
-                    .rows
-                    .iter()
-                    .map(|(id, json)| (*id, json.clone()))
-                    .collect();
-                table.restore_from_snapshot(entries);
-            }
+    ) -> Result<(), XaceError> {
+        table_store.restore_from_tables_snapshot(&snapshot.component_tables_snapshot)
+    }
+
+    fn restore_completeness_error(
+        tick: Tick,
+        reason: SnapshotRestoreCompletenessError,
+    ) -> XaceError {
+        XaceError::ValidationFailure {
+            message: format!(
+                "Snapshot at tick {} violates X10-012 restore completeness: {}",
+                tick, reason
+            ),
+            context: ErrorContext::new("SnapshotEngine", "restore_snapshot").with_tick(tick),
+            rule_violated: "X10-012".into(),
+            failed_path: reason.failed_path().into(),
         }
     }
 }
@@ -358,6 +374,8 @@ mod tests {
     use super::*;
     use crate::component_tables::ComponentTableStore;
     use crate::entity_store::EntityStore;
+    use xace_core::entity_state::EntityState;
+    use xace_core::runtime::world_snapshot::{EventQueueState, MutationQueueState};
 
     fn setup() -> (SnapshotEngine, EntityStore, ComponentTableStore) {
         let engine = SnapshotEngine::standard("0.1.0", 1, 42);
@@ -396,7 +414,7 @@ mod tests {
         let (mut engine, es, ts) = setup();
         let snap = engine.take_snapshot(0, &es, &ts).unwrap();
         assert!(!snap.world_hash.is_empty());
-        assert_eq!(snap.world_hash.len(), 16);
+        assert_eq!(snap.world_hash.len(), 64);
     }
 
     #[test]
@@ -418,8 +436,8 @@ mod tests {
 
     #[test]
     fn different_worlds_different_hash() {
-        let (mut engine1, mut es1, mut ts1) = setup();
-        let (mut engine2, mut es2, mut ts2) = setup();
+        let (mut engine1, mut es1, ts1) = setup();
+        let (mut engine2, es2, ts2) = setup();
 
         es1.create_entity(0).unwrap();
         // es2 has no entities
@@ -460,6 +478,107 @@ mod tests {
 
         engine.restore_snapshot(&snap, &mut es2, &mut ts2).unwrap();
         assert_eq!(ts2.get_component(id, 1), Some(r#"{"x":9.0}"#));
+    }
+
+    #[test]
+    fn x10_012_snapshot_captures_component_type_names() {
+        let (mut engine, mut es, mut ts) = setup();
+        let id = es.create_entity(0).unwrap();
+        ts.add_component(id, 1, r#"{"x":9.0}"#.into(), 0).unwrap();
+
+        let snap = engine.take_snapshot(0, &es, &ts).unwrap();
+        let table = snap.component_tables_snapshot.tables.get(&1).unwrap();
+        assert_eq!(table.component_type_name, "COMP_TRANSFORM_V1");
+    }
+
+    #[test]
+    fn x10_012_restore_reconstructs_archived_entity_archive() {
+        let (mut engine, mut es, ts) = setup();
+        let id = es.create_entity(0).unwrap();
+        es.request_destroy(id, 1).unwrap();
+        es.complete_destroy(id, 2).unwrap();
+
+        let snap = engine.take_snapshot(2, &es, &ts).unwrap();
+
+        let mut es2 = EntityStore::new();
+        let mut ts2 = ComponentTableStore::new();
+        ts2.register_table(1, "COMP_TRANSFORM_V1").unwrap();
+        ts2.register_table(2, "COMP_IDENTITY_V1").unwrap();
+
+        engine.restore_snapshot(&snap, &mut es2, &mut ts2).unwrap();
+        assert!(es2.archive().is_archived(id));
+        assert_eq!(es2.archive().destroyed_at_tick(id), Some(2));
+        assert!(es2
+            .all_metadata_sorted()
+            .iter()
+            .any(|metadata| metadata.id == id && metadata.state == EntityState::Archived));
+    }
+
+    #[test]
+    fn x10_012_restore_clears_component_rows_absent_from_snapshot() {
+        let (mut engine, mut es, mut ts) = setup();
+        let id = es.create_entity(0).unwrap();
+        let snap = engine.take_snapshot(0, &es, &ts).unwrap();
+        assert!(snap.component_tables_snapshot.tables.is_empty());
+
+        ts.add_component(id, 2, r#"{"name":"late"}"#.into(), 1)
+            .unwrap();
+        assert_eq!(ts.get_component(id, 2), Some(r#"{"name":"late"}"#));
+
+        engine.restore_snapshot(&snap, &mut es, &mut ts).unwrap();
+        assert_eq!(ts.get_component(id, 2), None);
+        assert!(ts.has_table(2));
+    }
+
+    #[test]
+    fn x10_012_restore_rejects_pending_side_channels() {
+        let (mut engine, es, ts) = setup();
+        let mut snap = engine.take_snapshot(0, &es, &ts).unwrap();
+        snap.event_queue_state = EventQueueState {
+            pending_events: vec![r#"{"type":"pending"}"#.into()],
+            next_event_id: 2,
+        };
+        snap.world_hash.clear();
+        snap.world_hash = WorldHasher::compute(&snap);
+
+        let mut es2 = EntityStore::new();
+        let mut ts2 = ComponentTableStore::new();
+        ts2.register_table(1, "COMP_TRANSFORM_V1").unwrap();
+        ts2.register_table(2, "COMP_IDENTITY_V1").unwrap();
+
+        let err = engine
+            .restore_snapshot(&snap, &mut es2, &mut ts2)
+            .unwrap_err();
+        let message = format!("{err:?}");
+        assert!(message.contains("X10-012"));
+        assert!(message.contains("event_queue_state.pending_events"));
+    }
+
+    #[test]
+    fn x10_012_restore_rejects_pending_mutations() {
+        let (mut engine, es, ts) = setup();
+        let mut snap = engine.take_snapshot(0, &es, &ts).unwrap();
+        snap.mutation_queue_state = MutationQueueState {
+            pending_spawns: vec![r#"{"actor_id":"actor"}"#.into()],
+            pending_additions: Vec::new(),
+            pending_modifications: Vec::new(),
+            pending_removals: Vec::new(),
+            pending_destroys: Vec::new(),
+        };
+        snap.world_hash.clear();
+        snap.world_hash = WorldHasher::compute(&snap);
+
+        let mut es2 = EntityStore::new();
+        let mut ts2 = ComponentTableStore::new();
+        ts2.register_table(1, "COMP_TRANSFORM_V1").unwrap();
+        ts2.register_table(2, "COMP_IDENTITY_V1").unwrap();
+
+        let err = engine
+            .restore_snapshot(&snap, &mut es2, &mut ts2)
+            .unwrap_err();
+        let message = format!("{err:?}");
+        assert!(message.contains("X10-012"));
+        assert!(message.contains("mutation_queue_state"));
     }
 
     #[test]

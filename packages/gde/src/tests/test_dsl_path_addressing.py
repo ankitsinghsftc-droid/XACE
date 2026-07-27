@@ -21,12 +21,16 @@ from ..cgs.mutation_target_resolver import (
 
 # ── Test CGS Fixture ──────────────────────────────────────────────────────────
 
+TEST_CGS_HASH = "a" * 64
+TEST_CGS_HASH_NEXT = "b" * 64
+
+
 def _cgs() -> dict[str, Any]:
     return {
         "metadata": {
             "name":     "Test Game",
             "version":  "0.1.0",
-            "cgs_hash": "abc123",
+            "cgs_hash": TEST_CGS_HASH,
         },
         "global_systems": [
             {
@@ -310,7 +314,7 @@ class TestPathResolver:
         # Simulate CGS change — change hash
         modified = dict(self.cgs)
         modified["metadata"] = dict(self.cgs["metadata"])
-        modified["metadata"]["cgs_hash"] = "newhash"
+        modified["metadata"]["cgs_hash"] = TEST_CGS_HASH_NEXT
         modified["metadata"]["name"]     = "Changed"
         result = self.resolver.read("metadata.name", modified)
         assert result.node == "Changed"

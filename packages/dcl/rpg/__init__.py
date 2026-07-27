@@ -7,6 +7,7 @@ Provides RPG progression components:
 - COMP_ABILITY_V1     (type_id=202)
 - COMP_PROGRESSION_V1 (type_id=203)
 - COMP_ECONOMY_V1     (type_id=204)
+- COMP_ITEM_V1        (type_id=205)
 
 Type ID block: 200-229 (rpg reserved range)
 """
@@ -170,6 +171,56 @@ def get_domain_package() -> DomainPackage:
                         "transaction_history", "list", False, "[]",
                         "Recent transactions for audit trail. "
                         "Each: {currency_id, delta, reason, tick}"
+                    ),
+                ],
+            ),
+            ComponentDefinition(
+                type_id=205,
+                type_name="COMP_ITEM_V1",
+                layer=ComponentLayer.DCL,
+                domain="rpg",
+                version=1,
+                description="A general inventory item that can exist in the world, inside an inventory, or equipped.",
+                fields=[
+                    ComponentFieldDefinition(
+                        "item_id", "str", True, None,
+                        "Stable item identifier used by inventory slots and save data."
+                    ),
+                    ComponentFieldDefinition(
+                        "display_name", "str", False, '""',
+                        "Creator-facing name shown in inventory UI."
+                    ),
+                    ComponentFieldDefinition(
+                        "quantity", "u32", False, "1",
+                        "Quantity represented by this item entity."
+                    ),
+                    ComponentFieldDefinition(
+                        "slot_type", "str", False, '""',
+                        "Optional equipment slot/category. Examples: hand, head, consumable, quest."
+                    ),
+                    ComponentFieldDefinition(
+                        "weight", "f32", False, "0.0",
+                        "Per-unit carry weight."
+                    ),
+                    ComponentFieldDefinition(
+                        "is_pickable", "bool", False, "true",
+                        "Whether an inventory owner can pick this item up."
+                    ),
+                    ComponentFieldDefinition(
+                        "owner_entity_id", "u64", False, "0",
+                        "Inventory owner entity. 0 = no owner/world item."
+                    ),
+                    ComponentFieldDefinition(
+                        "inventory_slot_id", "str", False, '""',
+                        "Inventory slot currently holding this item."
+                    ),
+                    ComponentFieldDefinition(
+                        "is_equipped", "bool", False, "false",
+                        "Whether this item is currently equipped/active."
+                    ),
+                    ComponentFieldDefinition(
+                        "world_state", "enum", False, '"World"',
+                        "ItemWorldState: World|InInventory|Equipped|Dropped."
                     ),
                 ],
             ),

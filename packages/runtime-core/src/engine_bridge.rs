@@ -13,10 +13,11 @@ use anyhow::Result;
 
 use crate::component_tables::component_table_store::ComponentTableStore;
 use crate::engine_protocol::{
-    parse_inbound_message, read_message, write_message, DisconnectMessage, EntityState,
-    HandshakeAck, InboundMessage, TickSnapshot, DEFAULT_TICK_RATE,
+    parse_inbound_message, read_message, write_message, DisconnectMessage, EnginePlaybackCommand,
+    EntityState, HandshakeAck, InboundMessage, TickSnapshot, DEFAULT_TICK_RATE,
 };
 use crate::entity_store::entity_store::EntityStore;
+use xace_engine_feedback::feedback_buffer::{FeedbackBuffer, FeedbackBufferMetrics};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EngineBridgeConfig {
@@ -37,14 +38,17 @@ impl Default for EngineBridgeConfig {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub struct EngineBridgeStats {
     pub snapshots_sent: u64,
     pub bytes_sent: u64,
     pub input_packets_received: u64,
+    pub feedback_payloads_received: u64,
+    pub feedback_messages_received: u64,
     pub malformed_messages: u64,
     pub dropped_inputs: u64,
     pub queued_inputs: usize,
+    pub queued_feedback: usize,
 }
 
 pub struct EngineBridge {
@@ -55,8 +59,10 @@ pub struct EngineBridge {
     start: Instant,
     cgs_hash: String,
     schema_ver: String,
+    adapter_type: String,
     connected: bool,
     inbound_inputs: VecDeque<xace_network_core::input::InputPacket>,
+    feedback_buffer: FeedbackBuffer,
     stats: EngineBridgeStats,
 }
 
@@ -69,6 +75,7 @@ impl EngineBridge {
         schema_ver: String,
         entity_store: &EntityStore,
         table_store: &ComponentTableStore,
+        feedback_buffer: FeedbackBuffer,
     ) -> Result<Self> {
         Self::handshake_with_config(
             writer,
@@ -78,6 +85,7 @@ impl EngineBridge {
             schema_ver,
             entity_store,
             table_store,
+            feedback_buffer,
             EngineBridgeConfig::default(),
         )
     }
@@ -90,6 +98,7 @@ impl EngineBridge {
         schema_ver: String,
         entity_store: &EntityStore,
         table_store: &ComponentTableStore,
+        feedback_buffer: FeedbackBuffer,
         config: EngineBridgeConfig,
     ) -> Result<Self> {
         let mut bridge = Self {
@@ -100,15 +109,20 @@ impl EngineBridge {
             start: Instant::now(),
             cgs_hash,
             schema_ver,
+            adapter_type: String::new(),
             connected: false,
             inbound_inputs: VecDeque::new(),
+            feedback_buffer,
             stats: EngineBridgeStats {
                 snapshots_sent: 0,
                 bytes_sent: 0,
                 input_packets_received: 0,
+                feedback_payloads_received: 0,
+                feedback_messages_received: 0,
                 malformed_messages: 0,
                 dropped_inputs: 0,
                 queued_inputs: 0,
+                queued_feedback: 0,
             },
         };
 
@@ -142,6 +156,7 @@ impl EngineBridge {
             handshake.engine_version,
             handshake.adapter_version
         );
+        bridge.adapter_type = normalise_adapter_type(&handshake.engine_name);
 
         let mut ack = HandshakeAck::accepted(
             bridge.session_id.clone(),
@@ -168,12 +183,13 @@ impl EngineBridge {
         table_store: &ComponentTableStore,
         spawned_ids: Vec<u64>,
         destroyed_ids: Vec<u64>,
+        playback_commands: Vec<EnginePlaybackCommand>,
     ) -> bool {
         if !self.connected {
             return false;
         }
 
-        let snapshot = TickSnapshot::new(
+        let mut snapshot = TickSnapshot::new(
             tick,
             self.start.elapsed().as_millis() as u64,
             build_entity_states(entity_store, table_store),
@@ -181,6 +197,7 @@ impl EngineBridge {
             destroyed_ids,
             Vec::new(),
         );
+        snapshot.playback_commands = playback_commands;
 
         match write_message(&mut self.writer, &snapshot) {
             Ok(bytes) => {
@@ -212,17 +229,36 @@ impl EngineBridge {
         self.connected
     }
 
+    pub fn adapter_type(&self) -> &str {
+        if self.adapter_type.is_empty() {
+            "headless"
+        } else {
+            &self.adapter_type
+        }
+    }
+
     pub fn take_input_packets(&mut self) -> Vec<xace_network_core::input::InputPacket> {
         let packets = self.inbound_inputs.drain(..).collect::<Vec<_>>();
         self.stats.queued_inputs = 0;
         packets
     }
 
+    pub fn pump_inbound(&mut self) {
+        if self.connected {
+            self.drain_inbound();
+        }
+    }
+
     pub fn stats(&self) -> EngineBridgeStats {
         EngineBridgeStats {
             queued_inputs: self.inbound_inputs.len(),
+            queued_feedback: self.feedback_buffer.pending_count(),
             ..self.stats
         }
+    }
+
+    pub fn feedback_buffer_metrics(&self) -> FeedbackBufferMetrics {
+        self.feedback_buffer.metrics()
     }
 
     fn send_handshake_reject(&mut self, reason: impl Into<String>) -> Result<()> {
@@ -237,6 +273,7 @@ impl EngineBridge {
             match read_message(&mut self.reader) {
                 Ok(Some(raw)) => match parse_inbound_message(&raw) {
                     Ok(InboundMessage::InputPacket(packet)) => self.queue_input(packet),
+                    Ok(InboundMessage::FeedbackPayload(payload)) => self.queue_feedback(payload),
                     Ok(InboundMessage::Handshake(_)) => {
                         log::debug!("Ignoring duplicate engine handshake after connection is live");
                     }
@@ -266,6 +303,25 @@ impl EngineBridge {
         }
     }
 
+    fn queue_feedback(&mut self, payload: xace_core::wire::feedback_payload::FeedbackPayload) {
+        let message_count = payload.message_count();
+        match self.feedback_buffer.append_payload(payload) {
+            Ok(()) => {
+                self.stats.feedback_payloads_received =
+                    self.stats.feedback_payloads_received.saturating_add(1);
+                self.stats.feedback_messages_received = self
+                    .stats
+                    .feedback_messages_received
+                    .saturating_add(message_count as u64);
+                self.stats.queued_feedback = self.feedback_buffer.pending_count();
+            }
+            Err(err) => {
+                self.stats.malformed_messages = self.stats.malformed_messages.saturating_add(1);
+                log::warn!("Rejected inbound feedback payload: {}", err);
+            }
+        }
+    }
+
     fn queue_input(&mut self, packet: crate::engine_protocol::InputPacket) {
         match xace_network_core::input::InputPacket::try_from(packet) {
             Ok(packet) => {
@@ -283,6 +339,27 @@ impl EngineBridge {
                 log::warn!("Rejected inbound input packet: {}", err);
             }
         }
+    }
+}
+
+fn normalise_adapter_type(engine_name: &str) -> String {
+    let lower = engine_name.to_ascii_lowercase();
+    if lower.contains("godot") {
+        "godot".to_string()
+    } else if lower.contains("unity") {
+        "unity".to_string()
+    } else if lower.contains("unreal") {
+        "unreal".to_string()
+    } else if lower.contains("webgl") || lower.contains("browser") {
+        "webgl".to_string()
+    } else if lower.trim().is_empty() {
+        "headless".to_string()
+    } else {
+        lower
+            .chars()
+            .filter(|ch| ch.is_ascii_alphanumeric() || *ch == '_' || *ch == '-')
+            .take(32)
+            .collect::<String>()
     }
 }
 

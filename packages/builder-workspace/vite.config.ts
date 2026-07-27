@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 
+const builderPort = Number(process.env.VITE_BUILDER_PORT ?? '8765');
+const builderHttpTarget = `http://127.0.0.1:${builderPort}`;
+const builderWsTarget = `ws://127.0.0.1:${builderPort}`;
+
 export default defineConfig(({ mode }) => ({
   root: '.',
 
@@ -11,15 +15,15 @@ export default defineConfig(({ mode }) => ({
 
   server: {
     port: 5173,
-    strictPort: true,
+    strictPort: false,
     proxy: {
       '/ws': {
-        target:       'ws://127.0.0.1:8765',
+        target:       builderWsTarget,
         ws:           true,
         changeOrigin: true,
       },
       '/api': {
-        target:       'http://127.0.0.1:8765',
+        target:       builderHttpTarget,
         changeOrigin: true,
       },
     },

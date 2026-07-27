@@ -1,201 +1,241 @@
 /**
- * tick_debugger.ts — Tick Debugger Panel
- *
- * Step-through tick debugger. In Phase 14 runs against CGS snapshots.
- * Phase 15: connects to engine pause/step over the engine_tick WebSocket.
- *
- * Shows:
- *   - Current tick counter (large mono)
- *   - ◀◀ ◀ ⏸ ▶ ▶▶ controls
- *   - Scrubber timeline bar
- *   - World hash (SHA256 of CGS state)
- *   - Events this tick (from CGS or engine)
- *   - Mutation queue log
+ * Deterministic tick debugger for the live builder preview.
  */
 
-import { cgsStore }          from '../state/cgs_store';
-import { uiStore }           from '../state/ui_store';
-import type { BuilderClient } from '../api/builder_client';
+import type { BuilderClient, RuntimeStatus } from '../api/builder_client';
+import type { RuntimeControlAction, ServerMessage } from '../api/message_types';
+import { makeRuntimeControl } from '../api/message_types';
+import type { CGSStore } from '../state/cgs_store';
+import type { UIStore } from '../state/ui_store';
 
-type CGSStore = typeof cgsStore;
-type UIStore = typeof uiStore;
+const MAX_HISTORY = 96;
+const MAX_EVENTS = 20;
 
 const STYLES = `
-.xb-dbg { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 6px; }
-.xb-dbg-tick { font-family: var(--font-mono); font-size: 15px; color: var(--cyan); letter-spacing: .04em; }
-.xb-dbg-ctrls { display: flex; gap: 4px; }
+.xb-dbg { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
+.xb-dbg-tick { font-family: var(--font-mono); font-size: 16px; color: var(--cyan); letter-spacing: .04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xb-dbg-ctrls { display: flex; gap: 4px; flex-wrap: wrap; }
 .xb-dbg-btn {
-  font-size: 9.5px; padding: 2px 7px; border: 1px solid var(--bd); background: transparent;
+  font-size: 9.5px; padding: 3px 8px; border: 1px solid var(--bd); background: transparent;
   color: var(--txt2); border-radius: 3px; cursor: pointer; font-family: inherit; transition: all 100ms;
 }
 .xb-dbg-btn:hover { border-color: var(--bdh); color: var(--txt); }
-.xb-dbg-btn.paused { border-color: rgba(0,212,255,.3); color: var(--cyan); background: var(--cynd); }
-.xb-dbg-scrubber {
-  height: 8px; background: rgba(255,255,255,.03); border: 1px solid var(--bd);
-  border-radius: 3px; overflow: hidden; position: relative; cursor: pointer;
-}
-.xb-dbg-scrub-fill {
-  height: 100%; background: linear-gradient(90deg, rgba(0,212,255,.15), rgba(168,85,247,.15));
-  border-radius: 3px;
-}
-.xb-dbg-scrub-head {
-  position: absolute; top: 0; bottom: 0; width: 2px; background: var(--cyan); border-radius: 2px;
-  transition: left 200ms ease;
-}
+.xb-dbg-btn.active { border-color: rgba(0,212,255,.35); color: var(--cyan); background: var(--cynd); }
+.xb-dbg-scrubber { height: 8px; background: rgba(255,255,255,.03); border: 1px solid var(--bd); border-radius: 3px; overflow: hidden; position: relative; }
+.xb-dbg-scrub-fill { height: 100%; background: linear-gradient(90deg, rgba(0,212,255,.18), rgba(168,85,247,.18)); border-radius: 3px; }
 .xb-dbg-sect { font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--txt2); }
-.xb-dbg-hash {
-  font-family: var(--font-mono); font-size: 9px; color: var(--grn);
-  background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.15);
-  border-radius: 3px; padding: 4px 7px; word-break: break-all;
-}
-.xb-dbg-log {
+.xb-dbg-box {
   font-family: var(--font-mono); font-size: 9px; color: var(--txt2);
-  background: rgba(0,0,0,.2); padding: 6px; border-radius: 4px; line-height: 1.8;
-  max-height: 90px; overflow-y: auto;
+  background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.05);
+  padding: 6px; border-radius: 4px; line-height: 1.7; max-height: 118px; overflow-y: auto;
 }
-.xb-dbg-log .ev-hit  { color: var(--red); }
-.xb-dbg-log .ev-chg  { color: var(--amb); }
-.xb-dbg-log .ev-mut  { color: var(--cyan); }
-.xb-dbg-log .ev-chk  { color: var(--grn); }
+.xb-dbg-hash { color: var(--grn); word-break: break-all; }
+.xb-dbg-warn { color: var(--amb); }
+.xb-dbg-bad { color: var(--red); }
 `;
 
 interface DebuggerDeps {
   cgsStore: CGSStore;
-  uiStore:  UIStore;
-  client:   BuilderClient;
+  uiStore: UIStore;
+  client: BuilderClient;
+}
+
+interface TickRecord {
+  readonly tick: number;
+  readonly worldHash: string;
+  readonly msPerTick: number;
+  readonly deterministic: boolean;
+}
+
+interface DebugEvent {
+  readonly tick: number;
+  readonly level: 'info' | 'warn' | 'error';
+  readonly text: string;
 }
 
 export class TickDebugger {
-  private readonly _deps:    DebuggerDeps;
-  private _el!:              HTMLElement;
-  private _tick:             number  = 0;
-  private _paused:           boolean = false;
-  private _scrubPct:         number  = 85;
-  private _tickInterval!:    ReturnType<typeof setInterval>;
-  private readonly _unsubs:  Array<() => void>  = [];
+  private readonly deps: DebuggerDeps;
+  private readonly history: TickRecord[] = [];
+  private readonly events: DebugEvent[] = [];
+  private readonly unsubs: Array<() => void> = [];
+
+  private root: HTMLElement | null = null;
+  private tick = 0;
+  private requestedMode: 'play' | 'pause' = 'play';
+  private lastHash = '';
+  private runtimeStatus: RuntimeStatus | null = null;
 
   constructor(deps: DebuggerDeps) {
-    this._deps = deps;
-    this._injectStyles();
+    this.deps = deps;
+    injectStyles();
   }
 
   mount(container: HTMLElement): void {
-    this._el = document.createElement('div');
-    this._el.className = 'xb-dbg';
-    container.appendChild(this._el);
-    this._render();
+    this.root = document.createElement('div');
+    this.root.className = 'xb-dbg';
+    container.appendChild(this.root);
 
-    // Tick counter (simulated in Phase 14)
-    this._tickInterval = setInterval(() => {
-      if (!this._paused) {
-        this._tick++;
-        this._updateTick();
+    this.unsubs.push(this.deps.cgsStore.select((state) => state.hash, (hash) => {
+      this.lastHash = hash || this.lastHash;
+      this.render();
+    }));
+    this.unsubs.push(this.deps.client.onEngineTick((tick, _fps, worldHash, msPerTick, message) => {
+      this.acceptTick({
+        tick,
+        worldHash,
+        msPerTick,
+        deterministic: message.is_deterministic,
+      });
+    }));
+    this.unsubs.push(this.deps.client.onRawMessage((message) => this.acceptServerMessage(message)));
+    this.unsubs.push(this.deps.client.onRuntimeStatus((status) => {
+      this.runtimeStatus = status;
+      if (status.controlTick > this.tick) {
+        this.tick = status.controlTick;
       }
-    }, 16);
-    this._unsubs.push(() => clearInterval(this._tickInterval));
-
-    // Phase 15: use engine ticks
-    this._unsubs.push(
-      this._deps.client.onEngineTick((tick) => {
-        this._tick = tick;
-        this._updateTick();
-      }),
-    );
-
-    // CGS hash changes
-    this._unsubs.push(
-      this._deps.cgsStore.select(s => s.hash, () => this._updateHash()),
-    );
+      this.render();
+    }));
+    this.render();
   }
 
   unmount(): void {
-    this._unsubs.forEach(fn => fn());
-    clearInterval(this._tickInterval);
-    this._el?.remove();
+    this.unsubs.splice(0).forEach((unsub) => unsub());
+    this.root?.remove();
+    this.root = null;
   }
 
-  private _render(): void {
-    this._el.innerHTML = `
-      <div class="xb-dbg-sect">Tick Debugger</div>
+  private acceptTick(record: TickRecord): void {
+    this.tick = record.tick;
+    this.lastHash = record.worldHash || this.lastHash;
+    this.history.push(record);
+    if (this.history.length > MAX_HISTORY) {
+      this.history.splice(0, this.history.length - MAX_HISTORY);
+    }
+    if (!record.deterministic) {
+      this.pushEvent('error', `determinism breach at tick ${record.tick}`);
+    }
+    this.render();
+  }
 
-      <div class="xb-dbg-tick" id="xb-dbg-tick-val">0</div>
+  private acceptServerMessage(message: ServerMessage): void {
+    if (message.type === 'runtime_control_ack') {
+      this.pushEvent(
+        message.accepted ? 'info' : 'warn',
+        `${message.action} ${message.accepted ? 'accepted' : message.reason ?? 'rejected'}`,
+      );
+      return;
+    }
+    if (message.type === 'server_error') {
+      this.pushEvent('error', `${message.code}: ${message.message}`);
+      return;
+    }
+    if (message.type === 'engine_disconnected') {
+      this.pushEvent('warn', `engine disconnected: ${message.reason}`);
+    }
+  }
 
+  private render(): void {
+    if (!this.root) {
+      return;
+    }
+
+    const latest = this.history[this.history.length - 1] ?? null;
+    const hash = latest?.worldHash || this.lastHash || '0'.repeat(64);
+    const pct = this.history.length <= 1 ? 0 : (this.history.length / MAX_HISTORY) * 100;
+    const deterministic = latest?.deterministic ?? true;
+    const status = this.runtimeStatus ?? this.deps.client.runtimeStatus;
+    const feedbackIssues = status.lastEngineFeedbackInvalid + status.lastEngineFeedbackErrors;
+
+    this.root.innerHTML = `
+      <div class="xb-dbg-sect">Tick debugger</div>
+      <div class="xb-dbg-tick">${this.tick.toLocaleString()}</div>
       <div class="xb-dbg-ctrls">
-        <button class="xb-dbg-btn" id="xb-dbg-rew2" title="Jump back 100 ticks">◀◀</button>
-        <button class="xb-dbg-btn" id="xb-dbg-rew1" title="Step back">◀</button>
-        <button class="xb-dbg-btn" id="xb-dbg-pause" title="Pause / Resume">⏸</button>
-        <button class="xb-dbg-btn" id="xb-dbg-fwd1" title="Step forward">▶</button>
-        <button class="xb-dbg-btn" id="xb-dbg-fwd2" title="Jump forward 100 ticks">▶▶</button>
+        <button class="xb-dbg-btn ${this.requestedMode === 'play' ? 'active' : ''}" data-action="play">Play</button>
+        <button class="xb-dbg-btn ${this.requestedMode === 'pause' ? 'active' : ''}" data-action="pause">Pause</button>
+        <button class="xb-dbg-btn" data-action="step">Step</button>
+        <button class="xb-dbg-btn" data-action="reset">Reset</button>
+        <button class="xb-dbg-btn" data-action="reload_cgs">Reload CGS</button>
       </div>
-
-      <div class="xb-dbg-scrubber" id="xb-dbg-scrub">
-        <div class="xb-dbg-scrub-fill" style="width:${this._scrubPct}%"></div>
-        <div class="xb-dbg-scrub-head" id="xb-dbg-scrub-head" style="left:${this._scrubPct}%"></div>
+      <div class="xb-dbg-scrubber"><div class="xb-dbg-scrub-fill" style="width:${Math.min(100, pct).toFixed(2)}%"></div></div>
+      <div class="xb-dbg-sect">Determinism</div>
+      <div class="xb-dbg-box ${deterministic ? '' : 'xb-dbg-bad'}">${deterministic ? 'locked' : 'breach detected'}</div>
+      <div class="xb-dbg-sect">World hash</div>
+      <div class="xb-dbg-box xb-dbg-hash">${escapeHtml(hash)}</div>
+      <div class="xb-dbg-sect">Runtime bridge</div>
+      <div class="xb-dbg-box">
+        state: <span class="${status.paused ? 'xb-dbg-warn' : ''}">${status.paused ? 'paused' : 'running'}</span><br>
+        alive: ${status.aliveCount.toLocaleString()} | phases: ${status.phaseCount.toLocaleString()} | systems: ${status.registeredSystems.toLocaleString()}<br>
+        pending input: ${status.pendingEngineInputs.toLocaleString()} | pending feedback: ${status.pendingEngineFeedback.toLocaleString()}<br>
+        feedback handled: ${status.lastEngineFeedbackProcessed.toLocaleString()} | issues: <span class="${feedbackIssues > 0 ? 'xb-dbg-bad' : ''}">${feedbackIssues.toLocaleString()}</span>
       </div>
-
-      <div class="xb-dbg-sect">World Hash</div>
-      <div class="xb-dbg-hash" id="xb-dbg-hash">${this._deps.cgsStore.hash || '0000000000000000'}</div>
-
-      <div class="xb-dbg-sect">Events this tick</div>
-      <div class="xb-dbg-log" id="xb-dbg-events">
-        <span class="ev-hit">ENTITY_HIT Player→Zombie 15dmg</span><br>
-        <span class="ev-chg">HEALTH_CHANGED Zombie 87→72</span><br>
-        <span class="ev-chk">DEATH_CHECK Zombie alive:true</span>
-      </div>
-
-      <div class="xb-dbg-sect">Mutation Queue</div>
-      <div class="xb-dbg-log" id="xb-dbg-mutations">
-        <span class="ev-mut">MODIFY Zombie.COMP_HEALTH_V1.current→72</span><br>
-        <span class="ev-mut">MODIFY Player.COMP_GAMESTATE.score+10</span>
-      </div>
+      <div class="xb-dbg-sect">Recent ticks</div>
+      <div class="xb-dbg-box">${this.renderHistory()}</div>
+      <div class="xb-dbg-sect">Events</div>
+      <div class="xb-dbg-box">${this.renderEvents()}</div>
     `;
 
-    // Bind controls
-    document.getElementById('xb-dbg-rew2')?.addEventListener('click', () => {
-      this._tick = Math.max(0, this._tick - 100); this._updateTick();
-    });
-    document.getElementById('xb-dbg-rew1')?.addEventListener('click', () => {
-      this._tick = Math.max(0, this._tick - 1); this._updateTick();
-    });
-    document.getElementById('xb-dbg-pause')?.addEventListener('click', () => {
-      this._paused = !this._paused;
-      const btn = document.getElementById('xb-dbg-pause');
-      btn?.classList.toggle('paused', this._paused);
-      if (btn) btn.textContent = this._paused ? '▶' : '⏸';
-    });
-    document.getElementById('xb-dbg-fwd1')?.addEventListener('click', () => {
-      this._tick++; this._updateTick();
-    });
-    document.getElementById('xb-dbg-fwd2')?.addEventListener('click', () => {
-      this._tick += 100; this._updateTick();
-    });
-
-    // Scrubber click
-    const scrub = document.getElementById('xb-dbg-scrub');
-    scrub?.addEventListener('click', (e: MouseEvent) => {
-      const rect = scrub.getBoundingClientRect();
-      this._scrubPct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-      const fill = scrub.querySelector<HTMLElement>('.xb-dbg-scrub-fill');
-      const head = document.getElementById('xb-dbg-scrub-head');
-      if (fill) fill.style.width   = `${this._scrubPct}%`;
-      if (head) head.style.left    = `${this._scrubPct}%`;
+    this.root.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const action = button.dataset['action'] as RuntimeControlAction;
+        this.sendControl(action);
+      });
     });
   }
 
-  private _updateTick(): void {
-    const el = document.getElementById('xb-dbg-tick-val');
-    if (el) el.textContent = this._tick.toLocaleString();
+  private renderHistory(): string {
+    if (this.history.length === 0) {
+      return 'No engine ticks received.';
+    }
+    return this.history
+      .slice(-10)
+      .map((item) => {
+        const status = item.deterministic ? 'ok' : 'breach';
+        const cls = item.deterministic ? '' : ' class="xb-dbg-bad"';
+        return `<span${cls}>#${item.tick} ${item.msPerTick.toFixed(2)}ms ${status} ${escapeHtml(item.worldHash.slice(0, 14))}</span>`;
+      })
+      .join('<br>');
   }
 
-  private _updateHash(): void {
-    const el = document.getElementById('xb-dbg-hash');
-    if (el) el.textContent = this._deps.cgsStore.hash || '0000000000000000';
+  private renderEvents(): string {
+    if (this.events.length === 0) {
+      return 'No control events yet.';
+    }
+    return this.events
+      .slice(-8)
+      .map((event) => {
+        const cls = event.level === 'error' ? 'xb-dbg-bad' : event.level === 'warn' ? 'xb-dbg-warn' : '';
+        return `<span class="${cls}">#${event.tick} ${escapeHtml(event.text)}</span>`;
+      })
+      .join('<br>');
   }
 
-  private _injectStyles(): void {
-    if (document.getElementById('xb-dbg-styles')) return;
-    const s = document.createElement('style');
-    s.id = 'xb-dbg-styles'; s.textContent = STYLES;
-    document.head.appendChild(s);
+  private sendControl(action: RuntimeControlAction): void {
+    if (action === 'play' || action === 'pause') {
+      this.requestedMode = action;
+    }
+    this.deps.client.send(makeRuntimeControl(action, this.deps.client.sessionId, this.tick));
+    this.pushEvent('info', `sent ${action}`);
+    this.render();
   }
+
+  private pushEvent(level: DebugEvent['level'], text: string): void {
+    this.events.push({ tick: this.tick, level, text });
+    if (this.events.length > MAX_EVENTS) {
+      this.events.splice(0, this.events.length - MAX_EVENTS);
+    }
+  }
+}
+
+function injectStyles(): void {
+  if (document.getElementById('xb-dbg-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'xb-dbg-styles';
+  style.textContent = STYLES;
+  document.head.appendChild(style);
+}
+
+function escapeHtml(value: string): string {
+  const div = document.createElement('div');
+  div.textContent = value;
+  return div.innerHTML;
 }

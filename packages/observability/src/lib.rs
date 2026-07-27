@@ -51,7 +51,7 @@ pub mod tracer;
 
 pub use crash_reporter::install as install_crash_handler;
 pub use metrics::METRICS;
-pub use observable::{Observable, ObservabilityTarget};
+pub use observable::{ObservabilityTarget, Observable};
 pub use tick_ring_buffer::{TickRecord, TickRingBuffer, TICK_BUFFER};
 pub use trace::{Span, SpanId, TraceId};
 pub use tracer::{current_trace_id, enter_span, ScopedSpan, TRACER};

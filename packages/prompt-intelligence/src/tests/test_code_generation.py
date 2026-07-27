@@ -12,7 +12,7 @@ All 6 files tested:
 from __future__ import annotations
 import sys, os, dataclasses
 
-_SRC = os.path.join(os.path.dirname(__file__), "..", "src", "code_generation")
+_SRC = os.path.join(os.path.dirname(__file__), "..", "code_generation")
 sys.path.insert(0, _SRC)
 
 from system_spec_builder import (
@@ -35,11 +35,22 @@ from cargo_compiler import (
 from code_generation_engine import (
     CodeGenerationEngine, CodeGenerationResult, _compute_diff,
 )
+from generated_system_safe_compiler import (
+    GeneratedSystemSafeCompiler,
+    build_compile_artifact,
+    validate_compile_artifact_signature,
+    GENERATED_SYSTEM_COMPILE_ARTIFACT_SCHEMA,
+    GENERATED_SYSTEM_UNSUPPORTED_POLICY_HASH,
+)
+from unsupported_generated_system_guard import (
+    check_unsupported_generated_system,
+    unsupported_policy_hash,
+)
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
 CGS = {
-    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d",
+    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d00000000000000000000000000000000000000000000000000000000",
                  "version": "0.1.0", "schema_version": "0.1.0"},
     "global_systems": [
         {"id": "InputSystem", "phase": "Simulation",
@@ -115,6 +126,94 @@ impl ISystem for MovementSystem {
     }
 }
 """
+
+_VALID_GENERATED_COUNTER_RUST = """\
+use crate::{ISystem, SystemContext};
+
+pub struct GeneratedCounterSystem {}
+
+impl GeneratedCounterSystem {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl ISystem for GeneratedCounterSystem {
+    fn init(&mut self, ctx: &mut SystemContext) {
+    }
+
+    fn execute(&mut self, ctx: &mut SystemContext) {
+        let mut entities = ctx.entities_with::<CompCounterV1>();
+        entities.sort_by_key(|entity_id| *entity_id);
+        for entity in entities {
+            ctx.mutation_gate().apply_partial::<CompCounterV1, _>(entity, |counter| {
+                counter.count += 1;
+            }).ok();
+        }
+    }
+}
+"""
+
+GENERATED_COUNTER_CGS = {
+    "metadata": {
+        "name": "Generated Safe Compile",
+        "cgs_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": "0.1.0",
+        "schema_version": "0.1.0",
+    },
+    "global_systems": [
+        {
+            "id": "GeneratedCounterSystem",
+            "phase": "Simulation",
+            "reads": [300],
+            "writes": [300],
+            "depends_on": [],
+            "deterministic": True,
+            "runtime_executor": {
+                "kind": "generated.increment_numeric_field",
+                "component_type_id": 300,
+                "field": "count",
+                "amount": 1,
+                "abi": {
+                    "schema": "xace.generated_system_abi.v1",
+                    "version": 1,
+                    "inputs": {
+                        "query_components": [300],
+                        "component_reads": [300],
+                        "current_tick": False,
+                    },
+                    "events": {"emits": []},
+                    "rng": {"allowed": False, "max_calls_per_entity": 0},
+                    "errors": {"policy": "halt_and_rollback"},
+                    "rollback": {
+                        "mutation_hook": "mutation_gate_deferred",
+                        "event_hook": "event_bus_phase_buffered",
+                        "rng_hook": "rng_windowed",
+                    },
+                },
+            },
+        }
+    ],
+    "modes": [
+        {
+            "id": "mode_default",
+            "is_default": True,
+            "actors": [
+                {
+                    "id": "counter",
+                    "components": [
+                        {
+                            "type_id": 300,
+                            "name": "COMP_COUNTER_V1",
+                            "defaults": {"count": 0},
+                        }
+                    ],
+                }
+            ],
+            "systems": [],
+        }
+    ],
+}
 
 # ── Mock InferenceAdapter ─────────────────────────────────────────────────────
 
@@ -400,8 +499,29 @@ class TestDeterminismCodeChecker:
         report = self.checker.check(code)
         assert not report.passed
 
+    def test_failure_injection_illegal_rng_detected(self):
+        code   = _VALID_RUST + "\nlet x = rand::random::<u32>();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.RANDOM_SOURCE
+                   for v in report.violations)
+
     def test_hashmap_detected(self):
         code   = _VALID_RUST + "\nlet m: HashMap<u64, f32> = HashMap::new();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.UNORDERED_ITER
+                   for v in report.violations)
+
+    def test_hashmap_import_detected(self):
+        code   = _VALID_RUST + "\nuse std::collections::{HashMap, BTreeMap};\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.UNORDERED_ITER
+                   for v in report.violations)
+
+    def test_failure_injection_unordered_iteration_detected(self):
+        code   = _VALID_RUST + "\nuse std::collections::HashSet;\nlet s = HashSet::<u64>::new();\n"
         report = self.checker.check(code)
         assert not report.passed
         assert any(v.category == ViolationCategory.UNORDERED_ITER
@@ -417,6 +537,55 @@ class TestDeterminismCodeChecker:
         report = self.checker.check(code)
         assert not report.passed
         assert any(v.category == ViolationCategory.TIME_SOURCE
+                   for v in report.violations)
+
+    def test_failure_injection_instant_detected(self):
+        code   = _VALID_RUST + "\nlet t = std::time::Instant::now();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.TIME_SOURCE
+                   for v in report.violations)
+
+    def test_system_time_now_detected(self):
+        code   = _VALID_RUST + "\nlet t = SystemTime::now();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.TIME_SOURCE
+                   for v in report.violations)
+
+    def test_failure_injection_system_time_detected(self):
+        code   = _VALID_RUST + "\nlet t = std::time::SystemTime::now();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.TIME_SOURCE
+                   for v in report.violations)
+
+    def test_failure_injection_float_edge_case_detected(self):
+        code   = _VALID_RUST + "\nlet bad = f32::NAN;\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.FLOAT_EDGE_CASE
+                   for v in report.violations)
+
+    def test_direct_json_serialization_detected(self):
+        code   = _VALID_RUST + "\nlet payload = serde_json::to_string(&state).unwrap();\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.NONDETERMINISTIC_SERIALIZATION
+                   for v in report.violations)
+
+    def test_failure_injection_serialization_detected(self):
+        code   = _VALID_RUST + "\nlet payload = serde_json::json!({\"x\": 1});\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.NONDETERMINISTIC_SERIALIZATION
+                   for v in report.violations)
+
+    def test_debug_serialization_detected(self):
+        code   = _VALID_RUST + "\nlet payload = format!(\"{:?}\", state);\n"
+        report = self.checker.check(code)
+        assert not report.passed
+        assert any(v.category == ViolationCategory.NONDETERMINISTIC_SERIALIZATION
                    for v in report.violations)
 
     def test_thread_local_detected(self):
@@ -728,6 +897,38 @@ class TestCodeGenerationEngine:
         assert result.needs_clarification
         assert result.attempts_used == MAX_ATTEMPTS
 
+    def test_generated_runtime_executor_requires_safe_sgc_gate(self):
+        adapter = MockAdapter(_VALID_GENERATED_COUNTER_RUST)
+        engine = CodeGenerationEngine(adapter, sgc_bin="missing-sgc-binary")
+        result = engine.generate_system("GeneratedCounterSystem", GENERATED_COUNTER_CGS)
+
+        assert not result.succeeded
+        assert result.safe_compile_result is not None
+        assert result.safe_compile_result.stage == "sgc_compile"
+        assert result.signed_runtime_executor == {}
+        assert "Safe generated-system compile failed" in result.error
+
+    def test_generated_runtime_executor_blocks_unsupported_source_before_sgc(self):
+        bad_source = _VALID_GENERATED_COUNTER_RUST.replace(
+            "let mut entities = ctx.entities_with::<CompCounterV1>();",
+            "let _secret = std::fs::read_to_string(\"secret.txt\");\n"
+            "        let mut entities = ctx.entities_with::<CompCounterV1>();",
+        )
+        adapter = MockAdapter(bad_source)
+        engine = CodeGenerationEngine(adapter, sgc_bin="missing-sgc-binary")
+        result = engine.generate_system("GeneratedCounterSystem", GENERATED_COUNTER_CGS)
+
+        assert not result.succeeded
+        assert result.safe_compile_result is not None
+        assert result.safe_compile_result.stage == "unsupported_api_rejection"
+        assert result.safe_compile_result.sgc_result is None
+        assert result.safe_compile_result.unsupported_report is not None
+        reason_codes = {
+            finding.code
+            for finding in result.safe_compile_result.unsupported_report.findings
+        }
+        assert "unsupported.filesystem_access" in reason_codes
+
     def test_all_warnings_returns_list(self):
         result = self.engine.generate_system("MovementSystem", CGS)
         assert isinstance(result.all_warnings(), list)
@@ -756,10 +957,169 @@ class TestCodeGenerationEngine:
         # MovementSystem depends on InputSystem
         # AISystem depends on MovementSystem
         # So order must be: InputSystem, MovementSystem, AISystem
-        from .code_generation_engine import CodeGenerationEngine as E
+        from code_generation_engine import CodeGenerationEngine as E
         order = E._topological_order(CGS, mode_id="")
         assert order.index("InputSystem")    < order.index("MovementSystem")
         assert order.index("MovementSystem") < order.index("AISystem")
+
+
+# ===========================================================================
+# GeneratedSystemSafeCompiler
+# ===========================================================================
+
+class TestGeneratedSystemSafeCompiler:
+    def setup_method(self):
+        self.compiler = GeneratedSystemSafeCompiler(sgc_bin="missing-sgc-binary")
+
+    def test_build_compile_artifact_signs_runtime_executor(self):
+        executor = GENERATED_COUNTER_CGS["global_systems"][0]["runtime_executor"]
+        artifact = build_compile_artifact(
+            system_id="GeneratedCounterSystem",
+            cgs_hash=GENERATED_COUNTER_CGS["metadata"]["cgs_hash"],
+            rust_source=_VALID_GENERATED_COUNTER_RUST,
+            runtime_executor=executor,
+            sgc_plan_hash="b" * 64,
+            cargo_duration_ms=1.25,
+            cargo_warnings=0,
+        )
+
+        assert artifact["schema"] == GENERATED_SYSTEM_COMPILE_ARTIFACT_SCHEMA
+        assert artifact["unsupported_policy_hash"] == GENERATED_SYSTEM_UNSUPPORTED_POLICY_HASH
+        assert artifact["unsupported_policy_hash"] == unsupported_policy_hash()
+        assert validate_compile_artifact_signature(artifact)
+        assert len(artifact["signature"]) == 64
+
+    def test_unsupported_guard_reports_exact_reason_codes(self):
+        report = check_unsupported_generated_system(
+            _VALID_GENERATED_COUNTER_RUST
+            + "\nlet _ = std::net::TcpStream::connect(\"127.0.0.1:1\");\n"
+            + "let _ = godot::prelude::Node::new_alloc();\n"
+        )
+
+        assert not report.passed
+        assert report.policy_hash == GENERATED_SYSTEM_UNSUPPORTED_POLICY_HASH
+        reason_codes = {finding.code for finding in report.findings}
+        assert "unsupported.network_access" in reason_codes
+        assert "unsupported.engine_api_godot" in reason_codes
+
+    def test_compile_blocks_nondeterministic_code_before_sgc(self):
+        bad_source = _VALID_GENERATED_COUNTER_RUST + "\nlet roll = rand::random::<u32>();\n"
+
+        result = self.compiler.compile(
+            system_id="GeneratedCounterSystem",
+            cgs=GENERATED_COUNTER_CGS,
+            rust_source=bad_source,
+        )
+
+        assert not result.succeeded
+        assert result.stage == "unsupported_api_rejection"
+        assert result.sgc_result is None
+        assert result.unsupported_report is not None
+        assert any(
+            finding.code == "nondeterministic.random_source"
+            for finding in result.unsupported_report.findings
+        )
+
+    def test_compile_blocks_filesystem_access_before_sgc(self):
+        bad_source = _VALID_GENERATED_COUNTER_RUST.replace(
+            "let mut entities = ctx.entities_with::<CompCounterV1>();",
+            "let _secret = std::fs::read_to_string(\"secret.txt\");\n"
+            "        let mut entities = ctx.entities_with::<CompCounterV1>();",
+        )
+
+        result = self.compiler.compile(
+            system_id="GeneratedCounterSystem",
+            cgs=GENERATED_COUNTER_CGS,
+            rust_source=bad_source,
+        )
+
+        assert not result.succeeded
+        assert result.stage == "unsupported_api_rejection"
+        assert result.sgc_result is None
+        assert result.unsupported_report is not None
+        assert any(
+            finding.code == "unsupported.filesystem_access"
+            for finding in result.unsupported_report.findings
+        )
+
+    def test_compile_blocks_engine_only_api_before_sgc(self):
+        bad_source = _VALID_GENERATED_COUNTER_RUST.replace(
+            "fn execute(&mut self, ctx: &mut SystemContext) {",
+            "fn execute(&mut self, ctx: &mut SystemContext) {\n"
+            "        let _node = godot::prelude::Node::new_alloc();",
+        )
+
+        result = self.compiler.compile(
+            system_id="GeneratedCounterSystem",
+            cgs=GENERATED_COUNTER_CGS,
+            rust_source=bad_source,
+        )
+
+        assert not result.succeeded
+        assert result.stage == "unsupported_api_rejection"
+        assert result.sgc_result is None
+        assert result.unsupported_report is not None
+        assert any(
+            finding.code == "unsupported.engine_api_godot"
+            for finding in result.unsupported_report.findings
+        )
+
+    def test_compile_requires_explicit_runtime_abi_before_sgc(self):
+        bad_cgs = {
+            **GENERATED_COUNTER_CGS,
+            "global_systems": [
+                {
+                    **GENERATED_COUNTER_CGS["global_systems"][0],
+                    "runtime_executor": {
+                        "kind": "generated.increment_numeric_field",
+                        "component_type_id": 300,
+                        "field": "count",
+                        "amount": 1,
+                    },
+                }
+            ],
+        }
+
+        result = self.compiler.compile(
+            system_id="GeneratedCounterSystem",
+            cgs=bad_cgs,
+            rust_source=_VALID_GENERATED_COUNTER_RUST,
+        )
+
+        assert not result.succeeded
+        assert result.stage == "runtime_abi_validation"
+        assert result.sgc_result is None
+
+    def test_compile_rejects_missing_rollback_hook_before_sgc(self):
+        bad_cgs = {
+            **GENERATED_COUNTER_CGS,
+            "global_systems": [
+                {
+                    **GENERATED_COUNTER_CGS["global_systems"][0],
+                    "runtime_executor": {
+                        **GENERATED_COUNTER_CGS["global_systems"][0]["runtime_executor"],
+                        "abi": {
+                            **GENERATED_COUNTER_CGS["global_systems"][0]["runtime_executor"]["abi"],
+                            "rollback": {
+                                "mutation_hook": "mutation_gate_deferred",
+                                "rng_hook": "rng_windowed",
+                            },
+                        },
+                    },
+                }
+            ],
+        }
+
+        result = self.compiler.compile(
+            system_id="GeneratedCounterSystem",
+            cgs=bad_cgs,
+            rust_source=_VALID_GENERATED_COUNTER_RUST,
+        )
+
+        assert not result.succeeded
+        assert result.stage == "runtime_abi_validation"
+        assert result.sgc_result is None
+        assert "rollback.event_hook" in result.error
 
 
 # ===========================================================================
@@ -788,7 +1148,7 @@ if __name__ == "__main__":
         TestPythonToRustType, TestSystemSpecBuilder,
         TestCodeContractValidator, TestDeterminismCodeChecker,
         TestRustCodeGenerator, TestCargoCompiler,
-        TestCodeGenerationEngine, TestComputeDiff,
+        TestCodeGenerationEngine, TestGeneratedSystemSafeCompiler, TestComputeDiff,
     ]
     passed = failed = 0; errors = []
     for cls in classes:

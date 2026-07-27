@@ -6,6 +6,7 @@ edition.workspace = true
 [dependencies]
 xace-core   = { path = "../core" }
 xace-network-core = { path = "../network-core" }
+xace-engine-feedback = { path = "../engine-feedback" }
 serde       = { workspace = true }
 serde_json  = { workspace = true }
 serde_yaml  = "0.9"
@@ -23,3 +24,8 @@ criterion = { version = "0.5", features = ["html_reports"] }
 [[bin]]
 name = "xace_runtime"
 path = "src/bin/xace_runtime.rs"
+
+[[bench]]
+name = "determinism_overheads"
+path = "benches.rs"
+harness = false

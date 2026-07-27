@@ -25,10 +25,15 @@
 //! does not halt the simulation. It is logged and skipped.
 //! The session continues with the next message.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, VecDeque};
 
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
-use xace_core::wire::feedback_payload::{FeedbackMessage, FeedbackType};
+use xace_core::wire::feedback_payload::FeedbackMessage;
+
+use crate::feedback_message::FeedbackMessageExt;
+use crate::feedback_type_enum::FeedbackTypeExt;
+
+type DedupeKey = (u64, u64, u8, u64);
 
 // ── Validation Configuration ──────────────────────────────────────────────────
 
@@ -53,6 +58,12 @@ pub struct ValidatorConfig {
     /// PerformanceMetrics and AssetResolutionUpdate use entity_id=0.
     /// Default: all types except those two.
     pub require_nonzero_entity_for_all_types: bool,
+
+    /// Maximum accepted JSON payload size in bytes.
+    pub max_payload_bytes: usize,
+
+    /// Maximum dedupe keys retained before oldest keys are evicted.
+    pub max_dedupe_keys: usize,
 }
 
 impl Default for ValidatorConfig {
@@ -62,6 +73,8 @@ impl Default for ValidatorConfig {
             reject_duplicates: true,
             validate_json_syntax: true,
             require_nonzero_entity_for_all_types: false,
+            max_payload_bytes: 256 * 1024,
+            max_dedupe_keys: 65_536,
         }
     }
 }
@@ -95,6 +108,8 @@ pub struct ValidatorMetrics {
     pub duplicate_rejections: u64,
     pub out_of_order_rejections: u64,
     pub null_entity_rejections: u64,
+    pub oversized_payload_rejections: u64,
+    pub dedupe_evictions: u64,
 }
 
 // ── Feedback Validator ────────────────────────────────────────────────────────
@@ -110,9 +125,12 @@ pub struct FeedbackValidator {
     /// Last `generated_frame` seen. Used for out-of-order detection.
     last_frame: u64,
 
-    /// Deduplication set: (feedback_type_u8, entity_id, generated_frame).
+    /// Deduplication set: (generated_frame, entity_id, feedback_type_u8, payload_hash).
     /// BTreeSet for deterministic iteration if inspection is needed (D11).
-    seen: BTreeSet<(u8, u64, u64)>,
+    seen: BTreeSet<DedupeKey>,
+
+    /// Insertion order for bounded dedupe retention.
+    seen_order: VecDeque<DedupeKey>,
 
     metrics: ValidatorMetrics,
 }
@@ -125,6 +143,7 @@ impl FeedbackValidator {
             config,
             last_frame: 0,
             seen: BTreeSet::new(),
+            seen_order: VecDeque::new(),
             metrics: ValidatorMetrics::default(),
         }
     }
@@ -155,6 +174,19 @@ impl FeedbackValidator {
             };
         }
 
+        if msg.payload_size_bytes() > self.config.max_payload_bytes {
+            self.metrics.messages_invalid += 1;
+            self.metrics.oversized_payload_rejections += 1;
+            return ValidationOutcome::Invalid {
+                reason: format!(
+                    "FeedbackMessage payload_json too large for type {:?}: {} bytes > {} bytes",
+                    msg.feedback_type,
+                    msg.payload_size_bytes(),
+                    self.config.max_payload_bytes
+                ),
+            };
+        }
+
         // ── Check 2: JSON syntax ──────────────────────────────────────────
         if self.config.validate_json_syntax {
             if let Err(e) = serde_json::from_str::<serde_json::Value>(&msg.payload_json) {
@@ -171,7 +203,7 @@ impl FeedbackValidator {
 
         // ── Check 3: entity_id non-zero for entity-specific types ─────────
         if self.config.require_nonzero_entity_for_all_types
-            || requires_nonzero_entity(msg.feedback_type)
+            || msg.feedback_type.requires_entity_id()
         {
             if msg.entity_id == 0 {
                 self.metrics.messages_invalid += 1;
@@ -186,9 +218,7 @@ impl FeedbackValidator {
         }
 
         // ── Check 4: Out-of-order frames ──────────────────────────────────
-        if self.config.reject_out_of_order_frames
-            && msg.generated_frame < self.last_frame
-        {
+        if self.config.reject_out_of_order_frames && msg.generated_frame < self.last_frame {
             self.metrics.messages_invalid += 1;
             self.metrics.out_of_order_rejections += 1;
             return ValidationOutcome::Invalid {
@@ -201,7 +231,7 @@ impl FeedbackValidator {
 
         // ── Check 5: Duplicate detection ──────────────────────────────────
         if self.config.reject_duplicates {
-            let key = (msg.feedback_type.as_u8(), msg.entity_id, msg.generated_frame);
+            let key = msg.dedupe_key();
             if self.seen.contains(&key) {
                 self.metrics.messages_invalid += 1;
                 self.metrics.duplicate_rejections += 1;
@@ -213,6 +243,8 @@ impl FeedbackValidator {
                 };
             }
             self.seen.insert(key);
+            self.seen_order.push_back(key);
+            self.enforce_dedupe_capacity();
         }
 
         // All checks passed
@@ -243,20 +275,15 @@ impl FeedbackValidator {
     /// Validates and returns an XaceError for invalid messages.
     ///
     /// Convenience wrapper for callers that want errors rather than filtering.
-    pub fn validate_or_err(
-        &mut self,
-        msg: &FeedbackMessage,
-    ) -> Result<(), XaceError> {
+    pub fn validate_or_err(&mut self, msg: &FeedbackMessage) -> Result<(), XaceError> {
         match self.validate(msg) {
             ValidationOutcome::Valid => Ok(()),
-            ValidationOutcome::Invalid { reason } => {
-                Err(XaceError::RecoverableError {
-                    message: reason,
-                    context: ErrorContext::new("FeedbackValidator", "validate_or_err"),
-                    max_retries: 0,
-                    retry_count: 0,
-                })
-            }
+            ValidationOutcome::Invalid { reason } => Err(XaceError::RecoverableError {
+                message: reason,
+                context: ErrorContext::new("FeedbackValidator", "validate_or_err"),
+                max_retries: 0,
+                retry_count: 0,
+            }),
         }
     }
 
@@ -268,6 +295,7 @@ impl FeedbackValidator {
     /// from the previous tick. Frame-tracking continues from last_frame.
     pub fn reset_for_next_tick(&mut self) {
         self.seen.clear();
+        self.seen_order.clear();
         // last_frame is intentionally NOT reset — cross-tick out-of-order detection
     }
 
@@ -275,6 +303,7 @@ impl FeedbackValidator {
     /// Use on session restart or transport reconnect.
     pub fn reset_all(&mut self) {
         self.seen.clear();
+        self.seen_order.clear();
         self.last_frame = 0;
         self.metrics = ValidatorMetrics::default();
     }
@@ -292,17 +321,21 @@ impl FeedbackValidator {
     pub fn dedupe_set_size(&self) -> usize {
         self.seen.len()
     }
+
+    fn enforce_dedupe_capacity(&mut self) {
+        while self.seen.len() > self.config.max_dedupe_keys {
+            if let Some(oldest) = self.seen_order.pop_front() {
+                if self.seen.remove(&oldest) {
+                    self.metrics.dedupe_evictions += 1;
+                }
+            } else {
+                break;
+            }
+        }
+    }
 }
 
 // ── Helper: Entity Requirement ────────────────────────────────────────────────
-
-/// Returns true if messages of this type must carry a non-zero entity_id.
-fn requires_nonzero_entity(ft: FeedbackType) -> bool {
-    !matches!(
-        ft,
-        FeedbackType::PerformanceMetrics | FeedbackType::AssetResolutionUpdate
-    )
-}
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -403,6 +436,13 @@ mod tests {
         assert_eq!(v.metrics().null_entity_rejections, 1);
     }
 
+    #[test]
+    fn entity_zero_allowed_for_device_level_input_feedback() {
+        let mut v = FeedbackValidator::with_defaults();
+        let outcome = v.validate(&valid_msg(FeedbackType::InputDeviceUpdate, 0, 1));
+        assert!(outcome.is_valid());
+    }
+
     // ── Duplicate Detection ───────────────────────────────────────────────────
 
     #[test]
@@ -428,6 +468,29 @@ mod tests {
         v.validate(&valid_msg(FeedbackType::AnimationStateUpdate, 1, 5));
         let outcome = v.validate(&valid_msg(FeedbackType::AnimationStateUpdate, 1, 6));
         assert!(outcome.is_valid());
+    }
+
+    #[test]
+    fn same_frame_entity_type_with_different_payload_is_not_duplicate() {
+        let mut v = FeedbackValidator::with_defaults();
+        let mut a = valid_msg(FeedbackType::EngineError, 1, 5);
+        a.payload_json = r#"{"error":"a"}"#.into();
+        let mut b = valid_msg(FeedbackType::EngineError, 1, 5);
+        b.payload_json = r#"{"error":"b"}"#.into();
+
+        assert!(v.validate(&a).is_valid());
+        assert!(v.validate(&b).is_valid());
+    }
+
+    #[test]
+    fn oversized_payload_rejected() {
+        let mut v = FeedbackValidator::new(ValidatorConfig {
+            max_payload_bytes: 1,
+            ..Default::default()
+        });
+        let outcome = v.validate(&valid_msg(FeedbackType::PerformanceMetrics, 0, 1));
+        assert!(!outcome.is_valid());
+        assert_eq!(v.metrics().oversized_payload_rejections, 1);
     }
 
     #[test]

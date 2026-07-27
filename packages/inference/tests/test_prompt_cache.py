@@ -174,6 +174,7 @@ class TestPromptCacheOpenAIFormat:
         result = self.cache.prepare(anthropic_prompt, self.desc)
         # Should produce openai format without cache_control
         assert result.__format__ == "openai"
+        assert "cache_control" not in str(result.payload)
 
 
 # ── CacheKeyBuilder ───────────────────────────────────────────────────────────

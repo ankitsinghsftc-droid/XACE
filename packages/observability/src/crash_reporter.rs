@@ -11,7 +11,7 @@ violation and writes it to disk.
   "report_type":    "PANIC" | "DETERMINISM_VIOLATION",
   "timestamp":      "2026-05-16T12:34:56Z",
   "schema_version": "0.2.1",
-  "last_world_hash": "0b1d495d...",
+  "last_world_hash": "0b1d495d59a76609fdd15511294f5e132c5b62b9b72fb22b0acf61fac2c3e178",
   "tick_number":    1000,
   "violation": {
     "rule":    "D6",
@@ -49,16 +49,15 @@ The directory is created if it does not exist.
 Failed writes go to stderr — the reporter must never panic itself.
 */
 
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
 use crate::health_check::HealthWriter;
 use crate::tick_ring_buffer::{TickRecord, TICK_BUFFER};
-
 
 // ── Report Types ──────────────────────────────────────────────────────────────
 
@@ -72,48 +71,53 @@ pub enum ReportType {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ViolationDetail {
-    pub rule:    String,
+    pub rule: String,
     pub message: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CrashReport {
-    pub report_type:     ReportType,
-    pub timestamp_iso:   String,
-    pub epoch_ms:        u64,
-    pub schema_version:  String,
+    pub report_type: ReportType,
+    pub timestamp_iso: String,
+    pub epoch_ms: u64,
+    pub schema_version: String,
     pub last_world_hash: String,
-    pub tick_number:     u64,
-    pub violation:       Option<ViolationDetail>,
-    pub last_ticks:      Vec<TickRecord>,
+    pub tick_number: u64,
+    pub violation: Option<ViolationDetail>,
+    pub last_ticks: Vec<TickRecord>,
     pub health_snapshot: serde_json::Value,
-    pub panic_message:   Option<String>,
-    pub thread_name:     Option<String>,
+    pub panic_message: Option<String>,
+    pub thread_name: Option<String>,
 }
 
 impl CrashReport {
     fn to_json_pretty(&self) -> String {
-        serde_json::to_string_pretty(self).unwrap_or_else(|_| "{}".to_string())
+        redact_secret_text(&serde_json::to_string_pretty(self).unwrap_or_else(|_| "{}".to_string()))
     }
 }
 
-
 // ── Config ────────────────────────────────────────────────────────────────────
 
-static CRASH_DIR: OnceLock<PathBuf> = OnceLock::new();
+static CRASH_DIR: OnceLock<Mutex<PathBuf>> = OnceLock::new();
 static HANDLER_INSTALLED: AtomicBool = AtomicBool::new(false);
 
 /// Sets the directory where crash reports are written.
 /// Must be called before `install()`.
 /// Default: `./crash_reports/`
 pub fn set_crash_dir(path: impl Into<PathBuf>) {
-    let _ = CRASH_DIR.set(path.into());
+    let lock = CRASH_DIR.get_or_init(|| Mutex::new(PathBuf::from("./crash_reports")));
+    if let Ok(mut current) = lock.lock() {
+        *current = path.into();
+    }
 }
 
-fn crash_dir() -> &'static Path {
-    CRASH_DIR.get_or_init(|| PathBuf::from("./crash_reports")).as_path()
+fn crash_dir() -> PathBuf {
+    CRASH_DIR
+        .get_or_init(|| Mutex::new(PathBuf::from("./crash_reports")))
+        .lock()
+        .map(|path| path.clone())
+        .unwrap_or_else(|_| PathBuf::from("./crash_reports"))
 }
-
 
 // ── Installation ──────────────────────────────────────────────────────────────
 
@@ -130,7 +134,7 @@ fn crash_dir() -> &'static Path {
 /// ```
 pub fn install() {
     if HANDLER_INSTALLED.swap(true, Ordering::SeqCst) {
-        return;   // already installed
+        return; // already installed
     }
 
     std::panic::set_hook(Box::new(|panic_info| {
@@ -139,7 +143,10 @@ pub fn install() {
             .downcast_ref::<&str>()
             .copied()
             .or_else(|| {
-                panic_info.payload().downcast_ref::<String>().map(|s| s.as_str())
+                panic_info
+                    .payload()
+                    .downcast_ref::<String>()
+                    .map(|s| s.as_str())
             })
             .unwrap_or("unknown panic")
             .to_string();
@@ -158,7 +165,7 @@ pub fn install() {
         );
 
         write_report(&report);
-        HealthWriter::global().add_error(format!("PANIC: {}", message));
+        HealthWriter::global().add_error(redact_secret_text(&format!("PANIC: {}", message)));
 
         // Print human-readable summary to stderr
         eprintln!(
@@ -169,7 +176,6 @@ pub fn install() {
         );
     }));
 }
-
 
 // ── Determinism Violation Reporter ────────────────────────────────────────────
 
@@ -184,7 +190,7 @@ pub fn install() {
 /// ```
 pub fn report_determinism_violation(rule: &str, message: &str) {
     let violation = ViolationDetail {
-        rule:    rule.to_string(),
+        rule: rule.to_string(),
         message: message.to_string(),
     };
 
@@ -198,49 +204,56 @@ pub fn report_determinism_violation(rule: &str, message: &str) {
     );
 
     write_report(&report);
-    HealthWriter::global().add_error(error_msg);
+    HealthWriter::global().add_error(redact_secret_text(&error_msg));
 
     eprintln!(
         "\n[XACE DETERMINISM VIOLATION] rule={} tick={} hash={}\nSee: {}\n",
-        rule, report.tick_number, report.last_world_hash,
+        rule,
+        report.tick_number,
+        report.last_world_hash,
         report_path_preview(),
     );
 }
 
 /// Called for any fatal error that is not a panic or D-rule violation.
 pub fn report_fatal(message: &str) {
-    let report = build_report(ReportType::FatalError, None, Some(message.to_string()), None);
+    let report = build_report(
+        ReportType::FatalError,
+        None,
+        Some(message.to_string()),
+        None,
+    );
     write_report(&report);
-    HealthWriter::global().add_error(format!("FATAL: {}", message));
+    HealthWriter::global().add_error(redact_secret_text(&format!("FATAL: {}", message)));
 }
-
 
 // ── Internal ──────────────────────────────────────────────────────────────────
 
 fn build_report(
-    report_type:  ReportType,
-    violation:    Option<ViolationDetail>,
-    panic_msg:    Option<String>,
-    thread_name:  Option<String>,
+    report_type: ReportType,
+    violation: Option<ViolationDetail>,
+    panic_msg: Option<String>,
+    thread_name: Option<String>,
 ) -> CrashReport {
-    let health   = HealthWriter::global().snapshot();
-    let ticks    = TICK_BUFFER.recent(100);
-    let latest   = ticks.first();
+    let health = HealthWriter::global().snapshot();
+    let ticks = TICK_BUFFER.recent(100);
+    let latest = ticks.first();
 
     let health_json = serde_json::to_value(&health).unwrap_or(serde_json::Value::Null);
 
     CrashReport {
         report_type,
-        timestamp_iso:   iso_timestamp(),
-        epoch_ms:        epoch_ms(),
-        schema_version:  health.schema_version.clone(),
-        last_world_hash: latest.map(|t| t.world_hash.clone())
-                               .unwrap_or_else(|| health.last_world_hash.clone()),
-        tick_number:     latest.map(|t| t.tick_number).unwrap_or(health.tick_number),
+        timestamp_iso: iso_timestamp(),
+        epoch_ms: epoch_ms(),
+        schema_version: health.schema_version.clone(),
+        last_world_hash: latest
+            .map(|t| t.world_hash.clone())
+            .unwrap_or_else(|| health.last_world_hash.clone()),
+        tick_number: latest.map(|t| t.tick_number).unwrap_or(health.tick_number),
         violation,
-        last_ticks:      ticks,
+        last_ticks: ticks,
         health_snapshot: health_json,
-        panic_message:   panic_msg,
+        panic_message: panic_msg,
         thread_name,
     }
 }
@@ -250,20 +263,64 @@ fn write_report(report: &CrashReport) {
 
     // Create directory if needed — silently ignore failure
     if !dir.exists() {
-        let _ = std::fs::create_dir_all(dir);
+        let _ = std::fs::create_dir_all(&dir);
     }
 
     let filename = format!("crash_{}.json", report.epoch_ms);
-    let path     = dir.join(&filename);
+    let path = dir.join(&filename);
 
     match std::fs::write(&path, report.to_json_pretty()) {
-        Ok(_)  => eprintln!("[xace-obs] Crash report written: {}", path.display()),
+        Ok(_) => eprintln!("[xace-obs] Crash report written: {}", path.display()),
         Err(e) => eprintln!("[xace-obs] Failed to write crash report: {}", e),
     }
 }
 
 fn report_path_preview() -> String {
-    crash_dir().join(format!("crash_{}.json", epoch_ms())).display().to_string()
+    crash_dir()
+        .join(format!("crash_{}.json", epoch_ms()))
+        .display()
+        .to_string()
+}
+
+fn redact_secret_text(input: &str) -> String {
+    let mut output = String::with_capacity(input.len());
+    let mut index = 0;
+    while index < input.len() {
+        let rest = &input[index..];
+        if rest.starts_with("sk-ant-") || rest.starts_with("sk-") || rest.starts_with("AIza") {
+            let consumed = secret_token_len(rest);
+            if consumed >= 12 {
+                output.push_str("[REDACTED_SECRET]");
+                index += consumed;
+                continue;
+            }
+        }
+        if rest.len() >= 7 && rest[..7].eq_ignore_ascii_case("Bearer ") {
+            output.push_str(&rest[..7]);
+            let consumed = secret_token_len(&rest[7..]);
+            if consumed >= 12 {
+                output.push_str("[REDACTED_SECRET]");
+                index += 7 + consumed;
+                continue;
+            }
+        }
+        let ch = rest.chars().next().unwrap_or_default();
+        output.push(ch);
+        index += ch.len_utf8();
+    }
+    output
+}
+
+fn secret_token_len(input: &str) -> usize {
+    let mut len = 0;
+    for ch in input.chars() {
+        if ch.is_ascii_alphanumeric() || matches!(ch, '-' | '_' | '.' | '~' | '+' | '/' | '=') {
+            len += ch.len_utf8();
+        } else {
+            break;
+        }
+    }
+    len
 }
 
 fn epoch_ms() -> u64 {
@@ -281,10 +338,13 @@ fn iso_timestamp() -> String {
 
 fn epoch_to_iso(secs: u64) -> String {
     // Basic epoch → "YYYY-MM-DDTHH:MM:SS" without chrono
-    let s   = secs;
-    let sec = s % 60;   let s = s / 60;
-    let min = s % 60;   let s = s / 60;
-    let hr  = s % 24;   let s = s / 24;
+    let s = secs;
+    let sec = s % 60;
+    let s = s / 60;
+    let min = s % 60;
+    let s = s / 60;
+    let hr = s % 24;
+    let s = s / 24;
 
     // Days since epoch — approximate (ignores leap seconds, good enough for a timestamp)
     let days = s;
@@ -292,26 +352,31 @@ fn epoch_to_iso(secs: u64) -> String {
     let days = days % 146097;
     let y100 = (days / 36524).min(3);
     let days = days - y100 * 36524;
-    let y4   = days / 1461;
+    let y4 = days / 1461;
     let days = days % 1461;
-    let y1   = (days / 365).min(3);
+    let y1 = (days / 365).min(3);
     let days = days - y1 * 365;
 
     let year = y400 * 400 + y100 * 100 + y4 * 4 + y1 + 1970;
-    let leap  = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+    let leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
     let month_days: &[u64] = if leap {
-        &[31,29,31,30,31,30,31,31,30,31,30,31]
+        &[31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     } else {
-        &[31,28,31,30,31,30,31,31,30,31,30,31]
+        &[31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
     };
     let mut remaining = days;
     let mut month = 1u64;
     for &md in month_days {
-        if remaining < md { break; }
+        if remaining < md {
+            break;
+        }
         remaining -= md;
         month += 1;
     }
     let day = remaining + 1;
 
-    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}", year, month, day, hr, min, sec)
+    format!(
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}",
+        year, month, day, hr, min, sec
+    )
 }

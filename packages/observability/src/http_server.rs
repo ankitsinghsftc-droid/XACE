@@ -40,7 +40,6 @@ use std::time::Duration;
 use crate::health_check::HealthWriter;
 use crate::metrics::METRICS;
 
-
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /// Starts the background HTTP server thread.
@@ -48,7 +47,7 @@ use crate::metrics::METRICS;
 /// Call once during process startup.
 pub fn start_background(port: u16, health: HealthWriter) {
     if port == 0 {
-        return;   // explicitly disabled
+        return; // explicitly disabled
     }
 
     thread::Builder::new()
@@ -58,7 +57,6 @@ pub fn start_background(port: u16, health: HealthWriter) {
         })
         .expect("failed to spawn xace-http-obs thread");
 }
-
 
 // ── Server Loop ───────────────────────────────────────────────────────────────
 
@@ -90,7 +88,6 @@ fn run_server(port: u16, health: HealthWriter) {
     }
 }
 
-
 // ── Connection Handler ────────────────────────────────────────────────────────
 
 fn handle_connection(mut stream: TcpStream, health: &HealthWriter) {
@@ -99,13 +96,19 @@ fn handle_connection(mut stream: TcpStream, health: &HealthWriter) {
 
     let request_line = {
         let mut reader = BufReader::new(&stream);
-        let mut line   = String::new();
-        if reader.read_line(&mut line).is_err() { return; }
+        let mut line = String::new();
+        if reader.read_line(&mut line).is_err() {
+            return;
+        }
         // Drain remaining headers (must consume to avoid RST)
         for _ in 0..100 {
             let mut header = String::new();
-            if reader.read_line(&mut header).is_err() { break; }
-            if header.trim().is_empty() { break; }
+            if reader.read_line(&mut header).is_err() {
+                break;
+            }
+            if header.trim().is_empty() {
+                break;
+            }
         }
         line
     };
@@ -120,18 +123,32 @@ fn handle_connection(mut stream: TcpStream, health: &HealthWriter) {
         "/health" | "/health/" => {
             let status = health.snapshot();
             let http_code = if status.is_healthy() { 200 } else { 503 };
-            respond(&mut stream, http_code, "application/json", &status.to_json());
+            respond(
+                &mut stream,
+                http_code,
+                "application/json",
+                &status.to_json(),
+            );
         }
         "/metrics" | "/metrics/" => {
             let text = METRICS.encode_text();
-            respond(&mut stream, 200, "text/plain; version=0.0.4; charset=utf-8", &text);
+            respond(
+                &mut stream,
+                200,
+                "text/plain; version=0.0.4; charset=utf-8",
+                &text,
+            );
         }
         "/" => {
             respond(&mut stream, 200, "text/plain", "XACE Runtime OK\n");
         }
         _ => {
-            respond(&mut stream, 404, "text/plain",
-                "Not Found. Available: /health /metrics\n");
+            respond(
+                &mut stream,
+                404,
+                "text/plain",
+                "Not Found. Available: /health /metrics\n",
+            );
         }
     }
 }
@@ -142,7 +159,7 @@ fn respond(stream: &mut TcpStream, code: u16, content_type: &str, body: &str) {
         404 => "Not Found",
         405 => "Method Not Allowed",
         503 => "Service Unavailable",
-        _   => "Unknown",
+        _ => "Unknown",
     };
     let response = format!(
         "HTTP/1.1 {} {}\r\n\
@@ -152,7 +169,8 @@ fn respond(stream: &mut TcpStream, code: u16, content_type: &str, body: &str) {
          Cache-Control: no-cache\r\n\
          \r\n\
          {}",
-        code, reason,
+        code,
+        reason,
         content_type,
         body.len(),
         body,
@@ -163,8 +181,8 @@ fn respond(stream: &mut TcpStream, code: u16, content_type: &str, body: &str) {
 fn parse_request_line(line: &str) -> (&str, &str) {
     let mut parts = line.split_whitespace();
     let method = parts.next().unwrap_or("GET");
-    let path   = parts.next().unwrap_or("/");
+    let path = parts.next().unwrap_or("/");
     // Strip query string
-    let path   = path.split('?').next().unwrap_or(path);
+    let path = path.split('?').next().unwrap_or(path);
     (method, path)
 }

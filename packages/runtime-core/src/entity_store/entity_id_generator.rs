@@ -2,7 +2,7 @@
 //!
 //! Monotonic 64-bit ID generator for the EntityStore.
 //! Never reuses IDs. Never generates NULL_ENTITY_ID (0).
-//! Thread-safe via AtomicU64 for parallel system execution.
+//! Thread-safe via AtomicU64 for any future worker-thread system policy.
 //!
 //! ## Determinism (D2)
 //! EntityIDs are never reused after destruction. This generator

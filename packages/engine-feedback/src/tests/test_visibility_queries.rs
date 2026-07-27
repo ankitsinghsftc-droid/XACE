@@ -13,13 +13,11 @@
 
 #[cfg(test)]
 mod tests {
-    use xace_core::wire::feedback_payload::{
-        FeedbackMessage, FeedbackType, VisibilityQueryResultFeedback,
-    };
+    use xace_core::wire::feedback_payload::VisibilityQueryResultFeedback;
 
     use crate::feedback_message::TypedFeedbackPayload;
-    use crate::handlers::visibility_feedback_handler::VisibilityFeedbackHandler;
     use crate::feedback_router::FeedbackHandler;
+    use crate::handlers::visibility_feedback_handler::VisibilityFeedbackHandler;
     use crate::visibility_query::visibility_query::{VisibilityQuery, VisibilityQueryResult};
     use crate::visibility_query::visibility_query_batcher::{
         BatcherConfig, VisibilityQueryBatcher,
@@ -115,7 +113,7 @@ mod tests {
         let mut b = VisibilityQueryBatcher::with_defaults();
         b.add(1, 2, 10.0);
         b.add(1, 2, 20.0); // duplicate — larger distance kept
-        b.add(1, 2, 5.0);  // duplicate — smaller ignored
+        b.add(1, 2, 5.0); // duplicate — smaller ignored
         let batch = b.take_batch();
         assert_eq!(batch.len(), 1);
         assert!((batch[0].max_distance - 20.0).abs() < 1e-5);
@@ -169,7 +167,9 @@ mod tests {
 
     #[test]
     fn batcher_size_limit_drops_overflow() {
-        let mut b = VisibilityQueryBatcher::new(BatcherConfig { max_queries_per_tick: 3 });
+        let mut b = VisibilityQueryBatcher::new(BatcherConfig {
+            max_queries_per_tick: 3,
+        });
         for target in 1..=6 {
             b.add(99, target, 10.0);
         }

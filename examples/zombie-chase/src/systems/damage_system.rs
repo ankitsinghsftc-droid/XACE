@@ -23,6 +23,7 @@
 
 use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
+use xace_core::fixed_point::Fixed64;
 
 use crate::cgs::component_ids;
 use crate::cgs::{
@@ -81,7 +82,7 @@ impl ISystem for DamageSystem {
             let max_health = parse_health_max(&health_json_str);
 
             // Apply damage — clamp to exactly 0.0, never negative
-            let new_health = (current_health - damage_amount).max(0.0_f32);
+            let new_health = (current_health - damage_amount).max(Fixed64::ZERO);
 
             // D4: submit health update — deferred, applied after phase
             let updated_health = health_json(new_health, max_health);
@@ -121,10 +122,9 @@ mod tests {
 
     #[test]
     fn health_clamp_never_negative() {
-        // Property: (100.0 - 200.0).max(0.0) == 0.0 exactly
-        let result = (100.0_f32 - 200.0_f32).max(0.0_f32);
-        assert_eq!(result, 0.0_f32);
+        let result = (Fixed64::from_units(100) - Fixed64::from_units(200)).max(Fixed64::ZERO);
+        assert_eq!(result, Fixed64::ZERO);
         // No floating-point under-zero possible
-        assert!(result >= 0.0_f32);
+        assert!(result >= Fixed64::ZERO);
     }
 }

@@ -1,209 +1,268 @@
 /**
- * runtime_stats.ts — Runtime Stats Panel
+ * Live runtime statistics panel.
  *
- * Phase 14: Derives stats from CGS (static counts, no live data).
- * Phase 15: `engineConnected` flag switches data source to engine_tick.
- *
- * Shows: tick rate, ms/tick, entity count, FPS, per-system timing bars,
- * network peer status (stub in Phase 14, live in Phase 15).
+ * This view is read-only: it derives metrics from CGS and builder protocol
+ * messages, then renders bounded history for deterministic inspection.
  */
 
-import type { CGSStore }    from '../state/cgs_store';
-import type { UIStore }     from '../state/ui_store';
-import type { BuilderClient } from '../api/builder_client';
-import { allSystems }       from '../types/cgs';
+import type { BuilderClient, ConnectionState } from '../api/builder_client';
+import type { EngineTickMessage } from '../api/message_types';
+import type { CGSStore } from '../state/cgs_store';
+import type { UIStore } from '../state/ui_store';
+import { allSystems } from '../types/cgs';
+
+const MAX_SAMPLES = 180;
+const MAX_SYSTEM_ROWS = 12;
+const STATUS_POLL_MS = 1000;
 
 const STYLES = `
-.xb-rts { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 6px; }
+.xb-rts { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
 .xb-rts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.xb-rts-stat { display: flex; flex-direction: column; gap: 1px; }
+.xb-rts-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .xb-rts-lbl { font-size: 8px; color: var(--txt2); letter-spacing: .06em; text-transform: uppercase; }
-.xb-rts-val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--txt); }
+.xb-rts-val { font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--txt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .xb-rts-val.cyan { color: var(--cyan); }
-.xb-rts-ekg { width: 100%; height: 26px; border: 1px solid var(--bd); border-radius: 3px; background: rgba(0,0,0,.2); display: block; }
+.xb-rts-val.warn { color: var(--amb); }
+.xb-rts-val.good { color: var(--grn); }
+.xb-rts-val.bad { color: var(--red); }
+.xb-rts-ekg { width: 100%; height: 30px; border: 1px solid var(--bd); border-radius: 3px; background: rgba(0,0,0,.2); display: block; }
 .xb-rts-sect { font-size: 8.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--txt2); margin-top: 2px; }
-.xb-rts-sys-row { display: flex; align-items: center; gap: 6px; font-size: 9.5px; }
-.xb-rts-sys-name { color: var(--txt2); flex: 1; font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.xb-rts-sys-name.active { color: var(--cyan); }
-.xb-rts-bar-wrap { width: 60px; height: 3px; background: rgba(255,255,255,.04); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
-.xb-rts-bar { height: 100%; border-radius: 2px; transition: width 600ms ease; }
-.xb-rts-timing { font-family: var(--font-mono); font-size: 9px; color: var(--amb); min-width: 36px; text-align: right; flex-shrink: 0; }
-.xb-rts-stub { font-size: 9.5px; color: var(--txt3); font-style: italic; }
+.xb-rts-row { display: grid; grid-template-columns: minmax(0,1fr) 66px 46px; align-items: center; gap: 6px; font-size: 9.5px; min-width: 0; }
+.xb-rts-name { color: var(--txt2); font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xb-rts-bar-wrap { width: 66px; height: 3px; background: rgba(255,255,255,.04); border-radius: 2px; overflow: hidden; }
+.xb-rts-bar { height: 100%; border-radius: 2px; transition: width 180ms ease; background: var(--cyan); display: block; }
+.xb-rts-num { font-family: var(--font-mono); font-size: 9px; color: var(--amb); text-align: right; }
+.xb-rts-note { font-size: 9.5px; color: var(--txt3); line-height: 1.5; overflow-wrap: anywhere; }
 `;
 
 interface StatsDeps {
   cgsStore: CGSStore;
-  uiStore:  UIStore;
-  client:   BuilderClient;
+  uiStore: UIStore;
+  client: BuilderClient;
+}
+
+interface RuntimeSample {
+  readonly tick: number;
+  readonly fps: number;
+  readonly msPerTick: number;
+  readonly entityCount: number;
+  readonly worldHash: string;
+  readonly deterministic: boolean;
+  readonly adapterType: string;
+  readonly systemTimings: ReadonlyMap<string, number>;
 }
 
 export class RuntimeStats {
-  private readonly _deps:    StatsDeps;
-  private _el!:              HTMLElement;
-  private _ekgCtx!:          CanvasRenderingContext2D | null;
-  private _ekgBuf:           number[]  = [];
-  private _engineConnected:  boolean   = false;
-  private _liveSystemMs:     Map<string, number> = new Map();
-  private readonly _unsubs:  Array<() => void>   = [];
+  private readonly deps: StatsDeps;
+  private readonly samples: RuntimeSample[] = [];
+  private readonly unsubs: Array<() => void> = [];
+
+  private root: HTMLElement | null = null;
+  private canvas: HTMLCanvasElement | null = null;
+  private connectionState: ConnectionState = 'disconnected';
+  private runtimeError = '';
+  private statusTimer: ReturnType<typeof setInterval> | null = null;
 
   constructor(deps: StatsDeps) {
-    this._deps = deps;
-    this._injectStyles();
+    this.deps = deps;
+    injectStyles();
   }
 
   mount(container: HTMLElement): void {
-    this._el = document.createElement('div');
-    this._el.className = 'xb-rts';
-    container.appendChild(this._el);
+    this.root = document.createElement('div');
+    this.root.className = 'xb-rts';
+    container.appendChild(this.root);
 
-    this._render();
-
-    this._unsubs.push(
-      this._deps.cgsStore.subscribe(() => this._render()),
-    );
-
-    // Phase 15: wire engine_tick
-    this._unsubs.push(
-      this._deps.client.onEngineTick((tick, fps, _hash, msPerTick) => {
-        this._engineConnected = true;
-        this._updateLiveStats(tick, fps, msPerTick);
-      }),
-    );
-
-    // EKG animation
-    const ekgInterval = setInterval(() => this._tickEKG(), 40);
-    this._unsubs.push(() => clearInterval(ekgInterval));
+    this.unsubs.push(this.deps.cgsStore.subscribe(() => this.render()));
+    this.unsubs.push(this.deps.client.onConnectionState((state) => {
+      this.connectionState = state;
+      this.render();
+    }));
+    this.unsubs.push(this.deps.client.onRuntimeStatus((status) => {
+      this.runtimeError = status.lastError;
+      this.render();
+    }));
+    this.unsubs.push(this.deps.client.onEngineTick((_tick, _fps, _hash, _ms, message) => {
+      this.acceptTick(message);
+    }));
+    this.statusTimer = setInterval(() => {
+      if (this.deps.client.isConnected) {
+        this.deps.client.requestRuntimeStatus();
+      }
+    }, STATUS_POLL_MS);
+    if (this.deps.client.isConnected) {
+      this.deps.client.requestRuntimeStatus();
+    }
+    this.render();
   }
 
   unmount(): void {
-    this._unsubs.forEach(fn => fn());
-    this._el?.remove();
+    this.unsubs.splice(0).forEach((unsub) => unsub());
+    if (this.statusTimer) {
+      clearInterval(this.statusTimer);
+      this.statusTimer = null;
+    }
+    this.root?.remove();
+    this.root = null;
+    this.canvas = null;
   }
 
-  private _render(): void {
-    const cgs     = this._deps.cgsStore.cgs;
-    const actors  = this._deps.cgsStore.actorCount;
-    const systems = this._deps.cgsStore.systemCount;
+  private acceptTick(message: EngineTickMessage): void {
+    const sample: RuntimeSample = {
+      tick: safeNumber(message.tick, 0),
+      fps: safeNumber(message.fps, 0),
+      msPerTick: safeNumber(message.ms_per_tick, 0),
+      entityCount: Math.max(0, Math.floor(safeNumber(message.entity_count, 0))),
+      worldHash: message.world_hash || '',
+      deterministic: message.is_deterministic,
+      adapterType: message.adapter_type ?? this.deps.client.runtimeStatus.adapterType,
+      systemTimings: normalizeTimings(message.system_timings),
+    };
+    this.samples.push(sample);
+    if (this.samples.length > MAX_SAMPLES) {
+      this.samples.splice(0, this.samples.length - MAX_SAMPLES);
+    }
+    this.render();
+  }
 
-    this._el.innerHTML = '';
+  private render(): void {
+    if (!this.root) {
+      return;
+    }
 
-    // ── Stats grid ──────────────────────────────────────────────────────
-    const grid = this._mkEl('div', 'xb-rts-grid');
-    grid.innerHTML = `
-      <div class="xb-rts-stat">
-        <div class="xb-rts-lbl">Tick / s</div>
-        <div class="xb-rts-val cyan" id="xb-rts-tick">60</div>
+    const latest = this.samples[this.samples.length - 1] ?? null;
+    const actors = latest?.entityCount ?? this.deps.cgsStore.actorCount;
+    const systems = this.deps.cgsStore.systemCount;
+    const fps = latest?.fps ?? 0;
+    const msPerTick = latest?.msPerTick ?? 0;
+    const hash = latest?.worldHash || this.deps.cgsStore.hash || '';
+    const deterministic = latest?.deterministic ?? true;
+    const runtime = this.deps.client.runtimeStatus;
+    const connected = runtime.connected;
+    const adapter = latest?.adapterType || runtime.adapterType || 'headless';
+    const controlTick = runtime.controlTick || latest?.tick || 0;
+    const feedbackBad = runtime.lastEngineFeedbackInvalid + runtime.lastEngineFeedbackErrors;
+
+    this.root.innerHTML = `
+      <div class="xb-rts-grid">
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Connection</div><div class="xb-rts-val ${connected ? 'good' : 'warn'}">${escapeHtml(this.connectionState)}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Adapter</div><div class="xb-rts-val">${escapeHtml(adapter)}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Tick</div><div class="xb-rts-val cyan">${controlTick ? controlTick.toLocaleString() : '-'}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">FPS</div><div class="xb-rts-val ${fps >= 55 ? 'good' : fps > 0 ? 'warn' : ''}">${latest ? fps.toFixed(0) : '-'}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">ms / tick</div><div class="xb-rts-val ${msPerTick > 20 ? 'warn' : ''}">${latest ? msPerTick.toFixed(2) : '-'}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Entities</div><div class="xb-rts-val">${actors.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Systems</div><div class="xb-rts-val">${systems.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Determinism</div><div class="xb-rts-val ${deterministic ? 'good' : 'bad'}">${deterministic ? 'locked' : 'breach'}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Run state</div><div class="xb-rts-val ${runtime.paused ? 'warn' : 'good'}">${runtime.paused ? 'paused' : 'running'}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Step budget</div><div class="xb-rts-val">${runtime.stepBudget.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Pending input</div><div class="xb-rts-val">${runtime.pendingEngineInputs.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Pending feedback</div><div class="xb-rts-val">${runtime.pendingEngineFeedback.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Feedback handled</div><div class="xb-rts-val ${runtime.lastEngineFeedbackProcessed > 0 ? 'good' : ''}">${runtime.lastEngineFeedbackProcessed.toLocaleString()}</div></div>
+        <div class="xb-rts-stat"><div class="xb-rts-lbl">Feedback issues</div><div class="xb-rts-val ${feedbackBad > 0 ? 'bad' : 'good'}">${feedbackBad.toLocaleString()}</div></div>
       </div>
-      <div class="xb-rts-stat">
-        <div class="xb-rts-lbl">ms / tick</div>
-        <div class="xb-rts-val" id="xb-rts-ms">${this._engineConnected ? '—' : '~8'}</div>
-      </div>
-      <div class="xb-rts-stat">
-        <div class="xb-rts-lbl">Entities</div>
-        <div class="xb-rts-val">${actors.toLocaleString()}</div>
-      </div>
-      <div class="xb-rts-stat">
-        <div class="xb-rts-lbl">FPS</div>
-        <div class="xb-rts-val" id="xb-rts-fps">60</div>
-      </div>
+      <canvas class="xb-rts-ekg" width="280" height="30"></canvas>
+      <div class="xb-rts-sect">System timings</div>
+      <div data-role="systems"></div>
+      <div class="xb-rts-sect">World hash</div>
+      <div class="xb-rts-note">${hash ? escapeHtml(hash) : 'No runtime hash yet.'}</div>
+      ${this.runtimeError ? `<div class="xb-rts-sect">Last error</div><div class="xb-rts-note">${escapeHtml(this.runtimeError)}</div>` : ''}
     `;
-    this._el.appendChild(grid);
 
-    // ── EKG canvas ──────────────────────────────────────────────────────
-    const ekg = document.createElement('canvas');
-    ekg.className = 'xb-rts-ekg';
-    ekg.width     = 270;
-    ekg.height    = 26;
-    this._el.appendChild(ekg);
-    this._ekgCtx  = ekg.getContext('2d');
+    this.canvas = this.root.querySelector<HTMLCanvasElement>('.xb-rts-ekg');
+    this.renderChart();
+    this.renderSystems(latest);
+  }
 
-    // ── System timings ───────────────────────────────────────────────────
-    this._el.appendChild(this._mkEl('div', 'xb-rts-sect', { textContent: 'Systems (ms/tick)' }));
-
-    const allSys = allSystems(cgs);
-    const colors  = ['var(--cyan)', 'var(--vlt)', 'var(--amb)', 'var(--grn)', 'var(--red)'];
-
-    if (allSys.length === 0) {
-      this._el.appendChild(this._mkEl('div', 'xb-rts-stub', { textContent: 'No systems defined.' }));
+  private renderSystems(latest: RuntimeSample | null): void {
+    const host = this.root?.querySelector<HTMLElement>('[data-role="systems"]');
+    if (!host) {
+      return;
     }
 
-    allSys.slice(0, 8).forEach(({ system }, i) => {
-      const livems    = this._liveSystemMs.get(system.id);
-      const stubMs    = [1.1, 1.8, 3.2, 2.8, 0.4, 1.2, 2.1, 0.6][i] ?? 1.0;
-      const displayMs = livems ?? stubMs;
-      const pct       = Math.min(90, displayMs * 10);
+    const rows = latest && latest.systemTimings.size > 0
+      ? Array.from(latest.systemTimings.entries()).sort(([a], [b]) => a.localeCompare(b))
+      : allSystems(this.deps.cgsStore.cgs).map(({ system }) => [system.id, 0] as [string, number]);
 
-      const row = this._mkEl('div', 'xb-rts-sys-row');
+    if (rows.length === 0) {
+      host.innerHTML = '<div class="xb-rts-note">No systems defined.</div>';
+      return;
+    }
+
+    const max = Math.max(1, ...rows.map(([, value]) => value));
+    host.innerHTML = '';
+    for (const [name, ms] of rows.slice(0, MAX_SYSTEM_ROWS)) {
+      const row = document.createElement('div');
+      row.className = 'xb-rts-row';
+      const pct = Math.max(2, Math.min(100, (ms / max) * 100));
       row.innerHTML = `
-        <span class="xb-rts-sys-name ${i === 0 ? 'active' : ''}">${system.id}</span>
-        <div class="xb-rts-bar-wrap"><div class="xb-rts-bar" style="width:${pct}%;background:${colors[i % colors.length]}"></div></div>
-        <span class="xb-rts-timing">${displayMs.toFixed(1)}ms</span>
+        <span class="xb-rts-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+        <span class="xb-rts-bar-wrap"><span class="xb-rts-bar" style="width:${pct.toFixed(2)}%"></span></span>
+        <span class="xb-rts-num">${ms.toFixed(2)}ms</span>
       `;
-      this._el.appendChild(row);
-    });
-
-    // ── Network / Peers ───────────────────────────────────────────────────
-    this._el.appendChild(this._mkEl('div', 'xb-rts-sect', { textContent: 'Network', style: 'margin-top:4px' }));
-
-    if (this._engineConnected) {
-      const netRows = [
-        { label: 'Peers',       val: '0',         color: 'var(--cyan)' },
-        { label: 'Input delay', val: '—',          color: 'var(--txt)' },
-        { label: 'Last desync', val: '✓ in sync', color: 'var(--grn)' },
-      ];
-      for (const { label, val, color } of netRows) {
-        const row = this._mkEl('div', 'xb-rts-sys-row');
-        row.innerHTML = `<span class="xb-rts-sys-name">${label}</span><span style="font-family:var(--font-mono);font-size:10px;color:${color}">${val}</span>`;
-        this._el.appendChild(row);
-      }
-    } else {
-      this._el.appendChild(this._mkEl('div', 'xb-rts-stub', { textContent: 'Engine not connected — live data in Phase 15' }));
+      host.appendChild(row);
     }
   }
 
-  private _updateLiveStats(tick: number, fps: number, msPerTick: number): void {
-    const tickEl = document.getElementById('xb-rts-tick');
-    const msEl   = document.getElementById('xb-rts-ms');
-    const fpsEl  = document.getElementById('xb-rts-fps');
-    if (tickEl) tickEl.textContent = '60';
-    if (msEl)   msEl.textContent   = msPerTick.toFixed(1);
-    if (fpsEl) {
-      fpsEl.textContent = String(fps);
-      (fpsEl as HTMLElement).style.color = fps < 55 ? 'var(--amb)' : 'var(--txt)';
+  private renderChart(): void {
+    const ctx = this.canvas?.getContext('2d');
+    const canvas = this.canvas;
+    if (!ctx || !canvas) {
+      return;
     }
-  }
 
-  private _tickEKG(): void {
-    const ctx = this._ekgCtx;
-    if (!ctx) return;
-    const W = 270, H = 26;
-    const v = Math.random() < 0.1 ? H * 0.15
-            : Math.random() < 0.15 ? H * 0.65
-            : H * 0.72 + Math.random() * H * 0.08;
-    this._ekgBuf.push(v);
-    if (this._ekgBuf.length > W) this._ekgBuf.shift();
-    ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = 'rgba(0,212,255,.7)';
-    ctx.lineWidth   = 1;
+    const width = canvas.width;
+    const height = canvas.height;
+    const values = this.samples.map((sample) => sample.msPerTick);
+    ctx.clearRect(0, 0, width, height);
+
+    ctx.strokeStyle = 'rgba(255,255,255,.08)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    this._ekgBuf.forEach((y, x) => x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+    ctx.moveTo(0, height - 8);
+    ctx.lineTo(width, height - 8);
+    ctx.stroke();
+
+    if (values.length === 0) {
+      return;
+    }
+
+    const max = Math.max(16.667, ...values);
+    ctx.strokeStyle = 'rgba(0,212,255,.78)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    values.forEach((value, index) => {
+      const x = values.length === 1 ? width : (index / (values.length - 1)) * width;
+      const y = height - Math.min(height - 2, (value / max) * (height - 3)) - 1;
+      if (index === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
     ctx.stroke();
   }
+}
 
-  private _mkEl(tag: string, cls: string, attrs: Record<string, string> = {}): HTMLElement {
-    const e = document.createElement(tag);
-    e.className = cls;
-    for (const [k, v] of Object.entries(attrs)) {
-      if (k === 'textContent') e.textContent = v;
-      else e.setAttribute(k, v);
-    }
-    return e;
+function normalizeTimings(input: Record<string, number>): ReadonlyMap<string, number> {
+  const timings = new Map<string, number>();
+  for (const [name, value] of Object.entries(input ?? {})) {
+    const ms = safeNumber(value, 0);
+    timings.set(name, Math.max(0, ms));
   }
+  return timings;
+}
 
-  private _injectStyles(): void {
-    if (document.getElementById('xb-rts-styles')) return;
-    const s = document.createElement('style');
-    s.id = 'xb-rts-styles'; s.textContent = STYLES;
-    document.head.appendChild(s);
-  }
+function safeNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function injectStyles(): void {
+  if (document.getElementById('xb-rts-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'xb-rts-styles';
+  style.textContent = STYLES;
+  document.head.appendChild(style);
+}
+
+function escapeHtml(value: string): string {
+  const div = document.createElement('div');
+  div.textContent = value;
+  return div.innerHTML;
 }

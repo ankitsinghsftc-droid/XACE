@@ -5,7 +5,7 @@ Runtime-critical asset operations: async streaming, CDN loading, hot-reload.
 
 ## Language Boundary
 
-```
+```text
 packages/asset-registry/  (Python) — authoring time
     asset_manifest.py       — writes manifests
     asset_validator.py      — validates AssetReference status
@@ -38,7 +38,7 @@ a partially-loaded asset.
 ## CDN Credentials
 
 Loaded from environment variables only. Never from config files.
-```
+```text
 AWS_ACCESS_KEY_ID         — S3 and CloudFront
 AWS_SECRET_ACCESS_KEY     — S3 and CloudFront
 AWS_DEFAULT_REGION        — S3 region (default: us-east-1)
@@ -53,16 +53,15 @@ pub mod streaming;
 
 // ── Public Re-exports ─────────────────────────────────────────────────────────
 
-pub use cdn::cdn_adapter::{ICdnAdapter, CdnConfig, CdnError};
+pub use cdn::cdn_adapter::{CdnConfig, CdnError, ICdnAdapter};
 pub use cdn::local_cdn_adapter::LocalCdnAdapter;
 pub use cdn::s3_adapter::S3Adapter;
 pub use hot_reload::reload_coordinator::{ReloadCoordinator, ReloadEvent};
-pub use hot_reload::tick_boundary_gate::{TickBoundaryGate, ReloadRequest};
+pub use hot_reload::tick_boundary_gate::{ReloadRequest, TickBoundaryGate};
 pub use hot_reload::version_hasher::VersionHasher;
 pub use streaming::asset_streamer::{AssetStreamer, StreamerConfig};
-pub use streaming::load_request::{LoadRequest, LoadPriority};
-pub use streaming::load_result::{LoadResult, AssetBytes};
-
+pub use streaming::load_request::{LoadPriority, LoadRequest};
+pub use streaming::load_result::{AssetBytes, LoadResult};
 
 // ── Asset Error ───────────────────────────────────────────────────────────────
 
@@ -94,7 +93,6 @@ pub enum AssetRuntimeError {
 
 pub type Result<T> = std::result::Result<T, AssetRuntimeError>;
 
-
 // ── Asset Reference ───────────────────────────────────────────────────────────
 // Mirrors the Python-side AssetReference. Rust uses this to identify assets
 // during streaming and hot-reload. The authoritative definition is in
@@ -106,8 +104,12 @@ use serde::{Deserialize, Serialize};
 pub struct AssetId(pub String);
 
 impl AssetId {
-    pub fn new(id: impl Into<String>) -> Self { Self(id.into()) }
-    pub fn as_str(&self) -> &str { &self.0 }
+    pub fn new(id: impl Into<String>) -> Self {
+        Self(id.into())
+    }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 impl std::fmt::Display for AssetId {
@@ -127,9 +129,9 @@ pub enum AssetStatus {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AssetRef {
-    pub id:           AssetId,
-    pub asset_type:   String,
-    pub status:       AssetStatus,
-    pub content_hash: Option<String>,   // SHA-256 hex; set after load
-    pub version:      u32,              // incremented on each hot-reload
+    pub id: AssetId,
+    pub asset_type: String,
+    pub status: AssetStatus,
+    pub content_hash: Option<String>, // SHA-256 hex; set after load
+    pub version: u32,                 // incremented on each hot-reload
 }

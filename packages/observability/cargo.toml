@@ -12,6 +12,7 @@ authors     = ["XACE Team"]
 [lib]
 name = "xace_observability"
 path = "src/lib.rs"
+doctest = false
 
 [dependencies]
 # Serialisation — crash reports and metrics text format
@@ -27,7 +28,6 @@ uuid        = { version = "1",  features = ["v4"] }
 [dev-dependencies]
 # Assertions for test helpers — no additional deps needed beyond std
 
-[[bin]]
 # This crate is a library only. The health-check HTTP server runs as a background
 # thread spawned from the lib, not as a separate binary.
 # Uncomment only if you add a diagnostics CLI tool in future.

@@ -16,20 +16,17 @@ use std::collections::BTreeMap;
 
 use xace_core::entity_state::EntityState;
 use xace_core::runtime::state_delta::{
-    AddedComponent, ComponentChange, DestroyedEntity, FieldChange, RemovedComponent,
-    SpawnedEntity, StateDelta,
+    ComponentChange, DestroyedEntity, FieldChange, SpawnedEntity, StateDelta,
 };
 use xace_core::runtime::world_snapshot::{EntityRecord, WorldSnapshot};
 use xace_core::wire::delta_payload::{DeltaPayload, WireComponentData, WireSpawnedEntity};
 use xace_core::wire::snapshot_payload::{SnapshotPayload, SnapshotReason};
 
-use xace_engine_adapter::delta_sync::delta_builder::DeltaBuilder;
-use xace_engine_adapter::delta_sync::delta_compressor::DeltaCompressor;
-use xace_engine_adapter::delta_sync::delta_sync_engine::{DeltaSyncEngine, DeltaSyncOutput};
-use xace_engine_adapter::delta_sync::resync_detector::{
-    ResyncConfig, ResyncDetector, ResyncTrigger,
-};
-use xace_engine_adapter::delta_sync::snapshot_recovery::SnapshotRecovery;
+use crate::delta_sync::delta_builder::DeltaBuilder;
+use crate::delta_sync::delta_compressor::DeltaCompressor;
+use crate::delta_sync::delta_sync_engine::{DeltaSyncEngine, DeltaSyncOutput};
+use crate::delta_sync::resync_detector::{ResyncConfig, ResyncDetector, ResyncTrigger};
+use crate::delta_sync::snapshot_recovery::SnapshotRecovery;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -56,8 +53,7 @@ fn delta_with_many_entities(tick: u64, entity_count: u64) -> StateDelta {
     let mut d = empty_delta(tick);
     for i in 1..=entity_count {
         d.record_spawn(
-            SpawnedEntity::new(i, "actor_zombie")
-                .with_component(1, &format!(r#"{{"x":{i},"y":0,"z":0}}"#)),
+            SpawnedEntity::new(i, "actor_zombie").with_component(1, r#"{"x":0,"y":0,"z":0}"#),
         );
     }
     d
@@ -65,9 +61,9 @@ fn delta_with_many_entities(tick: u64, entity_count: u64) -> StateDelta {
 
 fn valid_world_snapshot(tick: u64, entity_count: u64) -> WorldSnapshot {
     let mut s = WorldSnapshot::empty("0.1.0", 1, 42);
-    s.tick       = tick;
-    s.world_hash = "hash_valid".into();
-    s.cgs_hash   = "cgs_hash".into();
+    s.tick = tick;
+    s.world_hash = "a".repeat(64);
+    s.cgs_hash = "b".repeat(64);
     for i in 1..=entity_count {
         s.entity_store_snapshot
             .entities
@@ -81,7 +77,10 @@ fn valid_world_snapshot(tick: u64, entity_count: u64) -> WorldSnapshot {
 
 fn engine() -> DeltaSyncEngine {
     DeltaSyncEngine::new(
-        "0.1.0", 1, "default", 1,
+        "0.1.0",
+        1,
+        "default",
+        1,
         ResyncConfig {
             cooldown_ticks: 3,
             max_tick_drift: 100,
@@ -124,8 +123,8 @@ impl MockEngineAdapter {
     fn apply_output(&mut self, output: &DeltaSyncOutput) {
         match output {
             DeltaSyncOutput::Snapshot(snap) => self.apply_snapshot(snap),
-            DeltaSyncOutput::Delta(delta)   => self.apply_delta(delta),
-            DeltaSyncOutput::Nothing        => {}
+            DeltaSyncOutput::Delta(delta) => self.apply_delta(delta),
+            DeltaSyncOutput::Nothing => {}
         }
     }
 
@@ -171,14 +170,12 @@ impl MockEngineAdapter {
                 let comp_json = entry.entry(*type_id).or_insert_with(|| "{}".into());
                 // In real adapter this would parse and merge JSON fields.
                 // For test purposes we replace with a marker that fields changed.
-                let field_names: Vec<&str> = comp_update.field_changes
+                let field_names: Vec<&str> = comp_update
+                    .field_changes
                     .iter()
                     .map(|f| f.field_name.as_str())
                     .collect();
-                *comp_json = format!(
-                    "{{\"updated_fields\":{:?}}}",
-                    field_names
-                );
+                *comp_json = format!("{{\"updated_fields\":{:?}}}", field_names);
             }
         }
 
@@ -206,8 +203,10 @@ mod e2e_pipeline {
         let mut eng = engine();
         let snap = valid_world_snapshot(0, 0);
         let output = eng.process_tick(&empty_delta(0), &snap).unwrap();
-        assert!(matches!(output, DeltaSyncOutput::Snapshot(_)),
-            "First tick must produce SNAPSHOT (initial connection)");
+        assert!(
+            matches!(output, DeltaSyncOutput::Snapshot(_)),
+            "First tick must produce SNAPSHOT (initial connection)"
+        );
     }
 
     #[test]
@@ -232,7 +231,9 @@ mod e2e_pipeline {
 
         let mut mock = MockEngineAdapter::new();
 
-        let output = eng.process_tick(&delta_with_spawn(1, 1, "actor_player"), &snap).unwrap();
+        let output = eng
+            .process_tick(&delta_with_spawn(1, 1, "actor_player"), &snap)
+            .unwrap();
         mock.apply_output(&output);
 
         assert!(matches!(output, DeltaSyncOutput::Delta(_)));
@@ -255,7 +256,11 @@ mod e2e_pipeline {
         let output1 = eng.process_tick(&d, &snap).unwrap();
         mock.apply_output(&output1);
 
-        assert_eq!(mock.entity_count(), 0, "Entity must be removed after DELTA destroy");
+        assert_eq!(
+            mock.entity_count(),
+            0,
+            "Entity must be removed after DELTA destroy"
+        );
     }
 
     #[test]
@@ -331,17 +336,25 @@ mod sequence_gap_and_recovery {
         let mut mock = MockEngineAdapter::new();
 
         // Send tick 1 and tick 2 normally
-        let o1 = eng.process_tick(&delta_with_spawn(1, 1, "actor"), &snap).unwrap();
+        let o1 = eng
+            .process_tick(&delta_with_spawn(1, 1, "actor"), &snap)
+            .unwrap();
         mock.apply_output(&o1);
-        let o2 = eng.process_tick(&delta_with_spawn(2, 2, "actor"), &snap).unwrap();
+        let o2 = eng
+            .process_tick(&delta_with_spawn(2, 2, "actor"), &snap)
+            .unwrap();
         mock.apply_output(&o2);
 
         // Simulate: tick 3's delta is dropped (gap)
         // We advance the engine but mock never receives it
-        let _dropped = eng.process_tick(&delta_with_spawn(3, 3, "actor"), &snap).unwrap();
+        let _dropped = eng
+            .process_tick(&delta_with_spawn(3, 3, "actor"), &snap)
+            .unwrap();
 
         // Tick 4 arrives at mock — mock detects gap (seq 4 arrived, expected 3)
-        let o4 = eng.process_tick(&delta_with_spawn(4, 4, "actor"), &snap).unwrap();
+        let o4 = eng
+            .process_tick(&delta_with_spawn(4, 4, "actor"), &snap)
+            .unwrap();
         if let DeltaSyncOutput::Delta(payload) = &o4 {
             // Simulate mock receiving seq 4 when it expected seq 3
             let expected = mock.next_expected_seq;
@@ -352,19 +365,27 @@ mod sequence_gap_and_recovery {
             mock.apply_output(&o4);
         }
 
-        assert!(mock.gap_detected, "Mock engine must detect the sequence gap");
+        assert!(
+            mock.gap_detected,
+            "Mock engine must detect the sequence gap"
+        );
     }
 
     #[test]
     fn resync_detector_raises_trigger_on_gap_report() {
         let mut det = ResyncDetector::new(ResyncConfig {
-            cooldown_ticks: 0, max_tick_drift: 100, tick_drift_detection: true,
+            cooldown_ticks: 0,
+            max_tick_drift: 100,
+            tick_drift_detection: true,
         });
         det.report_sequence_gap(3, 5);
         assert!(det.needs_resync());
         assert!(matches!(
             det.pending_trigger(),
-            Some(ResyncTrigger::SequenceGap { expected_sequence: 3, received_sequence: 5 })
+            Some(ResyncTrigger::SequenceGap {
+                expected_sequence: 3,
+                received_sequence: 5
+            })
         ));
     }
 
@@ -379,7 +400,9 @@ mod sequence_gap_and_recovery {
         assert!(eng.needs_resync());
 
         // Next tick must produce SNAPSHOT not DELTA
-        let output = eng.process_tick(&delta_with_spawn(5, 1, "actor"), &snap).unwrap();
+        let output = eng
+            .process_tick(&delta_with_spawn(5, 1, "actor"), &snap)
+            .unwrap();
         assert!(
             matches!(output, DeltaSyncOutput::Snapshot(_)),
             "Gap must trigger SNAPSHOT recovery"
@@ -398,15 +421,19 @@ mod sequence_gap_and_recovery {
 
         // Normal deltas ticks 1–2
         for tick in 1..=2u64 {
-            let o = eng.process_tick(&delta_with_spawn(tick, tick, "actor"), &snap).unwrap();
+            let o = eng
+                .process_tick(&delta_with_spawn(tick, tick, "actor"), &snap)
+                .unwrap();
             mock.apply_output(&o);
         }
 
         // Report gap → trigger recovery
         eng.report_sequence_gap(3, 7);
         let recovery_output = eng.process_tick(&empty_delta(3), &snap).unwrap();
-        assert!(matches!(recovery_output, DeltaSyncOutput::Snapshot(_)),
-            "Recovery tick must produce SNAPSHOT");
+        assert!(
+            matches!(recovery_output, DeltaSyncOutput::Snapshot(_)),
+            "Recovery tick must produce SNAPSHOT"
+        );
 
         // Extract last_delta_sequence_id from the recovery snapshot
         if let DeltaSyncOutput::Snapshot(ref snap_payload) = recovery_output {
@@ -421,16 +448,22 @@ mod sequence_gap_and_recovery {
         }
 
         // Deltas after recovery should work normally
-        let o_post = eng.process_tick(&delta_with_spawn(4, 99, "actor_new"), &snap).unwrap();
-        assert!(matches!(o_post, DeltaSyncOutput::Delta(_)),
-            "Delta must resume normally after recovery");
+        let o_post = eng
+            .process_tick(&delta_with_spawn(4, 99, "actor_new"), &snap)
+            .unwrap();
+        assert!(
+            matches!(o_post, DeltaSyncOutput::Delta(_)),
+            "Delta must resume normally after recovery"
+        );
         mock.apply_output(&o_post);
     }
 
     #[test]
     fn cooldown_prevents_snapshot_flood() {
         let mut det = ResyncDetector::new(ResyncConfig {
-            cooldown_ticks: 5, max_tick_drift: 100, tick_drift_detection: true,
+            cooldown_ticks: 5,
+            max_tick_drift: 100,
+            tick_drift_detection: true,
         });
         // First resync fires at tick 0
         det.request_resync(ResyncTrigger::InitialConnection);
@@ -444,7 +477,8 @@ mod sequence_gap_and_recovery {
         for tick in 1..5u64 {
             assert!(
                 det.check_and_consume(tick).is_none(),
-                "Cooldown must suppress SNAPSHOT at tick {}", tick
+                "Cooldown must suppress SNAPSHOT at tick {}",
+                tick
             );
         }
 
@@ -500,7 +534,7 @@ mod performance {
     fn compressed_delta_100_entities_first_tick_reasonable_size() {
         let entity_count = 100u64;
         let d = delta_with_many_entities(1, entity_count);
-        let (payload, metrics) = DeltaBuilder::build(&d, 1);
+        let (payload, _) = DeltaBuilder::build(&d, 1);
 
         // 100 spawns should all be present
         assert_eq!(payload.spawned_entities.len() as u64, entity_count);
@@ -538,10 +572,7 @@ mod performance {
             let x = if i == 1 { "5.0" } else { "0.0" };
             d2.record_component_update(
                 i,
-                ComponentChange::single_field(
-                    1, "COMP_TRANSFORM_V1",
-                    "x", x,
-                ),
+                ComponentChange::single_field(1, "COMP_TRANSFORM_V1", "x", x),
             );
         }
         let (mut p2, _) = DeltaBuilder::build(&d2, 2);
@@ -553,12 +584,16 @@ mod performance {
         // After compression: only entity 1 should remain (99 eliminated)
         let fields_after = p2.modified_entities.len();
 
-        assert_eq!(fields_after, 1,
-            "Only the 1 changed entity must survive compression, got {}", fields_after);
+        assert_eq!(
+            fields_after, 1,
+            "Only the 1 changed entity must survive compression, got {}",
+            fields_after
+        );
         assert!(
             fields_before > fields_after,
             "Compressor must eliminate unchanged entities: before={} after={}",
-            fields_before, fields_after
+            fields_before,
+            fields_after
         );
 
         let m = compressor.metrics();
@@ -596,10 +631,7 @@ mod performance {
         for tick in 1..=10u64 {
             // Each tick: only one entity moves
             let moving_entity = (tick % entity_count) + 1;
-            let d = delta_with_field(
-                tick, moving_entity, "x",
-                &format!("{}", tick as f32 * 0.1),
-            );
+            let d = delta_with_field(tick, moving_entity, "x", &format!("{}", tick as f32 * 0.1));
             let output = eng.process_tick(&d, &snap).unwrap();
 
             match &output {
@@ -652,7 +684,8 @@ mod performance {
         assert_eq!(
             compressor.cached_entity_count() as u64,
             entity_count,
-            "Cache must hold exactly {} entities after spawn", entity_count
+            "Cache must hold exactly {} entities after spawn",
+            entity_count
         );
 
         // Tick 2: destroy all 100 entities
@@ -695,13 +728,15 @@ mod snapshot_reseed {
 
         // Resync: build a snapshot where entity 1 has x=99.0 (different state)
         let mut snap = valid_world_snapshot(2, 1);
-        snap.world_hash = "h".into();
+        snap.world_hash = "a".repeat(64);
         let mut table = ComponentTableSnapshot::new(1, "COMP_TRANSFORM_V1");
         table.set(1, r#"{"x":99.0,"y":0.0,"z":0.0}"#);
         snap.component_tables_snapshot.set_table(table);
 
         let mut recovery = SnapshotRecovery::new("0.1.0", 1, 10);
-        let snap_payload = recovery.build_payload(&snap, SnapshotReason::DesyncRecovery).unwrap();
+        let snap_payload = recovery
+            .build_payload(&snap, SnapshotReason::DesyncRecovery)
+            .unwrap();
 
         // Reseed compressor from snapshot
         compressor.rebuild_from_snapshot(&snap_payload);
@@ -730,7 +765,7 @@ mod snapshot_reseed {
         recovery.update_last_delta_sequence(42);
 
         let mut snap = valid_world_snapshot(5, 0);
-        snap.world_hash = "h".into();
+        snap.world_hash = "a".repeat(64);
         let payload = recovery
             .build_payload(&snap, SnapshotReason::InitialConnection)
             .unwrap();
@@ -746,8 +781,8 @@ mod snapshot_reseed {
         let mut recovery = SnapshotRecovery::new("0.1.0", 1, 0);
 
         let mut snap = WorldSnapshot::empty("0.1.0", 1, 42);
-        snap.world_hash = "h".into();
-        snap.cgs_hash = "c".into();
+        snap.world_hash = "a".repeat(64);
+        snap.cgs_hash = "b".repeat(64);
         snap.entity_store_snapshot.entities = vec![
             EntityRecord::new(1, EntityState::Active, 0),
             EntityRecord::new(2, EntityState::Destroyed, 0),
@@ -760,7 +795,11 @@ mod snapshot_reseed {
             .build_payload(&snap, SnapshotReason::DesyncRecovery)
             .unwrap();
 
-        assert_eq!(payload.entity_count(), 2, "Only Active entities in SNAPSHOT");
+        assert_eq!(
+            payload.entity_count(),
+            2,
+            "Only Active entities in SNAPSHOT"
+        );
         assert!(payload.contains_entity(1));
         assert!(payload.contains_entity(4));
         assert!(!payload.contains_entity(2));
@@ -784,7 +823,9 @@ mod compressor_efficiency {
         let mut p1 = DeltaPayload::empty(1, 1, "0.1.0");
         let mut spawn = WireSpawnedEntity::new(1, "actor");
         spawn.add_component(WireComponentData::new(
-            1, "COMP_TRANSFORM", r#"{"x":5,"y":10}"#,
+            1,
+            "COMP_TRANSFORM",
+            r#"{"x":5,"y":10}"#,
         ));
         p1.add_spawn(spawn);
         compressor.compress(&mut p1);
@@ -795,10 +836,11 @@ mod compressor_efficiency {
             let mut d = empty_delta(tick);
             d.record_component_update(
                 1,
-                ComponentChange::multi_field(1, "COMP_TRANSFORM_V1", vec![
-                    FieldChange::new("x", "5"),
-                    FieldChange::new("y", "10"),
-                ]),
+                ComponentChange::multi_field(
+                    1,
+                    "COMP_TRANSFORM_V1",
+                    vec![FieldChange::new("x", "5"), FieldChange::new("y", "10")],
+                ),
             );
             let (mut payload, _) = DeltaBuilder::build(&d, tick);
             compressor.compress(&mut payload);
@@ -819,9 +861,7 @@ mod compressor_efficiency {
 
         // Prime: entity 1, x=0
         let mut d1 = empty_delta(1);
-        d1.record_component_update(
-            1, ComponentChange::single_field(1, "T", "x", "0"),
-        );
+        d1.record_component_update(1, ComponentChange::single_field(1, "T", "x", "0"));
         let (mut p1, _) = DeltaBuilder::build(&d1, 1);
         compressor.compress(&mut p1);
 
@@ -829,15 +869,14 @@ mod compressor_efficiency {
         for tick in 2..=10u64 {
             let val = format!("{}", tick);
             let mut d = empty_delta(tick);
-            d.record_component_update(
-                1, ComponentChange::single_field(1, "T", "x", &val),
-            );
+            d.record_component_update(1, ComponentChange::single_field(1, "T", "x", &val));
             let (mut payload, _) = DeltaBuilder::build(&d, tick);
             compressor.compress(&mut payload);
 
             assert!(
                 payload.modified_entities.contains_key(&1),
-                "Changed field must always appear in delta at tick {}", tick
+                "Changed field must always appear in delta at tick {}",
+                tick
             );
         }
     }
@@ -857,10 +896,12 @@ mod compressor_efficiency {
         // Tick 2: only TRANSFORM changes
         let mut d2 = empty_delta(2);
         d2.record_component_update(
-            1, ComponentChange::single_field(1, "COMP_TRANSFORM", "x", "1"),
+            1,
+            ComponentChange::single_field(1, "COMP_TRANSFORM", "x", "1"),
         );
         d2.record_component_update(
-            1, ComponentChange::single_field(2, "COMP_VELOCITY", "vx", "0"), // unchanged
+            1,
+            ComponentChange::single_field(2, "COMP_VELOCITY", "vx", "0"), // unchanged
         );
         let (mut p2, _) = DeltaBuilder::build(&d2, 2);
         compressor.compress(&mut p2);
@@ -899,22 +940,30 @@ mod engine_metrics {
         eng.process_tick(&empty_delta(0), &snap).unwrap();
 
         // tick 1: delta (spawn)
-        eng.process_tick(&delta_with_spawn(1, 1, "actor"), &snap).unwrap();
+        eng.process_tick(&delta_with_spawn(1, 1, "actor"), &snap)
+            .unwrap();
 
         // tick 2: nothing (empty)
         eng.process_tick(&empty_delta(2), &snap).unwrap();
 
         // tick 3: identical field — compressed to nothing
-        eng.process_tick(&delta_with_field(3, 1, "x", "1.0"), &snap).unwrap(); // primes
-        eng.process_tick(&delta_with_field(4, 1, "x", "1.0"), &snap).unwrap(); // identical
+        eng.process_tick(&delta_with_field(3, 1, "x", "1.0"), &snap)
+            .unwrap(); // primes
+        eng.process_tick(&delta_with_field(4, 1, "x", "1.0"), &snap)
+            .unwrap(); // identical
 
         // trigger resync (past cooldown)
-        for _ in 0..5 { eng.process_tick(&empty_delta(5), &snap).unwrap(); }
+        for _ in 0..5 {
+            eng.process_tick(&empty_delta(5), &snap).unwrap();
+        }
         eng.report_explicit_snapshot_request();
         eng.process_tick(&empty_delta(10), &snap).unwrap(); // recovery snapshot
 
         let m = eng.metrics();
-        assert!(m.snapshot_ticks >= 2, "At least 2 snapshots: initial + recovery");
+        assert!(
+            m.snapshot_ticks >= 2,
+            "At least 2 snapshots: initial + recovery"
+        );
         assert!(m.delta_ticks >= 1, "At least 1 delta tick");
         assert!(m.ticks_processed >= 6);
     }
@@ -926,8 +975,10 @@ mod engine_metrics {
         eng.process_tick(&empty_delta(0), &snap).unwrap();
 
         // Send same field twice — second should be compressed away
-        eng.process_tick(&delta_with_field(1, 1, "pos", r#"{"x":1}"#), &snap).unwrap();
-        eng.process_tick(&delta_with_field(2, 1, "pos", r#"{"x":1}"#), &snap).unwrap();
+        eng.process_tick(&delta_with_field(1, 1, "pos", r#"{"x":1}"#), &snap)
+            .unwrap();
+        eng.process_tick(&delta_with_field(2, 1, "pos", r#"{"x":1}"#), &snap)
+            .unwrap();
 
         let cm = eng.compressor_metrics();
         assert!(

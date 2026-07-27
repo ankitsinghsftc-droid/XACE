@@ -1,371 +1,302 @@
-// XaceEmbedded.cs — XACE Unity Integration
+// Xace_embedded.cs
+// Optional Unity embedded mode for the XACE native library.
 //
-// Provides P/Invoke bindings to the XACE native library (xace.dll / libxace.so)
-// and a high-level XaceWorld wrapper that safely manages the native handle.
-//
-// Usage in MonoBehaviour:
-//   private XaceWorld _xace;
-//
-//   void Start() {
-//       _xace = XaceWorld.Create(worldSeed: 42);
-//       _xace.LoadCgs(System.IO.File.ReadAllText("Assets/xace_cgs.json"));
-//   }
-//
-//   void FixedUpdate() {
-//       // 1. Apply player input
-//       _xace.ApplyInput(inputPacketBytes);
-//
-//       // 2. Tick simulation
-//       _xace.Tick();
-//
-//       // 3. Get state delta and apply to scene
-//       byte[] delta = _xace.GetStateDelta();
-//       ApplyDeltaToScene(delta);
-//   }
-//
-//   void OnDestroy() {
-//       _xace.Dispose();
-//   }
-//
-// Thread Safety:
-//   XaceWorld is NOT thread-safe. Call all methods from the same thread
-//   (Unity main thread / FixedUpdate). This mirrors the C API contract.
+// TCP bridge mode is the default live-engine path. Embedded mode is useful for
+// deterministic local simulation inside Unity builds that ship with the XACE C
+// ABI library. All calls must remain on one Unity thread.
 
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
 
-
 namespace XACE
 {
-    // ── P/Invoke Declarations ─────────────────────────────────────────────────
-
     internal static class NativeMethods
     {
-        // The library name without extension. Unity resolves platform-specifics:
-        //   Windows: xace.dll
-        //   macOS:   libxace.dylib
-        //   Linux:   libxace.so
-        private const string DLL = "xace";
+        private const string LibraryName = "xace";
 
-        // ── Lifecycle ─────────────────────────────────────────────────────────
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_init(out IntPtr outWorld, ulong worldSeed, uint deltaBufferBytes);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_init(
-            out IntPtr outWorld,
-            ulong      worldSeed,
-            uint       deltaBufBytes);
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_load_cgs(IntPtr world, byte[] cgsJson, uint cgsLen);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_load_cgs(
-            IntPtr  world,
-            byte[]  cgsJson,
-            uint    cgsLen);
-
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int xace_shutdown(IntPtr world);
 
-        // ── Simulation Loop ───────────────────────────────────────────────────
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_apply_input(IntPtr world, byte[] inputPtr, uint inputLen);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_apply_input(
-            IntPtr        world,
-            byte[]        inputPtr,
-            uint          inputLen);
-
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int xace_tick(IntPtr world);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_get_state_delta(
-            IntPtr        world,
-            byte[]        buffer,
-            ref uint      bufferSize);
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_get_state_delta(IntPtr world, byte[] buffer, ref uint bufferSize);
 
-        // ── Diagnostics ───────────────────────────────────────────────────────
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_get_world_hash(IntPtr world, byte[] outHash, uint outLen);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_get_world_hash(
-            IntPtr world,
-            byte[] outHash,
-            uint   outLen);
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_get_tick_number(IntPtr world, out ulong outTick);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_get_tick_number(
-            IntPtr   world,
-            out ulong outTick);
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int xace_get_last_error(IntPtr world, byte[] buffer, uint bufferSize);
 
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int xace_get_last_error(
-            IntPtr world,
-            byte[] buffer,
-            uint   bufferSize);
-
-        [DllImport(DLL, CallingConvention = CallingConvention.Cdecl)]
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint xace_version();
     }
 
-
-    // ── Error Codes (mirrors error_codes.rs) ──────────────────────────────────
-
     public enum XaceErrorCode : int
     {
-        Ok                   =  0,
-        NullPointer          = -1,
-        InvalidHandle        = -2,
-        CgsParseError        = -3,
-        TickError            = -4,
-        BufferTooSmall       = -5,
-        IoError              = -6,
-        NotInitialized       = -7,
-        AlreadyInitialized   = -8,
+        Ok = 0,
+        NullPointer = -1,
+        InvalidHandle = -2,
+        CgsParseError = -3,
+        TickError = -4,
+        BufferTooSmall = -5,
+        IoError = -6,
+        NotInitialized = -7,
+        AlreadyInitialized = -8,
         DeterminismViolation = -9,
-        Panic                = -99,
+        Panic = -99
     }
-
-
-    // ── Exception ─────────────────────────────────────────────────────────────
 
     public sealed class XaceException : Exception
     {
-        public XaceErrorCode ErrorCode { get; }
+        public XaceErrorCode ErrorCode { get; private set; }
 
         public XaceException(XaceErrorCode code, string message)
-            : base($"[XACE {code}] {message}")
+            : base("[XACE " + code + "] " + message)
         {
             ErrorCode = code;
         }
     }
 
-
-    // ── XaceWorld — High-Level Managed Wrapper ────────────────────────────────
-
-    /// Thread-safe: NO. Call from Unity main thread / FixedUpdate only.
-    /// IDisposable: call Dispose() in OnDestroy() or use a 'using' statement.
     public sealed class XaceWorld : IDisposable
     {
-        private IntPtr _handle;
-        private bool   _disposed;
+        private const uint DefaultDeltaBufferBytes = 4u * 1024u * 1024u;
 
-        // Delta buffer is reused across calls to avoid GC pressure
-        private byte[] _deltaBuffer;
-        private uint   _deltaBufferSize;
+        private IntPtr handle;
+        private bool disposed;
+        private byte[] deltaBuffer;
+        private uint deltaBufferSize;
 
-        // ── Factory ───────────────────────────────────────────────────────────
-
-        /// Creates a new XACE world.
-        ///
-        /// <param name="worldSeed">Determinism seed. Same seed + same CGS = same simulation.</param>
-        /// <param name="deltaBufBytes">Pre-allocated delta buffer size. Default: 4 MB.</param>
-        public static XaceWorld Create(ulong worldSeed = 42, uint deltaBufBytes = 4u * 1024 * 1024)
+        private XaceWorld(IntPtr handle, uint deltaBufferBytes)
         {
-            var code = NativeMethods.xace_init(out var handle, worldSeed, deltaBufBytes);
-            ThrowIfError(handle, code, "xace_init");
-            return new XaceWorld(handle, deltaBufBytes);
+            this.handle = handle;
+            deltaBufferSize = Math.Max(1024u, deltaBufferBytes);
+            deltaBuffer = new byte[deltaBufferSize];
         }
 
-        private XaceWorld(IntPtr handle, uint deltaBufBytes)
+        public static XaceWorld Create(ulong worldSeed = 42, uint deltaBufferBytes = DefaultDeltaBufferBytes)
         {
-            _handle          = handle;
-            _deltaBufferSize = deltaBufBytes;
-            _deltaBuffer     = new byte[deltaBufBytes];
+            var code = NativeMethods.xace_init(out var world, worldSeed, Math.Max(1024u, deltaBufferBytes));
+            ThrowIfError(world, code, "xace_init");
+            if (world == IntPtr.Zero)
+                throw new XaceException(XaceErrorCode.InvalidHandle, "xace_init returned a null world handle");
+            return new XaceWorld(world, deltaBufferBytes);
         }
 
-        // ── Lifecycle ─────────────────────────────────────────────────────────
+        public bool IsDisposed { get { return disposed; } }
 
-        /// Loads the Canonical Game Schema (CGS) JSON into the world.
-        /// Must be called before Tick(). Can only be called once per world.
-        public void LoadCgs(string cgsJson)
-        {
-            ThrowIfDisposed();
-            var bytes = Encoding.UTF8.GetBytes(cgsJson);
-            var code  = NativeMethods.xace_load_cgs(_handle, bytes, (uint)bytes.Length);
-            ThrowIfError(_handle, code, "xace_load_cgs");
-        }
-
-        // ── Simulation Loop ───────────────────────────────────────────────────
-
-        /// Enqueues player/network input for the next tick.
-        /// Call before Tick(). Multiple inputs per tick are supported.
-        public void ApplyInput(byte[] inputPacket)
-        {
-            if (inputPacket == null || inputPacket.Length == 0) return;
-            ThrowIfDisposed();
-            var code = NativeMethods.xace_apply_input(_handle, inputPacket, (uint)inputPacket.Length);
-            ThrowIfError(_handle, code, "xace_apply_input");
-        }
-
-        /// Advances the simulation by exactly one tick.
-        /// Call from FixedUpdate() — do not skip ticks.
-        public void Tick()
-        {
-            ThrowIfDisposed();
-            var code = NativeMethods.xace_tick(_handle);
-            ThrowIfError(_handle, code, "xace_tick");
-        }
-
-        /// Returns the state delta from the last tick as a raw byte array.
-        /// The engine decodes this to apply component changes to its scene graph.
-        /// The returned array is reused — copy it if you need to keep it across calls.
-        public ArraySegment<byte> GetStateDelta()
-        {
-            ThrowIfDisposed();
-            uint size = _deltaBufferSize;
-
-            var code = NativeMethods.xace_get_state_delta(_handle, _deltaBuffer, ref size);
-
-            if (code == (int)XaceErrorCode.BufferTooSmall)
-            {
-                // Grow the buffer and retry
-                _deltaBuffer     = new byte[size];
-                _deltaBufferSize = size;
-                code = NativeMethods.xace_get_state_delta(_handle, _deltaBuffer, ref size);
-            }
-
-            ThrowIfError(_handle, code, "xace_get_state_delta");
-            return new ArraySegment<byte>(_deltaBuffer, 0, (int)size);
-        }
-
-        // ── Diagnostics ───────────────────────────────────────────────────────
-
-        /// Returns the current world hash (hex string, 64 chars for SHA-256).
-        /// Compare against TCP mode hash for determinism verification.
-        public string WorldHash
-        {
-            get
-            {
-                ThrowIfDisposed();
-                var buf  = new byte[128];
-                var code = NativeMethods.xace_get_world_hash(_handle, buf, (uint)buf.Length);
-                ThrowIfError(_handle, code, "xace_get_world_hash");
-                return Encoding.UTF8.GetString(buf).TrimEnd('\0');
-            }
-        }
-
-        /// Returns the current simulation tick number.
         public ulong TickNumber
         {
             get
             {
                 ThrowIfDisposed();
-                var code = NativeMethods.xace_get_tick_number(_handle, out var tick);
-                ThrowIfError(_handle, code, "xace_get_tick_number");
+                var code = NativeMethods.xace_get_tick_number(handle, out var tick);
+                ThrowIfError(handle, code, "xace_get_tick_number");
                 return tick;
             }
         }
 
-        /// Returns the last error message from the native library.
+        public string WorldHash
+        {
+            get
+            {
+                ThrowIfDisposed();
+                var buffer = new byte[128];
+                var code = NativeMethods.xace_get_world_hash(handle, buffer, (uint)buffer.Length);
+                ThrowIfError(handle, code, "xace_get_world_hash");
+                return NullTerminatedUtf8(buffer);
+            }
+        }
+
         public string LastError
         {
             get
             {
-                if (_handle == IntPtr.Zero) return "world not initialized";
-                var buf  = new byte[1024];
-                var code = NativeMethods.xace_get_last_error(_handle, buf, (uint)buf.Length);
-                return code == 0
-                    ? Encoding.UTF8.GetString(buf).TrimEnd('\0')
-                    : "error retrieving last error";
+                if (handle == IntPtr.Zero)
+                    return "world not initialized";
+                var buffer = new byte[2048];
+                var code = NativeMethods.xace_get_last_error(handle, buffer, (uint)buffer.Length);
+                return code == 0 ? NullTerminatedUtf8(buffer) : "failed to query last error";
             }
         }
 
-        /// Returns the XACE C API version.
-        public static uint NativeVersion => NativeMethods.xace_version();
+        public static uint NativeVersion
+        {
+            get { return NativeMethods.xace_version(); }
+        }
 
-        // ── IDisposable ───────────────────────────────────────────────────────
+        public void LoadCgs(string cgsJson)
+        {
+            ThrowIfDisposed();
+            if (string.IsNullOrWhiteSpace(cgsJson))
+                throw new ArgumentException("CGS JSON must not be empty", nameof(cgsJson));
+            var bytes = Encoding.UTF8.GetBytes(cgsJson);
+            var code = NativeMethods.xace_load_cgs(handle, bytes, (uint)bytes.Length);
+            ThrowIfError(handle, code, "xace_load_cgs");
+        }
+
+        public void ApplyInput(byte[] inputPacket)
+        {
+            ThrowIfDisposed();
+            if (inputPacket == null || inputPacket.Length == 0)
+                return;
+            var code = NativeMethods.xace_apply_input(handle, inputPacket, (uint)inputPacket.Length);
+            ThrowIfError(handle, code, "xace_apply_input");
+        }
+
+        public void ApplyInputJson(string inputPacketJson)
+        {
+            if (string.IsNullOrWhiteSpace(inputPacketJson))
+                return;
+            ApplyInput(Encoding.UTF8.GetBytes(inputPacketJson));
+        }
+
+        public void Tick()
+        {
+            ThrowIfDisposed();
+            var code = NativeMethods.xace_tick(handle);
+            ThrowIfError(handle, code, "xace_tick");
+        }
+
+        public ArraySegment<byte> GetStateDelta()
+        {
+            ThrowIfDisposed();
+            var size = deltaBufferSize;
+            var code = NativeMethods.xace_get_state_delta(handle, deltaBuffer, ref size);
+            if (code == (int)XaceErrorCode.BufferTooSmall)
+            {
+                if (size <= deltaBufferSize)
+                    size = deltaBufferSize * 2u;
+                deltaBufferSize = size;
+                deltaBuffer = new byte[deltaBufferSize];
+                code = NativeMethods.xace_get_state_delta(handle, deltaBuffer, ref size);
+            }
+            ThrowIfError(handle, code, "xace_get_state_delta");
+            return new ArraySegment<byte>(deltaBuffer, 0, checked((int)size));
+        }
+
+        public byte[] CopyStateDelta()
+        {
+            var segment = GetStateDelta();
+            var copy = new byte[segment.Count];
+            Buffer.BlockCopy(segment.Array, segment.Offset, copy, 0, segment.Count);
+            return copy;
+        }
 
         public void Dispose()
         {
-            if (!_disposed && _handle != IntPtr.Zero)
+            if (!disposed)
             {
-                NativeMethods.xace_shutdown(_handle);
-                _handle  = IntPtr.Zero;
-                _disposed = true;
+                if (handle != IntPtr.Zero)
+                {
+                    NativeMethods.xace_shutdown(handle);
+                    handle = IntPtr.Zero;
+                }
+                disposed = true;
             }
             GC.SuppressFinalize(this);
         }
 
-        ~XaceWorld() { Dispose(); }
-
-        // ── Internal ──────────────────────────────────────────────────────────
+        ~XaceWorld()
+        {
+            Dispose();
+        }
 
         private void ThrowIfDisposed()
         {
-            if (_disposed)
+            if (disposed || handle == IntPtr.Zero)
                 throw new ObjectDisposedException(nameof(XaceWorld));
         }
 
-        private static void ThrowIfError(IntPtr world, int code, string funcName)
+        private static void ThrowIfError(IntPtr world, int code, string operation)
         {
-            if (code == 0) return;
+            if (code == 0)
+                return;
 
             var errorCode = (XaceErrorCode)code;
-            string detail = string.Empty;
-
-            // Try to get a detailed error message from the world if it's valid
+            var detail = "";
             if (world != IntPtr.Zero)
             {
-                var buf = new byte[512];
-                NativeMethods.xace_get_last_error(world, buf, (uint)buf.Length);
-                detail = Encoding.UTF8.GetString(buf).TrimEnd('\0');
+                var buffer = new byte[2048];
+                if (NativeMethods.xace_get_last_error(world, buffer, (uint)buffer.Length) == 0)
+                    detail = NullTerminatedUtf8(buffer);
             }
 
-            throw new XaceException(errorCode,
-                string.IsNullOrEmpty(detail)
-                    ? $"{funcName} returned {errorCode}"
-                    : $"{funcName}: {detail}");
+            throw new XaceException(
+                errorCode,
+                string.IsNullOrEmpty(detail) ? operation + " returned " + errorCode : operation + ": " + detail
+            );
+        }
+
+        private static string NullTerminatedUtf8(byte[] buffer)
+        {
+            var len = 0;
+            while (len < buffer.Length && buffer[len] != 0)
+                len++;
+            return Encoding.UTF8.GetString(buffer, 0, len);
         }
     }
 
-
-    // ── XaceMonoBehaviour — Drop-in MonoBehaviour Integration ─────────────────
-
-    /// Optional base class for Unity components that manage an XACE world.
-    /// Handles lifecycle (Create/Dispose) and provides FixedUpdate integration.
-    ///
-    /// Usage:
-    ///   public class MyGameManager : XaceMonoBehaviour
-    ///   {
-    ///       protected override void OnXaceTick(ArraySegment<byte> stateDelta) {
-    ///           // Apply stateDelta to your scene objects
-    ///       }
-    ///   }
     public abstract class XaceMonoBehaviour : MonoBehaviour
     {
-        [Header("XACE Configuration")]
+        [Header("XACE Embedded")]
         [SerializeField] private ulong worldSeed = 42;
+        [SerializeField] private uint deltaBufferBytes = 4u * 1024u * 1024u;
         [SerializeField] private TextAsset cgsAsset;
+        [SerializeField] private bool tickInFixedUpdate = true;
 
         protected XaceWorld Xace { get; private set; }
 
         protected virtual void Start()
         {
-            Xace = XaceWorld.Create(worldSeed);
+            Xace = XaceWorld.Create(worldSeed, deltaBufferBytes);
             if (cgsAsset != null)
-            {
                 Xace.LoadCgs(cgsAsset.text);
-            }
         }
 
         protected virtual void FixedUpdate()
         {
-            if (Xace == null) return;
-            CollectAndApplyInput();
-            Xace.Tick();
-            var delta = Xace.GetStateDelta();
-            OnXaceTick(delta);
+            if (tickInFixedUpdate)
+                TickEmbeddedWorld();
         }
 
-        /// Override to collect input from Unity's input system and apply it.
-        protected virtual void CollectAndApplyInput() { }
+        protected void TickEmbeddedWorld()
+        {
+            if (Xace == null || Xace.IsDisposed)
+                return;
+            CollectAndApplyInput(Xace);
+            Xace.Tick();
+            OnXaceTick(Xace.GetStateDelta());
+        }
 
-        /// Override to process the state delta returned by each tick.
+        protected virtual void CollectAndApplyInput(XaceWorld world)
+        {
+        }
+
         protected abstract void OnXaceTick(ArraySegment<byte> stateDelta);
 
         protected virtual void OnDestroy()
         {
-            Xace?.Dispose();
-            Xace = null;
+            if (Xace != null)
+            {
+                Xace.Dispose();
+                Xace = null;
+            }
         }
     }
 }
