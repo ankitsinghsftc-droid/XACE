@@ -1,9 +1,8 @@
 //! # Determinism Guard
 //!
-//! Runtime enforcement of all 15 XACE determinism rules (D1–D15).
-//! The DeterminismGuard is the last line of defense against simulation
-//! divergence. It hooks into every execution boundary and validates
-//! that the runtime is behaving deterministically.
+//! Implements the DeterminismGuard hook surface for XACE determinism rules
+//! (D1-D15). RuntimeOrchestrator owns one guard for the ticking session and
+//! PhaseOrchestrator calls the boundary/version/hash hooks during every tick.
 //!
 //! ## Six Runtime Hooks
 //! 1. hook_tick_start     — validates schema/plan version match (D10, D15)
@@ -27,10 +26,8 @@
 //! allow silent divergence from a mismatched execution plan.
 //!
 //! ## World Hash (D9)
-//! hook_tick_end calls WorldHasher::compute(snapshot) after every tick.
-//! WorldHasher produces a SHA-256 hash over the full entity store and all
-//! component tables, in deterministic order (D3, D11).
-//! The placeholder function has been removed — real hashing is active.
+//! hook_tick_end calls WorldHasher::compute(snapshot) for the live end-of-tick
+//! snapshot and records the authoritative per-tick SHA-256 world hash.
 
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -90,13 +87,14 @@ struct GuardState {
 
 // ── Determinism Guard ─────────────────────────────────────────────────────────
 
-/// Runtime enforcer of all 15 XACE determinism rules.
+/// Hook-based enforcer for XACE determinism rules.
 ///
-/// Created once at runtime initialization and passed to the PhaseOrchestrator.
-/// All six hooks must be called at their correct boundaries every tick (D15).
+/// RuntimeOrchestrator owns one guard for the live tick path and
+/// PhaseOrchestrator calls the tick, phase, system, and hash hooks at their
+/// correct boundaries every tick (D15).
 ///
 /// ## Lifecycle
-/// ```ignore
+/// ```text
 /// let mut guard = DeterminismGuard::new(GuardMode::Strict, "0.1.0", 1);
 /// guard.register_systems(&["sys_movement", "sys_ai", "sys_health"]);
 ///
@@ -165,6 +163,23 @@ impl DeterminismGuard {
     ///
     /// Returns Err in all guard modes on D10 violation — schema mismatch
     /// is too dangerous to allow even in DEV or SILENT mode.
+    /// Re-locks schema/plan contracts at a tick boundary after a validated
+    /// runtime hot-swap while preserving the historical per-tick hash log.
+    pub fn reconfigure_for_hot_swap(
+        &mut self,
+        schema_version: impl Into<String>,
+        execution_plan_version: u32,
+        system_ids: &[&str],
+    ) {
+        self.state.locked_schema_version = schema_version.into();
+        self.state.locked_execution_plan_version = execution_plan_version;
+        self.state.registered_system_ids.clear();
+        self.register_systems(system_ids);
+        self.state.current_phase = None;
+        self.state.inside_tick = false;
+        self.state.inside_phase = false;
+    }
+
     pub fn hook_tick_start(
         &mut self,
         tick: u64,
@@ -323,15 +338,9 @@ impl DeterminismGuard {
 
         // ── CHANGE 2: Use WorldHasher::compute() — real SHA-256, not placeholder ──
         //
-        // WorldHasher feeds into SHA-256 in this order (all stable / D11-compliant):
-        //   tick (u64 big-endian)
-        //   schema_version (length-prefixed bytes)
-        //   execution_plan_version (u32 big-endian)
-        //   entity store: entity records from SnapshotEngine in EntityID ASC order (D3)
-        //   component tables: BTreeMap<type_id, BTreeMap<EntityID, json>> (D11)
-        //
-        // Floats are never hashed directly — only as JSON strings produced by
-        // SnapshotSerializer with stable key ordering and fixed precision (D8, D11).
+        // WorldHasher feeds tick/version identity, cgs_hash, RNG/event/mutation
+        // snapshot state, clean-boundary status, entity store, and component
+        // tables in stable D11 order.
         let computed_hash = WorldHasher::compute(snapshot);
 
         // Validate against an existing hash if present (replay / resync path)
@@ -450,6 +459,24 @@ impl DeterminismGuard {
     /// Returns the world hash recorded at a specific tick, if any.
     pub fn hash_at_tick(&self, tick: u64) -> Option<&str> {
         self.state.tick_hash_log.get(&tick).map(|s| s.as_str())
+    }
+
+    /// Returns all recorded tick hashes in ascending tick order.
+    pub fn hash_log(&self) -> Vec<(u64, String)> {
+        self.state
+            .tick_hash_log
+            .iter()
+            .map(|(tick, hash)| (*tick, hash.clone()))
+            .collect()
+    }
+
+    /// Returns the latest recorded tick hash, if any.
+    pub fn latest_hash(&self) -> Option<(u64, &str)> {
+        self.state
+            .tick_hash_log
+            .iter()
+            .next_back()
+            .map(|(tick, hash)| (*tick, hash.as_str()))
     }
 
     /// Returns the current guard mode.
@@ -742,15 +769,17 @@ mod tests {
     #[test]
     fn replay_hash_records_on_first_run() {
         let mut g = strict_guard();
-        assert!(g.validate_replay_hash(10, "hash_abc").is_ok());
-        assert_eq!(g.hash_at_tick(10), Some("hash_abc"));
+        let hash = "a".repeat(64);
+        assert!(g.validate_replay_hash(10, &hash).is_ok());
+        assert_eq!(g.hash_at_tick(10), Some(hash.as_str()));
     }
 
     #[test]
     fn replay_hash_passes_on_identical_hash() {
         let mut g = strict_guard();
-        g.validate_replay_hash(10, "hash_abc").unwrap();
-        assert!(g.validate_replay_hash(10, "hash_abc").is_ok());
+        let hash = "a".repeat(64);
+        g.validate_replay_hash(10, &hash).unwrap();
+        assert!(g.validate_replay_hash(10, &hash).is_ok());
         assert_eq!(g.violation_count(), 0);
     }
 

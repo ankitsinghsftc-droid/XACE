@@ -1,59 +1,22 @@
-//! # Delta Payload
+//! Incremental state-change payload sent from XACE to engine adapters.
 //!
-//! The wire-format payload for DELTA messages sent from XACE to the
-//! engine adapter each tick. Contains only what changed — never the
-//! full world state.
-//!
-//! ## Minimal Delta Principle
-//! The DeltaSyncEngine (Phase 8) compares the current StateDelta
-//! against the last-sent state and produces a DeltaPayload containing
-//! only genuinely changed data. Unchanged components are never included.
-//! This minimizes bandwidth and engine-side processing cost.
-//!
-//! ## Ordering (D4)
-//! The engine adapter MUST apply changes in this strict order:
-//! 1. spawned_entities  — create new entities
-//! 2. added_components  — attach new components to existing entities
-//! 3. modified_components — apply field changes to existing components
-//! 4. removed_components — detach components from entities
-//! 5. destroyed_entities — remove entities from scene
-//!
-//! This order is enforced by the DeltaBuilder (Phase 8) and validated
-//! by the engine adapter's DeltaApplicator. Any other order risks
-//! operating on entities or components that don't exist yet.
-//!
-//! ## Sequence Tracking
-//! Every DeltaPayload carries a sequence_id. The engine adapter tracks
-//! sequence IDs and requests a SNAPSHOT if it detects a gap — meaning
-//! a DELTA message was dropped or arrived out of order.
-//!
-//! ## Determinism (D3, D11)
-//! All entity lists are sorted by EntityID ASC (D3).
-//! All component lists are sorted by component_type_id ASC (D11).
-//! Identical state changes always produce identical DeltaPayload bytes.
+//! The adapter must apply a delta in this order:
+//! spawn entities, add components, modify components, remove components, destroy
+//! entities. The structs below preserve deterministic ordering and expose
+//! validation so bad deltas are caught before they reach an engine scene.
 
-use crate::entity_id::EntityID;
-use crate::entity_metadata::Tick;
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// ── Wire Component Data ───────────────────────────────────────────────────────
+use serde::{Deserialize, Serialize};
 
-/// A component's complete data serialized for wire transmission.
-///
-/// Used when adding a new component to an entity or sending a
-/// full component replacement. JSON is used for cross-language
-/// compatibility with Unity C#, Unreal C++, and Godot GDScript.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+use crate::entity_id::{EntityID, NULL_ENTITY_ID};
+use crate::entity_metadata::Tick;
+
+/// Complete component JSON used for component creation or replacement.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireComponentData {
-    /// The component type ID from the UCL/DCL/GCL registry.
     pub component_type_id: u32,
-
-    /// The canonical component type name for engine-side lookup.
     pub component_type_name: String,
-
-    /// Complete component data serialized as JSON.
-    /// JSON keys are sorted alphabetically for determinism (D11).
     pub data_json: String,
 }
 
@@ -69,21 +32,39 @@ impl WireComponentData {
             data_json: data_json.into(),
         }
     }
+
+    pub fn data_value(&self) -> Result<serde_json::Value, serde_json::Error> {
+        serde_json::from_str(&self.data_json)
+    }
+
+    pub fn payload_size_bytes(&self) -> usize {
+        self.component_type_name.len() + self.data_json.len()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.component_type_id == 0 {
+            return Err("component_type_id must not be zero".into());
+        }
+        if self.component_type_name.trim().is_empty() {
+            return Err(format!(
+                "component {} has empty component_type_name",
+                self.component_type_id
+            ));
+        }
+        serde_json::from_str::<serde_json::Value>(&self.data_json).map_err(|err| {
+            format!(
+                "component {} ({}) has invalid JSON: {}",
+                self.component_type_id, self.component_type_name, err
+            )
+        })?;
+        Ok(())
+    }
 }
 
-// ── Wire Field Change ─────────────────────────────────────────────────────────
-
-/// A single field-level change within a component for wire transmission.
-///
-/// Used for minimal delta updates — only changed fields are sent,
-/// not the entire component. Reduces bandwidth significantly for
-/// components with many fields where only one or two change per tick.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// One field-level component change.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireFieldChange {
-    /// The name of the field that changed.
     pub field_name: String,
-
-    /// The new field value serialized as a JSON value string.
     pub value_json: String,
 }
 
@@ -94,35 +75,40 @@ impl WireFieldChange {
             value_json: value_json.into(),
         }
     }
+
+    pub fn value(&self) -> Result<serde_json::Value, serde_json::Error> {
+        serde_json::from_str(&self.value_json)
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.field_name.trim().is_empty() {
+            return Err("field change field_name must not be empty".into());
+        }
+        serde_json::from_str::<serde_json::Value>(&self.value_json).map_err(|err| {
+            format!(
+                "field '{}' has invalid value_json: {}",
+                self.field_name, err
+            )
+        })?;
+        Ok(())
+    }
 }
 
-// ── Wire Component Update ─────────────────────────────────────────────────────
-
 /// Field-level updates for one component on one entity.
-///
-/// Contains only the fields that changed — not the full component.
-/// The engine adapter applies each field change to its existing
-/// engine-side component representation.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireComponentUpdate {
-    /// The component type being updated.
     pub component_type_id: u32,
-
-    /// The canonical component type name.
     pub component_type_name: String,
-
-    /// Changed fields sorted by field_name for determinism (D11).
     pub field_changes: Vec<WireFieldChange>,
 }
 
 impl WireComponentUpdate {
-    /// Creates a component update with sorted field changes.
     pub fn new(
         component_type_id: u32,
         component_type_name: impl Into<String>,
         mut field_changes: Vec<WireFieldChange>,
     ) -> Self {
-        field_changes.sort_by(|a, b| a.field_name.cmp(&b.field_name));
+        sort_dedup_field_changes(&mut field_changes);
         Self {
             component_type_id,
             component_type_name: component_type_name.into(),
@@ -130,33 +116,48 @@ impl WireComponentUpdate {
         }
     }
 
-    /// Returns the number of changed fields.
     pub fn field_count(&self) -> usize {
         self.field_changes.len()
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.field_changes.is_empty()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.component_type_id == 0 {
+            return Err("component update type id must not be zero".into());
+        }
+        if self.component_type_name.trim().is_empty() {
+            return Err(format!(
+                "component update {} has empty component_type_name",
+                self.component_type_id
+            ));
+        }
+        ensure_sorted_unique_by(
+            &self.field_changes,
+            |change| change.field_name.clone(),
+            "component update field_changes",
+        )?;
+        if self.field_changes.is_empty() {
+            return Err(format!(
+                "component update {} must contain at least one field change",
+                self.component_type_id
+            ));
+        }
+        for change in &self.field_changes {
+            change.validate()?;
+        }
+        Ok(())
+    }
 }
 
-// ── Wire Spawned Entity ───────────────────────────────────────────────────────
-
-/// An entity spawned this tick with its initial component data.
-///
-/// The engine adapter creates the entity and attaches all
-/// initial components in one operation. Components are sorted
-/// by component_type_id for deterministic processing (D11).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Entity spawned this tick with initial component data.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireSpawnedEntity {
-    /// The EntityID assigned to this new entity.
     pub entity_id: EntityID,
-
-    /// The actor definition ID this entity was spawned from.
-    /// Empty string if spawned without a blueprint.
     pub actor_id: String,
-
-    /// Initial components sorted by component_type_id ASC (D11).
     pub initial_components: Vec<WireComponentData>,
-
-    /// Tags for quick engine-side filtering.
-    /// Sorted alphabetically (D11).
     pub tags: Vec<String>,
 }
 
@@ -170,24 +171,48 @@ impl WireSpawnedEntity {
         }
     }
 
-    /// Adds a component, maintaining sorted order by type_id (D11).
+    pub fn with_tags(mut self, tags: Vec<String>) -> Self {
+        self.tags = normalize_tags(tags);
+        self
+    }
+
     pub fn add_component(&mut self, component: WireComponentData) {
-        let pos = self
+        match self
             .initial_components
-            .partition_point(|c| c.component_type_id < component.component_type_id);
-        self.initial_components.insert(pos, component);
+            .binary_search_by_key(&component.component_type_id, |c| c.component_type_id)
+        {
+            Ok(idx) => self.initial_components[idx] = component,
+            Err(idx) => self.initial_components.insert(idx, component),
+        }
+    }
+
+    pub fn has_component(&self, component_type_id: u32) -> bool {
+        self.initial_components
+            .binary_search_by_key(&component_type_id, |c| c.component_type_id)
+            .is_ok()
+    }
+
+    pub fn component_count(&self) -> usize {
+        self.initial_components.len()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        ensure_entity_id(self.entity_id, "spawned entity")?;
+        ensure_sorted_unique_by(
+            &self.initial_components,
+            |component| component.component_type_id,
+            "spawned entity initial_components",
+        )?;
+        ensure_sorted_unique_strings(&self.tags, "spawned entity tags")?;
+        for component in &self.initial_components {
+            component.validate()?;
+        }
+        Ok(())
     }
 }
 
-// ── Wire Destroyed Entity ─────────────────────────────────────────────────────
-
-/// An entity destroyed this tick.
-///
-/// The engine adapter removes this entity from its scene
-/// and releases all associated resources.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireDestroyedEntity {
-    /// The EntityID of the destroyed entity.
     pub entity_id: EntityID,
 }
 
@@ -195,49 +220,71 @@ impl WireDestroyedEntity {
     pub fn new(entity_id: EntityID) -> Self {
         Self { entity_id }
     }
+
+    pub fn validate(&self) -> Result<(), String> {
+        ensure_entity_id(self.entity_id, "destroyed entity")
+    }
 }
 
-// ── Wire Component Addition ───────────────────────────────────────────────────
-
-/// A component added to an existing entity this tick.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireAddedComponent {
-    /// The entity receiving the new component.
     pub entity_id: EntityID,
-
-    /// The component being added with its initial data.
     pub component: WireComponentData,
 }
 
-// ── Wire Component Removal ────────────────────────────────────────────────────
+impl WireAddedComponent {
+    pub fn new(entity_id: EntityID, component: WireComponentData) -> Self {
+        Self {
+            entity_id,
+            component,
+        }
+    }
 
-/// A component removed from an entity this tick.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub fn validate(&self) -> Result<(), String> {
+        ensure_entity_id(self.entity_id, "added component entity")?;
+        self.component.validate()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireRemovedComponent {
-    /// The entity losing the component.
     pub entity_id: EntityID,
-
-    /// The component type being removed.
     pub component_type_id: u32,
-
-    /// The canonical component type name.
     pub component_type_name: String,
 }
 
-// ── Wire Entity Update ────────────────────────────────────────────────────────
+impl WireRemovedComponent {
+    pub fn new(
+        entity_id: EntityID,
+        component_type_id: u32,
+        component_type_name: impl Into<String>,
+    ) -> Self {
+        Self {
+            entity_id,
+            component_type_id,
+            component_type_name: component_type_name.into(),
+        }
+    }
 
-/// All component updates for a single entity this tick.
-///
-/// Groups all component field changes for one entity into one record.
-/// BTreeMap<component_type_id, WireComponentUpdate> ensures
-/// deterministic component processing order (D11).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+    pub fn validate(&self) -> Result<(), String> {
+        ensure_entity_id(self.entity_id, "removed component entity")?;
+        if self.component_type_id == 0 {
+            return Err("removed component type id must not be zero".into());
+        }
+        if self.component_type_name.trim().is_empty() {
+            return Err(format!(
+                "removed component {} has empty component_type_name",
+                self.component_type_id
+            ));
+        }
+        Ok(())
+    }
+}
+
+/// All component updates for one entity.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct WireEntityUpdate {
-    /// The entity being updated.
     pub entity_id: EntityID,
-
-    /// Component updates keyed by component_type_id.
-    /// BTreeMap guarantees ascending type_id iteration order (D11).
     pub component_updates: BTreeMap<u32, WireComponentUpdate>,
 }
 
@@ -249,82 +296,57 @@ impl WireEntityUpdate {
         }
     }
 
-    /// Adds a component update to this entity update.
     pub fn add_component_update(&mut self, update: WireComponentUpdate) {
         self.component_updates
             .insert(update.component_type_id, update);
     }
 
-    /// Returns the total number of field changes across all components.
+    pub fn update_count(&self) -> usize {
+        self.component_updates.len()
+    }
+
     pub fn total_field_changes(&self) -> usize {
         self.component_updates
             .values()
-            .map(|u| u.field_count())
+            .map(WireComponentUpdate::field_count)
             .sum()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        ensure_entity_id(self.entity_id, "modified entity")?;
+        if self.component_updates.is_empty() {
+            return Err(format!(
+                "modified entity {} has no component updates",
+                self.entity_id
+            ));
+        }
+        for (type_id, update) in &self.component_updates {
+            if *type_id != update.component_type_id {
+                return Err(format!(
+                    "modified entity {} map key {} does not match update type {}",
+                    self.entity_id, type_id, update.component_type_id
+                ));
+            }
+            update.validate()?;
+        }
+        Ok(())
     }
 }
 
-// ── Delta Payload ─────────────────────────────────────────────────────────────
-
-/// The complete wire payload for a DELTA message.
-///
-/// Sent by XACE to the engine adapter every tick that has changes.
-/// Contains only what changed — never the full world state.
-///
-/// ## Application Order (D4) — ENFORCED BY ENGINE ADAPTER
-/// 1. spawned_entities  → create entities with initial components
-/// 2. added_components  → attach new components to existing entities
-/// 3. modified_entities → apply field changes to existing components
-/// 4. removed_components → detach components from entities
-/// 5. destroyed_entities → remove entities from scene
-///
-/// The DeltaBuilder (Phase 8) always produces payloads in this order.
-/// The engine adapter's DeltaApplicator must apply them in this order.
-/// Any deviation is a protocol violation.
-///
-/// ## Sequence Tracking
-/// sequence_id is monotonically increasing per world session.
-/// The engine adapter detects gaps and requests SNAPSHOT recovery.
-/// Sequence IDs are never reused — even after SNAPSHOT recovery.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Complete delta payload for one simulation tick.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DeltaPayload {
-    /// The simulation tick this delta was produced from.
     pub tick: Tick,
-
-    /// Monotonically increasing sequence number.
-    /// Engine adapter requests SNAPSHOT if it detects a gap.
     pub sequence_id: u64,
-
-    /// The schema version active during this tick.
-    /// Engine adapter validates this matches its known version.
     pub schema_version: String,
-
-    /// Entities spawned this tick sorted by EntityID ASC (D3).
-    /// Applied FIRST by the engine adapter.
     pub spawned_entities: Vec<WireSpawnedEntity>,
-
-    /// Components added to existing entities this tick.
-    /// Sorted by entity_id ASC, then component_type_id ASC (D3, D11).
-    /// Applied SECOND by the engine adapter.
     pub added_components: Vec<WireAddedComponent>,
-
-    /// Field-level updates for existing entity components this tick.
-    /// BTreeMap<EntityID, WireEntityUpdate> — sorted by EntityID ASC (D3).
-    /// Applied THIRD by the engine adapter.
     pub modified_entities: BTreeMap<EntityID, WireEntityUpdate>,
-
-    /// Components removed from entities this tick.
-    /// Sorted by entity_id ASC, then component_type_id ASC (D3, D11).
-    /// Applied FOURTH by the engine adapter.
     pub removed_components: Vec<WireRemovedComponent>,
-
-    /// Entities destroyed this tick sorted by EntityID ASC (D3).
-    /// Applied FIFTH (last) by the engine adapter.
     pub destroyed_entities: Vec<WireDestroyedEntity>,
 }
 
 impl DeltaPayload {
-    /// Creates an empty delta payload for the given tick.
     pub fn empty(tick: Tick, sequence_id: u64, schema_version: impl Into<String>) -> Self {
         Self {
             tick,
@@ -338,8 +360,6 @@ impl DeltaPayload {
         }
     }
 
-    /// Returns true if this payload has no changes.
-    /// Empty deltas are not sent to the engine adapter.
     pub fn is_empty(&self) -> bool {
         self.spawned_entities.is_empty()
             && self.added_components.is_empty()
@@ -348,7 +368,7 @@ impl DeltaPayload {
             && self.destroyed_entities.is_empty()
     }
 
-    /// Returns the total number of change records in this payload.
+    /// Counts top-level change records. Use `operation_count` for field-level work.
     pub fn change_count(&self) -> usize {
         self.spawned_entities.len()
             + self.added_components.len()
@@ -357,46 +377,77 @@ impl DeltaPayload {
             + self.destroyed_entities.len()
     }
 
-    /// Adds a spawned entity maintaining EntityID sort order (D3).
+    /// Counts actual engine-side operations, including each field change.
+    pub fn operation_count(&self) -> usize {
+        self.spawned_entities.len()
+            + self.added_components.len()
+            + self
+                .modified_entities
+                .values()
+                .map(WireEntityUpdate::total_field_changes)
+                .sum::<usize>()
+            + self.removed_components.len()
+            + self.destroyed_entities.len()
+    }
+
+    pub fn total_payload_bytes(&self) -> usize {
+        self.schema_version.len()
+            + self
+                .spawned_entities
+                .iter()
+                .map(|entity| {
+                    entity.actor_id.len()
+                        + entity.tags.iter().map(String::len).sum::<usize>()
+                        + entity
+                            .initial_components
+                            .iter()
+                            .map(WireComponentData::payload_size_bytes)
+                            .sum::<usize>()
+                })
+                .sum::<usize>()
+            + self
+                .added_components
+                .iter()
+                .map(|addition| addition.component.payload_size_bytes())
+                .sum::<usize>()
+            + self
+                .modified_entities
+                .values()
+                .flat_map(|entity| entity.component_updates.values())
+                .flat_map(|update| update.field_changes.iter())
+                .map(|change| change.field_name.len() + change.value_json.len())
+                .sum::<usize>()
+            + self
+                .removed_components
+                .iter()
+                .map(|removal| removal.component_type_name.len())
+                .sum::<usize>()
+    }
+
     pub fn add_spawn(&mut self, entity: WireSpawnedEntity) {
-        let pos = self
-            .spawned_entities
-            .partition_point(|e| e.entity_id < entity.entity_id);
-        self.spawned_entities.insert(pos, entity);
+        insert_sorted_replace_by_key(&mut self.spawned_entities, entity, |entity| {
+            entity.entity_id
+        });
     }
 
-    /// Adds a destroyed entity maintaining EntityID sort order (D3).
     pub fn add_destroy(&mut self, entity: WireDestroyedEntity) {
-        let pos = self
-            .destroyed_entities
-            .partition_point(|e| e.entity_id < entity.entity_id);
-        self.destroyed_entities.insert(pos, entity);
+        insert_sorted_replace_by_key(&mut self.destroyed_entities, entity, |entity| {
+            entity.entity_id
+        });
     }
 
-    /// Adds a component addition record maintaining sort order (D3, D11).
     pub fn add_component_addition(&mut self, addition: WireAddedComponent) {
-        self.added_components.push(addition);
-        self.added_components.sort_by(|a, b| {
-            a.entity_id.cmp(&b.entity_id).then(
-                a.component
-                    .component_type_id
-                    .cmp(&b.component.component_type_id),
-            )
+        insert_sorted_replace_by_key(&mut self.added_components, addition, |addition| {
+            (addition.entity_id, addition.component.component_type_id)
         });
     }
 
-    /// Adds a component removal record maintaining sort order (D3, D11).
     pub fn add_component_removal(&mut self, removal: WireRemovedComponent) {
-        self.removed_components.push(removal);
-        self.removed_components.sort_by(|a, b| {
-            a.entity_id
-                .cmp(&b.entity_id)
-                .then(a.component_type_id.cmp(&b.component_type_id))
+        insert_sorted_replace_by_key(&mut self.removed_components, removal, |removal| {
+            (removal.entity_id, removal.component_type_id)
         });
     }
 
-    /// Records a component field update for an entity.
-    /// BTreeMap insertion maintains deterministic ordering (D3, D11).
     pub fn add_component_update(&mut self, entity_id: EntityID, update: WireComponentUpdate) {
         self.modified_entities
             .entry(entity_id)
@@ -404,22 +455,207 @@ impl DeltaPayload {
             .add_component_update(update);
     }
 
-    /// Returns true if a specific entity was spawned in this delta.
     pub fn was_spawned(&self, entity_id: EntityID) -> bool {
         self.spawned_entities
-            .binary_search_by(|e| e.entity_id.cmp(&entity_id))
+            .binary_search_by_key(&entity_id, |entity| entity.entity_id)
             .is_ok()
     }
 
-    /// Returns true if a specific entity was destroyed in this delta.
     pub fn was_destroyed(&self, entity_id: EntityID) -> bool {
         self.destroyed_entities
-            .binary_search_by(|e| e.entity_id.cmp(&entity_id))
+            .binary_search_by_key(&entity_id, |entity| entity.entity_id)
             .is_ok()
+    }
+
+    pub fn has_component_addition(&self, entity_id: EntityID, component_type_id: u32) -> bool {
+        self.added_components
+            .binary_search_by_key(&(entity_id, component_type_id), |addition| {
+                (addition.entity_id, addition.component.component_type_id)
+            })
+            .is_ok()
+    }
+
+    pub fn has_component_removal(&self, entity_id: EntityID, component_type_id: u32) -> bool {
+        self.removed_components
+            .binary_search_by_key(&(entity_id, component_type_id), |removal| {
+                (removal.entity_id, removal.component_type_id)
+            })
+            .is_ok()
+    }
+
+    pub fn normalize(&mut self) {
+        sort_dedup_by_key(&mut self.spawned_entities, |entity| entity.entity_id);
+        for entity in &mut self.spawned_entities {
+            entity.tags = normalize_tags(std::mem::take(&mut entity.tags));
+            sort_dedup_by_key(&mut entity.initial_components, |component| {
+                component.component_type_id
+            });
+        }
+        sort_dedup_by_key(&mut self.added_components, |addition| {
+            (addition.entity_id, addition.component.component_type_id)
+        });
+        sort_dedup_by_key(&mut self.removed_components, |removal| {
+            (removal.entity_id, removal.component_type_id)
+        });
+        sort_dedup_by_key(&mut self.destroyed_entities, |entity| entity.entity_id);
+        for entity in self.modified_entities.values_mut() {
+            for update in entity.component_updates.values_mut() {
+                sort_dedup_field_changes(&mut update.field_changes);
+            }
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.schema_version.trim().is_empty() {
+            return Err("DeltaPayload schema_version must not be empty".into());
+        }
+        ensure_sorted_unique_by(
+            &self.spawned_entities,
+            |entity| entity.entity_id,
+            "delta spawned_entities",
+        )?;
+        ensure_sorted_unique_by(
+            &self.added_components,
+            |addition| (addition.entity_id, addition.component.component_type_id),
+            "delta added_components",
+        )?;
+        ensure_sorted_unique_by(
+            &self.removed_components,
+            |removal| (removal.entity_id, removal.component_type_id),
+            "delta removed_components",
+        )?;
+        ensure_sorted_unique_by(
+            &self.destroyed_entities,
+            |entity| entity.entity_id,
+            "delta destroyed_entities",
+        )?;
+
+        for entity in &self.spawned_entities {
+            entity.validate()?;
+        }
+        for addition in &self.added_components {
+            addition.validate()?;
+        }
+        for (entity_id, update) in &self.modified_entities {
+            if *entity_id != update.entity_id {
+                return Err(format!(
+                    "delta modified_entities map key {} does not match record entity {}",
+                    entity_id, update.entity_id
+                ));
+            }
+            update.validate()?;
+        }
+        for removal in &self.removed_components {
+            removal.validate()?;
+        }
+        for entity in &self.destroyed_entities {
+            entity.validate()?;
+        }
+        self.validate_conflicts()
+    }
+
+    fn validate_conflicts(&self) -> Result<(), String> {
+        for spawned in &self.spawned_entities {
+            if self.was_destroyed(spawned.entity_id) {
+                return Err(format!(
+                    "entity {} appears in both spawned_entities and destroyed_entities",
+                    spawned.entity_id
+                ));
+            }
+            if self.modified_entities.contains_key(&spawned.entity_id) {
+                return Err(format!(
+                    "entity {} is spawned and modified in the same delta; put initial data in spawn",
+                    spawned.entity_id
+                ));
+            }
+        }
+        for destroyed in &self.destroyed_entities {
+            if self.modified_entities.contains_key(&destroyed.entity_id) {
+                return Err(format!(
+                    "entity {} is modified and destroyed in the same delta",
+                    destroyed.entity_id
+                ));
+            }
+            if self
+                .added_components
+                .iter()
+                .any(|addition| addition.entity_id == destroyed.entity_id)
+            {
+                return Err(format!(
+                    "entity {} receives components and is destroyed in the same delta",
+                    destroyed.entity_id
+                ));
+            }
+        }
+        Ok(())
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+fn ensure_entity_id(entity_id: EntityID, label: &str) -> Result<(), String> {
+    if entity_id == NULL_ENTITY_ID {
+        Err(format!("{} entity_id must not be NULL_ENTITY_ID", label))
+    } else {
+        Ok(())
+    }
+}
+
+fn normalize_tags(mut tags: Vec<String>) -> Vec<String> {
+    tags.retain(|tag| !tag.trim().is_empty());
+    tags.sort();
+    tags.dedup();
+    tags
+}
+
+fn sort_dedup_field_changes(fields: &mut Vec<WireFieldChange>) {
+    fields.sort_by(|a, b| a.field_name.cmp(&b.field_name));
+    fields.dedup_by(|a, b| a.field_name == b.field_name);
+}
+
+fn insert_sorted_replace_by_key<T, K: Ord, F: Fn(&T) -> K>(items: &mut Vec<T>, item: T, key: F) {
+    let item_key = key(&item);
+    match items.binary_search_by_key(&item_key, |existing| key(existing)) {
+        Ok(idx) => items[idx] = item,
+        Err(idx) => items.insert(idx, item),
+    }
+}
+
+fn sort_dedup_by_key<T, K: Ord, F: Fn(&T) -> K>(items: &mut Vec<T>, key: F) {
+    items.sort_by_key(|item| key(item));
+    items.dedup_by(|a, b| key(a) == key(b));
+}
+
+fn ensure_sorted_unique_by<T, K: Ord, F: Fn(&T) -> K>(
+    items: &[T],
+    key: F,
+    label: &str,
+) -> Result<(), String> {
+    for pair in items.windows(2) {
+        if key(&pair[0]) >= key(&pair[1]) {
+            return Err(format!(
+                "{} must be sorted ascending with no duplicates",
+                label
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn ensure_sorted_unique_strings(values: &[String], label: &str) -> Result<(), String> {
+    for value in values {
+        if value.trim().is_empty() {
+            return Err(format!("{} must not contain empty strings", label));
+        }
+    }
+    for pair in values.windows(2) {
+        if pair[0] >= pair[1] {
+            return Err(format!(
+                "{} must be sorted ascending with no duplicates",
+                label
+            ));
+        }
+    }
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {
@@ -433,121 +669,75 @@ mod tests {
     fn empty_delta_is_empty() {
         assert!(empty_delta().is_empty());
         assert_eq!(empty_delta().change_count(), 0);
+        assert!(empty_delta().validate().is_ok());
     }
 
     #[test]
-    fn add_spawn_maintains_sort_order() {
+    fn add_spawn_maintains_sort_order_and_replaces_duplicates() {
         let mut delta = empty_delta();
         delta.add_spawn(WireSpawnedEntity::new(5, "actor_zombie"));
         delta.add_spawn(WireSpawnedEntity::new(1, "actor_player"));
         delta.add_spawn(WireSpawnedEntity::new(3, "actor_chest"));
-        assert_eq!(delta.spawned_entities[0].entity_id, 1);
-        assert_eq!(delta.spawned_entities[1].entity_id, 3);
-        assert_eq!(delta.spawned_entities[2].entity_id, 5);
+        delta.add_spawn(WireSpawnedEntity::new(3, "actor_chest_v2"));
+
+        assert_eq!(
+            delta
+                .spawned_entities
+                .iter()
+                .map(|entity| entity.entity_id)
+                .collect::<Vec<_>>(),
+            vec![1, 3, 5]
+        );
+        assert_eq!(delta.spawned_entities[1].actor_id, "actor_chest_v2");
     }
 
     #[test]
-    fn add_destroy_maintains_sort_order() {
-        let mut delta = empty_delta();
-        delta.add_destroy(WireDestroyedEntity::new(10));
-        delta.add_destroy(WireDestroyedEntity::new(2));
-        delta.add_destroy(WireDestroyedEntity::new(7));
-        assert_eq!(delta.destroyed_entities[0].entity_id, 2);
-        assert_eq!(delta.destroyed_entities[1].entity_id, 7);
-        assert_eq!(delta.destroyed_entities[2].entity_id, 10);
-    }
+    fn component_and_field_validation_require_json() {
+        assert!(WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}")
+            .validate()
+            .is_ok());
+        assert!(WireComponentData::new(1, "COMP_TRANSFORM_V1", "not-json")
+            .validate()
+            .is_err());
 
-    #[test]
-    fn add_component_update_uses_btreemap() {
-        let mut delta = empty_delta();
         let update = WireComponentUpdate::new(
             1,
             "COMP_TRANSFORM_V1",
-            vec![WireFieldChange::new("position", r#"{"x":1.0}"#)],
+            vec![
+                WireFieldChange::new("z", "3"),
+                WireFieldChange::new("a", r#"{"x":1}"#),
+            ],
         );
-        delta.add_component_update(42, update);
-        assert!(delta.modified_entities.contains_key(&42));
+        assert_eq!(update.field_changes[0].field_name, "a");
+        assert!(update.validate().is_ok());
     }
 
     #[test]
-    fn was_spawned_correct() {
+    fn additions_and_removals_are_sorted_by_entity_then_type() {
         let mut delta = empty_delta();
-        delta.add_spawn(WireSpawnedEntity::new(1, "actor_player"));
-        assert!(delta.was_spawned(1));
-        assert!(!delta.was_spawned(2));
-    }
+        delta.add_component_addition(WireAddedComponent::new(
+            5,
+            WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}"),
+        ));
+        delta.add_component_addition(WireAddedComponent::new(
+            2,
+            WireComponentData::new(3, "COMP_RENDER_V1", "{}"),
+        ));
+        delta.add_component_addition(WireAddedComponent::new(
+            2,
+            WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}"),
+        ));
+        delta.add_component_removal(WireRemovedComponent::new(9, 2, "B"));
+        delta.add_component_removal(WireRemovedComponent::new(1, 8, "A"));
 
-    #[test]
-    fn was_destroyed_correct() {
-        let mut delta = empty_delta();
-        delta.add_destroy(WireDestroyedEntity::new(5));
-        assert!(delta.was_destroyed(5));
-        assert!(!delta.was_destroyed(1));
-    }
-
-    #[test]
-    fn change_count_sums_all() {
-        let mut delta = empty_delta();
-        delta.add_spawn(WireSpawnedEntity::new(1, "actor_player"));
-        delta.add_destroy(WireDestroyedEntity::new(99));
-        assert_eq!(delta.change_count(), 2);
-    }
-
-    #[test]
-    fn non_empty_delta_not_empty() {
-        let mut delta = empty_delta();
-        delta.add_spawn(WireSpawnedEntity::new(1, "actor_player"));
-        assert!(!delta.is_empty());
-    }
-
-    #[test]
-    fn wire_component_update_sorts_fields() {
-        let fields = vec![
-            WireFieldChange::new("z_field", "3"),
-            WireFieldChange::new("a_field", "1"),
-            WireFieldChange::new("m_field", "2"),
-        ];
-        let update = WireComponentUpdate::new(1, "COMP_TEST", fields);
-        assert_eq!(update.field_changes[0].field_name, "a_field");
-        assert_eq!(update.field_changes[1].field_name, "m_field");
-        assert_eq!(update.field_changes[2].field_name, "z_field");
-    }
-
-    #[test]
-    fn wire_spawned_entity_add_component_sorted() {
-        let mut entity = WireSpawnedEntity::new(1, "actor_player");
-        entity.add_component(WireComponentData::new(5, "COMP_VELOCITY_V1", "{}"));
-        entity.add_component(WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}"));
-        entity.add_component(WireComponentData::new(3, "COMP_RENDER_V1", "{}"));
-        assert_eq!(entity.initial_components[0].component_type_id, 1);
-        assert_eq!(entity.initial_components[1].component_type_id, 3);
-        assert_eq!(entity.initial_components[2].component_type_id, 5);
-    }
-
-    #[test]
-    fn added_components_sorted_by_entity_then_type() {
-        let mut delta = empty_delta();
-        delta.add_component_addition(WireAddedComponent {
-            entity_id: 5,
-            component: WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}"),
-        });
-        delta.add_component_addition(WireAddedComponent {
-            entity_id: 2,
-            component: WireComponentData::new(3, "COMP_RENDER_V1", "{}"),
-        });
-        delta.add_component_addition(WireAddedComponent {
-            entity_id: 2,
-            component: WireComponentData::new(1, "COMP_TRANSFORM_V1", "{}"),
-        });
         assert_eq!(delta.added_components[0].entity_id, 2);
         assert_eq!(delta.added_components[0].component.component_type_id, 1);
-        assert_eq!(delta.added_components[1].entity_id, 2);
-        assert_eq!(delta.added_components[1].component.component_type_id, 3);
-        assert_eq!(delta.added_components[2].entity_id, 5);
+        assert!(delta.has_component_addition(2, 3));
+        assert!(delta.has_component_removal(1, 8));
     }
 
     #[test]
-    fn entity_update_total_field_changes() {
+    fn entity_update_counts_fields() {
         let mut update = WireEntityUpdate::new(1);
         update.add_component_update(WireComponentUpdate::new(
             1,
@@ -562,13 +752,67 @@ mod tests {
             "COMP_VELOCITY_V1",
             vec![WireFieldChange::new("linear", "{}")],
         ));
+        assert_eq!(update.update_count(), 2);
         assert_eq!(update.total_field_changes(), 3);
+        assert!(update.validate().is_ok());
     }
 
     #[test]
-    fn sequence_id_stored_correctly() {
-        let delta = DeltaPayload::empty(10, 42, "0.1.0");
-        assert_eq!(delta.sequence_id, 42);
-        assert_eq!(delta.tick, 10);
+    fn validation_catches_unsorted_and_conflicting_changes() {
+        let mut delta = empty_delta();
+        delta
+            .spawned_entities
+            .push(WireSpawnedEntity::new(10, "actor"));
+        delta
+            .spawned_entities
+            .push(WireSpawnedEntity::new(2, "actor"));
+        assert!(delta.validate().is_err());
+
+        let mut delta = empty_delta();
+        delta.add_spawn(WireSpawnedEntity::new(1, "actor"));
+        delta.add_destroy(WireDestroyedEntity::new(1));
+        assert!(delta.validate().is_err());
+    }
+
+    #[test]
+    fn normalize_restores_deterministic_order() {
+        let mut delta = empty_delta();
+        delta
+            .spawned_entities
+            .push(WireSpawnedEntity::new(3, "actor").with_tags(vec!["z".into(), "a".into()]));
+        delta
+            .spawned_entities
+            .push(WireSpawnedEntity::new(1, "actor"));
+        delta.normalize();
+        assert_eq!(delta.spawned_entities[0].entity_id, 1);
+        assert_eq!(delta.spawned_entities[1].tags, vec!["a", "z"]);
+        assert!(delta.validate().is_ok());
+    }
+
+    #[test]
+    fn operation_count_includes_field_changes() {
+        let mut delta = empty_delta();
+        delta.add_spawn(WireSpawnedEntity::new(1, "actor"));
+        delta.add_component_update(
+            2,
+            WireComponentUpdate::new(
+                1,
+                "COMP_TRANSFORM_V1",
+                vec![
+                    WireFieldChange::new("x", "1"),
+                    WireFieldChange::new("y", "2"),
+                ],
+            ),
+        );
+        assert_eq!(delta.change_count(), 2);
+        assert_eq!(delta.operation_count(), 3);
+        assert!(delta.total_payload_bytes() > 0);
+    }
+
+    #[test]
+    fn null_entity_ids_are_rejected() {
+        let mut delta = empty_delta();
+        delta.add_destroy(WireDestroyedEntity::new(NULL_ENTITY_ID));
+        assert!(delta.validate().is_err());
     }
 }

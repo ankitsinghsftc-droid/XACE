@@ -28,6 +28,7 @@ import {
   MODE_LABELS,
   MODE_DESCRIPTIONS,
 }                               from '../types/pil';
+import { ProjectDashboard }      from '../project/project_dashboard';
 
 // ── Layout styles ─────────────────────────────────────────────────────────────
 
@@ -93,6 +94,78 @@ const STYLES = `
   color:       var(--txt);
   font-weight: 500;
 }
+.xb-project-btn {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: var(--rs);
+  color: var(--txt2);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all var(--tr-f);
+  font-family: inherit;
+  white-space: nowrap;
+}
+.xb-project-btn:hover {
+  border-color: rgba(0,212,255,.34);
+  color: var(--cyan);
+  background: var(--cynd);
+}
+.xb-flow-nav {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px;
+  border: 1px solid var(--bd);
+  border-radius: var(--r);
+  background: rgba(255,255,255,.025);
+  flex-shrink: 1;
+  min-width: 0;
+}
+.xb-flow-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--txt2);
+  border-radius: var(--rs);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 9.5px;
+  font-weight: 650;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+.xb-flow-btn:hover {
+  border-color: rgba(0,212,255,.28);
+  color: var(--cyan);
+  background: var(--cynd);
+}
+.xb-ready-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex-shrink: 1;
+}
+.xb-ready-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--bd);
+  background: rgba(255,255,255,.025);
+  border-radius: 999px;
+  color: var(--txt3);
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 7px;
+  white-space: nowrap;
+  max-width: 118px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.xb-ready-chip.ok { border-color: rgba(16,185,129,.3); color: var(--grn); }
+.xb-ready-chip.warn { border-color: rgba(255,159,67,.3); color: var(--amb); }
+.xb-ready-chip.err { border-color: rgba(239,68,68,.3); color: var(--red); }
 .xb-spacer { flex: 1; }
 
 /* ── Mode pills ── */
@@ -228,16 +301,19 @@ const STYLES = `
 }
 
 .xb-icon-btn {
-  background:    none;
-  border:        none;
+  background:    rgba(255,255,255,.03);
+  border:        1px solid var(--bd);
   color:         var(--txt2);
-  font-size:     15px;
-  padding:       3px 6px;
+  font-size:     10px;
+  font-weight:   600;
+  padding:       3px 8px;
   border-radius: var(--rs);
   transition:    all var(--tr-f);
   flex-shrink:   0;
+  font-family:   inherit;
+  cursor:        pointer;
 }
-.xb-icon-btn:hover { color: var(--txt); background: rgba(255,255,255,.04); }
+.xb-icon-btn:hover { color: var(--cyan); border-color: rgba(0,212,255,.34); background: var(--cynd); }
 
 /* ── Workspace ── */
 .xb-workspace {
@@ -350,6 +426,8 @@ export class MainLayout {
   private _el!:      HTMLElement;
   private _leftEl!:  HTMLElement;
   private _rightEl!: HTMLElement;
+  private _projectDashboard: ProjectDashboard | null = null;
+  private _readinessEl!: HTMLElement;
   private readonly _unsubs: Array<() => void> = [];
 
   // Slots exposed for other components to mount into
@@ -437,6 +515,32 @@ export class MainLayout {
     project.innerHTML = '/ <strong>Loading…</strong>';
     bar.appendChild(project);
 
+    const projectBtn = el('button', 'xb-project-btn', {
+      textContent: 'New Project',
+      title:       'Open project dashboard',
+    });
+    projectBtn.addEventListener('click', () => this._openProjectDashboard());
+    bar.appendChild(projectBtn);
+
+    const flow = el('nav', 'xb-flow-nav', { title: 'Creator workflow' });
+    const flowItems = [
+      { label: 'Health', action: () => this._openProjectDashboard('health') },
+      { label: 'Project', action: () => this._openProjectDashboard('new') },
+      { label: 'Prompt', action: () => this._focusWorkflowArea('prompt') },
+      { label: 'Assets', action: () => this._focusWorkflowArea('assets') },
+      { label: 'Preview', action: () => this._focusWorkflowArea('preview') },
+      { label: 'Inspector', action: () => this._focusWorkflowArea('inspector') },
+    ];
+    for (const item of flowItems) {
+      const btn = el('button', 'xb-flow-btn', { textContent: item.label, type: 'button' });
+      btn.addEventListener('click', item.action);
+      flow.appendChild(btn);
+    }
+    bar.appendChild(flow);
+
+    this._readinessEl = el('div', 'xb-ready-strip', { title: 'Launch readiness' });
+    bar.appendChild(this._readinessEl);
+
     bar.appendChild(el('div', 'xb-spacer'));
 
     // Mode pills
@@ -478,7 +582,7 @@ export class MainLayout {
     ]) {
       const btn = el('button', 'xb-export-btn', {
         textContent: item.label,
-        title:       `Export ${item.target} adapter`,
+        title:       `Export ${item.target} adapter package`,
       }) as HTMLButtonElement;
       btn.addEventListener('click', () => this._exportAdapter(item.target, btn));
       exports.appendChild(btn);
@@ -487,8 +591,11 @@ export class MainLayout {
 
     // Settings
     const settingsBtn = el('button', 'xb-icon-btn', {
-      textContent: '⚙',
-      title:       'Settings',
+      textContent: 'Settings',
+      title:       'Open model and provider settings',
+    });
+    settingsBtn.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('xace:open-model-settings'));
     });
     bar.appendChild(settingsBtn);
 
@@ -527,6 +634,7 @@ export class MainLayout {
         if (nameEl) {
           nameEl.innerHTML = `/ <strong>${state.cgs.metadata.name}</strong>`;
         }
+        this._renderReadiness();
       }),
     );
 
@@ -548,8 +656,66 @@ export class MainLayout {
           dot.classList.add('disconnected');
           text.textContent = 'Offline';
         }
+        this._renderReadiness();
       }),
     );
+
+    this._unsubs.push(
+      this._deps.client.onRuntimeStatus(status => {
+        const dot  = document.getElementById('xb-status-dot');
+        const text = document.getElementById('xb-status-text');
+        if (!dot || !text || this._deps.client.connectionState !== 'connected') return;
+
+        dot.className = 'xb-status-dot';
+        if (status.connected) {
+          dot.classList.add('live');
+          const adapter = status.adapterType || 'runtime';
+          text.textContent = status.paused ? `${adapter} paused` : `${adapter} live`;
+        } else {
+          dot.classList.add('connecting');
+          text.textContent = status.lastError ? 'Runtime offline' : 'Runtime ready';
+        }
+        this._renderReadiness();
+      }),
+    );
+    this._unsubs.push(
+      this._deps.client.onProviderStatus(() => this._renderReadiness()),
+    );
+    this._renderReadiness();
+  }
+
+  private _renderReadiness(): void {
+    if (!this._readinessEl) return;
+    const projectLoaded = this._deps.cgsStore.isLoaded;
+    const provider = this._deps.client.providerStatus;
+    const runtime = this._deps.client.runtimeStatus;
+    const connected = this._deps.client.connectionState === 'connected';
+
+    this._readinessEl.innerHTML = '';
+    this._readinessEl.appendChild(this._readinessChip(
+      'Project',
+      projectLoaded ? 'ok' : (connected ? 'warn' : 'err'),
+      projectLoaded ? 'Project loaded' : (connected ? 'Waiting for project' : 'Builder offline'),
+    ));
+    this._readinessEl.appendChild(this._readinessChip(
+      'Provider',
+      provider.ready ? 'ok' : (provider.checked ? 'warn' : 'err'),
+      provider.ready ? `${provider.provider}:${provider.model}` : (provider.message || 'Provider not ready'),
+    ));
+    this._readinessEl.appendChild(this._readinessChip(
+      'Runtime',
+      runtime.connected ? 'ok' : (connected ? 'warn' : 'err'),
+      runtime.connected ? `${runtime.adapterType || 'runtime'} live` : (runtime.lastError || 'Runtime offline'),
+    ));
+    this._readinessEl.appendChild(this._readinessChip(
+      'Scope',
+      'warn',
+      'Commercial scope: local-first BYOK developer platform; see docs/XACE_COMMERCIAL_SCOPE.md',
+    ));
+  }
+
+  private _readinessChip(label: string, kind: 'ok' | 'warn' | 'err', title: string): HTMLElement {
+    return el('span', `xb-ready-chip ${kind}`, { textContent: label, title });
   }
 
   // ── Resize handles ────────────────────────────────────────────────────────
@@ -569,18 +735,18 @@ export class MainLayout {
         files?: string[];
       };
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || `Export failed: ${target}`);
+        throw new Error(payload.error || `Adapter package export failed: ${target}`);
       }
       btn.classList.add('done');
       btn.textContent = 'OK';
-      console.info(`[Export] ${target}: ${payload.files?.length ?? 0} files -> ${payload.path}`);
+      console.info(`[Adapter package export] ${target}: ${payload.files?.length ?? 0} files -> ${payload.path}`);
       window.dispatchEvent(new CustomEvent('xace:export-complete', {
         detail: { target, ...payload },
       }));
     } catch (err) {
       btn.classList.add('error');
       btn.textContent = 'ERR';
-      console.error(`[Export] ${target} failed:`, err);
+      console.error(`[Adapter package export] ${target} failed:`, err);
     } finally {
       setTimeout(() => {
         btn.disabled = false;
@@ -628,6 +794,34 @@ export class MainLayout {
         btn.textContent = original;
       }, 2500);
     }
+  }
+
+  private _openProjectDashboard(mode?: 'health' | 'new' | 'open' | 'import' | 'adapter' | 'demo'): void {
+    if (!this._projectDashboard) {
+      this._projectDashboard = new ProjectDashboard();
+    }
+    this._projectDashboard.open(mode);
+  }
+
+  private _focusWorkflowArea(area: 'prompt' | 'assets' | 'preview' | 'inspector'): void {
+    if (area === 'prompt') {
+      this._deps.uiStore.setCenterTab('builder');
+      window.dispatchEvent(new CustomEvent('xace:focus-prompt'));
+      return;
+    }
+
+    if (area === 'assets') {
+      if (this._deps.uiStore.state.sidebarCollapsed) {
+        this._deps.uiStore.toggleSidebar();
+      }
+      window.dispatchEvent(new CustomEvent('xace:open-asset-linker'));
+      return;
+    }
+
+    if (this._deps.uiStore.state.rightPanelCollapsed) {
+      this._deps.uiStore.toggleRightPanel();
+    }
+    this._deps.uiStore.setRightPanelTab(area);
   }
 
   private _wireResize(

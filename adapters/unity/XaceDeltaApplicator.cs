@@ -1,28 +1,8 @@
-// Applies DELTA messages // XaceDeltaApplicator.cs
-// Applies DELTA and SNAPSHOT WireMessages from the XACE runtime to the Unity scene.
-// Spawns/destroys GameObjects, updates component data, and collects animation
-// and physics callbacks to send back as feedback (Audit 6).
+// XaceDeltaApplicator.cs
+// Mirrors XACE runtime snapshots into a Unity scene.
 //
-// ## Responsibility (Layer 6 — Engine Adapter)
-// This script is the write path: XACE→Unity. It receives canonical component
-// data (COMP_TRANSFORM_V1, COMP_RENDER_V1, COMP_ANIMATION_V2, etc.) and maps
-// it to Unity-native types (Transform, MeshRenderer, Animator, Rigidbody).
-//
-// It NEVER writes back to the XACE runtime directly. Feedback (animation state,
-// physics settled positions) is collected here and handed to XaceTransport.Send()
-// — the authoritative write stays in XACE via the Mutation Gate (I5, D13).
-//
-// ## Feedback Collection (Audit 6)
-// After applying animation commands, XaceDeltaApplicator registers Unity
-// Animator callbacks (AnimatorStateInfo per layer) and Rigidbody sleep events.
-// These are batched and sent as FeedbackMessage payloads at the end of each
-// Unity LateUpdate, which maps to the XACE tick boundary (I13).
-//
-// ## Entity → GameObject Mapping
-// XACE EntityIDs are mapped to Unity GameObjects via _entityMap.
-// On spawn: instantiate a prefab (from PrefabRegistry by actor_id) or an empty GO.
-// On destroy: destroy the GO and remove from map.
-// On component update: find the GO, update its Unity components.
+// Adapter invariant: Unity is a mirror. This script applies runtime-owned
+// state to GameObjects and never mutates XACE authoritative state directly.
 
 using System;
 using System.Collections.Generic;
@@ -30,572 +10,694 @@ using UnityEngine;
 
 namespace Xace.Adapter.Unity
 {
-    /// <summary>
-    /// Applies XACE DELTA and SNAPSHOT messages to the Unity scene.
-    /// Requires XaceTransport on the same or a parent GameObject.
-    /// </summary>
     [RequireComponent(typeof(XaceTransport))]
-    public class XaceDeltaApplicator : MonoBehaviour
+    public sealed class XaceDeltaApplicator : MonoBehaviour
     {
-        // ── Configuration ──────────────────────────────────────────────────
+        private const uint TransformComponent = 1;
+        private const uint IdentityComponent = 2;
+        private const uint InputComponent = 6;
+        private const uint HealthComponent = 100;
 
-        [Header("Prefab Registry")]
-        [Tooltip("Root Transform under which all XACE-spawned GameObjects are placed.")]
-        [SerializeField] private Transform _sceneRoot;
+        [Header("Scene")]
+        [SerializeField] private Transform sceneRoot;
+        [SerializeField] private GameObject fallbackPrefab;
+        [SerializeField] private bool createDebugCapsules = true;
+        [SerializeField] private bool removeMissingSnapshotEntities = true;
 
-        [Tooltip("Fallback prefab used when no specific prefab is registered for an actor.")]
-        [SerializeField] private GameObject _fallbackPrefab;
+        [Header("Debug Materials")]
+        [SerializeField] private Material playerMaterial;
+        [SerializeField] private Material zombieMaterial;
+        [SerializeField] private Material neutralMaterial;
 
-        // ── State ──────────────────────────────────────────────────────────
+        [Header("Feedback")]
+        [SerializeField] private bool collectFeedback = true;
+        [SerializeField] private bool sendFeedbackToRuntime = true;
+        [SerializeField] private bool sendLiveValidationFeedback = true;
 
-        // EntityID → Unity GameObject
-        private readonly Dictionary<ulong, GameObject> _entityMap = new();
+        public event Action<ulong, int> OnSnapshotApplied;
+        public event Action<Dictionary<string, object>> OnFeedbackReady;
+        public event Action<XacePlaybackCommand, bool> OnPlaybackCommandApplied;
 
-        // Prefab registry: actor_id → Prefab
-        private readonly Dictionary<string, GameObject> _prefabRegistry = new();
+        private readonly Dictionary<ulong, GameObject> entityMap = new Dictionary<ulong, GameObject>();
+        private readonly Dictionary<string, GameObject> prefabRegistry = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+        private readonly List<Dictionary<string, object>> feedbackQueue = new List<Dictionary<string, object>>();
 
-        // Pending feedback to send this tick (collected during Apply*, dispatched in LateUpdate)
-        private readonly List<FeedbackMessage> _pendingFeedback = new();
+        private XaceTransport transport;
+        private ulong currentTick;
+        private ulong generatedFrame;
+        private bool transportSubscribed;
 
-        private XaceTransport _transport;
-        private ulong         _currentTick;
-        private ulong         _currentFrame;
-
-        // ── Unity Lifecycle ────────────────────────────────────────────────
+        public int EntityCount => entityMap.Count;
+        public ulong CurrentTick => currentTick;
 
         private void Awake()
         {
-            _transport = GetComponent<XaceTransport>();
-            if (_sceneRoot == null)
-            {
-                var root = new GameObject("XaceScene");
-                _sceneRoot = root.transform;
-            }
+            EnsureTransport();
+            EnsureSceneRoot();
         }
 
         private void OnEnable()
         {
-            if (_transport != null)
-                _transport.OnMessageReceived += OnMessageReceived;
+            SubscribeTransport();
+        }
+
+        private void Start()
+        {
+            SubscribeTransport();
         }
 
         private void OnDisable()
         {
-            if (_transport != null)
-                _transport.OnMessageReceived -= OnMessageReceived;
+            UnsubscribeTransport();
+        }
+
+        private bool EnsureTransport()
+        {
+            if (transport == null)
+                transport = GetComponent<XaceTransport>();
+            return transport != null;
+        }
+
+        private void SubscribeTransport()
+        {
+            if (transportSubscribed || !EnsureTransport())
+                return;
+            transport.OnHandshakeAccepted += OnHandshakeAccepted;
+            transport.OnTickSnapshot += ApplyTickSnapshot;
+            transportSubscribed = true;
+        }
+
+        private void UnsubscribeTransport()
+        {
+            if (!transportSubscribed || transport == null)
+                return;
+            transport.OnHandshakeAccepted -= OnHandshakeAccepted;
+            transport.OnTickSnapshot -= ApplyTickSnapshot;
+            transportSubscribed = false;
         }
 
         private void LateUpdate()
         {
-            // Collect animation state feedback from all tracked Animators
-            CollectAnimationFeedback();
-
-            // Dispatch all pending feedback messages as one FEEDBACK WireMessage
-            if (_pendingFeedback.Count > 0)
-                FlushFeedback();
-
-            _currentFrame++;
-        }
-
-        // ── Message Routing ────────────────────────────────────────────────
-
-        private void OnMessageReceived(WireMessage msg)
-        {
-            if (msg.IsSnapshot)
-                ApplySnapshot(msg);
-            else if (msg.IsDelta)
-                ApplyDelta(msg);
-        }
-
-        // ── Snapshot Application ───────────────────────────────────────────
-
-        private void ApplySnapshot(WireMessage msg)
-        {
-            var snapshot = JsonUtility.FromJson<SnapshotPayload>(msg.payload);
-            if (snapshot == null) return;
-
-            _currentTick = snapshot.tick;
-
-            // Clear all existing scene entities — full rebuild
-            foreach (var go in _entityMap.Values)
-                if (go != null) Destroy(go);
-            _entityMap.Clear();
-
-            foreach (var entity in snapshot.entities)
-                SpawnEntity(entity.entity_id, entity.actor_id, entity.components);
-
-            Debug.Log($"[XaceDeltaApplicator] Snapshot applied: tick={snapshot.tick}, " +
-                      $"entities={snapshot.entities?.Length ?? 0}");
-        }
-
-        // ── Delta Application ──────────────────────────────────────────────
-
-        private void ApplyDelta(WireMessage msg)
-        {
-            var delta = JsonUtility.FromJson<DeltaPayload>(msg.payload);
-            if (delta == null) return;
-
-            _currentTick = delta.tick;
-
-            // D4 order: spawn → add_components → modify → remove_components → destroy
-            if (delta.spawned_entities != null)
-                foreach (var spawned in delta.spawned_entities)
-                    SpawnEntity(spawned.entity_id, spawned.actor_id, spawned.initial_components);
-
-            if (delta.added_components != null)
-                foreach (var added in delta.added_components)
-                    ApplyComponentAdd(added.entity_id, added.component);
-
-            if (delta.modified_entities != null)
-                foreach (var modified in delta.modified_entities)
-                    ApplyEntityUpdate(modified);
-
-            if (delta.removed_components != null)
-                foreach (var removed in delta.removed_components)
-                    ApplyComponentRemove(removed.entity_id, removed.component_type_id);
-
-            if (delta.destroyed_entities != null)
-                foreach (var destroyed in delta.destroyed_entities)
-                    DestroyEntity(destroyed.entity_id);
-        }
-
-        // ── Entity Spawn / Destroy ─────────────────────────────────────────
-
-        private void SpawnEntity(ulong entityId, string actorId, WireComponentData[] components)
-        {
-            if (_entityMap.ContainsKey(entityId))
-            {
-                Debug.LogWarning($"[XaceDeltaApplicator] Entity {entityId} already exists. Skipping spawn.");
+            generatedFrame++;
+            if (!collectFeedback)
                 return;
+            CollectAnimationFeedback();
+            CollectPhysicsFeedback();
+            FlushFeedback();
+        }
+
+        public void RegisterPrefab(string actorId, GameObject prefab)
+        {
+            if (string.IsNullOrWhiteSpace(actorId) || prefab == null)
+                return;
+            prefabRegistry[actorId.Trim()] = prefab;
+        }
+
+        public GameObject GetEntity(ulong entityId)
+        {
+            entityMap.TryGetValue(entityId, out var go);
+            return go;
+        }
+
+        public IReadOnlyDictionary<ulong, GameObject> Entities => entityMap;
+
+        public void BindTransportNow()
+        {
+            SubscribeTransport();
+        }
+
+        private void OnHandshakeAccepted(XaceHandshakeAck ack)
+        {
+            EnsureSceneRoot();
+            ApplyEntityList(0, ack.initial_entities, true, new List<ulong>());
+        }
+
+        private void ApplyTickSnapshot(XaceTickSnapshot snapshot)
+        {
+            var started = Time.realtimeSinceStartupAsDouble;
+            EnsureSceneRoot();
+            currentTick = snapshot.tick;
+            ApplyEntityList(snapshot.tick, snapshot.entities, removeMissingSnapshotEntities, snapshot.destroyed_ids);
+            ApplyPlaybackCommands(snapshot.playback_commands);
+            var elapsedMs = Math.Max(0.0, (Time.realtimeSinceStartupAsDouble - started) * 1000.0);
+            QueueLiveValidationFeedback(snapshot.tick, "tick_snapshot", OperationCount(snapshot.entities, snapshot.destroyed_ids), elapsedMs);
+            FlushFeedback();
+        }
+
+        private void ApplyEntityList(ulong tick, List<XaceEntityState> entities, bool removeMissing, List<ulong> destroyedIds)
+        {
+            EnsureSceneRoot();
+
+            if (destroyedIds != null)
+            {
+                foreach (var entityId in destroyedIds)
+                    DestroyEntity(entityId);
             }
 
-            GameObject go = InstantiateForActor(actorId);
-            go.name = $"Entity_{entityId}_{actorId}";
-            go.transform.SetParent(_sceneRoot, false);
+            var seen = new HashSet<ulong>();
+            if (entities != null)
+            {
+                foreach (var entity in entities)
+                {
+                    if (entity == null || entity.id == 0)
+                        continue;
+                    seen.Add(entity.id);
+                    UpsertEntity(entity);
+                }
+            }
 
-            // Tag with XACE entity ID for lookup
-            var marker = go.AddComponent<XaceEntityMarker>();
-            marker.EntityId = entityId;
-            marker.ActorId  = actorId;
+            if (removeMissing)
+            {
+                var toRemove = new List<ulong>();
+                foreach (var entityId in entityMap.Keys)
+                {
+                    if (!seen.Contains(entityId))
+                        toRemove.Add(entityId);
+                }
+                foreach (var entityId in toRemove)
+                    DestroyEntity(entityId);
+            }
 
-            _entityMap[entityId] = go;
+            OnSnapshotApplied?.Invoke(tick, entityMap.Count);
+        }
 
-            if (components != null)
-                foreach (var comp in components)
-                    ApplyComponent(go, comp);
+        private void QueueLiveValidationFeedback(ulong tick, string messageType, int operationCount, double elapsedMs)
+        {
+            if (!sendLiveValidationFeedback)
+                return;
+
+            EnqueueFeedback("PerformanceMetrics", 0, new SortedDictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["engine_delta_apply_ms"] = (float)Math.Max(0.0, elapsedMs),
+                ["draw_calls"] = 0,
+                ["physics_contacts"] = 0,
+                ["engine_entity_count"] = entityMap.Count,
+                ["generated_frame"] = tick,
+                ["xace_live_validation"] = true,
+                ["adapter_engine"] = "unity",
+                ["message_type"] = messageType ?? "",
+                ["operation_count"] = Math.Max(0, operationCount),
+                ["runtime_tick"] = tick
+            });
+        }
+
+        private static int OperationCount(List<XaceEntityState> entities, List<ulong> destroyedIds)
+        {
+            var count = entities != null ? entities.Count : 0;
+            count += destroyedIds != null ? destroyedIds.Count : 0;
+            return Math.Max(1, count);
+        }
+
+        private void ApplyPlaybackCommands(List<XacePlaybackCommand> commands)
+        {
+            if (commands == null)
+                return;
+
+            foreach (var command in commands)
+            {
+                if (command == null || command.entity_id == 0)
+                    continue;
+                if (!entityMap.TryGetValue(command.entity_id, out var go) || go == null)
+                {
+                    OnPlaybackCommandApplied?.Invoke(command, false);
+                    continue;
+                }
+
+                var marker = go.GetComponent<XaceEntityMarker>();
+                if (marker != null)
+                    marker.RecordPlaybackCommand(command);
+                var applied = TryApplyPlaybackCommand(go, command);
+                OnPlaybackCommandApplied?.Invoke(command, applied);
+            }
+        }
+
+        private bool TryApplyPlaybackCommand(GameObject go, XacePlaybackCommand command)
+        {
+            var kind = (command.playback_kind ?? "").Trim().ToLowerInvariant();
+            switch (kind)
+            {
+                case "audio":
+                    return TryApplyAudioCommand(go, command);
+                case "animation":
+                    return TryApplyAnimationCommand(go, command);
+                case "vfx":
+                    return TryApplyVfxCommand(go, command);
+                default:
+                    return false;
+            }
+        }
+
+        private bool TryApplyAudioCommand(GameObject go, XacePlaybackCommand command)
+        {
+            var source = go.GetComponentInChildren<AudioSource>();
+            var clip = LoadCommandResource<AudioClip>(command);
+            if (source == null && clip != null)
+                source = go.AddComponent<AudioSource>();
+            if (source == null)
+                return false;
+            if (clip != null)
+            {
+                source.PlayOneShot(clip);
+                return true;
+            }
+            if (source.clip != null)
+            {
+                source.Play();
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryApplyAnimationCommand(GameObject go, XacePlaybackCommand command)
+        {
+            var animator = go.GetComponentInChildren<Animator>();
+            var state = CommandParameter(command, "state", CommandParameter(command, "animation", command.semantic_action));
+            if (animator != null && !string.IsNullOrWhiteSpace(state))
+            {
+                var fade = CommandFloat(command, "fade_seconds", 0.05f);
+                animator.CrossFade(state.Trim(), Mathf.Max(0f, fade));
+                return true;
+            }
+
+            var legacy = go.GetComponentInChildren<Animation>();
+            var clip = LoadCommandResource<AnimationClip>(command);
+            if (legacy != null && clip != null)
+            {
+                var clipName = string.IsNullOrWhiteSpace(state) ? SafeAssetName(command) : state.Trim();
+                legacy.AddClip(clip, clipName);
+                legacy.Play(clipName);
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryApplyVfxCommand(GameObject go, XacePlaybackCommand command)
+        {
+            var prefab = LoadCommandResource<GameObject>(command);
+            if (prefab != null)
+            {
+                var instance = Instantiate(prefab, go.transform);
+                instance.name = "XACE_VFX_" + SafeAssetName(command);
+                foreach (var particle in instance.GetComponentsInChildren<ParticleSystem>())
+                    particle.Play(true);
+                return true;
+            }
+
+            var existing = go.GetComponentInChildren<ParticleSystem>();
+            if (existing == null)
+                return false;
+            existing.Play(true);
+            return true;
+        }
+
+        private T LoadCommandResource<T>(XacePlaybackCommand command) where T : UnityEngine.Object
+        {
+            var path = CommandResourcePath(command);
+            if (string.IsNullOrWhiteSpace(path))
+                return null;
+            return Resources.Load<T>(NormaliseResourcesPath(path));
+        }
+
+        private static string CommandResourcePath(XacePlaybackCommand command)
+        {
+            var path = CommandParameter(command, "resource_path", "");
+            if (string.IsNullOrWhiteSpace(path))
+                path = CommandParameter(command, "asset_path", "");
+            if (string.IsNullOrWhiteSpace(path))
+                path = CommandParameter(command, "path", "");
+            if (string.IsNullOrWhiteSpace(path) && command.asset != null)
+                path = command.asset.id ?? "";
+            return path.Trim();
+        }
+
+        private static string NormaliseResourcesPath(string path)
+        {
+            var clean = (path ?? "").Replace("\\", "/").Trim();
+            var resourcesIndex = clean.IndexOf("/Resources/", StringComparison.OrdinalIgnoreCase);
+            if (resourcesIndex >= 0)
+                clean = clean.Substring(resourcesIndex + "/Resources/".Length);
+            if (clean.StartsWith("Resources/", StringComparison.OrdinalIgnoreCase))
+                clean = clean.Substring("Resources/".Length);
+            var extension = System.IO.Path.GetExtension(clean);
+            if (!string.IsNullOrEmpty(extension))
+                clean = clean.Substring(0, clean.Length - extension.Length);
+            return clean;
+        }
+
+        private static string CommandParameter(XacePlaybackCommand command, string key, string fallback)
+        {
+            if (command == null || command.parameters == null || string.IsNullOrEmpty(key))
+                return fallback;
+            return command.parameters.TryGetValue(key, out var value) && value != null ? value : fallback;
+        }
+
+        private static float CommandFloat(XacePlaybackCommand command, string key, float fallback)
+        {
+            var raw = CommandParameter(command, key, "");
+            if (string.IsNullOrWhiteSpace(raw))
+                return fallback;
+            try { return Convert.ToSingle(raw, System.Globalization.CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        private static string SafeAssetName(XacePlaybackCommand command)
+        {
+            var id = command != null && command.asset != null ? command.asset.id : "";
+            if (string.IsNullOrWhiteSpace(id))
+                id = command != null ? command.binding_id : "playback";
+            return id.Replace(" ", "_").Replace("/", "_").Replace("\\", "_");
+        }
+
+        private void UpsertEntity(XaceEntityState state)
+        {
+            if (!entityMap.TryGetValue(state.id, out var go) || go == null)
+            {
+                go = InstantiateForEntity(state);
+                entityMap[state.id] = go;
+            }
+
+            var marker = go.GetComponent<XaceEntityMarker>();
+            if (marker == null)
+                marker = go.AddComponent<XaceEntityMarker>();
+            marker.EntityId = state.id;
+            marker.ActorId = ResolveActorId(state);
+            marker.SetComponents(state.components);
+
+            ApplyComponents(go, marker, state.components);
+        }
+
+        private GameObject InstantiateForEntity(XaceEntityState state)
+        {
+            EnsureSceneRoot();
+            var actorId = ResolveActorId(state);
+            GameObject go = null;
+            if (!string.IsNullOrEmpty(actorId) && prefabRegistry.TryGetValue(actorId, out var prefab) && prefab != null)
+                go = Instantiate(prefab, sceneRoot);
+            else if (fallbackPrefab != null)
+                go = Instantiate(fallbackPrefab, sceneRoot);
+            else if (createDebugCapsules)
+                go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            else
+                go = new GameObject();
+
+            go.name = "XACE_" + state.id + "_" + (string.IsNullOrEmpty(actorId) ? "Entity" : actorId);
+            go.transform.SetParent(sceneRoot, false);
+            EnsureLabel(go);
+            return go;
         }
 
         private void DestroyEntity(ulong entityId)
         {
-            if (!_entityMap.TryGetValue(entityId, out GameObject go))
+            if (!entityMap.TryGetValue(entityId, out var go))
+                return;
+            if (go != null)
+                Destroy(go);
+            entityMap.Remove(entityId);
+        }
+
+        private void ApplyComponents(GameObject go, XaceEntityMarker marker, SortedDictionary<uint, string> components)
+        {
+            if (components == null)
                 return;
 
-            // If Rigidbody is sleeping when destroyed, record its final position
-            var rb = go.GetComponent<Rigidbody>();
-            if (rb != null && rb.IsSleeping())
-                EnqueuePhysicsSettled(entityId, go.transform);
+            if (components.TryGetValue(TransformComponent, out var transformJson))
+                ApplyTransform(go.transform, transformJson);
 
-            Destroy(go);
-            _entityMap.Remove(entityId);
+            if (components.TryGetValue(InputComponent, out var inputJson))
+                marker.ControllerId = (int)GetNumber(ParseObject(inputJson), "controller_id", marker.ControllerId);
+
+            var actorId = ResolveActorId(marker.ActorId, components);
+            ApplyDebugMaterial(go, actorId);
+
+            var healthText = "";
+            if (components.TryGetValue(HealthComponent, out var healthJson))
+            {
+                var health = ParseObject(healthJson);
+                var current = GetNumber(health, "current", 0f);
+                var max = GetNumber(health, "max", 0f);
+                healthText = max > 0f ? string.Format(" {0:0}/{1:0}", current, max) : string.Format(" {0:0}", current);
+            }
+
+            var label = go.GetComponentInChildren<TextMesh>();
+            if (label != null)
+                label.text = (string.IsNullOrEmpty(actorId) ? marker.EntityId.ToString() : actorId) + healthText;
         }
 
-        private GameObject InstantiateForActor(string actorId)
+        private static void ApplyTransform(Transform transform, string json)
         {
-            if (!string.IsNullOrEmpty(actorId) && _prefabRegistry.TryGetValue(actorId, out var prefab) && prefab != null)
-                return Instantiate(prefab);
-            if (_fallbackPrefab != null)
-                return Instantiate(_fallbackPrefab);
-            return new GameObject();
+            var data = ParseObject(json);
+            var position = GetObject(data, "position");
+            var rotation = GetObject(data, "rotation");
+            var scale = GetObject(data, "scale");
+
+            if (position != null)
+                transform.localPosition = new Vector3(GetNumber(position, "x", 0f), GetNumber(position, "y", 0f), GetNumber(position, "z", 0f));
+            else if (HasAnyKey(data, "position_x", "position_y", "position_z"))
+                transform.localPosition = new Vector3(
+                    GetNumber(data, "position_x", transform.localPosition.x),
+                    GetNumber(data, "position_y", transform.localPosition.y),
+                    GetNumber(data, "position_z", transform.localPosition.z));
+            if (rotation != null)
+                transform.localRotation = new Quaternion(GetNumber(rotation, "x", 0f), GetNumber(rotation, "y", 0f), GetNumber(rotation, "z", 0f), GetNumber(rotation, "w", 1f));
+            else if (HasAnyKey(data, "rotation_x", "rotation_y", "rotation_z", "rotation_w"))
+                transform.localRotation = new Quaternion(
+                    GetNumber(data, "rotation_x", transform.localRotation.x),
+                    GetNumber(data, "rotation_y", transform.localRotation.y),
+                    GetNumber(data, "rotation_z", transform.localRotation.z),
+                    GetNumber(data, "rotation_w", transform.localRotation.w));
+            if (scale != null)
+                transform.localScale = new Vector3(GetNumber(scale, "x", 1f), GetNumber(scale, "y", 1f), GetNumber(scale, "z", 1f));
+            else if (HasAnyKey(data, "scale_x", "scale_y", "scale_z"))
+                transform.localScale = new Vector3(
+                    GetNumber(data, "scale_x", transform.localScale.x),
+                    GetNumber(data, "scale_y", transform.localScale.y),
+                    GetNumber(data, "scale_z", transform.localScale.z));
         }
 
-        // ── Component Application ──────────────────────────────────────────
-
-        private void ApplyEntityUpdate(EntityUpdate update)
+        private void EnsureSceneRoot()
         {
-            if (!_entityMap.TryGetValue(update.entity_id, out GameObject go))
+            if (sceneRoot != null)
                 return;
 
-            if (update.component_updates == null) return;
-            foreach (var cu in update.component_updates)
-                ApplyComponent(go, cu);
+            var root = new GameObject("XACE Scene");
+            sceneRoot = root.transform;
+            sceneRoot.SetParent(transform, false);
+            sceneRoot.localPosition = Vector3.zero;
+            sceneRoot.localRotation = Quaternion.identity;
+            sceneRoot.localScale = Vector3.one;
         }
 
-        private void ApplyComponentAdd(ulong entityId, WireComponentData component)
+        private string ResolveActorId(XaceEntityState state)
         {
-            if (!_entityMap.TryGetValue(entityId, out GameObject go)) return;
-            ApplyComponent(go, component);
+            if (!string.IsNullOrWhiteSpace(state.actor_id))
+                return state.actor_id.Trim();
+            return ResolveActorId("", state.components);
         }
 
-        private void ApplyComponentRemove(ulong entityId, uint componentTypeId)
+        private static string ResolveActorId(string fallback, SortedDictionary<uint, string> components)
         {
-            // Component removal — handled per-type; most types have no Unity remove equivalent
-            // For simplicity: log only. Full implementation per-component in Phase 9.
-            Debug.Log($"[XaceDeltaApplicator] Remove component {componentTypeId} from entity {entityId}");
-        }
-
-        private void ApplyComponent(GameObject go, WireComponentData comp)
-        {
-            if (comp == null || string.IsNullOrEmpty(comp.data_json)) return;
-
-            // Route by component_type_id (UCL Core IDs 1–10, DCL IDs 100+)
-            switch (comp.component_type_id)
+            if (components != null && components.TryGetValue(IdentityComponent, out var identityJson))
             {
-                case 1: ApplyTransform(go, comp.data_json); break;       // COMP_TRANSFORM_V1
-                case 3: ApplyRender(go, comp.data_json); break;           // COMP_RENDER_V1
-                case 7: ApplyInput(go, comp.data_json); break;            // COMP_INPUT_V1
-                case 121: ApplyAnimation(go, comp.data_json); break;      // COMP_ANIMATION_V2 (DCL)
-                case 141: ApplyRigidbody(go, comp.data_json); break;      // COMP_RIGIDBODY_V1 (DCL)
-                // Other components: stored for later use
-                default:
-                    var marker = go.GetComponent<XaceEntityMarker>();
-                    if (marker != null)
-                        marker.SetComponentData(comp.component_type_id, comp.data_json);
-                    break;
+                var identity = ParseObject(identityJson);
+                var name = GetString(identity, "entity_name", "");
+                if (!string.IsNullOrWhiteSpace(name))
+                    return name.Trim();
+                var type = GetString(identity, "entity_type", "");
+                if (!string.IsNullOrWhiteSpace(type))
+                    return type.Trim();
             }
+            return fallback ?? "";
         }
 
-        // ── COMP_TRANSFORM_V1 ──────────────────────────────────────────────
-
-        private static void ApplyTransform(GameObject go, string json)
+        private void ApplyDebugMaterial(GameObject go, string actorId)
         {
-            var data = JsonUtility.FromJson<TransformComponentData>(json);
-            if (data == null) return;
-            go.transform.localPosition = new Vector3(data.position.x, data.position.y, data.position.z);
-            go.transform.localRotation = new Quaternion(data.rotation.x, data.rotation.y, data.rotation.z, data.rotation.w);
-            go.transform.localScale    = new Vector3(data.scale.x, data.scale.y, data.scale.z);
+            var renderer = go.GetComponentInChildren<Renderer>();
+            if (renderer == null)
+                return;
+            var lower = (actorId ?? "").ToLowerInvariant();
+            if (lower.Contains("player") && playerMaterial != null)
+                renderer.sharedMaterial = playerMaterial;
+            else if ((lower.Contains("zombie") || lower.Contains("enemy")) && zombieMaterial != null)
+                renderer.sharedMaterial = zombieMaterial;
+            else if (neutralMaterial != null)
+                renderer.sharedMaterial = neutralMaterial;
         }
 
-        // ── COMP_RENDER_V1 ─────────────────────────────────────────────────
-
-        private static void ApplyRender(GameObject go, string json)
+        private static void EnsureLabel(GameObject go)
         {
-            var data = JsonUtility.FromJson<RenderComponentData>(json);
-            if (data == null) return;
-            var renderer = go.GetComponent<Renderer>();
-            if (renderer == null) return;
-            renderer.enabled = data.visible;
-            renderer.shadowCastingMode = data.cast_shadows
-                ? UnityEngine.Rendering.ShadowCastingMode.On
-                : UnityEngine.Rendering.ShadowCastingMode.Off;
+            if (go.GetComponentInChildren<TextMesh>() != null)
+                return;
+            var labelObject = new GameObject("XACE Label");
+            labelObject.transform.SetParent(go.transform, false);
+            labelObject.transform.localPosition = new Vector3(0f, 1.25f, 0f);
+            var text = labelObject.AddComponent<TextMesh>();
+            text.anchor = TextAnchor.MiddleCenter;
+            text.alignment = TextAlignment.Center;
+            text.characterSize = 0.12f;
+            text.fontSize = 48;
         }
 
-        // ── COMP_ANIMATION_V2 (Audit 3) ────────────────────────────────────
-
-        private void ApplyAnimation(GameObject go, string json)
-        {
-            var data = JsonUtility.FromJson<AnimationComponentData>(json);
-            var animator = go.GetComponent<Animator>();
-            if (animator == null || data == null) return;
-
-            // Apply playback speed
-            animator.speed = data.playback_speed;
-
-            // Apply parameters
-            if (data.parameters != null)
-                foreach (var param in data.parameters)
-                    ApplyAnimatorParameter(animator, param);
-
-            // Register this animator for feedback collection in LateUpdate
-            var marker = go.GetComponent<XaceEntityMarker>();
-            if (marker != null)
-                marker.TrackedAnimator = animator;
-
-            // Apply pending animation events → register callbacks on Animator
-            // Events fire as AnimationEventFiredFeedback when triggered (Audit 3)
-            if (data.pending_events != null)
-                foreach (var evt in data.pending_events)
-                    if (!evt.is_consumed)
-                        RegisterAnimationEventCallback(go, marker?.EntityId ?? 0, evt);
-        }
-
-        private static void ApplyAnimatorParameter(Animator animator, AnimationParameter param)
-        {
-            switch (param.type?.ToUpperInvariant())
-            {
-                case "FLOAT":   animator.SetFloat(param.name, param.float_value); break;
-                case "BOOL":    animator.SetBool(param.name, param.bool_value); break;
-                case "INT":     animator.SetInteger(param.name, param.int_value); break;
-                case "TRIGGER": animator.SetTrigger(param.name); break;
-            }
-        }
-
-        private void RegisterAnimationEventCallback(GameObject go, ulong entityId, PendingAnimEvent evt)
-        {
-            // StateMachineBehaviour-based event detection for specific normalized times
-            // Registered per-state on the Animator Controller states
-            // In Phase 9 this is replaced by a proper AnimationEventBehaviour component
-            var probe = go.AddComponent<XaceAnimationEventProbe>();
-            probe.Init(entityId, evt.event_id, evt.state_name, evt.trigger_at_normalized_time,
-                       _pendingFeedback, _currentFrame);
-        }
-
-        // ── COMP_RIGIDBODY_V1 ──────────────────────────────────────────────
-
-        private static void ApplyRigidbody(GameObject go, string json)
-        {
-            var data = JsonUtility.FromJson<RigidbodyComponentData>(json);
-            var rb   = go.GetComponent<Rigidbody>() ?? go.AddComponent<Rigidbody>();
-            if (data == null) return;
-
-            rb.mass          = data.mass;
-            rb.linearDamping        = data.drag;
-            rb.angularDamping = data.angular_drag;
-            rb.useGravity    = data.use_gravity;
-            rb.isKinematic   = data.is_kinematic;
-        }
-
-        // ── COMP_INPUT_V1 ──────────────────────────────────────────────────
-
-        private static void ApplyInput(GameObject go, string json)
-        {
-            // Input component sets which controller index this entity responds to.
-            // XaceInputCollector reads this to know which player's input to collect.
-            var data   = JsonUtility.FromJson<InputComponentData>(json);
-            var marker = go.GetComponent<XaceEntityMarker>();
-            if (marker != null && data != null)
-                marker.ControllerId = data.controller_id;
-        }
-
-        // ── Feedback Collection ────────────────────────────────────────────
-
-        /// <summary>
-        /// Collects animation state from all tracked Animators.
-        /// Called every LateUpdate — dispatched to XACE as AnimationStateUpdateFeedback.
-        /// </summary>
         private void CollectAnimationFeedback()
         {
-            foreach (var kv in _entityMap)
+            foreach (var pair in entityMap)
             {
-                var marker = kv.Value?.GetComponent<XaceEntityMarker>();
-                if (marker?.TrackedAnimator == null) continue;
+                var marker = pair.Value != null ? pair.Value.GetComponent<XaceEntityMarker>() : null;
+                var animator = marker != null ? marker.GetComponentInChildren<Animator>() : null;
+                if (animator == null || animator.layerCount == 0)
+                    continue;
 
-                var animator = marker.TrackedAnimator;
-                var stateUpdate = new AnimationStateUpdateFeedback
+                var layers = new List<object>();
+                var times = new List<object>();
+                for (var layer = 0; layer < animator.layerCount; layer++)
                 {
-                    entity_id           = kv.Key,
-                    generated_frame     = _currentFrame,
-                    is_transitioning    = animator.IsInTransition(0),
-                };
-
-                // Collect state info per layer
-                int layerCount = animator.layerCount;
-                stateUpdate.active_state_per_layer    = new string[layerCount];
-                stateUpdate.normalized_time_per_layer = new float[layerCount];
-
-                for (int i = 0; i < layerCount; i++)
-                {
-                    var info = animator.GetCurrentAnimatorStateInfo(i);
-                    stateUpdate.active_state_per_layer[i]    = animator.GetLayerName(i);
-                    stateUpdate.normalized_time_per_layer[i] = info.normalizedTime % 1.0f;
+                    layers.Add(animator.GetLayerName(layer));
+                    times.Add(animator.GetCurrentAnimatorStateInfo(layer).normalizedTime % 1f);
                 }
 
-                EnqueueFeedback(FeedbackType.AnimationStateUpdate, kv.Key,
-                                JsonUtility.ToJson(stateUpdate));
+                EnqueueFeedback("AnimationStateUpdate", pair.Key, new SortedDictionary<string, object>(StringComparer.Ordinal)
+                {
+                    ["entity_id"] = pair.Key,
+                    ["generated_frame"] = generatedFrame,
+                    ["is_transitioning"] = animator.IsInTransition(0),
+                    ["active_state_per_layer"] = layers,
+                    ["normalized_time_per_layer"] = times
+                });
             }
         }
 
-        private void EnqueuePhysicsSettled(ulong entityId, Transform t)
+        private void CollectPhysicsFeedback()
         {
-            var settled = new PhysicsSettledFeedback
+            foreach (var pair in entityMap)
             {
-                entity_id          = entityId,
-                generated_frame    = _currentFrame,
-                final_position_json = $"{{\"x\":{t.position.x},\"y\":{t.position.y},\"z\":{t.position.z}}}",
-                final_rotation_json = $"{{\"x\":{t.rotation.x},\"y\":{t.rotation.y}," +
-                                      $"\"z\":{t.rotation.z},\"w\":{t.rotation.w}}}",
-            };
-            EnqueueFeedback(FeedbackType.PhysicsSettled, entityId, JsonUtility.ToJson(settled));
+                var body = pair.Value != null ? pair.Value.GetComponent<Rigidbody>() : null;
+                if (body == null || !body.IsSleeping())
+                    continue;
+
+                var t = pair.Value.transform;
+                EnqueueFeedback("PhysicsSettled", pair.Key, new SortedDictionary<string, object>(StringComparer.Ordinal)
+                {
+                    ["entity_id"] = pair.Key,
+                    ["generated_frame"] = generatedFrame,
+                    ["final_position_json"] = VectorJson(t.position),
+                    ["final_rotation_json"] = QuaternionJson(t.rotation)
+                });
+            }
         }
 
-        private void EnqueueFeedback(FeedbackType type, ulong entityId, string payloadJson)
+        private void EnqueueFeedback(string feedbackType, ulong entityId, SortedDictionary<string, object> payload)
         {
-            _pendingFeedback.Add(new FeedbackMessage
+            var feedback = new SortedDictionary<string, object>(StringComparer.Ordinal)
             {
-                feedback_type   = (int)type,
-                entity_id       = entityId,
-                generated_frame = _currentFrame,
-                payload_json    = payloadJson,
-            });
+                ["feedback_type"] = feedbackType,
+                ["entity_id"] = entityId,
+                ["generated_frame"] = generatedFrame,
+                ["payload_json"] = XaceJson.Serialize(payload)
+            };
+            feedbackQueue.Add(new Dictionary<string, object>(feedback));
         }
 
         private void FlushFeedback()
         {
-            var batch = new FeedbackPayload
+            if (feedbackQueue.Count == 0)
+                return;
+
+            foreach (var feedback in feedbackQueue)
+                OnFeedbackReady?.Invoke(feedback);
+
+            if (sendFeedbackToRuntime && transport != null)
             {
-                tick     = _currentTick,
-                messages = _pendingFeedback.ToArray(),
-            };
-            _transport.SendFeedback(batch);
-            _pendingFeedback.Clear();
-        }
-
-        // ── Prefab Registry ────────────────────────────────────────────────
-
-        /// <summary>
-        /// Registers a prefab for a given actor_id. Call from your game setup code
-        /// before the first SNAPSHOT arrives.
-        /// </summary>
-        public void RegisterPrefab(string actorId, GameObject prefab)
-        {
-            _prefabRegistry[actorId] = prefab;
-        }
-
-        /// <summary>Returns the GameObject for a given EntityID, or null.</summary>
-        public GameObject GetEntity(ulong entityId)
-            => _entityMap.TryGetValue(entityId, out var go) ? go : null;
-    }
-
-    // ── Entity Marker Component ────────────────────────────────────────────────
-
-    public class XaceEntityMarker : MonoBehaviour
-    {
-        public ulong   EntityId;
-        public string  ActorId;
-        public int     ControllerId;
-        public Animator TrackedAnimator;
-
-        private readonly Dictionary<uint, string> _componentData = new();
-
-        public void SetComponentData(uint typeId, string json) => _componentData[typeId] = json;
-        public bool TryGetComponentData(uint typeId, out string json) => _componentData.TryGetValue(typeId, out json);
-    }
-
-    // ── Animation Event Probe ──────────────────────────────────────────────────
-
-    /// <summary>
-    /// Watches a specific animation state and fires feedback when the
-    /// normalizedTime passes the trigger point (Audit 3 pending_events).
-    /// </summary>
-    public class XaceAnimationEventProbe : MonoBehaviour
-    {
-        private ulong   _entityId;
-        private string  _eventId;
-        private string  _stateName;
-        private float   _triggerTime;
-        private bool    _fired;
-        private List<FeedbackMessage> _feedbackQueue;
-        private ulong   _baseFrame;
-        private Animator _animator;
-
-        public void Init(ulong entityId, string eventId, string stateName,
-                         float triggerTime, List<FeedbackMessage> queue, ulong baseFrame)
-        {
-            _entityId      = entityId;
-            _eventId       = eventId;
-            _stateName     = stateName;
-            _triggerTime   = triggerTime;
-            _feedbackQueue = queue;
-            _baseFrame     = baseFrame;
-            _animator      = GetComponent<Animator>();
-        }
-
-        private void Update()
-        {
-            if (_fired || _animator == null) return;
-            var info = _animator.GetCurrentAnimatorStateInfo(0);
-            if (!info.IsName(_stateName)) return;
-            float normalized = info.normalizedTime % 1.0f;
-            if (normalized >= _triggerTime)
-            {
-                _fired = true;
-                var firedFeedback = new AnimationEventFiredFeedback
+                var batch = new SortedDictionary<string, object>(StringComparer.Ordinal)
                 {
-                    entity_id                  = _entityId,
-                    event_id                   = _eventId,
-                    state_name                 = _stateName,
-                    trigger_at_normalized_time = normalized,
-                    generated_frame            = _baseFrame,
+                    ["msg_type"] = "feedback_payload",
+                    ["tick"] = currentTick,
+                    ["messages"] = new List<object>(feedbackQueue)
                 };
-                _feedbackQueue.Add(new FeedbackMessage
-                {
-                    feedback_type   = (int)FeedbackType.AnimationEventFired,
-                    entity_id       = _entityId,
-                    generated_frame = _baseFrame,
-                    payload_json    = JsonUtility.ToJson(firedFeedback),
-                });
-                Destroy(this); // one-shot
+                transport.SendDictionaryImmediately(batch);
             }
+
+            feedbackQueue.Clear();
+        }
+
+        private static Dictionary<string, object> ParseObject(string json)
+        {
+            return XaceJson.DeserializeObject(json) ?? new Dictionary<string, object>();
+        }
+
+        private static Dictionary<string, object> GetObject(Dictionary<string, object> obj, string key)
+        {
+            return XaceJsonValue.Get(obj, key) as Dictionary<string, object>;
+        }
+
+        private static string GetString(Dictionary<string, object> obj, string key, string fallback)
+        {
+            var value = XaceJsonValue.Get(obj, key);
+            return value == null ? fallback : Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static float GetNumber(Dictionary<string, object> obj, string key, float fallback)
+        {
+            var value = XaceJsonValue.Get(obj, key);
+            if (value == null)
+                return fallback;
+            try { return Convert.ToSingle(value, System.Globalization.CultureInfo.InvariantCulture); }
+            catch { return fallback; }
+        }
+
+        private static bool HasAnyKey(Dictionary<string, object> obj, params string[] keys)
+        {
+            if (obj == null || keys == null)
+                return false;
+            foreach (var key in keys)
+            {
+                if (!string.IsNullOrEmpty(key) && obj.ContainsKey(key))
+                    return true;
+            }
+            return false;
+        }
+
+        private static string VectorJson(Vector3 v)
+        {
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{{\"x\":{0:R},\"y\":{1:R},\"z\":{2:R}}}", v.x, v.y, v.z);
+        }
+
+        private static string QuaternionJson(Quaternion q)
+        {
+            return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{{\"x\":{0:R},\"y\":{1:R},\"z\":{2:R},\"w\":{3:R}}}", q.x, q.y, q.z, q.w);
         }
     }
 
-    // ── Serializable Wire Payload Types ───────────────────────────────────────
-
-    [Serializable] public class Vec3  { public float x, y, z; }
-    [Serializable] public class Quat  { public float x, y, z, w; }
-
-    [Serializable] public class TransformComponentData
-    { public Vec3 position; public Quat rotation; public Vec3 scale; }
-
-    [Serializable] public class RenderComponentData
-    { public bool visible; public bool cast_shadows; }
-
-    [Serializable] public class RigidbodyComponentData
-    { public float mass; public float drag; public float angular_drag; public bool use_gravity; public bool is_kinematic; }
-
-    [Serializable] public class InputComponentData
-    { public int controller_id; public string control_type; }
-
-    [Serializable] public class AnimationParameter
-    { public string name; public string type; public float float_value; public bool bool_value; public int int_value; }
-
-    [Serializable] public class PendingAnimEvent
-    { public string event_id; public string state_name; public float trigger_at_normalized_time; public bool is_consumed; }
-
-    [Serializable] public class AnimationComponentData
+    public sealed class XaceEntityMarker : MonoBehaviour
     {
-        public float playback_speed;
-        public AnimationParameter[] parameters;
-        public PendingAnimEvent[]   pending_events;
+        public ulong EntityId;
+        public string ActorId;
+        public int ControllerId;
+
+        private readonly SortedDictionary<uint, string> componentData = new SortedDictionary<uint, string>();
+        private readonly List<XacePlaybackCommand> playbackCommands = new List<XacePlaybackCommand>();
+
+        public void SetComponents(SortedDictionary<uint, string> components)
+        {
+            componentData.Clear();
+            if (components == null)
+                return;
+            foreach (var pair in components)
+                componentData[pair.Key] = pair.Value;
+        }
+
+        public bool TryGetComponentData(uint typeId, out string json)
+        {
+            return componentData.TryGetValue(typeId, out json);
+        }
+
+        public IReadOnlyList<XacePlaybackCommand> PlaybackCommands => playbackCommands;
+
+        public void RecordPlaybackCommand(XacePlaybackCommand command)
+        {
+            if (command == null)
+                return;
+            playbackCommands.Add(command);
+            while (playbackCommands.Count > 32)
+                playbackCommands.RemoveAt(0);
+        }
     }
-
-    [Serializable] public class WireComponentData
-    { public uint component_type_id; public string component_type_name; public string data_json; }
-
-    [Serializable] public class WireSpawnedEntity
-    { public ulong entity_id; public string actor_id; public WireComponentData[] initial_components; }
-
-    [Serializable] public class WireDestroyedEntity { public ulong entity_id; }
-
-    [Serializable] public class WireRemovedComponent { public ulong entity_id; public uint component_type_id; }
-
-    [Serializable] public class WireAddedComponent { public ulong entity_id; public WireComponentData component; }
-
-    [Serializable] public class EntityUpdate
-    { public ulong entity_id; public WireComponentData[] component_updates; }
-
-    [Serializable] public class DeltaPayload
-    {
-        public ulong  tick;
-        public ulong  sequence_id;
-        public string schema_version;
-        public WireSpawnedEntity[]  spawned_entities;
-        public WireAddedComponent[] added_components;
-        public EntityUpdate[]       modified_entities;
-        public WireRemovedComponent[] removed_components;
-        public WireDestroyedEntity[]  destroyed_entities;
-    }
-
-    [Serializable] public class SnapshotEntity
-    { public ulong entity_id; public string actor_id; public WireComponentData[] components; }
-
-    [Serializable] public class SnapshotPayload
-    { public ulong tick; public string schema_version; public SnapshotEntity[] entities; }
-
-    // ── Feedback Payload Types ─────────────────────────────────────────────────
-
-    public enum FeedbackType { AnimationStateUpdate=0, AnimationEventFired=1, PhysicsSettled=2, VisibilityQueryResult=3, AudioComplete=4, AudioPositionUpdate=5, InputDeviceUpdate=6, PerformanceMetrics=7, AssetResolutionUpdate=8, EngineError=9 }
-
-    [Serializable] public class FeedbackMessage
-    { public int feedback_type; public ulong entity_id; public ulong generated_frame; public string payload_json; }
-
-    [Serializable] public class FeedbackPayload { public ulong tick; public FeedbackMessage[] messages; }
-
-    [Serializable] public class AnimationStateUpdateFeedback
-    { public ulong entity_id; public ulong generated_frame; public bool is_transitioning; public string[] active_state_per_layer; public float[] normalized_time_per_layer; }
-
-    [Serializable] public class AnimationEventFiredFeedback
-    { public ulong entity_id; public string event_id; public string state_name; public float trigger_at_normalized_time; public ulong generated_frame; }
-
-    [Serializable] public class PhysicsSettledFeedback
-    { public ulong entity_id; public string final_position_json; public string final_rotation_json; public ulong generated_frame; }
-}— spawns/destroys GameObjects, updates components, maps canonical->Unity data — Phase 7
+}

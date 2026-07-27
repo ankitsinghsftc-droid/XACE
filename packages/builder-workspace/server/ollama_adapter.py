@@ -1,51 +1,34 @@
 """
-ollama_adapter.py - Local Ollama adapter for the builder PIL pipeline.
+Inference-backed local Ollama adapter for Builder prompt flows.
 
-This intentionally mirrors the tiny surface SessionManager needs:
-    - list_models()
-    - is_healthy()
-    - call(request)
-    - create_ollama_adapter(...)
-
-It talks to Ollama's local HTTP API without adding third-party dependencies.
+The HTTP client lives in packages/inference. This module preserves the small
+Builder-facing surface while keeping all model dispatch behind InferenceAdapter.
 """
 
 from __future__ import annotations
 
-import json
-import time
-import urllib.error
-import urllib.request
-from dataclasses import dataclass
+import sys
+from pathlib import Path
 from typing import Any
 
 
-DEFAULT_TEST_MODELS = ["auto", "llama3.2", "llama3.1"]
-AUTO_MODEL_ORDER = [
-    "llama3.2",
-    "llama3.2:latest",
-    "llama3.1",
-    "llama3.1:8b",
-    "llama3.1:70b",
-    "llama3.1:latest",
-]
+_PACKAGES_ROOT = Path(__file__).resolve().parents[2]
+if str(_PACKAGES_ROOT) not in sys.path:
+    sys.path.insert(0, str(_PACKAGES_ROOT))
+
+from inference.src.cache_key_builder import CacheKeyBuilder  # noqa: E402
+from inference.src.inference_adapter import InferenceAdapter, InferenceResponse  # noqa: E402
+from inference.src.inference_budget import InferenceBudget  # noqa: E402
+from inference.src.inference_retry_policy import InferenceRetryPolicy  # noqa: E402
+from inference.src.local_model_manager import LocalModelConfig, LocalModelManager  # noqa: E402
+from inference.src.model_descriptor import ComplexityTier, ModelCapability, ModelDescriptor  # noqa: E402
+from inference.src.prompt_cache import PromptCache  # noqa: E402
+from inference.src.provider_registry import ProviderRegistry  # noqa: E402
+from inference.src.response_cache import ResponseCache  # noqa: E402
+from inference.src.telemetry_pipeline import TelemetryPipeline  # noqa: E402
 
 
-@dataclass
-class OllamaResponse:
-    text: str
-    input_tokens: int = 0
-    output_tokens: int = 0
-    cache_read_tokens: int = 0
-    cache_write_tokens: int = 0
-    cost_cents: float = 0.0
-    model_id: str = ""
-    provider: str = "ollama"
-    latency_ms: float = 0.0
-    call_label: str = ""
-    request_id: str = ""
-    session_id: str = ""
-    cached: bool = False
+DEFAULT_TEST_MODELS = ["auto"]
 
 
 class OllamaAdapter:
@@ -56,97 +39,93 @@ class OllamaAdapter:
         timeout_seconds: float = 120.0,
     ) -> None:
         self._model = model or "auto"
-        self._base_url = base_url.rstrip("/")
-        self._timeout = timeout_seconds
+        self._manager = LocalModelManager(
+            LocalModelConfig(
+                base_url=base_url.rstrip("/"),
+                default_models=(),
+                auto_pull_on_miss=False,
+                timeout=int(timeout_seconds),
+            )
+        )
+        self._adapters: dict[str, InferenceAdapter] = {}
 
     def is_healthy(self) -> bool:
         return bool(self.list_models())
 
     def list_models(self) -> list[str]:
-        try:
-            data = self._request("GET", "/api/tags")
-        except Exception:
-            return []
+        return self._manager.available_models()
 
-        names: list[str] = []
-        for item in data.get("models", []):
-            name = item.get("name", "")
-            if isinstance(name, str) and name:
-                names.append(name)
-        return names
-
-    def call(self, request: Any) -> OllamaResponse:
+    def call(self, request: Any) -> InferenceResponse:
         model = self._resolve_model()
-        prompt = _request_prompt(request)
-        system_prompt = str(getattr(request, "system_prompt", "") or "")
-        started = time.time()
-
-        payload: dict[str, Any] = {
-            "model": model,
-            "prompt": prompt,
-            "stream": False,
-            "options": {
-                "temperature": float(getattr(request, "temperature", 0.0) or 0.0),
-                "num_predict": int(getattr(request, "max_tokens", 1200) or 1200),
-            },
-        }
-        if system_prompt:
-            payload["system"] = system_prompt
-
-        data = self._request("POST", "/api/generate", payload)
-        text = str(data.get("response", "") or "").strip()
-        latency_ms = (time.time() - started) * 1000.0
-
-        return OllamaResponse(
-            text=text,
-            input_tokens=int(data.get("prompt_eval_count", 0) or 0),
-            output_tokens=int(data.get("eval_count", 0) or 0),
-            model_id=model,
-            latency_ms=latency_ms,
-            call_label=str(getattr(request, "call_label", "") or ""),
-            request_id=str(getattr(request, "request_id", "") or ""),
-            session_id=str(getattr(request, "session_id", "") or ""),
-        )
+        return self._adapter_for(model).call(request)
 
     def _resolve_model(self) -> str:
         if self._model != "auto":
             return self._model
-
         installed = self.list_models()
-        installed_set = set(installed)
-        for candidate in AUTO_MODEL_ORDER:
-            if candidate in installed_set:
-                return candidate
         if installed:
             return installed[0]
-        return "llama3.2"
-
-    def _request(
-        self,
-        method: str,
-        path: str,
-        payload: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        body = None if payload is None else json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            self._base_url + path,
-            data=body,
-            method=method,
-            headers={"Content-Type": "application/json"},
+        raise RuntimeError(
+            "Ollama model is unresolved. Pull a local model or choose a hosted provider."
         )
-        try:
-            with urllib.request.urlopen(req, timeout=self._timeout) as resp:
-                raw = resp.read().decode("utf-8")
-        except urllib.error.URLError as exc:
-            raise RuntimeError(
-                f"Cannot connect to Ollama at {self._base_url}. "
-                "Run: ollama serve"
-            ) from exc
 
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError as exc:
-            raise RuntimeError(f"Ollama returned non-JSON: {raw[:200]}") from exc
+    def _adapter_for(self, model: str) -> InferenceAdapter:
+        adapter = self._adapters.get(model)
+        if adapter is not None:
+            return adapter
+
+        provider = "local"
+        registry = ProviderRegistry(
+            config={
+                "default_provider": provider,
+                "logical_model_map": {
+                    "cheap_validation": provider,
+                    "standard_mutation": provider,
+                    "premium_reasoning": provider,
+                },
+                "fallback_chains": {provider: []},
+            },
+            clients={provider: self._manager},
+        )
+        caps = frozenset({
+            ModelCapability.GENERATION,
+            ModelCapability.CODE_GEN,
+            ModelCapability.CRITIQUE,
+            ModelCapability.REASONING,
+            ModelCapability.FUNCTION_CALL,
+        })
+        for logical_name, tier in (
+            ("cheap_validation", ComplexityTier.M),
+            ("standard_mutation", ComplexityTier.L),
+            ("premium_reasoning", ComplexityTier.XL),
+        ):
+            registry.register_descriptor(ModelDescriptor(
+                logical_name=logical_name,
+                provider=provider,
+                model_id=model,
+                context_window_tokens=128_000,
+                max_output_tokens=8_192,
+                input_price_per_1k=0.0,
+                output_price_per_1k=0.0,
+                cache_write_price_per_1k=0.0,
+                cache_read_price_per_1k=0.0,
+                supports_cache_control=False,
+                default_tier=tier,
+                capabilities=caps,
+                notes="Local model selected from XACE Builder settings.",
+            ))
+
+        adapter = InferenceAdapter(
+            provider_registry=registry,
+            telemetry=TelemetryPipeline(),
+            budget=InferenceBudget(),
+            retry_policy=InferenceRetryPolicy(),
+            prompt_cache=PromptCache(),
+            response_cache=ResponseCache(),
+            cache_key_builder=CacheKeyBuilder(),
+        )
+        self._adapters[model] = adapter
+        return adapter
 
 
 def create_ollama_adapter(
@@ -164,12 +143,3 @@ def preferred_model_list(installed: list[str] | None = None) -> list[str]:
             seen.add(model)
             models.append(model)
     return models
-
-
-def _request_prompt(request: Any) -> str:
-    if hasattr(request, "full_prompt_text"):
-        return str(request.full_prompt_text())
-    parts = getattr(request, "prompt_parts", [])
-    if parts:
-        return "\n".join(str(getattr(part, "text", "") or "") for part in parts)
-    return str(getattr(request, "prompt", "") or "")

@@ -30,6 +30,7 @@ use xace_core::entity_id::EntityID;
 use xace_core::entity_metadata::Tick;
 use xace_core::errors::xace_error::XaceError;
 use xace_core::events::event_struct::Event;
+use xace_core::fixed_point::Fixed64;
 
 use xace_runtime_core::component_tables::component_table_store::ComponentTableStore;
 use xace_runtime_core::entity_store::entity_store::EntityStore;
@@ -155,7 +156,7 @@ impl WorldState {
             "Player must receive entity ID 1"
         );
 
-        for (type_id, json) in player_initial_components(0.0, 0.0) {
+        for (type_id, json) in player_initial_components(Fixed64::ZERO, Fixed64::ZERO) {
             self.component_tables
                 .add_component(player_id, type_id, json, 0)
                 .expect("Player component must be addable");
@@ -180,8 +181,8 @@ impl WorldState {
             );
 
             // Deterministic random starting position (D6)
-            let x = init_rng.next_f64_range(-20.0, 20.0) as f32;
-            let z = init_rng.next_f64_range(-20.0, 20.0) as f32;
+            let x = init_rng.next_fixed64_range(Fixed64::from_units(-20), Fixed64::from_units(20));
+            let z = init_rng.next_fixed64_range(Fixed64::from_units(-20), Fixed64::from_units(20));
 
             let components = zombie_initial_components(x, z, PLAYER_ENTITY_ID);
             for (type_id, json) in components {
@@ -310,9 +311,9 @@ impl<'a> ISystemContext for ZombieChaseContext<'a> {
         self.tick
     }
 
-    fn next_random(&mut self) -> Result<f64, XaceError> {
+    fn next_random(&mut self) -> Result<Fixed64, XaceError> {
         // D6: DeterministicRng only — seeded by (world_seed, system_id_str, tick)
-        Ok(self.rng.next_f64())
+        Ok(self.rng.next_fixed64())
     }
 
     // ── Write (all deferred via MutationGate — D4) ────────────────────────

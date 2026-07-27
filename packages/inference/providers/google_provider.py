@@ -86,10 +86,12 @@ class GoogleProvider(IProviderClient):
         api_key:        str,
         timeout:        int  = _DEFAULT_TIMEOUT,
         thinking_level: str  = "medium",   # "low" | "medium" | "high"
+        base_url:       str  = _API_BASE,
     ) -> None:
         self._api_key        = api_key
         self._timeout        = timeout
         self._thinking_level = thinking_level
+        self._api_base       = (base_url or _API_BASE).rstrip("/")
         self._headers        = {"Content-Type": "application/json"}
 
     # ── IProviderClient ───────────────────────────────────────────────────────
@@ -130,7 +132,7 @@ class GoogleProvider(IProviderClient):
     # ── Internal ──────────────────────────────────────────────────────────────
 
     def _model_url(self, model_id: str) -> str:
-        return f"{_API_BASE}/models/{model_id}:generateContent"
+        return f"{self._api_base}/models/{model_id}:generateContent"
 
     def _build_body(
         self,

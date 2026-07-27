@@ -1,5 +1,6 @@
 # ── Rust ──────────────────────────────────────────────────────
 target/
+target-*/
 Cargo.lock.bak
 
 # ── Python ────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ out/
 .cursor/
 .vscode/
 .idea/
+.VSCodeCounter/
 *.swp
 *.swo
 .DS_Store
@@ -45,6 +47,7 @@ Thumbs.db
 # ── Logs ──────────────────────────────────────────────────────
 *.log
 logs/
+.xace/proof/
 
 # ── Unity ─────────────────────────────────────────────────────
 adapters/unity/Library/

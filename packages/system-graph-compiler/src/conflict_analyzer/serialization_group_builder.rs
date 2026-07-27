@@ -27,7 +27,6 @@
 //! The final groups are sorted: systems within each group sorted by system_id,
 //! groups sorted by their minimum member system_id.
 
-use crate::compilation_error::EdgeType;
 use crate::graph_construction::hazard_detector::HazardDetector;
 use crate::graph_construction::system_edge::RawSystemGraph;
 use std::collections::{BTreeMap, BTreeSet};
@@ -213,7 +212,6 @@ impl SerializationGroupBuilder {
 mod tests {
     use super::*;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
-    use xace_core::runtime::phase_enum::PhaseEnum;
     use xace_core::schema::system_definition::SystemDefinition;
 
     fn def(id: &str, reads: Vec<u32>, writes: Vec<u32>) -> SystemDefinition {

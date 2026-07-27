@@ -60,6 +60,11 @@ pub enum AssetType {
     /// Engine maps this to: Unity AnimatorController, Godot AnimationTree.
     AnimationController,
 
+    /// A single animation clip that can be played or blended by the engine.
+    /// Engine maps this to: Unity AnimationClip, Godot Animation resource,
+    /// Unreal Animation Sequence.
+    AnimationClip,
+
     /// A short audio clip for sound effects.
     /// Played on demand by the audio system.
     /// Examples: footsteps, gunshots, UI clicks, impact sounds.
@@ -101,6 +106,7 @@ impl AssetType {
             AssetType::Texture => "texture",
             AssetType::Material => "material",
             AssetType::AnimationController => "anim",
+            AssetType::AnimationClip => "anim_clip",
             AssetType::AudioClip => "sfx",
             AssetType::AudioMusic => "music",
             AssetType::Sprite => "sprite",
@@ -117,6 +123,7 @@ impl AssetType {
             AssetType::Texture => "Texture",
             AssetType::Material => "Material",
             AssetType::AnimationController => "Animation Controller",
+            AssetType::AnimationClip => "Animation Clip",
             AssetType::AudioClip => "Audio Clip",
             AssetType::AudioMusic => "Music Track",
             AssetType::Sprite => "2D Sprite",
@@ -180,6 +187,11 @@ mod tests {
     }
 
     #[test]
+    fn animation_clip_naming_suffix() {
+        assert_eq!(AssetType::AnimationClip.naming_suffix(), "anim_clip");
+    }
+
+    #[test]
     fn visual_types_are_visual() {
         assert!(AssetType::Mesh.is_visual());
         assert!(AssetType::Texture.is_visual());
@@ -215,7 +227,11 @@ mod tests {
     #[test]
     fn display_name_is_human_readable() {
         assert_eq!(AssetType::Mesh.to_string(), "3D Mesh");
-        assert_eq!(AssetType::AnimationController.to_string(), "Animation Controller");
+        assert_eq!(
+            AssetType::AnimationController.to_string(),
+            "Animation Controller"
+        );
+        assert_eq!(AssetType::AnimationClip.to_string(), "Animation Clip");
         assert_eq!(AssetType::AudioMusic.to_string(), "Music Track");
     }
 
@@ -226,6 +242,7 @@ mod tests {
             AssetType::Texture,
             AssetType::Material,
             AssetType::AnimationController,
+            AssetType::AnimationClip,
             AssetType::AudioClip,
             AssetType::AudioMusic,
             AssetType::Sprite,

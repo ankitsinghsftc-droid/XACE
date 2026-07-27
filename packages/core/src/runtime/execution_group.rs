@@ -1,34 +1,40 @@
 //! # Execution Group
 //!
-//! A group of systems that run together within a single phase.
-//! Systems in a parallel group run concurrently. Systems in a
-//! sequential group run one after another in declared order.
+//! A group of systems scheduled together within a single phase.
+//! Groups marked `parallel=true` are SGC-parallel-eligible. The runtime's
+//! execution policy decides whether worker threads are used; the standalone
+//! runtime currently executes those groups deterministically one system at a
+//! time.
 //!
 //! ## What an Execution Group Is
 //! The SGC partitions systems within each phase into execution groups.
-//! A group is the unit of parallel/sequential scheduling in the runtime.
+//! A group is the unit of parallel-eligible/sequential scheduling in the
+//! runtime.
 //!
 //! Example ExecutionPlan for Simulation phase:
 //! Group 1 (sequential): [InputSystem]
-//! Group 2 (parallel):   [MovementSystem, AISystem, HealthRegenSystem]
+//! Group 2 (parallel-eligible): [MovementSystem, AISystem, HealthRegenSystem]
 //! Group 3 (sequential): [DamageSystem]
-//! Group 4 (parallel):   [AnimationSystem, AudioSystem]
+//! Group 4 (parallel-eligible): [AnimationSystem, AudioSystem]
 //!
 //! Group 2 runs only after Group 1 completes.
-//! Within Group 2, all three systems run concurrently.
+//! Within Group 2, all three systems are dependency-safe for concurrent
+//! execution, but the current standalone runtime policy invokes them
+//! sequentially.
 //! Group 3 runs only after Group 2 fully completes.
 //!
 //! ## Parallel Safety
 //! The SGC's parallelization_safety_model verifies that systems in
-//! a parallel group have no shared writes and no RAW hazards.
+//! a parallel-eligible group have no shared writes and no RAW hazards.
 //! If any hazard exists, systems are placed in separate sequential groups.
 //!
 //! ## Determinism (D1)
 //! Systems within a sequential group run in the exact order declared
 //! in the `systems` vec — never reordered at runtime.
-//! Systems within a parallel group produce deterministic output because
-//! the SGC only groups systems with truly independent write sets.
-//! Thread-local event buffers are merged in system_id order at phase end.
+//! Systems within a parallel-eligible group produce deterministic output
+//! because the SGC only groups systems with independent write sets. The
+//! standalone runtime currently executes these systems sequentially and merges
+//! event buffers in system_id order at phase end.
 
 use crate::runtime::phase_enum::PhaseEnum;
 use serde::{Deserialize, Serialize};
@@ -49,7 +55,7 @@ use serde::{Deserialize, Serialize};
 /// Some systems must not run in parallel even without data hazards —
 /// for example, systems that call external APIs or have hidden global state.
 /// `serialization_constraints` lists system IDs that must run sequentially
-/// even if the SGC's hazard analysis would allow parallelism.
+/// even if the SGC's hazard analysis would allow parallel eligibility.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ExecutionGroup {
     /// Unique identifier for this group within its phase.
@@ -61,23 +67,25 @@ pub struct ExecutionGroup {
     /// All systems in this group must be assigned to this phase.
     pub phase: PhaseEnum,
 
-    /// Whether systems in this group run in parallel.
-    /// true  = parallel execution (thread pool, deterministic merge)
+    /// Whether the SGC marked this group parallel-eligible.
+    /// true  = dependency-safe for parallel execution; runtime policy decides
+    ///         whether worker threads are used
     /// false = sequential execution (strict declaration order)
     pub parallel: bool,
 
     /// The system IDs in this group, in execution order.
     ///
     /// For sequential groups: systems run in this exact order.
-    /// For parallel groups: systems run concurrently but this order
-    /// is used for deterministic event buffer merge at phase end.
+    /// For SGC-parallel-eligible groups: this order is used for deterministic
+    /// invocation under the current sequential policy and for event buffer
+    /// merge at phase end.
     ///
     /// Always sorted by system_id within parallel groups (D11)
     /// to ensure deterministic merge order regardless of thread completion.
     pub systems: Vec<String>,
 
     /// System IDs within this group that must run sequentially
-    /// even though the group is marked parallel.
+    /// even though the group is marked parallel-eligible.
     ///
     /// Used for systems with hidden external dependencies that the
     /// SGC's static analysis cannot detect. Empty for most groups.
@@ -110,11 +118,13 @@ impl ExecutionGroup {
         }
     }
 
-    /// Creates a parallel execution group.
+    /// Creates a SGC-parallel-eligible execution group.
     ///
-    /// Systems run concurrently via thread pool.
-    /// SGC guarantees no shared writes and no RAW hazards between them.
-    /// Event buffers are merged in system_id order at phase end (D11).
+    /// SGC guarantees no shared writes and no RAW hazards between systems in
+    /// the group. The runtime execution policy decides whether this becomes
+    /// worker-thread execution; the standalone runtime currently uses
+    /// deterministic sequential invocation. Event buffers are merged in
+    /// system_id order at phase end (D11).
     pub fn parallel(
         group_id: impl Into<String>,
         phase: PhaseEnum,
@@ -156,8 +166,8 @@ impl ExecutionGroup {
             .any(|s| s == system_id)
     }
 
-    /// Returns true if this group is safe to run in parallel.
-    /// A parallel group with serialization constraints on ALL systems
+    /// Returns true if this group is parallel-eligible after constraints.
+    /// A parallel-eligible group with serialization constraints on ALL systems
     /// is effectively sequential and should have been marked as such.
     pub fn is_effectively_parallel(&self) -> bool {
         if !self.parallel {

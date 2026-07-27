@@ -25,6 +25,13 @@ One InferenceTelemetryEvent per call:
     latency_ms         — wall-clock time including retry
     outcome            — "success" | "cache_hit" | "deterministic_shortcut"
                          | "transport_error" | "budget_exceeded" | "schema_error"
+    attempt_count      — actual provider call attempts, 0 for cache/deterministic
+    retry_count        — retry attempts scheduled by the provider retry policy
+    timeout_seconds    — provider-call timeout policy recorded for this tier
+    rate_limited       — true when any attempt was classified as rate-limited
+    backoff_seconds    — total retry backoff scheduled for the call
+    failure_category   — stable provider failure category on failed outcomes
+    user_error_code    — deterministic user-facing error code, if failed
     cached             — True when response came from response_cache
 
 ## Storage Backends
@@ -39,12 +46,68 @@ writing to all backends.
 
 from __future__ import annotations
 
+import json
+import re
 import threading
 import time
-import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field, asdict, is_dataclass, replace
 from typing import Any
+
+try:
+    from secret_redaction import redact_value
+except Exception:  # pragma: no cover - inference can run outside Builder server.
+    REDACTED_SECRET = "[REDACTED_SECRET]"
+    _SECRET_KEY_NAMES = {
+        "api_key",
+        "apikey",
+        "key",
+        "token",
+        "access_token",
+        "refresh_token",
+        "authorization",
+        "x-api-key",
+        "x_api_key",
+        "secret",
+        "password",
+    }
+    _TOKEN_PATTERNS = (
+        re.compile(r"sk-ant-[A-Za-z0-9][A-Za-z0-9_\-]{8,}"),
+        re.compile(r"sk-[A-Za-z0-9][A-Za-z0-9_\-]{8,}"),
+        re.compile(r"AIza[0-9A-Za-z_\-]{20,}"),
+        re.compile(r"(?i)(Bearer\s+)[A-Za-z0-9._~+\-/=]{12,}"),
+        re.compile(r"(?i)((?:x-api-key|api-key)\s*[:=]\s*)[A-Za-z0-9._~+\-/=]{12,}"),
+    )
+
+    def _redact_text(value: Any) -> str:
+        text = "" if value is None else str(value)
+        for pattern in _TOKEN_PATTERNS:
+            if pattern.groups:
+                text = pattern.sub(lambda match: match.group(1) + REDACTED_SECRET, text)
+            else:
+                text = pattern.sub(REDACTED_SECRET, text)
+        return text
+
+    def redact_value(value: Any) -> Any:
+        if isinstance(value, str):
+            return _redact_text(value)
+        if isinstance(value, dict):
+            redacted: dict[Any, Any] = {}
+            for key, item in value.items():
+                key_text = str(key).strip().lower().replace("-", "_")
+                if key_text in _SECRET_KEY_NAMES or key_text.replace("_", "") in _SECRET_KEY_NAMES:
+                    redacted[key] = REDACTED_SECRET if item else item
+                else:
+                    redacted[key] = redact_value(item)
+            return redacted
+        if isinstance(value, list):
+            return [redact_value(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(redact_value(item) for item in value)
+        if is_dataclass(value) and not isinstance(value, type):
+            updates = {field: redact_value(getattr(value, field)) for field in value.__dataclass_fields__}
+            return replace(value, **updates)
+        return value
 
 
 # ── Telemetry Event ───────────────────────────────────────────────────────────
@@ -74,6 +137,14 @@ class InferenceTelemetryEvent:
     cached:             bool               = False
     timestamp:          float              = field(default_factory=time.time)
     provider_kind:      str                = "cloud"   # "cloud" | "local" | "deterministic" | "cache"
+    attempt_count:      int                = 0
+    retry_count:        int                = 0
+    timeout_seconds:    float              = 0.0
+    rate_limited:       bool               = False
+    backoff_seconds:    float              = 0.0
+    failure_category:   str                = ""
+    user_error_code:    str                = ""
+    retry_report:       dict[str, Any]     = field(default_factory=dict)
 
     @property
     def total_tokens(self) -> int:
@@ -85,7 +156,7 @@ class InferenceTelemetryEvent:
         return self.input_tokens + self.cache_read_tokens
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        return redact_value(asdict(self))
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict(), separators=(",", ":"))
@@ -117,10 +188,15 @@ class SessionTelemetrySummary:
     total_cache_write_tokens: int = 0
     total_cost_cents:   float = 0.0
     total_latency_ms:   float = 0.0
+    total_provider_attempts: int = 0
+    total_retries:      int   = 0
+    total_backoff_seconds: float = 0.0
+    rate_limited_calls: int   = 0
     calls_by_tier:      dict[str, int]   = field(default_factory=dict)
     calls_by_provider:  dict[str, int]   = field(default_factory=dict)
     calls_by_outcome:   dict[str, int]   = field(default_factory=dict)
     calls_by_provider_kind: dict[str, int] = field(default_factory=dict)  # cloud|local|deterministic|cache
+    calls_by_failure_category: dict[str, int] = field(default_factory=dict)
 
     def absorb(self, event: InferenceTelemetryEvent) -> None:
         self.total_calls          += 1
@@ -130,6 +206,11 @@ class SessionTelemetrySummary:
         self.total_cache_write_tokens += event.cache_write_tokens
         self.total_cost_cents     += event.cost_cents
         self.total_latency_ms     += event.latency_ms
+        self.total_provider_attempts += event.attempt_count
+        self.total_retries        += event.retry_count
+        self.total_backoff_seconds += event.backoff_seconds
+        if event.rate_limited:
+            self.rate_limited_calls += 1
 
         if event.cached:
             self.cached_calls += 1
@@ -144,6 +225,9 @@ class SessionTelemetrySummary:
             self.calls_by_outcome.get(event.outcome, 0) + 1
         self.calls_by_provider_kind[event.provider_kind] = \
             self.calls_by_provider_kind.get(event.provider_kind, 0) + 1
+        if event.failure_category:
+            self.calls_by_failure_category[event.failure_category] = \
+                self.calls_by_failure_category.get(event.failure_category, 0) + 1
 
     @property
     def cache_hit_rate(self) -> float:
@@ -304,6 +388,7 @@ class TelemetryPipeline:
         Emits one event to all backends and updates the session summary.
         Never raises — telemetry failures must not crash the caller.
         """
+        event = redact_value(event)
         with self._lock:
             # Update session summary
             if event.session_id not in self._summaries:

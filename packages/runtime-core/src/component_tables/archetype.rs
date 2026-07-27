@@ -5,7 +5,7 @@ One `Archetype` represents the set of entities sharing the same component compos
 
 ## Layout (Structure of Arrays)
 
-```
+```text
 Archetype { components: {1, 5, 100} }
 ├── entity_ids:  [e1, e2, e3, e4]                  ← aligned with column rows
 ├── columns:
@@ -38,8 +38,6 @@ Entity index for the swapped row is updated to point at the new row.
 */
 
 use std::collections::{BTreeMap, BTreeSet};
-
-use serde::{Deserialize, Serialize};
 
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId, TypeId};
 

@@ -9,8 +9,9 @@
 //!
 //! Every system is assigned to exactly one phase. The PhaseOrchestrator
 //! runs all systems in each phase before advancing to the next.
-//! Systems in the same phase may run in parallel if the SGC determines
-//! their read/write sets are conflict-free.
+//! Systems in the same phase may be grouped as parallel-eligible if the SGC
+//! determines their read/write sets are conflict-free. The runtime execution
+//! policy decides whether that eligibility uses worker threads.
 //!
 //! ## Relationship to ExecutionPhase in system_definition.rs
 //! ExecutionPhase (schema layer) and PhaseEnum (runtime layer) define
@@ -68,7 +69,7 @@ pub enum PhaseEnum {
     /// The main gameplay phase. Movement, AI, combat, physics,
     /// abilities, game state evaluation — all run here.
     /// Most systems are declared in this phase.
-    /// Parallel execution groups are most effective here.
+    /// Parallel-eligible execution groups are most effective here.
     Simulation = 2,
 
     /// Post-simulation processing.

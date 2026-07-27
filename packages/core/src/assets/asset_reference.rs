@@ -27,9 +27,9 @@
 //! An UNRESOLVED reference means the asset was referenced in a schema
 //! definition but never registered in the asset pipeline — this is a bug.
 
-use serde::{Deserialize, Serialize};
-use crate::assets::asset_type::AssetType;
 use crate::assets::asset_status::AssetStatus;
+use crate::assets::asset_type::AssetType;
+use serde::{Deserialize, Serialize};
 
 // ── Asset Reference ───────────────────────────────────────────────────────────
 
@@ -168,10 +168,7 @@ mod tests {
 
     #[test]
     fn placeholder_starts_as_placeholder() {
-        let r = AssetReference::placeholder(
-            "character_knight_mesh_v1",
-            AssetType::Mesh
-        );
+        let r = AssetReference::placeholder("character_knight_mesh_v1", AssetType::Mesh);
         assert!(r.is_placeholder());
         assert!(!r.is_renderable());
         assert!(r.is_committable());

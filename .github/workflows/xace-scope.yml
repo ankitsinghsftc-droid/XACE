@@ -1,0 +1,162 @@
+name: XACE Governance Guards
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  governance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate commercial scope record
+        run: python tools/commercial_scope_check.py
+      - name: Validate source inventory
+        run: python tools/source_inventory_check.py
+      - name: Validate workspace membership
+        run: python tools/workspace_membership_check.py
+      - name: Validate fake and skip register
+        run: python tools/fake_skip_register_check.py
+      - name: Validate production path rules
+        run: python tools/production_path_check.py
+      - name: Validate forbidden public claims
+        run: python tools/forbidden_claims_check.py
+      - name: Validate inference adapter boundary
+        run: python tools/inference_adapter_boundary_check.py
+      - name: Validate provider timeout retry policy
+        run: python tools/provider_timeout_retry_check.py
+      - name: Validate provider token cost accounting
+        run: python tools/provider_token_cost_accounting_check.py
+      - name: Validate deterministic simple edits
+        run: python tools/deterministic_simple_edit_benchmark.py --output target-deterministic-simple-edit-benchmark
+      - name: Validate hosted provider proof gate
+        run: python tools/hosted_provider_proof_gate.py --output target-hosted-provider-proof/hosted_provider_proof_report.json
+      - name: Validate provider route evidence gate
+        run: python tools/provider_route_evidence_check.py --output target-provider-route-evidence/provider_route_evidence_report.json
+  builder:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - name: Install Builder dependencies
+        run: npm ci
+      - name: Build Builder workspace
+        working-directory: packages/builder-workspace
+        run: npm run build
+      - name: Test Builder workspace
+        working-directory: packages/builder-workspace
+        run: npm run test
+  cgs-e2e-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check proof modules
+        run: python -m py_compile tools/cgs_end_to_end_proof.py tools/sgc_runtime_proof.py
+      - name: Build proof binaries
+        run: |
+          cargo build -p xace-runtime-core --bin xace_runtime --target-dir target-cgs-e2e-proof
+          cargo build -p xace-system-graph-compiler --target-dir target-cgs-e2e-proof
+      - name: Run end-to-end CGS proof
+        run: >-
+          python tools/cgs_end_to_end_proof.py
+          --runtime-bin target-cgs-e2e-proof/debug/xace_runtime
+          --sgc-bin target-cgs-e2e-proof/debug/xace-system-graph-compiler
+          --proof-root .xace/proof/cgs-e2e-ci
+          --target-dir target-cgs-e2e-proof
+          --run-id ci-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Upload end-to-end CGS proof
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cgs-e2e-proof-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xace/proof/cgs-e2e-ci/
+          retention-days: 30
+  replay-cross-platform-record:
+    name: replay-cross-platform-record-${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            os: ubuntu-latest
+          - platform: windows
+            os: windows-latest
+          - platform: macos
+            os: macos-latest
+    env:
+      XACE_REPLAY_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Check replay proof modules
+        run: python -m py_compile tools/replay_cross_platform_proof.py tools/sgc_runtime_proof.py
+      - name: Build replay proof binaries
+        run: |
+          cargo build -p xace-runtime-core --bin xace_runtime --target-dir target-replay-cross-platform
+          cargo build -p xace-system-graph-compiler --target-dir target-replay-cross-platform
+      - name: Record replay proof on ${{ matrix.platform }}
+        run: >-
+          python tools/replay_cross_platform_proof.py record
+          --target-dir target-replay-cross-platform
+          --proof-root .xace/proof/replay-cross-platform-ci
+          --run-id ${{ env.XACE_REPLAY_RUN_ID }}
+          --platform-key ${{ matrix.platform }}
+          --ticks 6
+          --world-seed 424242
+          --json
+      - name: Upload platform replay proof
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-cross-platform-${{ matrix.platform }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xace/proof/replay-cross-platform-ci/${{ env.XACE_REPLAY_RUN_ID }}/
+          retention-days: 30
+  replay-cross-platform-aggregate:
+    runs-on: ubuntu-latest
+    needs: replay-cross-platform-record
+    env:
+      XACE_REPLAY_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download platform replay proofs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: replay-cross-platform-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xace/proof/replay-cross-platform-ci/${{ env.XACE_REPLAY_RUN_ID }}
+          merge-multiple: true
+      - name: Aggregate cross-platform replay proof
+        run: >-
+          python tools/replay_cross_platform_proof.py aggregate
+          --proof-root .xace/proof/replay-cross-platform-ci
+          --run-id ${{ env.XACE_REPLAY_RUN_ID }}
+          --output .xace/proof/replay-cross-platform-ci/${{ env.XACE_REPLAY_RUN_ID }}/summary.json
+          --json
+      - name: Upload aggregate replay proof
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-cross-platform-summary-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .xace/proof/replay-cross-platform-ci/${{ env.XACE_REPLAY_RUN_ID }}/
+          retention-days: 30

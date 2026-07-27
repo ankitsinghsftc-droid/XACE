@@ -8,7 +8,7 @@ Chooses between BTreeMap and Archetype storage exactly ONCE at world init.
 
 ## Selection Logic (deterministic)
 
-```
+```text
 expected_max_entities ≥ entity_threshold (1000)  →  Archetype
 expected_max_entities <  entity_threshold        →  BTreeMap
 config.forced_strategy = Some(s)                 →  s   (override)

@@ -5,7 +5,7 @@ Pre-allocated byte buffer for passing state deltas from XACE to the engine.
 
 ## Access Pattern (single-tick contract)
 
-```
+```text
 engine calls:   xace_apply_input(...)
 engine calls:   xace_tick()          ← XACE writes delta to SharedDeltaBuffer
 engine calls:   xace_get_state_delta(out_buf, &out_len)   ← copies from SharedDeltaBuffer
@@ -18,7 +18,7 @@ get_state_delta — Unity's FixedUpdate runs on one thread and calls them in ord
 ## Zero Allocation on Hot Path
 
 The buffer is allocated once in `xace_init()` (`delta_buf_bytes` parameter).
-`write()` and `read()` never allocate. If the delta doesn't fit, `write()` 
+`write()` and `read()` never allocate. If the delta doesn't fit, `write()`
 returns `BufferError::TooSmall` rather than growing the buffer.
 
 This is a deliberate design choice for game engine use: unpredictable allocations
@@ -27,7 +27,6 @@ at startup (4 MB default covers all practical game state deltas at 60 Hz).
 */
 
 use std::fmt;
-
 
 // ── Buffer Error ──────────────────────────────────────────────────────────────
 
@@ -40,7 +39,8 @@ pub enum BufferError {
 impl fmt::Display for BufferError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::TooSmall { needed, capacity } => write!(f,
+            Self::TooSmall { needed, capacity } => write!(
+                f,
                 "Buffer too small: need {} bytes, capacity is {} bytes. \
                  Increase delta_buffer_bytes in engine_config.yaml.",
                 needed, capacity
@@ -50,15 +50,14 @@ impl fmt::Display for BufferError {
     }
 }
 
-
 // ── Shared Delta Buffer ───────────────────────────────────────────────────────
 
 /// Pre-allocated, fixed-capacity buffer for XACE → engine state deltas.
 ///
 /// Not thread-safe. Designed for single-threaded FixedUpdate use.
 pub struct SharedDeltaBuffer {
-    inner:    Vec<u8>,    // allocated once, never resized
-    fill_len: usize,      // bytes written in the last tick; 0 = no data yet
+    inner: Vec<u8>,  // allocated once, never resized
+    fill_len: usize, // bytes written in the last tick; 0 = no data yet
 }
 
 impl SharedDeltaBuffer {
@@ -69,7 +68,7 @@ impl SharedDeltaBuffer {
     pub fn new(capacity: usize) -> Self {
         assert!(capacity > 0, "SharedDeltaBuffer capacity must be > 0");
         let mut inner = Vec::with_capacity(capacity);
-        inner.resize(capacity, 0u8);   // pre-commit the memory (no page faults later)
+        inner.resize(capacity, 0u8); // pre-commit the memory (no page faults later)
         Self { inner, fill_len: 0 }
     }
 
@@ -80,11 +79,10 @@ impl SharedDeltaBuffer {
     pub fn write(&mut self, data: &[u8]) -> Result<(), BufferError> {
         if data.len() > self.inner.capacity() {
             return Err(BufferError::TooSmall {
-                needed:   data.len(),
+                needed: data.len(),
                 capacity: self.inner.capacity(),
             });
         }
-        let cap = self.inner.capacity();
         // Safety: inner.len() == capacity (set at construction and never shrunk)
         self.inner[..data.len()].copy_from_slice(data);
         self.fill_len = data.len();
@@ -106,7 +104,7 @@ impl SharedDeltaBuffer {
         }
         if out_buffer.len() < self.fill_len {
             return Err(BufferError::TooSmall {
-                needed:   self.fill_len,
+                needed: self.fill_len,
                 capacity: out_buffer.len(),
             });
         }
@@ -116,10 +114,14 @@ impl SharedDeltaBuffer {
 
     /// Returns the number of valid bytes from the last tick.
     /// Zero means no tick has been executed yet.
-    pub fn fill_len(&self) -> usize { self.fill_len }
+    pub fn fill_len(&self) -> usize {
+        self.fill_len
+    }
 
     /// Returns the maximum capacity.
-    pub fn capacity(&self) -> usize { self.inner.capacity() }
+    pub fn capacity(&self) -> usize {
+        self.inner.capacity()
+    }
 
     /// Clears the buffer. Next read will return `BufferError::Empty`.
     pub fn clear(&mut self) {
@@ -129,10 +131,14 @@ impl SharedDeltaBuffer {
 
 impl fmt::Debug for SharedDeltaBuffer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "SharedDeltaBuffer(fill={}/{} bytes)", self.fill_len, self.inner.capacity())
+        write!(
+            f,
+            "SharedDeltaBuffer(fill={}/{} bytes)",
+            self.fill_len,
+            self.inner.capacity()
+        )
     }
 }
-
 
 // ── Input Queue ───────────────────────────────────────────────────────────────
 
@@ -146,7 +152,9 @@ pub struct InputQueue {
 
 impl InputQueue {
     pub fn new() -> Self {
-        Self { pending: Vec::with_capacity(8) }
+        Self {
+            pending: Vec::with_capacity(8),
+        }
     }
 
     /// Enqueues one input packet. Called by xace_apply_input().
@@ -159,10 +167,16 @@ impl InputQueue {
         std::mem::take(&mut self.pending)
     }
 
-    pub fn len(&self) -> usize { self.pending.len() }
-    pub fn is_empty(&self) -> bool { self.pending.is_empty() }
+    pub fn len(&self) -> usize {
+        self.pending.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.pending.is_empty()
+    }
 }
 
 impl Default for InputQueue {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

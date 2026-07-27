@@ -19,6 +19,7 @@
 
 use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
+use xace_core::fixed_point::Fixed64;
 
 use crate::cgs::component_ids;
 use crate::cgs::parse_health_current;
@@ -53,7 +54,7 @@ impl ISystem for DeathSystem {
             let current_health = parse_health_current(&health_json_str);
 
             // Exact float zero — deterministic because DamageSystem uses .max(0.0)
-            if current_health <= 0.0_f32 {
+            if current_health <= Fixed64::ZERO {
                 // D4: deferred entity destruction — applied after phase completion
                 // I2: all structural changes through Mutation Gate
                 context.submit_destroy(entity_id)?;
@@ -87,8 +88,11 @@ mod tests {
 
     #[test]
     fn death_threshold_is_zero_or_below() {
+        /*
         // Any entity with health exactly 0 or somehow less must die
         assert!(0.0_f32 <= 0.0_f32); // exactly zero → dead
-        assert!(-0.1_f32 <= 0.0_f32); // impossible via .max(0.0) but checked
+        */
+        assert!(Fixed64::ZERO <= Fixed64::ZERO);
+        assert!(Fixed64::from_millis(-100) <= Fixed64::ZERO);
     }
 }

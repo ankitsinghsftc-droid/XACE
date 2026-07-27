@@ -40,6 +40,7 @@ use xace_core::entity_metadata::Tick;
 /// ## Immutability After Archive
 /// Once an ID is archived it cannot be removed. There is no
 /// unarchive() method. This immutability is the guarantee.
+#[derive(Clone)]
 pub struct EntityArchive {
     /// Archived EntityID → destruction tick.
     /// BTreeMap guarantees EntityID-ascending iteration order (D11).

@@ -4,10 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev":       "vite --port 5173",
+    "dev":       "vite",
     "build":     "tsc -p tsconfig.json --noEmit && vite build",
+    "lint":      "tsc -p tsconfig.json --noEmit --noUnusedLocals --noUnusedParameters",
     "preview":   "vite preview",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:ui":   "node tools/builder_ui_contract_test.mjs",
+    "test:server": "python -m unittest discover -s server/tests -p \"test*.py\"",
+    "test":      "npm run lint && npm run typecheck && npm run test:ui && npm run test:server"
   },
   "devDependencies": {
     "typescript": "^5.4.0",

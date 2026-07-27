@@ -61,7 +61,7 @@ from .model_descriptor import ModelDescriptor, ComplexityTier
 from .provider_registry import ProviderRegistry, ProviderNotFoundError
 from .telemetry_pipeline import TelemetryPipeline, InferenceTelemetryEvent
 from .inference_budget import InferenceBudget, BudgetExceededError
-from .inference_retry_policy import InferenceRetryPolicy, InferenceTransportError
+from .inference_retry_policy import InferenceRetryPolicy
 from .prompt_cache import PromptCache
 from .response_cache import ResponseCache
 from .cache_key_builder import CacheKeyBuilder
@@ -285,13 +285,20 @@ class InferenceAdapter:
 
         # Build prompt with cache_control directives applied
         prepared_prompt = self._prompt_cache.prepare(
-            request.prompt_parts, descriptor
+            request.prompt_parts, descriptor, request.system_prompt
         )
 
         # Dispatch with retry
         start_ms = time.monotonic() * 1000
-        raw_resp  = self._dispatch_with_retry(request, descriptor, prepared_prompt)
-        latency   = time.monotonic() * 1000 - start_ms
+        retry_report: dict[str, Any] = {}
+        try:
+            raw_resp, retry_report = self._dispatch_with_retry(request, descriptor, prepared_prompt)
+        except Exception as exc:
+            latency = time.monotonic() * 1000 - start_ms
+            retry_report = getattr(exc, "retry_report", None) or retry_report
+            self._emit_provider_failure_telemetry(request, descriptor, latency, retry_report, exc)
+            raise
+        latency = time.monotonic() * 1000 - start_ms
 
         # Build response
         cost = descriptor.cost_estimate_cents(
@@ -344,6 +351,8 @@ class InferenceAdapter:
             latency_ms         = latency,
             outcome            = "success",
             cached             = False,
+            provider_kind      = self._telemetry_provider_kind(descriptor.provider, cached=False),
+            **self._retry_telemetry_fields(retry_report),
         ))
 
         return response
@@ -354,22 +363,88 @@ class InferenceAdapter:
         self,
         request:         InferenceRequest,
         descriptor:      ModelDescriptor,
-        prepared_prompt: dict[str, Any],
-    ) -> dict[str, Any]:
+        prepared_prompt: Any,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Dispatches to provider with retry logic applied."""
         provider_client = self._registry.get_client(descriptor.provider)
         max_tokens      = request.max_tokens or descriptor.max_output_tokens
+        prepared_payload = getattr(prepared_prompt, "payload", prepared_prompt)
+        reports: list[dict[str, Any]] = []
 
         def _attempt() -> dict[str, Any]:
             return provider_client.complete(
                 model_id      = descriptor.model_id,
-                prompt        = prepared_prompt,
+                prompt        = prepared_payload,
                 system_prompt = request.system_prompt,
                 max_tokens    = max_tokens,
                 temperature   = request.temperature,
             )
 
-        return self._retry.execute(_attempt, request.call_label)
+        response = self._retry.execute(
+            _attempt,
+            request.call_label,
+            tier=request.complexity_tier,
+            provider=descriptor.provider,
+            model_id=descriptor.model_id,
+            report_callback=reports.append,
+        )
+        return response, (reports[-1] if reports else {})
+
+    def _emit_provider_failure_telemetry(
+        self,
+        request: InferenceRequest,
+        descriptor: ModelDescriptor,
+        latency_ms: float,
+        retry_report: dict[str, Any] | None,
+        exc: Exception,
+    ) -> None:
+        report = retry_report or {}
+        category = (
+            str(report.get("final_failure_category") or "")
+            or str(getattr(exc, "failure_category", "") or "")
+            or "provider_error"
+        )
+        outcome = category if category in {"schema_error", "quality_error"} else "transport_error"
+        retry_fields = self._retry_telemetry_fields(report)
+        if not retry_fields.get("failure_category"):
+            retry_fields["failure_category"] = category
+        self._telemetry.emit(InferenceTelemetryEvent(
+            request_id      = request.request_id,
+            session_id      = request.session_id,
+            call_label      = request.call_label,
+            provider        = descriptor.provider,
+            model_id        = descriptor.model_id,
+            complexity_tier = request.complexity_tier,
+            latency_ms      = latency_ms,
+            outcome         = outcome,
+            cached          = False,
+            provider_kind   = self._telemetry_provider_kind(descriptor.provider, cached=False),
+            **retry_fields,
+        ))
+
+    @staticmethod
+    def _retry_telemetry_fields(report: dict[str, Any] | None) -> dict[str, Any]:
+        if not report:
+            return {}
+        return {
+            "attempt_count": int(report.get("attempt_count") or 0),
+            "retry_count": int(report.get("retry_count") or 0),
+            "timeout_seconds": float(report.get("timeout_seconds") or 0.0),
+            "rate_limited": bool(report.get("rate_limited")),
+            "backoff_seconds": float(report.get("total_backoff_seconds") or 0.0),
+            "failure_category": str(report.get("final_failure_category") or ""),
+            "user_error_code": InferenceAdapter._user_error_code(report),
+            "retry_report": report,
+        }
+
+    @staticmethod
+    def _user_error_code(report: dict[str, Any] | None) -> str:
+        if not report:
+            return ""
+        user_error = report.get("user_error") or {}
+        if isinstance(user_error, dict):
+            return str(user_error.get("code") or "")
+        return ""
 
     def _deterministic_shortcut(self, request: InferenceRequest) -> InferenceResponse:
         """
@@ -386,6 +461,7 @@ class InferenceAdapter:
             complexity_tier = ComplexityTier.S,
             outcome         = "deterministic_shortcut",
             cached          = True,
+            provider_kind   = "deterministic",
         ))
         return InferenceResponse(
             text               = "__TIER_S_DETERMINISTIC__",
@@ -416,6 +492,7 @@ class InferenceAdapter:
             complexity_tier = request.complexity_tier,
             outcome         = "cache_hit",
             cached          = True,
+            provider_kind   = "cache",
         ))
         return InferenceResponse(
             text               = text,
@@ -448,6 +525,16 @@ class InferenceAdapter:
             raise InvalidRequestError(
                 f"temperature must be in [0.0, 1.0], got {request.temperature}."
             )
+
+    @staticmethod
+    def _telemetry_provider_kind(provider: str, *, cached: bool) -> str:
+        if cached or provider == "response_cache":
+            return "cache"
+        if provider == "deterministic":
+            return "deterministic"
+        if provider == "local":
+            return "local"
+        return "cloud"
 
     @property
     def is_healthy(self) -> bool:

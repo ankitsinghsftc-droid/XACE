@@ -32,8 +32,6 @@ struct CacheEntry {
     /// The ComponentTableStore version when this result was computed.
     /// Entry is stale if current store version != this value.
     store_version: u64,
-    /// The tick when this entry was last accessed.
-    last_accessed_tick: u64,
 }
 
 // ── Query Cache ───────────────────────────────────────────────────────────────
@@ -92,14 +90,13 @@ impl QueryCache {
         key: Vec<u32>,
         entity_ids: Vec<EntityID>,
         store_version: u64,
-        current_tick: u64,
+        _current_tick: u64,
     ) {
         self.entries.insert(
             key,
             CacheEntry {
                 entity_ids,
                 store_version,
-                last_accessed_tick: current_tick,
             },
         );
         // Count as a miss since we had to compute it

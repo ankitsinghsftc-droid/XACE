@@ -49,26 +49,25 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::CliError;
 
-
 // ── Config Structs ────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameConfig {
-    pub name:           String,
+    pub name: String,
     #[serde(default = "default_version")]
-    pub version:        String,
+    pub version: String,
     #[serde(default = "default_version")]
     pub schema_version: String,
     #[serde(default)]
     pub target_engines: Vec<TargetEngine>,
     #[serde(default)]
-    pub domains:        Vec<String>,
+    pub domains: Vec<String>,
     #[serde(default)]
-    pub llm:            LlmConfig,
+    pub llm: LlmConfig,
     #[serde(default)]
-    pub adapters:       AdapterConfig,
+    pub adapters: AdapterConfig,
     #[serde(default)]
-    pub build:          BuildConfig,
+    pub build: BuildConfig,
 
     /// Path to the game project directory (populated at load time, not in YAML)
     #[serde(skip)]
@@ -78,12 +77,12 @@ pub struct GameConfig {
 impl GameConfig {
     /// Loads and validates game_config.yaml from a game project directory.
     pub fn load(game_dir: impl AsRef<Path>) -> Result<Self, CliError> {
-        let dir  = game_dir.as_ref().to_path_buf();
+        let dir = game_dir.as_ref().to_path_buf();
         let path = dir.join("game_config.yaml");
 
         if !path.exists() {
             return Err(CliError::ConfigError {
-                path:   path.clone(),
+                path: path.clone(),
                 reason: format!(
                     "File not found. Create a game_config.yaml in '{}'. \
                      Run `xace init` (coming soon) or copy from examples/.",
@@ -92,39 +91,19 @@ impl GameConfig {
             });
         }
 
-        let raw = std::fs::read_to_string(&path)
-            .map_err(|e| CliError::Io { path: Some(path.clone()), source: e })?;
+        let raw = std::fs::read_to_string(&path).map_err(|e| CliError::Io {
+            path: Some(path.clone()),
+            source: e,
+        })?;
 
-        let mut config: Self = serde_yaml::from_str(&raw)
-            .map_err(|e| CliError::ConfigError {
-                path:   path.clone(),
-                reason: format!("YAML parse error: {}", e),
-            })?;
+        let mut config: Self = serde_yaml::from_str(&raw).map_err(|e| CliError::ConfigError {
+            path: path.clone(),
+            reason: format!("YAML parse error: {}", e),
+        })?;
 
         config.game_dir = dir;
         config.validate(&path)?;
         Ok(config)
-    }
-
-    /// Finds game_config.yaml by walking up from `start_dir` to the filesystem root.
-    /// Useful when running `xace build` from inside a game project subdirectory.
-    pub fn find_and_load(start_dir: impl AsRef<Path>) -> Result<Self, CliError> {
-        let mut dir = start_dir.as_ref().to_path_buf();
-        loop {
-            if dir.join("game_config.yaml").exists() {
-                return Self::load(&dir);
-            }
-            match dir.parent() {
-                Some(parent) => dir = parent.to_path_buf(),
-                None => break,
-            }
-        }
-        Err(CliError::ConfigError {
-            path:   start_dir.as_ref().join("game_config.yaml"),
-            reason: "game_config.yaml not found in this directory or any parent directory. \
-                     Are you inside an XACE game project?"
-                     .to_string(),
-        })
     }
 
     fn validate(&self, path: &Path) -> Result<(), CliError> {
@@ -138,15 +117,11 @@ impl GameConfig {
             return Err(CliError::ConfigError {
                 path: path.to_path_buf(),
                 reason: "`target_engines` must list at least one engine \
-                         (unity | godot | unreal | standalone).".to_string(),
+                         (unity | godot | unreal | standalone)."
+                    .to_string(),
             });
         }
         Ok(())
-    }
-
-    /// Returns the path to the CGS JSON file for this project.
-    pub fn cgs_path(&self) -> PathBuf {
-        self.game_dir.join(".xace").join("cgs.json")
     }
 
     /// Returns the output directory for build artifacts.
@@ -183,7 +158,6 @@ impl GameConfig {
     }
 }
 
-
 // ── Sub-configs ───────────────────────────────────────────────────────────────
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -198,9 +172,9 @@ pub enum TargetEngine {
 impl std::fmt::Display for TargetEngine {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Unity      => write!(f, "unity"),
-            Self::Godot      => write!(f, "godot"),
-            Self::Unreal     => write!(f, "unreal"),
+            Self::Unity => write!(f, "unity"),
+            Self::Godot => write!(f, "godot"),
+            Self::Unreal => write!(f, "unreal"),
             Self::Standalone => write!(f, "standalone"),
         }
     }
@@ -210,33 +184,32 @@ impl std::str::FromStr for TargetEngine {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "unity"      => Ok(Self::Unity),
-            "godot"      => Ok(Self::Godot),
-            "unreal"     => Ok(Self::Unreal),
+            "unity" => Ok(Self::Unity),
+            "godot" => Ok(Self::Godot),
+            "unreal" => Ok(Self::Unreal),
             "standalone" => Ok(Self::Standalone),
-            other        => Err(format!(
-                "unknown engine '{}'. Valid: unity, godot, unreal, standalone", other
+            other => Err(format!(
+                "unknown engine '{}'. Valid: unity, godot, unreal, standalone",
+                other
             )),
         }
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct LlmConfig {
     #[serde(default = "default_provider")]
     pub default_provider: String,
     #[serde(default = "bool_true")]
-    pub tier_s_enabled:   bool,
+    pub tier_s_enabled: bool,
     #[serde(default)]
-    pub local_models:     Vec<String>,
+    pub local_models: Vec<String>,
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AdapterConfig {
     #[serde(default = "default_adapter_mode")]
-    pub mode:     String,
+    pub mode: String,
     #[serde(default = "default_tcp_host")]
     pub tcp_host: String,
     #[serde(default = "default_tcp_port")]
@@ -246,35 +219,50 @@ pub struct AdapterConfig {
 impl Default for AdapterConfig {
     fn default() -> Self {
         Self {
-            mode:     "tcp".to_string(),
+            mode: "tcp".to_string(),
             tcp_host: "127.0.0.1".to_string(),
             tcp_port: 7878,
         }
     }
 }
 
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BuildConfig {
     #[serde(default = "default_output_dir")]
-    pub output_dir:    String,
+    pub output_dir: String,
     #[serde(default)]
     pub artifact_name: String,
 }
 
 impl Default for BuildConfig {
     fn default() -> Self {
-        Self { output_dir: "./dist".to_string(), artifact_name: String::new() }
+        Self {
+            output_dir: "./dist".to_string(),
+            artifact_name: String::new(),
+        }
     }
 }
 
-
 // ── Defaults ──────────────────────────────────────────────────────────────────
 
-fn default_version()      -> String { "0.1.0".to_string() }
-fn default_provider()     -> String { "anthropic".to_string() }
-fn default_adapter_mode() -> String { "tcp".to_string() }
-fn default_tcp_host()     -> String { "127.0.0.1".to_string() }
-fn default_tcp_port()     -> u16    { 7878 }
-fn default_output_dir()   -> String { "./dist".to_string() }
-fn bool_true()            -> bool   { true }
+fn default_version() -> String {
+    "0.1.0".to_string()
+}
+fn default_provider() -> String {
+    "anthropic".to_string()
+}
+fn default_adapter_mode() -> String {
+    "tcp".to_string()
+}
+fn default_tcp_host() -> String {
+    "127.0.0.1".to_string()
+}
+fn default_tcp_port() -> u16 {
+    7878
+}
+fn default_output_dir() -> String {
+    "./dist".to_string()
+}
+fn bool_true() -> bool {
+    true
+}

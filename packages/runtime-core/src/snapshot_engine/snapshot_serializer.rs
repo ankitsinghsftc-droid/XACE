@@ -1,52 +1,33 @@
 //! # Snapshot Serializer
 //!
-//! Deterministic serialization and deserialization of WorldSnapshot.
+//! Deterministic serialization and deserialization of `WorldSnapshot`.
 //!
 //! ## Determinism Rules (D9, D11)
-//! Identical world state must always produce identical serialized bytes.
-//! This requires:
-//! - Stable key ordering (BTreeMap everywhere — never HashMap)
-//! - Fixed float precision (always 6 decimal places)
-//! - Deterministic collection ordering (sorted by EntityID ASC)
-//! - No platform-dependent formatting
+//! Identical world state must always produce identical serialized bytes. This
+//! serializer relies on the `WorldSnapshot` serde schema plus `BTreeMap` fields
+//! for stable key ordering. It must never deserialize into a lossy minimal
+//! snapshot in production paths.
 //!
-//! ## Design
-//! The serializer converts WorldSnapshot to/from a canonical JSON string.
-//! This string is used for:
-//! - World hash computation (DeterminismGuard D9)
-//! - Network transmission (SnapshotPayload)
-//! - Save file storage (ISaveEngine)
-//! - Replay log entries (D14)
-//!
-//! ## Float Precision
-//! All f32/f64 values serialized to exactly 6 decimal places.
-//! This prevents platform-specific float formatting from breaking
-//! determinism across machines with different FPU behavior.
+//! ## Numeric Precision
+//! Authoritative snapshot time uses `Fixed64`, serialized as transparent integer
+//! micro-units. The legacy float formatting helpers remain for
+//! non-authoritative display/tests only.
 
+use sha2::{Digest, Sha256};
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
 
-// ── Float Precision ───────────────────────────────────────────────────────────
-
-/// Fixed decimal places for all float serialization (D11).
 const FLOAT_PRECISION: usize = 6;
 
-/// Formats a f32 to fixed precision string.
 pub fn format_f32(value: f32) -> String {
     format!("{:.prec$}", value, prec = FLOAT_PRECISION)
 }
 
-/// Formats a f64 to fixed precision string.
 pub fn format_f64(value: f64) -> String {
     format!("{:.prec$}", value, prec = FLOAT_PRECISION)
 }
 
-// ── Snapshot Serializer ───────────────────────────────────────────────────────
-
-/// Deterministic WorldSnapshot serializer.
-///
-/// Converts WorldSnapshot to/from canonical JSON strings.
-/// Identical input always produces identical output (D9, D11).
+/// Deterministic full-schema `WorldSnapshot` serializer.
 pub struct SnapshotSerializer;
 
 impl SnapshotSerializer {
@@ -54,233 +35,71 @@ impl SnapshotSerializer {
         Self
     }
 
-    /// Serializes a WorldSnapshot to a canonical JSON string.
+    /// Serializes a complete `WorldSnapshot` to canonical compact JSON.
     ///
-    /// ## Guarantees
-    /// - Same snapshot → same string on any machine
-    /// - Stable key ordering throughout
-    /// - Fixed float precision
-    /// - EntityID-ascending ordering for all collections
+    /// The output includes every authoritative snapshot field. `BTreeMap`
+    /// storage inside the snapshot provides stable ordering for component
+    /// tables, component rows, and RNG stream positions.
     pub fn serialize(&self, snapshot: &WorldSnapshot) -> Result<String, XaceError> {
-        let mut parts = Vec::new();
-
-        // Tick — u64, no float issues
-        parts.push(format!(r#""tick":{}"#, snapshot.tick));
-
-        // Schema version
-        parts.push(format!(
-            r#""schema_version":"{}""#,
-            self.escape_string(&snapshot.schema_version)
-        ));
-
-        // Execution plan version
-        parts.push(format!(
-            r#""execution_plan_version":{}"#,
-            snapshot.execution_plan_version
-        ));
-
-        // Entity store snapshot
-        parts.push(format!(
-            r#""entity_store":{}"#,
-            self.serialize_entity_store(&snapshot.entity_store_snapshot)?
-        ));
-
-        // Component tables snapshot
-        parts.push(format!(
-            r#""component_tables":{}"#,
-            self.serialize_component_tables(&snapshot.component_tables_snapshot)?
-        ));
-
-        // RNG state
-        parts.push(format!(
-            r#""rng_state":{}"#,
-            self.serialize_rng_state(&snapshot.rng_state)?
-        ));
-
-        // World hash — included in serialization for verification
-        parts.push(format!(
-            r#""world_hash":"{}""#,
-            self.escape_string(&snapshot.world_hash)
-        ));
-
-        Ok(format!("{{{}}}", parts.join(",")))
+        snapshot
+            .validate()
+            .map_err(|message| Self::validation_error("serialize", message, "world_snapshot"))?;
+        Self::serialize_unchecked(snapshot)
     }
 
-    /// Deserializes a WorldSnapshot from a canonical JSON string.
+    /// Deserializes a complete `WorldSnapshot` from canonical JSON.
     ///
-    /// Uses a simple hand-rolled parser to avoid external dependencies.
-    /// Returns ValidationFailure if the string is malformed.
+    /// Missing fields are rejected. This intentionally blocks the old
+    /// `WorldSnapshot::minimal` fallback, because minimal deserialization drops
+    /// entities, components, RNG, events, mutations, `cgs_hash`, `time_seconds`,
+    /// and `is_clean`.
     pub fn deserialize(&self, json: &str) -> Result<WorldSnapshot, XaceError> {
-        // For Phase 5 we use serde_json if available, otherwise
-        // return a structured error directing to add the dependency.
-        // The serialization format is well-defined so deserialization
-        // can be implemented incrementally.
-        //
-        // Phase 5 implementation: parse the canonical fields we wrote.
-        // Full deserialization uses the same field order as serialize().
-
-        // Extract tick
-        let tick = self
-            .extract_u64(json, "tick")
-            .map_err(|e| XaceError::ValidationFailure {
-                message: format!("Failed to deserialize snapshot tick: {}", e),
-                context: ErrorContext::new("SnapshotSerializer", "deserialize"),
-                rule_violated: "snapshot_format".into(),
-                failed_path: "tick".into(),
-            })?;
-
-        // Extract schema_version
-        let schema_version = self
-            .extract_string(json, "schema_version")
-            .unwrap_or_else(|_| "0.1.0".to_string());
-
-        // Extract world_hash
-        let world_hash = self.extract_string(json, "world_hash").unwrap_or_default();
-
-        // Return a minimal snapshot — full field parsing in Phase 6
-        // when we have a complete snapshot format stabilized.
-        Ok(WorldSnapshot::minimal(tick, schema_version, world_hash))
+        let snapshot: WorldSnapshot = serde_json::from_str(json).map_err(|err| {
+            Self::validation_error("deserialize", err.to_string(), "world_snapshot")
+        })?;
+        snapshot
+            .validate()
+            .map_err(|message| Self::validation_error("deserialize", message, "world_snapshot"))?;
+        Ok(snapshot)
     }
 
-    /// Computes a deterministic hash of the given snapshot.
+    /// Computes a deterministic serializer-level SHA-256 hash.
     ///
-    /// Used by DeterminismGuard to verify world state consistency (D9).
-    /// Hash is computed from the full serialized string — any difference
-    /// in world state produces a different hash.
+    /// This is separate from `WorldHasher`: it hashes the full canonical JSON
+    /// image after clearing `world_hash` so a snapshot does not hash its own
+    /// stored digest.
     pub fn compute_hash(&self, snapshot: &WorldSnapshot) -> Result<String, XaceError> {
-        let serialized = self.serialize(snapshot)?;
+        let mut canonical_snapshot = snapshot.clone();
+        canonical_snapshot.world_hash.clear();
+        let serialized = Self::serialize_unchecked(&canonical_snapshot)?;
         Ok(self.hash_string(&serialized))
     }
 
-    /// Computes a deterministic hash of a raw string.
-    /// Uses FNV-1a for speed and determinism.
     pub fn hash_string(&self, input: &str) -> String {
-        let mut hash: u64 = 14695981039346656037;
-        for byte in input.bytes() {
-            hash ^= byte as u64;
-            hash = hash.wrapping_mul(1099511628211);
+        let digest = Sha256::digest(input.as_bytes());
+        hex_encode(&digest)
+    }
+
+    pub fn display_hash_prefix(&self, hash: &str) -> String {
+        hash.chars().take(16).collect()
+    }
+
+    fn serialize_unchecked(snapshot: &WorldSnapshot) -> Result<String, XaceError> {
+        serde_json::to_string(snapshot)
+            .map_err(|err| Self::validation_error("serialize", err.to_string(), "world_snapshot"))
+    }
+
+    fn validation_error(
+        operation: &'static str,
+        message: impl Into<String>,
+        failed_path: impl Into<String>,
+    ) -> XaceError {
+        XaceError::ValidationFailure {
+            message: message.into(),
+            context: ErrorContext::new("SnapshotSerializer", operation),
+            rule_violated: "X10-013".into(),
+            failed_path: failed_path.into(),
         }
-        format!("{:016x}", hash)
-    }
-
-    // ── Serialization Helpers ──────────────────────────────────────────────
-
-    fn serialize_entity_store(
-        &self,
-        store: &xace_core::runtime::world_snapshot::EntityStoreSnapshot,
-    ) -> Result<String, XaceError> {
-        let mut parts = Vec::new();
-
-        // next_entity_id
-        parts.push(format!(r#""next_entity_id":{}"#, store.next_entity_id));
-
-        // entities — sorted by id ASC (D3)
-        let entity_parts: Vec<String> = store
-            .entities
-            .iter()
-            .map(|e| {
-                let destroyed = if e.destroyed_tick > 0 {
-                    e.destroyed_tick.to_string()
-                } else {
-                    "null".to_string()
-                };
-                format!(
-                    r#"{{"id":{},"state":"{}","created_tick":{},"destroyed_tick":{}}}"#,
-                    e.entity_id,
-                    format!("{:?}", e.state),
-                    e.created_tick,
-                    destroyed,
-                )
-            })
-            .collect();
-        parts.push(format!(r#""entities":[{}]"#, entity_parts.join(",")));
-
-        Ok(format!("{{{}}}", parts.join(",")))
-    }
-
-    fn serialize_component_tables(
-        &self,
-        tables: &xace_core::runtime::world_snapshot::ComponentTablesSnapshot,
-    ) -> Result<String, XaceError> {
-        // Tables sorted by type_id ASC (D11)
-        let mut sorted_tables: Vec<_> = tables.tables.iter().collect();
-        sorted_tables.sort_by_key(|(type_id, _)| *type_id);
-
-        let table_parts: Vec<String> = sorted_tables
-            .iter()
-            .map(|(type_id, table)| {
-                // Rows sorted by entity_id ASC (D3)
-                let mut sorted_rows: Vec<_> = table.rows.iter().collect();
-                sorted_rows.sort_by_key(|(entity_id, _)| *entity_id);
-
-                let row_parts: Vec<String> = sorted_rows
-                    .iter()
-                    .map(|(entity_id, json)| format!(r#""{}":{}"#, entity_id, json))
-                    .collect();
-
-                format!(
-                    r#""{}":{{"type_id":{},"rows":{{{}}}}}"#,
-                    type_id,
-                    type_id,
-                    row_parts.join(",")
-                )
-            })
-            .collect();
-
-        Ok(format!("{{{}}}", table_parts.join(",")))
-    }
-
-    fn serialize_rng_state(
-        &self,
-        rng: &xace_core::runtime::world_snapshot::RngState,
-    ) -> Result<String, XaceError> {
-        Ok(format!(
-            r#"{{"world_seed":{},"stream_positions":{{{}}}}}"#,
-            rng.world_seed,
-            rng.stream_positions
-                .iter()
-                .map(|(k, v)| format!(r#""{}":{}"#, k, v))
-                .collect::<Vec<_>>()
-                .join(",")
-        ))
-    }
-
-    fn escape_string(&self, s: &str) -> String {
-        s.replace('\\', "\\\\")
-            .replace('"', "\\\"")
-            .replace('\n', "\\n")
-            .replace('\r', "\\r")
-            .replace('\t', "\\t")
-    }
-
-    // ── Deserialization Helpers ────────────────────────────────────────────
-
-    fn extract_u64(&self, json: &str, key: &str) -> Result<u64, String> {
-        let search = format!(r#""{}":"#, key);
-        let start = json
-            .find(&search)
-            .ok_or_else(|| format!("Key '{}' not found", key))?
-            + search.len();
-        let rest = &json[start..];
-        let end = rest
-            .find(|c: char| !c.is_ascii_digit())
-            .unwrap_or(rest.len());
-        rest[..end]
-            .parse::<u64>()
-            .map_err(|e| format!("Failed to parse u64: {}", e))
-    }
-
-    fn extract_string(&self, json: &str, key: &str) -> Result<String, String> {
-        let search = format!(r#""{}"":""#, key);
-        let start = json
-            .find(&search)
-            .ok_or_else(|| format!("Key '{}' not found", key))?
-            + search.len();
-        let rest = &json[start..];
-        let end = rest
-            .find('"')
-            .ok_or_else(|| "Unterminated string".to_string())?;
-        Ok(rest[..end].to_string())
     }
 }
 
@@ -290,15 +109,141 @@ impl Default for SnapshotSerializer {
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+fn hex_encode(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        out.push(HEX[(byte >> 4) as usize] as char);
+        out.push(HEX[(byte & 0x0f) as usize] as char);
+    }
+    out
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::runtime::world_snapshot::WorldSnapshot;
+    use crate::determinism_guard::world_hasher::WorldHasher;
+    use xace_core::entity_state::EntityState;
+    use xace_core::fixed_point::Fixed64;
+    use xace_core::runtime::world_snapshot::{
+        ComponentTableSnapshot, ComponentTablesSnapshot, EntityRecord, EntityStoreSnapshot,
+        EventQueueState, MutationQueueState, RngState,
+    };
 
     fn minimal_snapshot(tick: u64) -> WorldSnapshot {
-        WorldSnapshot::minimal(tick, "0.1.0".into(), "".into())
+        WorldSnapshot::minimal(tick, "0.1.0".into(), "a".repeat(64))
+    }
+
+    fn rich_snapshot(seed: u64) -> WorldSnapshot {
+        let base_id = seed.saturating_mul(10).saturating_add(1);
+
+        let mut active = EntityRecord::new(base_id, EntityState::Active, seed);
+        active.tags = vec!["player".to_string(), format!("seed_{seed}")];
+
+        let mut disabled = EntityRecord::new(base_id + 1, EntityState::Disabled, seed + 1);
+        disabled.tags = vec!["npc".to_string()];
+
+        let mut archived = EntityRecord::new(base_id + 2, EntityState::Archived, seed + 2);
+        archived.destroyed_tick = seed + 9;
+        archived.tags = vec!["archived".to_string()];
+
+        let entity_store_snapshot = EntityStoreSnapshot {
+            entities: vec![active.clone(), disabled.clone(), archived],
+            next_entity_id: base_id + 3,
+        };
+
+        let mut transform =
+            ComponentTableSnapshot::new(1, format!("COMP_TRANSFORM_V{}", seed % 3 + 1));
+        transform.set(
+            active.entity_id,
+            format!(
+                r#"{{"position_x":{},"position_y":{},"position_z":{}}}"#,
+                seed as i64 * 1_000_000,
+                seed as i64 * 2_000_000,
+                -(seed as i64) * 1_000_000
+            ),
+        );
+        transform.set(
+            disabled.entity_id,
+            format!(r#"{{"position_x":{},"position_y":0,"position_z":0}}"#, seed),
+        );
+
+        let mut identity = ComponentTableSnapshot::new(2, "COMP_IDENTITY_V1");
+        identity.set(
+            active.entity_id,
+            format!(r#"{{"name":"hero_{seed}","class":"tester"}}"#),
+        );
+
+        let mut component_tables_snapshot = ComponentTablesSnapshot::empty();
+        component_tables_snapshot.set_table(transform);
+        component_tables_snapshot.set_table(identity);
+
+        let mut rng_state = RngState::new(9_000 + seed);
+        rng_state.set_stream_position("sys_loot", seed + 1);
+        rng_state.set_stream_position(&format!("sys_seed_{seed}"), seed * 2 + 3);
+
+        let event_queue_state = EventQueueState {
+            pending_events: vec![
+                format!(r#"{{"event_id":{},"kind":"damage"}}"#, seed + 100),
+                format!(r#"{{"event_id":{},"kind":"pickup"}}"#, seed + 101),
+            ],
+            next_event_id: seed + 102,
+        };
+
+        let mutation_queue_state = MutationQueueState {
+            pending_spawns: vec![format!(r#"{{"actor_id":"actor_{seed}"}}"#)],
+            pending_additions: vec![format!(
+                r#"{{"entity_id":{},"component_type_id":5}}"#,
+                active.entity_id
+            )],
+            pending_modifications: vec![format!(
+                r#"{{"entity_id":{},"component_type_id":1,"field":"position_x"}}"#,
+                active.entity_id
+            )],
+            pending_removals: vec![format!(
+                r#"{{"entity_id":{},"component_type_id":2}}"#,
+                disabled.entity_id
+            )],
+            pending_destroys: vec![format!(r#"{{"entity_id":{}}}"#, disabled.entity_id)],
+        };
+
+        let mut snapshot = WorldSnapshot {
+            tick: seed + 40,
+            time_seconds: Fixed64::from_millis((seed as i64 + 1) * 16),
+            schema_version: format!("0.1.{}", seed % 5),
+            execution_plan_version: (seed as u32 % 7) + 1,
+            cgs_hash: format!("{:064x}", seed + 1),
+            entity_store_snapshot,
+            component_tables_snapshot,
+            rng_state,
+            event_queue_state,
+            mutation_queue_state,
+            world_hash: String::new(),
+            is_clean: false,
+        };
+        snapshot.world_hash = WorldHasher::compute(&snapshot);
+        snapshot
+    }
+
+    fn assert_snapshot_authoritative_eq(expected: &WorldSnapshot, actual: &WorldSnapshot) {
+        assert_eq!(actual.tick, expected.tick);
+        assert_eq!(actual.time_seconds, expected.time_seconds);
+        assert_eq!(actual.schema_version, expected.schema_version);
+        assert_eq!(
+            actual.execution_plan_version,
+            expected.execution_plan_version
+        );
+        assert_eq!(actual.cgs_hash, expected.cgs_hash);
+        assert_eq!(actual.entity_store_snapshot, expected.entity_store_snapshot);
+        assert_eq!(
+            actual.component_tables_snapshot,
+            expected.component_tables_snapshot
+        );
+        assert_eq!(actual.rng_state, expected.rng_state);
+        assert_eq!(actual.event_queue_state, expected.event_queue_state);
+        assert_eq!(actual.mutation_queue_state, expected.mutation_queue_state);
+        assert_eq!(actual.world_hash, expected.world_hash);
+        assert_eq!(actual.is_clean, expected.is_clean);
     }
 
     #[test]
@@ -315,7 +260,7 @@ mod tests {
     #[test]
     fn serialize_is_deterministic() {
         let ser = SnapshotSerializer::new();
-        let snap = minimal_snapshot(100);
+        let snap = rich_snapshot(100);
         let s1 = ser.serialize(&snap).unwrap();
         let s2 = ser.serialize(&snap).unwrap();
         assert_eq!(s1, s2);
@@ -324,8 +269,8 @@ mod tests {
     #[test]
     fn two_identical_snapshots_same_output() {
         let ser = SnapshotSerializer::new();
-        let s1 = ser.serialize(&minimal_snapshot(50)).unwrap();
-        let s2 = ser.serialize(&minimal_snapshot(50)).unwrap();
+        let s1 = ser.serialize(&rich_snapshot(50)).unwrap();
+        let s2 = ser.serialize(&rich_snapshot(50)).unwrap();
         assert_eq!(s1, s2);
     }
 
@@ -340,8 +285,18 @@ mod tests {
     #[test]
     fn hash_deterministic() {
         let ser = SnapshotSerializer::new();
-        let snap = minimal_snapshot(77);
+        let snap = rich_snapshot(77);
         let h1 = ser.compute_hash(&snap).unwrap();
+        let h2 = ser.compute_hash(&snap).unwrap();
+        assert_eq!(h1, h2);
+    }
+
+    #[test]
+    fn hash_does_not_hash_its_own_world_hash_field() {
+        let ser = SnapshotSerializer::new();
+        let mut snap = rich_snapshot(77);
+        let h1 = ser.compute_hash(&snap).unwrap();
+        snap.world_hash = h1.clone();
         let h2 = ser.compute_hash(&snap).unwrap();
         assert_eq!(h1, h2);
     }
@@ -359,7 +314,7 @@ mod tests {
         let ser = SnapshotSerializer::new();
         let snap = minimal_snapshot(0);
         let hash = ser.compute_hash(&snap).unwrap();
-        assert_eq!(hash.len(), 16);
+        assert_eq!(hash.len(), 64);
         assert!(hash.chars().all(|c| c.is_ascii_hexdigit()));
     }
 
@@ -382,7 +337,17 @@ mod tests {
         let h1 = ser.hash_string("hello world");
         let h2 = ser.hash_string("hello world");
         assert_eq!(h1, h2);
+        assert_eq!(h1.len(), 64);
         assert_ne!(h1, ser.hash_string("hello world!"));
+    }
+
+    #[test]
+    fn display_hash_prefix_is_non_authoritative() {
+        let ser = SnapshotSerializer::new();
+        let hash = ser.hash_string("hello world");
+        let prefix = ser.display_hash_prefix(&hash);
+        assert_eq!(prefix.len(), 16);
+        assert_ne!(prefix, hash);
     }
 
     #[test]
@@ -390,9 +355,69 @@ mod tests {
         let ser = SnapshotSerializer::new();
         let json = ser.serialize(&minimal_snapshot(10)).unwrap();
         assert!(json.contains("tick"));
+        assert!(json.contains("time_seconds"));
         assert!(json.contains("schema_version"));
-        assert!(json.contains("entity_store"));
-        assert!(json.contains("component_tables"));
+        assert!(json.contains("execution_plan_version"));
+        assert!(json.contains("cgs_hash"));
+        assert!(json.contains("entity_store_snapshot"));
+        assert!(json.contains("component_tables_snapshot"));
         assert!(json.contains("rng_state"));
+        assert!(json.contains("event_queue_state"));
+        assert!(json.contains("mutation_queue_state"));
+        assert!(json.contains("world_hash"));
+        assert!(json.contains("is_clean"));
+    }
+
+    #[test]
+    fn x10_013_full_snapshot_roundtrip_preserves_authoritative_fields() {
+        let ser = SnapshotSerializer::new();
+        let snapshot = rich_snapshot(13);
+        let json = ser.serialize(&snapshot).unwrap();
+        let decoded = ser.deserialize(&json).unwrap();
+
+        assert_snapshot_authoritative_eq(&snapshot, &decoded);
+        assert_eq!(ser.serialize(&decoded).unwrap(), json);
+        assert_eq!(WorldHasher::compute(&decoded), snapshot.world_hash);
+    }
+
+    #[test]
+    fn x10_013_snapshot_roundtrip_fuzz_preserves_all_authoritative_fields() {
+        let ser = SnapshotSerializer::new();
+
+        for seed in 0..32 {
+            let snapshot = rich_snapshot(seed);
+            let json = ser.serialize(&snapshot).unwrap();
+            let decoded = ser.deserialize(&json).unwrap();
+
+            assert_snapshot_authoritative_eq(&snapshot, &decoded);
+            assert_eq!(ser.serialize(&decoded).unwrap(), json);
+            assert_eq!(
+                ser.compute_hash(&decoded).unwrap(),
+                ser.compute_hash(&snapshot).unwrap()
+            );
+        }
+    }
+
+    #[test]
+    fn x10_013_deserialize_rejects_legacy_minimal_json() {
+        let ser = SnapshotSerializer::new();
+        let legacy = r#"{"tick":5,"schema_version":"0.1.0","world_hash":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#;
+        let err = ser.deserialize(legacy).unwrap_err();
+        let message = format!("{err:?}");
+        assert!(message.contains("X10-013"));
+        assert!(message.contains("world_snapshot"));
+    }
+
+    #[test]
+    fn x10_013_deserialize_rejects_empty_world_hash() {
+        let ser = SnapshotSerializer::new();
+        let mut snapshot = rich_snapshot(3);
+        snapshot.world_hash.clear();
+        let json = serde_json::to_string(&snapshot).unwrap();
+
+        let err = ser.deserialize(&json).unwrap_err();
+        let message = format!("{err:?}");
+        assert!(message.contains("X10-013"));
+        assert!(message.contains("world_hash"));
     }
 }

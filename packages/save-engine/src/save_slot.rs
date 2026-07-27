@@ -25,6 +25,12 @@ pub struct SaveSlotMetadata {
     pub display_name: String,
     pub schema_version: String,
     pub cgs_hash: String,
+    #[serde(default = "default_asset_hash")]
+    pub asset_hash: String,
     pub tick: Tick,
     pub last_saved_unix_ms: u128,
+}
+
+pub fn default_asset_hash() -> String {
+    "no-assets".to_string()
 }

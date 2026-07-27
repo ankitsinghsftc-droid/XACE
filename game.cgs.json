@@ -1,7 +1,7 @@
 {
   "metadata": {
     "name": "HorrorGame_v1",
-    "cgs_hash": "0b1d495d59a76609",
+    "cgs_hash": "8de4a430cb3b3f21261c3e5aaab705206f55476e1e602b78bc3fe9700c526641",
     "version": "0.1.0",
     "schema_version": "0.1.0",
     "description": "Starter horror game — zombie chase template"
@@ -42,7 +42,11 @@
                 "position_x": 0.0,
                 "position_y": 1.8,
                 "position_z": 0.0,
-                "rotation_y": 0.0
+                "rotation_y": 0.0,
+                "bounds_min_x": -12.0,
+                "bounds_max_x": 12.0,
+                "bounds_min_z": -12.0,
+                "bounds_max_z": 12.0
               }
             },
             {

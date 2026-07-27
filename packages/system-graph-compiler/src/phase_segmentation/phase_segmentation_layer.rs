@@ -136,7 +136,7 @@ impl PhaseSegmentationLayer {
         }
 
         // Step 3: Build one bucket per active phase
-        let mut buckets: Vec<PhaseBucket> = active_phases
+        let buckets: Vec<PhaseBucket> = active_phases
             .into_iter()
             .map(|phase| {
                 let mut bucket = PhaseBucket::new(phase);

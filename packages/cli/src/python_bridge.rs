@@ -51,24 +51,22 @@ XACE root to install in development mode.
 
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::time::Duration;
 
 use serde::Deserialize;
 use serde_json::Value;
 
 use crate::error::CliError;
 
-
 // ── Python Result Envelope ────────────────────────────────────────────────────
 
 /// JSON envelope returned by all XACE Python package CLI commands.
 #[derive(Debug, Deserialize)]
 pub struct PythonResult {
-    pub ok:       bool,
+    pub ok: bool,
     #[serde(default)]
-    pub data:     Option<Value>,
+    pub data: Option<Value>,
     #[serde(default)]
-    pub errors:   Vec<String>,
+    pub errors: Vec<String>,
     #[serde(default)]
     pub warnings: Vec<String>,
 }
@@ -79,22 +77,21 @@ impl PythonResult {
             Ok(self.data.unwrap_or(Value::Null))
         } else {
             Err(CliError::ValidationError {
-                errors:   self.errors,
+                errors: self.errors,
                 warnings: self.warnings,
             })
         }
     }
 }
 
-
 // ── Python Bridge ─────────────────────────────────────────────────────────────
 
 pub struct PythonBridge {
     /// Path to the Python binary.
-    python_bin:   PathBuf,
+    python_bin: PathBuf,
     /// Root directory of the XACE Python packages (for sys.path injection).
     packages_dir: PathBuf,
-    verbose:      bool,
+    verbose: bool,
 }
 
 impl PythonBridge {
@@ -126,87 +123,15 @@ impl PythonBridge {
     /// ```
     pub fn invoke_module(
         &self,
-        module:  &str,
+        module: &str,
         command: &str,
-        args:    &[&str],
+        args: &[&str],
     ) -> Result<Value, CliError> {
         let mut cmd_args = vec!["-m", module, command, "--xace-cli"];
         cmd_args.extend_from_slice(args);
 
         let output = self.run(&cmd_args)?;
         self.parse_output(output, &format!("{} {}", module, command))
-    }
-
-    /// Invokes a Python module command with JSON input on stdin.
-    pub fn invoke_module_with_stdin(
-        &self,
-        module:     &str,
-        command:    &str,
-        args:       &[&str],
-        stdin_json: &Value,
-    ) -> Result<Value, CliError> {
-        let stdin_text = serde_json::to_string(stdin_json)?;
-
-        let mut cmd = self.base_command();
-        cmd.args(["-m", module, command, "--xace-cli"]);
-        cmd.args(args);
-        cmd.stdin(Stdio::piped());
-        cmd.stdout(Stdio::piped());
-        cmd.stderr(Stdio::piped());
-
-        let mut child = cmd.spawn().map_err(|e| CliError::PythonError {
-            command:   format!("python3 -m {} {}", module, command),
-            stderr:    e.to_string(),
-            exit_code: None,
-        })?;
-
-        // Write stdin
-        if let Some(stdin) = child.stdin.take() {
-            use std::io::Write;
-            let mut s = stdin;
-            let _ = s.write_all(stdin_text.as_bytes());
-        }
-
-        let output = child.wait_with_output().map_err(|e| CliError::Io {
-            path: None, source: e,
-        })?;
-
-        self.parse_output(output, &format!("{} {}", module, command))
-    }
-
-    /// Simple check: can we `import` the named module without error?
-    pub fn module_importable(&self, module: &str) -> bool {
-        self.run(&["-c", &format!("import {}; print('ok')", module)])
-            .map(|o| o.status.success())
-            .unwrap_or(false)
-    }
-
-    /// Returns the Python version string, e.g. "Python 3.12.2".
-    pub fn version_string(&self) -> Option<String> {
-        let output = self.run(&["--version"]).ok()?;
-        let text   = String::from_utf8_lossy(&output.stdout).to_string()
-            + &String::from_utf8_lossy(&output.stderr);
-        // Python --version outputs "Python X.Y.Z" to stderr on some versions
-        for line in text.lines() {
-            if line.starts_with("Python ") {
-                return Some(line.trim().to_string());
-            }
-        }
-        None
-    }
-
-    /// Returns the version string of an installed XACE Python package.
-    pub fn package_version(&self, module: &str) -> Option<String> {
-        let code = format!(
-            "import {m}; v = getattr({m}, '__version__', None); print(v or 'unknown')",
-            m = module
-        );
-        let output = self.run(&["-c", &code]).ok()?;
-        if output.status.success() {
-            Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
-        } else {
-            None
-        }
     }
 
     // ── Internal ──────────────────────────────────────────────────────────────
@@ -216,8 +141,14 @@ impl PythonBridge {
         // Inject the packages directory into sys.path so XACE modules are importable
         // even without `pip install -e .` (useful in CI and fresh checkouts)
         let path_str = self.packages_dir.display().to_string();
-        cmd.env("PYTHONPATH", format!("{}:{}", path_str,
-            std::env::var("PYTHONPATH").unwrap_or_default()));
+        cmd.env(
+            "PYTHONPATH",
+            format!(
+                "{}:{}",
+                path_str,
+                std::env::var("PYTHONPATH").unwrap_or_default()
+            ),
+        );
         cmd
     }
 
@@ -233,17 +164,13 @@ impl PythonBridge {
         }
 
         cmd.output().map_err(|e| CliError::PythonError {
-            command:   args.join(" "),
-            stderr:    e.to_string(),
+            command: args.join(" "),
+            stderr: e.to_string(),
             exit_code: None,
         })
     }
 
-    fn parse_output(
-        &self,
-        output:  std::process::Output,
-        command: &str,
-    ) -> Result<Value, CliError> {
+    fn parse_output(&self, output: std::process::Output, command: &str) -> Result<Value, CliError> {
         let stderr = String::from_utf8_lossy(&output.stderr).to_string();
         let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
@@ -255,8 +182,8 @@ impl PythonBridge {
 
         if !output.status.success() {
             return Err(CliError::PythonError {
-                command:   command.to_string(),
-                stderr:    stderr.trim().to_string(),
+                command: command.to_string(),
+                stderr: stderr.trim().to_string(),
                 exit_code: output.status.code(),
             });
         }
@@ -337,25 +264,38 @@ fn return_empty_output() -> std::process::Output {
     std::process::Output {
         status: {
             #[cfg(unix)]
-            { use std::os::unix::process::ExitStatusExt; std::process::ExitStatus::from_raw(1) }
+            {
+                use std::os::unix::process::ExitStatusExt;
+                std::process::ExitStatus::from_raw(1)
+            }
             #[cfg(not(unix))]
-            { std::process::Command::new("false").status().unwrap_or_else(|_| {
-                // Last resort
-                panic!("cannot create empty ExitStatus on this platform")
-            })}
+            {
+                std::process::Command::new("false")
+                    .status()
+                    .unwrap_or_else(|_| {
+                        // Last resort
+                        panic!("cannot create empty ExitStatus on this platform")
+                    })
+            }
         },
         stdout: Vec::new(),
         stderr: Vec::new(),
     }
 }
 
-
 // ── Pipe helper ───────────────────────────────────────────────────────────────
 
 trait PipeExt: Sized {
-    fn pipe<F, R>(self, f: F) -> R where F: FnOnce(Self) -> R;
+    fn pipe<F, R>(self, f: F) -> R
+    where
+        F: FnOnce(Self) -> R;
 }
 
 impl<T> PipeExt for T {
-    fn pipe<F, R>(self, f: F) -> R where F: FnOnce(Self) -> R { f(self) }
+    fn pipe<F, R>(self, f: F) -> R
+    where
+        F: FnOnce(Self) -> R,
+    {
+        f(self)
+    }
 }

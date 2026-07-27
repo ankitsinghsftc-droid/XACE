@@ -3,11 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "workspace/builder"
+    "packages/builder-workspace"
   ],
   "scripts": {
-    "dev": "cd workspace/builder && npm run dev",
-    "build": "cd workspace/builder && npm run build"
+    "dev": "cd packages/builder-workspace && npm run dev",
+    "build": "cd packages/builder-workspace && npm run build",
+    "xace:cgs": "python tools/cgs_maker.py",
+    "xace:builder": "python tools/xace_builder_launch.py",
+    "xace:godot": "python tools/xace_godot_dev.py",
+    "xace:certify": "python tools/certify_launch.py",
+    "xace:python": "python tools/python_test_gate.py",
+    "xace:builder-test": "cd packages/builder-workspace && npm run test",
+    "xace:silent-success": "python tools/silent_success_check.py --output target-codex-silent-success/silent_success_report.json"
   },
   "devDependencies": {
     "vite": "^4.5.14"

@@ -8,14 +8,16 @@ TIER_L → DeepSeek, TIER_M → local first, TIER_XL → Anthropic.
 Also tests pass_number override and provider_kind in telemetry.
 """
  
+from datetime import datetime, timezone
 import pytest
 from unittest.mock import MagicMock
  
 from ..src.model_router import (
     ModelRouter, RoutingContext, CostPressure, PASS_TIER_MAP,
 )
-from ..src.model_descriptor import ComplexityTier
+from ..src.model_descriptor import ComplexityTier, BUILTIN_DESCRIPTORS
 from ..src.provider_registry import ProviderRegistry, IProviderClient
+from ..src.route_evidence import RouteEvidencePolicy
  
  
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -44,7 +46,35 @@ def _local_manager_with(loaded: list[str]):
  
 def _router(local_loaded: list[str] | None = None) -> ModelRouter:
     local_mgr = _local_manager_with(local_loaded) if local_loaded is not None else None
-    return ModelRouter(_registry(), local_manager=local_mgr)
+    return ModelRouter(
+        _registry(),
+        local_manager=local_mgr,
+        route_evidence_policy=_route_evidence_policy(local_loaded or []),
+    )
+
+
+def _route_evidence_policy(local_models: list[str]) -> RouteEvidencePolicy:
+    rows = []
+    for descriptor in BUILTIN_DESCRIPTORS.values():
+        rows.append(_route_evidence_row(descriptor.provider, descriptor.logical_name, descriptor.model_id, descriptor.default_tier))
+    for model_id in local_models:
+        rows.append(_route_evidence_row("local", "local_dev", model_id, ComplexityTier.M))
+    return RouteEvidencePolicy.from_records(rows, now_utc=datetime(2026, 7, 3, tzinfo=timezone.utc))
+
+
+def _route_evidence_row(provider: str, logical_name: str, model_id: str, tier: str) -> dict:
+    return {
+        "provider": provider,
+        "logical_name": logical_name,
+        "model_id": model_id,
+        "tier": tier,
+        "benchmark_id": f"task56-{provider}-{logical_name}",
+        "benchmark_hash": f"sha256:{provider}:{logical_name}:{model_id}",
+        "benchmarked_at_utc": "2026-07-01T00:00:00Z",
+        "expires_at_utc": "2027-07-03T00:00:00Z",
+        "status": "passed",
+        "metrics": {"route_accuracy": 1.0, "sample_count": 3},
+    }
  
  
 # ── TIER_XL remains Anthropic ─────────────────────────────────────────────────

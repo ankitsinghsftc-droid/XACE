@@ -36,9 +36,7 @@
 use std::collections::BTreeMap;
 
 use xace_core::entity_id::EntityID;
-use xace_core::wire::delta_payload::{
-    DeltaPayload, WireComponentUpdate, WireFieldChange,
-};
+use xace_core::wire::delta_payload::DeltaPayload;
 use xace_core::wire::snapshot_payload::SnapshotPayload;
 
 // ── Compressor Metrics ────────────────────────────────────────────────────────
@@ -54,6 +52,8 @@ pub struct CompressorMetrics {
     pub fields_after: u64,
     /// Total entity updates removed entirely (all fields unchanged).
     pub entity_updates_eliminated: u64,
+    /// Total fields that had no cached baseline yet.
+    pub cache_miss_fields: u64,
     /// Total times the cache was rebuilt from a SNAPSHOT.
     pub cache_rebuilds: u64,
 }
@@ -66,10 +66,11 @@ impl CompressorMetrics {
 
     /// Compression ratio (0.0 = no compression, 1.0 = everything eliminated).
     pub fn compression_ratio(&self) -> f32 {
-        if self.fields_before == 0 {
+        let compressible_fields = self.fields_before.saturating_sub(self.cache_miss_fields);
+        if compressible_fields == 0 {
             return 0.0;
         }
-        self.fields_eliminated() as f32 / self.fields_before as f32
+        self.fields_eliminated() as f32 / compressible_fields as f32
     }
 }
 
@@ -131,7 +132,8 @@ impl DeltaCompressor {
 
         // ── Account for spawned entities in cache ──────────────────────────
         for spawned in &payload.spawned_entities {
-            let entity_cache = self.cache
+            let entity_cache = self
+                .cache
                 .entry(spawned.entity_id)
                 .or_insert_with(BTreeMap::new);
 
@@ -148,37 +150,39 @@ impl DeltaCompressor {
         let mut total_before = 0u64;
         let mut total_after = 0u64;
         let mut entities_eliminated = 0u64;
+        let mut cache_miss_fields = 0u64;
 
         let mut empty_entity_ids: Vec<EntityID> = Vec::new();
 
         for (entity_id, entity_update) in payload.modified_entities.iter_mut() {
-            let entity_cache = self.cache
-                .entry(*entity_id)
-                .or_insert_with(BTreeMap::new);
+            let entity_cache = self.cache.entry(*entity_id).or_insert_with(BTreeMap::new);
 
             let mut empty_type_ids: Vec<u32> = Vec::new();
 
             for (type_id, component_update) in entity_update.component_updates.iter_mut() {
-                let field_cache = entity_cache
-                    .entry(*type_id)
-                    .or_insert_with(BTreeMap::new);
+                let field_cache = entity_cache.entry(*type_id).or_insert_with(BTreeMap::new);
 
                 total_before += component_update.field_changes.len() as u64;
 
-                // Keep only fields whose value differs from the cached value
-                component_update.field_changes.retain(|fc| {
+                let mut changed_fields = Vec::new();
+                for fc in &component_update.field_changes {
+                    let canonical_value = Self::canonical_field_value(&fc.value_json);
                     match field_cache.get(&fc.field_name) {
-                        Some(cached_val) => cached_val != &fc.value_json,
-                        None => true, // field not yet cached — must send
+                        Some(cached_val) if cached_val == &canonical_value => {}
+                        Some(_) => {
+                            field_cache.insert(fc.field_name.clone(), canonical_value);
+                            changed_fields.push(fc.clone());
+                        }
+                        None => {
+                            cache_miss_fields += 1;
+                            field_cache.insert(fc.field_name.clone(), canonical_value);
+                            changed_fields.push(fc.clone());
+                        }
                     }
-                });
+                }
+                component_update.field_changes = changed_fields;
 
                 total_after += component_update.field_changes.len() as u64;
-
-                // Update cache with surviving (genuinely changed) fields
-                for fc in &component_update.field_changes {
-                    field_cache.insert(fc.field_name.clone(), fc.value_json.clone());
-                }
 
                 if component_update.field_changes.is_empty() {
                     empty_type_ids.push(*type_id);
@@ -210,7 +214,8 @@ impl DeltaCompressor {
 
         // ── Account for added components in cache ──────────────────────────
         for added in &payload.added_components {
-            let entity_cache = self.cache
+            let entity_cache = self
+                .cache
                 .entry(added.entity_id)
                 .or_insert_with(BTreeMap::new);
             let field_cache = entity_cache
@@ -227,6 +232,7 @@ impl DeltaCompressor {
         self.metrics.fields_before += total_before;
         self.metrics.fields_after += total_after;
         self.metrics.entity_updates_eliminated += entities_eliminated;
+        self.metrics.cache_miss_fields += cache_miss_fields;
     }
 
     /// Rebuilds the field cache from a `SnapshotPayload`.
@@ -239,14 +245,13 @@ impl DeltaCompressor {
         self.cache.clear();
 
         for entity in &snapshot.entities {
-            let entity_cache = self.cache
+            let entity_cache = self
+                .cache
                 .entry(entity.entity_id)
                 .or_insert_with(BTreeMap::new);
 
             for (type_id, component) in &entity.components {
-                let field_cache = entity_cache
-                    .entry(*type_id)
-                    .or_insert_with(BTreeMap::new);
+                let field_cache = entity_cache.entry(*type_id).or_insert_with(BTreeMap::new);
                 Self::parse_component_json_into_cache(&component.data_json, field_cache);
             }
         }
@@ -299,18 +304,32 @@ impl DeltaCompressor {
     /// This does NOT recursively flatten nested objects — it stores the
     /// top-level field values as raw JSON strings. Nested objects are compared
     /// as opaque strings; any change to a nested field changes the string value.
-    fn parse_component_json_into_cache(
-        component_json: &str,
-        cache: &mut ComponentFieldCache,
-    ) {
+    fn parse_component_json_into_cache(component_json: &str, cache: &mut ComponentFieldCache) {
         if let Ok(serde_json::Value::Object(map)) =
             serde_json::from_str::<serde_json::Value>(component_json)
         {
             for (key, value) in map {
-                cache.insert(key, value.to_string());
+                cache.insert(key, Self::canonical_json_value(&value));
             }
         }
         // Malformed JSON → leave cache empty → field will be sent in full
+    }
+
+    fn canonical_field_value(value_json: &str) -> String {
+        serde_json::from_str::<serde_json::Value>(value_json)
+            .map(|value| Self::canonical_json_value(&value))
+            .unwrap_or_else(|_| value_json.to_string())
+    }
+
+    fn canonical_json_value(value: &serde_json::Value) -> String {
+        match value {
+            serde_json::Value::Number(number) => number
+                .as_f64()
+                .filter(|value| value.is_finite() && value.fract() == 0.0)
+                .map(|value| format!("{:.0}", value))
+                .unwrap_or_else(|| number.to_string()),
+            _ => value.to_string(),
+        }
     }
 }
 
@@ -326,9 +345,8 @@ impl Default for DeltaCompressor {
 mod tests {
     use super::*;
     use xace_core::wire::delta_payload::{
-        DeltaPayload, WireEntityUpdate, WireComponentUpdate, WireFieldChange,
-        WireSpawnedEntity, WireComponentData, WireDestroyedEntity, WireAddedComponent,
-        WireRemovedComponent,
+        DeltaPayload, WireComponentData, WireComponentUpdate, WireDestroyedEntity, WireFieldChange,
+        WireSpawnedEntity,
     };
 
     fn delta_with_update(
@@ -352,10 +370,12 @@ mod tests {
     #[test]
     fn first_send_passes_all_fields_through() {
         let mut c = DeltaCompressor::new();
-        let mut payload = delta_with_update(1, 1, 1, vec![
-            ("position", r#"{"x":0}"#),
-            ("rotation", r#"{"w":1}"#),
-        ]);
+        let mut payload = delta_with_update(
+            1,
+            1,
+            1,
+            vec![("position", r#"{"x":0}"#), ("rotation", r#"{"w":1}"#)],
+        );
         c.compress(&mut payload);
         // Nothing was cached — both fields should survive
         let update = &payload.modified_entities[&1].component_updates[&1];
@@ -427,7 +447,9 @@ mod tests {
         let mut p1 = DeltaPayload::empty(1, 1, "0.1.0");
         let mut wire_entity = WireSpawnedEntity::new(1, "actor");
         wire_entity.add_component(WireComponentData::new(
-            1, "COMP_TRANSFORM", r#"{"x":0,"y":0}"#,
+            1,
+            "COMP_TRANSFORM",
+            r#"{"x":0,"y":0}"#,
         ));
         p1.add_spawn(wire_entity);
         c.compress(&mut p1);
@@ -435,6 +457,26 @@ mod tests {
         // Next tick: update with identical values — should be eliminated
         let mut p2 = delta_with_update(2, 1, 1, vec![("x", "0"), ("y", "0")]);
         c.compress(&mut p2);
+        assert!(!payload_has_entity_update(&p2, 1));
+    }
+
+    #[test]
+    fn numeric_equivalent_spawn_fields_are_eliminated() {
+        let mut c = DeltaCompressor::new();
+
+        let mut p1 = DeltaPayload::empty(1, 1, "0.1.0");
+        let mut wire_entity = WireSpawnedEntity::new(1, "actor");
+        wire_entity.add_component(WireComponentData::new(
+            1,
+            "COMP_TRANSFORM",
+            r#"{"x":0,"y":1.0}"#,
+        ));
+        p1.add_spawn(wire_entity);
+        c.compress(&mut p1);
+
+        let mut p2 = delta_with_update(2, 1, 1, vec![("x", "0.0"), ("y", "1")]);
+        c.compress(&mut p2);
+
         assert!(!payload_has_entity_update(&p2, 1));
     }
 
@@ -459,16 +501,23 @@ mod tests {
 
     #[test]
     fn rebuild_from_snapshot_populates_cache() {
-        use xace_core::wire::snapshot_payload::{
-            SnapshotPayload, SnapshotEntityRecord, SnapshotComponentRecord, SnapshotReason,
-        };
         use xace_core::entity_state::EntityState;
+        use xace_core::wire::snapshot_payload::{
+            SnapshotComponentRecord, SnapshotEntityRecord, SnapshotPayload, SnapshotReason,
+        };
 
         let mut c = DeltaCompressor::new();
         assert_eq!(c.cached_entity_count(), 0);
 
-        let mut snapshot =
-            SnapshotPayload::new(0, "0.1.0", 1, "", "hash", 0, SnapshotReason::InitialConnection);
+        let mut snapshot = SnapshotPayload::new(
+            0,
+            "0.1.0",
+            1,
+            "",
+            "hash",
+            0,
+            SnapshotReason::InitialConnection,
+        );
         let mut entity = SnapshotEntityRecord::new(1, EntityState::Active);
         entity.add_component(SnapshotComponentRecord::new(
             1,
@@ -516,7 +565,7 @@ mod tests {
         // First compress: 2 fields before, 2 after (nothing cached)
         // Second compress: 2 fields before, 1 after (x eliminated)
         assert_eq!(m.fields_before, 4); // 2+2
-        assert_eq!(m.fields_after, 3);  // 2+1
+        assert_eq!(m.fields_after, 3); // 2+1
         assert_eq!(m.fields_eliminated(), 1);
     }
 
@@ -541,10 +590,12 @@ mod tests {
     #[test]
     fn compression_ratio_high_when_mostly_unchanged() {
         let mut c = DeltaCompressor::new();
-        let fields: Vec<(&str, &str)> = (0..10).map(|i| {
-            let name = Box::leak(format!("field_{}", i).into_boxed_str()) as &str;
-            (name, "same_value")
-        }).collect();
+        let fields: Vec<(&str, &str)> = (0..10)
+            .map(|i| {
+                let name = Box::leak(format!("field_{}", i).into_boxed_str()) as &str;
+                (name, "same_value")
+            })
+            .collect();
 
         let mut p1 = delta_with_update(1, 1, 1, fields.clone());
         c.compress(&mut p1);

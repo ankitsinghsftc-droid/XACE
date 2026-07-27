@@ -125,14 +125,14 @@ impl AssetStatus {
     /// Written in plain English — zero technical vocabulary (NLTL principle).
     pub fn user_message(&self) -> &'static str {
         match self {
-            AssetStatus::Placeholder =>
-                "No visual asset linked yet. Game runs but shows a grey box.",
-            AssetStatus::Linked =>
-                "Asset linked and ready. Engine can render this.",
-            AssetStatus::Missing =>
-                "Asset file was moved or deleted. Re-link to restore visuals.",
-            AssetStatus::Unresolved =>
-                "Asset reference is broken. This must be fixed before saving.",
+            AssetStatus::Placeholder => {
+                "No visual asset linked yet. Game runs but shows a grey box."
+            }
+            AssetStatus::Linked => "Asset linked and ready. Engine can render this.",
+            AssetStatus::Missing => "Asset file was moved or deleted. Re-link to restore visuals.",
+            AssetStatus::Unresolved => {
+                "Asset reference is broken. This must be fixed before saving."
+            }
         }
     }
 

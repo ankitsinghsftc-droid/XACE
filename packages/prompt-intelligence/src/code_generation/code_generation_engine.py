@@ -74,6 +74,10 @@ from rust_code_generator import (
 from code_contract_validator import CodeContractValidator, ContractValidationResult
 from determinism_code_checker import DeterminismCodeChecker, DeterminismReport
 from cargo_compiler import CargoCompiler, CompileResult
+from generated_system_safe_compiler import (
+    GeneratedSystemSafeCompiler,
+    SafeGeneratedSystemCompileResult,
+)
 
 
 # ── Code Generation Result ────────────────────────────────────────────────────
@@ -103,6 +107,8 @@ class CodeGenerationResult:
     compile_result:      CompileResult | None              = None
     contract_result:     ContractValidationResult | None   = None
     determinism_report:  DeterminismReport | None          = None
+    safe_compile_result: SafeGeneratedSystemCompileResult | None = None
+    signed_runtime_executor: dict[str, Any]                = field(default_factory=dict)
     attempts_used:       int                               = 0
     needs_clarification: bool                              = False
     error:               str                               = ""
@@ -163,7 +169,12 @@ class CodeGenerationEngine:
             commit_to_filesystem(result.rust_source, system_id)
     """
 
-    def __init__(self, adapter: Any) -> None:
+    def __init__(
+        self,
+        adapter: Any,
+        sgc_bin: str | os.PathLike[str] | None = None,
+        safe_compiler: GeneratedSystemSafeCompiler | None = None,
+    ) -> None:
         """
         Parameters
         ----------
@@ -176,6 +187,7 @@ class CodeGenerationEngine:
         self._contract_validator = CodeContractValidator()
         self._det_checker   = DeterminismCodeChecker()
         self._compiler      = CargoCompiler()
+        self._safe_compiler = safe_compiler or GeneratedSystemSafeCompiler(sgc_bin=sgc_bin)
 
     def generate_system(
         self,
@@ -230,6 +242,13 @@ class CodeGenerationEngine:
             )
 
         # ── Attempt loop (hard cap MAX_ATTEMPTS=2) ────────────────────────────
+        system_definition = self._find_system_definition(cgs, system_id, mode_id)
+        runtime_executor: dict[str, Any] = {}
+        if isinstance(system_definition, dict):
+            raw_runtime_executor = system_definition.get("runtime_executor")
+            if isinstance(raw_runtime_executor, dict):
+                runtime_executor = raw_runtime_executor
+
         correction    = ""
         last_error    = ""
         code          = None
@@ -274,6 +293,37 @@ class CodeGenerationEngine:
             )
 
             if all_passed:
+                safe_compile_result: SafeGeneratedSystemCompileResult | None = None
+                signed_runtime_executor: dict[str, Any] = {}
+                if runtime_executor:
+                    safe_compile_result = self._safe_compiler.compile(
+                        system_id=system_id,
+                        cgs=cgs,
+                        rust_source=code.rust_source,
+                        mode_id=mode_id,
+                        description=description,
+                        max_entities=max_entities,
+                        tick_budget_us=tick_budget_us,
+                    )
+                    if not safe_compile_result.succeeded:
+                        return CodeGenerationResult(
+                            succeeded           = False,
+                            system_id           = system_id,
+                            final_code          = code,
+                            compile_result      = safe_compile_result.compile_result or compile_result,
+                            contract_result     = safe_compile_result.contract_result or contract_result,
+                            determinism_report  = safe_compile_result.determinism_report or det_report,
+                            safe_compile_result = safe_compile_result,
+                            attempts_used       = attempt,
+                            needs_clarification = True,
+                            error               = (
+                                "Safe generated-system compile failed at "
+                                f"{safe_compile_result.stage}: {safe_compile_result.error}"
+                            ),
+                            spec                = spec,
+                        )
+                    signed_runtime_executor = safe_compile_result.signed_runtime_executor
+
                 diff_text = _compute_diff(
                     old_code          = old_code,
                     new_code          = code.rust_source,
@@ -286,6 +336,8 @@ class CodeGenerationEngine:
                     compile_result     = compile_result,
                     contract_result    = contract_result,
                     determinism_report = det_report,
+                    safe_compile_result = safe_compile_result,
+                    signed_runtime_executor = signed_runtime_executor,
                     attempts_used      = attempt,
                     diff_text          = diff_text,
                     spec               = spec,
@@ -419,6 +471,28 @@ class CodeGenerationEngine:
                 result.append(sid)
 
         return result
+
+    @staticmethod
+    def _find_system_definition(
+        cgs: dict[str, Any],
+        system_id: str,
+        mode_id: str,
+    ) -> dict[str, Any] | None:
+        """Finds the CGS system definition used by safe generated-code routing."""
+        for system in cgs.get("global_systems", []):
+            if isinstance(system, dict) and system.get("id") == system_id:
+                return system
+
+        for mode in cgs.get("modes", []):
+            if not isinstance(mode, dict):
+                continue
+            if mode_id and mode.get("id") != mode_id:
+                continue
+            for system in mode.get("systems", []):
+                if isinstance(system, dict) and system.get("id") == system_id:
+                    return system
+
+        return None
 
 
 # ── Diff computation ──────────────────────────────────────────────────────────

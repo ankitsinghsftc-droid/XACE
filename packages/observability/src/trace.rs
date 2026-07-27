@@ -38,11 +38,10 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
-
 // ── ID Types ──────────────────────────────────────────────────────────────────
 
 /// Identifies one end-to-end trace (e.g. one mutation transaction).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TraceId(pub u128);
 
 impl TraceId {
@@ -54,17 +53,21 @@ impl TraceId {
         Self(id.as_u128())
     }
 
-    pub fn is_zero(&self) -> bool { self.0 == 0 }
+    pub fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
 
-    pub fn to_hex(&self) -> String { format!("{:032x}", self.0) }
+    pub fn to_hex(&self) -> String {
+        format!("{:032x}", self.0)
+    }
 }
 
 impl std::fmt::Display for TraceId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", &self.to_hex()[..16])   // first 16 hex chars for readability
+        // Non-authoritative trace-id display prefix; not a CGS/world hash.
+        write!(f, "{}", &self.to_hex()[..16])
     }
 }
-
 
 /// Identifies one span within a trace.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -78,7 +81,9 @@ impl SpanId {
         Self(COUNTER.fetch_add(1, Ordering::Relaxed))
     }
 
-    pub fn is_zero(&self) -> bool { self.0 == 0 }
+    pub fn is_zero(&self) -> bool {
+        self.0 == 0
+    }
 }
 
 impl std::fmt::Display for SpanId {
@@ -86,7 +91,6 @@ impl std::fmt::Display for SpanId {
         write!(f, "{:016x}", self.0)
     }
 }
-
 
 // ── Span Status ───────────────────────────────────────────────────────────────
 
@@ -98,32 +102,31 @@ pub enum SpanStatus {
     Unset,
 }
 
-
 // ── Span (in-flight) ─────────────────────────────────────────────────────────
 
 /// A span that is currently open (has not been closed yet).
 /// Do not store these long-term — use `SpanRecord` for storage.
 #[derive(Debug)]
 pub struct Span {
-    pub trace_id:       TraceId,
-    pub span_id:        SpanId,
+    pub trace_id: TraceId,
+    pub span_id: SpanId,
     pub parent_span_id: Option<SpanId>,
-    pub name:           String,
-    pub start_ns:       u64,    // nanoseconds since UNIX epoch
-    pub attributes:     HashMap<String, String>,
-    pub status:         SpanStatus,
+    pub name: String,
+    pub start_ns: u64, // nanoseconds since UNIX epoch
+    pub attributes: HashMap<String, String>,
+    pub status: SpanStatus,
 }
 
 impl Span {
     pub fn new(name: impl Into<String>, trace_id: TraceId, parent: Option<SpanId>) -> Self {
         Self {
             trace_id,
-            span_id:        SpanId::new_unique(),
+            span_id: SpanId::new_unique(),
             parent_span_id: parent,
-            name:           name.into(),
-            start_ns:       epoch_nanos(),
-            attributes:     HashMap::new(),
-            status:         SpanStatus::Unset,
+            name: name.into(),
+            start_ns: epoch_nanos(),
+            attributes: HashMap::new(),
+            status: SpanStatus::Unset,
         }
     }
 
@@ -137,21 +140,20 @@ impl Span {
 
     /// Closes this span and produces a `SpanRecord` (serialisable, storable).
     pub fn close(self) -> SpanRecord {
-        let end_ns  = epoch_nanos();
+        let end_ns = epoch_nanos();
         let duration = Duration::from_nanos(end_ns.saturating_sub(self.start_ns));
         SpanRecord {
-            trace_id:       self.trace_id,
-            span_id:        self.span_id,
+            trace_id: self.trace_id,
+            span_id: self.span_id,
             parent_span_id: self.parent_span_id,
-            name:           self.name,
-            start_ns:       self.start_ns,
-            duration_us:    duration.as_micros() as u64,
-            attributes:     self.attributes,
-            status:         self.status,
+            name: self.name,
+            start_ns: self.start_ns,
+            duration_us: duration.as_micros() as u64,
+            attributes: self.attributes,
+            status: self.status,
         }
     }
 }
-
 
 // ── SpanRecord (closed span, serialisable) ────────────────────────────────────
 
@@ -159,14 +161,14 @@ impl Span {
 /// This is what gets written to crash reports and trace logs.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SpanRecord {
-    pub trace_id:       TraceId,
-    pub span_id:        SpanId,
+    pub trace_id: TraceId,
+    pub span_id: SpanId,
     pub parent_span_id: Option<SpanId>,
-    pub name:           String,
-    pub start_ns:       u64,
-    pub duration_us:    u64,       // microseconds — avoids float in JSON
-    pub attributes:     HashMap<String, String>,
-    pub status:         SpanStatus,
+    pub name: String,
+    pub start_ns: u64,
+    pub duration_us: u64, // microseconds — avoids float in JSON
+    pub attributes: HashMap<String, String>,
+    pub status: SpanStatus,
 }
 
 impl SpanRecord {
@@ -180,7 +182,6 @@ impl SpanRecord {
     }
 }
 
-
 // ── Trace Log ─────────────────────────────────────────────────────────────────
 
 /// An append-only log of closed spans.
@@ -188,12 +189,15 @@ impl SpanRecord {
 #[derive(Default)]
 pub struct TraceLog {
     records: std::sync::Mutex<Vec<SpanRecord>>,
-    path:    Option<std::path::PathBuf>,
+    path: Option<std::path::PathBuf>,
 }
 
 impl TraceLog {
     pub fn new(path: Option<std::path::PathBuf>) -> Self {
-        Self { records: Default::default(), path }
+        Self {
+            records: Default::default(),
+            path,
+        }
     }
 
     /// Appends a closed span to the log.
@@ -216,18 +220,22 @@ impl TraceLog {
         self.records.lock().map(|r| r.len()).unwrap_or(0)
     }
 
-    pub fn is_empty(&self) -> bool { self.len() == 0 }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 }
 
 fn flush_jsonl(path: &std::path::Path, records: &[SpanRecord]) -> std::io::Result<()> {
     use std::io::Write;
-    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(path)?;
+    let mut file = std::fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)?;
     for record in records {
         writeln!(file, "{}", record.to_jsonl())?;
     }
     Ok(())
 }
-
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 

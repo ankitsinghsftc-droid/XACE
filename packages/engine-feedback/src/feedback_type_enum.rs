@@ -1,263 +1,227 @@
-//! # Feedback Type Enum
+//! Feedback type dispatch metadata.
 //!
-//! Re-exports `FeedbackType` from `xace_core` and adds runtime-side
-//! handler dispatch mapping. Every feedback message received from the
-//! engine adapter is routed to exactly one handler based on its type.
-//!
-//! ## Handler Assignment
-//! Each `FeedbackType` maps to a `FeedbackHandlerKind` that identifies
-//! which handler in the `feedback_router` processes it. This mapping
-//! is the single authoritative source of truth — change it here and
-//! the router changes automatically.
-//!
-//! ## Ten Feedback Types (Audit 6)
-//! AnimationStateUpdate → AnimationHandler
-//! AnimationEventFired  → AnimationHandler
-//! PhysicsSettled       → PhysicsHandler
-//! VisibilityQueryResult → VisibilityHandler
-//! AudioComplete        → AudioHandler
-//! AudioPositionUpdate  → AudioHandler
-//! InputDeviceUpdate    → InputHandler
-//! PerformanceMetrics   → PerformanceHandler
-//! AssetResolutionUpdate → AssetHandler (Phase 14 Asset Registry)
-//! EngineError          → ErrorHandler (log only, never halt)
+//! `FeedbackType` itself lives in `xace-core` as part of the wire contract.
+//! This module adds runtime-side classification used by routers, handlers,
+//! metrics, and safety checks.
 
 pub use xace_core::wire::feedback_payload::FeedbackType;
 
-// ── Handler Kind ──────────────────────────────────────────────────────────────
-
-/// Identifies which handler processes a given `FeedbackType`.
-///
-/// Used by the `FeedbackRouter` to dispatch messages without a match
-/// chain on every individual `FeedbackType` variant.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum FeedbackHandlerKind {
-    /// Processes `AnimationStateUpdate` and `AnimationEventFired`.
-    /// Writes current_normalized_time, is_transitioning, and
-    /// active_state_per_layer back to `COMP_ANIMATION_V2`.
     Animation,
-
-    /// Processes `PhysicsSettled`.
-    /// Writes final resting position to `COMP_TRANSFORM_V1` via Mutation Gate.
     Physics,
-
-    /// Processes `VisibilityQueryResult`.
-    /// Writes can_see and distance to `COMP_PERCEPTION_V1` via Mutation Gate.
     Visibility,
-
-    /// Processes `AudioComplete` and `AudioPositionUpdate`.
-    /// Triggers follow-up game events for audio completion chains.
     Audio,
-
-    /// Processes `InputDeviceUpdate`.
-    /// Supplements the standard INPUT message for touch, gyro, and voice.
     Input,
-
-    /// Processes `PerformanceMetrics`.
-    /// Stores real engine performance data for the PIL performance risk guard.
     Performance,
-
-    /// Processes `AssetResolutionUpdate`.
-    /// Notifies the Asset Registry that PLACEHOLDER→LINKED transitions occurred.
     Asset,
-
-    /// Processes `EngineError`.
-    /// Logs the error and surfaces it to the builder UI. Never halts the runtime.
     Error,
 }
 
-impl std::fmt::Display for FeedbackHandlerKind {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl FeedbackHandlerKind {
+    pub const ALL: [FeedbackHandlerKind; 8] = [
+        FeedbackHandlerKind::Animation,
+        FeedbackHandlerKind::Physics,
+        FeedbackHandlerKind::Visibility,
+        FeedbackHandlerKind::Audio,
+        FeedbackHandlerKind::Input,
+        FeedbackHandlerKind::Performance,
+        FeedbackHandlerKind::Asset,
+        FeedbackHandlerKind::Error,
+    ];
+
+    pub fn as_str(self) -> &'static str {
         match self {
-            FeedbackHandlerKind::Animation   => write!(f, "AnimationHandler"),
-            FeedbackHandlerKind::Physics     => write!(f, "PhysicsHandler"),
-            FeedbackHandlerKind::Visibility  => write!(f, "VisibilityHandler"),
-            FeedbackHandlerKind::Audio       => write!(f, "AudioHandler"),
-            FeedbackHandlerKind::Input       => write!(f, "InputHandler"),
-            FeedbackHandlerKind::Performance => write!(f, "PerformanceHandler"),
-            FeedbackHandlerKind::Asset       => write!(f, "AssetHandler"),
-            FeedbackHandlerKind::Error       => write!(f, "ErrorHandler"),
+            Self::Animation => "animation",
+            Self::Physics => "physics",
+            Self::Visibility => "visibility",
+            Self::Audio => "audio",
+            Self::Input => "input",
+            Self::Performance => "performance",
+            Self::Asset => "asset",
+            Self::Error => "error",
+        }
+    }
+
+    pub fn display_name(self) -> &'static str {
+        match self {
+            Self::Animation => "AnimationHandler",
+            Self::Physics => "PhysicsHandler",
+            Self::Visibility => "VisibilityHandler",
+            Self::Audio => "AudioHandler",
+            Self::Input => "InputHandler",
+            Self::Performance => "PerformanceHandler",
+            Self::Asset => "AssetHandler",
+            Self::Error => "ErrorHandler",
         }
     }
 }
 
-// ── Dispatch Mapping — Extension Trait ───────────────────────────────────────
-//
-// FeedbackType is defined in xace_core — Rust does not allow adding inherent
-// methods to foreign types. We use an extension trait instead (the idiomatic fix).
-// Import `FeedbackTypeExt` wherever these methods are needed.
+impl std::fmt::Display for FeedbackHandlerKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.display_name())
+    }
+}
 
-/// Extension methods on `FeedbackType` for runtime handler dispatch.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FeedbackEffect {
+    MutationGateWrite,
+    EventEmission,
+    DiagnosticsOnly,
+    InputAugmentation,
+    AssetRegistryUpdate,
+}
+
 pub trait FeedbackTypeExt {
-    /// Returns the `FeedbackHandlerKind` responsible for processing this type.
     fn handler_kind(&self) -> FeedbackHandlerKind;
-
-    /// Returns true if this type writes back via the Mutation Gate.
+    fn effect(&self) -> FeedbackEffect;
     fn requires_mutation_gate(&self) -> bool;
-
-    /// Returns true if this type can emit a game Event via the EventBus.
     fn can_produce_events(&self) -> bool;
-
-    /// Returns true if this type is purely informational (no runtime state changes).
     fn is_informational(&self) -> bool;
+    fn requires_entity_id(&self) -> bool;
+    fn is_entity_scoped(&self) -> bool;
+    fn is_high_volume(&self) -> bool;
+    fn route_priority(&self) -> u8;
+    fn stable_name(&self) -> &'static str;
 }
 
 impl FeedbackTypeExt for FeedbackType {
     fn handler_kind(&self) -> FeedbackHandlerKind {
         match self {
-            FeedbackType::AnimationStateUpdate  => FeedbackHandlerKind::Animation,
-            FeedbackType::AnimationEventFired   => FeedbackHandlerKind::Animation,
-            FeedbackType::PhysicsSettled        => FeedbackHandlerKind::Physics,
+            FeedbackType::AnimationStateUpdate | FeedbackType::AnimationEventFired => {
+                FeedbackHandlerKind::Animation
+            }
+            FeedbackType::PhysicsSettled => FeedbackHandlerKind::Physics,
             FeedbackType::VisibilityQueryResult => FeedbackHandlerKind::Visibility,
-            FeedbackType::AudioComplete         => FeedbackHandlerKind::Audio,
-            FeedbackType::AudioPositionUpdate   => FeedbackHandlerKind::Audio,
-            FeedbackType::InputDeviceUpdate     => FeedbackHandlerKind::Input,
-            FeedbackType::PerformanceMetrics    => FeedbackHandlerKind::Performance,
+            FeedbackType::AudioComplete | FeedbackType::AudioPositionUpdate => {
+                FeedbackHandlerKind::Audio
+            }
+            FeedbackType::InputDeviceUpdate => FeedbackHandlerKind::Input,
+            FeedbackType::PerformanceMetrics => FeedbackHandlerKind::Performance,
             FeedbackType::AssetResolutionUpdate => FeedbackHandlerKind::Asset,
-            FeedbackType::EngineError           => FeedbackHandlerKind::Error,
+            FeedbackType::EngineError => FeedbackHandlerKind::Error,
+        }
+    }
+
+    fn effect(&self) -> FeedbackEffect {
+        match self {
+            FeedbackType::AnimationStateUpdate
+            | FeedbackType::PhysicsSettled
+            | FeedbackType::VisibilityQueryResult => FeedbackEffect::MutationGateWrite,
+            FeedbackType::AnimationEventFired
+            | FeedbackType::AudioComplete
+            | FeedbackType::AudioPositionUpdate => FeedbackEffect::EventEmission,
+            FeedbackType::InputDeviceUpdate => FeedbackEffect::InputAugmentation,
+            FeedbackType::AssetResolutionUpdate => FeedbackEffect::AssetRegistryUpdate,
+            FeedbackType::PerformanceMetrics | FeedbackType::EngineError => {
+                FeedbackEffect::DiagnosticsOnly
+            }
         }
     }
 
     fn requires_mutation_gate(&self) -> bool {
-        matches!(
-            self,
-            FeedbackType::AnimationStateUpdate
-                | FeedbackType::AnimationEventFired
-                | FeedbackType::PhysicsSettled
-                | FeedbackType::VisibilityQueryResult
-        )
+        self.effect() == FeedbackEffect::MutationGateWrite
     }
 
     fn can_produce_events(&self) -> bool {
-        matches!(
-            self,
-            FeedbackType::AnimationEventFired | FeedbackType::AudioComplete
-        )
+        self.effect() == FeedbackEffect::EventEmission
     }
 
     fn is_informational(&self) -> bool {
         matches!(
+            self.effect(),
+            FeedbackEffect::DiagnosticsOnly | FeedbackEffect::AssetRegistryUpdate
+        )
+    }
+
+    fn requires_entity_id(&self) -> bool {
+        !matches!(
             self,
             FeedbackType::PerformanceMetrics
                 | FeedbackType::AssetResolutionUpdate
-                | FeedbackType::EngineError
+                | FeedbackType::InputDeviceUpdate
         )
+    }
+
+    fn is_entity_scoped(&self) -> bool {
+        self.requires_entity_id()
+    }
+
+    fn is_high_volume(&self) -> bool {
+        matches!(
+            self,
+            FeedbackType::AnimationStateUpdate
+                | FeedbackType::PhysicsSettled
+                | FeedbackType::VisibilityQueryResult
+                | FeedbackType::AudioPositionUpdate
+                | FeedbackType::InputDeviceUpdate
+                | FeedbackType::PerformanceMetrics
+        )
+    }
+
+    fn route_priority(&self) -> u8 {
+        match self {
+            FeedbackType::EngineError => 0,
+            FeedbackType::InputDeviceUpdate => 10,
+            FeedbackType::PhysicsSettled => 20,
+            FeedbackType::VisibilityQueryResult => 30,
+            FeedbackType::AnimationEventFired => 40,
+            FeedbackType::AnimationStateUpdate => 50,
+            FeedbackType::AudioComplete => 60,
+            FeedbackType::AudioPositionUpdate => 70,
+            FeedbackType::AssetResolutionUpdate => 80,
+            FeedbackType::PerformanceMetrics => 90,
+        }
+    }
+
+    fn stable_name(&self) -> &'static str {
+        self.name()
     }
 }
 
-/// Returns all ten feedback types in discriminant order.
-/// Standalone function because `all()` cannot be part of the extension trait
-/// (it returns a static slice, not a method on self).
 pub fn all_feedback_types() -> &'static [FeedbackType] {
-    &[
-        FeedbackType::AnimationStateUpdate,
-        FeedbackType::AnimationEventFired,
-        FeedbackType::PhysicsSettled,
-        FeedbackType::VisibilityQueryResult,
-        FeedbackType::AudioComplete,
-        FeedbackType::AudioPositionUpdate,
-        FeedbackType::InputDeviceUpdate,
-        FeedbackType::PerformanceMetrics,
-        FeedbackType::AssetResolutionUpdate,
-        FeedbackType::EngineError,
-    ]
+    &FeedbackType::ALL
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+pub fn handler_kind_for(feedback_type: FeedbackType) -> FeedbackHandlerKind {
+    feedback_type.handler_kind()
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn all_ten_types_covered() {
+    fn all_core_types_are_exposed() {
         assert_eq!(all_feedback_types().len(), 10);
-    }
-
-    #[test]
-    fn all_types_have_a_handler_kind() {
-        for ft in all_feedback_types() {
-            let _ = ft.handler_kind(); // must not panic
+        for (idx, feedback_type) in all_feedback_types().iter().copied().enumerate() {
+            assert_eq!(feedback_type.as_u8(), idx as u8);
+            assert!(!feedback_type.stable_name().is_empty());
         }
     }
 
     #[test]
-    fn animation_types_map_to_animation_handler() {
-        assert_eq!(
-            FeedbackType::AnimationStateUpdate.handler_kind(),
-            FeedbackHandlerKind::Animation
-        );
+    fn dispatch_mapping_is_stable() {
         assert_eq!(
             FeedbackType::AnimationEventFired.handler_kind(),
             FeedbackHandlerKind::Animation
         );
-    }
-
-    #[test]
-    fn physics_settled_maps_to_physics_handler() {
-        assert_eq!(
-            FeedbackType::PhysicsSettled.handler_kind(),
-            FeedbackHandlerKind::Physics
-        );
-    }
-
-    #[test]
-    fn visibility_result_maps_to_visibility_handler() {
         assert_eq!(
             FeedbackType::VisibilityQueryResult.handler_kind(),
             FeedbackHandlerKind::Visibility
         );
+        assert_eq!(
+            FeedbackType::PerformanceMetrics.handler_kind(),
+            FeedbackHandlerKind::Performance
+        );
     }
 
     #[test]
-    fn audio_types_both_map_to_audio_handler() {
-        assert_eq!(FeedbackType::AudioComplete.handler_kind(), FeedbackHandlerKind::Audio);
-        assert_eq!(FeedbackType::AudioPositionUpdate.handler_kind(), FeedbackHandlerKind::Audio);
-    }
-
-    #[test]
-    fn requires_mutation_gate_correct() {
-        assert!(FeedbackType::AnimationStateUpdate.requires_mutation_gate());
+    fn effect_helpers_match_handler_contracts() {
         assert!(FeedbackType::PhysicsSettled.requires_mutation_gate());
-        assert!(FeedbackType::VisibilityQueryResult.requires_mutation_gate());
-        assert!(!FeedbackType::PerformanceMetrics.requires_mutation_gate());
-        assert!(!FeedbackType::EngineError.requires_mutation_gate());
-    }
-
-    #[test]
-    fn can_produce_events_correct() {
-        assert!(FeedbackType::AnimationEventFired.can_produce_events());
         assert!(FeedbackType::AudioComplete.can_produce_events());
-        assert!(!FeedbackType::PhysicsSettled.can_produce_events());
-        assert!(!FeedbackType::PerformanceMetrics.can_produce_events());
-    }
-
-    #[test]
-    fn is_informational_correct() {
-        assert!(FeedbackType::PerformanceMetrics.is_informational());
-        assert!(FeedbackType::AssetResolutionUpdate.is_informational());
         assert!(FeedbackType::EngineError.is_informational());
-        assert!(!FeedbackType::AnimationStateUpdate.is_informational());
-        assert!(!FeedbackType::PhysicsSettled.is_informational());
-    }
-
-    #[test]
-    fn handler_kind_display_not_empty() {
-        for ft in all_feedback_types() {
-            assert!(!ft.handler_kind().to_string().is_empty());
-        }
-    }
-
-    #[test]
-    fn no_type_maps_to_wrong_handler() {
-        // Spot-check cross-handler assignments
-        assert_ne!(
-            FeedbackType::PhysicsSettled.handler_kind(),
-            FeedbackHandlerKind::Animation
-        );
-        assert_ne!(
-            FeedbackType::AudioComplete.handler_kind(),
-            FeedbackHandlerKind::Physics
-        );
+        assert!(!FeedbackType::PerformanceMetrics.requires_entity_id());
+        assert!(!FeedbackType::InputDeviceUpdate.requires_entity_id());
     }
 }

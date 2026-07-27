@@ -1,0 +1,18 @@
+; XACE Godot adapter smoke project.
+; Open this folder in Godot 4 or launch it through tools/xace_godot_dev.py.
+
+config_version=5
+
+[application]
+
+config/name="XACE Godot Adapter"
+run/main_scene="res://xace_godot_main.tscn"
+config/features=PackedStringArray("4.0")
+
+[debug]
+
+file_logging/enable_file_logging=false
+
+[rendering]
+
+renderer/rendering_method="forward_plus"

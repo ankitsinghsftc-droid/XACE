@@ -8,6 +8,6 @@ pub mod mutation_validator;
 #[cfg(test)]
 mod tests;
 
-pub use mutation_gate::MutationGate;
+pub use mutation_gate::{MutationApplyFailureDiagnostic, MutationGate, MutationRollbackStatus};
 pub use mutation_queue::MutationQueues;
 pub use mutation_validator::MutationValidator;

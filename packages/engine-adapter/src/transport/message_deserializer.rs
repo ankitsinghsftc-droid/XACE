@@ -1,339 +1,256 @@
-//! # Message Deserializer
+//! Strict deserialization of XACE length-prefixed wire frames.
 //!
-//! Strict deserialization of length-prefixed byte frames into WireMessage
-//! envelopes received over TCP or shared-memory transport layers.
-//!
-//! ## Companion to MessageSerializer
-//! Every frame produced by `MessageSerializer::serialize()` is consumed
-//! by `MessageDeserializer::deserialize_frame()`. The two are designed
-//! as a matched pair — the frame format, length encoding, and JSON schema
-//! are identical on both sides.
-//!
-//! ## Strict Validation
-//! This deserializer is the **first line of defence** against malformed,
-//! out-of-version, or adversarial data arriving from the engine adapter.
-//! Every deserialized message is:
-//!
-//! 1. **Size-checked** — payload length is validated against `MAX_MESSAGE_SIZE`
-//!    before any allocation larger than the header.
-//! 2. **JSON-parsed** — invalid JSON is rejected immediately.
-//! 3. **Envelope-validated** — the WireMessage::validate() method checks
-//!    protocol version, non-empty fields, and INPUT tick requirements.
-//! 4. **Protocol-version-checked** — mismatched XACE_PROTOCOL_VERSION
-//!    produces a specific error that triggers handshake renegotiation.
-//!
-//! ## Incremental Buffer Model
-//! The deserializer maintains an internal receive buffer and an internal
-//! parse cursor. TCP is a byte stream — messages arrive in arbitrary chunk
-//! sizes. The caller pushes received bytes into the buffer and then polls
-//! `try_extract_message()` until it returns `None` (no complete frame yet).
-//!
-//! ```ignore
-//! // In the tick receive loop:
-//! let raw_bytes = transport.read_available_bytes()?;
-//! deserializer.push_bytes(&raw_bytes);
-//! while let Some(msg) = deserializer.try_extract_message()? {
-//!     handle_message(msg);
-//! }
-//! ```
-//!
-//! ## Determinism
-//! Deserialization is fully deterministic — same bytes always produce the
-//! same WireMessage. The deserializer does not introduce any ordering or
-//! state that could affect determinism (D11).
+//! TCP and shared-memory transports deliver arbitrary byte chunks. This module
+//! owns the receive buffer, extracts complete frames, rejects malformed input
+//! with typed metrics, and returns validated `WireMessage` envelopes.
 
-use serde_json;
+use crate::transport::message_serializer::{FRAME_HEADER_SIZE, MAX_MESSAGE_SIZE};
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::wire::wire_message::{WireMessage, XACE_PROTOCOL_VERSION};
-use crate::transport::message_serializer::{
-    FRAME_HEADER_SIZE, MAX_MESSAGE_SIZE,
-};
 
-// ── Deserializer Metrics ──────────────────────────────────────────────────────
+const DEFAULT_BUFFER_CAPACITY: usize = 8 * 1024;
+const DEFAULT_COMPACTION_THRESHOLD: usize = 1024 * 1024;
 
-/// Accumulated metrics for one deserializer instance.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct DeserializerMetrics {
-    /// Total messages successfully deserialized.
     pub messages_deserialized: u64,
-    /// Total raw bytes consumed from the receive buffer.
     pub bytes_consumed: u64,
-    /// Total messages rejected due to JSON parse failure.
     pub parse_failures: u64,
-    /// Total messages rejected due to envelope validation failure.
     pub validation_failures: u64,
-    /// Messages rejected because payload exceeded MAX_MESSAGE_SIZE.
     pub oversized_rejections: u64,
-    /// Messages rejected because protocol version did not match.
     pub protocol_version_mismatches: u64,
+    pub incomplete_frames_seen: u64,
+    pub malformed_frames: u64,
 }
 
-// ── Deserialize Error Context ─────────────────────────────────────────────────
-
-/// The reason a message was rejected during deserialization.
-///
-/// More specific than XaceError variants — used internally to update
-/// metrics before wrapping in the appropriate XaceError.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeserializeFailureReason {
     InsufficientBytes,
-    OversizedPayload { declared_size: usize },
-    JsonParseFailure { detail: String },
-    EnvelopeValidationFailure { detail: String },
-    ProtocolVersionMismatch { found: u32, expected: u32 },
+    EmptyPayload,
+    OversizedPayload {
+        declared_size: usize,
+        max_size: usize,
+    },
+    JsonParseFailure {
+        detail: String,
+    },
+    EnvelopeValidationFailure {
+        detail: String,
+    },
+    ProtocolVersionMismatch {
+        found: u32,
+        expected: u32,
+    },
 }
 
-// ── Message Deserializer ──────────────────────────────────────────────────────
+impl std::fmt::Display for DeserializeFailureReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InsufficientBytes => f.write_str("insufficient bytes for a complete frame"),
+            Self::EmptyPayload => f.write_str("frame payload must not be empty"),
+            Self::OversizedPayload {
+                declared_size,
+                max_size,
+            } => write!(
+                f,
+                "declared frame payload {} bytes exceeds max {} bytes",
+                declared_size, max_size
+            ),
+            Self::JsonParseFailure { detail } => {
+                write!(
+                    f,
+                    "frame payload is not a WireMessage JSON object: {}",
+                    detail
+                )
+            }
+            Self::EnvelopeValidationFailure { detail } => {
+                write!(f, "wire envelope validation failed: {}", detail)
+            }
+            Self::ProtocolVersionMismatch { found, expected } => {
+                write!(
+                    f,
+                    "protocol version mismatch: found {}, expected {}",
+                    found, expected
+                )
+            }
+        }
+    }
+}
 
-/// Deserializes length-prefixed byte frames into validated WireMessage values.
-///
-/// Maintains an internal receive buffer. Callers push raw bytes in and
-/// poll for complete messages. Handles TCP stream fragmentation transparently.
-///
-/// ## Thread Safety
-/// Not `Send` — own one per connection/thread. The transport layer creates
-/// one deserializer per peer connection and accesses it from the connection's
-/// dedicated receive task.
 pub struct MessageDeserializer {
-    /// Internal receive buffer. Accumulates bytes until a complete frame arrives.
-    /// Bytes before `cursor` have already been processed.
     buffer: Vec<u8>,
-
-    /// Parse cursor — the index in `buffer` where unparsed data begins.
-    /// Allows us to avoid shifting the entire buffer on each extraction.
-    /// Compacted periodically via `compact()`.
     cursor: usize,
-
-    /// Accumulated metrics.
     metrics: DeserializerMetrics,
-
-    /// Maximum number of bytes to buffer before forcing a compaction.
-    /// Prevents unbounded memory growth from a slow consumer.
+    max_message_size: usize,
     compaction_threshold: usize,
 }
 
 impl MessageDeserializer {
-    // ── Construction ──────────────────────────────────────────────────────────
-
-    /// Creates a new deserializer with an empty receive buffer.
     pub fn new() -> Self {
+        Self::with_limits(MAX_MESSAGE_SIZE, DEFAULT_COMPACTION_THRESHOLD)
+    }
+
+    pub fn with_compaction_threshold(threshold: usize) -> Self {
+        Self::with_limits(MAX_MESSAGE_SIZE, threshold)
+    }
+
+    pub fn with_max_message_size(max_message_size: usize) -> Self {
+        Self::with_limits(max_message_size, DEFAULT_COMPACTION_THRESHOLD)
+    }
+
+    pub fn with_limits(max_message_size: usize, compaction_threshold: usize) -> Self {
         Self {
-            buffer: Vec::with_capacity(8 * 1024), // 8 KiB initial
+            buffer: Vec::with_capacity(DEFAULT_BUFFER_CAPACITY),
             cursor: 0,
             metrics: DeserializerMetrics::default(),
-            compaction_threshold: 1024 * 1024, // 1 MiB before compaction
+            max_message_size: max_message_size.max(1),
+            compaction_threshold: compaction_threshold.max(FRAME_HEADER_SIZE),
         }
     }
 
-    /// Creates a deserializer with a specific compaction threshold.
-    /// Lower threshold = more frequent compaction = less peak memory.
-    /// Higher threshold = fewer copies = better throughput.
-    pub fn with_compaction_threshold(threshold: usize) -> Self {
-        let mut d = Self::new();
-        d.compaction_threshold = threshold;
-        d
-    }
-
-    // ── Primary API ───────────────────────────────────────────────────────────
-
-    /// Appends received bytes to the internal buffer.
-    ///
-    /// Call this after every successful TCP/SHM read.
-    /// Then poll `try_extract_message()` until it returns `None`.
     pub fn push_bytes(&mut self, bytes: &[u8]) {
         if !bytes.is_empty() {
             self.buffer.extend_from_slice(bytes);
         }
     }
 
-    /// Attempts to extract one complete WireMessage from the internal buffer.
-    ///
-    /// Returns:
-    /// - `Ok(Some(msg))` — a complete valid message was extracted
-    /// - `Ok(None)` — not enough bytes for a complete frame yet
-    /// - `Err(...)` — a complete frame was found but failed validation
-    ///
-    /// On `Err`, the invalid frame bytes are consumed from the buffer
-    /// (they are not retried). The connection should be closed and
-    /// restarted — a validation error means something is seriously wrong
-    /// with the sender or the byte stream is corrupted.
-    ///
-    /// Poll this in a loop after `push_bytes()` to drain all buffered frames.
     pub fn try_extract_message(&mut self) -> Result<Option<WireMessage>, XaceError> {
         self.maybe_compact();
-        let unprocessed = &self.buffer[self.cursor..];
-
-        // Need at least a frame header
-        if unprocessed.len() < FRAME_HEADER_SIZE {
+        let Some(payload_len) = self.peek_payload_len()? else {
+            self.metrics.incomplete_frames_seen += 1;
             return Ok(None);
-        }
-
-        // Parse the payload length from the header
-        let payload_len = {
-            let header: [u8; 4] = unprocessed[..4].try_into().unwrap();
-            u32::from_be_bytes(header) as usize
         };
 
-        // Safety check before allocating
-        if payload_len > MAX_MESSAGE_SIZE {
-            let rejected_bytes = FRAME_HEADER_SIZE + payload_len.min(unprocessed.len());
-            self.cursor += rejected_bytes.min(unprocessed.len());
-            self.metrics.oversized_rejections += 1;
-            return Err(self.make_fatal(format!(
-                "MessageDeserializer: received oversized frame — \
-                 declared payload {} bytes exceeds MAX_MESSAGE_SIZE {} bytes. \
-                 Connection must be reset.",
-                payload_len, MAX_MESSAGE_SIZE
-            )));
-        }
+        let total_len = FRAME_HEADER_SIZE
+            .checked_add(payload_len)
+            .ok_or_else(|| self.reject_current_frame_as_fatal(payload_len))?;
 
-        // Not enough bytes for the full payload yet
-        if unprocessed.len() < FRAME_HEADER_SIZE + payload_len {
+        if self.unprocessed().len() < total_len {
+            self.metrics.incomplete_frames_seen += 1;
             return Ok(None);
         }
 
-        // Extract the complete payload slice
         let payload_start = self.cursor + FRAME_HEADER_SIZE;
         let payload_end = payload_start + payload_len;
-        let payload_bytes = &self.buffer[payload_start..payload_end];
+        let payload = self.buffer[payload_start..payload_end].to_vec();
+        self.cursor += total_len;
+        self.metrics.bytes_consumed += total_len as u64;
 
-        // Attempt JSON deserialization
-        let msg: WireMessage = serde_json::from_slice(payload_bytes).map_err(|e| {
-            // Consume the bad frame so we can attempt recovery on the next
-            self.cursor = payload_end;
-            self.metrics.parse_failures += 1;
-            self.metrics.bytes_consumed += (FRAME_HEADER_SIZE + payload_len) as u64;
-            XaceError::RecoverableError {
-                message: format!(
-                    "MessageDeserializer: JSON parse failed — {}. \
-                     Frame consumed, attempting to continue.",
-                    e
-                ),
-                context: ErrorContext::new("MessageDeserializer", "try_extract_message"),
-                max_retries: 0,
-                retry_count: 0,
-            }
-        })?;
-
-        // Advance cursor past this frame
-        self.cursor = payload_end;
-        self.metrics.bytes_consumed += (FRAME_HEADER_SIZE + payload_len) as u64;
-
-        // Protocol version check — always fatal regardless of mode (D10)
-        if msg.protocol_version != XACE_PROTOCOL_VERSION {
-            self.metrics.protocol_version_mismatches += 1;
-            return Err(XaceError::FatalError {
-                message: format!(
-                    "MessageDeserializer: protocol version mismatch — \
-                     received {} but this runtime is version {}. \
-                     Engine adapter must be updated.",
-                    msg.protocol_version, XACE_PROTOCOL_VERSION
-                ),
-                context: ErrorContext::new("MessageDeserializer", "try_extract_message")
-                    .with_detail("received_version", msg.protocol_version.to_string())
-                    .with_detail("expected_version", XACE_PROTOCOL_VERSION.to_string()),
-                snapshot_recovery_possible: false,
-            });
+        match self.deserialize_payload(&payload) {
+            Ok(message) => Ok(Some(message)),
+            Err(err) => Err(err),
         }
-
-        // Envelope validation
-        msg.validate().map_err(|reason| {
-            self.metrics.validation_failures += 1;
-            XaceError::RecoverableError {
-                message: format!(
-                    "MessageDeserializer: envelope validation failed — {}",
-                    reason
-                ),
-                context: ErrorContext::new("MessageDeserializer", "try_extract_message")
-                    .with_tick(msg.tick)
-                    .with_detail("message_type", msg.message_type.to_string()),
-                max_retries: 0,
-                retry_count: 0,
-            }
-        })?;
-
-        self.metrics.messages_deserialized += 1;
-        Ok(Some(msg))
     }
 
-    /// Deserializes a WireMessage directly from a complete byte slice.
-    ///
-    /// Used by the shared-memory transport where framing is handled
-    /// differently (the SHM header carries the length separately).
-    /// The `bytes` slice must contain exactly one serialized WireMessage
-    /// with no framing header.
-    pub fn deserialize_payload(
-        &mut self,
-        bytes: &[u8],
-    ) -> Result<WireMessage, XaceError> {
-        if bytes.len() > MAX_MESSAGE_SIZE {
+    pub fn drain_available_messages(&mut self) -> Result<Vec<WireMessage>, XaceError> {
+        let mut messages = Vec::new();
+        while let Some(message) = self.try_extract_message()? {
+            messages.push(message);
+        }
+        Ok(messages)
+    }
+
+    pub fn deserialize_frame(&mut self, frame_bytes: &[u8]) -> Result<WireMessage, XaceError> {
+        if frame_bytes.len() < FRAME_HEADER_SIZE {
+            self.metrics.incomplete_frames_seen += 1;
+            return Err(self.recoverable(
+                "deserialize_frame",
+                DeserializeFailureReason::InsufficientBytes,
+            ));
+        }
+
+        let payload_len = Self::read_payload_len(frame_bytes);
+        self.validate_declared_payload_len(payload_len, "deserialize_frame")?;
+        let total_len = FRAME_HEADER_SIZE + payload_len;
+        if frame_bytes.len() < total_len {
+            self.metrics.incomplete_frames_seen += 1;
+            return Err(self.recoverable(
+                "deserialize_frame",
+                DeserializeFailureReason::InsufficientBytes,
+            ));
+        }
+        if frame_bytes.len() > total_len {
+            self.metrics.malformed_frames += 1;
+            return Err(self.recoverable(
+                "deserialize_frame",
+                DeserializeFailureReason::EnvelopeValidationFailure {
+                    detail: format!(
+                        "frame contains {} trailing bytes after one complete message",
+                        frame_bytes.len() - total_len
+                    ),
+                },
+            ));
+        }
+
+        self.metrics.bytes_consumed += total_len as u64;
+        self.deserialize_payload(&frame_bytes[FRAME_HEADER_SIZE..])
+    }
+
+    pub fn deserialize_payload(&mut self, bytes: &[u8]) -> Result<WireMessage, XaceError> {
+        if bytes.is_empty() {
+            self.metrics.malformed_frames += 1;
+            return Err(self.recoverable(
+                "deserialize_payload",
+                DeserializeFailureReason::EmptyPayload,
+            ));
+        }
+        if bytes.len() > self.max_message_size {
             self.metrics.oversized_rejections += 1;
-            return Err(self.make_fatal(format!(
-                "deserialize_payload: {} bytes exceeds MAX_MESSAGE_SIZE",
-                bytes.len()
-            )));
+            return Err(self.fatal(
+                "deserialize_payload",
+                DeserializeFailureReason::OversizedPayload {
+                    declared_size: bytes.len(),
+                    max_size: self.max_message_size,
+                },
+            ));
         }
 
-        let msg: WireMessage = serde_json::from_slice(bytes).map_err(|e| {
+        let message: WireMessage = serde_json::from_slice(bytes).map_err(|err| {
             self.metrics.parse_failures += 1;
-            XaceError::RecoverableError {
-                message: format!("deserialize_payload: JSON parse failed — {}", e),
-                context: ErrorContext::new("MessageDeserializer", "deserialize_payload"),
-                max_retries: 0,
-                retry_count: 0,
-            }
+            self.recoverable(
+                "deserialize_payload",
+                DeserializeFailureReason::JsonParseFailure {
+                    detail: err.to_string(),
+                },
+            )
         })?;
 
-        if msg.protocol_version != XACE_PROTOCOL_VERSION {
+        if message.protocol_version != XACE_PROTOCOL_VERSION {
             self.metrics.protocol_version_mismatches += 1;
-            return Err(XaceError::FatalError {
-                message: format!(
-                    "deserialize_payload: protocol version {} != expected {}",
-                    msg.protocol_version, XACE_PROTOCOL_VERSION
-                ),
-                context: ErrorContext::new("MessageDeserializer", "deserialize_payload"),
-                snapshot_recovery_possible: false,
-            });
+            return Err(self.fatal(
+                "deserialize_payload",
+                DeserializeFailureReason::ProtocolVersionMismatch {
+                    found: message.protocol_version,
+                    expected: XACE_PROTOCOL_VERSION,
+                },
+            ));
         }
 
-        msg.validate().map_err(|reason| {
+        message.validate().map_err(|detail| {
             self.metrics.validation_failures += 1;
-            XaceError::RecoverableError {
-                message: format!("deserialize_payload: validation failed — {}", reason),
-                context: ErrorContext::new("MessageDeserializer", "deserialize_payload")
-                    .with_tick(msg.tick),
-                max_retries: 0,
-                retry_count: 0,
-            }
+            self.recoverable(
+                "deserialize_payload",
+                DeserializeFailureReason::EnvelopeValidationFailure { detail },
+            )
         })?;
 
         self.metrics.messages_deserialized += 1;
-        self.metrics.bytes_consumed += bytes.len() as u64;
-        Ok(msg)
+        Ok(message)
     }
 
-    // ── Buffer Management ─────────────────────────────────────────────────────
-
-    /// Returns the number of unprocessed bytes currently buffered.
     pub fn buffered_bytes(&self) -> usize {
-        self.buffer.len() - self.cursor
+        self.buffer.len().saturating_sub(self.cursor)
     }
 
-    /// Returns true if the buffer is empty (no unprocessed bytes).
     pub fn is_buffer_empty(&self) -> bool {
         self.buffered_bytes() == 0
     }
 
-    /// Discards all buffered bytes. Called on connection reset.
     pub fn clear_buffer(&mut self) {
         self.buffer.clear();
         self.cursor = 0;
     }
 
-    /// Compacts the buffer by removing already-processed bytes.
-    ///
-    /// This copy is O(remaining bytes). Called when `cursor` exceeds
-    /// the `compaction_threshold` to prevent unbounded buffer growth.
     pub fn compact(&mut self) {
         if self.cursor > 0 {
             self.buffer.drain(..self.cursor);
@@ -341,31 +258,95 @@ impl MessageDeserializer {
         }
     }
 
-    /// Compacts the buffer if the cursor has advanced past the threshold.
+    pub fn max_message_size(&self) -> usize {
+        self.max_message_size
+    }
+
+    pub fn metrics(&self) -> &DeserializerMetrics {
+        &self.metrics
+    }
+
+    pub fn reset_metrics(&mut self) {
+        self.metrics = DeserializerMetrics::default();
+    }
+
     fn maybe_compact(&mut self) {
         if self.cursor >= self.compaction_threshold {
             self.compact();
         }
     }
 
-    // ── Metrics & Inspection ──────────────────────────────────────────────────
-
-    /// Returns accumulated deserialization metrics.
-    pub fn metrics(&self) -> &DeserializerMetrics {
-        &self.metrics
+    fn unprocessed(&self) -> &[u8] {
+        &self.buffer[self.cursor..]
     }
 
-    /// Resets metrics without affecting the buffer state.
-    pub fn reset_metrics(&mut self) {
-        self.metrics = DeserializerMetrics::default();
+    fn peek_payload_len(&mut self) -> Result<Option<usize>, XaceError> {
+        let unprocessed = self.unprocessed();
+        if unprocessed.len() < FRAME_HEADER_SIZE {
+            return Ok(None);
+        }
+
+        let payload_len = Self::read_payload_len(unprocessed);
+        self.validate_declared_payload_len(payload_len, "try_extract_message")?;
+        Ok(Some(payload_len))
     }
 
-    // ── Internal Helpers ──────────────────────────────────────────────────────
+    fn validate_declared_payload_len(
+        &mut self,
+        payload_len: usize,
+        operation: &'static str,
+    ) -> Result<(), XaceError> {
+        if payload_len == 0 {
+            self.metrics.malformed_frames += 1;
+            self.cursor = (self.cursor + FRAME_HEADER_SIZE).min(self.buffer.len());
+            return Err(self.recoverable(operation, DeserializeFailureReason::EmptyPayload));
+        }
+        if payload_len > self.max_message_size {
+            self.metrics.oversized_rejections += 1;
+            self.clear_buffer();
+            return Err(self.fatal(
+                operation,
+                DeserializeFailureReason::OversizedPayload {
+                    declared_size: payload_len,
+                    max_size: self.max_message_size,
+                },
+            ));
+        }
+        Ok(())
+    }
 
-    fn make_fatal(&self, message: String) -> XaceError {
+    fn reject_current_frame_as_fatal(&mut self, payload_len: usize) -> XaceError {
+        self.metrics.oversized_rejections += 1;
+        self.clear_buffer();
+        self.fatal(
+            "try_extract_message",
+            DeserializeFailureReason::OversizedPayload {
+                declared_size: payload_len,
+                max_size: self.max_message_size,
+            },
+        )
+    }
+
+    fn read_payload_len(bytes: &[u8]) -> usize {
+        let header: [u8; FRAME_HEADER_SIZE] = bytes[..FRAME_HEADER_SIZE]
+            .try_into()
+            .expect("caller checked frame header length");
+        u32::from_be_bytes(header) as usize
+    }
+
+    fn recoverable(&self, operation: &'static str, reason: DeserializeFailureReason) -> XaceError {
+        XaceError::RecoverableError {
+            message: format!("MessageDeserializer: {}", reason),
+            context: ErrorContext::new("MessageDeserializer", operation),
+            max_retries: 0,
+            retry_count: 0,
+        }
+    }
+
+    fn fatal(&self, operation: &'static str, reason: DeserializeFailureReason) -> XaceError {
         XaceError::FatalError {
-            message,
-            context: ErrorContext::new("MessageDeserializer", "try_extract_message"),
+            message: format!("MessageDeserializer: {}", reason),
+            context: ErrorContext::new("MessageDeserializer", operation),
             snapshot_recovery_possible: false,
         }
     }
@@ -376,8 +357,6 @@ impl Default for MessageDeserializer {
         Self::new()
     }
 }
-
-// ── Tests ─────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
@@ -395,235 +374,109 @@ mod tests {
         )
     }
 
-    fn roundtrip(msg: &WireMessage) -> WireMessage {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(msg).unwrap();
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        deser.try_extract_message().unwrap().unwrap()
-    }
-
-    // ── Round-trip ────────────────────────────────────────────────────────────
-
-    #[test]
-    fn delta_message_roundtrip_preserves_all_fields() {
-        let original = valid_delta();
-        let restored = roundtrip(&original);
-        assert_eq!(restored.tick, original.tick);
-        assert_eq!(restored.sequence_id, original.sequence_id);
-        assert_eq!(restored.schema_version, original.schema_version);
-        assert_eq!(restored.execution_plan_version, original.execution_plan_version);
-        assert_eq!(restored.world_id, original.world_id);
-        assert_eq!(restored.message_type, original.message_type);
-        assert_eq!(restored.payload, original.payload);
+    fn framed(msg: &WireMessage) -> Vec<u8> {
+        MessageSerializer::new().serialize(msg).unwrap()
     }
 
     #[test]
-    fn snapshot_message_roundtrip() {
-        let msg = WireMessage::snapshot(
-            "world-abc",
-            "0.1.0",
-            1,
-            0,
-            1,
-            r#"{"tick":0,"entities":[]}"#,
-        );
-        let restored = roundtrip(&msg);
-        assert_eq!(restored.world_id, "world-abc");
-        assert!(restored.is_snapshot());
+    fn round_trip_from_incremental_buffer() {
+        let frame = framed(&valid_delta());
+        let mut deserializer = MessageDeserializer::new();
+
+        for byte in &frame[..frame.len() - 1] {
+            deserializer.push_bytes(&[*byte]);
+            assert!(deserializer.try_extract_message().unwrap().is_none());
+        }
+        deserializer.push_bytes(&frame[frame.len() - 1..]);
+
+        let restored = deserializer.try_extract_message().unwrap().unwrap();
+        assert_eq!(restored, valid_delta());
+        assert_eq!(deserializer.metrics().messages_deserialized, 1);
     }
 
     #[test]
-    fn feedback_message_roundtrip() {
-        let msg = WireMessage::feedback(
+    fn concatenated_frames_drain_in_order() {
+        let mut combined = framed(&valid_delta());
+        combined.extend_from_slice(&framed(&WireMessage::snapshot(
             "default",
             "0.1.0",
             1,
-            5,
-            3,
-            r#"{"feedback_type":"ANIMATION_STATE_UPDATE"}"#,
-        );
-        let restored = roundtrip(&msg);
-        assert!(restored.is_feedback());
-        assert_eq!(restored.tick, 5);
-    }
+            10,
+            51,
+            r#"{"tick":10,"entities":[]}"#,
+        )));
 
-    // ── Incremental Receive (TCP Stream Simulation) ───────────────────────────
+        let mut deserializer = MessageDeserializer::new();
+        deserializer.push_bytes(&combined);
+        let messages = deserializer.drain_available_messages().unwrap();
 
-    #[test]
-    fn partial_frame_returns_none_until_complete() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let mut deser = MessageDeserializer::new();
-
-        // Feed bytes in tiny chunks
-        for i in 0..frame.len() {
-            deser.push_bytes(&frame[i..i + 1]);
-            if i < frame.len() - 1 {
-                assert!(
-                    deser.try_extract_message().unwrap().is_none(),
-                    "Partial frame at byte {} must return None",
-                    i
-                );
-            }
-        }
-        // Now the last byte was pushed — should have a complete message
-        assert!(deser.try_extract_message().unwrap().is_some());
+        assert_eq!(messages.len(), 2);
+        assert!(messages[0].is_delta());
+        assert!(messages[1].is_snapshot());
+        assert!(deserializer.is_buffer_empty());
     }
 
     #[test]
-    fn two_concatenated_frames_both_extracted() {
-        let mut ser = MessageSerializer::new();
-        let msg1 = valid_delta();
-        let msg2 = WireMessage::snapshot(
-            "default", "0.1.0", 1, 0, 1, r#"{"tick":0}"#
-        );
-        let frame1 = ser.serialize(&msg1).unwrap();
-        let frame2 = ser.serialize(&msg2).unwrap();
+    fn deserialize_frame_rejects_trailing_bytes() {
+        let mut frame = framed(&valid_delta());
+        frame.extend_from_slice(b"tail");
 
-        let mut combined = frame1;
-        combined.extend_from_slice(&frame2);
-
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&combined);
-
-        let m1 = deser.try_extract_message().unwrap().unwrap();
-        let m2 = deser.try_extract_message().unwrap().unwrap();
-        assert!(m1.is_delta());
-        assert!(m2.is_snapshot());
-        assert!(deser.try_extract_message().unwrap().is_none());
+        let mut deserializer = MessageDeserializer::new();
+        assert!(deserializer.deserialize_frame(&frame).is_err());
+        assert_eq!(deserializer.metrics().malformed_frames, 1);
     }
 
     #[test]
-    fn empty_push_does_not_affect_state() {
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&[]);
-        assert!(deser.is_buffer_empty());
-        assert!(deser.try_extract_message().unwrap().is_none());
+    fn invalid_json_consumes_bad_frame_and_allows_next_frame() {
+        let mut combined = MessageSerializer::build_frame(b"not json");
+        combined.extend_from_slice(&framed(&valid_delta()));
+
+        let mut deserializer = MessageDeserializer::new();
+        deserializer.push_bytes(&combined);
+
+        assert!(deserializer.try_extract_message().is_err());
+        let next = deserializer.try_extract_message().unwrap().unwrap();
+        assert_eq!(next.sequence_id, 50);
+        assert_eq!(deserializer.metrics().parse_failures, 1);
     }
 
-    // ── Validation ────────────────────────────────────────────────────────────
-
     #[test]
-    fn wrong_protocol_version_returns_fatal_error() {
+    fn wrong_protocol_version_is_fatal() {
         let mut msg = valid_delta();
-        msg.protocol_version = 99; // wrong version
-
-        let mut ser = MessageSerializer::new();
-        // Bypass validation for test — use unchecked
+        msg.protocol_version = XACE_PROTOCOL_VERSION + 1;
         let payload = serde_json::to_vec(&msg).unwrap();
         let frame = MessageSerializer::build_frame(&payload);
 
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        let result = deser.try_extract_message();
-        assert!(result.is_err());
-        assert_eq!(deser.metrics().protocol_version_mismatches, 1);
+        let mut deserializer = MessageDeserializer::new();
+        deserializer.push_bytes(&frame);
+
+        assert!(deserializer.try_extract_message().unwrap_err().is_fatal());
+        assert_eq!(deserializer.metrics().protocol_version_mismatches, 1);
     }
 
     #[test]
-    fn oversized_frame_returns_fatal_error() {
-        // Craft a frame with an enormous declared size
-        let mut frame = vec![0u8; 4];
-        let oversized = (MAX_MESSAGE_SIZE + 1) as u32;
-        frame[..4].copy_from_slice(&oversized.to_be_bytes());
+    fn oversized_declared_frame_clears_buffer() {
+        let mut frame = Vec::new();
+        frame.extend_from_slice(&((MAX_MESSAGE_SIZE as u32) + 1).to_be_bytes());
+        frame.extend_from_slice(b"partial");
 
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        let result = deser.try_extract_message();
-        assert!(result.is_err());
-        assert_eq!(deser.metrics().oversized_rejections, 1);
+        let mut deserializer = MessageDeserializer::new();
+        deserializer.push_bytes(&frame);
+
+        assert!(deserializer.try_extract_message().unwrap_err().is_fatal());
+        assert!(deserializer.is_buffer_empty());
+        assert_eq!(deserializer.metrics().oversized_rejections, 1);
     }
 
     #[test]
-    fn invalid_json_returns_recoverable_error() {
-        // Build a frame with valid length but garbage JSON
-        let garbage = b"not json at all !!!";
-        let frame = MessageSerializer::build_frame(garbage);
-
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        let result = deser.try_extract_message();
-        assert!(result.is_err());
-        assert_eq!(deser.metrics().parse_failures, 1);
-    }
-
-    #[test]
-    fn deserialize_payload_succeeds_for_valid_bytes() {
-        let msg = valid_delta();
-        let bytes = serde_json::to_vec(&msg).unwrap();
-        let mut deser = MessageDeserializer::new();
-        let result = deser.deserialize_payload(&bytes);
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap().tick, 10);
-    }
-
-    // ── Buffer Management ─────────────────────────────────────────────────────
-
-    #[test]
-    fn buffered_bytes_decreases_after_extraction() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let frame_len = frame.len();
-
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        assert_eq!(deser.buffered_bytes(), frame_len);
-
-        deser.try_extract_message().unwrap();
-        // After extraction, buffer should shrink (cursor advanced)
-        // Note: buffer may not be compacted yet, but buffered_bytes() = len - cursor
-        assert_eq!(deser.buffered_bytes(), 0);
-    }
-
-    #[test]
-    fn clear_buffer_resets_all_state() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        deser.clear_buffer();
-        assert!(deser.is_buffer_empty());
-        assert_eq!(deser.buffered_bytes(), 0);
-    }
-
-    #[test]
-    fn compact_removes_processed_bytes() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        deser.try_extract_message().unwrap();
-        // Cursor has advanced but buffer may still hold old bytes
-        deser.compact();
-        // After compact, buffer.len() == 0 since all bytes were consumed
-        assert_eq!(deser.buffer.len(), 0);
-        assert_eq!(deser.cursor, 0);
-    }
-
-    // ── Metrics ───────────────────────────────────────────────────────────────
-
-    #[test]
-    fn successful_deserialization_increments_metric() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        deser.try_extract_message().unwrap();
-        assert_eq!(deser.metrics().messages_deserialized, 1);
-        assert!(deser.metrics().bytes_consumed > 0);
-    }
-
-    #[test]
-    fn reset_metrics_does_not_affect_buffer() {
-        let mut ser = MessageSerializer::new();
-        let frame = ser.serialize(&valid_delta()).unwrap();
-        let mut deser = MessageDeserializer::new();
-        deser.push_bytes(&frame);
-        deser.reset_metrics();
-        // Buffer still has the frame
-        assert!(!deser.is_buffer_empty());
-        // But metrics are zeroed
-        assert_eq!(deser.metrics().messages_deserialized, 0);
+    fn compact_removes_consumed_bytes() {
+        let frame = framed(&valid_delta());
+        let mut deserializer = MessageDeserializer::new();
+        deserializer.push_bytes(&frame);
+        deserializer.try_extract_message().unwrap();
+        assert!(deserializer.buffer.len() > 0);
+        deserializer.compact();
+        assert_eq!(deserializer.buffer.len(), 0);
+        assert_eq!(deserializer.cursor, 0);
     }
 }

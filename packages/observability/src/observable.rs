@@ -32,8 +32,7 @@ impl MySystem {
 
 use std::sync::Arc;
 
-use crate::trace::{Span, SpanId, TraceId};
-
+use crate::trace::{SpanId, TraceId};
 
 // ── Observable Trait ──────────────────────────────────────────────────────────
 
@@ -68,7 +67,6 @@ pub trait Observable: Send + Sync {
     fn current_trace_id(&self) -> Option<TraceId>;
 }
 
-
 // ── No-op Observer ────────────────────────────────────────────────────────────
 
 /// An `Observable` that discards all events. Use in unit tests that don't
@@ -76,16 +74,19 @@ pub trait Observable: Send + Sync {
 pub struct NoopObserver;
 
 impl Observable for NoopObserver {
-    fn enter_span(&self, _: &str)                          -> SpanId    { SpanId::ZERO }
-    fn exit_span(&self, _: SpanId)                                       {}
-    fn span_attribute(&self, _: &str, _: &str)                           {}
-    fn counter(&self, _: &str, _: u64)                                   {}
-    fn histogram(&self, _: &str, _: f64)                                 {}
-    fn gauge(&self, _: &str, _: f64)                                     {}
-    fn log_event(&self, _: &str, _: &[(&str, &str)])                     {}
-    fn current_trace_id(&self)                             -> Option<TraceId> { None }
+    fn enter_span(&self, _: &str) -> SpanId {
+        SpanId::ZERO
+    }
+    fn exit_span(&self, _: SpanId) {}
+    fn span_attribute(&self, _: &str, _: &str) {}
+    fn counter(&self, _: &str, _: u64) {}
+    fn histogram(&self, _: &str, _: f64) {}
+    fn gauge(&self, _: &str, _: f64) {}
+    fn log_event(&self, _: &str, _: &[(&str, &str)]) {}
+    fn current_trace_id(&self) -> Option<TraceId> {
+        None
+    }
 }
-
 
 // ── Capturing Observer (for tests) ────────────────────────────────────────────
 
@@ -98,19 +99,19 @@ impl Observable for NoopObserver {
 /// assert_eq!(obs.counters["my_system_runs"], 3);
 /// ```
 pub struct CapturingObserver {
-    pub spans:    std::sync::Mutex<Vec<(String, SpanId)>>,
+    pub spans: std::sync::Mutex<Vec<(String, SpanId)>>,
     pub counters: std::sync::Mutex<std::collections::HashMap<String, u64>>,
-    pub gauges:   std::sync::Mutex<std::collections::HashMap<String, f64>>,
-    pub logs:     std::sync::Mutex<Vec<String>>,
+    pub gauges: std::sync::Mutex<std::collections::HashMap<String, f64>>,
+    pub logs: std::sync::Mutex<Vec<String>>,
 }
 
 impl CapturingObserver {
     pub fn new() -> Self {
         Self {
-            spans:    std::sync::Mutex::new(Vec::new()),
+            spans: std::sync::Mutex::new(Vec::new()),
             counters: std::sync::Mutex::new(std::collections::HashMap::new()),
-            gauges:   std::sync::Mutex::new(std::collections::HashMap::new()),
-            logs:     std::sync::Mutex::new(Vec::new()),
+            gauges: std::sync::Mutex::new(std::collections::HashMap::new()),
+            logs: std::sync::Mutex::new(Vec::new()),
         }
     }
 
@@ -136,7 +137,9 @@ impl CapturingObserver {
 }
 
 impl Default for CapturingObserver {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Observable for CapturingObserver {
@@ -151,7 +154,12 @@ impl Observable for CapturingObserver {
     fn span_attribute(&self, _: &str, _: &str) {}
 
     fn counter(&self, name: &str, delta: u64) {
-        *self.counters.lock().unwrap().entry(name.to_owned()).or_insert(0) += delta;
+        *self
+            .counters
+            .lock()
+            .unwrap()
+            .entry(name.to_owned())
+            .or_insert(0) += delta;
     }
 
     fn histogram(&self, _: &str, _: f64) {}
@@ -161,13 +169,20 @@ impl Observable for CapturingObserver {
     }
 
     fn log_event(&self, message: &str, attributes: &[(&str, &str)]) {
-        let attrs: String = attributes.iter().map(|(k, v)| format!(" {}={}", k, v)).collect();
-        self.logs.lock().unwrap().push(format!("{}{}", message, attrs));
+        let attrs: String = attributes
+            .iter()
+            .map(|(k, v)| format!(" {}={}", k, v))
+            .collect();
+        self.logs
+            .lock()
+            .unwrap()
+            .push(format!("{}{}", message, attrs));
     }
 
-    fn current_trace_id(&self) -> Option<TraceId> { None }
+    fn current_trace_id(&self) -> Option<TraceId> {
+        None
+    }
 }
-
 
 // ── ObservabilityTarget ───────────────────────────────────────────────────────
 
@@ -209,5 +224,7 @@ impl ObservabilityTarget {
 
 impl std::ops::Deref for ObservabilityTarget {
     type Target = dyn Observable;
-    fn deref(&self) -> &Self::Target { &*self.0 }
+    fn deref(&self) -> &Self::Target {
+        &*self.0
+    }
 }

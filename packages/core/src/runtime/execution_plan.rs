@@ -35,8 +35,139 @@
 
 use crate::runtime::execution_group::ExecutionGroup;
 use crate::runtime::phase_enum::PhaseEnum;
+use crate::schema::system_definition::{SystemDefinition, SystemVersion};
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use sha2::{Digest, Sha256};
+use std::collections::{BTreeMap, BTreeSet};
+
+pub const COMPONENT_ACCESS_SETS_SCHEMA: &str = "xace.sgc.component_access_sets.v1";
+pub const SYSTEM_METADATA_SCHEMA: &str = "xace.sgc.system_metadata.v1";
+pub const SGC_PROOF_REF_SCHEMA: &str = "xace.sgc.proof_ref.v1";
+pub const CURRENT_MIGRATION_STATUS: &str = "current";
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ComponentAccess {
+    pub reads: Vec<u32>,
+    pub writes: Vec<u32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ComponentAccessSets {
+    pub schema: String,
+    pub by_system: BTreeMap<String, ComponentAccess>,
+    pub all_reads: Vec<u32>,
+    pub all_writes: Vec<u32>,
+    pub component_ids: Vec<u32>,
+}
+
+impl ComponentAccessSets {
+    pub fn empty() -> Self {
+        Self {
+            schema: COMPONENT_ACCESS_SETS_SCHEMA.to_string(),
+            by_system: BTreeMap::new(),
+            all_reads: Vec::new(),
+            all_writes: Vec::new(),
+            component_ids: Vec::new(),
+        }
+    }
+
+    pub fn from_system_definitions(definitions: &[SystemDefinition]) -> Self {
+        let mut by_system = BTreeMap::new();
+        let mut all_reads = BTreeSet::new();
+        let mut all_writes = BTreeSet::new();
+
+        for system in sorted_system_definitions(definitions) {
+            let reads = sorted_unique_u32(&system.reads);
+            let writes = sorted_unique_u32(&system.writes);
+            all_reads.extend(reads.iter().copied());
+            all_writes.extend(writes.iter().copied());
+            by_system.insert(system.id.clone(), ComponentAccess { reads, writes });
+        }
+
+        let component_ids = all_reads.union(&all_writes).copied().collect::<Vec<u32>>();
+
+        Self {
+            schema: COMPONENT_ACCESS_SETS_SCHEMA.to_string(),
+            by_system,
+            all_reads: all_reads.iter().copied().collect(),
+            all_writes: all_writes.iter().copied().collect(),
+            component_ids,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExecutionPlanSystemMetadata {
+    pub schema: String,
+    pub systems: BTreeMap<String, ExecutionPlanSystemMetadataEntry>,
+}
+
+impl ExecutionPlanSystemMetadata {
+    pub fn empty() -> Self {
+        Self {
+            schema: SYSTEM_METADATA_SCHEMA.to_string(),
+            systems: BTreeMap::new(),
+        }
+    }
+
+    pub fn from_system_definitions(definitions: &[SystemDefinition]) -> Self {
+        let mut systems = BTreeMap::new();
+        for system in sorted_system_definitions(definitions) {
+            systems.insert(
+                system.id.clone(),
+                ExecutionPlanSystemMetadataEntry {
+                    display_name: if system.display_name.trim().is_empty() {
+                        system.id.clone()
+                    } else {
+                        system.display_name.clone()
+                    },
+                    phase: system.phase.to_string(),
+                    depends_on: sorted_unique_string(&system.depends_on),
+                    deterministic: system.deterministic,
+                    version: system.version.clone(),
+                    description: system.description.clone(),
+                },
+            );
+        }
+        Self {
+            schema: SYSTEM_METADATA_SCHEMA.to_string(),
+            systems,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ExecutionPlanSystemMetadataEntry {
+    pub display_name: String,
+    pub phase: String,
+    pub depends_on: Vec<String>,
+    pub deterministic: bool,
+    pub version: SystemVersion,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SgcProofBundleRef {
+    pub schema: String,
+    pub path: String,
+    pub compiled_from_cgs_hash: String,
+    pub plan_hash: String,
+    pub input_hash: String,
+    pub validation_hash: String,
+}
+
+impl SgcProofBundleRef {
+    pub fn empty() -> Self {
+        Self {
+            schema: SGC_PROOF_REF_SCHEMA.to_string(),
+            path: String::new(),
+            compiled_from_cgs_hash: String::new(),
+            plan_hash: String::new(),
+            input_hash: String::new(),
+            validation_hash: String::new(),
+        }
+    }
+}
 
 // ── Phase Schedule ────────────────────────────────────────────────────────────
 
@@ -45,7 +176,7 @@ use std::collections::BTreeMap;
 /// Contains all execution groups for one phase, ordered by
 /// execution_index ascending. The PhaseOrchestrator runs groups
 /// in this order — group N must complete before group N+1 starts,
-/// even if both are marked parallel internally.
+/// even if both are marked parallel-eligible internally.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PhaseSchedule {
     /// Which phase this schedule covers.
@@ -88,7 +219,7 @@ impl PhaseSchedule {
     }
 
     /// Returns all system IDs in this phase in execution order.
-    /// Within parallel groups, systems are listed in sorted ID order (D11).
+    /// Within parallel-eligible groups, systems are listed in sorted ID order (D11).
     pub fn all_system_ids(&self) -> Vec<&str> {
         self.groups
             .iter()
@@ -153,6 +284,22 @@ pub struct ExecutionPlan {
     /// The CGS hash this plan was compiled from.
     /// Cross-referenced with CGS metadata.cgs_hash at runtime (D10).
     pub compiled_from_cgs_hash: String,
+
+    /// Runtime adapter protocol version this plan was compiled against.
+    pub adapter_protocol_version: u32,
+
+    /// Migration status for persisted runtime loading. Runtime accepts only
+    /// "current" plans at tick zero.
+    pub migration_status: String,
+
+    /// Component read/write contract used to build and verify the plan.
+    pub component_access_sets: ComponentAccessSets,
+
+    /// Stable system metadata embedded for runtime compatibility checks.
+    pub system_metadata: ExecutionPlanSystemMetadata,
+
+    /// Reference to the SGC proof bundle for this plan.
+    pub proof_bundle: SgcProofBundleRef,
 }
 
 impl ExecutionPlan {
@@ -190,7 +337,51 @@ impl ExecutionPlan {
             phases,
             all_system_ids,
             compiled_from_cgs_hash: compiled_from_cgs_hash.into(),
+            adapter_protocol_version: 0,
+            migration_status: String::new(),
+            component_access_sets: ComponentAccessSets::empty(),
+            system_metadata: ExecutionPlanSystemMetadata::empty(),
+            proof_bundle: SgcProofBundleRef::empty(),
         }
+    }
+
+    pub fn finalize_identity_from_systems(
+        &mut self,
+        compiled_from_cgs_hash: impl Into<String>,
+        adapter_protocol_version: u32,
+        definitions: &[SystemDefinition],
+    ) -> Result<(), String> {
+        let cgs_hash = compiled_from_cgs_hash.into();
+        if !is_lower_hex_hash(&cgs_hash) {
+            return Err(
+                "ExecutionPlan compiled_from_cgs_hash must be a lowercase 64-character SHA-256 digest"
+                    .to_string(),
+            );
+        }
+        if adapter_protocol_version == 0 {
+            return Err("ExecutionPlan adapter_protocol_version must be >= 1".to_string());
+        }
+
+        self.compiled_from_cgs_hash = cgs_hash;
+        self.adapter_protocol_version = adapter_protocol_version;
+        self.migration_status = CURRENT_MIGRATION_STATUS.to_string();
+        self.component_access_sets = ComponentAccessSets::from_system_definitions(definitions);
+        self.system_metadata = ExecutionPlanSystemMetadata::from_system_definitions(definitions);
+
+        let input_hash = self.compute_input_hash(definitions)?;
+        let plan_hash = self.compute_identity_hash(&input_hash)?;
+        self.plan_hash = plan_hash.clone();
+        let validation_hash = self.compute_validation_hash()?;
+        self.proof_bundle = SgcProofBundleRef {
+            schema: SGC_PROOF_REF_SCHEMA.to_string(),
+            path: format!(".xace/proof/sgc/{}", self.compiled_from_cgs_hash),
+            compiled_from_cgs_hash: self.compiled_from_cgs_hash.clone(),
+            plan_hash,
+            input_hash,
+            validation_hash,
+        };
+
+        Ok(())
     }
 
     /// Returns the phase schedule for the given phase, if present.
@@ -265,6 +456,16 @@ impl ExecutionPlan {
             return Err("ExecutionPlan compiled_from_cgs_hash must not be empty".into());
         }
 
+        if self.adapter_protocol_version == 0 {
+            return Err("ExecutionPlan adapter_protocol_version must be >= 1".into());
+        }
+
+        if self.migration_status != CURRENT_MIGRATION_STATUS {
+            return Err("ExecutionPlan migration_status must be 'current'".into());
+        }
+
+        self.validate_identity_metadata()?;
+
         // Validate all phase schedules and check for cross-phase duplicates
         let mut seen_systems = std::collections::HashSet::new();
         for (phase_byte, schedule) in &self.phases {
@@ -304,6 +505,205 @@ impl ExecutionPlan {
     pub fn matches_cgs_hash(&self, cgs_hash: &str) -> bool {
         self.compiled_from_cgs_hash == cgs_hash
     }
+
+    fn compute_input_hash(&self, definitions: &[SystemDefinition]) -> Result<String, String> {
+        let systems = sorted_system_definitions(definitions)
+            .into_iter()
+            .map(|system| {
+                (
+                    system.id.clone(),
+                    SystemDefinitionHashInput {
+                        id: system.id.clone(),
+                        display_name: if system.display_name.trim().is_empty() {
+                            system.id.clone()
+                        } else {
+                            system.display_name.clone()
+                        },
+                        phase: system.phase.to_string(),
+                        reads: sorted_unique_u32(&system.reads),
+                        writes: sorted_unique_u32(&system.writes),
+                        depends_on: sorted_unique_string(&system.depends_on),
+                        deterministic: system.deterministic,
+                        version: system.version.clone(),
+                        description: system.description.clone(),
+                    },
+                )
+            })
+            .collect::<BTreeMap<_, _>>();
+
+        stable_json_hash(&SgcInputHashPayload {
+            schema: "xace.sgc.input_hash.v1",
+            schema_version: &self.schema_version,
+            plan_version: self.plan_version,
+            compiled_from_cgs_hash: &self.compiled_from_cgs_hash,
+            systems,
+        })
+    }
+
+    fn compute_identity_hash(&self, input_hash: &str) -> Result<String, String> {
+        stable_json_hash(&ExecutionPlanIdentityHashPayload {
+            schema: "xace.sgc.execution_plan_identity.v1",
+            schema_version: &self.schema_version,
+            plan_version: self.plan_version,
+            created_tick: self.created_tick,
+            compiled_from_cgs_hash: &self.compiled_from_cgs_hash,
+            adapter_protocol_version: self.adapter_protocol_version,
+            migration_status: &self.migration_status,
+            all_system_ids: &self.all_system_ids,
+            phases: &self.phases,
+            component_access_sets: &self.component_access_sets,
+            system_metadata: &self.system_metadata,
+            input_hash,
+        })
+    }
+
+    fn compute_validation_hash(&self) -> Result<String, String> {
+        stable_json_hash(&ExecutionPlanValidationHashPayload {
+            schema: "xace.sgc.validation_hash.v1",
+            compiled_from_cgs_hash: &self.compiled_from_cgs_hash,
+            plan_hash: &self.plan_hash,
+            adapter_protocol_version: self.adapter_protocol_version,
+            migration_status: &self.migration_status,
+            component_access_sets: &self.component_access_sets,
+            system_metadata: &self.system_metadata,
+        })
+    }
+
+    fn validate_identity_metadata(&self) -> Result<(), String> {
+        if self.component_access_sets.schema != COMPONENT_ACCESS_SETS_SCHEMA {
+            return Err(format!(
+                "ExecutionPlan component_access_sets schema must be {}",
+                COMPONENT_ACCESS_SETS_SCHEMA
+            ));
+        }
+        if self.system_metadata.schema != SYSTEM_METADATA_SCHEMA {
+            return Err(format!(
+                "ExecutionPlan system_metadata schema must be {}",
+                SYSTEM_METADATA_SCHEMA
+            ));
+        }
+        if self.proof_bundle.schema != SGC_PROOF_REF_SCHEMA {
+            return Err(format!(
+                "ExecutionPlan proof_bundle schema must be {}",
+                SGC_PROOF_REF_SCHEMA
+            ));
+        }
+        let expected_path = format!(".xace/proof/sgc/{}", self.compiled_from_cgs_hash);
+        if self.proof_bundle.path != expected_path {
+            return Err(format!(
+                "ExecutionPlan proof_bundle.path must be {}",
+                expected_path
+            ));
+        }
+        if self.proof_bundle.compiled_from_cgs_hash != self.compiled_from_cgs_hash {
+            return Err(
+                "ExecutionPlan proof_bundle compiled_from_cgs_hash must match plan identity".into(),
+            );
+        }
+        if self.proof_bundle.plan_hash != self.plan_hash {
+            return Err("ExecutionPlan proof_bundle plan_hash must match plan_hash".into());
+        }
+        if !is_lower_hex_hash(&self.proof_bundle.input_hash) {
+            return Err(
+                "ExecutionPlan proof_bundle input_hash must be a lowercase 64-character SHA-256 digest"
+                    .into(),
+            );
+        }
+        if !is_lower_hex_hash(&self.proof_bundle.validation_hash) {
+            return Err(
+                "ExecutionPlan proof_bundle validation_hash must be a lowercase 64-character SHA-256 digest"
+                    .into(),
+            );
+        }
+        Ok(())
+    }
+}
+
+#[derive(Serialize)]
+struct SgcInputHashPayload<'a> {
+    schema: &'static str,
+    schema_version: &'a str,
+    plan_version: u32,
+    compiled_from_cgs_hash: &'a str,
+    systems: BTreeMap<String, SystemDefinitionHashInput>,
+}
+
+#[derive(Serialize)]
+struct SystemDefinitionHashInput {
+    id: String,
+    display_name: String,
+    phase: String,
+    reads: Vec<u32>,
+    writes: Vec<u32>,
+    depends_on: Vec<String>,
+    deterministic: bool,
+    version: SystemVersion,
+    description: String,
+}
+
+#[derive(Serialize)]
+struct ExecutionPlanIdentityHashPayload<'a> {
+    schema: &'static str,
+    schema_version: &'a str,
+    plan_version: u32,
+    created_tick: u64,
+    compiled_from_cgs_hash: &'a str,
+    adapter_protocol_version: u32,
+    migration_status: &'a str,
+    all_system_ids: &'a [String],
+    phases: &'a BTreeMap<u8, PhaseSchedule>,
+    component_access_sets: &'a ComponentAccessSets,
+    system_metadata: &'a ExecutionPlanSystemMetadata,
+    input_hash: &'a str,
+}
+
+#[derive(Serialize)]
+struct ExecutionPlanValidationHashPayload<'a> {
+    schema: &'static str,
+    compiled_from_cgs_hash: &'a str,
+    plan_hash: &'a str,
+    adapter_protocol_version: u32,
+    migration_status: &'a str,
+    component_access_sets: &'a ComponentAccessSets,
+    system_metadata: &'a ExecutionPlanSystemMetadata,
+}
+
+fn sorted_system_definitions(definitions: &[SystemDefinition]) -> Vec<&SystemDefinition> {
+    let mut systems = definitions.iter().collect::<Vec<_>>();
+    systems.sort_by(|left, right| left.id.cmp(&right.id));
+    systems
+}
+
+fn sorted_unique_u32(values: &[u32]) -> Vec<u32> {
+    values
+        .iter()
+        .copied()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn sorted_unique_string(values: &[String]) -> Vec<String> {
+    values
+        .iter()
+        .cloned()
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect()
+}
+
+fn stable_json_hash<T: Serialize>(value: &T) -> Result<String, String> {
+    let bytes = serde_json::to_vec(value)
+        .map_err(|error| format!("ExecutionPlan identity serialization failed: {}", error))?;
+    let digest = Sha256::digest(&bytes);
+    Ok(digest.iter().map(|byte| format!("{:02x}", byte)).collect())
+}
+
+fn is_lower_hex_hash(value: &str) -> bool {
+    value.len() == 64
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
 }
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -311,6 +711,64 @@ impl ExecutionPlan {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::schema::system_definition::ExecutionPhase;
+
+    const TEST_PLAN_HASH: &str = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const TEST_CGS_HASH: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+
+    fn system_definition(
+        id: &str,
+        phase: ExecutionPhase,
+        reads: Vec<u32>,
+        writes: Vec<u32>,
+        depends_on: Vec<&str>,
+    ) -> SystemDefinition {
+        SystemDefinition {
+            id: id.into(),
+            display_name: id.into(),
+            phase,
+            reads,
+            writes,
+            depends_on: depends_on.into_iter().map(String::from).collect(),
+            deterministic: true,
+            version: SystemVersion::INITIAL,
+            description: String::new(),
+        }
+    }
+
+    fn test_system_definitions() -> Vec<SystemDefinition> {
+        vec![
+            system_definition("sys_input", ExecutionPhase::Input, vec![6], vec![5], vec![]),
+            system_definition(
+                "sys_damage",
+                ExecutionPhase::Simulation,
+                vec![101],
+                vec![100],
+                vec![],
+            ),
+            system_definition(
+                "sys_movement",
+                ExecutionPhase::Simulation,
+                vec![5],
+                vec![1],
+                vec!["sys_input"],
+            ),
+            system_definition(
+                "sys_ai",
+                ExecutionPhase::Simulation,
+                vec![1],
+                vec![101],
+                vec![],
+            ),
+            system_definition(
+                "sys_cleanup",
+                ExecutionPhase::Cleanup,
+                vec![100],
+                vec![],
+                vec![],
+            ),
+        ]
+    }
 
     fn test_plan() -> ExecutionPlan {
         let input_group = ExecutionGroup::sequential(
@@ -347,7 +805,10 @@ mod tests {
             PhaseSchedule::new(PhaseEnum::Cleanup, vec![cleanup_group]),
         ];
 
-        ExecutionPlan::new("0.1.0", 1, 0, "plan_hash_abc123", phases, "cgs_hash_xyz456")
+        let mut plan = ExecutionPlan::new("0.1.0", 1, 0, TEST_PLAN_HASH, phases, TEST_CGS_HASH);
+        plan.finalize_identity_from_systems(TEST_CGS_HASH, 1, &test_system_definitions())
+            .unwrap();
+        plan
     }
 
     #[test]
@@ -445,7 +906,7 @@ mod tests {
     #[test]
     fn matches_cgs_hash_correct() {
         let plan = test_plan();
-        assert!(plan.matches_cgs_hash("cgs_hash_xyz456"));
+        assert!(plan.matches_cgs_hash(TEST_CGS_HASH));
         assert!(!plan.matches_cgs_hash("wrong_hash"));
     }
 
@@ -500,14 +961,22 @@ mod tests {
             "0.1.0",
             1,
             0,
-            "hash",
+            TEST_PLAN_HASH,
             vec![
                 PhaseSchedule::new(PhaseEnum::Input, vec![group1]),
                 PhaseSchedule::new(PhaseEnum::Simulation, vec![group2]),
             ],
-            "cgs_hash",
+            TEST_CGS_HASH,
         );
-        plan.plan_hash = "hash".into();
+        let definitions = vec![system_definition(
+            "sys_duplicate",
+            ExecutionPhase::Input,
+            vec![],
+            vec![],
+            vec![],
+        )];
+        plan.finalize_identity_from_systems(TEST_CGS_HASH, 1, &definitions)
+            .unwrap();
         assert!(plan.validate().is_err());
     }
 }

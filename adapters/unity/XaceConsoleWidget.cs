@@ -1,483 +1,364 @@
 // XaceConsoleWidget.cs
-// In-game prompt console UI — lets the designer submit natural-language prompts
-// to the XACE PIL from within a running Unity build without leaving the game.
+// Lightweight in-game console for live XACE edit prompts.
 //
-// ## Purpose
-// The builder workflow (Phase 14) has the full editor UI. The in-game console
-// is the lightweight equivalent — useful for:
-//   - Live testing: "make the enemies faster" while the game runs
-//   - Iterating on balance without restarting
-//   - Demonstrating the XACE live-mutation capability
-//
-// ## State Machine (CLAUDE.md Phase 14)
-// Idle → PromptSubmitted → PreviewReceived → UserDecision → Idle
-//   - Idle: console hidden or prompt field ready
-//   - PromptSubmitted: prompt sent via CONTROL WireMessage, awaiting response
-//   - PreviewReceived: XACE sent back a schema diff preview, show Apply/Cancel
-//   - UserDecision: designer clicked Apply or Cancel, result dispatched
-//
-// ## UI Layout
-// Toggle key: F1 (configurable)
-// ┌─────────────────────────────────────────────────┐
-// │ XACE Console                          [×]        │
-// ├─────────────────────────────────────────────────┤
-// │ Prompt: [______________________________] [Send]  │
-// │ ─────────────────────────────────────────────── │
-// │ ● Confidence: ████████░░ 82%                    │
-// │ ─────────────────────────────────────────────── │
-// │ Preview: "Increase zombie speed from 3→5"        │
-// │ [  Apply  ]    [  Cancel  ]                      │
-// │ ─────────────────────────────────────────────── │
-// │ [Output log — last 8 lines]                      │
-// └─────────────────────────────────────────────────┘
-//
-// ## CONTROL Message Format
-// Prompts are sent as CONTROL WireMessages with payload:
-//   { "control_type": "PromptSubmit", "prompt": "...", "session_id": "..." }
-// The XACE PIL processes these and sends back CONTROL messages with:
-//   { "control_type": "MutationPreview", "description": "...", "confidence": 0.82 }
-//   { "control_type": "MutationApplied" } or { "control_type": "MutationCancelled" }
+// The widget owns only UI state. It emits explicit prompt/apply/cancel events
+// and can optionally send CONTROL-style dictionaries through XaceTransport for
+// future builder/runtime integrations.
 
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Text;
 using UnityEngine;
 
 namespace Xace.Adapter.Unity
 {
-    /// <summary>
-    /// In-game XACE prompt console overlay.
-    /// Uses Unity's legacy IMGUI for zero-dependency rendering.
-    /// Attach to a persistent GameObject. Toggle with F1.
-    /// </summary>
-    public class XaceConsoleWidget : MonoBehaviour
+    public sealed class XaceConsoleWidget : MonoBehaviour
     {
-        // ── Configuration ──────────────────────────────────────────────────
-
-        [Header("Toggle")]
-        [SerializeField] private KeyCode _toggleKey = KeyCode.F1;
-
-        [Header("Window")]
-        [SerializeField] private float _windowWidth  = 600f;
-        [SerializeField] private float _windowHeight = 400f;
-        [SerializeField] private float _windowX      = 20f;
-        [SerializeField] private float _windowY      = 20f;
-
-        [Header("Log")]
-        [SerializeField] private int _maxLogLines = 8;
-
-        // ── State Machine ──────────────────────────────────────────────────
-
-        private enum ConsoleState
+        public enum ConsoleState
         {
             Idle,
             PromptSubmitted,
             PreviewReceived,
             UserDecision,
+            Applying,
+            Error
         }
 
-        private ConsoleState _state       = ConsoleState.Idle;
-        private bool         _visible     = false;
-        private string       _promptText  = string.Empty;
-        private string       _previewText = string.Empty;
-        private float        _confidence  = 0f;
-        private string       _sessionId   = string.Empty;
-        private string       _pendingMutationId = string.Empty;
+        [Header("Input")]
+        [SerializeField] private KeyCode toggleKey = KeyCode.F1;
+        [SerializeField] private bool startVisible = false;
+        [SerializeField] private bool sendControlToRuntime = false;
 
-        private readonly List<string> _log = new();
-        private Vector2 _logScroll = Vector2.zero;
+        [Header("Window")]
+        [SerializeField] private Rect windowRect = new Rect(20f, 20f, 620f, 420f);
+        [SerializeField] private int maxLogLines = 12;
 
-        // IMGUI skin customisation
-        private GUIStyle _windowStyle;
-        private GUIStyle _labelStyle;
-        private GUIStyle _buttonStyle;
-        private GUIStyle _textFieldStyle;
-        private GUIStyle _logStyle;
-        private bool     _stylesInitialised;
+        public event Action<string> OnPromptSubmitted;
+        public event Action<string> OnApplyRequested;
+        public event Action<string> OnCancelRequested;
 
-        private XaceTransport _transport;
-        private ulong         _controlSequence;
+        private XaceTransport transport;
+        private ConsoleState state = ConsoleState.Idle;
+        private bool visible;
+        private string prompt = "";
+        private string preview = "";
+        private string mutationId = "";
+        private string runtimeCgsHash = "";
+        private string lastSnapshotHash = "";
+        private ulong lastRuntimeTick;
+        private float confidence;
+        private string sessionId;
+        private Vector2 logScroll;
+        private readonly List<string> logLines = new List<string>();
+        private readonly List<string> history = new List<string>();
+        private int historyIndex = -1;
+        private ulong controlSequence = 1;
 
-        // Prompt history (up-arrow to recall)
-        private readonly List<string> _history = new();
-        private int _historyIndex = -1;
+        private GUIStyle labelStyle;
+        private GUIStyle logStyle;
+        private GUIStyle windowStyle;
+        private bool stylesReady;
 
-        // ── Unity Lifecycle ────────────────────────────────────────────────
+        public ConsoleState State => state;
+        public bool IsVisible => visible;
 
         private void Awake()
         {
-            _transport = GetComponent<XaceTransport>()
-                ?? FindObjectOfType<XaceTransport>();
-            _sessionId = Guid.NewGuid().ToString("N").Substring(0, 8);
+            transport = GetComponent<XaceTransport>() ?? FindAnyObjectByType<XaceTransport>();
+            visible = startVisible;
+            sessionId = Guid.NewGuid().ToString("N").Substring(0, 8);
         }
 
         private void OnEnable()
         {
-            if (_transport != null)
-                _transport.OnMessageReceived += OnMessageReceived;
+            if (transport != null)
+            {
+                transport.OnHandshakeAccepted += OnHandshakeAccepted;
+                transport.OnProtocolError += OnProtocolError;
+                transport.OnMessageReceived += OnRuntimeMessage;
+            }
         }
 
         private void OnDisable()
         {
-            if (_transport != null)
-                _transport.OnMessageReceived -= OnMessageReceived;
+            if (transport != null)
+            {
+                transport.OnHandshakeAccepted -= OnHandshakeAccepted;
+                transport.OnProtocolError -= OnProtocolError;
+                transport.OnMessageReceived -= OnRuntimeMessage;
+            }
         }
 
         private void Update()
         {
-            if (UnityEngine.Input.GetKeyDown(_toggleKey))
-                _visible = !_visible;
+            if (SafeKeyDown(toggleKey))
+                visible = !visible;
 
-            // History navigation when console is visible and focused
-            if (_visible)
+            if (!visible)
+                return;
+
+            if (SafeKeyDown(KeyCode.UpArrow) && history.Count > 0)
             {
-                if (UnityEngine.Input.GetKeyDown(KeyCode.UpArrow) && _history.Count > 0)
-                {
-                    _historyIndex = Mathf.Max(0, _historyIndex - 1);
-                    _promptText   = _history[_history.Count - 1 - _historyIndex];
-                }
-                if (UnityEngine.Input.GetKeyDown(KeyCode.DownArrow))
-                {
-                    _historyIndex = Mathf.Min(_history.Count, _historyIndex + 1);
-                    _promptText   = _historyIndex < _history.Count
-                        ? _history[_history.Count - 1 - _historyIndex]
-                        : string.Empty;
-                }
+                historyIndex = Mathf.Clamp(historyIndex + 1, 0, history.Count - 1);
+                prompt = history[history.Count - 1 - historyIndex];
+            }
+            else if (SafeKeyDown(KeyCode.DownArrow) && history.Count > 0)
+            {
+                historyIndex = Mathf.Clamp(historyIndex - 1, -1, history.Count - 1);
+                prompt = historyIndex < 0 ? "" : history[history.Count - 1 - historyIndex];
             }
         }
-
-        // ── IMGUI Rendering ────────────────────────────────────────────────
 
         private void OnGUI()
         {
-            if (!_visible) return;
-            InitStyles();
-
-            var windowRect = new Rect(_windowX, _windowY, _windowWidth, _windowHeight);
-            GUI.Window(42, windowRect, DrawWindow, "XACE Console", _windowStyle);
+            if (!visible)
+                return;
+            EnsureStyles();
+            windowRect = GUI.Window(915042, windowRect, DrawWindow, "XACE Console", windowStyle);
         }
 
-        private void DrawWindow(int windowId)
+        public void ReceivePreview(string mutationPreview, float previewConfidence, string previewMutationId = "")
         {
-            GUILayout.Space(8);
+            preview = mutationPreview ?? "";
+            confidence = Mathf.Clamp01(previewConfidence);
+            mutationId = previewMutationId ?? "";
+            state = ConsoleState.UserDecision;
+            AppendLog("preview: " + preview);
+        }
 
-            // ── Status bar ─────────────────────────────────────────────────
-            string statusText = _state switch
-            {
-                ConsoleState.Idle             => _transport?.IsConnected == true ? "● Connected" : "○ Disconnected",
-                ConsoleState.PromptSubmitted  => "⏳ Processing...",
-                ConsoleState.PreviewReceived  => "👁 Preview ready — review and apply or cancel",
-                ConsoleState.UserDecision     => "✓ Decision sent",
-                _ => string.Empty,
-            };
-            GUILayout.Label(statusText, _labelStyle);
-            GUILayout.Space(4);
+        public void SetError(string message)
+        {
+            state = ConsoleState.Error;
+            AppendLog("error: " + message);
+        }
 
-            // ── Prompt input ────────────────────────────────────────────────
-            GUI.enabled = _state == ConsoleState.Idle && _transport?.IsConnected == true;
+        private void DrawWindow(int id)
+        {
+            GUILayout.Space(8f);
+            GUILayout.Label("State: " + state + "  Runtime: " + ((transport != null && transport.IsConnected) ? "Connected" : "Disconnected"), labelStyle);
+            GUILayout.Label("Tick: " + lastRuntimeTick + "  CGS: " + ShortHash(runtimeCgsHash) + "  Snapshot: " + ShortHash(lastSnapshotHash), labelStyle);
+            GUILayout.Space(4f);
+
+            GUI.enabled = state == ConsoleState.Idle || state == ConsoleState.Error;
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Prompt:", GUILayout.Width(55));
-            _promptText = GUILayout.TextField(_promptText, _textFieldStyle, GUILayout.ExpandWidth(true));
-
-            bool sendPressed = GUILayout.Button("Send", _buttonStyle, GUILayout.Width(60));
+            GUILayout.Label("Prompt", GUILayout.Width(54f));
+            GUI.SetNextControlName("XacePromptField");
+            prompt = GUILayout.TextField(prompt ?? "", GUILayout.ExpandWidth(true));
+            var submitPressed = GUILayout.Button("Send", GUILayout.Width(68f));
             GUILayout.EndHorizontal();
             GUI.enabled = true;
 
-            // Submit on Enter or Send button
-            if ((sendPressed || (Event.current.type == EventType.KeyDown &&
-                                 Event.current.keyCode == KeyCode.Return)) &&
-                !string.IsNullOrWhiteSpace(_promptText) &&
-                _state == ConsoleState.Idle)
+            if (submitPressed || (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return))
             {
-                SubmitPrompt(_promptText.Trim());
+                if ((state == ConsoleState.Idle || state == ConsoleState.Error) && !string.IsNullOrWhiteSpace(prompt))
+                    SubmitPrompt(prompt.Trim());
             }
 
-            GUILayout.Space(8);
+            GUILayout.Space(8f);
+            DrawConfidence();
 
-            // ── Confidence meter ────────────────────────────────────────────
-            if (_state == ConsoleState.PreviewReceived || _state == ConsoleState.UserDecision)
+            if (!string.IsNullOrEmpty(preview))
             {
+                GUILayout.Label("Preview", labelStyle);
+                GUILayout.TextArea(preview, GUILayout.MinHeight(72f));
                 GUILayout.BeginHorizontal();
-                GUILayout.Label($"Confidence:", GUILayout.Width(80));
-
-                Rect meterRect = GUILayoutUtility.GetRect(200, 16, GUILayout.ExpandWidth(false));
-                DrawConfidenceMeter(meterRect, _confidence);
-                GUILayout.Label($" {(_confidence * 100f):F0}%", GUILayout.Width(40));
+                GUI.enabled = state == ConsoleState.UserDecision;
+                if (GUILayout.Button("Apply", GUILayout.Width(100f)))
+                    Apply();
+                if (GUILayout.Button("Cancel", GUILayout.Width(100f)))
+                    Cancel();
+                GUI.enabled = true;
                 GUILayout.EndHorizontal();
-                GUILayout.Space(4);
             }
 
-            // ── Preview pane ────────────────────────────────────────────────
-            if (!string.IsNullOrEmpty(_previewText))
-            {
-                GUILayout.Box(_previewText, GUILayout.ExpandWidth(true));
-                GUILayout.Space(4);
-
-                if (_state == ConsoleState.PreviewReceived)
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    if (GUILayout.Button("  Apply  ", _buttonStyle, GUILayout.Width(100)))
-                        ApplyMutation();
-                    GUILayout.Space(12);
-                    if (GUILayout.Button("  Cancel  ", _buttonStyle, GUILayout.Width(100)))
-                        CancelMutation();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
-                    GUILayout.Space(4);
-                }
-            }
-
-            // ── Output log ──────────────────────────────────────────────────
-            GUILayout.Label("Output:", _labelStyle);
-            _logScroll = GUILayout.BeginScrollView(_logScroll, GUILayout.ExpandHeight(true));
-            foreach (string line in _log)
-                GUILayout.Label(line, _logStyle);
+            GUILayout.Space(8f);
+            GUILayout.Label("Log", labelStyle);
+            logScroll = GUILayout.BeginScrollView(logScroll, GUILayout.ExpandHeight(true));
+            foreach (var line in logLines)
+                GUILayout.Label(line, logStyle);
             GUILayout.EndScrollView();
 
-            // Close button
-            if (GUI.Button(new Rect(_windowWidth - 28, 2, 24, 18), "×"))
-                _visible = false;
-
-            // Make the window draggable
-            GUI.DragWindow(new Rect(0, 0, _windowWidth - 30, 20));
+            if (GUI.Button(new Rect(windowRect.width - 30f, 2f, 24f, 20f), "x"))
+                visible = false;
+            GUI.DragWindow(new Rect(0f, 0f, windowRect.width - 34f, 24f));
         }
 
-        private void DrawConfidenceMeter(Rect rect, float value)
+        private void DrawConfidence()
         {
-            // Background
-            GUI.DrawTexture(rect, Texture2D.grayTexture);
-            // Fill
-            float filled = Mathf.Clamp01(value);
-            Color fillColor = filled >= 0.7f ? Color.green
-                            : filled >= 0.4f ? Color.yellow
-                            : Color.red;
-            var fillRect = new Rect(rect.x, rect.y, rect.width * filled, rect.height);
-            var prevColor = GUI.color;
-            GUI.color = fillColor;
-            GUI.DrawTexture(fillRect, Texture2D.whiteTexture);
-            GUI.color = prevColor;
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Confidence", GUILayout.Width(82f));
+            var rect = GUILayoutUtility.GetRect(180f, 16f, GUILayout.Width(180f));
+            var old = GUI.color;
+            GUI.color = Color.gray;
+            GUI.DrawTexture(rect, Texture2D.whiteTexture);
+            GUI.color = confidence >= 0.7f ? Color.green : confidence >= 0.4f ? Color.yellow : Color.red;
+            GUI.DrawTexture(new Rect(rect.x, rect.y, rect.width * confidence, rect.height), Texture2D.whiteTexture);
+            GUI.color = old;
+            GUILayout.Label((confidence * 100f).ToString("0") + "%");
+            GUILayout.EndHorizontal();
         }
 
-        // ── Prompt Submission ──────────────────────────────────────────────
-
-        private void SubmitPrompt(string prompt)
+        private void SubmitPrompt(string text)
         {
-            _state = ConsoleState.PromptSubmitted;
-            _previewText = string.Empty;
-            _confidence  = 0f;
-
-            _history.Add(prompt);
-            if (_history.Count > 50) _history.RemoveAt(0);
-            _historyIndex = -1;
-            _promptText   = string.Empty;
-
-            AppendLog($"▶ {prompt}");
-
-            var payload = new PromptSubmitControl
+            prompt = "";
+            preview = "";
+            confidence = 0f;
+            mutationId = "";
+            state = ConsoleState.PromptSubmitted;
+            history.Add(text);
+            if (history.Count > 50)
+                history.RemoveAt(0);
+            historyIndex = -1;
+            AppendLog("> " + text);
+            OnPromptSubmitted?.Invoke(text);
+            SendControl("PromptSubmit", new SortedDictionary<string, object>(StringComparer.Ordinal)
             {
-                control_type = "PromptSubmit",
-                prompt       = prompt,
-                session_id   = _sessionId,
-            };
-            SendControl(JsonUtility.ToJson(payload));
+                ["prompt"] = text,
+                ["session_id"] = sessionId
+            });
         }
 
-        // ── Mutation Apply / Cancel ────────────────────────────────────────
-
-        private void ApplyMutation()
+        private void Apply()
         {
-            _state = ConsoleState.UserDecision;
-            var payload = new MutationDecisionControl
+            state = ConsoleState.Applying;
+            AppendLog("apply requested");
+            OnApplyRequested?.Invoke(mutationId);
+            SendControl("MutationDecision", new SortedDictionary<string, object>(StringComparer.Ordinal)
             {
-                control_type  = "MutationDecision",
-                decision      = "Apply",
-                mutation_id   = _pendingMutationId,
-                session_id    = _sessionId,
-            };
-            SendControl(JsonUtility.ToJson(payload));
-            AppendLog("✓ Mutation applied.");
-            ResetToIdle(1.5f);
+                ["decision"] = "Apply",
+                ["mutation_id"] = mutationId,
+                ["session_id"] = sessionId
+            });
         }
 
-        private void CancelMutation()
+        private void Cancel()
         {
-            _state = ConsoleState.UserDecision;
-            var payload = new MutationDecisionControl
+            state = ConsoleState.Idle;
+            AppendLog("cancelled");
+            OnCancelRequested?.Invoke(mutationId);
+            SendControl("MutationDecision", new SortedDictionary<string, object>(StringComparer.Ordinal)
             {
-                control_type  = "MutationDecision",
-                decision      = "Cancel",
-                mutation_id   = _pendingMutationId,
-                session_id    = _sessionId,
-            };
-            SendControl(JsonUtility.ToJson(payload));
-            AppendLog("✗ Mutation cancelled.");
-            ResetToIdle(0.5f);
+                ["decision"] = "Cancel",
+                ["mutation_id"] = mutationId,
+                ["session_id"] = sessionId
+            });
+            preview = "";
+            mutationId = "";
+            confidence = 0f;
         }
 
-        private void ResetToIdle(float afterSeconds)
+        private void SendControl(string controlType, SortedDictionary<string, object> payload)
         {
-            // Reset state after a short display delay
-            Invoke(nameof(DoResetToIdle), afterSeconds);
+            if (!sendControlToRuntime || transport == null)
+                return;
+            payload["msg_type"] = "control";
+            payload["control_type"] = controlType;
+            payload["sequence_id"] = controlSequence++;
+            transport.SendDictionary(payload);
         }
 
-        private void DoResetToIdle()
+        private void OnHandshakeAccepted(XaceHandshakeAck ack)
         {
-            _state       = ConsoleState.Idle;
-            _previewText = string.Empty;
-            _confidence  = 0f;
-            _pendingMutationId = string.Empty;
+            runtimeCgsHash = ack.cgs_hash ?? "";
+            AppendLog("connected: " + ack.session_id);
+            AppendLog("cgs hash: " + ShortHash(runtimeCgsHash));
+            if (state == ConsoleState.Error)
+                state = ConsoleState.Idle;
         }
 
-        // ── Inbound Message Handling ───────────────────────────────────────
-
-        private void OnMessageReceived(WireMessage msg)
+        private void OnProtocolError(string message)
         {
-            if (!msg.IsControl) return;
+            SetError(message);
+        }
 
-            var control = JsonUtility.FromJson<XaceControlMessage>(msg.payload);
-            if (control == null) return;
-
-            switch (control.control_type)
+        private void OnRuntimeMessage(XaceRuntimeMessage message)
+        {
+            if (message.MessageType == XaceProtocolNames.TickSnapshot)
             {
-                case "MutationPreview":
-                    OnMutationPreview(control);
-                    break;
-                case "ClarificationRequired":
-                    OnClarificationRequired(control);
-                    break;
-                case "MutationApplied":
-                    AppendLog("✓ XACE applied the mutation.");
-                    _state = ConsoleState.Idle;
-                    break;
-                case "MutationCancelled":
-                    AppendLog("✗ XACE cancelled the mutation.");
-                    _state = ConsoleState.Idle;
-                    break;
-                case "Error":
-                    AppendLog($"⚠ Error: {control.message}");
-                    _state = ConsoleState.Idle;
-                    break;
-                case "HandshakeAck":
-                    AppendLog("✓ Connected to XACE runtime.");
-                    break;
+                lastRuntimeTick = message.Tick;
+                lastSnapshotHash = SnapshotProofHash(message.RawJson);
+                return;
+            }
+
+            if (message.MessageType != "control")
+                return;
+            var controlType = message.GetString("control_type", "");
+            if (controlType == "MutationPreview")
+            {
+                ReceivePreview(
+                    message.GetString("description", message.GetString("message", "")),
+                    Convert.ToSingle(message.Data.TryGetValue("confidence", out var c) ? c : 0f),
+                    message.GetString("mutation_id", "")
+                );
+            }
+            else if (controlType == "MutationApplied")
+            {
+                AppendLog("applied");
+                state = ConsoleState.Idle;
+                preview = "";
+            }
+            else if (controlType == "MutationCancelled")
+            {
+                AppendLog("cancelled by runtime");
+                state = ConsoleState.Idle;
+                preview = "";
             }
         }
-
-        private void OnMutationPreview(XaceControlMessage control)
-        {
-            _state             = ConsoleState.PreviewReceived;
-            _previewText       = control.description ?? control.message ?? "(no preview)";
-            _confidence        = control.confidence;
-            _pendingMutationId = control.mutation_id ?? string.Empty;
-            AppendLog($"Preview: {_previewText} (confidence: {_confidence * 100:F0}%)");
-        }
-
-        private void OnClarificationRequired(XaceControlMessage control)
-        {
-            _state       = ConsoleState.Idle;
-            _previewText = string.Empty;
-            AppendLog($"❓ Clarification: {control.question ?? control.message}");
-        }
-
-        // ── Log ────────────────────────────────────────────────────────────
 
         private void AppendLog(string line)
         {
-            string timestamp = DateTime.Now.ToString("HH:mm:ss");
-            _log.Add($"[{timestamp}] {line}");
-            if (_log.Count > _maxLogLines)
-                _log.RemoveAt(0);
-            // Scroll to bottom
-            _logScroll = new Vector2(0, float.MaxValue);
+            logLines.Add("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + line);
+            while (logLines.Count > maxLogLines)
+                logLines.RemoveAt(0);
+            logScroll = new Vector2(0f, float.MaxValue);
         }
 
-        // ── Wire Helpers ───────────────────────────────────────────────────
-
-        private void SendControl(string payload)
+        private static string SnapshotProofHash(string rawJson)
         {
-            var msg = new WireMessage
+            if (string.IsNullOrEmpty(rawJson))
+                return "";
+            using (var sha = SHA256.Create())
             {
-                protocol_version       = WireProtocol.ProtocolVersion,
-                world_id               = "default",
-                schema_version         = "0.1.0",
-                execution_plan_version = 1,
-                tick                   = 0,
-                sequence_id            = _controlSequence++,
-                message_type           = (int)MessageType.Control,
-                payload                = payload,
-            };
-            _transport?.Send(msg);
+                var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(rawJson));
+                var builder = new StringBuilder(bytes.Length * 2);
+                foreach (var b in bytes)
+                    builder.Append(b.ToString("x2"));
+                return builder.ToString();
+            }
         }
 
-        // ── Style Initialisation ───────────────────────────────────────────
-
-        private void InitStyles()
+        private static string ShortHash(string value)
         {
-            if (_stylesInitialised) return;
-
-            _windowStyle = new GUIStyle(GUI.skin.window)
-            {
-                fontSize  = 13,
-                fontStyle = FontStyle.Bold,
-                padding   = new RectOffset(10, 10, 20, 10),
-            };
-
-            _labelStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize = 12,
-            };
-
-            _buttonStyle = new GUIStyle(GUI.skin.button)
-            {
-                fontSize = 12,
-                padding  = new RectOffset(8, 8, 4, 4),
-            };
-
-            _textFieldStyle = new GUIStyle(GUI.skin.textField)
-            {
-                fontSize = 12,
-            };
-
-            _logStyle = new GUIStyle(GUI.skin.label)
-            {
-                fontSize  = 11,
-                wordWrap  = true,
-                normal    = { textColor = new Color(0.8f, 0.9f, 0.8f) },
-            };
-
-            _stylesInitialised = true;
+            return string.IsNullOrEmpty(value) ? "-" : value.Substring(0, Math.Min(12, value.Length));
         }
-    }
 
-    // ── CONTROL Message Payload Types ──────────────────────────────────────────
+        private static bool SafeKeyDown(KeyCode key)
+        {
+            try { return Input.GetKeyDown(key); }
+            catch (InvalidOperationException) { return false; }
+            catch (ArgumentException) { return false; }
+        }
 
-    [Serializable]
-    public class PromptSubmitControl
-    {
-        public string control_type;
-        public string prompt;
-        public string session_id;
-    }
-
-    [Serializable]
-    public class MutationDecisionControl
-    {
-        public string control_type;
-        public string decision;         // "Apply" | "Cancel"
-        public string mutation_id;
-        public string session_id;
-    }
-
-    [Serializable]
-    public class XaceControlMessage
-    {
-        public string control_type;     // "MutationPreview" | "ClarificationRequired" | etc.
-        public string description;      // Human-readable preview of the mutation
-        public string message;          // Fallback message
-        public string question;         // Clarification question
-        public float  confidence;       // 0.0 – 1.0
-        public string mutation_id;      // ID to include in MutationDecision
-        public string session_id;
-        public string error_code;
+        private void EnsureStyles()
+        {
+            if (stylesReady)
+                return;
+            windowStyle = new GUIStyle(GUI.skin.window)
+            {
+                fontSize = 13,
+                padding = new RectOffset(10, 10, 22, 10)
+            };
+            labelStyle = new GUIStyle(GUI.skin.label)
+            {
+                fontStyle = FontStyle.Bold
+            };
+            logStyle = new GUIStyle(GUI.skin.label)
+            {
+                wordWrap = true,
+                normal = { textColor = new Color(0.78f, 0.9f, 0.78f) }
+            };
+            stylesReady = true;
+        }
     }
 }

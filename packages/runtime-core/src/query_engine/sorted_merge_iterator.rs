@@ -51,7 +51,7 @@ ensuring stable ordering even if two archetypes contain the same EntityID
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-use crate::component_tables::archetype::{Archetype, ComponentBundle};
+use crate::component_tables::archetype::ComponentBundle;
 use crate::component_tables::archetype_storage::ArchetypeStorage;
 use crate::component_tables::storage_strategy::{ArchetypeId, EntityId};
 

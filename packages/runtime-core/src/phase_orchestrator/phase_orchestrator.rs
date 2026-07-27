@@ -10,23 +10,34 @@
 //!    a. Execute all system groups in ExecutionPlan order
 //!    b. Apply MutationGate (deferred mutations)
 //!    c. Dispatch EventBus events (sorted by tick, phase, event_id)
-//! 3. Compute world_hash (DeterminismGuard — D9)
-//! 4. Advance tick counter
+//! 3. Compute the canonical end-of-tick world hash
+//! 4. Return the combined tick delta, emitted events, and hash
+//! 5. Advance tick counter
+//!
+//! RuntimeOrchestrator owns DeterminismGuard for the session and calls the
+//! guarded tick path here so tick, phase, system, and hash boundaries are
+//! recorded during live execution.
 //!
 //! ## Global Invariants Enforced
-//! D1: System order from ExecutionPlan only — never self-scheduled
+//! D1: System order from caller-provided ExecutionPlan groups — never self-scheduled
 //! D4: Mutations applied only after phase completion
 //! D5: Events dispatched after phase, sorted deterministically
-//! I7: Schema version validated before any tick executes
+//! I7: Schema version is carried with tick deltas; live guard validation pending
 
-use super::parallel_executor::ParallelExecutor;
+use super::parallel_executor::{ParallelExecutor, ParallelGroupExecutionPolicy};
 use super::system_registry::SystemRegistry;
 use crate::component_tables::ComponentTableStore;
+use crate::determinism_guard::determinism_guard::DeterminismGuard;
+use crate::determinism_guard::rng_interceptor::RngInterceptor;
+use crate::determinism_guard::world_hasher::WorldHasher;
 use crate::entity_store::EntityStore;
 use crate::event_bus::event_bus::EventBus;
 use crate::mutation_gate::MutationGate;
 use crate::query_engine::QueryEngine;
-use xace_core::errors::xace_error::XaceError;
+use crate::snapshot_engine::SnapshotEngine;
+use xace_core::errors::xace_error::{ErrorContext, XaceError};
+use xace_core::events::event_struct::Event;
+use xace_core::runtime::phase_enum::PhaseEnum;
 use xace_core::runtime::state_delta::StateDelta;
 
 // ── Tick Result ───────────────────────────────────────────────────────────────
@@ -42,6 +53,10 @@ pub struct TickResult {
     pub events_dispatched: usize,
     /// Number of mutations applied this tick.
     pub mutations_applied: usize,
+    /// Events emitted by systems this tick, in deterministic phase/system order.
+    pub emitted_events: Vec<Event>,
+    /// Canonical 64-character SHA-256 world hash at tick end.
+    pub world_hash: String,
 }
 
 // ── Phase Orchestrator ────────────────────────────────────────────────────────
@@ -57,7 +72,7 @@ pub struct PhaseOrchestrator {
     /// World seed for deterministic RNG (D6).
     world_seed: u64,
 
-    /// Parallel/sequential system executor.
+    /// Sequential and SGC-parallel-eligible system executor.
     executor: ParallelExecutor,
 
     /// Schema version — validated before each tick (I7, D10).
@@ -93,6 +108,16 @@ impl PhaseOrchestrator {
         &self.schema_version
     }
 
+    /// Returns the current execution plan version.
+    pub fn execution_plan_version(&self) -> u32 {
+        self.execution_plan_version
+    }
+
+    /// Returns how SGC groups marked `parallel=true` are executed.
+    pub fn parallel_group_execution_policy(&self) -> ParallelGroupExecutionPolicy {
+        self.executor.parallel_group_policy()
+    }
+
     /// Updates the schema version after a CGS mutation and SGC recompile.
     /// Called by the runtime when a new ExecutionPlan is received.
     pub fn update_schema_version(
@@ -122,14 +147,79 @@ impl PhaseOrchestrator {
         query_engine: &mut QueryEngine,
         event_bus: &mut EventBus,
     ) -> Result<TickResult, XaceError> {
+        self.tick_inner(
+            systems,
+            registry,
+            entity_store,
+            table_store,
+            mutation_gate,
+            query_engine,
+            event_bus,
+            None,
+            None,
+            "",
+        )
+    }
+
+    /// Executes one simulation tick with live determinism hooks enabled.
+    pub fn tick_with_guard(
+        &mut self,
+        systems: &[(&str, Vec<String>, bool)], // (phase_name, system_ids, is_parallel)
+        registry: &SystemRegistry,
+        entity_store: &mut EntityStore,
+        table_store: &mut ComponentTableStore,
+        mutation_gate: &mut MutationGate,
+        query_engine: &mut QueryEngine,
+        event_bus: &mut EventBus,
+        guard: &mut DeterminismGuard,
+        rng_interceptor: &RngInterceptor,
+        cgs_hash: &str,
+    ) -> Result<TickResult, XaceError> {
+        self.tick_inner(
+            systems,
+            registry,
+            entity_store,
+            table_store,
+            mutation_gate,
+            query_engine,
+            event_bus,
+            Some(guard),
+            Some(rng_interceptor),
+            cgs_hash,
+        )
+    }
+
+    fn tick_inner(
+        &mut self,
+        systems: &[(&str, Vec<String>, bool)], // (phase_name, system_ids, is_parallel)
+        registry: &SystemRegistry,
+        entity_store: &mut EntityStore,
+        table_store: &mut ComponentTableStore,
+        mutation_gate: &mut MutationGate,
+        query_engine: &mut QueryEngine,
+        event_bus: &mut EventBus,
+        mut guard: Option<&mut DeterminismGuard>,
+        rng_interceptor: Option<&RngInterceptor>,
+        cgs_hash: &str,
+    ) -> Result<TickResult, XaceError> {
         let tick = self.current_tick;
         let mut combined_delta = StateDelta::empty(tick, &self.schema_version);
         let mut total_mutations = 0;
         let mut total_events = 0;
+        let mut all_emitted_events = Vec::new();
+
+        if let Some(guard) = guard.as_deref_mut() {
+            guard.hook_tick_start(tick, &self.schema_version, self.execution_plan_version)?;
+        }
 
         // Run each phase group in order
         for (phase_name, system_ids, is_parallel) in systems {
-            let phase_byte = Self::phase_name_to_byte(phase_name);
+            let phase = Self::phase_name_to_enum(phase_name)?;
+            let phase_byte = phase.as_u8();
+
+            if let Some(guard) = guard.as_deref_mut() {
+                guard.hook_phase_start(tick, phase)?;
+            }
 
             // Execute system group
             let emitted_events = if *is_parallel {
@@ -142,7 +232,9 @@ impl PhaseOrchestrator {
                     query_engine,
                     tick,
                     self.world_seed,
-                    phase_byte,
+                    phase,
+                    guard.as_deref_mut(),
+                    rng_interceptor,
                 )?
             } else {
                 self.executor.execute_sequential(
@@ -154,17 +246,26 @@ impl PhaseOrchestrator {
                     query_engine,
                     tick,
                     self.world_seed,
-                    phase_byte,
+                    phase,
+                    guard.as_deref_mut(),
+                    rng_interceptor,
                 )?
             };
 
             // Emit collected events to EventBus
-            for event in emitted_events {
-                event_bus.emit(event)?;
+            for event in &emitted_events {
+                event_bus.emit(event.clone())?;
             }
+            all_emitted_events.extend(emitted_events);
 
             // Apply deferred mutations (D4)
-            let phase_delta = mutation_gate.apply_all(entity_store, table_store, tick)?;
+            let phase_delta = mutation_gate.apply_all_with_runtime_state(
+                entity_store,
+                table_store,
+                Some(&mut *event_bus),
+                rng_interceptor,
+                tick,
+            )?;
             total_mutations += phase_delta.change_count();
 
             // Merge phase delta into tick delta
@@ -173,7 +274,29 @@ impl PhaseOrchestrator {
             // Dispatch deferred events (D5)
             let dispatched = event_bus.dispatch_phase_events(phase_byte)?;
             total_events += dispatched;
+
+            if let Some(guard) = guard.as_deref_mut() {
+                guard.hook_phase_end(tick, phase)?;
+            }
         }
+
+        let mut snapshot_engine = SnapshotEngine::standard(
+            self.schema_version.clone(),
+            self.execution_plan_version,
+            self.world_seed,
+        );
+        let mut snapshot = snapshot_engine.take_snapshot(tick, entity_store, table_store)?;
+        snapshot.cgs_hash = cgs_hash.to_string();
+        snapshot.world_hash.clear();
+        let world_hash = if let Some(guard) = guard.as_deref_mut() {
+            let hash = guard.hook_tick_end(&snapshot)?;
+            snapshot.world_hash = hash.clone();
+            hash
+        } else {
+            let hash = WorldHasher::compute(&snapshot);
+            snapshot.world_hash = hash.clone();
+            hash
+        };
 
         // Advance tick counter
         self.current_tick += 1;
@@ -183,6 +306,8 @@ impl PhaseOrchestrator {
             state_delta: combined_delta,
             events_dispatched: total_events,
             mutations_applied: total_mutations,
+            emitted_events: all_emitted_events,
+            world_hash,
         })
     }
 
@@ -193,14 +318,19 @@ impl PhaseOrchestrator {
 
     // ── Helpers ────────────────────────────────────────────────────────────
 
-    fn phase_name_to_byte(phase_name: &str) -> u8 {
+    fn phase_name_to_enum(phase_name: &str) -> Result<PhaseEnum, XaceError> {
         match phase_name {
-            "Initialization" => 0,
-            "Input" => 1,
-            "Simulation" => 2,
-            "PostSimulation" => 3,
-            "Cleanup" => 4,
-            _ => 255,
+            "Initialization" => Ok(PhaseEnum::Initialization),
+            "Input" => Ok(PhaseEnum::Input),
+            "Simulation" => Ok(PhaseEnum::Simulation),
+            "PostSimulation" => Ok(PhaseEnum::PostSimulation),
+            "Cleanup" => Ok(PhaseEnum::Cleanup),
+            other => Err(XaceError::ValidationFailure {
+                message: format!("Unknown execution phase '{}'", other),
+                context: ErrorContext::new("PhaseOrchestrator", "phase_name_to_enum"),
+                rule_violated: "D1".into(),
+                failed_path: format!("phase:{}", other),
+            }),
         }
     }
 
@@ -232,12 +362,16 @@ impl PhaseOrchestrator {
 mod tests {
     use super::*;
     use crate::component_tables::ComponentTableStore;
+    use crate::determinism_guard::determinism_guard::DeterminismGuard;
+    use crate::determinism_guard::rng_interceptor::RngInterceptor;
     use crate::entity_store::EntityStore;
     use crate::event_bus::event_bus::EventBus;
     use crate::mutation_gate::MutationGate;
     use crate::phase_orchestrator::system_registry::SystemRegistry;
     use crate::query_engine::QueryEngine;
     use xace_core::contracts::interfaces::{ISystem, ISystemContext};
+    use xace_core::errors::determinism_error::GuardMode;
+    use xace_core::fixed_point::Fixed64;
 
     struct NoopSystem {
         id: String,
@@ -252,6 +386,63 @@ mod tests {
         fn declared_reads(&self) -> &[u32] {
             &[]
         }
+        fn declared_writes(&self) -> &[u32] {
+            &[]
+        }
+    }
+
+    struct EmittingSystem {
+        id: String,
+    }
+
+    impl ISystem for EmittingSystem {
+        fn system_id(&self) -> &str {
+            &self.id
+        }
+
+        fn execute(&self, ctx: &mut dyn ISystemContext) -> Result<(), XaceError> {
+            use xace_core::events::event_struct::Event;
+            use xace_core::events::event_type::EventType;
+            use xace_core::runtime::phase_enum::PhaseEnum;
+
+            ctx.emit_event(Event::broadcast(
+                1,
+                EventType::Domain("interaction.accepted".to_string()),
+                0,
+                PhaseEnum::Simulation,
+            ))
+        }
+
+        fn declared_reads(&self) -> &[u32] {
+            &[]
+        }
+
+        fn declared_writes(&self) -> &[u32] {
+            &[]
+        }
+    }
+
+    struct RandomSystem {
+        id: String,
+    }
+
+    impl ISystem for RandomSystem {
+        fn system_id(&self) -> &str {
+            &self.id
+        }
+
+        fn execute(&self, ctx: &mut dyn ISystemContext) -> Result<(), XaceError> {
+            let first = ctx.next_random()?;
+            let second = ctx.next_random()?;
+            assert!((Fixed64::ZERO..Fixed64::ONE).contains(&first));
+            assert!((Fixed64::ZERO..Fixed64::ONE).contains(&second));
+            Ok(())
+        }
+
+        fn declared_reads(&self) -> &[u32] {
+            &[]
+        }
+
         fn declared_writes(&self) -> &[u32] {
             &[]
         }
@@ -326,6 +517,24 @@ mod tests {
             .unwrap();
         assert!(result.state_delta.is_empty());
         assert_eq!(result.mutations_applied, 0);
+        assert_eq!(result.world_hash.len(), 64);
+    }
+
+    #[test]
+    fn tick_returns_emitted_events_for_runtime_playback_resolution() {
+        let (mut orch, mut reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
+        reg.register(Box::new(EmittingSystem {
+            id: "sys_events".into(),
+        }))
+        .unwrap();
+        let systems = vec![("Simulation", vec!["sys_events".to_string()], false)];
+
+        let result = orch
+            .tick(&systems, &reg, &mut es, &mut ts, &mut mg, &mut qe, &mut eb)
+            .unwrap();
+
+        assert_eq!(result.emitted_events.len(), 1);
+        assert_eq!(result.events_dispatched, 1);
     }
 
     #[test]
@@ -339,6 +548,149 @@ mod tests {
             assert_eq!(result.tick, expected_tick);
         }
         assert_eq!(orch.current_tick(), 5);
+    }
+
+    #[test]
+    fn guarded_tick_records_canonical_world_hash() {
+        let (mut orch, reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
+        let systems = vec![("Simulation", vec!["sys_movement".to_string()], false)];
+        let mut guard = DeterminismGuard::new(
+            GuardMode::Strict,
+            orch.schema_version().to_string(),
+            orch.execution_plan_version(),
+        );
+        guard.register_systems(&["sys_movement"]);
+        let rng_interceptor = RngInterceptor::new(42, GuardMode::Strict);
+
+        let result = orch
+            .tick_with_guard(
+                &systems,
+                &reg,
+                &mut es,
+                &mut ts,
+                &mut mg,
+                &mut qe,
+                &mut eb,
+                &mut guard,
+                &rng_interceptor,
+                "aabbcc",
+            )
+            .unwrap();
+
+        assert_eq!(result.world_hash.len(), 64);
+        assert_eq!(
+            guard.hash_at_tick(result.tick),
+            Some(result.world_hash.as_str())
+        );
+        assert_eq!(orch.current_tick(), 1);
+    }
+
+    #[test]
+    fn guarded_tick_rejects_unregistered_system_boundary() {
+        let (mut orch, reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
+        let systems = vec![("Simulation", vec!["sys_movement".to_string()], false)];
+        let mut guard = DeterminismGuard::new(
+            GuardMode::Strict,
+            orch.schema_version().to_string(),
+            orch.execution_plan_version(),
+        );
+        let rng_interceptor = RngInterceptor::new(42, GuardMode::Strict);
+
+        let result = orch.tick_with_guard(
+            &systems,
+            &reg,
+            &mut es,
+            &mut ts,
+            &mut mg,
+            &mut qe,
+            &mut eb,
+            &mut guard,
+            &rng_interceptor,
+            "aabbcc",
+        );
+
+        assert!(result.is_err());
+        assert_eq!(orch.current_tick(), 0);
+    }
+
+    #[test]
+    fn guarded_sequential_system_rng_uses_interceptor_window() {
+        let (mut orch, mut reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
+        reg.register(Box::new(RandomSystem {
+            id: "sys_random".into(),
+        }))
+        .unwrap();
+        let systems = vec![("Simulation", vec!["sys_random".to_string()], false)];
+        let mut guard = DeterminismGuard::new(
+            GuardMode::Strict,
+            orch.schema_version().to_string(),
+            orch.execution_plan_version(),
+        );
+        guard.register_systems(&["sys_random"]);
+        let rng_interceptor = RngInterceptor::new(42, GuardMode::Strict);
+
+        orch.tick_with_guard(
+            &systems,
+            &reg,
+            &mut es,
+            &mut ts,
+            &mut mg,
+            &mut qe,
+            &mut eb,
+            &mut guard,
+            &rng_interceptor,
+            "aabbcc",
+        )
+        .unwrap();
+
+        let metrics = rng_interceptor.metrics();
+        assert_eq!(metrics.legal_access_count, 2);
+        assert_eq!(metrics.windowless_access_count, 0);
+        assert_eq!(rng_interceptor.violation_count(), 0);
+    }
+
+    #[test]
+    fn guarded_parallel_system_rng_uses_interceptor_window() {
+        let (mut orch, mut reg, mut es, mut ts, mut mg, mut qe, mut eb) = setup();
+        reg.register(Box::new(RandomSystem {
+            id: "sys_random_a".into(),
+        }))
+        .unwrap();
+        reg.register(Box::new(RandomSystem {
+            id: "sys_random_b".into(),
+        }))
+        .unwrap();
+        let systems = vec![(
+            "Simulation",
+            vec!["sys_random_a".to_string(), "sys_random_b".to_string()],
+            true,
+        )];
+        let mut guard = DeterminismGuard::new(
+            GuardMode::Strict,
+            orch.schema_version().to_string(),
+            orch.execution_plan_version(),
+        );
+        guard.register_systems(&["sys_random_a", "sys_random_b"]);
+        let rng_interceptor = RngInterceptor::new(42, GuardMode::Strict);
+
+        orch.tick_with_guard(
+            &systems,
+            &reg,
+            &mut es,
+            &mut ts,
+            &mut mg,
+            &mut qe,
+            &mut eb,
+            &mut guard,
+            &rng_interceptor,
+            "aabbcc",
+        )
+        .unwrap();
+
+        let metrics = rng_interceptor.metrics();
+        assert_eq!(metrics.legal_access_count, 4);
+        assert_eq!(metrics.windowless_access_count, 0);
+        assert_eq!(rng_interceptor.violation_count(), 0);
     }
 
     #[test]

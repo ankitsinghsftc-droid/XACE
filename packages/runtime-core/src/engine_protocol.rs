@@ -10,6 +10,8 @@ use std::fmt;
 use std::io::{Read, Write};
 
 use serde::{Deserialize, Serialize};
+use xace_core::assets::{AssetReference, PlaybackCommandRequest, SemanticPlaybackKind};
+use xace_core::wire::feedback_payload::{FeedbackMessage, FeedbackPayload};
 
 pub const PROTOCOL_VERSION: u32 = 1;
 pub const MAX_MESSAGE_BYTES: usize = 4 * 1024 * 1024;
@@ -25,6 +27,8 @@ pub enum EngineMessageType {
     HandshakeAck,
     TickSnapshot,
     InputPacket,
+    FeedbackPayload,
+    PlaybackCommands,
     Disconnect,
     Error,
 }
@@ -36,6 +40,8 @@ impl EngineMessageType {
             Self::HandshakeAck => "handshake_ack",
             Self::TickSnapshot => "tick_snapshot",
             Self::InputPacket => "input_packet",
+            Self::FeedbackPayload => "feedback_payload",
+            Self::PlaybackCommands => "playback_commands",
             Self::Disconnect => "disconnect",
             Self::Error => "error",
         }
@@ -47,6 +53,8 @@ impl EngineMessageType {
             "handshake_ack" => Some(Self::HandshakeAck),
             "tick_snapshot" => Some(Self::TickSnapshot),
             "input_packet" => Some(Self::InputPacket),
+            "feedback_payload" => Some(Self::FeedbackPayload),
+            "playback_commands" => Some(Self::PlaybackCommands),
             "disconnect" => Some(Self::Disconnect),
             "error" => Some(Self::Error),
             _ => None,
@@ -168,6 +176,7 @@ impl HandshakeAck {
                 "full_snapshot".to_string(),
                 "input_packet_v1".to_string(),
                 "length_prefixed_json".to_string(),
+                "multi_engine_clients".to_string(),
             ],
         }
     }
@@ -200,6 +209,8 @@ pub struct TickSnapshot {
     pub destroyed_ids: Vec<u64>,
     #[serde(default)]
     pub events: Vec<GameEvent>,
+    #[serde(default)]
+    pub playback_commands: Vec<EnginePlaybackCommand>,
 }
 
 impl TickSnapshot {
@@ -219,6 +230,7 @@ impl TickSnapshot {
             spawned_ids,
             destroyed_ids,
             events,
+            playback_commands: Vec::new(),
         }
     }
 }
@@ -343,15 +355,142 @@ pub struct GameEvent {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EngineFeedbackPacket {
+    pub msg_type: String,
+    pub tick: u64,
+    #[serde(default)]
+    pub messages: Vec<FeedbackMessage>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EnginePlaybackCommand {
+    pub binding_id: String,
+    pub event_name: String,
+    pub playback_kind: SemanticPlaybackKind,
+    pub entity_id: u64,
+    pub asset: AssetReference,
+    #[serde(default)]
+    pub semantic_action: String,
+    #[serde(default)]
+    pub parameters: BTreeMap<String, String>,
+    #[serde(default)]
+    pub priority: i32,
+}
+
+impl EnginePlaybackCommand {
+    pub fn validate(&self) -> Result<(), ProtocolError> {
+        validate_portable_field("binding_id", &self.binding_id, 128, true)?;
+        validate_portable_field("event_name", &self.event_name, 128, true)?;
+        validate_portable_field("asset.id", &self.asset.id, 256, true)?;
+        validate_portable_field("semantic_action", &self.semantic_action, 128, false)?;
+        if self.entity_id == 0 {
+            return Err(ProtocolError::InvalidField {
+                field: "entity_id",
+                reason: "must be greater than zero".to_string(),
+            });
+        }
+        if !self
+            .playback_kind
+            .accepts_asset_type(&self.asset.asset_type)
+        {
+            return Err(ProtocolError::InvalidField {
+                field: "asset.asset_type",
+                reason: format!(
+                    "{:?} command cannot use {:?}",
+                    self.playback_kind, self.asset.asset_type
+                ),
+            });
+        }
+        for key in self.parameters.keys() {
+            validate_portable_field("parameter.key", key, 64, true)?;
+        }
+        Ok(())
+    }
+}
+
+impl From<PlaybackCommandRequest> for EnginePlaybackCommand {
+    fn from(request: PlaybackCommandRequest) -> Self {
+        Self {
+            binding_id: request.binding_id,
+            event_name: request.event_name,
+            playback_kind: request.playback_kind,
+            entity_id: request.entity_id,
+            asset: request.asset,
+            semantic_action: request.semantic_action,
+            parameters: request.parameters,
+            priority: request.priority,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EnginePlaybackCommandBatch {
+    pub msg_type: String,
+    pub tick: u64,
+    #[serde(default)]
+    pub commands: Vec<EnginePlaybackCommand>,
+}
+
+impl EnginePlaybackCommandBatch {
+    pub fn new(tick: u64, commands: Vec<EnginePlaybackCommand>) -> Self {
+        Self {
+            msg_type: EngineMessageType::PlaybackCommands.as_str().to_string(),
+            tick,
+            commands,
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), ProtocolError> {
+        validate_msg_type(&self.msg_type, EngineMessageType::PlaybackCommands)?;
+        if self.commands.len() > 4096 {
+            return Err(ProtocolError::InvalidField {
+                field: "commands",
+                reason: "playback command batch contains more than 4096 commands".to_string(),
+            });
+        }
+        for command in &self.commands {
+            command.validate()?;
+        }
+        Ok(())
+    }
+}
+
+impl EngineFeedbackPacket {
+    pub fn validate(&self) -> Result<(), ProtocolError> {
+        validate_msg_type(&self.msg_type, EngineMessageType::FeedbackPayload)?;
+        if self.messages.len() > 4096 {
+            return Err(ProtocolError::InvalidField {
+                field: "messages",
+                reason: "feedback payload contains more than 4096 messages".to_string(),
+            });
+        }
+        Ok(())
+    }
+}
+
+impl From<EngineFeedbackPacket> for FeedbackPayload {
+    fn from(packet: EngineFeedbackPacket) -> Self {
+        let mut payload = FeedbackPayload {
+            tick: packet.tick,
+            messages: packet.messages,
+        };
+        payload.sort_in_place();
+        payload
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum InboundMessage {
     Handshake(Handshake),
     InputPacket(InputPacket),
+    FeedbackPayload(FeedbackPayload),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum OutboundMessage {
     HandshakeAck(HandshakeAck),
     TickSnapshot(TickSnapshot),
+    PlaybackCommands(EnginePlaybackCommandBatch),
     Disconnect(DisconnectMessage),
     Error(ErrorMessage),
 }
@@ -452,8 +591,14 @@ pub fn parse_inbound_message(raw: &[u8]) -> Result<InboundMessage, ProtocolError
             packet.validate()?;
             Ok(InboundMessage::InputPacket(packet))
         }
+        Some(EngineMessageType::FeedbackPayload) => {
+            let packet: EngineFeedbackPacket = serde_json::from_value(raw_value)
+                .map_err(|err| ProtocolError::InvalidJson(err.to_string()))?;
+            packet.validate()?;
+            Ok(InboundMessage::FeedbackPayload(packet.into()))
+        }
         Some(other) => Err(ProtocolError::UnexpectedMessageType {
-            expected: "handshake|input_packet",
+            expected: "handshake|input_packet|feedback_payload",
             actual: other.as_str().to_string(),
         }),
         None => Err(ProtocolError::UnknownMessageType(msg_type.to_string())),
@@ -650,6 +795,36 @@ mod tests {
     }
 
     #[test]
+    fn feedback_payload_parses_and_sorts_messages() {
+        let raw = serde_json::json!({
+            "msg_type": "feedback_payload",
+            "tick": 12,
+            "messages": [
+                {
+                    "feedback_type": "PerformanceMetrics",
+                    "entity_id": 0,
+                    "generated_frame": 22,
+                    "payload_json": "{\"frame_ms\":16.0}"
+                },
+                {
+                    "feedback_type": "InputDeviceUpdate",
+                    "entity_id": 7,
+                    "generated_frame": 20,
+                    "payload_json": "{\"device_id\":\"keyboard\"}"
+                }
+            ]
+        });
+        let raw = serde_json::to_vec(&raw).unwrap();
+        let InboundMessage::FeedbackPayload(payload) = parse_inbound_message(&raw).unwrap() else {
+            panic!("expected feedback payload");
+        };
+        assert_eq!(payload.tick, 12);
+        assert_eq!(payload.messages.len(), 2);
+        assert_eq!(payload.messages[0].generated_frame, 20);
+        assert_eq!(payload.messages[1].generated_frame, 22);
+    }
+
+    #[test]
     fn handshake_validation_rejects_hash_mismatch() {
         let hs = Handshake::new("Godot4", "abc");
         assert!(matches!(
@@ -669,5 +844,48 @@ mod tests {
         let raw = read_message(&mut buffer).unwrap().unwrap();
         let decoded: DisconnectMessage = serde_json::from_slice(&raw).unwrap();
         assert_eq!(decoded.reason, "done");
+    }
+
+    #[test]
+    fn playback_command_batch_validates_typed_assets() {
+        let command = EnginePlaybackCommand {
+            binding_id: "bind_interaction_sfx".to_string(),
+            event_name: "interaction.accepted".to_string(),
+            playback_kind: SemanticPlaybackKind::Audio,
+            entity_id: 7,
+            asset: AssetReference::placeholder(
+                "interaction_accept_sfx_v1",
+                xace_core::assets::AssetType::AudioClip,
+            ),
+            semantic_action: "play".to_string(),
+            parameters: BTreeMap::new(),
+            priority: 0,
+        };
+        let batch = EnginePlaybackCommandBatch::new(42, vec![command]);
+
+        assert_eq!(batch.msg_type, "playback_commands");
+        assert!(batch.validate().is_ok());
+    }
+
+    #[test]
+    fn playback_command_rejects_wrong_asset_type() {
+        let command = EnginePlaybackCommand {
+            binding_id: "bind_bad".to_string(),
+            event_name: "inventory.equipped".to_string(),
+            playback_kind: SemanticPlaybackKind::Audio,
+            entity_id: 7,
+            asset: AssetReference::placeholder("bad_mesh_v1", xace_core::assets::AssetType::Mesh),
+            semantic_action: String::new(),
+            parameters: BTreeMap::new(),
+            priority: 0,
+        };
+
+        assert!(matches!(
+            command.validate(),
+            Err(ProtocolError::InvalidField {
+                field: "asset.asset_type",
+                ..
+            })
+        ));
     }
 }

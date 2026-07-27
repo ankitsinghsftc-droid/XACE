@@ -3,7 +3,6 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::compilation_error::CompilationError;
     use crate::dependency_resolution::dependency_resolution_engine::DependencyResolutionEngine;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;

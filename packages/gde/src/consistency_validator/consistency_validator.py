@@ -39,6 +39,10 @@ from ..domain_dsl.path_addressing.path_resolver import PathResolver
 from .type_checker import TypeChecker, TypeCheckResult
 from .conflict_detector import ConflictDetector, ConflictReport
 from .invariant_enforcer import InvariantEnforcer, InvariantViolation, EnforcementResult
+from .static_mutation_conflict_analyzer import (
+    StaticMutationConflictAnalyzer,
+    StaticMutationFinding,
+)
 from ..domain_dsl.transaction_model.transaction_builder import DSLTransaction, DSLOperation, OpType
 
 
@@ -67,6 +71,7 @@ class ConsistencyReport:
     warnings:          list[str]             = field(default_factory=list)
     type_results:      list[TypeCheckResult] = field(default_factory=list)
     conflict_reports:  list[ConflictReport]  = field(default_factory=list)
+    static_findings:   list[StaticMutationFinding] = field(default_factory=list)
     invariant_result:  EnforcementResult | None = None
 
     @property
@@ -119,6 +124,7 @@ class ConsistencyValidator:
         self._type_checker     = TypeChecker()
         self._conflict_detector = ConflictDetector()
         self._invariant_enforcer = InvariantEnforcer()
+        self._static_conflict_analyzer = StaticMutationConflictAnalyzer()
 
     def validate(
         self,
@@ -164,6 +170,14 @@ class ConsistencyValidator:
         er = self._invariant_enforcer.enforce(proposed_cgs)
         report.merge_invariant_result(er)
 
+        # ── 5. Executable graph and runtime ABI checks ───────────────────────
+        self._run_static_mutation_conflict_analysis(
+            proposed_cgs,
+            original_cgs,
+            transaction,
+            report,
+        )
+
         return report
 
     def validate_cgs_only(self, cgs: dict[str, Any]) -> ConsistencyReport:
@@ -175,6 +189,7 @@ class ConsistencyValidator:
         self._path_resolver.invalidate_cache()
         er = self._invariant_enforcer.enforce(cgs)
         report.merge_invariant_result(er)
+        self._run_static_mutation_conflict_analysis(cgs, None, None, report)
         return report
 
     # ── Sub-Validator Runners ─────────────────────────────────────────────────
@@ -260,3 +275,19 @@ class ConsistencyValidator:
                     f"[Type] Operation {op.operation_index} "
                     f"at '{op.target}': {result.coercion_note}"
                 )
+
+    def _run_static_mutation_conflict_analysis(
+        self,
+        proposed_cgs: dict[str, Any],
+        original_cgs: dict[str, Any] | None,
+        transaction: DSLTransaction | None,
+        report: ConsistencyReport,
+    ) -> None:
+        static_report = self._static_conflict_analyzer.validate(
+            proposed_cgs=proposed_cgs,
+            original_cgs=original_cgs,
+            transaction=transaction,
+        )
+        report.static_findings.extend(static_report.findings)
+        report.errors.extend(static_report.errors)
+        report.warnings.extend(static_report.warnings)

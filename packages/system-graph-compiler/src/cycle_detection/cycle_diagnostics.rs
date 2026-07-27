@@ -10,8 +10,22 @@
 //! it returns the raw `CycleError`. The caller opts in to the richer report.
 //!
 //! ```rust
-//! if let Err(CompilationError::Cycle(ref ce)) = result {
-//!     let report = CycleDiagnosticReport::build(ce, &bucket);
+//! # use xace_core::runtime::phase_enum::PhaseEnum;
+//! # use xace_system_graph_compiler::compilation_error::{CompilationError, CycleError};
+//! # use xace_system_graph_compiler::cycle_detection::cycle_diagnostics::CycleDiagnosticReport;
+//! # use xace_system_graph_compiler::phase_segmentation::phase_segmentation_layer::PhaseBucket;
+//! # use std::collections::BTreeMap;
+//! # let result: Result<(), CompilationError> = Err(CompilationError::Cycle(CycleError::new(
+//! #     vec!["sys_a".to_string(), "sys_b".to_string()],
+//! #     vec![],
+//! # )));
+//! # let bucket = PhaseBucket {
+//! #     phase: PhaseEnum::Simulation,
+//! #     nodes: BTreeMap::new(),
+//! #     edges: BTreeMap::new(),
+//! # };
+//! if let Err(CompilationError::Cycle(ce)) = result {
+//!     let report = CycleDiagnosticReport::build(&ce, &bucket);
 //!     println!("{}", report.summary);
 //!     for strategy in &report.strategies {
 //!         println!("  [{}] {}", strategy.difficulty, strategy.description);
@@ -417,7 +431,6 @@ mod tests {
     use crate::graph_construction::system_edge::SystemEdge;
     use crate::graph_construction::system_node::SystemNode;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseBucket;
-    use std::collections::BTreeMap;
     use xace_core::runtime::phase_enum::PhaseEnum;
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -75,6 +75,8 @@ export class BuilderCanvas {
   // Right panel
   private _rightTabs!:   HTMLElement;
   private _rightContent!: HTMLElement;
+  private _rightTabContent!: HTMLElement;
+  private _viewportWrap!: HTMLElement;
   private _telemetryPanel!: InferenceTelemetryPanel;
 
   // Command palette (global)
@@ -234,20 +236,22 @@ export class BuilderCanvas {
 
     // Viewport (always visible at top in preview tab)
     const viewport = new EngineViewport({ cgsStore: this._deps.cgsStore, uiStore: this._deps.uiStore, client: this._deps.client });
-    const vpWrap = document.createElement('div');
-    vpWrap.id = 'xb-vp-wrap';
-    vpWrap.style.cssText = 'flex:0 0 42%;overflow:hidden;display:flex;flex-direction:column;border-bottom:1px solid var(--bd)';
-    viewport.mount(vpWrap);
-    this._rightContent.appendChild(vpWrap);
+    this._viewportWrap = document.createElement('div');
+    this._viewportWrap.id = 'xb-vp-wrap';
+    this._viewportWrap.style.cssText = 'flex:0 0 42%;overflow:hidden;display:flex;flex-direction:column;border-bottom:1px solid var(--bd)';
+    viewport.mount(this._viewportWrap);
+    this._rightContent.appendChild(this._viewportWrap);
 
     // Tab content area
     const tabContent = document.createElement('div');
     tabContent.style.cssText = 'flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0';
     this._rightContent.appendChild(tabContent);
+    this._rightTabContent = tabContent;
 
     // Define tabs + their components
-    type RightTab = 'inspector' | 'stats' | 'debug' | 'telemetry';
+    type RightTab = 'preview' | 'inspector' | 'stats' | 'debug' | 'telemetry';
     const tabDefs: Array<{ id: RightTab; label: string; architectOnly?: boolean }> = [
+      { id: 'preview',    label: 'Preview' },
       { id: 'inspector',  label: 'Inspector' },
       { id: 'stats',      label: 'Stats' },
       { id: 'debug',      label: 'Debug' },
@@ -281,8 +285,15 @@ export class BuilderCanvas {
       panels[td.id] = panel;
     }
 
+    const previewPanel = panels['preview']!;
+    previewPanel.innerHTML = `
+      <div style="padding:8px 10px;font-size:10px;color:var(--txt3);line-height:1.45;border-top:1px solid var(--bd)">
+        Live preview uses the active CGS. Select an actor in the preview or tree to inspect and edit it.
+      </div>
+    `;
+
     // Mount inspector
-    const inspector = new EntityInspector({ cgsStore: this._deps.cgsStore, uiStore: this._deps.uiStore });
+    const inspector = new EntityInspector({ cgsStore: this._deps.cgsStore, uiStore: this._deps.uiStore, client: this._deps.client });
     inspector.mount(panels['inspector']!);
 
     // Mount stats
@@ -320,6 +331,12 @@ export class BuilderCanvas {
   }
 
   private _showRightTab(tab: string, panels: Record<string, HTMLElement>): void {
+    if (this._viewportWrap) {
+      this._viewportWrap.style.flex = tab === 'preview' ? '1 1 auto' : '0 0 42%';
+    }
+    if (this._rightTabContent) {
+      this._rightTabContent.style.flex = tab === 'preview' ? '0 0 auto' : '1 1 auto';
+    }
     // Update tab buttons
     this._rightTabs.querySelectorAll<HTMLElement>('[data-tab]').forEach(btn => {
       const active = btn.dataset['tab'] === tab;
@@ -347,6 +364,7 @@ export class BuilderCanvas {
         switch (state.name) {
           case 'Idle':              this._showView('idle');          break;
           case 'Processing':        this._showView('processing');    break;
+          case 'ApplyingMutation':  this._showView('processing');    break;
           case 'PreviewPending':    this._showView('review');        break;
           case 'ClarificationFlow': this._showView('clarification'); break;
           case 'BlockedView':       this._showView('blocked');       break;

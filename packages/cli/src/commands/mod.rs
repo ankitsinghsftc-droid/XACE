@@ -11,15 +11,14 @@ pub mod doctor;
 pub mod run;
 pub mod test;
 
-
 // ── Execution Context ─────────────────────────────────────────────────────────
 
 /// Global flags passed to every command. Immutable after CLI parse.
 #[derive(Clone)]
 pub struct Context {
-    pub verbose:  bool,
+    pub verbose: bool,
     pub no_color: bool,
-    pub json:     bool,
+    pub json: bool,
 }
 
 impl Context {
@@ -77,7 +76,10 @@ impl Context {
 
     pub fn json_output(&self, value: &serde_json::Value) {
         if self.json {
-            println!("{}", serde_json::to_string_pretty(value).unwrap_or_default());
+            println!(
+                "{}",
+                serde_json::to_string_pretty(value).unwrap_or_default()
+            );
         }
     }
 }

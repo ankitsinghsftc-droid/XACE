@@ -75,16 +75,41 @@ impl SgcPipeline {
         plan_version: u32,
     ) -> Result<ExecutionPlan, CompilationError> {
         let plan = Self::compile(definitions, schema_version, plan_version)?;
+        Self::verify_system_count(definitions, &plan)?;
 
-        let expected = definitions.len();
-        let actual = plan.total_system_count();
-        if actual != expected {
-            return Err(CompilationError::InternalError(format!(
-                "SgcPipeline verification: input {} systems but plan contains {}. \
-                 System(s) lost in pipeline.",
-                expected, actual
-            )));
-        }
+        Ok(plan)
+    }
+
+    /// Compiles with complete persisted-plan identity and provenance fields.
+    pub fn compile_with_identity(
+        definitions: &[SystemDefinition],
+        schema_version: &str,
+        plan_version: u32,
+        cgs_hash: &str,
+        adapter_protocol_version: u32,
+    ) -> Result<ExecutionPlan, CompilationError> {
+        let mut plan = Self::compile(definitions, schema_version, plan_version)?;
+        plan.finalize_identity_from_systems(cgs_hash, adapter_protocol_version, definitions)
+            .map_err(CompilationError::InternalError)?;
+        Ok(plan)
+    }
+
+    /// Compiles with complete identity and verifies all input systems survived.
+    pub fn compile_and_verify_with_identity(
+        definitions: &[SystemDefinition],
+        schema_version: &str,
+        plan_version: u32,
+        cgs_hash: &str,
+        adapter_protocol_version: u32,
+    ) -> Result<ExecutionPlan, CompilationError> {
+        let plan = Self::compile_with_identity(
+            definitions,
+            schema_version,
+            plan_version,
+            cgs_hash,
+            adapter_protocol_version,
+        )?;
+        Self::verify_system_count(definitions, &plan)?;
 
         Ok(plan)
     }
@@ -109,6 +134,22 @@ impl SgcPipeline {
                 .map(|p| (p.phase.as_u8(), p.system_count()))
                 .collect(),
         })
+    }
+
+    fn verify_system_count(
+        definitions: &[SystemDefinition],
+        plan: &ExecutionPlan,
+    ) -> Result<(), CompilationError> {
+        let expected = definitions.len();
+        let actual = plan.total_system_count();
+        if actual != expected {
+            return Err(CompilationError::InternalError(format!(
+                "SgcPipeline verification: input {} systems but plan contains {}. \
+                 System(s) lost in pipeline.",
+                expected, actual
+            )));
+        }
+        Ok(())
     }
 }
 

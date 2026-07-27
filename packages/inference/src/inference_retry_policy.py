@@ -1,89 +1,114 @@
 """
-inference_retry_policy.py — InferenceRetryPolicy
-===================================================
-Tier-aware retry policy for the inference transport layer.
+inference_retry_policy.py - InferenceRetryPolicy
+================================================
+Tier-aware retry policy for provider calls in the inference transport layer.
 
-This is DISTINCT from PIL's pil_retry_policy.py:
-    inference_retry_policy — handles TRANSPORT failures (connection drops,
-                             timeouts, 429 rate limits, 500 server errors).
-                             Operates below PIL, transparent to callers.
-
-    pil_retry_policy       — handles QUALITY failures (malformed LLM output,
-                             failed structured parsing, self-critique rejection).
-                             Operates at the PIL orchestrator level.
-
-## Three Failure Categories
-
-    TRANSPORT  — network error, timeout, 5xx, 429
-                 Action: retry immediately (backoff on 429), same model
-                 Max retries: 2
-
-    SCHEMA     — provider returned HTTP 200 but response body is malformed
-                 (missing content field, wrong JSON structure)
-                 Action: retry once, same model; if fails again → raise
-                 Max retries: 1
-
-    QUALITY    — provider returned 200 + valid JSON, but content is empty
-                 or token count is 0 (model produced nothing)
-                 Action: retry once; if fails → raise; PIL handles escalation
-                 Max retries: 1
-
-## Backoff Strategy
-    - 429 Rate Limit: exponential backoff starting at retry_after header
-      value or 5s if absent; max wait 60s.
-    - 5xx Server Error: fixed 2s wait before retry.
-    - Other transport errors: immediate retry.
-
-## InferenceTransportError
-Raised when all retries are exhausted. Carries:
-    - provider and model_id that were tried
-    - number of attempts made
-    - last_error: the underlying exception
-Caught by InferenceAdapter which then tries the fallback chain via
-fallback_policy.py.
+The policy records a deterministic ABI for every provider call attempt:
+timeout policy, retry scheduling, rate-limit/backoff, failure category, final
+outcome, and a stable user-facing error payload. The attempt/summary records
+are consumed by InferenceAdapter telemetry and by launch certification.
 """
 
 from __future__ import annotations
 
-import time
+import re
 import threading
-from dataclasses import dataclass
+import time
+from dataclasses import asdict, dataclass, field
 from typing import Any, Callable
 
 
-# ── Error Types ───────────────────────────────────────────────────────────────
+RETRY_ATTEMPT_SCHEMA = "xace.inference_retry_attempt.v1"
+RETRY_SUMMARY_SCHEMA = "xace.inference_retry_summary.v1"
+USER_ERROR_SCHEMA = "xace.provider_call_error.v1"
+
+FAILURE_TIMEOUT = "timeout"
+FAILURE_RATE_LIMIT = "rate_limit"
+FAILURE_SERVER_ERROR = "server_error"
+FAILURE_TRANSPORT = "transport_error"
+FAILURE_SCHEMA = "schema_error"
+FAILURE_QUALITY = "quality_error"
+FAILURE_PROVIDER = "provider_error"
+
+
+@dataclass(frozen=True)
+class RetryAttemptRecord:
+    """Structured record for one actual provider call attempt."""
+
+    schema: str = field(default=RETRY_ATTEMPT_SCHEMA, init=False)
+    attempt_index: int = 0
+    attempt_kind: str = "provider"
+    provider: str = ""
+    model_id: str = ""
+    tier: str = "TIER_L"
+    call_label: str = ""
+    outcome: str = "success"
+    failure_category: str = ""
+    error_type: str = ""
+    error_message: str = ""
+    retry_scheduled: bool = False
+    backoff_seconds: float = 0.0
+    timeout_seconds: float = 0.0
+    rate_limited: bool = False
+    elapsed_ms: float = 0.0
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class RetryExecutionReport:
+    """Final summary for one provider call through the retry policy."""
+
+    schema: str = field(default=RETRY_SUMMARY_SCHEMA, init=False)
+    provider: str = ""
+    model_id: str = ""
+    tier: str = "TIER_L"
+    call_label: str = ""
+    timeout_seconds: float = 0.0
+    attempt_count: int = 0
+    retry_count: int = 0
+    rate_limited: bool = False
+    total_backoff_seconds: float = 0.0
+    final_outcome: str = "success"
+    final_failure_category: str = ""
+    final_error_type: str = ""
+    final_error_message: str = ""
+    user_error: dict[str, Any] = field(default_factory=dict)
+    attempts: list[RetryAttemptRecord] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["attempts"] = [attempt.to_dict() for attempt in self.attempts]
+        return data
+
 
 @dataclass
 class InferenceTransportError(Exception):
     """
-    Raised when all retry attempts for a call are exhausted.
-    InferenceAdapter catches this and tries the next provider in the fallback chain.
+    Raised when transport-oriented retry attempts are exhausted.
 
-    Attributes
-    ----------
-    provider : str
-        Provider that was attempted.
-    model_id : str
-        Model ID that was attempted.
-    attempts : int
-        Total attempts made (including the first).
-    last_error : Exception | None
-        The underlying exception from the last attempt.
-    call_label : str
-        The PIL pass label for diagnostics.
+    retry_report carries the xace.inference_retry_summary.v1 payload when this
+    error came from InferenceRetryPolicy.execute().
     """
 
-    provider:   str
-    model_id:   str
-    attempts:   int
-    last_error: Exception | None  = None
-    call_label: str               = ""
+    provider: str
+    model_id: str
+    attempts: int
+    last_error: Exception | None = None
+    call_label: str = ""
+    failure_category: str = FAILURE_TRANSPORT
+    retry_report: dict[str, Any] | None = None
 
     def __str__(self) -> str:
+        code = ""
+        if self.retry_report:
+            user_error = self.retry_report.get("user_error") or {}
+            code = f" code={user_error.get('code', '')}" if user_error.get("code") else ""
         return (
             f"InferenceTransportError: {self.provider}/{self.model_id} "
             f"failed after {self.attempts} attempt(s) "
-            f"[{self.call_label!r}]. "
+            f"[{self.call_label!r}] category={self.failure_category}{code}. "
             f"Last error: {self.last_error}"
         )
 
@@ -91,219 +116,292 @@ class InferenceTransportError(Exception):
 class InferenceSchemaError(Exception):
     """Raised when a provider returns HTTP 200 but a malformed response body."""
 
+    def __init__(
+        self,
+        message: str = "",
+        *,
+        retry_report: dict[str, Any] | None = None,
+        failure_category: str = FAILURE_SCHEMA,
+    ) -> None:
+        super().__init__(message)
+        self.retry_report = retry_report
+        self.failure_category = failure_category
+
 
 class InferenceQualityError(Exception):
-    """Raised when the model returns a valid response but with empty content."""
+    """Raised when the model returns a valid response with unusable content."""
 
+    def __init__(
+        self,
+        message: str = "",
+        *,
+        retry_report: dict[str, Any] | None = None,
+        failure_category: str = FAILURE_QUALITY,
+    ) -> None:
+        super().__init__(message)
+        self.retry_report = retry_report
+        self.failure_category = failure_category
 
-# ── Retry Config ──────────────────────────────────────────────────────────────
 
 @dataclass(frozen=True)
 class RetryConfig:
     """
     Per-tier retry configuration.
 
-    transport_retries : int
-        Max additional attempts on transport failure (total = 1 + N).
-    schema_retries : int
-        Max additional attempts on schema failure.
-    quality_retries : int
-        Max additional attempts on quality failure.
-    base_backoff_s : float
-        Base wait time before first retry on 5xx or 429.
-    max_backoff_s : float
-        Cap on exponential backoff.
+    timeout_s records the provider-call timeout policy for this tier. The
+    provider client owns protocol-specific enforcement; this layer classifies
+    timeout failures and records the configured timeout in every report.
     """
 
-    transport_retries: int   = 2
-    schema_retries:    int   = 1
-    quality_retries:   int   = 1
-    base_backoff_s:    float = 2.0
-    max_backoff_s:     float = 60.0
+    transport_retries: int = 2
+    schema_retries: int = 1
+    quality_retries: int = 1
+    base_backoff_s: float = 2.0
+    max_backoff_s: float = 60.0
+    timeout_s: float = 120.0
 
 
-# Sensible defaults by tier
 _TIER_CONFIGS: dict[str, RetryConfig] = {
-    "TIER_S": RetryConfig(transport_retries=0, schema_retries=0, quality_retries=0),
-    "TIER_M": RetryConfig(transport_retries=2, schema_retries=1, quality_retries=1,
-                          base_backoff_s=1.0),
-    "TIER_L": RetryConfig(transport_retries=2, schema_retries=1, quality_retries=1,
-                          base_backoff_s=2.0),
-    "TIER_XL": RetryConfig(transport_retries=2, schema_retries=1, quality_retries=1,
-                           base_backoff_s=2.0, max_backoff_s=30.0),
+    "TIER_S": RetryConfig(
+        transport_retries=0,
+        schema_retries=0,
+        quality_retries=0,
+        timeout_s=0.0,
+    ),
+    "TIER_M": RetryConfig(
+        transport_retries=2,
+        schema_retries=1,
+        quality_retries=1,
+        base_backoff_s=1.0,
+        timeout_s=60.0,
+    ),
+    "TIER_L": RetryConfig(
+        transport_retries=2,
+        schema_retries=1,
+        quality_retries=1,
+        base_backoff_s=2.0,
+        timeout_s=120.0,
+    ),
+    "TIER_XL": RetryConfig(
+        transport_retries=2,
+        schema_retries=1,
+        quality_retries=1,
+        base_backoff_s=2.0,
+        max_backoff_s=30.0,
+        timeout_s=180.0,
+    ),
 }
 
 
-# ── Retry Policy ──────────────────────────────────────────────────────────────
+ReportCallback = Callable[[dict[str, Any]], None]
+SleepFn = Callable[[float], None]
+
 
 class InferenceRetryPolicy:
     """
-    Wraps an inference call function with tier-aware retry logic.
-
-    Distinct from pil_retry_policy.py — handles transport/schema/quality
-    failures at the HTTP layer before PIL ever sees the response.
-
-    Thread-safe — one instance is shared across InferenceAdapter calls.
-
-    Usage
-    -----
-        policy = InferenceRetryPolicy()
-
-        def attempt() -> dict:
-            return provider_client.complete(model_id=..., prompt=..., ...)
-
-        raw_response = policy.execute(attempt, call_label="pass2_dsl_draft",
-                                      tier="TIER_L", provider="anthropic",
-                                      model_id="claude-sonnet-4-6")
+    Wraps provider calls with tier-aware retry logic and deterministic telemetry.
     """
 
     def __init__(
         self,
         config_overrides: dict[str, RetryConfig] | None = None,
+        sleep_fn: SleepFn | None = None,
     ) -> None:
         self._configs = dict(_TIER_CONFIGS)
         if config_overrides:
             self._configs.update(config_overrides)
+        self._sleep = sleep_fn or time.sleep
         self._lock = threading.Lock()
 
     def execute(
         self,
-        attempt_fn:  Callable[[], dict[str, Any]],
-        call_label:  str = "",
-        tier:        str = "TIER_L",
-        provider:    str = "",
-        model_id:    str = "",
+        attempt_fn: Callable[[], dict[str, Any]],
+        call_label: str = "",
+        tier: str = "TIER_L",
+        provider: str = "",
+        model_id: str = "",
+        report_callback: ReportCallback | None = None,
     ) -> dict[str, Any]:
         """
         Executes attempt_fn() with retry logic applied.
 
-        Parameters
-        ----------
-        attempt_fn : Callable
-            The actual provider call. Must return a dict with at minimum
-            {"text": str, "input_tokens": int, "output_tokens": int}.
-        call_label : str
-            PIL pass label for diagnostic messages.
-        tier : str
-            ComplexityTier — selects which RetryConfig to use.
-        provider : str
-            Provider name for InferenceTransportError.
-        model_id : str
-            Model ID for InferenceTransportError.
-
-        Returns
-        -------
-        dict[str, Any]
-            Raw provider response dict.
-
-        Raises
-        ------
-        InferenceTransportError
-            All transport retries exhausted.
-        InferenceSchemaError
-            Schema retries exhausted.
-        InferenceQualityError
-            Quality retries exhausted.
+        report_callback receives the final xace.inference_retry_summary.v1
+        payload on both success and failure. The callback is best-effort and
+        never changes provider-call control flow.
         """
+
         config = self._configs.get(tier, _TIER_CONFIGS["TIER_L"])
+        attempts: list[RetryAttemptRecord] = []
+        retry_budget_used = {
+            FAILURE_TRANSPORT: 0,
+            FAILURE_SCHEMA: 0,
+            FAILURE_QUALITY: 0,
+        }
+        attempt_index = 0
 
-        # ── Transport retry loop ──────────────────────────────────────────────
-        last_transport_error: Exception | None = None
-        for transport_attempt in range(config.transport_retries + 1):
-
+        while True:
+            attempt_index += 1
+            started = time.monotonic()
             try:
                 response = self._call_with_timeout(attempt_fn)
             except Exception as exc:
-                last_transport_error = exc
-                if transport_attempt >= config.transport_retries:
-                    raise InferenceTransportError(
-                        provider   = provider,
-                        model_id   = model_id,
-                        attempts   = transport_attempt + 1,
-                        last_error = exc,
-                        call_label = call_label,
-                    ) from exc
+                category = self._categorize_exception(exc)
+                can_retry = retry_budget_used[FAILURE_TRANSPORT] < config.transport_retries
+                if can_retry:
+                    retry_budget_used[FAILURE_TRANSPORT] += 1
+                wait = self._backoff(exc, retry_budget_used[FAILURE_TRANSPORT] - 1, config) if can_retry else 0.0
+                attempts.append(self._attempt_record(
+                    attempt_index=attempt_index,
+                    attempt_kind=FAILURE_TRANSPORT,
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    outcome="failure",
+                    failure_category=category,
+                    error_type=exc.__class__.__name__,
+                    error_message=self._stable_error_message(exc),
+                    retry_scheduled=can_retry,
+                    backoff_seconds=wait,
+                    timeout_seconds=config.timeout_s,
+                    elapsed_ms=(time.monotonic() - started) * 1000,
+                ))
+                if can_retry:
+                    self._sleep_if_needed(wait)
+                    continue
 
-                wait = self._backoff(exc, transport_attempt, config)
-                if wait > 0:
-                    time.sleep(wait)
-                continue
+                report = self._build_report(
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    timeout_seconds=config.timeout_s,
+                    attempts=attempts,
+                    final_outcome="failure",
+                    final_failure_category=category,
+                    final_error_type=exc.__class__.__name__,
+                    final_error_message=self._stable_error_message(exc),
+                )
+                self._emit_report(report, report_callback)
+                raise InferenceTransportError(
+                    provider=provider,
+                    model_id=model_id,
+                    attempts=len(attempts),
+                    last_error=exc,
+                    call_label=call_label,
+                    failure_category=category,
+                    retry_report=report.to_dict(),
+                ) from exc
 
-            # ── Schema validation ─────────────────────────────────────────────
             schema_error = self._check_schema(response)
             if schema_error:
-                if config.schema_retries == 0:
-                    raise InferenceSchemaError(
-                        f"[{call_label}] Provider {provider}/{model_id} "
-                        f"returned malformed response: {schema_error}"
-                    )
-                # One retry for schema errors
-                try:
-                    response = self._call_with_timeout(attempt_fn)
-                    schema_error2 = self._check_schema(response)
-                    if schema_error2:
-                        raise InferenceSchemaError(
-                            f"[{call_label}] {provider}/{model_id} "
-                            f"malformed response on retry: {schema_error2}"
-                        )
-                except InferenceSchemaError:
-                    raise
-                except Exception as exc:
-                    raise InferenceTransportError(
-                        provider=provider, model_id=model_id,
-                        attempts=transport_attempt + 2, last_error=exc,
-                        call_label=call_label,
-                    ) from exc
+                can_retry = retry_budget_used[FAILURE_SCHEMA] < config.schema_retries
+                if can_retry:
+                    retry_budget_used[FAILURE_SCHEMA] += 1
+                attempts.append(self._attempt_record(
+                    attempt_index=attempt_index,
+                    attempt_kind=FAILURE_SCHEMA,
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    outcome="failure",
+                    failure_category=FAILURE_SCHEMA,
+                    error_type="InferenceSchemaError",
+                    error_message=schema_error,
+                    retry_scheduled=can_retry,
+                    timeout_seconds=config.timeout_s,
+                    elapsed_ms=(time.monotonic() - started) * 1000,
+                ))
+                if can_retry:
+                    continue
+                report = self._build_report(
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    timeout_seconds=config.timeout_s,
+                    attempts=attempts,
+                    final_outcome="failure",
+                    final_failure_category=FAILURE_SCHEMA,
+                    final_error_type="InferenceSchemaError",
+                    final_error_message=schema_error,
+                )
+                self._emit_report(report, report_callback)
+                raise InferenceSchemaError(
+                    f"[{call_label}] Provider {provider}/{model_id} returned malformed response: {schema_error}",
+                    retry_report=report.to_dict(),
+                )
 
-            # ── Quality validation ────────────────────────────────────────────
             quality_error = self._check_quality(response)
             if quality_error:
-                if config.quality_retries == 0:
-                    raise InferenceQualityError(
-                        f"[{call_label}] {provider}/{model_id} "
-                        f"empty/zero-token response: {quality_error}"
-                    )
-                try:
-                    response = self._call_with_timeout(attempt_fn)
-                    quality_error2 = self._check_quality(response)
-                    if quality_error2:
-                        raise InferenceQualityError(
-                            f"[{call_label}] {provider}/{model_id} "
-                            f"empty response on retry: {quality_error2}"
-                        )
-                except InferenceQualityError:
-                    raise
-                except Exception as exc:
-                    raise InferenceTransportError(
-                        provider=provider, model_id=model_id,
-                        attempts=transport_attempt + 2, last_error=exc,
-                        call_label=call_label,
-                    ) from exc
+                can_retry = retry_budget_used[FAILURE_QUALITY] < config.quality_retries
+                if can_retry:
+                    retry_budget_used[FAILURE_QUALITY] += 1
+                attempts.append(self._attempt_record(
+                    attempt_index=attempt_index,
+                    attempt_kind=FAILURE_QUALITY,
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    outcome="failure",
+                    failure_category=FAILURE_QUALITY,
+                    error_type="InferenceQualityError",
+                    error_message=quality_error,
+                    retry_scheduled=can_retry,
+                    timeout_seconds=config.timeout_s,
+                    elapsed_ms=(time.monotonic() - started) * 1000,
+                ))
+                if can_retry:
+                    continue
+                report = self._build_report(
+                    provider=provider,
+                    model_id=model_id,
+                    tier=tier,
+                    call_label=call_label,
+                    timeout_seconds=config.timeout_s,
+                    attempts=attempts,
+                    final_outcome="failure",
+                    final_failure_category=FAILURE_QUALITY,
+                    final_error_type="InferenceQualityError",
+                    final_error_message=quality_error,
+                )
+                self._emit_report(report, report_callback)
+                raise InferenceQualityError(
+                    f"[{call_label}] {provider}/{model_id} empty/zero-token response: {quality_error}",
+                    retry_report=report.to_dict(),
+                )
 
+            attempts.append(self._attempt_record(
+                attempt_index=attempt_index,
+                attempt_kind="provider",
+                provider=provider,
+                model_id=model_id,
+                tier=tier,
+                call_label=call_label,
+                outcome="success",
+                timeout_seconds=config.timeout_s,
+                elapsed_ms=(time.monotonic() - started) * 1000,
+            ))
+            report = self._build_report(
+                provider=provider,
+                model_id=model_id,
+                tier=tier,
+                call_label=call_label,
+                timeout_seconds=config.timeout_s,
+                attempts=attempts,
+                final_outcome="success",
+            )
+            self._emit_report(report, report_callback)
             return response
 
-        # Should never reach here — loop always returns or raises
-        raise InferenceTransportError(
-            provider   = provider,
-            model_id   = model_id,
-            attempts   = config.transport_retries + 1,
-            last_error = last_transport_error,
-            call_label = call_label,
-        )
-
-    # ── Helpers ───────────────────────────────────────────────────────────────
-
     @staticmethod
-    def _call_with_timeout(fn: Callable) -> dict[str, Any]:
-        """Calls fn() and normalises known exception types."""
+    def _call_with_timeout(fn: Callable[[], dict[str, Any]]) -> dict[str, Any]:
         return fn()
 
     @staticmethod
     def _check_schema(response: dict[str, Any]) -> str | None:
-        """
-        Returns an error string if the response is structurally malformed.
-        Returns None if the response looks valid.
-        """
         if not isinstance(response, dict):
             return f"Expected dict, got {type(response).__name__}"
         if "text" not in response:
@@ -314,10 +412,6 @@ class InferenceRetryPolicy:
 
     @staticmethod
     def _check_quality(response: dict[str, Any]) -> str | None:
-        """
-        Returns an error string if the response is empty or zero-token.
-        Returns None if the response has usable content.
-        """
         text = response.get("text", "")
         if not text.strip():
             return "Empty response text from model."
@@ -326,40 +420,214 @@ class InferenceRetryPolicy:
             return "Model reported 0 output tokens."
         return None
 
-    @staticmethod
-    def _backoff(
-        exc:     Exception,
-        attempt: int,
-        config:  RetryConfig,
-    ) -> float:
-        """
-        Returns wait time in seconds before the next retry.
-        Reads Retry-After from 429 exceptions when available.
-        """
-        exc_str = str(exc).lower()
+    @classmethod
+    def _categorize_exception(cls, exc: Exception) -> str:
+        if isinstance(exc, InferenceTransportError) and exc.last_error is not None:
+            return cls._categorize_exception(exc.last_error)
+        direct = getattr(exc, "failure_category", "")
+        if direct in {
+            FAILURE_TIMEOUT,
+            FAILURE_RATE_LIMIT,
+            FAILURE_SERVER_ERROR,
+            FAILURE_TRANSPORT,
+            FAILURE_SCHEMA,
+            FAILURE_QUALITY,
+        }:
+            return direct
+        if isinstance(exc, TimeoutError):
+            return FAILURE_TIMEOUT
+        if isinstance(exc, InferenceSchemaError):
+            return FAILURE_SCHEMA
+        if isinstance(exc, InferenceQualityError):
+            return FAILURE_QUALITY
 
-        # 429 rate limit — check for Retry-After header
-        if "429" in exc_str or "rate limit" in exc_str or "rate_limit" in exc_str:
-            # Some SDKs embed the header value in the error message
-            import re
-            m = re.search(r"retry.after[:\s]+(\d+)", exc_str)
-            if m:
-                return min(float(m.group(1)), config.max_backoff_s)
-            return min(config.base_backoff_s * (2 ** attempt), config.max_backoff_s)
+        message = str(exc).lower()
+        if "timeout" in message or "timed out" in message:
+            return FAILURE_TIMEOUT
+        if "429" in message or "rate limit" in message or "rate_limit" in message or "too many requests" in message:
+            return FAILURE_RATE_LIMIT
+        if "5xx" in message or "500" in message or "502" in message or "503" in message or "504" in message:
+            return FAILURE_SERVER_ERROR
+        if "server" in message or "internal" in message or "unavailable" in message:
+            return FAILURE_SERVER_ERROR
+        if "connection" in message or "connect" in message or "socket" in message or "dns" in message:
+            return FAILURE_TRANSPORT
+        return FAILURE_PROVIDER
 
-        # 5xx server error — fixed short wait
-        if "5" in exc_str and ("server" in exc_str or "internal" in exc_str):
+    @classmethod
+    def _backoff(cls, exc: Exception, attempt: int, config: RetryConfig) -> float:
+        category = cls._categorize_exception(exc)
+        message = str(exc).lower()
+        if category == FAILURE_RATE_LIMIT:
+            match = re.search(r"retry[-_. ]?after[:=\s]+(\d+(?:\.\d+)?)", message)
+            if match:
+                return min(float(match.group(1)), config.max_backoff_s)
+            return min(config.base_backoff_s * (2 ** max(attempt, 0)), config.max_backoff_s)
+        if category == FAILURE_SERVER_ERROR:
             return config.base_backoff_s
-
-        # Connection / timeout — immediate retry
         return 0.0
 
+    @classmethod
+    def _attempt_record(
+        cls,
+        *,
+        attempt_index: int,
+        attempt_kind: str,
+        provider: str,
+        model_id: str,
+        tier: str,
+        call_label: str,
+        outcome: str,
+        timeout_seconds: float,
+        failure_category: str = "",
+        error_type: str = "",
+        error_message: str = "",
+        retry_scheduled: bool = False,
+        backoff_seconds: float = 0.0,
+        elapsed_ms: float = 0.0,
+    ) -> RetryAttemptRecord:
+        return RetryAttemptRecord(
+            attempt_index=attempt_index,
+            attempt_kind=attempt_kind,
+            provider=provider,
+            model_id=model_id,
+            tier=tier,
+            call_label=call_label,
+            outcome=outcome,
+            failure_category=failure_category,
+            error_type=error_type,
+            error_message=error_message,
+            retry_scheduled=retry_scheduled,
+            backoff_seconds=round(backoff_seconds, 6),
+            timeout_seconds=round(timeout_seconds, 6),
+            rate_limited=failure_category == FAILURE_RATE_LIMIT,
+            elapsed_ms=round(elapsed_ms, 3),
+        )
+
+    @classmethod
+    def _build_report(
+        cls,
+        *,
+        provider: str,
+        model_id: str,
+        tier: str,
+        call_label: str,
+        timeout_seconds: float,
+        attempts: list[RetryAttemptRecord],
+        final_outcome: str,
+        final_failure_category: str = "",
+        final_error_type: str = "",
+        final_error_message: str = "",
+    ) -> RetryExecutionReport:
+        retry_count = sum(1 for attempt in attempts if attempt.retry_scheduled)
+        total_backoff = sum(attempt.backoff_seconds for attempt in attempts)
+        rate_limited = any(attempt.rate_limited for attempt in attempts)
+        user_error = (
+            cls.user_error_payload(
+                provider=provider,
+                model_id=model_id,
+                call_label=call_label,
+                failure_category=final_failure_category,
+                attempt_count=len(attempts),
+                timeout_seconds=timeout_seconds,
+                rate_limited=rate_limited,
+            )
+            if final_outcome != "success"
+            else {}
+        )
+        return RetryExecutionReport(
+            provider=provider,
+            model_id=model_id,
+            tier=tier,
+            call_label=call_label,
+            timeout_seconds=round(timeout_seconds, 6),
+            attempt_count=len(attempts),
+            retry_count=retry_count,
+            rate_limited=rate_limited,
+            total_backoff_seconds=round(total_backoff, 6),
+            final_outcome=final_outcome,
+            final_failure_category=final_failure_category,
+            final_error_type=final_error_type,
+            final_error_message=final_error_message,
+            user_error=user_error,
+            attempts=list(attempts),
+        )
+
+    @staticmethod
+    def _stable_error_message(exc: Exception) -> str:
+        text = str(exc).strip() or exc.__class__.__name__
+        return text[:300]
+
+    @staticmethod
+    def _emit_report(report: RetryExecutionReport, callback: ReportCallback | None) -> None:
+        if callback is None:
+            return
+        try:
+            callback(report.to_dict())
+        except Exception:
+            pass
+
+    def _sleep_if_needed(self, wait: float) -> None:
+        if wait > 0:
+            self._sleep(wait)
+
+    @staticmethod
+    def user_error_payload(
+        *,
+        provider: str,
+        model_id: str,
+        call_label: str,
+        failure_category: str,
+        attempt_count: int,
+        timeout_seconds: float,
+        rate_limited: bool = False,
+    ) -> dict[str, Any]:
+        codes = {
+            FAILURE_TIMEOUT: "PROVIDER_TIMEOUT",
+            FAILURE_RATE_LIMIT: "PROVIDER_RATE_LIMIT",
+            FAILURE_SERVER_ERROR: "PROVIDER_SERVER_ERROR",
+            FAILURE_SCHEMA: "PROVIDER_RESPONSE_SCHEMA",
+            FAILURE_QUALITY: "PROVIDER_EMPTY_RESPONSE",
+            FAILURE_TRANSPORT: "PROVIDER_TRANSPORT_ERROR",
+            FAILURE_PROVIDER: "PROVIDER_CALL_FAILED",
+        }
+        messages = {
+            FAILURE_TIMEOUT: "Provider call timed out before completion.",
+            FAILURE_RATE_LIMIT: "Provider rate limit blocked the request after retry policy was exhausted.",
+            FAILURE_SERVER_ERROR: "Provider server error persisted after retry policy was exhausted.",
+            FAILURE_SCHEMA: "Provider returned a malformed response that XACE could not use.",
+            FAILURE_QUALITY: "Provider returned an empty response that XACE could not use.",
+            FAILURE_TRANSPORT: "Provider transport failed after retry policy was exhausted.",
+            FAILURE_PROVIDER: "Provider call failed after retry policy was exhausted.",
+        }
+        actions = {
+            FAILURE_TIMEOUT: "Check provider connectivity or choose a faster model, then retry.",
+            FAILURE_RATE_LIMIT: "Wait for quota to recover or choose another ready provider, then retry.",
+            FAILURE_SERVER_ERROR: "Retry later or switch to another ready provider.",
+            FAILURE_SCHEMA: "Retry with the same provider or choose another ready provider if this repeats.",
+            FAILURE_QUALITY: "Retry with a clearer prompt or choose another ready provider if this repeats.",
+            FAILURE_TRANSPORT: "Check provider connectivity or choose another ready provider, then retry.",
+            FAILURE_PROVIDER: "Inspect provider readiness and retry with a ready provider.",
+        }
+        category = failure_category if failure_category in codes else FAILURE_PROVIDER
+        return {
+            "schema": USER_ERROR_SCHEMA,
+            "code": codes[category],
+            "message": messages[category],
+            "action": actions[category],
+            "provider": provider,
+            "model_id": model_id,
+            "call_label": call_label,
+            "failure_category": category,
+            "attempt_count": attempt_count,
+            "timeout_seconds": round(timeout_seconds, 6),
+            "rate_limited": bool(rate_limited or category == FAILURE_RATE_LIMIT),
+        }
+
     def get_config(self, tier: str) -> RetryConfig:
-        """Returns the RetryConfig for a given tier."""
         return self._configs.get(tier, _TIER_CONFIGS["TIER_L"])
 
     def set_config(self, tier: str, config: RetryConfig) -> None:
-        """Overrides the RetryConfig for a specific tier."""
         with self._lock:
             self._configs[tier] = config
 

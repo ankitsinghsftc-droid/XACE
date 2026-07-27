@@ -1,326 +1,578 @@
 /**
- * builder_client.ts — WebSocket client for the XACE builder
- *
- * Responsibilities:
- *   1. Connect to builder_server.py WebSocket endpoint
- *   2. Auto-reconnect with exponential backoff (max 30s)
- *   3. Queue outbound messages while disconnected, flush on reconnect
- *   4. Dispatch incoming messages to typed subscribers
- *   5. Generate and track the session_id
- *   6. Forward PIL pass updates to ConsoleSM in real-time
- *   7. Update CGSStore on cgs_update messages
- *   8. Forward PIL results to ConsoleSM
- *
- * All PIL results are dispatched through ConsoleSM.receivePILResult()
- * so the state machine is the only place that reads result fields.
- *
- * All CGS updates are dispatched through cgsStore.setCGS()
- * so the store is the single source of truth.
+ * Resilient WebSocket client for the XACE builder workspace.
  */
 
-import type { ClientMessage, ServerMessage } from './message_types';
+import type {
+  ClientMessage,
+  EngineEditAckMessage,
+  EngineTickMessage,
+  RuntimeBridgeHashRecord,
+  RuntimeBridgeStatus,
+  ServerMessage,
+} from './message_types';
 import {
-  isSessionInit, isPilPassUpdate, isPilResult,
-  isCgsUpdate, isPilAnswerAck, isEngineTick,
-  isEngineConnected, isEngineDisconnected,
-  isTelemetryUpdate, isServerError,
+  BUILDER_PROTOCOL_VERSION,
+  isCgsUpdate,
+  isEngineConnected,
+  isEngineDisconnected,
+  isEngineEditAck,
+  isEngineTick,
+  isPilAnswerAck,
+  isPilPassUpdate,
+  isPilResult,
+  isRuntimeControlAck,
+  isServerError,
+  isServerMessage,
+  isSessionInit,
+  isTelemetryUpdate,
+  isTerminalOutput,
 } from './message_types';
 import { consoleSM } from '../state/console_state_machine';
 import { cgsStore } from '../state/cgs_store';
-import { uiStore } from '../state/ui_store';
-
-// ── Connection state ──────────────────────────────────────────────────────────
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
 
 export interface BuilderClientOptions {
-  /** WebSocket URL, e.g. 'ws://localhost:8765/ws' */
-  url:             string;
-  /** Project identifier sent in messages */
-  projectPath?:    string;
-  /** Initial reconnect delay in ms */
-  reconnectBase?:  number;
-  /** Maximum reconnect delay in ms */
-  reconnectMax?:   number;
-  /** Ping interval in ms (0 = disabled) */
-  pingInterval?:   number;
+  readonly url: string;
+  readonly projectPath?: string;
+  readonly reconnectBase?: number;
+  readonly reconnectMax?: number;
+  readonly pingInterval?: number;
+  readonly queueLimit?: number;
 }
 
-const DEFAULT_OPTS: Required<Omit<BuilderClientOptions, 'url'>> = {
-  projectPath:   './project',
-  reconnectBase: 1000,
-  reconnectMax:  30_000,
-  pingInterval:  20_000,
-};
+export interface RuntimeStatus {
+  readonly connected: boolean;
+  readonly adapterType: string;
+  readonly engineVersion: string;
+  readonly lastTick: EngineTickMessage | null;
+  readonly lastError: string;
+  readonly controlTick: number;
+  readonly aliveCount: number;
+  readonly pendingEngineInputs: number;
+  readonly pendingEngineFeedback: number;
+  readonly engineSnapshotsSent: number;
+  readonly engineInputPacketsReceived: number;
+  readonly engineFeedbackPayloadsReceived: number;
+  readonly engineFeedbackMessagesReceived: number;
+  readonly engineMalformedMessages: number;
+  readonly engineDroppedInputs: number;
+  readonly registeredSystems: number;
+  readonly phaseCount: number;
+  readonly paused: boolean;
+  readonly stepBudget: number;
+  readonly lastEngineFeedbackProcessed: number;
+  readonly lastEngineFeedbackInvalid: number;
+  readonly lastEngineFeedbackErrors: number;
+  readonly latestWorldHash: string;
+  readonly hashLog: readonly RuntimeBridgeHashRecord[];
+}
 
-// ── Subscriber types ──────────────────────────────────────────────────────────
+export interface ProviderUxState {
+  readonly schema: string;
+  readonly state: string;
+  readonly code: string;
+  readonly label: string;
+  readonly message: string;
+  readonly action: string;
+  readonly severity: string;
+}
+
+export interface PromptProviderStatus {
+  readonly checked: boolean;
+  readonly ready: boolean;
+  readonly provider: string;
+  readonly model: string;
+  readonly message: string;
+  readonly action: string;
+  readonly ux_state?: ProviderUxState | null;
+}
+
+export interface PromptCapabilityExample {
+  readonly id: string;
+  readonly prompt: string;
+  readonly expected_builder_route: string;
+  readonly notes: string;
+}
+
+export interface PromptCapabilityCategory {
+  readonly id: string;
+  readonly label: string;
+  readonly builder_decision: string;
+  readonly builder_result_kind: string;
+  readonly provider_call_policy: string;
+  readonly mutation_policy: string;
+  readonly product_wording: string;
+  readonly builder_copy: string;
+  readonly requirements: readonly string[];
+  readonly examples: readonly PromptCapabilityExample[];
+}
+
+export interface PromptCapabilityMatrix {
+  readonly schema: 'xace.prompt_capability_matrix.v1';
+  readonly version: number;
+  readonly updated: string;
+  readonly owner_task: number;
+  readonly source_of_truth: string;
+  readonly matrix_hash: string;
+  readonly matrix_path: string;
+  readonly category_order: readonly string[];
+  readonly categories: readonly PromptCapabilityCategory[];
+}
+
+const DEFAULT_OPTIONS: Required<Omit<BuilderClientOptions, 'url'>> = {
+  projectPath: './project',
+  reconnectBase: 1000,
+  reconnectMax: 30_000,
+  pingInterval: 20_000,
+  queueLimit: 250,
+};
 
 type ConnectionStateListener = (state: ConnectionState) => void;
 type EngineTickListener = (
-  tick: number, fps: number, worldHash: string, msPerTick: number,
+  tick: number,
+  fps: number,
+  worldHash: string,
+  msPerTick: number,
+  message: EngineTickMessage,
 ) => void;
-
-// ── Builder Client ────────────────────────────────────────────────────────────
+type RuntimeStatusListener = (status: RuntimeStatus) => void;
+type PromptProviderStatusListener = (status: PromptProviderStatus) => void;
+type ServerMessageListener = (message: ServerMessage) => void;
+type EngineEditAckListener = (message: EngineEditAckMessage) => void;
 
 export class BuilderClient {
-  private readonly _opts: Required<BuilderClientOptions>;
-  private readonly _sessionId: string;
+  private readonly opts: Required<BuilderClientOptions>;
+  private readonly sessionIdValue: string;
 
-  private _ws:               WebSocket | null  = null;
-  private _connState:        ConnectionState   = 'disconnected';
-  private _reconnectDelay:   number;
-  private _reconnectTimer:   ReturnType<typeof setTimeout> | null = null;
-  private _pingTimer:        ReturnType<typeof setInterval> | null = null;
-  private _messageQueue:     ClientMessage[]   = [];
-  private _intentionallyClosed = false;
+  private ws: WebSocket | null = null;
+  private connState: ConnectionState = 'disconnected';
+  private reconnectDelay: number;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private pingTimer: ReturnType<typeof setInterval> | null = null;
+  private messageQueue: ClientMessage[] = [];
+  private intentionallyClosed = false;
+  private runtimeStatusRequestInFlight = false;
 
-  private _connStateListeners: Set<ConnectionStateListener> = new Set();
-  private _engineTickListeners: Set<EngineTickListener>     = new Set();
-  private _rawListeners: Set<(msg: ServerMessage) => void>  = new Set();
+  private runtimeStatusValue: RuntimeStatus = {
+    connected: false,
+    adapterType: '',
+    engineVersion: '',
+    lastTick: null,
+    lastError: '',
+    controlTick: 0,
+    aliveCount: 0,
+    pendingEngineInputs: 0,
+    pendingEngineFeedback: 0,
+    engineSnapshotsSent: 0,
+    engineInputPacketsReceived: 0,
+    engineFeedbackPayloadsReceived: 0,
+    engineFeedbackMessagesReceived: 0,
+    engineMalformedMessages: 0,
+    engineDroppedInputs: 0,
+    registeredSystems: 0,
+    phaseCount: 0,
+    paused: false,
+    stepBudget: 0,
+    lastEngineFeedbackProcessed: 0,
+    lastEngineFeedbackInvalid: 0,
+    lastEngineFeedbackErrors: 0,
+    latestWorldHash: '',
+    hashLog: [],
+  };
+  private providerStatusValue: PromptProviderStatus = {
+    checked: false,
+    ready: false,
+    provider: '',
+    model: '',
+    message: 'Checking provider setup...',
+    action: '',
+  };
 
-  constructor(opts: BuilderClientOptions) {
-    this._opts          = { ...DEFAULT_OPTS, ...opts };
-    this._sessionId     = this._generateSessionId();
-    this._reconnectDelay = this._opts.reconnectBase;
+  private readonly connStateListeners = new Set<ConnectionStateListener>();
+  private readonly engineTickListeners = new Set<EngineTickListener>();
+  private readonly runtimeStatusListeners = new Set<RuntimeStatusListener>();
+  private readonly providerStatusListeners = new Set<PromptProviderStatusListener>();
+  private readonly rawListeners = new Set<ServerMessageListener>();
+  private readonly engineEditAckListeners = new Set<EngineEditAckListener>();
+
+  constructor(options: BuilderClientOptions) {
+    this.opts = { ...DEFAULT_OPTIONS, ...options };
+    this.sessionIdValue = createSessionId();
+    this.reconnectDelay = this.opts.reconnectBase;
   }
 
-  // ── Public API ────────────────────────────────────────────────────────────
+  get sessionId(): string {
+    return this.sessionIdValue;
+  }
 
-  get sessionId():    string          { return this._sessionId; }
-  get connectionState(): ConnectionState { return this._connState; }
-  get isConnected():  boolean          { return this._connState === 'connected'; }
+  get connectionState(): ConnectionState {
+    return this.connState;
+  }
 
-  /** Start connecting */
+  get isConnected(): boolean {
+    return this.connState === 'connected';
+  }
+
+  get runtimeStatus(): RuntimeStatus {
+    return this.runtimeStatusValue;
+  }
+
+  get providerStatus(): PromptProviderStatus {
+    return this.providerStatusValue;
+  }
+
   connect(): void {
-    this._intentionallyClosed = false;
-    this._openSocket();
+    this.intentionallyClosed = false;
+    this.openSocket();
   }
 
-  /** Gracefully close */
   disconnect(): void {
-    this._intentionallyClosed = true;
-    this._clearTimers();
-    this._ws?.close(1000, 'Client disconnecting');
-    this._setConnState('disconnected');
+    this.intentionallyClosed = true;
+    this.clearTimers();
+    this.ws?.close(1000, 'Client disconnecting');
+    this.ws = null;
+    this.setConnectionState('disconnected');
   }
 
-  /**
-   * Send a typed client message.
-   * If not connected, queues the message (except pings).
-   */
   send(message: ClientMessage): void {
-    const enriched = { ...message, session_id: this._sessionId };
-
-    if (this._ws?.readyState === WebSocket.OPEN) {
-      this._ws.send(JSON.stringify(enriched));
-    } else if (message.type !== 'ping') {
-      this._messageQueue.push(enriched as ClientMessage);
-    }
-  }
-
-  // ── Subscriptions ─────────────────────────────────────────────────────────
-
-  onConnectionState(fn: ConnectionStateListener): () => void {
-    this._connStateListeners.add(fn);
-    fn(this._connState);
-    return () => this._connStateListeners.delete(fn);
-  }
-
-  onEngineTick(fn: EngineTickListener): () => void {
-    this._engineTickListeners.add(fn);
-    return () => this._engineTickListeners.delete(fn);
-  }
-
-  /** Low-level: receive every server message (for debugging) */
-  onRawMessage(fn: (msg: ServerMessage) => void): () => void {
-    this._rawListeners.add(fn);
-    return () => this._rawListeners.delete(fn);
-  }
-
-  // ── Socket lifecycle ──────────────────────────────────────────────────────
-
-  private _openSocket(): void {
-    if (this._ws && this._ws.readyState <= WebSocket.OPEN) return;
-
-    const url = `${this._opts.url}/${this._sessionId}`;
-    this._setConnState(this._connState === 'disconnected' ? 'connecting' : 'reconnecting');
-
-    try {
-      this._ws = new WebSocket(url);
-    } catch (err) {
-      console.error('[WS] Failed to create WebSocket:', err);
-      this._scheduleReconnect();
+    const enriched = this.enrichMessage(message);
+    if (this.ws?.readyState === WebSocket.OPEN) {
+      this.ws.send(JSON.stringify(enriched));
       return;
     }
-
-    this._ws.onopen    = this._onOpen.bind(this);
-    this._ws.onmessage = this._onMessage.bind(this);
-    this._ws.onerror   = this._onError.bind(this);
-    this._ws.onclose   = this._onClose.bind(this);
+    if (message.type === 'ping') {
+      return;
+    }
+    this.enqueue(enriched);
   }
 
-  private _onOpen(): void {
-    this._setConnState('connected');
-    this._reconnectDelay = this._opts.reconnectBase;
-
-    // Flush queued messages
-    const queued = [...this._messageQueue];
-    this._messageQueue = [];
-    queued.forEach(msg => this.send(msg));
-
-    // Request current CGS state
+  requestRuntimeStatus(): void {
+    if (this.runtimeStatusRequestInFlight || !this.isConnected) {
+      return;
+    }
+    this.runtimeStatusRequestInFlight = true;
     this.send({
-      type:         'cgs_request',
-      session_id:   this._sessionId,
-      project_path: this._opts.projectPath,
+      type: 'runtime_control',
+      action: 'snapshot',
+      session_id: this.sessionIdValue,
     });
-
-    // Start ping keepalive
-    if (this._opts.pingInterval > 0) {
-      this._pingTimer = setInterval(() => {
-        this.send({ type: 'ping', session_id: this._sessionId });
-      }, this._opts.pingInterval);
-    }
   }
 
-  private _onMessage(ev: MessageEvent): void {
-    let msg: ServerMessage;
+  onConnectionState(listener: ConnectionStateListener): () => void {
+    this.connStateListeners.add(listener);
+    listener(this.connState);
+    return () => this.connStateListeners.delete(listener);
+  }
+
+  onEngineTick(listener: EngineTickListener): () => void {
+    this.engineTickListeners.add(listener);
+    return () => this.engineTickListeners.delete(listener);
+  }
+
+  onRuntimeStatus(listener: RuntimeStatusListener): () => void {
+    this.runtimeStatusListeners.add(listener);
+    listener(this.runtimeStatusValue);
+    return () => this.runtimeStatusListeners.delete(listener);
+  }
+
+  onProviderStatus(listener: PromptProviderStatusListener): () => void {
+    this.providerStatusListeners.add(listener);
+    listener(this.providerStatusValue);
+    return () => this.providerStatusListeners.delete(listener);
+  }
+
+  updateProviderStatus(partial: Partial<PromptProviderStatus>): void {
+    this.providerStatusValue = { ...this.providerStatusValue, ...partial };
+    this.providerStatusListeners.forEach((listener) => listener(this.providerStatusValue));
+  }
+
+  async fetchPromptCapabilityMatrix(): Promise<PromptCapabilityMatrix> {
+    const response = await fetch('/api/prompt/capability-matrix');
+    if (!response.ok) {
+      throw new Error(`Prompt capability matrix request failed: ${response.status}`);
+    }
+    return response.json() as Promise<PromptCapabilityMatrix>;
+  }
+
+  onRawMessage(listener: ServerMessageListener): () => void {
+    this.rawListeners.add(listener);
+    return () => this.rawListeners.delete(listener);
+  }
+
+  onEngineEditAck(listener: EngineEditAckListener): () => void {
+    this.engineEditAckListeners.add(listener);
+    return () => this.engineEditAckListeners.delete(listener);
+  }
+
+  private openSocket(): void {
+    if (this.ws && this.ws.readyState <= WebSocket.OPEN) {
+      return;
+    }
+
+    const url = `${this.opts.url.replace(/\/$/, '')}/${this.sessionIdValue}`;
+    this.setConnectionState(this.connState === 'disconnected' ? 'connecting' : 'reconnecting');
+
     try {
-      msg = JSON.parse(ev.data as string) as ServerMessage;
-    } catch (err) {
-      console.error('[WS] Failed to parse message:', err, ev.data);
+      this.ws = new WebSocket(url);
+    } catch (error) {
+      this.updateRuntimeStatus({ lastError: String(error) });
+      this.scheduleReconnect();
       return;
     }
 
-    // Dispatch to raw listeners (debug)
-    this._rawListeners.forEach(fn => fn(msg));
-
-    // Dispatch to typed handlers
-    this._dispatch(msg);
+    this.ws.onopen = () => this.handleOpen();
+    this.ws.onmessage = (event) => this.handleMessage(event);
+    this.ws.onerror = () => {
+      this.updateRuntimeStatus({ lastError: 'websocket error' });
+    };
+    this.ws.onclose = () => this.handleClose();
   }
 
-  private _onError(ev: Event): void {
-    console.error('[WS] Socket error:', ev);
+  private handleOpen(): void {
+    this.setConnectionState('connected');
+    this.reconnectDelay = this.opts.reconnectBase;
+    this.flushQueue();
+    this.send({
+      type: 'cgs_request',
+      session_id: this.sessionIdValue,
+      project_path: this.opts.projectPath,
+    });
+    if (this.opts.pingInterval > 0) {
+      this.clearPingTimer();
+      this.pingTimer = setInterval(() => {
+        this.send({ type: 'ping', session_id: this.sessionIdValue });
+      }, this.opts.pingInterval);
+    }
   }
 
-  private _onClose(ev: CloseEvent): void {
-    this._clearPingTimer();
-    if (this._intentionallyClosed) {
-      this._setConnState('disconnected');
+  private handleMessage(event: MessageEvent): void {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(String(event.data));
+    } catch (error) {
+      this.updateRuntimeStatus({ lastError: `invalid JSON from server: ${String(error)}` });
       return;
     }
-    console.warn(`[WS] Closed (code=${ev.code}). Reconnecting in ${this._reconnectDelay}ms…`);
-    this._setConnState('reconnecting');
-    this._scheduleReconnect();
+    if (!isServerMessage(parsed)) {
+      this.updateRuntimeStatus({ lastError: 'server message missing type' });
+      return;
+    }
+    const message = parsed;
+    this.rawListeners.forEach((listener) => listener(message));
+    this.dispatch(message);
   }
 
-  // ── Message dispatch ──────────────────────────────────────────────────────
-
-  private _dispatch(msg: ServerMessage): void {
-    if (isSessionInit(msg)) {
-      cgsStore.initialize(msg.cgs, msg.hash, msg.snapshots);
+  private handleClose(): void {
+    this.clearPingTimer();
+    this.runtimeStatusRequestInFlight = false;
+    this.updateRuntimeStatus({ connected: false });
+    if (this.intentionallyClosed) {
+      this.setConnectionState('disconnected');
       return;
     }
+    this.setConnectionState('reconnecting');
+    this.scheduleReconnect();
+  }
 
-    if (isPilPassUpdate(msg)) {
-      consoleSM.receivePassUpdate(msg.update);
+  private dispatch(message: ServerMessage): void {
+    if (isSessionInit(message)) {
+      cgsStore.initialize(message.cgs, message.hash, message.snapshots);
       return;
     }
-
-    if (isPilResult(msg)) {
-      consoleSM.receivePILResult(msg.result);
+    if (isPilPassUpdate(message)) {
+      consoleSM.receivePassUpdate(message.update);
       return;
     }
-
-    if (isCgsUpdate(msg)) {
-      cgsStore.setCGS(msg.cgs, msg.hash, msg.snapshot);
-      cgsStore.setHighlightedNodes(msg.affected_node_ids);
-      // If the update is from an auto-commit, notify SM
-      if (consoleSM.stateName === 'Processing') {
-        // The PIL already returned a result — this is the GDE confirmation
+    if (isPilResult(message)) {
+      consoleSM.receivePILResult(message.result);
+      return;
+    }
+    if (isCgsUpdate(message)) {
+      cgsStore.setCGS(message.cgs, message.hash, message.snapshot);
+      cgsStore.setHighlightedNodes(message.affected_node_ids);
+      consoleSM.completeApply(message);
+      return;
+    }
+    if (isPilAnswerAck(message)) {
+      if (message.accepted) {
+        if (message.requires_reprompt) {
+          consoleSM.finishPromptClarification(message.resolved_prompt ?? '');
+        } else {
+          consoleSM.advanceClarification(message.next_question);
+        }
+      } else {
+        this.updateRuntimeStatus({ lastError: message.error ?? 'clarification rejected' });
       }
       return;
     }
-
-    if (isPilAnswerAck(msg)) {
-      if (!msg.accepted) {
-        console.warn('[WS] PIL answer rejected:', msg.error);
-        return;
+    if (isEngineTick(message)) {
+      this.updateRuntimeStatus({ connected: true, lastTick: message, lastError: '' });
+      this.engineTickListeners.forEach((listener) => {
+        listener(message.tick, message.fps, message.world_hash, message.ms_per_tick, message);
+      });
+      return;
+    }
+    if (isEngineConnected(message)) {
+      this.updateRuntimeStatus({
+        connected: true,
+        adapterType: message.adapter_type,
+        engineVersion: message.engine_version,
+        lastError: '',
+      });
+      return;
+    }
+    if (isEngineDisconnected(message)) {
+      this.updateRuntimeStatus({ connected: false, lastError: message.reason });
+      return;
+    }
+    if (isEngineEditAck(message)) {
+      this.applyRuntimeBridgeStatus(message.status);
+      this.engineEditAckListeners.forEach((listener) => listener(message));
+      if (!message.accepted) {
+        this.updateRuntimeStatus({ lastError: message.reason ?? 'engine edit rejected' });
       }
-      consoleSM.advanceClarification(msg.next_question);
       return;
     }
-
-    if (isEngineTick(msg)) {
-      this._engineTickListeners.forEach(fn =>
-        fn(msg.tick, msg.fps, msg.world_hash, msg.ms_per_tick)
-      );
+    if (isRuntimeControlAck(message)) {
+      this.runtimeStatusRequestInFlight = false;
+      this.applyRuntimeBridgeStatus(message.status);
+      if (!message.accepted) {
+        this.updateRuntimeStatus({ lastError: message.reason ?? 'runtime command rejected' });
+      } else {
+        this.updateRuntimeStatus({ lastError: '' });
+      }
       return;
     }
-
-    if (isEngineConnected(msg)) {
-      console.info(`[WS] Engine connected: ${msg.adapter_type} ${msg.engine_version}`);
+    if (isTerminalOutput(message)) {
+      window.dispatchEvent(new CustomEvent('xace:terminal-output', { detail: message }));
       return;
     }
-
-    if (isEngineDisconnected(msg)) {
-      console.info(`[WS] Engine disconnected: ${msg.reason}`);
+    if (isTelemetryUpdate(message)) {
       return;
     }
-
-    if (isTelemetryUpdate(msg)) {
-      // Telemetry panel subscribes directly via raw listener
-      return;
-    }
-
-    if (isServerError(msg)) {
-      console.error(`[WS] Server error [${msg.code}]: ${msg.message}`);
-      return;
+    if (isServerError(message)) {
+      this.runtimeStatusRequestInFlight = false;
+      const action = message.action ? ` ${message.action}` : '';
+      this.updateRuntimeStatus({ lastError: `${message.code}: ${message.message}${action}` });
+      if (message.apply_feedback) {
+        consoleSM.receiveServerError(message);
+      }
     }
   }
 
-  // ── Reconnect logic ───────────────────────────────────────────────────────
-
-  private _scheduleReconnect(): void {
-    if (this._intentionallyClosed) return;
-    this._reconnectTimer = setTimeout(() => {
-      this._reconnectDelay = Math.min(
-        this._reconnectDelay * 2,
-        this._opts.reconnectMax,
-      );
-      this._openSocket();
-    }, this._reconnectDelay);
+  private scheduleReconnect(): void {
+    if (this.intentionallyClosed || this.reconnectTimer) {
+      return;
+    }
+    const delay = this.reconnectDelay;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.opts.reconnectMax);
+      this.openSocket();
+    }, delay);
   }
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
-
-  private _setConnState(state: ConnectionState): void {
-    if (state === this._connState) return;
-    this._connState = state;
-    this._connStateListeners.forEach(fn => fn(state));
+  private flushQueue(): void {
+    const queued = this.messageQueue;
+    this.messageQueue = [];
+    queued.forEach((message) => this.send(message));
   }
 
-  private _clearTimers(): void {
-    if (this._reconnectTimer) { clearTimeout(this._reconnectTimer);  this._reconnectTimer = null; }
-    this._clearPingTimer();
+  private enqueue(message: ClientMessage): void {
+    this.messageQueue.push(message);
+    if (this.messageQueue.length > this.opts.queueLimit) {
+      this.messageQueue.splice(0, this.messageQueue.length - this.opts.queueLimit);
+    }
   }
 
-  private _clearPingTimer(): void {
-    if (this._pingTimer) { clearInterval(this._pingTimer); this._pingTimer = null; }
+  private enrichMessage(message: ClientMessage): ClientMessage {
+    return {
+      ...message,
+      session_id: this.sessionIdValue,
+      protocol_version: BUILDER_PROTOCOL_VERSION,
+    } as ClientMessage;
   }
 
-  private _generateSessionId(): string {
-    return [
-      Date.now().toString(36),
-      Math.random().toString(36).slice(2, 8),
-    ].join('-');
+  private setConnectionState(state: ConnectionState): void {
+    if (state === this.connState) {
+      return;
+    }
+    this.connState = state;
+    this.connStateListeners.forEach((listener) => listener(state));
+  }
+
+  private updateRuntimeStatus(partial: Partial<RuntimeStatus>): void {
+    this.runtimeStatusValue = { ...this.runtimeStatusValue, ...partial };
+    this.runtimeStatusListeners.forEach((listener) => listener(this.runtimeStatusValue));
+  }
+
+  private applyRuntimeBridgeStatus(status: RuntimeBridgeStatus | undefined): void {
+    if (!status) {
+      return;
+    }
+    this.updateRuntimeStatus({
+      connected: true,
+      adapterType: typeof status.adapter_type === 'string' ? status.adapter_type : this.runtimeStatusValue.adapterType,
+        controlTick: safeNumber(status.tick, this.runtimeStatusValue.controlTick),
+      aliveCount: safeNumber(status.alive_count, this.runtimeStatusValue.aliveCount),
+      pendingEngineInputs: safeNumber(status.pending_engine_inputs, 0),
+      pendingEngineFeedback: safeNumber(status.pending_engine_feedback, 0),
+      engineSnapshotsSent: safeNumber(status.engine_snapshots_sent, 0),
+      engineInputPacketsReceived: safeNumber(status.engine_input_packets_received, 0),
+      engineFeedbackPayloadsReceived: safeNumber(status.engine_feedback_payloads_received, 0),
+      engineFeedbackMessagesReceived: safeNumber(status.engine_feedback_messages_received, 0),
+      engineMalformedMessages: safeNumber(status.engine_malformed_messages, 0),
+      engineDroppedInputs: safeNumber(status.engine_dropped_inputs, 0),
+      registeredSystems: safeNumber(status.registered_systems, 0),
+      phaseCount: safeNumber(status.phase_count, 0),
+      paused: Boolean(status.paused),
+      stepBudget: safeNumber(status.step_budget, 0),
+      lastEngineFeedbackProcessed: safeNumber(status.last_engine_feedback_processed, 0),
+      lastEngineFeedbackInvalid: safeNumber(status.last_engine_feedback_invalid, 0),
+      lastEngineFeedbackErrors: safeNumber(status.last_engine_feedback_errors, 0),
+      latestWorldHash: typeof status.latest_world_hash === 'string' ? status.latest_world_hash : '',
+      hashLog: Array.isArray(status.hash_log) ? status.hash_log : [],
+    });
+  }
+
+  private clearTimers(): void {
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+    this.clearPingTimer();
+  }
+
+  private clearPingTimer(): void {
+    if (this.pingTimer) {
+      clearInterval(this.pingTimer);
+      this.pingTimer = null;
+    }
   }
 }
 
-/** Shared singleton — created in app.ts, exported for components */
 export let builderClient: BuilderClient;
 
-export function initBuilderClient(opts: BuilderClientOptions): BuilderClient {
-  builderClient = new BuilderClient(opts);
+export function initBuilderClient(options: BuilderClientOptions): BuilderClient {
+  builderClient = new BuilderClient(options);
   return builderClient;
+}
+
+function createSessionId(): string {
+  const timestamp = Date.now().toString(36);
+  const bytes = new Uint8Array(6);
+  if (typeof crypto !== 'undefined' && typeof crypto.getRandomValues === 'function') {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+  const suffix = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `${timestamp}-${suffix}`;
+}
+
+function safeNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }

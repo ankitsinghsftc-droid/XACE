@@ -24,8 +24,13 @@ import { BottomBar }           from './layout/bottom_bar';
 
 // ── Environment ───────────────────────────────────────────────────────────────
 
-const WS_URL     = import.meta.env.VITE_WS_URL     ?? 'ws://localhost:8765/ws';
-const PROJECT_ID = import.meta.env.VITE_PROJECT_ID ?? 'default';
+function defaultWebSocketUrl(): string {
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${window.location.host}/ws`;
+}
+
+const WS_URL     = import.meta.env.VITE_WS_URL     || defaultWebSocketUrl();
+const PROJECT_ID = import.meta.env.VITE_PROJECT_ID || 'default';
 
 // ── Splash progress ───────────────────────────────────────────────────────────
 
@@ -56,6 +61,13 @@ async function boot(): Promise<void> {
   });
 
   setSplashProgress(35);
+
+  void client.fetchPromptCapabilityMatrix()
+    .then((matrix) => uiStore.setPromptCapabilityMatrix(matrix))
+    .catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      uiStore.setPromptCapabilityMatrixError(message);
+    });
 
   // ── Mount layout ──────────────────────────────────────────────────────────
   const appEl = document.getElementById('app');

@@ -1,0 +1,51 @@
+{
+  "schema": "xace.prompt_launch_thresholds.v1",
+  "version": 1,
+  "owner_task": 48,
+  "updated": "2026-07-01",
+  "source_of_truth": "docs/prompt_launch_thresholds.json",
+  "benchmark_tool": "tools/prompt_corpus_benchmark.py",
+  "corpus_id": "xace.prompt_corpus_100.v1",
+  "profiles": {
+    "local_classifier": {
+      "description": "Local classifier-only threshold profile for Task 48. This profile gates deterministic matrix/classifier coverage and explicitly requires provider, compile, runtime, and rollback dimensions to be marked not run.",
+      "case_count_min": 100,
+      "classification_accuracy_min": 0.85,
+      "route_accuracy_min": 0.75,
+      "result_kind_accuracy_min": 0.85,
+      "unsupported_no_mutation_rate_min": 1.0,
+      "unsupported_block_or_unsupported_rate_min": 0.9,
+      "cost_total_usd_max": 0.0,
+      "cost_per_case_usd_max": 0.0,
+      "latency_avg_ms_max": 10.0,
+      "latency_p95_ms_max": 50.0,
+      "reproducibility_required": true,
+      "provider_calls_status": "not_run",
+      "compile_status": "not_run_local_classifier_only",
+      "runtime_status": "not_run_local_classifier_only",
+      "rollback_status": "not_run_local_classifier_only"
+    },
+    "launch_provider_runtime": {
+      "description": "Launch threshold profile for future hosted-provider plus compile/runtime/rollback benchmark execution. Selecting this profile against local classifier-only reports must fail because provider, compile, runtime, and rollback dimensions are not executed.",
+      "case_count_min": 100,
+      "classification_accuracy_min": 0.95,
+      "route_accuracy_min": 0.95,
+      "result_kind_accuracy_min": 0.95,
+      "compilation_success_rate_min": 0.95,
+      "runtime_success_rate_min": 0.95,
+      "rollback_success_rate_min": 0.95,
+      "unsupported_no_mutation_rate_min": 1.0,
+      "unsupported_block_or_unsupported_rate_min": 0.98,
+      "cost_per_case_usd_max": 0.05,
+      "latency_p95_ms_max": 15000.0,
+      "provider_reliability_min": 0.98,
+      "reproducibility_required": true,
+      "requires_executed_provider_compile_runtime_rollback": true
+    }
+  },
+  "notes": [
+    "Task 48 defines measurable prompt launch thresholds and makes the benchmark fail below the selected profile.",
+    "The local_classifier profile is the only profile expected to pass before hosted provider, compile, runtime, and rollback execution are implemented.",
+    "The launch_provider_runtime profile documents the stricter launch bar but is intentionally not claimed as passing in local classifier-only mode."
+  ]
+}

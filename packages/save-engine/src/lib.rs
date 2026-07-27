@@ -5,11 +5,21 @@
 //! - progress: player/profile/story data that survives session rollback
 //! - world: persistent world changes such as opened doors or defeated NPCs
 
+pub mod autosave_trigger_system;
+pub mod checkpoint_system;
 pub mod save_engine;
 pub mod save_serializer;
 pub mod save_slot;
 
-pub use save_engine::FileSaveEngine;
+pub use autosave_trigger_system::{
+    AutosaveDecision, AutosaveTriggerSystem, AutosaveTriggerSystemConfig, DirtyPersistenceRecord,
+    SaveLayerRequest,
+};
+pub use checkpoint_system::{
+    CheckpointRecord, CheckpointRestorePlan, CheckpointSystem, CheckpointSystemConfig,
+    CheckpointType,
+};
+pub use save_engine::{compute_asset_tree_hash, FileSaveEngine, SaveRecoveryReport};
 pub use save_serializer::SaveSerializer;
 pub use save_slot::{SaveLayer, SaveSlotMetadata};
 

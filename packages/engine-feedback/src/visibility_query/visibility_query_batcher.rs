@@ -207,7 +207,9 @@ mod tests {
     }
 
     fn small_batcher(max: usize) -> VisibilityQueryBatcher {
-        VisibilityQueryBatcher::new(BatcherConfig { max_queries_per_tick: max })
+        VisibilityQueryBatcher::new(BatcherConfig {
+            max_queries_per_tick: max,
+        })
     }
 
     // ── Basic Add / Take ──────────────────────────────────────────────────────

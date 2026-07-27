@@ -1,0 +1,75 @@
+{
+  "schema": "xace.prompt_corpus_manifest.v1",
+  "corpus_id": "xace.prompt_corpus_100.v1",
+  "version": 1,
+  "owner_task": 46,
+  "updated": "2026-07-01",
+  "source_of_truth": "docs/prompt_corpus_100.jsonl",
+  "case_count": 100,
+  "corpus_sha256": "479aa5e130cbe9822c4b492a16ac0d5e8d005c75d4496e819cec19fb1bb689cf",
+  "review": {
+    "reviewed": true,
+    "reviewed_at": "2026-07-01",
+    "reviewer": "xace-task-46",
+    "status": "approved"
+  },
+  "required_genres": [
+    "platformer",
+    "rpg",
+    "shooter",
+    "survival",
+    "puzzle",
+    "strategy",
+    "inventory",
+    "simulation",
+    "multiplayer_combat",
+    "hybrid"
+  ],
+  "required_difficulty_bands": [
+    "easy",
+    "medium",
+    "advanced",
+    "ambiguous",
+    "unsupported",
+    "adversarial"
+  ],
+  "required_category_ids": [
+    "certified_supported",
+    "constrained",
+    "clarification_required",
+    "blocked",
+    "unsupported",
+    "experimental"
+  ],
+  "expected_counts": {
+    "genres": {
+      "platformer": 10,
+      "rpg": 10,
+      "shooter": 10,
+      "survival": 10,
+      "puzzle": 10,
+      "strategy": 10,
+      "inventory": 10,
+      "simulation": 10,
+      "multiplayer_combat": 10,
+      "hybrid": 10
+    },
+    "difficulty_bands": {
+      "easy": 10,
+      "medium": 20,
+      "advanced": 20,
+      "ambiguous": 20,
+      "unsupported": 20,
+      "adversarial": 10
+    },
+    "category_ids": {
+      "certified_supported": 20,
+      "constrained": 20,
+      "clarification_required": 20,
+      "blocked": 10,
+      "unsupported": 20,
+      "experimental": 10
+    }
+  },
+  "notes": "Task 46 static reviewed corpus consumed by the Task 47 local benchmark report tool. This corpus is not itself a hosted-provider benchmark result."
+}

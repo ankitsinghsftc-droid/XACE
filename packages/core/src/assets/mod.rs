@@ -5,7 +5,12 @@
 pub mod asset_reference;
 pub mod asset_status;
 pub mod asset_type;
+pub mod semantic_binding;
 
 pub use asset_reference::AssetReference;
 pub use asset_status::AssetStatus;
 pub use asset_type::AssetType;
+pub use semantic_binding::{
+    BindingEntitySelector, PlaybackCommandRequest, SemanticAssetBinding, SemanticBindingError,
+    SemanticBindingTable, SemanticPlaybackKind,
+};

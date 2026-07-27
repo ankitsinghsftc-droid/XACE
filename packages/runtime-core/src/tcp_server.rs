@@ -94,28 +94,78 @@ impl TcpEngineServer {
 }
 
 pub fn wait_for_connection(port: u16) -> Result<EngineConnection> {
+    wait_for_connections(port, 1)?
+        .pop()
+        .ok_or_else(|| anyhow::anyhow!("no engine connection accepted"))
+}
+
+pub fn wait_for_connections(
+    port: u16,
+    expected_connections: usize,
+) -> Result<Vec<EngineConnection>> {
+    if expected_connections == 0 {
+        return Ok(Vec::new());
+    }
+
     let config = TcpServerConfig::localhost(port);
     let server = TcpEngineServer::bind(config)?;
     log_accept_banner(server.local_addr()?);
-    let connection = server.accept_blocking()?;
-    log::info!("Engine adapter connected from {}", connection.peer_addr);
-    Ok(connection)
+    let mut connections = Vec::with_capacity(expected_connections);
+    while connections.len() < expected_connections {
+        let connection = server.accept_blocking()?;
+        log::info!("Engine adapter connected from {}", connection.peer_addr);
+        connections.push(connection);
+    }
+    Ok(connections)
 }
 
 pub fn try_connect(port: u16, timeout_secs: u64) -> Result<Option<EngineConnection>> {
+    Ok(try_connect_connections(port, 1, timeout_secs)?.pop())
+}
+
+pub fn try_connect_connections(
+    port: u16,
+    expected_connections: usize,
+    timeout_secs: u64,
+) -> Result<Vec<EngineConnection>> {
+    if expected_connections == 0 {
+        return Ok(Vec::new());
+    }
+
     let config = TcpServerConfig::localhost(port);
     let server = TcpEngineServer::bind(config)?;
     log_accept_banner(server.local_addr()?);
-    let connection = server.accept_timeout(Duration::from_secs(timeout_secs))?;
-    if let Some(connection) = &connection {
+
+    let deadline = Instant::now() + Duration::from_secs(timeout_secs);
+    let mut connections = Vec::with_capacity(expected_connections);
+    while connections.len() < expected_connections {
+        let Some(remaining) = deadline.checked_duration_since(Instant::now()) else {
+            break;
+        };
+        if remaining.is_zero() {
+            break;
+        }
+        let Some(connection) = server.accept_timeout(remaining)? else {
+            break;
+        };
         log::info!("Engine adapter connected from {}", connection.peer_addr);
-    } else {
+        connections.push(connection);
+    }
+
+    if connections.is_empty() {
         log::info!(
             "No engine connected after {}s; running headless",
             timeout_secs
         );
+    } else if connections.len() < expected_connections {
+        log::info!(
+            "Accepted {}/{} engine adapters after {}s",
+            connections.len(),
+            expected_connections,
+            timeout_secs
+        );
     }
-    Ok(connection)
+    Ok(connections)
 }
 
 fn tune_stream(
@@ -123,6 +173,7 @@ fn tune_stream(
     peer_addr: SocketAddr,
     config: &TcpServerConfig,
 ) -> Result<EngineConnection> {
+    stream.set_nonblocking(false)?;
     stream.set_nodelay(config.nodelay)?;
     stream.set_write_timeout(Some(config.write_timeout))?;
     stream.set_read_timeout(config.read_timeout)?;

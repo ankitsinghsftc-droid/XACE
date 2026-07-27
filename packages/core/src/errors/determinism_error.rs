@@ -443,8 +443,8 @@ mod tests {
             DeterminismRule::D9WorldHashPerTick,
             "DeterminismGuard",
             1000,
-            "expected_hash_abc",
-            "actual_hash_xyz",
+            &"a".repeat(64),
+            &"b".repeat(64),
             GuardMode::Dev,
         )
     }
@@ -509,8 +509,8 @@ mod tests {
     fn d9_hash_mismatch_created_correctly() {
         let v = d9_violation();
         assert!(v.is_hash_mismatch());
-        assert_eq!(v.expected_hash, "expected_hash_abc");
-        assert_eq!(v.actual_hash, "actual_hash_xyz");
+        assert_eq!(v.expected_hash, "a".repeat(64));
+        assert_eq!(v.actual_hash, "b".repeat(64));
         assert!(!v.is_strict());
     }
 
@@ -569,9 +569,11 @@ mod tests {
     #[test]
     fn hash_mismatch_description_auto_generated() {
         let v = d9_violation();
+        let expected_hash = "a".repeat(64);
+        let actual_hash = "b".repeat(64);
         assert!(v.description.contains("1000"));
-        assert!(v.description.contains("expected_hash_abc"));
-        assert!(v.description.contains("actual_hash_xyz"));
+        assert!(v.description.contains(expected_hash.as_str()));
+        assert!(v.description.contains(actual_hash.as_str()));
     }
 
     #[test]

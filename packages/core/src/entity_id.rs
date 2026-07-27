@@ -42,7 +42,7 @@ pub const NULL_ENTITY_ID: EntityID = 0;
 /// Generates unique, monotonically increasing EntityIDs.
 ///
 /// Thread-safe via `AtomicU64` — multiple systems running in parallel
-/// during Phase 4 (parallel execution) can safely request IDs concurrently
+/// under a future worker-thread execution policy can safely request IDs concurrently
 /// without locks or races.
 ///
 /// ## Guarantees

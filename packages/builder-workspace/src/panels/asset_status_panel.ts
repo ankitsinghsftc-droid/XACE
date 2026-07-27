@@ -14,6 +14,7 @@
 import type { CGSStore }    from '../state/cgs_store';
 import type { UIStore }     from '../state/ui_store';
 import type { BuilderClient } from '../api/builder_client';
+import type { AssetRef } from '../types/cgs';
 
 const STYLES = `
 .xb-asp { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
@@ -28,9 +29,14 @@ const STYLES = `
 }
 .xb-asp-btn:hover { border-color: rgba(0,212,255,.3); color: var(--cyan); background: var(--cynd); }
 .xb-asp-note {
-  font-size: 9px; color: var(--txt3); font-style: italic; line-height: 1.5;
+  font-size: 9px; color: var(--txt3); line-height: 1.5;
   padding: 5px 0;
 }
+.xb-asp-note.warn { color: var(--amb); }
+.xb-asp-actions { display: flex; gap: 5px; margin-top: 6px; }
+.xb-asp-actions .xb-asp-btn { margin-top: 0; }
+.xb-asp-btn.warn { border-color: rgba(245,158,11,.28); color: var(--amb); }
+.xb-asp-btn.warn:hover { border-color: rgba(245,158,11,.48); color: var(--amb); background: rgba(245,158,11,.08); }
 `;
 
 interface AssetPanelDeps {
@@ -44,6 +50,7 @@ export class AssetStatusPanel {
   private _el!:            HTMLElement;
   private _dialog:         AssetLinkDialog | null = null;
   private readonly _unsubs: Array<() => void> = [];
+  private readonly _onOpenAssets = () => this._openDialog();
 
   constructor(deps: AssetPanelDeps) {
     this._deps = deps;
@@ -55,10 +62,13 @@ export class AssetStatusPanel {
     this._el.className = 'xb-asp';
     container.appendChild(this._el);
     this._unsubs.push(this._deps.cgsStore.subscribe(() => this._render()));
+    window.addEventListener('xace:open-asset-linker', this._onOpenAssets);
   }
 
   unmount(): void {
-    this._unsubs.forEach(fn => fn()); this._el?.remove();
+    this._unsubs.forEach(fn => fn());
+    window.removeEventListener('xace:open-asset-linker', this._onOpenAssets);
+    this._el?.remove();
   }
 
   private _render(): void {
@@ -69,9 +79,9 @@ export class AssetStatusPanel {
     this._el.innerHTML = '';
 
     const rows = [
-      { color: 'var(--amb)', label: 'Placeholder', count: placeholder, countColor: 'var(--amb)' },
-      { color: 'var(--grn)', label: 'Linked',      count: linked,      countColor: 'var(--grn)' },
-      { color: 'var(--txt3)',label: 'Missing',      count: missing,     countColor: missing > 0 ? 'var(--red)' : 'var(--txt3)' },
+      { color: 'var(--grn)', label: 'Imported', count: linked,      countColor: 'var(--grn)' },
+      { color: 'var(--amb)', label: 'Needs art', count: placeholder, countColor: 'var(--amb)' },
+      { color: 'var(--red)', label: 'Missing',   count: missing,     countColor: missing > 0 ? 'var(--red)' : 'var(--txt3)' },
     ];
 
     for (const row of rows) {
@@ -92,11 +102,31 @@ export class AssetStatusPanel {
       this._el.appendChild(note);
     }
 
+    if (missing > 0) {
+      const note = document.createElement('div');
+      note.className = 'xb-asp-note warn';
+      note.textContent = `${missing} asset ${missing === 1 ? 'path is' : 'paths are'} missing. Repair picks a replacement file and saves the new path.`;
+      this._el.appendChild(note);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'xb-asp-actions';
+
     const btn = document.createElement('button');
     btn.className   = 'xb-asp-btn';
-    btn.textContent = 'Link Assets ->';
+    btn.textContent = total > 0 ? 'Import / Link' : 'Add Assets';
     btn.addEventListener('click', () => this._openDialog());
-    this._el.appendChild(btn);
+    actions.appendChild(btn);
+
+    if (missing > 0) {
+      const repair = document.createElement('button');
+      repair.className = 'xb-asp-btn warn';
+      repair.textContent = 'Repair Missing';
+      repair.addEventListener('click', () => this._openDialog());
+      actions.appendChild(repair);
+    }
+
+    this._el.appendChild(actions);
   }
 
   private _openDialog(): void {
@@ -163,6 +193,7 @@ const DIALOG_STYLES = `
 .xb-ald-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .xb-ald-id { font-family: var(--font-mono); font-size: 11px; color: var(--txt); flex: 1; }
 .xb-ald-comp { font-size: 9.5px; color: var(--txt2); font-family: var(--font-mono); }
+.xb-ald-state { font-size: 8.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); }
 .xb-ald-path-row { display: flex; gap: 6px; align-items: center; }
 .xb-ald-path-inp {
   flex: 1; background: rgba(255,255,255,.03); border: 1px solid var(--bd);
@@ -229,7 +260,7 @@ export class AssetLinkDialog {
     // Header
     const head = document.createElement('div');
     head.className = 'xb-ald-head';
-    head.innerHTML = `<div class="xb-ald-title">Link Assets</div>`;
+    head.innerHTML = `<div class="xb-ald-title">Import / Repair Assets</div>`;
     const closeBtn = document.createElement('button');
     closeBtn.className   = 'xb-ald-close';
     closeBtn.textContent = 'x';
@@ -241,9 +272,9 @@ export class AssetLinkDialog {
     const body = document.createElement('div');
     body.className = 'xb-ald-body';
 
-    const refs = this._deps.cgsStore.assetRefs;
+    const refs = [...this._deps.cgsStore.assetRefs].sort(assetSort);
     if (refs.length === 0) {
-      body.innerHTML = `<div class="xb-ald-empty">No asset references found in the CGS.<br><span style="color:var(--txt3);font-size:9.5px">Add mesh_id, texture_id, or audio_id fields to components to enable asset linking.</span></div>`;
+      body.innerHTML = `<div class="xb-ald-empty">No asset slots yet.<br><span style="color:var(--txt3);font-size:9.5px">Ask XACE to add a mesh, texture, audio, or animation field, then link the real file here.</span></div>`;
     } else {
       for (const ref of refs) {
         body.appendChild(this._buildItem(ref));
@@ -264,7 +295,7 @@ export class AssetLinkDialog {
     return modal;
   }
 
-  private _buildItem(ref: import('../types/cgs').AssetRef): HTMLElement {
+  private _buildItem(ref: AssetRef): HTMLElement {
     const item = document.createElement('div');
     item.className = 'xb-ald-item';
 
@@ -275,8 +306,9 @@ export class AssetLinkDialog {
     item.innerHTML = `
       <div class="xb-ald-item-head">
         <div class="xb-ald-status-dot" style="background:${statusColor}"></div>
-        <span class="xb-ald-id">${ref.placeholder_id}</span>
-        <span class="xb-ald-comp">${ref.component_name} · ${ref.actor_id}</span>
+        <span class="xb-ald-id">${escapeHtml(ref.placeholder_id)}</span>
+        <span class="xb-ald-state">${assetStatusLabel(ref.status)}</span>
+        <span class="xb-ald-comp">${escapeHtml(ref.component_name)} - ${escapeHtml(ref.actor_id)}</span>
       </div>
     `;
 
@@ -306,7 +338,7 @@ export class AssetLinkDialog {
 
     const linkBtn = document.createElement('button');
     linkBtn.className   = 'xb-ald-link-btn';
-    linkBtn.textContent = 'Link';
+    linkBtn.textContent = ref.status === 'missing' ? 'Repair' : ref.status === 'linked' ? 'Update' : 'Link';
     linkBtn.addEventListener('click', () => {
       const path = pathInp.value.trim();
       if (!path) return;
@@ -318,11 +350,11 @@ export class AssetLinkDialog {
         component_name: ref.component_name,
         session_id:     this._deps.client.sessionId,
       });
-      linkBtn.textContent = 'Linked';
+      linkBtn.textContent = 'Saved';
       linkBtn.style.color   = 'var(--grn)';
       linkBtn.style.background = 'rgba(16,185,129,.12)';
       setTimeout(() => {
-        linkBtn.textContent = 'Link';
+        linkBtn.textContent = ref.status === 'missing' ? 'Repair' : ref.status === 'linked' ? 'Update' : 'Link';
         linkBtn.style.color = '';
         linkBtn.style.background = '';
       }, 3000);
@@ -342,4 +374,26 @@ export class AssetLinkDialog {
     s.id = 'xb-ald-styles'; s.textContent = DIALOG_STYLES;
     document.head.appendChild(s);
   }
+}
+
+function assetSort(a: AssetRef, b: AssetRef): number {
+  const order = { missing: 0, placeholder: 1, linked: 2 } as Record<string, number>;
+  return (order[a.status] ?? 9) - (order[b.status] ?? 9)
+    || a.placeholder_id.localeCompare(b.placeholder_id);
+}
+
+function assetStatusLabel(status: AssetRef['status']): string {
+  if (status === 'linked') return 'imported';
+  if (status === 'missing') return 'missing';
+  return 'needs art';
+}
+
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[ch] ?? ch);
 }

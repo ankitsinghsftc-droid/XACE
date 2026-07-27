@@ -16,7 +16,6 @@ use std::sync::RwLock;
 
 use crate::metrics::{Counter, Gauge, Histogram};
 
-
 // ── Storage ───────────────────────────────────────────────────────────────────
 
 // We store each metric type in a separate map to avoid boxing.
@@ -28,20 +27,19 @@ struct CounterMap(RwLock<HashMap<String, Box<Counter>>>);
 struct GaugeMap(RwLock<HashMap<String, Box<Gauge>>>);
 struct HistogramMap(RwLock<HashMap<String, Box<Histogram>>>);
 
-
 // ── MetricsRegistry ───────────────────────────────────────────────────────────
 
 pub struct MetricsRegistry {
-    counters:   CounterMap,
-    gauges:     GaugeMap,
+    counters: CounterMap,
+    gauges: GaugeMap,
     histograms: HistogramMap,
 }
 
 impl MetricsRegistry {
     pub fn new() -> Self {
         Self {
-            counters:   CounterMap(RwLock::new(HashMap::new())),
-            gauges:     GaugeMap(RwLock::new(HashMap::new())),
+            counters: CounterMap(RwLock::new(HashMap::new())),
+            gauges: GaugeMap(RwLock::new(HashMap::new())),
             histograms: HistogramMap(RwLock::new(HashMap::new())),
         }
     }
@@ -51,19 +49,19 @@ impl MetricsRegistry {
     pub fn register_counter(&self, name: &str, help: &str) {
         let mut map = self.counters.0.write().unwrap();
         map.entry(name.to_owned())
-           .or_insert_with(|| Box::new(Counter::new(name, help)));
+            .or_insert_with(|| Box::new(Counter::new(name, help)));
     }
 
     pub fn register_gauge(&self, name: &str, help: &str) {
         let mut map = self.gauges.0.write().unwrap();
         map.entry(name.to_owned())
-           .or_insert_with(|| Box::new(Gauge::new(name, help)));
+            .or_insert_with(|| Box::new(Gauge::new(name, help)));
     }
 
     pub fn register_histogram(&self, name: &str, help: &str) {
         let mut map = self.histograms.0.write().unwrap();
         map.entry(name.to_owned())
-           .or_insert_with(|| Box::new(Histogram::new(name, help)));
+            .or_insert_with(|| Box::new(Histogram::new(name, help)));
     }
 
     // ── Lazy-create access (for dynamic metric names, e.g. per-system) ────────
@@ -80,7 +78,8 @@ impl MetricsRegistry {
         }
         // Slow path: write lock + insert
         let mut map = self.counters.0.write().unwrap();
-        let counter = map.entry(name.to_owned())
+        let counter = map
+            .entry(name.to_owned())
             .or_insert_with(|| Box::new(Counter::new(name, "")));
         unsafe { &*(counter.as_ref() as *const Counter) }
     }
@@ -93,7 +92,8 @@ impl MetricsRegistry {
             }
         }
         let mut map = self.gauges.0.write().unwrap();
-        let g = map.entry(name.to_owned())
+        let g = map
+            .entry(name.to_owned())
             .or_insert_with(|| Box::new(Gauge::new(name, "")));
         unsafe { &*(g.as_ref() as *const Gauge) }
     }
@@ -106,7 +106,8 @@ impl MetricsRegistry {
             }
         }
         let mut map = self.histograms.0.write().unwrap();
-        let h = map.entry(name.to_owned())
+        let h = map
+            .entry(name.to_owned())
             .or_insert_with(|| Box::new(Histogram::new(name, "")));
         unsafe { &*(h.as_ref() as *const Histogram) }
     }
@@ -156,5 +157,7 @@ impl MetricsRegistry {
 }
 
 impl Default for MetricsRegistry {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }

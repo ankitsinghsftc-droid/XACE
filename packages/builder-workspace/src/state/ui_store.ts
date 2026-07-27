@@ -11,6 +11,7 @@
 
 import type { AssistanceMode } from '../types/pil';
 import type { GraphNodeKind } from '../types/cgs';
+import type { PromptCapabilityMatrix } from '../api/builder_client';
 
 // ── Sidebar view ──────────────────────────────────────────────────────────────
 
@@ -56,6 +57,8 @@ export interface UIStoreState {
   readonly sidebarSearch:      string;
   /** Whether the bottom bar is expanded */
   readonly bottomBarExpanded:  boolean;
+  readonly promptCapabilityMatrix: PromptCapabilityMatrix | null;
+  readonly promptCapabilityMatrixError: string;
 }
 
 // ── Persistence keys ──────────────────────────────────────────────────────────
@@ -94,6 +97,8 @@ export class UIStore {
     commandPaletteOpen:  false,
     sidebarSearch:       '',
     bottomBarExpanded:   readStored('xace:ui:bottomExpanded', 'false') === 'true',
+    promptCapabilityMatrix: null,
+    promptCapabilityMatrixError: '',
   };
 
   private _listeners: Set<Listener> = new Set();
@@ -190,6 +195,14 @@ export class UIStore {
   setBottomBarExpanded(expanded: boolean): void {
     writeStored(STORAGE_KEY_BOTTOM_EXPANDED, String(expanded));
     this._update({ bottomBarExpanded: expanded });
+  }
+
+  setPromptCapabilityMatrix(matrix: PromptCapabilityMatrix): void {
+    this._update({ promptCapabilityMatrix: matrix, promptCapabilityMatrixError: '' });
+  }
+
+  setPromptCapabilityMatrixError(error: string): void {
+    this._update({ promptCapabilityMatrixError: error });
   }
 
   // ── Internal ──────────────────────────────────────────────────────────────

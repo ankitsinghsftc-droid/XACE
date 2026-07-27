@@ -31,7 +31,7 @@ Matches SchemaSnapshot.VALID_MUTATION_SOURCES exactly.
 from __future__ import annotations
 
 import time
-import uuid
+import threading
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -47,6 +47,30 @@ VALID_MUTATION_SOURCES: frozenset[str] = frozenset({
     "import",
 })
 
+_TXN_LOCK = threading.Lock()
+_LAST_TXN_MS = 0
+_LAST_TXN_SEQUENCE = 0
+
+
+def next_monotonic_transaction_id(prefix: str = "txn") -> str:
+    """
+    Returns a process-local monotonically increasing transaction ID.
+
+    Builder assigns persisted project-local IDs before commit. This fallback
+    keeps standalone GDE callers ordered without relying on random UUIDs.
+    """
+    global _LAST_TXN_MS, _LAST_TXN_SEQUENCE
+    now_ms = int(time.time() * 1000)
+    with _TXN_LOCK:
+        if now_ms < _LAST_TXN_MS:
+            now_ms = _LAST_TXN_MS
+        if now_ms == _LAST_TXN_MS:
+            _LAST_TXN_SEQUENCE += 1
+        else:
+            _LAST_TXN_MS = now_ms
+            _LAST_TXN_SEQUENCE = 1
+        return f"{prefix}-{now_ms:013d}-{_LAST_TXN_SEQUENCE:06d}"
+
 
 # ── Mutation Metadata ─────────────────────────────────────────────────────────
 
@@ -58,8 +82,9 @@ class MutationMetadata:
     Attributes
     ----------
     transaction_id : str
-        UUID4 hex identifier for the transaction this metadata belongs to.
-        Set by the transaction that creates this metadata, or auto-generated.
+        Monotonically increasing identifier for the transaction this metadata
+        belongs to. Set by the transaction that creates this metadata, or
+        auto-generated for standalone GDE callers.
     source : str
         What produced this mutation. One of VALID_MUTATION_SOURCES.
     parent_cgs_hash : str
@@ -151,7 +176,7 @@ class MutationMetadata:
             )
 
         return cls(
-            transaction_id=transaction_id or uuid.uuid4().hex,
+            transaction_id=transaction_id or next_monotonic_transaction_id(),
             source=source,
             parent_cgs_hash=parent_cgs_hash,
             schema_version_target=schema_version_target,

@@ -86,6 +86,8 @@ pub trait FeedbackHandler: Send + Sync {
 /// Per-tick and cumulative routing metrics.
 #[derive(Debug, Clone, Default)]
 pub struct RouterMetrics {
+    /// Total messages submitted to the router.
+    pub total_seen: u64,
     /// Total messages routed across all ticks.
     pub total_routed: u64,
     /// Total messages that had no registered handler (logged, not fatal).
@@ -94,8 +96,19 @@ pub struct RouterMetrics {
     pub handler_errors: u64,
     /// Messages routed per handler kind (indexed by `FeedbackHandlerKind` name).
     pub routed_by_kind: std::collections::BTreeMap<String, u64>,
+    /// Messages routed per feedback type discriminant.
+    pub routed_by_type: std::collections::BTreeMap<u8, u64>,
     /// Total parse failures (TypedFeedbackPayload::parse_typed returned Err).
     pub parse_failures: u64,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct RouteBatchReport {
+    pub attempted: usize,
+    pub handled: usize,
+    pub unhandled: usize,
+    pub parse_failures: usize,
+    pub handler_errors: usize,
 }
 
 // ── Feedback Router ───────────────────────────────────────────────────────────
@@ -103,7 +116,7 @@ pub struct RouterMetrics {
 /// Dispatches validated `FeedbackMessage` values to registered handlers.
 ///
 /// ## Setup
-/// ```ignore
+/// ```text
 /// let mut router = FeedbackRouter::new();
 /// router.register(Box::new(AnimationFeedbackHandler::new(mutation_gate.clone())));
 /// router.register(Box::new(PhysicsFeedbackHandler::new(mutation_gate.clone())));
@@ -111,7 +124,7 @@ pub struct RouterMetrics {
 /// ```
 ///
 /// ## Per-tick Use
-/// ```ignore
+/// ```text
 /// let messages = buffer.drain_sorted();
 /// let messages = validator.filter_valid(messages);
 /// let errors = router.route_all(messages);
@@ -136,6 +149,18 @@ impl FeedbackRouter {
         }
     }
 
+    /// Creates a router with all built-in feedback handlers registered.
+    pub fn with_default_handlers() -> Self {
+        let mut router = Self::new();
+        router.register(Box::new(crate::handlers::AnimationFeedbackHandler::new()));
+        router.register(Box::new(crate::handlers::PhysicsFeedbackHandler::new()));
+        router.register(Box::new(crate::handlers::VisibilityFeedbackHandler::new()));
+        router.register(Box::new(crate::handlers::AudioFeedbackHandler::new()));
+        router.register(Box::new(crate::handlers::InputFeedbackHandler::new()));
+        router.register(Box::new(crate::handlers::PerformanceFeedbackHandler::new()));
+        router
+    }
+
     // ── Handler Registration ──────────────────────────────────────────────────
 
     /// Registers a feedback handler.
@@ -144,6 +169,13 @@ impl FeedbackRouter {
     /// Registration order does not affect routing — dispatch is by
     /// `FeedbackType::handler_kind()` not by registration index.
     pub fn register(&mut self, handler: Box<dyn FeedbackHandler>) {
+        self.handlers.push(handler);
+    }
+
+    /// Registers a handler, replacing any existing handler with the same kind.
+    pub fn register_or_replace(&mut self, handler: Box<dyn FeedbackHandler>) {
+        let kind = handler.kind();
+        self.handlers.retain(|existing| existing.kind() != kind);
         self.handlers.push(handler);
     }
 
@@ -170,11 +202,20 @@ impl FeedbackRouter {
     /// Returns `Ok(())` if handled successfully or no handler was registered.
     /// Returns `Err` only if the handler itself returned an error.
     pub fn route(&mut self, message: &FeedbackMessage) -> Result<(), XaceError> {
+        self.metrics.total_seen += 1;
+
         // Parse the typed payload
         let typed = match message.parse_typed() {
             Ok(t) => t,
             Err(e) => {
                 self.metrics.parse_failures += 1;
+                log::warn!(
+                    "FeedbackRouter: parse failure for {:?} entity={} frame={}: {}",
+                    message.feedback_type,
+                    message.entity_id,
+                    message.generated_frame,
+                    e.message()
+                );
                 return Err(e);
             }
         };
@@ -189,16 +230,17 @@ impl FeedbackRouter {
                 let kind_name = h.kind().to_string();
                 let result = h.handle(&typed);
 
-                *self.metrics.routed_by_kind
-                    .entry(kind_name)
-                    .or_insert(0) += 1;
+                *self.metrics.routed_by_kind.entry(kind_name).or_insert(0) += 1;
+                *self.metrics.routed_by_type.entry(ft.as_u8()).or_insert(0) += 1;
                 self.metrics.total_routed += 1;
 
                 if let Err(ref e) = result {
                     self.metrics.handler_errors += 1;
-                    eprintln!(
-                        "[WARN] FeedbackRouter: handler error for {:?} entity={} frame={}: {}",
-                        ft, message.entity_id, message.generated_frame,
+                    log::warn!(
+                        "FeedbackRouter: handler error for {:?} entity={} frame={}: {}",
+                        ft,
+                        message.entity_id,
+                        message.generated_frame,
                         e.message()
                     );
                 }
@@ -207,10 +249,11 @@ impl FeedbackRouter {
             None => {
                 // No handler registered for this type — log and continue
                 self.metrics.unhandled_count += 1;
-                eprintln!(
-                    "[WARN] FeedbackRouter: no handler registered for {:?} \
-                     (entity={} frame={})",
-                    ft, message.entity_id, message.generated_frame
+                log::warn!(
+                    "FeedbackRouter: no handler registered for {:?} (entity={} frame={})",
+                    ft,
+                    message.entity_id,
+                    message.generated_frame
                 );
                 Ok(())
             }
@@ -224,13 +267,41 @@ impl FeedbackRouter {
     /// Order is preserved: messages are routed in the exact order received
     /// from `drain_sorted()`.
     pub fn route_all(&mut self, messages: Vec<FeedbackMessage>) -> Vec<XaceError> {
+        self.route_all_report(messages).1
+    }
+
+    pub fn route_all_report(
+        &mut self,
+        messages: Vec<FeedbackMessage>,
+    ) -> (RouteBatchReport, Vec<XaceError>) {
+        let attempted = messages.len();
+        let before = self.metrics.clone();
         let mut errors = Vec::new();
         for msg in &messages {
             if let Err(e) = self.route(msg) {
                 errors.push(e);
             }
         }
-        errors
+        let report = RouteBatchReport {
+            attempted,
+            handled: self
+                .metrics
+                .total_routed
+                .saturating_sub(before.total_routed) as usize,
+            unhandled: self
+                .metrics
+                .unhandled_count
+                .saturating_sub(before.unhandled_count) as usize,
+            parse_failures: self
+                .metrics
+                .parse_failures
+                .saturating_sub(before.parse_failures) as usize,
+            handler_errors: self
+                .metrics
+                .handler_errors
+                .saturating_sub(before.handler_errors) as usize,
+        };
+        (report, errors)
     }
 
     // ── Inspection ────────────────────────────────────────────────────────────
@@ -257,8 +328,9 @@ impl Default for FeedbackRouter {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use xace_core::wire::feedback_payload::FeedbackType;
     use std::sync::{Arc, Mutex};
+    use xace_core::errors::xace_error::ErrorContext;
+    use xace_core::wire::feedback_payload::FeedbackType;
 
     // ── Mock Handler ──────────────────────────────────────────────────────────
 
@@ -272,18 +344,30 @@ mod tests {
     impl MockHandler {
         fn new(kind: FeedbackHandlerKind) -> (Self, Arc<Mutex<Vec<FeedbackType>>>) {
             let handled = Arc::new(Mutex::new(Vec::new()));
-            let h = Self { kind, handled: handled.clone(), should_fail: false };
+            let h = Self {
+                kind,
+                handled: handled.clone(),
+                should_fail: false,
+            };
             (h, handled)
         }
 
         fn failing(kind: FeedbackHandlerKind) -> Self {
-            Self { kind, handled: Arc::new(Mutex::new(Vec::new())), should_fail: true }
+            Self {
+                kind,
+                handled: Arc::new(Mutex::new(Vec::new())),
+                should_fail: true,
+            }
         }
     }
 
     impl FeedbackHandler for MockHandler {
-        fn kind(&self) -> FeedbackHandlerKind { self.kind }
-        fn name(&self) -> &str { "MockHandler" }
+        fn kind(&self) -> FeedbackHandlerKind {
+            self.kind
+        }
+        fn name(&self) -> &str {
+            "MockHandler"
+        }
         fn handle(&self, payload: &TypedFeedbackPayload) -> Result<(), XaceError> {
             if self.should_fail {
                 return Err(XaceError::RecoverableError {
@@ -311,7 +395,8 @@ mod tests {
                 final_position_json: r#"{"x":0,"y":0,"z":0}"#.into(),
                 final_rotation_json: r#"{"x":0,"y":0,"z":0,"w":1}"#.into(),
                 generated_frame: frame,
-            }).unwrap(),
+            })
+            .unwrap(),
         }
     }
 
@@ -327,7 +412,8 @@ mod tests {
                 physics_contacts: 10,
                 engine_entity_count: 50,
                 generated_frame: frame,
-            }).unwrap(),
+            })
+            .unwrap(),
         }
     }
 

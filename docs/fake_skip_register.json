@@ -1,0 +1,510 @@
+{
+  "schema": "xace.fake_skip_register.v1",
+  "updated": "2026-06-14",
+  "dispositions": [
+    "remove",
+    "replace",
+    "isolate",
+    "document-test-only"
+  ],
+  "entries": [
+    {
+      "id": "FSR-001",
+      "title": "Fake SGC wiring isolated to Builder server tests",
+      "category": "fake-helper",
+      "risk": "critical",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "18, 19, 33, 34",
+      "covers": [
+        "packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py"
+      ],
+      "evidence": [
+        "packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py defines _fake_sgc_wiring_test_only_script"
+      ],
+      "notes": "Task 18 removed the wiring-only SGC helper from prompt certification. The remaining helper is isolated to Builder server tests for failure/audit wiring coverage."
+    },
+    {
+      "id": "FSR-002",
+      "title": "Removed Builder prompt fallback and mock adapter path",
+      "category": "mock-fallback",
+      "risk": "critical",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "17, 19, 35, 36, 51, 54",
+      "covers": [
+        "packages/builder-workspace/server/session_manager.py"
+      ],
+      "evidence": [
+        "packages/builder-workspace/server/session_manager.py returns PIL_UNAVAILABLE when PILPipeline is not importable",
+        "docs/production_path_rules.json has no allowed findings for _MockAdapter or SimplePipeline in production Builder code"
+      ],
+      "notes": "Task 19 removed the production SimplePipeline fallback and _MockAdapter. Production prompt paths must fail visibly or use a real configured provider/PIL path. Mock adapter behavior may remain only in isolated tests."
+    },
+    {
+      "id": "FSR-003",
+      "title": "Optional or skipped SGC execution paths",
+      "category": "skipped-check",
+      "risk": "critical",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "17, 18, 21, 22, 23, 24, 25, 30, 33",
+      "covers": [
+        "packages/builder-workspace/server/session_manager.py",
+        "packages/builder-workspace/server/ws_message_router.py",
+        "packages/builder-workspace/server/builder_server.py"
+      ],
+      "evidence": [
+        "packages/builder-workspace/server/session_manager.py:487 returns SGCCompileResult(status=skipped) when no SGC binary is configured",
+        "packages/builder-workspace/server/session_manager.py:498 returns SGCCompileResult(status=skipped) when no systems are present",
+        "packages/builder-workspace/server/ws_message_router.py rejects structural prompt applies when SGC returns an explicit skipped/unsupported result",
+        "packages/builder-workspace/server/builder_server.py documents that structural prompt applies block when --sgc-bin is omitted"
+      ],
+      "notes": "Task 17 blocks structural Builder applies when SGC proof is unavailable. Task 18 requires the certification prompt proof to invoke the real SGC binary. Later SGC authority tasks decide which skipped statuses remain legal for non-mutating/headless/no-system cases."
+    },
+    {
+      "id": "FSR-004",
+      "title": "Certification skip modes and installed-engine omissions",
+      "category": "skipped-check",
+      "risk": "high",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "5, 97, 98, 99, 122",
+      "covers": [
+        "tools/certify_launch.py"
+      ],
+      "evidence": [
+        "tools/certify_launch.py writes launch_certification_report.json for pass and fail runs",
+        "tools/certify_launch.py records quick-mode omitted full checks under editor_free.skipped_checks",
+        "tools/certify_launch.py writes installed_engine_summary.json with unsupported Godot/Unity/Unreal entries when --installed-engines is not run"
+      ],
+      "notes": "Quick/editor-free certification is useful but must never imply installed Godot/Unity/Unreal proof. Task 12 now emits explicit artifacts; later installed-engine tasks must replace unsupported entries with real editor proof."
+    },
+    {
+      "id": "FSR-005",
+      "title": "Smoke-only and proof-only tools",
+      "category": "smoke-only-proof",
+      "risk": "high",
+      "production_path": false,
+      "disposition": "document-test-only",
+      "owner_task": "5, 12, 15, 16, 141, 142, 143",
+      "covers": [
+        "tools/*_smoke.py",
+        "tools/*_proof.py",
+        "tools/phase15_integration_check.py",
+        "tools/sgc_cli_integration.py"
+      ],
+      "evidence": [
+        "tools/sgc_cli_smoke.py:5 says it tests the CLI, not fake wiring",
+        "tools/runtime_bridge_smoke.py is an editor-free runtime bridge smoke",
+        "tools/three_engine_runtime_smoke.py is an editor-free three-client simulation",
+        "tools/asset_playback_smoke.py uses smoke placeholder sample files",
+        "tools/provider_readiness_smoke.py uses isolated fake key material"
+      ],
+      "notes": "These tools can be launch evidence only for the scenarios they execute. They are not broad production guarantees."
+    },
+    {
+      "id": "FSR-006",
+      "title": "Test-only mocks, fakes, fixtures, and deliberate failures",
+      "category": "test-fixture",
+      "risk": "medium",
+      "production_path": false,
+      "disposition": "isolate",
+      "owner_task": "4, 19",
+      "covers": [
+        "tests/**",
+        "packages/*/tests/**",
+        "packages/*/src/tests/**",
+        "packages/*/src/**/tests/**",
+        "packages/**/tests/**",
+        "packages/**/src/tests/**",
+        "packages/**/benches/**",
+        "packages/runtime-core/benches"
+      ],
+      "evidence": [
+        "packages/asset-runtime/tests/test_streaming.rs:31 defines MockCdn",
+        "packages/inference/tests/test_model_router.py:25 defines Fake Provider Client",
+        "packages/prompt-intelligence/src/tests/test_code_generation.py:119 defines Mock InferenceAdapter",
+        "packages/engine-adapter/src/tests/test_delta_sync_integration.rs:94 defines MockEngineAdapter"
+      ],
+      "notes": "Mocks/fakes inside test-only paths are allowed only if production import scanning proves they cannot run in product flows."
+    },
+    {
+      "id": "FSR-007",
+      "title": "Archived stub design docs",
+      "category": "stub-doc",
+      "risk": "high",
+      "production_path": false,
+      "disposition": "replace",
+      "owner_task": "13, 14",
+      "covers": [
+        "docs/00_philosophy.md",
+        "docs/01_system_overview.md",
+        "docs/02_canonical_data_models.md",
+        "docs/03_module_specs.md",
+        "docs/04_contracts.md",
+        "docs/07_global_invariants.md",
+        "docs/08_failure_classification.md",
+        "docs/09_state_machines.md",
+        "docs/10_versioning_and_build_order.md"
+      ],
+      "evidence": [
+        "docs/00_philosophy.md:3 contains Stub",
+        "docs/01_system_overview.md:3 contains Stub",
+        "docs/10_versioning_and_build_order.md:3 contains Stub"
+      ],
+      "notes": "Source inventory marks these as archived. Task 14 must either complete them or archive them without public stub language."
+    },
+    {
+      "id": "FSR-008",
+      "title": "Historical and stale planning material",
+      "category": "stale-doc-contradiction",
+      "risk": "high",
+      "production_path": false,
+      "disposition": "isolate",
+      "owner_task": "13, 14, 144",
+      "covers": [
+        "CLAUDE.md",
+        "MASTER_PLAN.md",
+        "XACE_FILE_MANIFEST(LATEST).md",
+        "XACE_COMMERCIAL_READINESS_MASTER_TASKLIST.md",
+        "docs/LAUNCH_READINESS_MAP.md",
+        "docs/WORKSPACE_BUILDER_ARCHIVE.md",
+        "XACE_REALITY_AUDIT.md",
+        "README.md",
+        "docs/STATE_AUTHORITY_RULES.md",
+        "docs/XACE_COMMERCIAL_SCOPE.md",
+        "docs/XACE_PRODUCT_CLAIMS_MATRIX.md",
+        "docs/XACE_PRODUCTION_READINESS_MASTER_PLAN.md",
+        "docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md",
+        "docs/source_inventory.json"
+      ],
+      "evidence": [
+        "docs/LAUNCH_READINESS_MAP.md contains historical smoke statuses and fake project notes",
+        "MASTER_PLAN.md contains older planned/unchecked items",
+        "CLAUDE.md contains older placeholder claims",
+        "XACE_REALITY_AUDIT.md records fake/skip caveats as governance evidence"
+      ],
+      "notes": "Current public truth is README plus commercial scope, claims matrix, reality audit, source inventory, and this register. Historical docs cannot be used as product proof without revalidation."
+    },
+    {
+      "id": "FSR-009",
+      "title": "Uncovered production stubs and not-implemented CLI/BYOK paths",
+      "category": "stub-code",
+      "risk": "high",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "8, 13, 17, 51, 54, 130, 133",
+      "covers": [
+        "packages/inference/src/byok_manager.py",
+        "packages/cli/src/**",
+        "packages/dcl/**"
+      ],
+      "evidence": [
+        "packages/inference/src/byok_manager.py:7 says Status: Pre-Beta Placeholder",
+        "packages/cli/src/error.rs:15 defines exit code 6 as not implemented",
+        "packages/cli/src/commands/build.rs:24 labels standalone as Phase 17 stub",
+        "packages/cli/src/commands/deploy.rs:21 suppresses unused warnings on stub",
+        "packages/dcl/dcl_registry.py:119 labels UCL Core Stubs"
+      ],
+      "notes": "Task 8 must decide whether these are production packages, archived material, or explicitly uncovered experimental code."
+    },
+    {
+      "id": "FSR-010",
+      "title": "Partial validation and silent-skip logic",
+      "category": "skipped-check",
+      "risk": "critical",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "4, 17, 20, 35, 36, 39, 44",
+      "covers": [
+        "packages/gde/src/consistency_validator/**",
+        "packages/gde/src/**",
+        "packages/prompt-intelligence/src/**",
+        "packages/prompt-intelligence/src/validation_loop/**",
+        "packages/prompt-intelligence/src/output_parser/**",
+        "packages/prompt-intelligence/src/code_generation/**"
+      ],
+      "evidence": [
+        "packages/gde/src/consistency_validator/invariant_enforcer.py:18 says runtime invariants are skipped",
+        "packages/gde/src/consistency_validator/type_checker.py:163 says type checking skipped for a field",
+        "packages/prompt-intelligence/src/validation_loop/validation_loop.py:538 silently skips a missing path",
+        "packages/prompt-intelligence/src/validation_loop/validation_loop.py:540 skips other path types for now"
+      ],
+      "notes": "These are not allowed to present as complete validation. Later tasks must convert unsupported paths to explicit blocking errors or tested behavior."
+    },
+    {
+      "id": "FSR-011",
+      "title": "Asset placeholders and grey-box sample assets",
+      "category": "placeholder",
+      "risk": "medium",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "82, 83, 84, 85, 86, 101",
+      "covers": [
+        "packages/core/src/assets/**",
+        "packages/core/src/ucl/render_component.rs",
+        "packages/asset-registry/**",
+        "packages/builder-workspace/src/panels/**",
+        "tools/asset_playback_smoke.py",
+        "adapters/godot/**",
+        "adapters/unity/**",
+        "adapters/unreal/**",
+        "docs/GODOT_QUICKSTART.md"
+      ],
+      "evidence": [
+        "packages/core/src/ucl/render_component.rs:36 says engine renders a grey placeholder",
+        "packages/asset-registry/placeholder_registry.py tracks placeholder assets",
+        "tools/asset_playback_smoke.py:114 writes placeholder animation content",
+        "docs/GODOT_QUICKSTART.md:33 says simple capsule placeholders render"
+      ],
+      "notes": "CGS placeholder asset states are legitimate unresolved-asset states. Smoke sample files and grey-box visuals must be described as placeholders, not finished assets."
+    },
+    {
+      "id": "FSR-012",
+      "title": "Engine adapter fallback visuals and tolerant parsing",
+      "category": "fallback",
+      "risk": "medium",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "63, 82, 84, 85, 93, 97, 98, 99",
+      "covers": [
+        "adapters/godot/**",
+        "adapters/unity/**",
+        "adapters/unreal/**"
+      ],
+      "evidence": [
+        "adapters/unity/XaceDeltaApplicator.cs:23 declares fallbackPrefab",
+        "adapters/unity/XaceDeltaApplicator.cs:396 instantiates fallbackPrefab when no prefab is resolved",
+        "adapters/unreal/XaceDeltaApplicator.h:46 declares FallbackActorClass",
+        "adapters/unreal/XaceDeltaApplicator.cpp:315 uses FallbackActorClass"
+      ],
+      "notes": "Fallback visuals can prevent crashes, but public demos must show unresolved/fallback status and never call fallback assets resolved."
+    },
+    {
+      "id": "FSR-013",
+      "title": "Build script skips generated C header",
+      "category": "skipped-check",
+      "risk": "medium",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "4, 12, 95, 123, 125",
+      "covers": [
+        "packages/engine-adapter/build.rs"
+      ],
+      "evidence": [
+        "packages/engine-adapter/build.rs:35 says cbindgen failure is gracefully skipped",
+        "packages/engine-adapter/build.rs:48 emits cargo warning for cbindgen generation skipped"
+      ],
+      "notes": "Skipping generated headers may be acceptable for local Rust tests, but release/package gates must require the files they ship."
+    },
+    {
+      "id": "FSR-014",
+      "title": "Inference model/provider fallback chains",
+      "category": "fallback",
+      "risk": "high",
+      "production_path": true,
+      "disposition": "replace",
+      "owner_task": "51, 52, 53, 54, 55, 56, 57",
+      "covers": [
+        "packages/inference/src/**",
+        "packages/inference/providers/**",
+        "packages/builder-workspace/server/provider_settings.py",
+        "packages/builder-workspace/server/credential_store.py",
+        "packages/builder-workspace/ollama_adapter.py"
+      ],
+      "evidence": [
+        "packages/inference/src/fallback_policy.py defines provider fallback chains",
+        "packages/inference/src/model_router.py:286 reports preferred provider skipped",
+        "packages/builder-workspace/server/provider_settings.py requires provider readiness metadata",
+        "packages/builder-workspace/server/credential_store.py gates unsafe credential fallback"
+      ],
+      "notes": "Provider fallback must be benchmarked and user-visible. It cannot silently downgrade to stale or untested models."
+    },
+    {
+      "id": "FSR-015",
+      "title": "Fake provider keys and unsafe credential fallback in certification/tests",
+      "category": "test-fixture",
+      "risk": "high",
+      "production_path": false,
+      "disposition": "isolate",
+      "owner_task": "4, 19, 54, 55, 126",
+      "covers": [
+        "tools/provider_readiness_smoke.py",
+        "tools/prompt_pipeline_smoke.py",
+        "tools/security_secret_scan.py",
+        "packages/builder-workspace/server/tests/**",
+        "packages/observability/tests/**"
+      ],
+      "evidence": [
+        "tools/provider_readiness_smoke.py:46 defines FAKE_KEY",
+        "tools/provider_readiness_smoke.py:63 enables unsafe-file credential fallback for isolated smoke storage",
+        "tools/prompt_pipeline_smoke.py:60 defines PROMPT_CONTRACT_FAKE_KEY",
+        "packages/builder-workspace/server/tests/test_credential_store.py mocks platform credential APIs"
+      ],
+      "notes": "Fake keys and unsafe credential storage are test fixtures only. Production must use OS credential stores or visibly block."
+    },
+    {
+      "id": "FSR-016",
+      "title": "Archived legacy workspace server path",
+      "category": "archived-code",
+      "risk": "medium",
+      "production_path": false,
+      "disposition": "isolate",
+      "owner_task": "8, 13, 14",
+      "covers": [
+        "packages/workspace/**",
+        "workspace/**"
+      ],
+      "evidence": [
+        "docs/source_inventory.json marks packages/workspace as archived",
+        "docs/WORKSPACE_BUILDER_ARCHIVE.md:3 says workspace/builder was the original placeholder Builder package"
+      ],
+      "notes": "This path must not be imported by production Builder code. Task 8 decides whether to remove or keep archived."
+    },
+    {
+      "id": "FSR-017",
+      "title": "Builder demo endpoints and editor-free demo smokes",
+      "category": "smoke-only-proof",
+      "risk": "medium",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "69, 71, 88, 91, 141, 142, 143",
+      "covers": [
+        "packages/builder-workspace/server/builder_server.py",
+        "packages/builder-workspace/ollama_adapter.py",
+        "packages/builder-workspace/src/**",
+        "packages/builder-workspace/src/project/project_dashboard.ts",
+        "packages/builder-workspace/src/layout/main_layout.ts"
+      ],
+      "evidence": [
+        "packages/builder-workspace/server/builder_server.py:613 exposes /api/project/demo/three-engine/smoke",
+        "packages/builder-workspace/server/builder_server.py:642 exposes /api/project/demo/multiplayer/smoke",
+        "packages/builder-workspace/server/builder_server.py:1034 exposes /api/run-smoke",
+        "packages/builder-workspace/src/project/project_dashboard.ts:1956 runs three-engine smoke from UI"
+      ],
+      "notes": "UI must label these as smokes/demos, not public proof of installed-engine or production multiplayer behavior."
+    },
+    {
+      "id": "FSR-018",
+      "title": "Operational fallback/skip terminology that is real behavior",
+      "category": "fallback",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "13, 60, 68, 71, 144",
+      "covers": [
+        "packages/runtime-core/**",
+        "packages/engine-feedback/**",
+        "packages/core/**",
+        "examples/**",
+        "projects/**",
+        "game.cgs.json",
+        "test_m2_handshake.py",
+        "packages/project-system/**",
+        "packages/save-engine/**",
+        "packages/network-core/**",
+        "packages/schema-factory/**",
+        "packages/observability/**",
+        "packages/asset-runtime/**",
+        "packages/engine-adapter/src/**",
+        "packages/system-graph-compiler/**",
+        "docs/SGC_EXECUTION_PLAN_CONTRACT.md"
+      ],
+      "evidence": [
+        "packages/runtime-core/src/entity_store/entity_id_generator.rs:27 documents NULL_ENTITY_ID skipped",
+        "packages/engine-feedback/src/feedback_validator.rs:25 says invalid feedback is logged and skipped",
+        "packages/core/src/runtime/execution_plan.rs:75 says empty phases are skipped",
+        "examples/zombie-chase/src/systems/damage_system.rs:8 skips already-consumed damage",
+        "docs/SGC_EXECUTION_PLAN_CONTRACT.md records negative SGC fallback proof fields"
+      ],
+      "notes": "These terms name intentional runtime semantics, not fake proof. They remain covered so broad keyword scans do not hide new risky usages."
+    },
+    {
+      "id": "FSR-019",
+      "title": "Production-path rule enforcement artifacts",
+      "category": "governance-tool",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "4, 17, 18, 19, 20, 144",
+      "covers": [
+        ".github/workflows/xace-scope.yml",
+        "docs/XACE_PRODUCTION_PATH_RULES.md",
+        "docs/production_path_rules.json",
+        "tools/production_path_check.py"
+      ],
+      "evidence": [
+        "docs/XACE_PRODUCTION_PATH_RULES.md defines the production/test/demo boundary rules",
+        "docs/production_path_rules.json pins known production debt to FSR entries and owner tasks",
+        "tools/production_path_check.py fails on unregistered production fake/mock/naive/skip/fallback markers",
+        ".github/workflows/xace-scope.yml runs the production path checker in CI"
+      ],
+      "notes": "These files intentionally contain fake/mock/skip/fallback terms because they enforce the boundary. They are governance artifacts, not product behavior."
+    },
+    {
+      "id": "FSR-020",
+      "title": "Task 5 baseline failure and skipped-gate report",
+      "category": "governance-report",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "5, 6, 7, 9, 10, 11, 12, 97, 98, 99, 122",
+      "covers": [
+        "docs/XACE_BASELINE_FAILURE_LIST.md"
+      ],
+      "evidence": [
+        "docs/XACE_BASELINE_FAILURE_LIST.md records failing commands, skipped installed-engine validation, and missing artifacts for Task 5"
+      ],
+      "notes": "This report intentionally contains skip/fake/smoke terminology to document the baseline. It is not product behavior or launch proof by itself."
+    },
+    {
+      "id": "FSR-021",
+      "title": "Python test gate accounting terms",
+      "category": "governance-tool",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "10, 12, 121",
+      "covers": [
+        "tools/python_test_gate.py"
+      ],
+      "evidence": [
+        "tools/python_test_gate.py records unittest not-run/skipped accounting in the JSON artifact and runs the fake/skip register checker as part of the Python gate"
+      ],
+      "notes": "The Python gate is evidence orchestration. Its skip/fake wording belongs to report accounting and governance checks, not product runtime behavior."
+    },
+    {
+      "id": "FSR-022",
+      "title": "No-silent-success and real-SGC guard accounting terms",
+      "category": "governance-tool",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "17, 18, 19, 12, 144",
+      "covers": [
+        "tools/silent_success_check.py"
+      ],
+      "evidence": [
+        "tools/silent_success_check.py records blocked, unsupported, skipped, real-SGC prompt-proof, and fallback-removal accounting and fails on silent success or prompt-proof regressions"
+      ],
+      "notes": "The checker is governance evidence. Its wording describes audit conditions and report metadata, not product runtime behavior."
+    },
+    {
+      "id": "FSR-023",
+      "title": "X10 completion backlog risk terminology",
+      "category": "governance-doc",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "X10",
+      "covers": [
+        "XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md"
+      ],
+      "evidence": [
+        "XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md names fake/mock/skip/smoke/placeholder/fallback terms only as backlog risks, removal targets, or proof requirements"
+      ],
+      "notes": "The X10 backlog intentionally contains risk vocabulary so unfinished work can be audited. It is not product runtime behavior or a launch proof artifact."
+    }
+  ]
+}

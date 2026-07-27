@@ -15,6 +15,7 @@
 //! actual collision detection and reports results back via the
 //! Engine Feedback Protocol (Phase 7). XACE never runs physics itself.
 
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_COLLIDER_V1. Frozen forever.
@@ -65,30 +66,30 @@ impl Default for ColliderShape {
 /// physics material system.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PhysicsMaterial {
-    /// Resistance to sliding (0.0 = ice, 1.0 = rubber).
-    pub friction: f32,
+    /// Resistance to sliding (zero = ice, one = rubber).
+    pub friction: Fixed64,
 
-    /// Energy retained after collision (0.0 = no bounce, 1.0 = full bounce).
-    pub bounciness: f32,
+    /// Energy retained after collision (zero = no bounce, one = full bounce).
+    pub bounciness: Fixed64,
 }
 
 impl PhysicsMaterial {
     pub const DEFAULT: PhysicsMaterial = PhysicsMaterial {
-        friction: 0.6,
-        bounciness: 0.0,
+        friction: Fixed64::from_millis(600),
+        bounciness: Fixed64::ZERO,
     };
 
     pub const ICE: PhysicsMaterial = PhysicsMaterial {
-        friction: 0.05,
-        bounciness: 0.0,
+        friction: Fixed64::from_millis(50),
+        bounciness: Fixed64::ZERO,
     };
 
     pub const RUBBER: PhysicsMaterial = PhysicsMaterial {
-        friction: 0.9,
-        bounciness: 0.8,
+        friction: Fixed64::from_millis(900),
+        bounciness: Fixed64::from_millis(800),
     };
 
-    pub fn new(friction: f32, bounciness: f32) -> Self {
+    pub fn new(friction: Fixed64, bounciness: Fixed64) -> Self {
         Self {
             friction,
             bounciness,
@@ -111,19 +112,19 @@ impl Default for PhysicsMaterial {
 /// hips, not at the origin.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ColliderOffset {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
 }
 
 impl ColliderOffset {
     pub const ZERO: ColliderOffset = ColliderOffset {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::ZERO,
+        z: Fixed64::ZERO,
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self { x, y, z }
     }
 }
@@ -145,25 +146,25 @@ impl Default for ColliderOffset {
 /// - ConvexHull / Mesh: scale multiplier applied to the hull
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct ColliderSize {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
 }
 
 impl ColliderSize {
     /// Unit box — 1x1x1 half-extents (2x2x2 total).
     pub const UNIT: ColliderSize = ColliderSize {
-        x: 0.5,
-        y: 0.5,
-        z: 0.5,
+        x: Fixed64::from_millis(500),
+        y: Fixed64::from_millis(500),
+        z: Fixed64::from_millis(500),
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self { x, y, z }
     }
 
     /// Convenience for sphere colliders — sets radius uniformly.
-    pub fn sphere(radius: f32) -> Self {
+    pub fn sphere(radius: Fixed64) -> Self {
         Self {
             x: radius,
             y: radius,
@@ -172,7 +173,7 @@ impl ColliderSize {
     }
 
     /// Convenience for capsule colliders.
-    pub fn capsule(radius: f32, half_height: f32) -> Self {
+    pub fn capsule(radius: Fixed64, half_height: Fixed64) -> Self {
         Self {
             x: radius,
             y: half_height,
@@ -272,7 +273,7 @@ pub struct ColliderComponent {
 
 impl ColliderComponent {
     /// Creates a standard solid box collider.
-    pub fn solid_box(size_x: f32, size_y: f32, size_z: f32) -> Self {
+    pub fn solid_box(size_x: Fixed64, size_y: Fixed64, size_z: Fixed64) -> Self {
         Self {
             shape: ColliderShape::Box,
             size: ColliderSize::new(size_x, size_y, size_z),
@@ -284,7 +285,7 @@ impl ColliderComponent {
     }
 
     /// Creates a standard solid sphere collider.
-    pub fn solid_sphere(radius: f32) -> Self {
+    pub fn solid_sphere(radius: Fixed64) -> Self {
         Self {
             shape: ColliderShape::Sphere,
             size: ColliderSize::sphere(radius),
@@ -296,7 +297,7 @@ impl ColliderComponent {
     }
 
     /// Creates a capsule collider. Common for player and NPC characters.
-    pub fn capsule(radius: f32, half_height: f32) -> Self {
+    pub fn capsule(radius: Fixed64, half_height: Fixed64) -> Self {
         Self {
             shape: ColliderShape::Capsule,
             size: ColliderSize::capsule(radius, half_height),
@@ -308,7 +309,7 @@ impl ColliderComponent {
     }
 
     /// Creates a trigger volume — detects overlap, no physics forces.
-    pub fn trigger_box(size_x: f32, size_y: f32, size_z: f32) -> Self {
+    pub fn trigger_box(size_x: Fixed64, size_y: Fixed64, size_z: Fixed64) -> Self {
         Self {
             shape: ColliderShape::Box,
             size: ColliderSize::new(size_x, size_y, size_z),
@@ -322,7 +323,11 @@ impl ColliderComponent {
 
 impl Default for ColliderComponent {
     fn default() -> Self {
-        Self::solid_box(0.5, 0.5, 0.5)
+        Self::solid_box(
+            Fixed64::from_millis(500),
+            Fixed64::from_millis(500),
+            Fixed64::from_millis(500),
+        )
     }
 }
 
@@ -334,29 +339,33 @@ mod tests {
 
     #[test]
     fn solid_box_is_not_trigger() {
-        let c = ColliderComponent::solid_box(1.0, 1.0, 1.0);
+        let c = ColliderComponent::solid_box(Fixed64::ONE, Fixed64::ONE, Fixed64::ONE);
         assert!(!c.is_trigger);
         assert_eq!(c.shape, ColliderShape::Box);
     }
 
     #[test]
     fn trigger_box_is_trigger() {
-        let c = ColliderComponent::trigger_box(2.0, 2.0, 2.0);
+        let c = ColliderComponent::trigger_box(
+            Fixed64::from_units(2),
+            Fixed64::from_units(2),
+            Fixed64::from_units(2),
+        );
         assert!(c.is_trigger);
         assert_eq!(c.layer_mask, LayerMask::ALL);
     }
 
     #[test]
     fn sphere_size_uses_radius() {
-        let c = ColliderComponent::solid_sphere(1.5);
-        assert_eq!(c.size.x, 1.5);
+        let c = ColliderComponent::solid_sphere(Fixed64::from_millis(1500));
+        assert_eq!(c.size.x, Fixed64::from_millis(1500));
     }
 
     #[test]
     fn capsule_sets_radius_and_height() {
-        let c = ColliderComponent::capsule(0.4, 0.9);
-        assert_eq!(c.size.x, 0.4);
-        assert_eq!(c.size.y, 0.9);
+        let c = ColliderComponent::capsule(Fixed64::from_millis(400), Fixed64::from_millis(900));
+        assert_eq!(c.size.x, Fixed64::from_millis(400));
+        assert_eq!(c.size.y, Fixed64::from_millis(900));
     }
 
     #[test]

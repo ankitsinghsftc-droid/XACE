@@ -16,10 +16,11 @@
 //! position directly — that is the engine's job (Layer 7).
 //!
 //! ## Determinism
-//! All velocity values are f32. Speed limits are enforced by the
-//! MovementSystem via the Mutation Gate, never by the engine.
+//! All velocity values are Fixed64 micro-units. Speed limits are enforced
+//! by the MovementSystem via the Mutation Gate, never by the engine.
 //! This keeps clamping logic deterministic and engine-independent (D6).
 
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_VELOCITY_V1. Frozen forever.
@@ -33,36 +34,35 @@ pub const COMP_VELOCITY_V1_ID: u32 = 5;
 /// angular velocity (rotation rate in radians per second).
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct VelocityVec3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
 }
 
 impl VelocityVec3 {
     pub const ZERO: VelocityVec3 = VelocityVec3 {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::ZERO,
+        z: Fixed64::ZERO,
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self { x, y, z }
     }
 
     /// Returns the magnitude (length) of this velocity vector.
     /// Used to check against speed limits.
-    pub fn magnitude(&self) -> f32 {
+    pub fn magnitude(&self) -> Fixed64 {
         (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
     }
 
-    /// Returns true if this velocity is effectively zero.
-    /// Uses a small epsilon to avoid floating point noise.
+    /// Returns true if this velocity is exactly zero.
     pub fn is_zero(&self) -> bool {
-        self.magnitude() < 1e-6
+        self.x.is_zero() && self.y.is_zero() && self.z.is_zero()
     }
 
     /// Returns a new vector scaled by the given factor.
-    pub fn scaled(&self, factor: f32) -> Self {
+    pub fn scaled(&self, factor: Fixed64) -> Self {
         Self {
             x: self.x * factor,
             y: self.y * factor,
@@ -72,12 +72,14 @@ impl VelocityVec3 {
 
     /// Clamps this velocity to a maximum magnitude.
     /// Returns the original vector if already within limit.
-    pub fn clamped_to(&self, max_magnitude: f32) -> Self {
+    pub fn clamped_to(&self, max_magnitude: Fixed64) -> Self {
         let mag = self.magnitude();
-        if mag <= max_magnitude || mag < 1e-6 {
+        if max_magnitude <= Fixed64::ZERO {
+            VelocityVec3::ZERO
+        } else if mag <= max_magnitude || mag.is_zero() {
             *self
         } else {
-            let scale = max_magnitude / mag;
+            let scale = max_magnitude.checked_div(mag).unwrap_or(Fixed64::ZERO);
             self.scaled(scale)
         }
     }
@@ -99,7 +101,7 @@ impl Default for VelocityVec3 {
 ///
 /// ## Speed Limits
 /// `max_linear_speed` and `max_angular_speed` define the caps for this
-/// entity. A value of 0.0 means no limit. The MovementSystem enforces
+/// entity. A value of zero means no limit. The MovementSystem enforces
 /// these limits by clamping velocity before writing via Mutation Gate.
 /// The engine adapter also receives these limits for reference but
 /// XACE is the authority on clamping (D13).
@@ -122,13 +124,13 @@ pub struct VelocityComponent {
     pub angular: VelocityVec3,
 
     /// Maximum allowed linear speed in units per second.
-    /// 0.0 means no limit enforced by XACE (engine may still cap).
+    /// Zero means no limit enforced by XACE (engine may still cap).
     /// MovementSystem clamps `linear` to this before committing.
-    pub max_linear_speed: f32,
+    pub max_linear_speed: Fixed64,
 
     /// Maximum allowed angular speed in radians per second.
-    /// 0.0 means no limit enforced by XACE.
-    pub max_angular_speed: f32,
+    /// Zero means no limit enforced by XACE.
+    pub max_angular_speed: Fixed64,
 }
 
 impl VelocityComponent {
@@ -137,14 +139,14 @@ impl VelocityComponent {
         Self {
             linear: VelocityVec3::ZERO,
             angular: VelocityVec3::ZERO,
-            max_linear_speed: 0.0,
-            max_angular_speed: 0.0,
+            max_linear_speed: Fixed64::ZERO,
+            max_angular_speed: Fixed64::ZERO,
         }
     }
 
     /// Creates a velocity component with defined speed limits.
     /// Entity starts stationary — velocity is applied by systems.
-    pub fn with_limits(max_linear_speed: f32, max_angular_speed: f32) -> Self {
+    pub fn with_limits(max_linear_speed: Fixed64, max_angular_speed: Fixed64) -> Self {
         Self {
             linear: VelocityVec3::ZERO,
             angular: VelocityVec3::ZERO,
@@ -159,18 +161,18 @@ impl VelocityComponent {
     }
 
     /// Returns true if linear velocity exceeds the defined maximum.
-    /// Returns false if max_linear_speed is 0.0 (no limit).
+    /// Returns false if max_linear_speed is zero (no limit).
     pub fn is_over_linear_limit(&self) -> bool {
-        if self.max_linear_speed <= 0.0 {
+        if self.max_linear_speed <= Fixed64::ZERO {
             return false;
         }
         self.linear.magnitude() > self.max_linear_speed
     }
 
     /// Returns true if angular velocity exceeds the defined maximum.
-    /// Returns false if max_angular_speed is 0.0 (no limit).
+    /// Returns false if max_angular_speed is zero (no limit).
     pub fn is_over_angular_limit(&self) -> bool {
-        if self.max_angular_speed <= 0.0 {
+        if self.max_angular_speed <= Fixed64::ZERO {
             return false;
         }
         self.angular.magnitude() > self.max_angular_speed
@@ -180,7 +182,7 @@ impl VelocityComponent {
     /// Returns current linear velocity unchanged if no limit is set.
     /// Used by MovementSystem before writing via Mutation Gate.
     pub fn clamped_linear(&self) -> VelocityVec3 {
-        if self.max_linear_speed <= 0.0 {
+        if self.max_linear_speed <= Fixed64::ZERO {
             self.linear
         } else {
             self.linear.clamped_to(self.max_linear_speed)
@@ -189,7 +191,7 @@ impl VelocityComponent {
 
     /// Returns the angular velocity clamped to max_angular_speed.
     pub fn clamped_angular(&self) -> VelocityVec3 {
-        if self.max_angular_speed <= 0.0 {
+        if self.max_angular_speed <= Fixed64::ZERO {
             self.angular
         } else {
             self.angular.clamped_to(self.max_angular_speed)
@@ -225,23 +227,27 @@ mod tests {
     #[test]
     fn moving_entity_detected() {
         let mut v = VelocityComponent::stationary();
-        v.linear = VelocityVec3::new(1.0, 0.0, 0.0);
+        v.linear = VelocityVec3::new(Fixed64::ONE, Fixed64::ZERO, Fixed64::ZERO);
         assert!(v.is_moving());
     }
 
     #[test]
     fn stop_clears_all_velocity() {
         let mut v = VelocityComponent::stationary();
-        v.linear = VelocityVec3::new(5.0, 3.0, 1.0);
-        v.angular = VelocityVec3::new(0.0, 1.0, 0.0);
+        v.linear = VelocityVec3::new(Fixed64::from_units(5), Fixed64::from_units(3), Fixed64::ONE);
+        v.angular = VelocityVec3::new(Fixed64::ZERO, Fixed64::ONE, Fixed64::ZERO);
         v.stop();
         assert!(!v.is_moving());
     }
 
     #[test]
     fn magnitude_calculated_correctly() {
-        let v = VelocityVec3::new(3.0, 4.0, 0.0);
-        assert!((v.magnitude() - 5.0).abs() < 1e-5);
+        let v = VelocityVec3::new(
+            Fixed64::from_units(3),
+            Fixed64::from_units(4),
+            Fixed64::ZERO,
+        );
+        assert_eq!(v.magnitude(), Fixed64::from_units(5));
     }
 
     #[test]
@@ -251,45 +257,53 @@ mod tests {
 
     #[test]
     fn clamped_to_respects_limit() {
-        let v = VelocityVec3::new(3.0, 4.0, 0.0); // magnitude = 5.0
-        let clamped = v.clamped_to(2.5);
-        assert!((clamped.magnitude() - 2.5).abs() < 1e-5);
+        let v = VelocityVec3::new(
+            Fixed64::from_units(3),
+            Fixed64::from_units(4),
+            Fixed64::ZERO,
+        );
+        let clamped = v.clamped_to(Fixed64::from_millis(2500));
+        assert_eq!(clamped.magnitude(), Fixed64::from_millis(2500));
     }
 
     #[test]
     fn clamped_to_does_not_shrink_if_under_limit() {
-        let v = VelocityVec3::new(1.0, 0.0, 0.0); // magnitude = 1.0
-        let clamped = v.clamped_to(5.0);
+        let v = VelocityVec3::new(Fixed64::ONE, Fixed64::ZERO, Fixed64::ZERO);
+        let clamped = v.clamped_to(Fixed64::from_units(5));
         assert_eq!(clamped, v);
     }
 
     #[test]
     fn over_linear_limit_detected() {
-        let mut v = VelocityComponent::with_limits(5.0, 0.0);
-        v.linear = VelocityVec3::new(10.0, 0.0, 0.0);
+        let mut v = VelocityComponent::with_limits(Fixed64::from_units(5), Fixed64::ZERO);
+        v.linear = VelocityVec3::new(Fixed64::from_units(10), Fixed64::ZERO, Fixed64::ZERO);
         assert!(v.is_over_linear_limit());
     }
 
     #[test]
     fn no_limit_never_over() {
         let mut v = VelocityComponent::stationary();
-        v.linear = VelocityVec3::new(9999.0, 0.0, 0.0);
+        v.linear = VelocityVec3::new(Fixed64::from_units(9999), Fixed64::ZERO, Fixed64::ZERO);
         assert!(!v.is_over_linear_limit());
     }
 
     #[test]
     fn clamped_linear_respects_max() {
-        let mut v = VelocityComponent::with_limits(5.0, 0.0);
-        v.linear = VelocityVec3::new(10.0, 0.0, 0.0);
+        let mut v = VelocityComponent::with_limits(Fixed64::from_units(5), Fixed64::ZERO);
+        v.linear = VelocityVec3::new(Fixed64::from_units(10), Fixed64::ZERO, Fixed64::ZERO);
         let clamped = v.clamped_linear();
-        assert!((clamped.magnitude() - 5.0).abs() < 1e-5);
+        assert_eq!(clamped.magnitude(), Fixed64::from_units(5));
     }
 
     #[test]
     fn scaled_velocity_correct() {
-        let v = VelocityVec3::new(2.0, 4.0, 0.0);
-        let scaled = v.scaled(0.5);
-        assert_eq!(scaled.x, 1.0);
-        assert_eq!(scaled.y, 2.0);
+        let v = VelocityVec3::new(
+            Fixed64::from_units(2),
+            Fixed64::from_units(4),
+            Fixed64::ZERO,
+        );
+        let scaled = v.scaled(Fixed64::from_millis(500));
+        assert_eq!(scaled.x, Fixed64::ONE);
+        assert_eq!(scaled.y, Fixed64::from_units(2));
     }
 }

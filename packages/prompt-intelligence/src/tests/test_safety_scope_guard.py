@@ -20,8 +20,10 @@ from rollback_plan_builder import RollbackPlan
 from pass2_dsl_draft import MutationOp
 from llm_context_packet import AllowedMutationScope
 
+TEST_CGS_HASH = "a" * 64
+
 CGS = {
-    "metadata": {"name": "Zombie Chase", "cgs_hash": "abc",
+    "metadata": {"name": "Zombie Chase", "cgs_hash": TEST_CGS_HASH,
                  "version": "0.1.0", "schema_version": "0.1.0"},
     "global_systems": [
         {"id": "InputSystem", "phase": "Simulation",

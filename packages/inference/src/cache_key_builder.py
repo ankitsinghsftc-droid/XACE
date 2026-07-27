@@ -26,9 +26,10 @@ Changes that MUST bust the cache (included in structural hash):
 Example:
     "SetValue:COLLABORATIVE:a3f2bc7d1e9f4521"
 
-The structural_hash_prefix is the first 16 hex chars of a SHA-256 hash
-over the normalised structural content. 16 chars = 64 bits of space —
-collision probability is negligible for per-project caches.
+The structural_hash_prefix is a non-authoritative cache-key prefix: the first
+16 hex chars of a 64-char SHA-256 structural hash over the normalised
+structural content. It is compact cache metadata only, not a canonical CGS or
+world hash.
 
 ## What Goes Into the Structural Hash
     - All modes[] with all actors, components, systems, rules (sorted)
@@ -155,7 +156,7 @@ class CacheKeyBuilder:
         return hashlib.sha256(canonical).hexdigest()
 
     def structural_hash_prefix(self, cgs: dict[str, Any]) -> str:
-        """Returns just the first KEY_HASH_PREFIX_LEN chars of the structural hash."""
+        """Returns a non-authoritative cache-key prefix of the structural hash."""
         return self.structural_hash(cgs)[:self.KEY_HASH_PREFIX_LEN]
 
     def is_valid_key(self, key: str) -> bool:

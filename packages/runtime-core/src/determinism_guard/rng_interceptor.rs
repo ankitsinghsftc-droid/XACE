@@ -14,9 +14,10 @@
 //! XACE uses a two-layer approach:
 //!
 //! **Layer 1 — Thread-local context window**
-//! When the PhaseOrchestrator hands a system its SystemContext, it opens a
-//! DeterministicWindow via RngInterceptor::open_window(). This marks the
-//! current thread as "inside a deterministic execution context."
+//! In the required production path, the PhaseOrchestrator opens a
+//! DeterministicWindow via RngInterceptor::open_window() before handing a system
+//! its SystemContext. This marks the current thread as "inside a deterministic
+//! execution context."
 //! The window closes automatically when dropped (RAII).
 //!
 //! **Layer 2 — Explicit access through the interceptor**
@@ -71,8 +72,8 @@ struct ActiveWindow {
 /// deterministic execution context.
 ///
 /// Created by `RngInterceptor::open_window()`. Closed automatically on drop.
-/// The PhaseOrchestrator opens one window per system execution and drops it
-/// before the next system begins.
+/// The production PhaseOrchestrator must open one window per system execution
+/// and drop it before the next system begins.
 pub struct DeterministicWindow {
     _private: (),
 }
@@ -134,12 +135,20 @@ struct InterceptorInner {
     violations: Vec<DeterminismViolation>,
 }
 
+#[derive(Debug, Clone)]
+pub struct RngInterceptorSnapshot {
+    access_log: BTreeMap<(u64, String), RngAccessRecord>,
+    metrics: InterceptorMetrics,
+    violations: Vec<DeterminismViolation>,
+}
+
 // ── RNG Interceptor ───────────────────────────────────────────────────────────
 
 /// Runtime enforcement of determinism rule D6.
 ///
-/// Central authority for all RNG access in the XACE runtime.
-/// Held by the PhaseOrchestrator and passed into SystemContext.
+/// Central authority for deterministic RNG access in the live runtime.
+/// RuntimeOrchestrator owns one interceptor for the ticking session and
+/// PhaseOrchestrator passes it into SystemContext for each system execution.
 ///
 /// ## Thread Safety
 /// Access log, metrics, and violations are protected by a Mutex.
@@ -170,7 +179,8 @@ impl RngInterceptor {
 
     /// Opens a deterministic execution window for the given system and tick.
     ///
-    /// Called by PhaseOrchestrator immediately before running each system.
+    /// Called by the production PhaseOrchestrator immediately before running
+    /// each system.
     /// Drop the returned window before the next system begins.
     pub fn open_window(&self, system_id: impl Into<String>, tick: u64) -> DeterministicWindow {
         DeterministicWindow::open(system_id, tick)
@@ -318,6 +328,24 @@ impl RngInterceptor {
         self.violation_count() > 0
     }
 
+    /// Captures replay-visible RNG audit state for transaction rollback.
+    pub fn rollback_snapshot(&self) -> RngInterceptorSnapshot {
+        let inner = self.inner.lock().unwrap();
+        RngInterceptorSnapshot {
+            access_log: inner.access_log.clone(),
+            metrics: inner.metrics.clone(),
+            violations: inner.violations.clone(),
+        }
+    }
+
+    /// Restores RNG audit state captured by `rollback_snapshot()`.
+    pub fn restore_rollback_snapshot(&self, snapshot: RngInterceptorSnapshot) {
+        let mut inner = self.inner.lock().unwrap();
+        inner.access_log = snapshot.access_log;
+        inner.metrics = snapshot.metrics;
+        inner.violations = snapshot.violations;
+    }
+
     /// Returns all RNG access records for a specific system, in tick order.
     pub fn accesses_for_system(&self, system_id: &str) -> Vec<RngAccessRecord> {
         self.inner
@@ -326,6 +354,18 @@ impl RngInterceptor {
             .access_log
             .iter()
             .filter(|((_, sid), _)| sid == system_id)
+            .map(|(_, r)| r.clone())
+            .collect()
+    }
+
+    /// Returns all RNG access records for a specific tick, in system order.
+    pub fn accesses_for_tick(&self, tick: u64) -> Vec<RngAccessRecord> {
+        self.inner
+            .lock()
+            .unwrap()
+            .access_log
+            .iter()
+            .filter(|((record_tick, _), _)| *record_tick == tick)
             .map(|(_, r)| r.clone())
             .collect()
     }
@@ -591,6 +631,30 @@ mod tests {
     }
 
     #[test]
+    fn x10_015_accesses_for_tick_returns_system_ordered_records() {
+        let i = strict(1);
+
+        {
+            let _w = i.open_window("sys_b", 7);
+            i.request_rng("sys_b", 7).unwrap();
+        }
+        {
+            let _w = i.open_window("sys_a", 7);
+            i.request_rng("sys_a", 7).unwrap();
+        }
+        {
+            let _w = i.open_window("sys_a", 8);
+            i.request_rng("sys_a", 8).unwrap();
+        }
+
+        let records = i.accesses_for_tick(7);
+        assert_eq!(records.len(), 2);
+        assert_eq!(records[0].system_id, "sys_a");
+        assert_eq!(records[1].system_id, "sys_b");
+        assert!(i.accesses_for_tick(99).is_empty());
+    }
+
+    #[test]
     fn accesses_for_unknown_system_is_empty() {
         let i = strict(1);
         assert!(i.accesses_for_system("sys_ghost").is_empty());
@@ -615,6 +679,40 @@ mod tests {
         assert_eq!(m.violations_raised, 0);
         assert_eq!(m.windowless_access_count, 0);
         assert!(i.accesses_for_system("sys_a").is_empty());
+    }
+
+    #[test]
+    fn parallel_race_injection_thread_local_windows_do_not_cross_contaminate() {
+        let interceptor = std::sync::Arc::new(RngInterceptor::new(42, GuardMode::Strict));
+        let mut handles = Vec::new();
+
+        for (system_id, tick) in [("sys_parallel_a", 10_u64), ("sys_parallel_b", 11_u64)] {
+            let interceptor = std::sync::Arc::clone(&interceptor);
+            handles.push(std::thread::spawn(move || {
+                let _window = interceptor.open_window(system_id, tick);
+                interceptor.request_rng(system_id, tick).unwrap()
+            }));
+        }
+
+        let seeds = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect::<Vec<_>>();
+
+        assert_ne!(seeds[0], seeds[1]);
+        assert_eq!(interceptor.violation_count(), 0);
+        assert_eq!(interceptor.metrics().legal_access_count, 2);
+    }
+
+    #[test]
+    fn parallel_race_injection_wrong_window_context_is_rejected() {
+        let interceptor = RngInterceptor::new(42, GuardMode::Strict);
+        let _window = interceptor.open_window("sys_parallel_owner", 99);
+
+        let result = interceptor.request_rng("sys_parallel_intruder", 99);
+
+        assert!(result.is_err());
+        assert_eq!(interceptor.violation_count(), 1);
     }
 
     // ── World Seed & Metrics Defaults ─────────────────────────────────────────

@@ -78,6 +78,8 @@ class ViolationCategory:
     RANDOM_SOURCE      = "random_source"
     UNORDERED_ITER     = "unordered_iteration"
     TIME_SOURCE        = "time_source"
+    FLOAT_EDGE_CASE    = "float_edge_case"
+    NONDETERMINISTIC_SERIALIZATION = "nondeterministic_serialization"
     THREAD_LOCAL       = "thread_local_state"
     RELAXED_ATOMIC     = "relaxed_atomic"
     MUTATION_BYPASS    = "mutation_bypass"
@@ -100,6 +102,14 @@ _RANDOM_PATTERNS: list[tuple[re.Pattern, str]] = [
 
 # Unordered iteration — HashMap/HashSet without explicit sort
 _UNORDERED_ITER_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile(r'use\s+std\s*::\s*collections\s*::\s*\{[^}]*\bHashMap\b'),
+     "HashMap import - generated systems must use BTreeMap for deterministic order."),
+    (re.compile(r'use\s+std\s*::\s*collections\s*::\s*\{[^}]*\bHashSet\b'),
+     "HashSet import - generated systems must use BTreeSet for deterministic order."),
+    (re.compile(r'use\s+std\s*::\s*collections\s*::\s*HashMap\b'),
+     "HashMap import - generated systems must use BTreeMap for deterministic order."),
+    (re.compile(r'use\s+std\s*::\s*collections\s*::\s*HashSet\b'),
+     "HashSet import - generated systems must use BTreeSet for deterministic order."),
     (re.compile(r'HashMap\s*::\s*new\s*\(\s*\)'),
      "HashMap::new() — iteration order is non-deterministic. Use BTreeMap."),
     (re.compile(r'HashSet\s*::\s*new\s*\(\s*\)'),
@@ -117,6 +127,33 @@ _TIME_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r'\bInstant\s*::\s*now\b'),           "Instant::now()"),
     (re.compile(r'\bSystemTime\s*::\s*now\b'),         "SystemTime::now()"),
     (re.compile(r'\bDuration\s*::\s*from_secs\b'),     "Duration::from_secs"),
+]
+
+_FLOAT_EDGE_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile(r'\bf(?:32|64)\s*::\s*NAN\b|\bNaN\b'),
+     "NaN literal/constant in generated system - NaN comparisons and serialization are not deterministic contracts."),
+    (re.compile(r'\bf(?:32|64)\s*::\s*(?:INFINITY|NEG_INFINITY)\b'),
+     "Infinity literal/constant in generated system - clamp to finite gameplay ranges before codegen."),
+    (re.compile(r'\bpartial_cmp\s*\([^)]*\)\s*\.\s*unwrap\s*\('),
+     "partial_cmp(...).unwrap() on floats can panic or diverge on NaN - use finite validated values."),
+]
+
+# Direct serialization in generated systems can hide unordered maps, debug
+# formatting, or platform-shaped output. Runtime-owned canonical serializers
+# and SHA-256 world hashing are the authoritative replay path.
+_NONDETERMINISTIC_SERIALIZATION_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile(r'\bserde_json\s*::\s*to_string(?:_pretty)?\b'),
+     "serde_json::to_string() in generated system - use XACE canonical serialization outside system code."),
+    (re.compile(r'\bserde_json\s*::\s*to_vec(?:_pretty)?\b'),
+     "serde_json::to_vec() in generated system - use XACE canonical serialization outside system code."),
+    (re.compile(r'\bserde_json\s*::\s*to_value\b'),
+     "serde_json::to_value() in generated system - serialization order may be non-authoritative."),
+    (re.compile(r'\bserde_json\s*::\s*json\s*!'),
+     "serde_json::json! in generated system - construct typed component updates instead."),
+    (re.compile(r'format!\s*\(\s*r?#?"\s*\{\s*:\s*\?\s*\}'),
+     "Debug formatting serialization detected - Debug output is not a replay contract."),
+    (re.compile(r'\bDefaultHasher\b|\bSipHasher\b|\bRandomState\b'),
+     "Non-canonical hash/serialization helper detected - use XACE SHA-256 world hashing only."),
 ]
 
 # Thread-local / static mutation
@@ -255,13 +292,25 @@ class DeterminismCodeChecker:
                        _TIME_PATTERNS, "error")
         )
 
-        # Check 4: Thread-local / static mutation
+        # Check 4: Float edge cases
+        violations.extend(
+            self._scan(code, lines, ViolationCategory.FLOAT_EDGE_CASE,
+                       _FLOAT_EDGE_PATTERNS, "error")
+        )
+
+        # Check 5: Non-deterministic serialization
+        violations.extend(
+            self._scan(code, lines, ViolationCategory.NONDETERMINISTIC_SERIALIZATION,
+                       _NONDETERMINISTIC_SERIALIZATION_PATTERNS, "error")
+        )
+
+        # Check 6: Thread-local / static mutation
         violations.extend(
             self._scan(code, lines, ViolationCategory.THREAD_LOCAL,
                        _THREAD_LOCAL_PATTERNS, "error")
         )
 
-        # Check 5: Relaxed atomics — only flag if inside execute()
+        # Check 7: Relaxed atomics — only flag if inside execute()
         execute_block = self._extract_execute_block(code)
         if execute_block:
             atomic_violations = self._scan(
@@ -273,7 +322,7 @@ class DeterminismCodeChecker:
             else:
                 notes.append("Relaxed atomics not found in execute() — OK.")
 
-        # Check 6: MutationGate bypass
+        # Check 8: MutationGate bypass
         bypass_violations = self._scan(
             code, lines, ViolationCategory.MUTATION_BYPASS,
             _MUTATION_BYPASS_PATTERNS, "error"
@@ -283,7 +332,7 @@ class DeterminismCodeChecker:
             if not v.line_context.strip().startswith("//"):
                 violations.append(v)
 
-        # Check 7: Unstable sort
+        # Check 9: Unstable sort
         sort_violations = self._scan(
             code, lines, ViolationCategory.UNSTABLE_SORT,
             _UNSTABLE_SORT_PATTERNS, "warning"

@@ -35,8 +35,8 @@ rollback navigation, and migration path tracing.
 ## Usage
     snapshot = SchemaSnapshot.create(
         version="0.1.1",
-        cgs_hash="abc123...",
-        parent_version_hash="def456...",
+        cgs_hash="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        parent_version_hash="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         mutation_source="prompt",
         transaction_id="txn-uuid-...",
         description="Added health regeneration to player",
@@ -209,7 +209,7 @@ class SchemaSnapshot:
     # ── Display ───────────────────────────────────────────────────────────────
 
     def short_hash(self) -> str:
-        """Returns the first 8 characters of cgs_hash for display."""
+        """Returns a non-authoritative cgs_hash display prefix for logs/UI only."""
         return self.cgs_hash[:8]
 
     def __repr__(self) -> str:

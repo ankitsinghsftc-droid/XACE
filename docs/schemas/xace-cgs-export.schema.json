@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xace.local/schemas/xace-cgs-export.schema.json",
+  "title": "XACE CGS Export Format",
+  "description": "Portable, human-readable Canonical Game Schema export file.",
+  "type": "object",
+  "required": ["metadata", "global_systems", "modes"],
+  "properties": {
+    "format": {
+      "type": "string",
+      "const": "xace.cgs.export"
+    },
+    "format_version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "global_systems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/system"
+      }
+    },
+    "component_schemas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/component_schema"
+      }
+    },
+    "modes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/mode"
+      }
+    },
+    "semantic_bindings": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "required": ["name", "version", "schema_version", "cgs_hash"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "schema_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "cgs_hash": {
+          "type": "string",
+          "oneOf": [
+            {
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "enum": ["", "unresolved"]
+            }
+          ]
+        },
+        "description": {
+          "type": "string"
+        },
+        "game_id": {
+          "type": "string"
+        },
+        "created_with": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "mode": {
+      "type": "object",
+      "required": ["id", "schema_version", "is_default", "actors", "systems", "rules"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "schema_version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "is_default": {
+          "type": "boolean"
+        },
+        "actors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/actor"
+          }
+        },
+        "systems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/system"
+          }
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rule"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "actor": {
+      "type": "object",
+      "required": ["id", "components"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "actor_type": {
+          "type": "string"
+        },
+        "control_type": {
+          "type": "string"
+        },
+        "spawn_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "components": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/component"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "component": {
+      "type": "object",
+      "required": ["type_id", "name", "defaults"],
+      "properties": {
+        "type_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "defaults": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "component_schema": {
+      "type": "object",
+      "required": ["type_id", "name", "defaults"],
+      "properties": {
+        "type_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "defaults": {
+          "type": "object"
+        },
+        "source": {
+          "$ref": "#/$defs/non_empty_string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "system": {
+      "type": "object",
+      "required": ["id", "phase", "reads", "writes", "depends_on", "deterministic"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "phase": {
+          "type": "string",
+          "enum": [
+            "Initialization",
+            "Input",
+            "Simulation",
+            "PostSimulation",
+            "Cleanup",
+            "Render"
+          ]
+        },
+        "reads": {
+          "$ref": "#/$defs/type_id_array"
+        },
+        "writes": {
+          "$ref": "#/$defs/type_id_array"
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/non_empty_string"
+          }
+        },
+        "deterministic": {
+          "type": "boolean"
+        },
+        "parallel": {
+          "type": "boolean"
+        },
+        "runtime_executor": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    },
+    "rule": {
+      "type": "object",
+      "required": ["id", "condition", "effect", "priority", "is_active"],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/non_empty_string"
+        },
+        "condition": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string"
+        },
+        "priority": {
+          "type": "integer"
+        },
+        "is_active": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "type_id_array": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "non_empty_string": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

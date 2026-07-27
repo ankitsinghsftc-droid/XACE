@@ -8,7 +8,7 @@
 
 import type { ConsoleSM }    from '../state/console_state_machine';
 import type { UIStore }      from '../state/ui_store';
-import type { PassUpdate }   from '../types/pil';
+import type { PassUpdate, PromptApplyFeedback } from '../types/pil';
 import { PASS_DESCRIPTIONS, PASS_TIERS, TIER_COLORS } from '../types/pil';
 
 const STYLES = `
@@ -30,6 +30,13 @@ const STYLES = `
 .xb-pass-lbl.failed  { color: var(--red); }
 .xb-pass-tier { font-size: 8px; padding: 1px 4px; border-radius: 3px; font-family: var(--font-mono); flex-shrink: 0; }
 .xb-pass-meta { font-size: 9px; color: var(--txt3); font-family: var(--font-mono); flex-shrink: 0; }
+.xb-apply { padding: 12px; animation: fade-in 160ms; }
+.xb-apply-title { font-size: 11.5px; font-weight: 700; color: var(--txt); display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+.xb-apply-summary { font-size: 10px; color: var(--txt2); line-height: 1.45; margin-bottom: 10px; }
+.xb-apply-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+.xb-apply-step { border: 1px solid var(--bd); background: var(--bgc); border-radius: var(--rs); padding: 7px; min-width: 0; }
+.xb-apply-step b { display: block; font-size: 9.5px; color: var(--txt); margin-bottom: 3px; }
+.xb-apply-step span { display: block; font-size: 9px; color: var(--txt3); }
 `;
 
 const ALL_PASSES = [
@@ -60,6 +67,10 @@ export class ProcessingView {
 
   private _render(): void {
     const state = this._consoleSM.state;
+    if (state.name === 'ApplyingMutation') {
+      this._renderApplying(state.summary);
+      return;
+    }
     if (state.name !== 'Processing') { this._el.innerHTML = ''; return; }
 
     const { passUpdates, prompt } = state;
@@ -136,6 +147,44 @@ export class ProcessingView {
     this._el.appendChild(wrap);
   }
 
+  private _renderApplying(summary: string): void {
+    const wrap = document.createElement('div');
+    wrap.className = 'xb-apply';
+
+    const title = document.createElement('div');
+    title.className = 'xb-apply-title';
+    title.innerHTML = '<span class="xb-proc-spinner">*</span> Applying change';
+    wrap.appendChild(title);
+
+    const summaryEl = document.createElement('div');
+    summaryEl.className = 'xb-apply-summary';
+    summaryEl.textContent = summary || 'Reviewed mutation';
+    wrap.appendChild(summaryEl);
+
+    const grid = document.createElement('div');
+    grid.className = 'xb-apply-grid';
+    const steps: Array<[string, string]> = [
+      ['GDE', 'committing'],
+      ['SGC', 'checking plan'],
+      ['Runtime', 'loading CGS'],
+      ['Replay', 'waiting'],
+    ];
+    for (const [label, status] of steps) {
+      const item = document.createElement('div');
+      item.className = 'xb-apply-step';
+      const strong = document.createElement('b');
+      strong.textContent = label;
+      const span = document.createElement('span');
+      span.textContent = status;
+      item.appendChild(strong);
+      item.appendChild(span);
+      grid.appendChild(item);
+    }
+    wrap.appendChild(grid);
+    this._el.innerHTML = '';
+    this._el.appendChild(wrap);
+  }
+
   private _injectStyles(): void {
     if (document.getElementById('xb-proc-styles')) return;
     const s = document.createElement('style');
@@ -152,7 +201,7 @@ export class IdleView {
   private _el!: HTMLElement;
   private readonly _unsubs: Array<() => void> = [];
 
-  mount(container: HTMLElement, uiStore: UIStore): void {
+  mount(container: HTMLElement, _uiStore: UIStore): void {
     this._el = document.createElement('div');
     this._el.style.cssText = 'flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;animation:fade-in 300ms';
 
@@ -200,8 +249,8 @@ export class IdleView {
  * views/review_view.ts — PreviewPending state: diff + decision bar
  */
 import type { BuilderClient }  from '../api/builder_client';
+import { makePilApply }        from '../api/message_types';
 import { DiffViewer }          from '../canvas/diff_viewer';
-import type { ImpactPreview }  from '../canvas/diff_viewer';
 
 export class ReviewView {
   private readonly _consoleSM: ConsoleSM;
@@ -226,10 +275,18 @@ export class ReviewView {
     const hdr = document.createElement('div');
     hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:8px 12px;flex-shrink:0';
     hdr.innerHTML = `
-      <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Proposed change</div>
+      <div style="display:flex;align-items:center;gap:8px;min-width:0">
+        <div style="font-size:12.5px;font-weight:600;color:var(--txt)">Proposed change</div>
+        <div style="font-size:8.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--grn);border:1px solid rgba(16,185,129,.28);border-radius:999px;padding:2px 6px;background:rgba(16,185,129,.07)">safe</div>
+      </div>
       <div id="xb-rv-pass" style="font-size:9.5px;color:var(--txt2)"></div>
     `;
     this._el.appendChild(hdr);
+
+    const note = document.createElement('div');
+    note.style.cssText = 'padding:0 12px 8px;font-size:10px;color:var(--txt3);line-height:1.45;flex-shrink:0';
+    note.textContent = 'Review this proposal before saving. Apply writes it to the project; Revise keeps editing; Discard leaves the project unchanged.';
+    this._el.appendChild(note);
 
     // Diff viewer
     const diffWrap = document.createElement('div');
@@ -266,7 +323,7 @@ export class ReviewView {
 
     const discard = document.createElement('button');
     discard.style.cssText = 'font-size:10.5px;color:var(--txt2);cursor:pointer;padding:4px 7px;border-radius:4px;background:none;border:none;font-family:inherit;transition:all 120ms';
-    discard.textContent = '✕ Discard';
+    discard.textContent = 'Discard';
     discard.addEventListener('mouseenter', () => { discard.style.color = 'var(--red)'; discard.style.background = 'rgba(239,68,68,.07)'; });
     discard.addEventListener('mouseleave', () => { discard.style.color = 'var(--txt2)'; discard.style.background = 'none'; });
     discard.addEventListener('click', () => {
@@ -277,7 +334,7 @@ export class ReviewView {
 
     const revise = document.createElement('button');
     revise.style.cssText = 'font-size:10.5px;color:var(--txt2);cursor:pointer;padding:4px 7px;background:none;border:none;font-family:inherit';
-    revise.textContent = '← Revise';
+    revise.textContent = 'Revise Prompt';
     revise.addEventListener('click', () => this._consoleSM.reviseMutation());
     bar.appendChild(revise);
 
@@ -291,12 +348,22 @@ export class ReviewView {
       border:1px solid rgba(0,212,255,.4);border-radius:var(--r);color:var(--cyan);
       font-family:inherit;font-size:11px;font-weight:700;padding:5px 18px;cursor:pointer;transition:all var(--tr)
     `;
-    apply.textContent = '✓ Apply';
+    apply.textContent = 'Apply to Project';
     apply.addEventListener('mouseenter', () => { apply.style.boxShadow = '0 0 20px rgba(0,212,255,.25)'; apply.style.transform = 'translateY(-1px)'; });
     apply.addEventListener('mouseleave', () => { apply.style.boxShadow = 'none'; apply.style.transform = 'none'; });
     apply.addEventListener('click', () => {
+      const state = this._consoleSM.state;
+      const approval = state.name === 'PreviewPending' && state.result.preview
+        ? {
+            schema: 'xace.prompt_preview_approval.v1' as const,
+            preview_id: state.result.preview.preview_id,
+            approval_token: state.result.preview.approval_token,
+            approval_source: 'builder_review',
+            approved_by: this._client.sessionId,
+          }
+        : undefined;
       this._consoleSM.applyMutation();
-      this._client.send({ type: 'pil_apply', session_id: this._client.sessionId });
+      this._client.send(makePilApply(this._client.sessionId, approval));
     });
     bar.appendChild(apply);
 
@@ -326,28 +393,137 @@ export class BlockedView {
 
   private _render(): void {
     const state = this._consoleSM.state;
-    if (state.name !== 'BlockedView') { this._el.innerHTML = ''; return; }
-    this._el.innerHTML = `
-      <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:14px;border-left:3px solid var(--red)">
-        <div style="font-size:12px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <span style="color:var(--red)">⊘</span> Mutation blocked
-        </div>
-        <div style="font-size:10.5px;color:var(--txt2);margin-bottom:8px;line-height:1.6">${state.result.reason}</div>
-        <div style="font-size:9.5px;color:var(--txt3)">Guard: <span style="color:var(--red)">${state.result.guard}</span></div>
-        <div style="margin-top:12px;display:flex;gap:8px">
-          <button onclick="window.dispatchEvent(new CustomEvent('xace:dismiss-blocked'))"
-            style="font-size:10.5px;padding:4px 12px;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:var(--rs);color:var(--txt2);cursor:pointer;font-family:inherit">
-            Dismiss
-          </button>
-          <button onclick="window.dispatchEvent(new CustomEvent('xace:prefill-prompt',{detail:{text:'${state.prompt.replace(/'/g, "\\'").slice(0, 80)}'}}));window.dispatchEvent(new CustomEvent('xace:dismiss-blocked'))"
-            style="font-size:10.5px;padding:4px 12px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:var(--rs);color:var(--cyan);cursor:pointer;font-family:inherit">
-            ← Rephrase
-          </button>
-        </div>
-      </div>
-    `;
-    window.addEventListener('xace:dismiss-blocked', () => this._consoleSM.dismiss(), { once: true });
+    if (state.name !== 'BlockedView' && state.name !== 'ErrorView') {
+      this._el.innerHTML = '';
+      return;
+    }
+
+    const isError = state.name === 'ErrorView';
+    const applyFeedback = isError ? state.applyFeedback : undefined;
+    const title = isError ? 'Request failed' : 'Change blocked';
+    const reason = isError
+      ? state.reason
+      : state.result.reason;
+    const detail = isError
+      ? applyFeedback
+        ? `${applyFeedback.stage}: ${applyFeedback.code || applyFeedback.message}`
+        : 'Nothing was saved. Put the request back in the prompt, then send it again when ready.'
+      : `Guard: ${state.result.guard}. Nothing was saved.`;
+
+    this._el.innerHTML = '';
+    const card = document.createElement('div');
+    card.style.cssText = 'background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:14px;border-left:3px solid var(--red)';
+
+    const heading = document.createElement('div');
+    heading.style.cssText = 'font-size:12px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:8px;margin-bottom:8px';
+    const icon = document.createElement('span');
+    icon.style.color = 'var(--red)';
+    icon.textContent = '!';
+    heading.appendChild(icon);
+    heading.appendChild(document.createTextNode(title));
+    card.appendChild(heading);
+
+    const reasonEl = document.createElement('div');
+    reasonEl.style.cssText = 'font-size:10.5px;color:var(--txt2);margin-bottom:8px;line-height:1.6';
+    reasonEl.textContent = reason || 'XACE could not complete that request.';
+    card.appendChild(reasonEl);
+
+    const detailEl = document.createElement('div');
+    detailEl.style.cssText = 'font-size:9.5px;color:var(--txt3);line-height:1.5';
+    detailEl.textContent = detail;
+    card.appendChild(detailEl);
+
+    if (applyFeedback) {
+      this._appendApplyFeedback(card, applyFeedback);
+    }
+
+    const actions = document.createElement('div');
+    actions.style.cssText = 'margin-top:12px;display:flex;gap:8px;flex-wrap:wrap';
+
+    const dismiss = document.createElement('button');
+    dismiss.style.cssText = 'font-size:10.5px;padding:4px 12px;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:var(--rs);color:var(--txt2);cursor:pointer;font-family:inherit';
+    dismiss.textContent = 'Dismiss';
+    dismiss.addEventListener('click', () => this._consoleSM.dismiss());
+    actions.appendChild(dismiss);
+
+    if (isError) {
+      const tryAgain = document.createElement('button');
+      tryAgain.style.cssText = 'font-size:10.5px;padding:4px 12px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:var(--rs);color:var(--cyan);cursor:pointer;font-family:inherit';
+      tryAgain.textContent = 'Put Back in Prompt';
+      tryAgain.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('xace:prefill-prompt', { detail: { text: state.prompt.slice(0, 120) } }));
+        this._consoleSM.dismiss();
+      });
+      actions.appendChild(tryAgain);
+    }
+
+    if (!isError) {
+      const rephrase = document.createElement('button');
+      rephrase.style.cssText = 'font-size:10.5px;padding:4px 12px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:var(--rs);color:var(--cyan);cursor:pointer;font-family:inherit';
+      rephrase.textContent = 'Rephrase';
+      rephrase.addEventListener('click', () => {
+        window.dispatchEvent(new CustomEvent('xace:prefill-prompt', { detail: { text: state.prompt.slice(0, 120) } }));
+        this._consoleSM.dismiss();
+      });
+      actions.appendChild(rephrase);
+    }
+
+    card.appendChild(actions);
+    this._el.appendChild(card);
   }
+
+  private _appendApplyFeedback(card: HTMLElement, feedback: PromptApplyFeedback): void {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px';
+    const rows: Array<[string, string]> = [
+      ['Classifier', feedback.classifier?.category_id ?? 'unavailable'],
+      ['Diff', `${feedback.diff?.cgs_diff?.operation_count ?? 0} CGS ops`],
+      ['SGC', sectionStatus(feedback.sgc)],
+      ['Runtime', sectionStatus(feedback.runtime_load)],
+      ['Replay', sectionStatus(feedback.replay)],
+      ['Rollback', String(feedback.rollback.status ?? 'unknown')],
+      ['Cost', `${numberText(feedback.cost.total_cost_cents)}c / ${numberText(feedback.cost.token_count)} tok`],
+      ['Latency', `${numberText(feedback.latency.apply_latency_ms)} ms`],
+      ['Proof', proofSummary(feedback.proof_links)],
+    ];
+    for (const [label, value] of rows) {
+      const row = document.createElement('div');
+      row.style.cssText = 'min-width:0';
+      const name = document.createElement('div');
+      name.style.cssText = 'font-size:8.5px;color:var(--txt3);text-transform:uppercase;font-weight:700;margin-bottom:2px';
+      name.textContent = label;
+      const text = document.createElement('div');
+      text.style.cssText = 'font-size:9.5px;color:var(--txt2);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+      text.title = value;
+      text.textContent = value;
+      row.appendChild(name);
+      row.appendChild(text);
+      wrap.appendChild(row);
+    }
+    card.appendChild(wrap);
+  }
+}
+
+function sectionStatus(section: Record<string, unknown>): string {
+  const status = typeof section.status === 'string' ? section.status : '';
+  const accepted = typeof section.accepted === 'boolean' ? (section.accepted ? 'accepted' : 'rejected') : '';
+  const ok = typeof section.ok === 'boolean' ? (section.ok ? 'ok' : 'failed') : '';
+  const attempted = section.attempted === true ? 'attempted' : '';
+  const required = section.required === true ? 'required' : 'optional';
+  return status || accepted || ok || attempted || required;
+}
+
+function numberText(value: unknown): string {
+  return typeof value === 'number' && Number.isFinite(value) ? String(Math.round(value * 100) / 100) : '0';
+}
+
+function proofSummary(section: Record<string, unknown>): string {
+  const plan = section.execution_plan;
+  if (typeof plan === 'object' && plan !== null && 'path' in plan) {
+    const path = (plan as { path?: unknown }).path;
+    return typeof path === 'string' && path ? path : String(section.audit_dataset ?? '');
+  }
+  return String(section.audit_dataset ?? '');
 }
 
 

@@ -22,6 +22,7 @@
 //! Actor definitions live in the CGS only.
 //! The runtime never creates actor definitions — only entity instances.
 
+use crate::fixed_point::Fixed64;
 use crate::ucl::input_component::ControlType;
 use serde::{Deserialize, Serialize};
 
@@ -222,8 +223,8 @@ pub struct ActorDefinition {
 
     /// Game-specific numeric stats for this actor.
     /// Free-form key-value — validated by GDE, not by runtime.
-    /// Examples: {"max_health": 100.0, "move_speed": 5.0}
-    pub stats: std::collections::BTreeMap<String, f64>,
+    /// Examples use raw Fixed64 micro-units: {"max_health": 100000000, "move_speed": 5000000}
+    pub stats: std::collections::BTreeMap<String, Fixed64>,
 
     /// Abilities available to entities of this actor type.
     pub abilities: Vec<AbilityReference>,
@@ -299,12 +300,12 @@ impl ActorDefinition {
     }
 
     /// Returns a stat value by key, if it exists.
-    pub fn get_stat(&self, key: &str) -> Option<f64> {
+    pub fn get_stat(&self, key: &str) -> Option<Fixed64> {
         self.stats.get(key).copied()
     }
 
     /// Sets a stat value. Overwrites if key already exists.
-    pub fn set_stat(&mut self, key: impl Into<String>, value: f64) {
+    pub fn set_stat(&mut self, key: impl Into<String>, value: Fixed64) {
         self.stats.insert(key.into(), value);
     }
 
@@ -429,10 +430,13 @@ mod tests {
     #[test]
     fn stats_stored_and_retrieved() {
         let mut actor = ActorDefinition::enemy("actor_zombie");
-        actor.set_stat("max_health", 100.0);
-        actor.set_stat("move_speed", 3.5);
-        assert_eq!(actor.get_stat("max_health"), Some(100.0));
-        assert_eq!(actor.get_stat("move_speed"), Some(3.5));
+        actor.set_stat("max_health", Fixed64::from_units(100));
+        actor.set_stat("move_speed", Fixed64::from_millis(3500));
+        assert_eq!(actor.get_stat("max_health"), Some(Fixed64::from_units(100)));
+        assert_eq!(
+            actor.get_stat("move_speed"),
+            Some(Fixed64::from_millis(3500))
+        );
         assert_eq!(actor.get_stat("missing"), None);
     }
 

@@ -5,11 +5,13 @@
 //! to a connected engine adapter.
 //!
 //! ## Output Format
-//!     [tick 60] entities=11 mutations=10 events=0
-//!       player#1            T=(0.00, 0.00, 0.00)  health=100/100
-//!       zombie#2            T=(-12.34, 0.00, 8.56)
-//!       zombie#3            T=(15.20, 0.00, -3.40)
-//!       ...
+//! ```text
+//! [tick 60] entities=11 mutations=10 events=0
+//!   player#1            T=(0.00, 0.00, 0.00)  health=100/100
+//!   zombie#2            T=(-12.34, 0.00, 8.56)
+//!   zombie#3            T=(15.20, 0.00, -3.40)
+//!   ...
+//! ```
 //!
 //! With `--quiet`, prints only one line per print interval.
 

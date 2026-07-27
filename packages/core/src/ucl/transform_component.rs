@@ -8,10 +8,11 @@
 //! Transform is the only component that is truly universal across all genres.
 //!
 //! ## Determinism
-//! All float fields use f32. Precision is consistent and fixed across platforms (D8).
-//! Serialization uses fixed decimal precision to ensure identical bytes (D11).
+//! Spatial fields use Fixed64 micro-units. Serialization stores scaled
+//! integers to produce identical bytes for identical authoritative state.
 
 use crate::entity_id::{EntityID, NULL_ENTITY_ID};
+use crate::fixed_point::Fixed64;
 use serde::{Deserialize, Serialize};
 
 /// Component type ID for COMP_TRANSFORM_V1.
@@ -22,24 +23,24 @@ pub const COMP_TRANSFORM_V1_ID: u32 = 1;
 /// 3D position vector.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Vec3 {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
 }
 
 impl Vec3 {
     pub const ZERO: Vec3 = Vec3 {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::ZERO,
+        z: Fixed64::ZERO,
     };
     pub const ONE: Vec3 = Vec3 {
-        x: 1.0,
-        y: 1.0,
-        z: 1.0,
+        x: Fixed64::ONE,
+        y: Fixed64::ONE,
+        z: Fixed64::ONE,
     };
 
-    pub fn new(x: f32, y: f32, z: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self { x, y, z }
     }
 }
@@ -57,22 +58,22 @@ impl Default for Vec3 {
 /// it stores and transmits rotation values only.
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Quat {
-    pub x: f32,
-    pub y: f32,
-    pub z: f32,
-    pub w: f32,
+    pub x: Fixed64,
+    pub y: Fixed64,
+    pub z: Fixed64,
+    pub w: Fixed64,
 }
 
 impl Quat {
     /// Identity quaternion — no rotation.
     pub const IDENTITY: Quat = Quat {
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-        w: 1.0,
+        x: Fixed64::ZERO,
+        y: Fixed64::ZERO,
+        z: Fixed64::ZERO,
+        w: Fixed64::ONE,
     };
 
-    pub fn new(x: f32, y: f32, z: f32, w: f32) -> Self {
+    pub fn new(x: Fixed64, y: Fixed64, z: Fixed64, w: Fixed64) -> Self {
         Self { x, y, z, w }
     }
 }
@@ -104,7 +105,7 @@ pub struct TransformComponent {
     /// Local rotation as a unit quaternion.
     pub rotation: Quat,
 
-    /// Local scale. (1.0, 1.0, 1.0) = no scaling.
+    /// Local scale. (1, 1, 1) = no scaling.
     pub scale: Vec3,
 
     /// Optional parent entity for hierarchy.
@@ -126,7 +127,7 @@ impl TransformComponent {
     }
 
     /// Creates a transform at a specific position with no rotation, no parent.
-    pub fn at_position(x: f32, y: f32, z: f32) -> Self {
+    pub fn at_position(x: Fixed64, y: Fixed64, z: Fixed64) -> Self {
         Self {
             position: Vec3::new(x, y, z),
             rotation: Quat::IDENTITY,
@@ -162,10 +163,14 @@ mod tests {
 
     #[test]
     fn at_position_sets_correctly() {
-        let t = TransformComponent::at_position(1.0, 2.0, 3.0);
-        assert_eq!(t.position.x, 1.0);
-        assert_eq!(t.position.y, 2.0);
-        assert_eq!(t.position.z, 3.0);
+        let t = TransformComponent::at_position(
+            Fixed64::from_units(1),
+            Fixed64::from_units(2),
+            Fixed64::from_units(3),
+        );
+        assert_eq!(t.position.x, Fixed64::from_units(1));
+        assert_eq!(t.position.y, Fixed64::from_units(2));
+        assert_eq!(t.position.z, Fixed64::from_units(3));
         assert_eq!(t.rotation, Quat::IDENTITY);
         assert_eq!(t.scale, Vec3::ONE);
     }
@@ -188,13 +193,13 @@ mod tests {
 
     #[test]
     fn vec3_constants_correct() {
-        assert_eq!(Vec3::ZERO.x, 0.0);
-        assert_eq!(Vec3::ONE.x, 1.0);
+        assert_eq!(Vec3::ZERO.x, Fixed64::ZERO);
+        assert_eq!(Vec3::ONE.x, Fixed64::ONE);
     }
 
     #[test]
     fn quat_identity_correct() {
-        assert_eq!(Quat::IDENTITY.w, 1.0);
-        assert_eq!(Quat::IDENTITY.x, 0.0);
+        assert_eq!(Quat::IDENTITY.w, Fixed64::ONE);
+        assert_eq!(Quat::IDENTITY.x, Fixed64::ZERO);
     }
 }

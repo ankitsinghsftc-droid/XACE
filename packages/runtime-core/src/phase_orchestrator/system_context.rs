@@ -13,17 +13,26 @@
 //! ## Deferred Mutation (D4, I2)
 //! submit_mutation() and submit_spawn() do not modify world state directly.
 //! They queue requests in the MutationGate for application after the phase.
+//!
+//! ## Deterministic RNG (D6)
+//! In the live runtime, next_random() validates an open RngInterceptor window
+//! before returning values from the deterministic RNG stream. Tests may still
+//! construct a context without an interceptor for isolated fallback checks.
 
 use crate::component_tables::ComponentTableStore;
+use crate::determinism_guard::determinism_guard::DeterminismGuard;
+use crate::determinism_guard::rng_interceptor::RngInterceptor;
 use crate::entity_store::EntityStore;
 use crate::mutation_gate::MutationGate;
 use crate::query_engine::QueryEngine;
+use crate::time_controller::DeterministicRng;
 use std::collections::BTreeMap;
 use xace_core::contracts::interfaces::ISystemContext;
 use xace_core::entity_id::EntityID;
 use xace_core::entity_metadata::Tick;
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
 use xace_core::events::event_struct::Event;
+use xace_core::fixed_point::Fixed64;
 
 // ── System Context ────────────────────────────────────────────────────────────
 
@@ -51,7 +60,7 @@ pub struct SystemContext<'a> {
     mutation_gate: &'a mut MutationGate,
 
     /// Mutable access to query engine for entity queries.
-    query_engine: &'a mut QueryEngine,
+    _query_engine: &'a mut QueryEngine,
 
     /// Events emitted this execute() call — collected for EventBus.
     pub emitted_events: Vec<Event>,
@@ -59,11 +68,17 @@ pub struct SystemContext<'a> {
     /// The current simulation tick.
     current_tick: Tick,
 
-    /// Next deterministic random value index for this system this tick.
-    rng_index: u64,
-
     /// World seed for deterministic RNG (D6).
     world_seed: u64,
+
+    /// Runtime RNG interceptor used to validate sanctioned RNG access.
+    rng_interceptor: Option<&'a RngInterceptor>,
+
+    /// Determinism guard used to record legal RNG access.
+    determinism_guard: Option<&'a mut DeterminismGuard>,
+
+    /// Lazily initialized deterministic RNG for this system/tick.
+    deterministic_rng: Option<DeterministicRng>,
 }
 
 impl<'a> SystemContext<'a> {
@@ -86,12 +101,26 @@ impl<'a> SystemContext<'a> {
             entity_store,
             table_store,
             mutation_gate,
-            query_engine,
+            _query_engine: query_engine,
             emitted_events: Vec::new(),
             current_tick,
-            rng_index: 0,
             world_seed,
+            rng_interceptor: None,
+            determinism_guard: None,
+            deterministic_rng: None,
         }
+    }
+
+    /// Attaches the runtime RNG interceptor for live deterministic execution.
+    pub fn with_rng_interceptor(mut self, rng_interceptor: &'a RngInterceptor) -> Self {
+        self.rng_interceptor = Some(rng_interceptor);
+        self
+    }
+
+    /// Attaches the determinism guard so legal RNG access is audited.
+    pub fn with_determinism_guard(mut self, guard: &'a mut DeterminismGuard) -> Self {
+        self.determinism_guard = Some(guard);
+        self
     }
 
     /// Returns true if this system declared it reads the given component.
@@ -225,21 +254,27 @@ impl<'a> ISystemContext for SystemContext<'a> {
         self.current_tick
     }
 
-    fn next_random(&mut self) -> Result<f64, XaceError> {
-        // Deterministic RNG: seed = hash(world_seed, system_id, tick, index)
-        // Simple deterministic hash for Phase 4 — full DeterministicRNG in Phase 6
-        let seed = self
-            .world_seed
-            .wrapping_mul(6364136223846793005)
-            .wrapping_add(self.system_id.len() as u64)
-            .wrapping_add(self.current_tick.wrapping_mul(2654435761))
-            .wrapping_add(self.rng_index.wrapping_mul(1442695040888963407));
+    fn next_random(&mut self) -> Result<Fixed64, XaceError> {
+        let issued_seed = if let Some(interceptor) = self.rng_interceptor {
+            let seed = interceptor.request_rng(self.system_id, self.current_tick)?;
+            if let Some(guard) = self.determinism_guard.as_deref_mut() {
+                guard.hook_rng_access(self.current_tick, self.system_id, true)?;
+            }
+            Some((interceptor.world_seed(), seed))
+        } else {
+            None
+        };
 
-        self.rng_index += 1;
+        if self.deterministic_rng.is_none() {
+            let rng = if let Some((world_seed, seed)) = issued_seed {
+                DeterministicRng::from_seed(seed, world_seed, self.system_id, self.current_tick)
+            } else {
+                DeterministicRng::new(self.world_seed, self.system_id, self.current_tick)
+            };
+            self.deterministic_rng = Some(rng);
+        }
 
-        // Convert to f64 in [0.0, 1.0)
-        let value = (seed >> 11) as f64 / (1u64 << 53) as f64;
-        Ok(value)
+        Ok(self.deterministic_rng.as_mut().unwrap().next_fixed64())
     }
 }
 
@@ -249,9 +284,11 @@ impl<'a> ISystemContext for SystemContext<'a> {
 mod tests {
     use super::*;
     use crate::component_tables::ComponentTableStore;
+    use crate::determinism_guard::rng_interceptor::RngInterceptor;
     use crate::entity_store::EntityStore;
     use crate::mutation_gate::MutationGate;
     use crate::query_engine::QueryEngine;
+    use xace_core::errors::determinism_error::GuardMode;
 
     fn setup() -> (EntityStore, ComponentTableStore, MutationGate, QueryEngine) {
         let entity_store = EntityStore::new();
@@ -269,7 +306,7 @@ mod tests {
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, r#"{"x":1.0}"#.into(), 0).unwrap();
 
-        let mut ctx = SystemContext::new("sys_test", &[1], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
+        let ctx = SystemContext::new("sys_test", &[1], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
         let result = ctx.get_component(id, 1).unwrap();
         assert_eq!(result, Some(r#"{"x":1.0}"#));
     }
@@ -277,7 +314,7 @@ mod tests {
     #[test]
     fn get_component_undeclared_read_fails() {
         let (es, ts, mut mg, mut qe) = setup();
-        let mut ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
+        let ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 42);
         assert!(ctx.get_component(1, 1).is_err());
     }
 
@@ -314,7 +351,7 @@ mod tests {
         let (mut es, mut ts, mut mg, mut qe) = setup();
         let id = es.create_entity(0).unwrap();
         ts.add_component(id, 1, "{}".into(), 0).unwrap();
-        let mut ctx = SystemContext::new(
+        let ctx = SystemContext::new(
             "sys_test",
             &[],
             &[1], // only writes, no explicit reads
@@ -374,8 +411,19 @@ mod tests {
             SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 99999);
         for _ in 0..100 {
             let v = ctx.next_random().unwrap();
-            assert!(v >= 0.0 && v < 1.0);
+            assert!(v >= Fixed64::ZERO && v < Fixed64::ONE);
         }
+    }
+
+    #[test]
+    fn next_random_with_interceptor_requires_open_window() {
+        let (es, ts, mut mg, mut qe) = setup();
+        let interceptor = RngInterceptor::new(42, GuardMode::Strict);
+        let mut ctx = SystemContext::new("sys_test", &[], &[], &es, &ts, &mut mg, &mut qe, 0, 42)
+            .with_rng_interceptor(&interceptor);
+
+        assert!(ctx.next_random().is_err());
+        assert_eq!(interceptor.metrics().windowless_access_count, 1);
     }
 
     #[test]

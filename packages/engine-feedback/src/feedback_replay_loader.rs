@@ -36,6 +36,8 @@
 //!                              └── inject_for_tick()    └── produces ReplayReport
 //! ```
 
+use std::collections::BTreeSet;
+
 use xace_core::entity_metadata::Tick;
 use xace_core::errors::xace_error::{ErrorContext, XaceError};
 
@@ -57,9 +59,9 @@ pub enum ReplayLoaderStatus {
 impl std::fmt::Display for ReplayLoaderStatus {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ReplayLoaderStatus::Idle      => write!(f, "IDLE"),
+            ReplayLoaderStatus::Idle => write!(f, "IDLE"),
             ReplayLoaderStatus::Replaying => write!(f, "REPLAYING"),
-            ReplayLoaderStatus::Finished  => write!(f, "FINISHED"),
+            ReplayLoaderStatus::Finished => write!(f, "FINISHED"),
         }
     }
 }
@@ -100,6 +102,8 @@ pub struct LoaderMetrics {
     pub total_ticks_injected: u64,
     pub total_messages_injected: u64,
     pub compatibility_failures: u64,
+    pub duplicate_tick_injections: u64,
+    pub injection_failures: u64,
 }
 
 // ── Feedback Replay Loader ────────────────────────────────────────────────────
@@ -130,6 +134,9 @@ pub struct FeedbackReplayLoader {
     /// Messages injected in the current replay run.
     messages_injected: u64,
 
+    /// Recorded ticks already injected in the current run.
+    injected_ticks: BTreeSet<Tick>,
+
     /// The FeedbackBuffer to inject into.
     buffer: FeedbackBuffer,
 
@@ -156,6 +163,7 @@ impl FeedbackReplayLoader {
             ticks_injected: 0,
             ticks_with_feedback: 0,
             messages_injected: 0,
+            injected_ticks: BTreeSet::new(),
             buffer,
             metrics: LoaderMetrics::default(),
         }
@@ -190,6 +198,7 @@ impl FeedbackReplayLoader {
         self.ticks_injected = 0;
         self.ticks_with_feedback = 0;
         self.messages_injected = 0;
+        self.injected_ticks.clear();
         Ok(())
     }
 
@@ -214,12 +223,53 @@ impl FeedbackReplayLoader {
             });
         }
 
-        let log = self.log.as_ref().expect("log must be Some during Replaying");
-        let messages = log.messages_at(tick).to_vec();
+        let log = self
+            .log
+            .as_ref()
+            .expect("log must be Some during Replaying");
+
+        if tick < log.start_tick() {
+            return Ok(0);
+        }
+
+        if tick > log.end_tick() {
+            self.status = ReplayLoaderStatus::Finished;
+            return Ok(0);
+        }
+
+        let Some(entry) = log.get(tick) else {
+            self.ticks_injected += 1;
+            if tick >= log.end_tick() {
+                self.status = ReplayLoaderStatus::Finished;
+            }
+            return Ok(0);
+        };
+
+        if !self.injected_ticks.insert(tick) {
+            self.metrics.duplicate_tick_injections += 1;
+            return Err(XaceError::RecoverableError {
+                message: format!("FeedbackReplayLoader: tick {} was already injected", tick),
+                context: ErrorContext::new("FeedbackReplayLoader", "inject_for_tick")
+                    .with_tick(tick),
+                max_retries: 0,
+                retry_count: 0,
+            });
+        }
+
+        let messages = entry.messages.clone();
         let count = messages.len();
 
         if count > 0 {
-            self.buffer.append_batch(messages);
+            if let Err(err) = self.buffer.append_batch(messages) {
+                self.metrics.injection_failures += 1;
+                return Err(XaceError::RecoverableError {
+                    message: format!("FeedbackReplayLoader: replay injection failed: {}", err),
+                    context: ErrorContext::new("FeedbackReplayLoader", "inject_for_tick")
+                        .with_tick(tick),
+                    max_retries: 0,
+                    retry_count: 0,
+                });
+            }
             self.ticks_with_feedback += 1;
             self.messages_injected += count as u64;
         }
@@ -246,15 +296,14 @@ impl FeedbackReplayLoader {
             None => (0, 0, 0),
         };
 
-        let full_coverage = self.ticks_injected >= log_tick_count;
+        let full_coverage = self.injected_ticks.len() as u64 >= log_tick_count;
 
         let report = ReplayReport {
             start_tick,
             end_tick,
             ticks_processed: self.ticks_injected,
             ticks_with_feedback: self.ticks_with_feedback,
-            ticks_without_feedback: self.ticks_injected
-                .saturating_sub(self.ticks_with_feedback),
+            ticks_without_feedback: self.ticks_injected.saturating_sub(self.ticks_with_feedback),
             total_messages_injected: self.messages_injected,
             full_coverage,
         };
@@ -265,6 +314,7 @@ impl FeedbackReplayLoader {
 
         self.log = None;
         self.status = ReplayLoaderStatus::Idle;
+        self.injected_ticks.clear();
         report
     }
 
@@ -283,6 +333,12 @@ impl FeedbackReplayLoader {
     /// Returns accumulated loader metrics.
     pub fn metrics(&self) -> &LoaderMetrics {
         &self.metrics
+    }
+
+    pub fn active_range(&self) -> Option<(Tick, Tick)> {
+        self.log
+            .as_ref()
+            .map(|log| (log.start_tick(), log.end_tick()))
     }
 }
 

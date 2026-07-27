@@ -19,6 +19,10 @@ from ..versioning.schema_version_manager import SchemaVersionManager, SchemaVers
 from ..component_registry.component_definition_registry import ComponentDefinitionRegistry
 from ..component_registry.component_definition import ComponentDefinition
 
+HASH_A = "a" * 64
+HASH_B = "b" * 64
+HASH_C = "c" * 64
+
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -40,7 +44,7 @@ def _make_registry(
 
 def _valid_cgs(
     version:    str  = "0.1.0",
-    cgs_hash:   str  = "abc123",
+    cgs_hash:   str  = HASH_A,
     mode_id:    str  = "mode_default",
     game_name:  str  = "Test Game",
     actor_id:   str  = "actor_player",
@@ -481,7 +485,7 @@ class TestSchemaVersionManager:
 class TestSchemaSnapshot:
 
     def test_genesis_snapshot_properties(self) -> None:
-        snap = SchemaSnapshot.genesis(cgs_hash="abc123def456")
+        snap = SchemaSnapshot.genesis(cgs_hash=HASH_A)
         assert snap.is_genesis
         assert snap.version == "0.1.0"
         assert snap.parent_version_hash is None
@@ -501,27 +505,30 @@ class TestSchemaSnapshot:
 
     def test_create_validates_version_format(self) -> None:
         with pytest.raises(ValueError):
-            SchemaSnapshot.create(version="bad", cgs_hash="abc")
+            SchemaSnapshot.create(version="bad", cgs_hash=HASH_A)
 
     def test_is_child_of(self) -> None:
-        parent = SchemaSnapshot.genesis(cgs_hash="parent_hash")
+        parent = SchemaSnapshot.genesis(cgs_hash=HASH_A)
         child  = SchemaSnapshot.create(
             version="0.1.1",
-            cgs_hash="child_hash",
-            parent_version_hash="parent_hash",
+            cgs_hash=HASH_B,
+            parent_version_hash=HASH_A,
         )
         assert child.is_child_of(parent)
         assert not parent.is_child_of(child)
 
     def test_version_tuple(self) -> None:
-        snap = SchemaSnapshot.create(version="1.2.3", cgs_hash="h")
+        snap = SchemaSnapshot.create(version="1.2.3", cgs_hash=HASH_C)
         assert snap.version_tuple() == (1, 2, 3)
         assert snap.major == 1
         assert snap.minor == 2
         assert snap.patch == 3
 
     def test_short_hash(self) -> None:
-        snap = SchemaSnapshot.create(version="0.1.0", cgs_hash="abcdef1234567890")
+        snap = SchemaSnapshot.create(
+            version="0.1.0",
+            cgs_hash="abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
+        )
         assert snap.short_hash() == "abcdef12"
 
     def test_validate_version_string_valid(self) -> None:

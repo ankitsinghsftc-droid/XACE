@@ -21,7 +21,7 @@ from intent_envelope import IntentEnvelope, PILIntentCategory
 
 
 CGS = {
-    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d",
+    "metadata": {"name": "Zombie Chase", "cgs_hash": "0b1d495d00000000000000000000000000000000000000000000000000000000",
                  "version": "0.1.0", "schema_version": "0.1.0"},
     "global_systems": [
         {"id": "InputSystem", "phase": "Simulation",

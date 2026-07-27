@@ -21,12 +21,15 @@
 
 use xace_core::contracts::interfaces::{ISystem, ISystemContext};
 use xace_core::errors::xace_error::XaceError;
+use xace_core::fixed_point::Fixed64;
 
 use crate::cgs::component_ids;
-use crate::cgs::{parse_input_controller_id, velocity_json};
+use crate::cgs::velocity_json;
 
 /// Player speed in world units per tick at 60 Hz.
-const PLAYER_SPEED: f32 = 5.0 / 60.0;
+const PLAYER_SPEED: Fixed64 = Fixed64::from_units(5);
+const SEGMENT_TICKS: u64 = 60;
+const MAX_RADIUS_UNITS: u64 = 10;
 
 pub struct InputSystem;
 
@@ -62,12 +65,19 @@ impl ISystem for InputSystem {
 
             // Deterministic spiral input — same tick → same velocity (D7, D11)
             // Phase 9: no real Unity input yet. Player traces a slow outward spiral.
-            let angle = tick as f32 * 0.05_f32;
-            let radius = (tick as f32 * 0.01_f32).min(10.0_f32);
-            let vx = angle.cos() * PLAYER_SPEED * radius.max(1.0_f32).min(10.0_f32) / 10.0_f32;
-            let vz = angle.sin() * PLAYER_SPEED * radius.max(1.0_f32).min(10.0_f32) / 10.0_f32;
+            let radius_units = ((tick / SEGMENT_TICKS) + 1).min(MAX_RADIUS_UNITS);
+            let radius_scale = Fixed64::from_units(radius_units as i64)
+                .checked_div(Fixed64::from_units(MAX_RADIUS_UNITS as i64))
+                .unwrap_or(Fixed64::ZERO);
+            let speed = PLAYER_SPEED * radius_scale;
+            let (vx, vz) = match (tick / SEGMENT_TICKS) % 4 {
+                0 => (speed, Fixed64::ZERO),
+                1 => (Fixed64::ZERO, speed),
+                2 => (-speed, Fixed64::ZERO),
+                _ => (Fixed64::ZERO, -speed),
+            };
 
-            let new_velocity = velocity_json(vx, 0.0, vz);
+            let new_velocity = velocity_json(vx, Fixed64::ZERO, vz);
 
             // D4: submitted via Mutation Gate — applied after phase completion
             context.submit_mutation(entity_id, component_ids::VELOCITY, new_velocity)?;

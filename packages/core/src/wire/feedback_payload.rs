@@ -1,406 +1,368 @@
-//! # Feedback Payload
+//! Engine-to-XACE feedback payloads.
 //!
-//! Defines the engine feedback message types sent from the engine
-//! adapter to the XACE runtime every tick. Engine feedback is the
-//! return channel — XACE sends commands, the engine sends results back.
-//!
-//! ## Audit 6 — Engine Feedback Protocol
-//! Communication between XACE and the engine is bidirectional.
-//! XACE sends StateDelta commands to the engine each tick.
-//! The engine sends back a FeedbackPayload containing:
-//! - Animation state updates (current state, normalized time)
-//! - Physics results (ragdoll settle positions)
-//! - Visibility query results (raycast results)
-//! - Audio completion notifications
-//! - Input device updates (extended input)
-//! - Performance metrics (ms/tick per system)
-//! - Asset resolution updates
-//! - Engine-side errors
-//!
-//! ## Global Invariant I13
-//! Engine feedback is processed ONLY at tick boundaries — never mid-tick.
-//! The FeedbackBuffer drains at the START of each tick before any
-//! phase runs. This ensures deterministic feedback integration.
-//!
-//! ## Determinism
-//! Feedback messages are sorted by (generated_frame ASC, entity_id ASC)
-//! before processing. Same feedback sequence = same world state (D9).
-//! Feedback is included in replay files for exact replay fidelity.
+//! Feedback is the controlled return channel from engine adapters to the
+//! runtime. It is buffered and processed at tick boundaries only, so every
+//! message carries deterministic sort keys and can be replayed exactly.
 
-use crate::entity_id::EntityID;
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// ── Feedback Type ─────────────────────────────────────────────────────────────
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-/// The type of engine feedback message.
-///
-/// Ten feedback types covering all bidirectional communication
-/// from the engine adapter back to the XACE runtime.
-/// Discriminants are frozen — part of the public wire protocol.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+use crate::entity_id::{EntityID, NULL_ENTITY_ID};
+use crate::entity_metadata::Tick;
+
+/// Stable feedback type identifiers.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum FeedbackType {
-    /// Current animation state, normalized time, and layer states.
-    /// Written back to COMP_ANIMATION_V2 fields by animation handler.
     AnimationStateUpdate = 0,
-
-    /// A specific animation trigger point was reached.
-    /// Causes XACE to fire the associated game event.
     AnimationEventFired = 1,
-
-    /// A ragdoll or physics object reached its final resting position.
-    /// Physics handler updates COMP_TRANSFORM_V1 via Mutation Gate.
     PhysicsSettled = 2,
-
-    /// Result of a visibility raycast query.
-    /// Written to COMP_PERCEPTION_V1.visibility_result via Mutation Gate.
     VisibilityQueryResult = 3,
-
-    /// An audio clip finished playing.
-    /// Allows XACE to trigger follow-up events or state changes.
     AudioComplete = 4,
-
-    /// A 3D audio source moved in the engine scene.
-    /// Used to keep XACE's audio state synchronized.
     AudioPositionUpdate = 5,
-
-    /// Extended input update — touch, gyro, voice amplitude.
-    /// Supplements the standard INPUT message for special input devices.
     InputDeviceUpdate = 6,
-
-    /// Engine performance metrics for the previous tick.
-    /// Fed into the PIL performance risk guard (Phase 13) for real data.
     PerformanceMetrics = 7,
-
-    /// One or more PLACEHOLDER asset references transitioned to LINKED.
-    /// The Asset Registry updates asset status on receipt.
     AssetResolutionUpdate = 8,
-
-    /// An engine-side error that XACE should know about.
-    /// Logged and surfaced to the builder UI. Never causes runtime halt.
     EngineError = 9,
 }
 
 impl FeedbackType {
-    pub fn as_u8(&self) -> u8 {
-        *self as u8
+    pub const ALL: [FeedbackType; 10] = [
+        FeedbackType::AnimationStateUpdate,
+        FeedbackType::AnimationEventFired,
+        FeedbackType::PhysicsSettled,
+        FeedbackType::VisibilityQueryResult,
+        FeedbackType::AudioComplete,
+        FeedbackType::AudioPositionUpdate,
+        FeedbackType::InputDeviceUpdate,
+        FeedbackType::PerformanceMetrics,
+        FeedbackType::AssetResolutionUpdate,
+        FeedbackType::EngineError,
+    ];
+
+    pub fn as_u8(self) -> u8 {
+        self as u8
     }
 
     pub fn from_u8(value: u8) -> Option<Self> {
         match value {
-            0 => Some(FeedbackType::AnimationStateUpdate),
-            1 => Some(FeedbackType::AnimationEventFired),
-            2 => Some(FeedbackType::PhysicsSettled),
-            3 => Some(FeedbackType::VisibilityQueryResult),
-            4 => Some(FeedbackType::AudioComplete),
-            5 => Some(FeedbackType::AudioPositionUpdate),
-            6 => Some(FeedbackType::InputDeviceUpdate),
-            7 => Some(FeedbackType::PerformanceMetrics),
-            8 => Some(FeedbackType::AssetResolutionUpdate),
-            9 => Some(FeedbackType::EngineError),
+            0 => Some(Self::AnimationStateUpdate),
+            1 => Some(Self::AnimationEventFired),
+            2 => Some(Self::PhysicsSettled),
+            3 => Some(Self::VisibilityQueryResult),
+            4 => Some(Self::AudioComplete),
+            5 => Some(Self::AudioPositionUpdate),
+            6 => Some(Self::InputDeviceUpdate),
+            7 => Some(Self::PerformanceMetrics),
+            8 => Some(Self::AssetResolutionUpdate),
+            9 => Some(Self::EngineError),
             _ => None,
         }
     }
 
-    pub fn name(&self) -> &'static str {
+    pub fn name(self) -> &'static str {
         match self {
-            FeedbackType::AnimationStateUpdate => "AnimationStateUpdate",
-            FeedbackType::AnimationEventFired => "AnimationEventFired",
-            FeedbackType::PhysicsSettled => "PhysicsSettled",
-            FeedbackType::VisibilityQueryResult => "VisibilityQueryResult",
-            FeedbackType::AudioComplete => "AudioComplete",
-            FeedbackType::AudioPositionUpdate => "AudioPositionUpdate",
-            FeedbackType::InputDeviceUpdate => "InputDeviceUpdate",
-            FeedbackType::PerformanceMetrics => "PerformanceMetrics",
-            FeedbackType::AssetResolutionUpdate => "AssetResolutionUpdate",
-            FeedbackType::EngineError => "EngineError",
+            Self::AnimationStateUpdate => "AnimationStateUpdate",
+            Self::AnimationEventFired => "AnimationEventFired",
+            Self::PhysicsSettled => "PhysicsSettled",
+            Self::VisibilityQueryResult => "VisibilityQueryResult",
+            Self::AudioComplete => "AudioComplete",
+            Self::AudioPositionUpdate => "AudioPositionUpdate",
+            Self::InputDeviceUpdate => "InputDeviceUpdate",
+            Self::PerformanceMetrics => "PerformanceMetrics",
+            Self::AssetResolutionUpdate => "AssetResolutionUpdate",
+            Self::EngineError => "EngineError",
         }
+    }
+
+    pub fn payload_kind(self) -> &'static str {
+        match self {
+            Self::AnimationStateUpdate => "AnimationStateUpdateFeedback",
+            Self::AnimationEventFired => "AnimationEventFiredFeedback",
+            Self::PhysicsSettled => "PhysicsSettledFeedback",
+            Self::VisibilityQueryResult => "VisibilityQueryResultFeedback",
+            Self::AudioComplete => "AudioCompleteFeedback",
+            Self::AudioPositionUpdate => "AudioPositionUpdateFeedback",
+            Self::InputDeviceUpdate => "InputDeviceUpdateFeedback",
+            Self::PerformanceMetrics => "PerformanceMetricsFeedback",
+            Self::AssetResolutionUpdate => "AssetResolutionUpdateFeedback",
+            Self::EngineError => "EngineErrorFeedback",
+        }
+    }
+
+    pub fn entity_scoped(self) -> bool {
+        !matches!(
+            self,
+            Self::PerformanceMetrics | Self::AssetResolutionUpdate | Self::InputDeviceUpdate
+        )
     }
 }
 
 impl std::fmt::Display for FeedbackType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.name())
+        f.write_str(self.name())
     }
 }
 
-// ── Individual Feedback Message Types ─────────────────────────────────────────
-
-/// Animation state written back from the engine after it processes
-/// COMP_ANIMATION_V2 commands. XACE updates the component fields
-/// via Mutation Gate on receipt.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnimationStateUpdateFeedback {
-    /// The entity whose animation state updated.
     pub entity_id: EntityID,
-
-    /// Current animation state name per layer.
-    /// BTreeMap<layer_name, current_state> — sorted for determinism (D11).
     pub active_state_per_layer: BTreeMap<String, String>,
-
-    /// Current playback position (0.0 = start, 1.0 = end) per layer.
     pub normalized_time_per_layer: BTreeMap<String, f32>,
-
-    /// Whether the animation is currently transitioning between states.
     pub is_transitioning: bool,
-
-    /// The engine frame on which this feedback was generated.
-    /// Used for deterministic sort ordering within the FeedbackBuffer.
     pub generated_frame: u64,
 }
 
-/// Notification that a specific animation event trigger was reached.
-/// XACE processes this at the next tick boundary and fires the
-/// associated game event via the EventBus.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AnimationEventFiredFeedback {
-    /// The entity whose animation fired the event.
     pub entity_id: EntityID,
-
-    /// The animation event ID that was triggered.
     pub event_id: String,
-
-    /// The animation state that triggered the event.
     pub state_name: String,
-
-    /// The normalized time at which the event fired (0.0 - 1.0).
     pub trigger_at_normalized_time: f32,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// Physics object has reached its final resting position.
-/// The physics handler writes the final position to COMP_TRANSFORM_V1
-/// via the Mutation Gate so XACE's authoritative state matches the engine.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PhysicsSettledFeedback {
-    /// The entity that settled.
     pub entity_id: EntityID,
-
-    /// Final position serialized as JSON {"x": f32, "y": f32, "z": f32}.
     pub final_position_json: String,
-
-    /// Final rotation serialized as JSON {"x": f32, "y": f32, "z": f32, "w": f32}.
     pub final_rotation_json: String,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// Result of a visibility raycast query initiated by XACE.
-/// XACE writes COMP_PERCEPTION_V1.visibility_query_pending = true →
-/// engine performs raycast → engine returns result next tick →
-/// visibility handler writes result to COMP_PERCEPTION_V1.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct VisibilityQueryResultFeedback {
-    /// The entity that initiated the visibility query (the observer).
     pub observer_entity_id: EntityID,
-
-    /// The entity being observed (the target).
     pub target_entity_id: EntityID,
-
-    /// Whether the observer can see the target.
-    /// True = line of sight exists. False = occluded.
     pub can_see: bool,
-
-    /// Distance between observer and target in world units.
-    /// 0.0 if can_see is false and distance could not be measured.
     pub distance: f32,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// An audio clip finished playing on an entity.
-/// Allows XACE to trigger follow-up events or state changes
-/// without polling the engine for audio completion state.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AudioCompleteFeedback {
-    /// The entity whose audio completed.
     pub entity_id: EntityID,
-
-    /// The asset ID of the audio clip that completed.
     pub asset_id: String,
-
-    /// Whether the clip looped (reached end and restarted)
-    /// or stopped (reached end and halted).
     pub did_loop: bool,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// Performance metrics from the engine for the previous tick.
-/// Fed into the PIL's performance risk guard for real usage data.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct AudioPositionUpdateFeedback {
+    pub entity_id: EntityID,
+    pub position_json: String,
+    pub generated_frame: u64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct InputDeviceUpdateFeedback {
+    pub entity_id: EntityID,
+    pub device_id: String,
+    pub values_json: String,
+    pub generated_frame: u64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PerformanceMetricsFeedback {
-    /// Milliseconds the engine spent processing the previous tick's delta.
     pub engine_delta_apply_ms: f32,
-
-    /// Total draw calls issued in the previous frame.
     pub draw_calls: u32,
-
-    /// Number of active physics contacts in the previous frame.
     pub physics_contacts: u32,
-
-    /// Active entity count as seen by the engine.
-    /// Cross-referenced with XACE's EntityStore for desync detection.
     pub engine_entity_count: u32,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// One or more asset references transitioned from PLACEHOLDER to LINKED.
-/// The Asset Registry updates asset status on receipt.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct AssetResolutionUpdateFeedback {
-    /// Asset IDs that are now fully linked in the engine.
-    /// BTreeMap<asset_id, resolved_path> — sorted for determinism (D11).
     pub resolved_assets: BTreeMap<String, String>,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-/// An engine-side error that XACE should know about.
-/// Never causes XACE runtime to halt — logged and surfaced to UI.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EngineErrorFeedback {
-    /// The entity related to this error, if any.
-    /// NULL_ENTITY_ID if the error is not entity-specific.
     pub entity_id: EntityID,
-
-    /// Error code from the engine adapter.
     pub error_code: String,
-
-    /// Human-readable error description.
     pub error_message: String,
-
-    /// The engine frame on which this feedback was generated.
     pub generated_frame: u64,
 }
 
-// ── Feedback Message ──────────────────────────────────────────────────────────
-
-/// A single feedback message from the engine adapter to XACE.
-///
-/// Wraps one of the ten feedback types with its sort key fields.
-/// The FeedbackBuffer accumulates these each tick and sorts them
-/// by (generated_frame ASC, entity_id ASC) before draining (I13).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// One feedback message and its deterministic sort keys.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeedbackMessage {
-    /// What kind of feedback this is.
     pub feedback_type: FeedbackType,
-
-    /// The primary entity this feedback relates to.
-    /// Used as the secondary sort key in the FeedbackBuffer (I13).
-    /// NULL_ENTITY_ID for non-entity feedback (PerformanceMetrics, etc.)
     pub entity_id: EntityID,
-
-    /// The engine frame this feedback was generated in.
-    /// Primary sort key in the FeedbackBuffer.
     pub generated_frame: u64,
-
-    /// The typed feedback data serialized as JSON.
-    /// Deserialized by the appropriate feedback handler in Phase 7.
     pub payload_json: String,
 }
 
 impl FeedbackMessage {
-    /// Returns the deterministic sort key for this feedback message.
-    /// FeedbackBuffer sorts by (generated_frame ASC, entity_id ASC) (I13).
-    pub fn sort_key(&self) -> (u64, EntityID) {
-        (self.generated_frame, self.entity_id)
+    pub fn new(
+        feedback_type: FeedbackType,
+        entity_id: EntityID,
+        generated_frame: u64,
+        payload_json: impl Into<String>,
+    ) -> Self {
+        Self {
+            feedback_type,
+            entity_id,
+            generated_frame,
+            payload_json: payload_json.into(),
+        }
+    }
+
+    pub fn from_typed_payload<T: Serialize>(
+        feedback_type: FeedbackType,
+        entity_id: EntityID,
+        generated_frame: u64,
+        payload: &T,
+    ) -> Result<Self, serde_json::Error> {
+        Ok(Self::new(
+            feedback_type,
+            entity_id,
+            generated_frame,
+            serde_json::to_string(payload)?,
+        ))
+    }
+
+    pub fn sort_key(&self) -> (u64, EntityID, u8) {
+        (
+            self.generated_frame,
+            self.entity_id,
+            self.feedback_type.as_u8(),
+        )
+    }
+
+    pub fn decode_payload<T: DeserializeOwned>(&self) -> Result<T, serde_json::Error> {
+        serde_json::from_str(&self.payload_json)
+    }
+
+    pub fn payload_value(&self) -> Result<serde_json::Value, serde_json::Error> {
+        self.decode_payload()
+    }
+
+    pub fn payload_size_bytes(&self) -> usize {
+        self.payload_json.len()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.feedback_type.entity_scoped() && self.entity_id == NULL_ENTITY_ID {
+            return Err(format!(
+                "{} feedback requires a non-null entity_id",
+                self.feedback_type
+            ));
+        }
+        if self.payload_json.is_empty() {
+            return Err(format!(
+                "{} feedback payload_json must not be empty",
+                self.feedback_type
+            ));
+        }
+        serde_json::from_str::<serde_json::Value>(&self.payload_json).map_err(|err| {
+            format!(
+                "{} feedback payload_json is invalid JSON: {}",
+                self.feedback_type, err
+            )
+        })?;
+        Ok(())
     }
 }
 
-// ── Feedback Payload ──────────────────────────────────────────────────────────
-
-/// The complete engine feedback payload for one tick.
-///
-/// Sent by the engine adapter to XACE every tick via a FEEDBACK
-/// WireMessage. Contains all feedback messages generated by the
-/// engine during that tick's processing.
-///
-/// ## Processing (I13)
-/// The FeedbackBuffer accumulates incoming FeedbackPayloads between ticks.
-/// At the START of each tick, before any phase runs, the buffer drains:
-/// 1. Collect all FeedbackMessages from the buffer
-/// 2. Sort by (generated_frame ASC, entity_id ASC)
-/// 3. Route each message to its registered handler
-/// 4. Handlers write results to components via Mutation Gate
-/// 5. Mutation Gate processes all handler writes before Initialization phase
-///
-/// ## Replay Fidelity
-/// FeedbackPayloads are logged to the feedback_log for replay.
-/// Replays must replay the same feedback sequence to produce
-/// identical world state (same world_hash at each tick).
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Feedback batch for one simulation tick.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct FeedbackPayload {
-    /// The tick this feedback was generated for.
-    pub tick: u64,
-
-    /// All feedback messages from this tick.
-    /// Unsorted on arrival — sorted by FeedbackBuffer before processing.
+    pub tick: Tick,
     pub messages: Vec<FeedbackMessage>,
 }
 
 impl FeedbackPayload {
-    /// Creates an empty feedback payload for the given tick.
-    pub fn empty(tick: u64) -> Self {
+    pub fn empty(tick: Tick) -> Self {
         Self {
             tick,
             messages: Vec::new(),
         }
     }
 
-    /// Returns true if there are no feedback messages this tick.
     pub fn is_empty(&self) -> bool {
         self.messages.is_empty()
     }
 
-    /// Returns the total number of feedback messages.
     pub fn message_count(&self) -> usize {
         self.messages.len()
     }
 
-    /// Adds a feedback message to this payload.
     pub fn add_message(&mut self, message: FeedbackMessage) {
         self.messages.push(message);
     }
 
-    /// Returns all messages of a specific feedback type.
+    pub fn add_typed_message<T: Serialize>(
+        &mut self,
+        feedback_type: FeedbackType,
+        entity_id: EntityID,
+        generated_frame: u64,
+        payload: &T,
+    ) -> Result<(), serde_json::Error> {
+        self.messages.push(FeedbackMessage::from_typed_payload(
+            feedback_type,
+            entity_id,
+            generated_frame,
+            payload,
+        )?);
+        Ok(())
+    }
+
     pub fn messages_of_type(&self, feedback_type: FeedbackType) -> Vec<&FeedbackMessage> {
         self.messages
             .iter()
-            .filter(|m| m.feedback_type == feedback_type)
+            .filter(|message| message.feedback_type == feedback_type)
             .collect()
     }
 
-    /// Sorts all messages by (generated_frame ASC, entity_id ASC).
-    /// Called by the FeedbackBuffer before draining (I13).
-    /// Returns the sorted messages without modifying self.
     pub fn sorted_messages(&self) -> Vec<&FeedbackMessage> {
         let mut messages: Vec<&FeedbackMessage> = self.messages.iter().collect();
-        messages.sort_by_key(|m| m.sort_key());
+        messages.sort_by_key(|message| message.sort_key());
         messages
     }
 
-    /// Returns the count of messages for each feedback type.
-    /// Used by the builder UI performance panel and Design Mentor.
+    pub fn sort_in_place(&mut self) {
+        self.messages.sort_by_key(FeedbackMessage::sort_key);
+    }
+
     pub fn type_counts(&self) -> BTreeMap<u8, usize> {
         let mut counts = BTreeMap::new();
-        for msg in &self.messages {
-            *counts.entry(msg.feedback_type.as_u8()).or_insert(0) += 1;
+        for message in &self.messages {
+            *counts.entry(message.feedback_type.as_u8()).or_insert(0) += 1;
         }
         counts
     }
-}
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+    pub fn frame_range(&self) -> Option<(u64, u64)> {
+        let min = self
+            .messages
+            .iter()
+            .map(|message| message.generated_frame)
+            .min()?;
+        let max = self
+            .messages
+            .iter()
+            .map(|message| message.generated_frame)
+            .max()?;
+        Some((min, max))
+    }
+
+    pub fn total_payload_bytes(&self) -> usize {
+        self.messages
+            .iter()
+            .map(FeedbackMessage::payload_size_bytes)
+            .sum()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        for message in &self.messages {
+            message.validate()?;
+        }
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -411,12 +373,18 @@ mod tests {
         entity_id: EntityID,
         generated_frame: u64,
     ) -> FeedbackMessage {
-        FeedbackMessage {
-            feedback_type,
-            entity_id,
-            generated_frame,
-            payload_json: "{}".into(),
+        FeedbackMessage::new(feedback_type, entity_id, generated_frame, "{}")
+    }
+
+    #[test]
+    fn feedback_type_contract_is_stable() {
+        for (idx, feedback_type) in FeedbackType::ALL.iter().copied().enumerate() {
+            assert_eq!(feedback_type.as_u8(), idx as u8);
+            assert_eq!(FeedbackType::from_u8(idx as u8), Some(feedback_type));
+            assert!(!feedback_type.name().is_empty());
+            assert!(!feedback_type.payload_kind().is_empty());
         }
+        assert!(FeedbackType::from_u8(10).is_none());
     }
 
     #[test]
@@ -424,6 +392,7 @@ mod tests {
         let payload = FeedbackPayload::empty(0);
         assert!(payload.is_empty());
         assert_eq!(payload.message_count(), 0);
+        assert!(payload.validate().is_ok());
     }
 
     #[test]
@@ -432,92 +401,98 @@ mod tests {
         payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 100));
         assert_eq!(payload.message_count(), 1);
         assert!(!payload.is_empty());
+        assert!(payload.validate().is_ok());
     }
 
     #[test]
-    fn sorted_messages_by_frame_then_entity() {
+    fn sorted_messages_by_frame_entity_and_type() {
         let mut payload = FeedbackPayload::empty(1);
         payload.add_message(make_message(FeedbackType::PhysicsSettled, 5, 10));
         payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 8));
         payload.add_message(make_message(FeedbackType::AudioComplete, 3, 10));
+        payload.add_message(make_message(FeedbackType::AnimationEventFired, 3, 10));
+
         let sorted = payload.sorted_messages();
-        // frame 8 first
         assert_eq!(sorted[0].generated_frame, 8);
-        // frame 10, entity 3 before entity 5
-        assert_eq!(sorted[1].generated_frame, 10);
         assert_eq!(sorted[1].entity_id, 3);
-        assert_eq!(sorted[2].entity_id, 5);
+        assert_eq!(sorted[1].feedback_type, FeedbackType::AnimationEventFired);
+        assert_eq!(sorted[2].feedback_type, FeedbackType::AudioComplete);
+        assert_eq!(sorted[3].entity_id, 5);
     }
 
     #[test]
-    fn messages_of_type_filters_correctly() {
+    fn type_counts_and_filters_work() {
         let mut payload = FeedbackPayload::empty(1);
         payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 0));
         payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 2, 0));
         payload.add_message(make_message(FeedbackType::PhysicsSettled, 3, 0));
-        let anim = payload.messages_of_type(FeedbackType::AnimationStateUpdate);
-        assert_eq!(anim.len(), 2);
-        let physics = payload.messages_of_type(FeedbackType::PhysicsSettled);
-        assert_eq!(physics.len(), 1);
-    }
 
-    #[test]
-    fn type_counts_correct() {
-        let mut payload = FeedbackPayload::empty(1);
-        payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 1, 0));
-        payload.add_message(make_message(FeedbackType::AnimationStateUpdate, 2, 0));
-        payload.add_message(make_message(FeedbackType::PhysicsSettled, 3, 0));
-        let counts = payload.type_counts();
         assert_eq!(
-            counts.get(&FeedbackType::AnimationStateUpdate.as_u8()),
+            payload
+                .messages_of_type(FeedbackType::AnimationStateUpdate)
+                .len(),
+            2
+        );
+        assert_eq!(
+            payload
+                .type_counts()
+                .get(&FeedbackType::AnimationStateUpdate.as_u8()),
             Some(&2)
         );
-        assert_eq!(counts.get(&FeedbackType::PhysicsSettled.as_u8()), Some(&1));
     }
 
     #[test]
-    fn feedback_type_roundtrip() {
-        for i in 0u8..10 {
-            let ft = FeedbackType::from_u8(i).unwrap();
-            assert_eq!(ft.as_u8(), i);
-        }
+    fn typed_payload_roundtrip_works() {
+        let feedback = EngineErrorFeedback {
+            entity_id: 42,
+            error_code: "missing_mesh".into(),
+            error_message: "mesh not loaded".into(),
+            generated_frame: 7,
+        };
+        let msg = FeedbackMessage::from_typed_payload(FeedbackType::EngineError, 42, 7, &feedback)
+            .unwrap();
+        let decoded: EngineErrorFeedback = msg.decode_payload().unwrap();
+        assert_eq!(decoded.error_code, "missing_mesh");
+        assert!(msg.validate().is_ok());
     }
 
     #[test]
-    fn invalid_feedback_type_returns_none() {
-        assert!(FeedbackType::from_u8(10).is_none());
-        assert!(FeedbackType::from_u8(255).is_none());
+    fn validation_rejects_invalid_json_and_null_entity_for_scoped_feedback() {
+        let bad_json = FeedbackMessage::new(FeedbackType::EngineError, 1, 0, "not-json");
+        assert!(bad_json.validate().is_err());
+
+        let null_entity = FeedbackMessage::new(FeedbackType::EngineError, NULL_ENTITY_ID, 0, "{}");
+        assert!(null_entity.validate().is_err());
+
+        let metrics =
+            FeedbackMessage::new(FeedbackType::PerformanceMetrics, NULL_ENTITY_ID, 0, "{}");
+        assert!(metrics.validate().is_ok());
     }
 
     #[test]
-    fn all_feedback_types_have_names() {
-        for i in 0u8..10 {
-            let ft = FeedbackType::from_u8(i).unwrap();
-            assert!(!ft.name().is_empty());
-        }
+    fn frame_range_and_payload_size_are_reported() {
+        let mut payload = FeedbackPayload::empty(1);
+        assert_eq!(payload.frame_range(), None);
+        payload.add_message(make_message(
+            FeedbackType::PerformanceMetrics,
+            NULL_ENTITY_ID,
+            10,
+        ));
+        payload.add_message(make_message(
+            FeedbackType::PerformanceMetrics,
+            NULL_ENTITY_ID,
+            15,
+        ));
+        assert_eq!(payload.frame_range(), Some((10, 15)));
+        assert!(payload.total_payload_bytes() > 0);
     }
 
     #[test]
-    fn sort_key_uses_frame_then_entity() {
-        let msg1 = make_message(FeedbackType::PhysicsSettled, 5, 10);
-        let msg2 = make_message(FeedbackType::PhysicsSettled, 3, 10);
-        let msg3 = make_message(FeedbackType::PhysicsSettled, 1, 8);
-        assert!(msg3.sort_key() < msg2.sort_key());
-        assert!(msg2.sort_key() < msg1.sort_key());
-    }
-
-    #[test]
-    fn feedback_type_display() {
+    fn display_is_stable() {
         assert_eq!(
             FeedbackType::AnimationStateUpdate.to_string(),
             "AnimationStateUpdate"
         );
         assert_eq!(FeedbackType::EngineError.to_string(), "EngineError");
-    }
-
-    #[test]
-    fn tick_stored_in_payload() {
-        let payload = FeedbackPayload::empty(42);
-        assert_eq!(payload.tick, 42);
     }
 }

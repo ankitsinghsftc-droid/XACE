@@ -5,7 +5,7 @@ The main entity-component storage backend for archetype mode.
 
 ## Public API
 
-```rust
+```text
 let mut storage = ArchetypeStorage::new();
 
 // Insert a new entity with components

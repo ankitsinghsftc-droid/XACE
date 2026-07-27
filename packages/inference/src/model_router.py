@@ -32,8 +32,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, TYPE_CHECKING
 
-from .model_descriptor import ModelDescriptor, ComplexityTier, BUILTIN_DESCRIPTORS
+from .model_descriptor import ModelDescriptor, ComplexityTier
 from .provider_registry import ProviderRegistry
+from .route_evidence import RouteEvidencePolicy, RouteEvidenceResult
 
 if TYPE_CHECKING:
     from .local_model_manager import LocalModelManager
@@ -78,6 +79,8 @@ class RoutingDecision:
     is_deterministic_shortcut: bool = False
     fallback_applied:          bool = False
     local_model_selected:      bool = False
+    route_evidence_id:         str = ""
+    route_evidence_rejections: tuple[str, ...] = ()
 
 
 class ModelRoutingError(Exception):
@@ -107,10 +110,12 @@ class ModelRouter:
         registry:      ProviderRegistry,
         config:        dict[str, Any]      | None = None,
         local_manager: "LocalModelManager" | None = None,
+        route_evidence_policy: RouteEvidencePolicy | None = None,
     ) -> None:
         self._registry      = registry
         self._config        = config or {}
         self._local_manager = local_manager
+        self._route_evidence = route_evidence_policy or self._route_evidence_from_config(self._config)
         self._prefs: dict[str, str] = {
             **self._HYBRID_PREFS,
             **self._config.get("provider_preference", {}),
@@ -133,20 +138,29 @@ class ModelRouter:
             )
 
         # TIER_M: try local first
+        evidence_rejections: list[str] = []
         if effective == ComplexityTier.M and self._local_manager:
-            local_dec = self._try_local(effective, context)
+            local_dec = self._try_local(effective, context, evidence_rejections)
             if local_dec is not None:
                 return local_dec
 
-        # Cloud routing
-        candidates = self._candidates_for_tier(effective)
+        # Cloud routing. Local TIER_M is handled only through _try_local so
+        # unavailable local runtimes cannot win the normal cloud selection.
+        candidates = self._candidates_for_tier(effective, include_local=False)
         if not candidates:
-            raise ModelRoutingError(f"No descriptors for tier '{effective}'.")
+            raise ModelRoutingError(f"No available providers for tier '{effective}'.")
 
         active   = [d for d in candidates if d.provider not in context.failed_providers]
         healthy  = self._healthy(active)
-        pool     = healthy or active
-        sorted_  = self._sort(pool, effective, context)
+        if not active:
+            raise ModelRoutingError(
+                f"All providers for '{effective}' are marked failed: "
+                f"{context.failed_providers}."
+            )
+        if not healthy:
+            raise ModelRoutingError(f"No healthy providers for tier '{effective}'.")
+
+        sorted_  = self._sort(healthy, effective, context)
         ordered  = self._prefer(sorted_, effective, context)
 
         if not ordered:
@@ -155,7 +169,11 @@ class ModelRouter:
                 f"{context.failed_providers}."
             )
 
-        selected = ordered[0]
+        eligible = self._filter_by_route_evidence(ordered, effective, evidence_rejections)
+        if not eligible:
+            raise ModelRoutingError(self._route_evidence_block_message(effective, evidence_rejections))
+
+        selected, evidence = eligible[0]
         fallback = (
             self._prefs.get(effective)
             and selected.provider != self._prefs[effective]
@@ -163,24 +181,39 @@ class ModelRouter:
         return RoutingDecision(
             descriptor       = selected,
             tier             = effective,
-            reason           = self._reason(selected, effective, context, bool(fallback)),
+            reason           = self._reason(selected, effective, context, bool(fallback), evidence_rejections),
             fallback_applied = bool(fallback),
+            route_evidence_id = evidence.route_id,
+            route_evidence_rejections = tuple(evidence_rejections),
         )
 
     def route_cheapest(self, tier: str) -> ModelDescriptor | None:
-        cands = self._candidates_for_tier(tier)
+        cands = self._candidates_for_tier(tier, include_local=True)
         if not cands:
             return None
         local = [d for d in cands if d.provider == "local"]
-        return local[0] if local else min(cands, key=lambda d: d.input_price_per_1k)
+        sorted_candidates = local + sorted(
+            [d for d in cands if d.provider != "local"],
+            key=lambda d: d.input_price_per_1k,
+        )
+        rejections: list[str] = []
+        eligible = self._filter_by_route_evidence(sorted_candidates, tier, rejections)
+        if not eligible:
+            raise ModelRoutingError(self._route_evidence_block_message(tier, rejections))
+        return eligible[0][0]
 
     def route_best(self, tier: str) -> ModelDescriptor | None:
-        cands = self._candidates_for_tier(tier)
+        cands = self._candidates_for_tier(tier, include_local=True)
         if not cands:
             return None
         pref = self._prefs.get(tier, "anthropic")
         pref_match = [d for d in cands if d.provider == pref]
-        return pref_match[0] if pref_match else cands[0]
+        ordered = pref_match + [d for d in cands if d.provider != pref]
+        rejections: list[str] = []
+        eligible = self._filter_by_route_evidence(ordered, tier, rejections)
+        if not eligible:
+            raise ModelRoutingError(self._route_evidence_block_message(tier, rejections))
+        return eligible[0][0]
 
     def effective_tier_for_pass(self, pass_number: int) -> str:
         return PASS_TIER_MAP.get(pass_number, ComplexityTier.L)
@@ -200,9 +233,11 @@ class ModelRouter:
         return PASS_TIER_MAP.get(pass_number, tier) if pass_number is not None else tier
 
     def _try_local(
-        self, tier: str, context: RoutingContext
+        self, tier: str, context: RoutingContext, evidence_rejections: list[str]
     ) -> RoutingDecision | None:
         if "local" in context.failed_providers:
+            return None
+        if "local" not in set(self._registry.available_providers()):
             return None
         if not self._local_manager or not self._local_manager.has_any_available():
             return None
@@ -222,24 +257,33 @@ class ModelRouter:
             return None
 
         model = self._local_manager.select_model()
+        evidence = self._route_evidence.evaluate(local_desc, tier=tier, actual_model_id=model)
+        if not evidence.ok:
+            evidence_rejections.append(evidence.message)
+            return None
         return RoutingDecision(
             descriptor           = local_desc,
             tier                 = tier,
-            reason               = f"TIER_M local: '{model}' loaded. Zero cost.",
+            reason               = f"TIER_M local: '{model}' loaded. Zero cost. Evidence: {evidence.route_id}.",
             local_model_selected = True,
+            route_evidence_id    = evidence.route_id,
+            route_evidence_rejections = tuple(evidence_rejections),
         )
 
-    def _candidates_for_tier(self, tier: str) -> list[ModelDescriptor]:
+    def _candidates_for_tier(self, tier: str, *, include_local: bool = False) -> list[ModelDescriptor]:
+        available = set(self._registry.available_providers())
         result: list[ModelDescriptor] = []
         for name in self._registry.logical_model_names():
             try:
                 d = self._registry.get(name)
-                if d.default_tier == tier:
+                if d.default_tier != tier:
+                    continue
+                if d.provider == "local" and not include_local:
+                    continue
+                if d.provider in available:
                     result.append(d)
             except Exception:
                 pass
-        if not result:
-            result = [d for d in BUILTIN_DESCRIPTORS.values() if d.default_tier == tier]
         return result
 
     def _healthy(self, candidates: list[ModelDescriptor]) -> list[ModelDescriptor]:
@@ -277,13 +321,55 @@ class ModelRouter:
         rest  = [d for d in pool if d.provider != pref]
         return front + rest
 
+    def _filter_by_route_evidence(
+        self,
+        pool: list[ModelDescriptor],
+        tier: str,
+        evidence_rejections: list[str],
+    ) -> list[tuple[ModelDescriptor, RouteEvidenceResult]]:
+        eligible: list[tuple[ModelDescriptor, RouteEvidenceResult]] = []
+        for descriptor in pool:
+            evidence = self._route_evidence.evaluate(descriptor, tier=tier)
+            if evidence.ok:
+                eligible.append((descriptor, evidence))
+            else:
+                evidence_rejections.append(evidence.message)
+        return eligible
+
+    @staticmethod
+    def _route_evidence_from_config(config: dict[str, Any]) -> RouteEvidencePolicy:
+        manifest_path = str(config.get("route_evidence_path") or "").strip()
+        if manifest_path:
+            return RouteEvidencePolicy.from_path(manifest_path)
+        manifest = config.get("route_evidence_manifest")
+        if isinstance(manifest, dict):
+            return RouteEvidencePolicy.from_manifest(manifest)
+        rows = config.get("route_evidence_records")
+        if isinstance(rows, list):
+            return RouteEvidencePolicy.from_records(rows)
+        return RouteEvidencePolicy()
+
+    @staticmethod
+    def _route_evidence_block_message(tier: str, evidence_rejections: list[str]) -> str:
+        detail = " | ".join(evidence_rejections) if evidence_rejections else "No benchmark evidence was evaluated."
+        return (
+            f"MODEL_ROUTE_EVIDENCE_BLOCKED: no benchmark-approved automatic "
+            f"provider/model route is available for tier '{tier}'. {detail}"
+        )
+
     @staticmethod
     def _reason(
-        d: ModelDescriptor, tier: str, ctx: RoutingContext, fallback: bool
+        d: ModelDescriptor,
+        tier: str,
+        ctx: RoutingContext,
+        fallback: bool,
+        evidence_rejections: list[str] | None = None,
     ) -> str:
         parts = [f"Selected {d.logical_name!r} ({d.model_id}) for {tier}."]
         if fallback:
             parts.append("Fallback: preferred provider skipped.")
+        if evidence_rejections:
+            parts.append(f"Evidence gate skipped {len(evidence_rejections)} route(s).")
         if ctx.failed_providers:
             parts.append(f"Excluded: {ctx.failed_providers}.")
         if ctx.pass_number is not None:

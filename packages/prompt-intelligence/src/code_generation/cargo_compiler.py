@@ -232,8 +232,18 @@ class CargoCompiler:
         with open(os.path.join(temp_dir, "Cargo.toml"), "w") as f:
             f.write(cargo_toml)
 
-        # Write lib.rs with the generated code prefixed with XACE stubs
-        lib_content = _XACE_STUBS + "\n\n" + code
+        # Write lib.rs with XACE stubs at crate root and generated code in an
+        # isolated module. Generated systems commonly import crate interfaces;
+        # putting them at crate root would make those imports collide with stubs.
+        lib_content = (
+            _XACE_STUBS
+            + "\n\n"
+            + _build_component_stubs(spec)
+            + "\n\npub mod generated_system {\n"
+            + "use super::*;\n\n"
+            + code
+            + "\n}\n"
+        )
         with open(os.path.join(src_dir, "lib.rs"), "w") as f:
             f.write(lib_content)
 
@@ -379,6 +389,24 @@ path = "src/lib.rs"
 opt-level = 0
 debug = false
 """
+
+
+def _build_component_stubs(spec: SystemSpec) -> str:
+    """Generates minimal component structs referenced by the generated system."""
+    lines: list[str] = []
+    seen: set[str] = set()
+    for component in spec.all_components:
+        if component.rust_struct in seen:
+            continue
+        seen.add(component.rust_struct)
+        lines.append("#[derive(Default, Clone)]")
+        lines.append(f"pub struct {component.rust_struct} {{")
+        for field in component.fields:
+            lines.append(f"    pub {field.field_name}: {field.rust_type},")
+        lines.append("}")
+        lines.append(f"impl Component for {component.rust_struct} {{}}")
+        lines.append("")
+    return "\n".join(lines)
 
 
 def _parse_text_errors(stderr: str) -> list[CompileError]:

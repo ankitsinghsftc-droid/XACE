@@ -40,7 +40,6 @@ mod python_bridge;
 
 use error::CliError;
 
-
 // ── CLI Definition ────────────────────────────────────────────────────────────
 
 #[derive(Parser)]
@@ -73,7 +72,6 @@ struct Cli {
     command: XaceCommand,
 }
 
-
 #[derive(Subcommand)]
 enum XaceCommand {
     /// Compile a game project into a target engine artifact
@@ -95,39 +93,45 @@ enum XaceCommand {
     Doctor(commands::doctor::DoctorArgs),
 }
 
-
 // ── Entry Point ───────────────────────────────────────────────────────────────
 
 fn main() {
     let cli = Cli::parse();
 
     let ctx = commands::Context {
-        verbose:  cli.verbose,
+        verbose: cli.verbose,
         no_color: cli.no_color,
-        json:     cli.json,
+        json: cli.json,
     };
 
     let result: Result<i32, CliError> = match cli.command {
-        XaceCommand::Build(args)  => commands::build::run(args, &ctx),
-        XaceCommand::Test(args)   => commands::test::run(args, &ctx),
-        XaceCommand::Run(args)    => commands::run::run(args, &ctx),
+        XaceCommand::Build(args) => commands::build::run(args, &ctx),
+        XaceCommand::Test(args) => commands::test::run(args, &ctx),
+        XaceCommand::Run(args) => commands::run::run(args, &ctx),
         XaceCommand::Deploy(args) => commands::deploy::run(args, &ctx),
         XaceCommand::Doctor(args) => commands::doctor::run(args, &ctx),
     };
 
     match result {
         Ok(code) => std::process::exit(code),
-        Err(e)   => {
+        Err(e) => {
             if cli.json {
+                let message = e.to_string();
+                let code = e.exit_code();
                 // Machine-readable error output
                 let obj = serde_json::json!({
                     "ok":    false,
-                    "error": e.to_string(),
-                    "code":  e.exit_code(),
+                    "error": message,
+                    "code":  code,
                 });
                 eprintln!("{}", serde_json::to_string_pretty(&obj).unwrap_or_default());
             } else {
-                eprintln!("{}{}{}", error_prefix(cli.no_color), e, error_suffix(cli.no_color));
+                eprintln!(
+                    "{}{}{}",
+                    error_prefix(cli.no_color),
+                    e,
+                    error_suffix(cli.no_color)
+                );
             }
             std::process::exit(e.exit_code());
         }
@@ -135,7 +139,13 @@ fn main() {
 }
 
 fn error_prefix(no_color: bool) -> &'static str {
-    if no_color { "error: " } else { "\x1b[31merror\x1b[0m: " }
+    if no_color {
+        "error: "
+    } else {
+        "\x1b[31merror\x1b[0m: "
+    }
 }
 
-fn error_suffix(_no_color: bool) -> &'static str { "" }
+fn error_suffix(_no_color: bool) -> &'static str {
+    ""
+}

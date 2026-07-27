@@ -28,12 +28,11 @@
 //! These orderings match what `DeltaPayload` enforces — the builder
 //! never produces output that violates them.
 
+use xace_core::runtime::state_delta::StateDelta;
 use xace_core::wire::delta_payload::{
-    DeltaPayload, WireAddedComponent, WireComponentData, WireComponentUpdate,
-    WireDestroyedEntity, WireFieldChange, WireRemovedComponent, WireSpawnedEntity,
+    DeltaPayload, WireAddedComponent, WireComponentData, WireComponentUpdate, WireDestroyedEntity,
+    WireFieldChange, WireRemovedComponent, WireSpawnedEntity,
 };
-use xace_core::runtime::state_delta::{StateDelta, ComponentChange};
-use xace_core::entity_metadata::Tick;
 
 // ── Builder Metrics ───────────────────────────────────────────────────────────
 
@@ -65,18 +64,13 @@ impl DeltaBuilder {
     ///
     /// `sequence_id` is assigned by the caller (`EngineAdapterInterface`) and
     /// embedded into the payload for sequence tracking on the engine side.
-    pub fn build(
-        delta: &StateDelta,
-        sequence_id: u64,
-    ) -> (DeltaPayload, BuildMetrics) {
-        let mut payload =
-            DeltaPayload::empty(delta.tick, sequence_id, &delta.schema_version);
+    pub fn build(delta: &StateDelta, sequence_id: u64) -> (DeltaPayload, BuildMetrics) {
+        let mut payload = DeltaPayload::empty(delta.tick, sequence_id, &delta.schema_version);
         let mut metrics = BuildMetrics::default();
 
         // ── 1. Spawned entities ────────────────────────────────────────────
         for spawned in &delta.spawned_entities {
-            let mut wire_entity =
-                WireSpawnedEntity::new(spawned.entity_id, &spawned.actor_id);
+            let mut wire_entity = WireSpawnedEntity::new(spawned.entity_id, &spawned.actor_id);
 
             // BTreeMap iteration is component_type_id ASC (D11)
             for (type_id, component_json) in &spawned.initial_components {
@@ -120,11 +114,8 @@ impl DeltaBuilder {
                     .map(|fc| WireFieldChange::new(&fc.field_name, &fc.value_json))
                     .collect();
                 // WireComponentUpdate::new sorts fields by name (D11)
-                let wire_update = WireComponentUpdate::new(
-                    *type_id,
-                    &change.component_type_name,
-                    wire_fields,
-                );
+                let wire_update =
+                    WireComponentUpdate::new(*type_id, &change.component_type_name, wire_fields);
                 payload.add_component_update(*entity_id, wire_update);
                 metrics.total_field_changes += change.field_count();
             }
@@ -162,6 +153,7 @@ impl DeltaBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use xace_core::entity_metadata::Tick;
     use xace_core::runtime::state_delta::{
         AddedComponent, ComponentChange, DestroyedEntity, FieldChange, RemovedComponent,
         SpawnedEntity, StateDelta,
@@ -194,8 +186,7 @@ mod tests {
     fn spawned_entity_appears_in_payload() {
         let mut delta = empty_delta(1);
         delta.record_spawn(
-            SpawnedEntity::new(1, "actor_player")
-                .with_component(1, r#"{"position":{"x":0}}"#),
+            SpawnedEntity::new(1, "actor_player").with_component(1, r#"{"position":{"x":0}}"#),
         );
 
         let (payload, metrics) = DeltaBuilder::build(&delta, 1);

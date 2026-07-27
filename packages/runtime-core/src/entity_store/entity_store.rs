@@ -55,6 +55,13 @@ pub struct EntityStore {
     archive: EntityArchive,
 }
 
+#[derive(Debug, Clone)]
+pub struct EntityStoreRollbackSnapshot {
+    entity_records: Vec<EntityMetadata>,
+    next_entity_id: EntityID,
+    archived_ids: Vec<(EntityID, Tick)>,
+}
+
 impl EntityStore {
     /// Creates a new empty EntityStore.
     /// ID generator starts at 1 — NULL_ENTITY_ID (0) is never generated.
@@ -322,8 +329,18 @@ impl EntityStore {
         self.entities.clear();
         self.archive = EntityArchive::new();
 
+        let inferred_archived_ids: Vec<(EntityID, Tick)> = entity_records
+            .iter()
+            .filter(|metadata| metadata.state == xace_core::entity_state::EntityState::Archived)
+            .map(|metadata| (metadata.id, metadata.destroyed_tick))
+            .collect();
+
         for metadata in entity_records {
             self.entities.insert(metadata.id, metadata);
+        }
+
+        for (id, tick) in inferred_archived_ids {
+            self.archive.archive_id(id, tick);
         }
 
         for (id, tick) in archived_ids {
@@ -331,6 +348,25 @@ impl EntityStore {
         }
 
         self.id_generator.restore_to(next_entity_id);
+    }
+
+    /// Captures an exact rollback image of the entity store, including the
+    /// monotonic ID counter and permanent archive.
+    pub fn rollback_snapshot(&self) -> EntityStoreRollbackSnapshot {
+        EntityStoreRollbackSnapshot {
+            entity_records: self.all_metadata_sorted().into_iter().cloned().collect(),
+            next_entity_id: self.peek_next_id(),
+            archived_ids: self.archive.all_entries_sorted(),
+        }
+    }
+
+    /// Restores a rollback image captured by `rollback_snapshot()`.
+    pub fn restore_rollback_snapshot(&mut self, snapshot: EntityStoreRollbackSnapshot) {
+        self.restore_from_snapshot(
+            snapshot.entity_records,
+            snapshot.next_entity_id,
+            snapshot.archived_ids,
+        );
     }
 
     /// Returns all entity metadata records sorted by EntityID ASC (D3).
@@ -536,7 +572,7 @@ mod tests {
     #[test]
     fn total_count_includes_all_states() {
         let mut s = store();
-        let id1 = s.create_entity(0).unwrap();
+        let _id1 = s.create_entity(0).unwrap();
         let id2 = s.create_entity(0).unwrap();
         s.request_destroy(id2, 1).unwrap();
         s.complete_destroy(id2, 2).unwrap();

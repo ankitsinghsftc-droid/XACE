@@ -535,8 +535,8 @@ mod tests {
             context: test_context(),
             peer_id: "peer_001".into(),
             desync_tick: 1000,
-            local_hash: "abc123".into(),
-            remote_hash: "def456".into(),
+            local_hash: "a".repeat(64),
+            remote_hash: "b".repeat(64),
         };
         assert_eq!(err.severity(), ErrorSeverity::Critical);
         assert!(err.is_auto_recoverable());

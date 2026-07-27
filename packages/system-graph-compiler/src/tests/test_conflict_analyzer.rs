@@ -4,7 +4,6 @@
 #[cfg(test)]
 mod tests {
     use crate::conflict_analyzer::conflict_analyzer::ConflictAnalyzer;
-    use crate::conflict_analyzer::serialization_group_builder::SerializationGroupBuilder;
     use crate::graph_construction::graph_construction_layer::GraphConstructionLayer;
     use crate::phase_segmentation::phase_segmentation_layer::PhaseSegmentationLayer;
     use xace_core::runtime::phase_enum::PhaseEnum;

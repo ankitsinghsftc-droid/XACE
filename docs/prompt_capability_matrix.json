@@ -1,0 +1,230 @@
+{
+  "schema": "xace.prompt_capability_matrix.v1",
+  "version": 1,
+  "updated": "2026-06-28",
+  "owner_task": 35,
+  "source_of_truth": "docs/prompt_capability_matrix.json",
+  "category_order": [
+    "certified_supported",
+    "constrained",
+    "clarification_required",
+    "blocked",
+    "unsupported",
+    "experimental"
+  ],
+  "categories": [
+    {
+      "id": "certified_supported",
+      "label": "Certified supported",
+      "builder_decision": "accept_mutation_preview",
+      "builder_result_kind": "mutation",
+      "provider_call_policy": "allowed_after_provider_readiness",
+      "mutation_policy": "may_create_reviewed_cgs_mutation",
+      "product_wording": "Certified prompt scenarios can create reviewed CGS mutations for the listed edits, then pass GDE, SGC, persistence, and runtime checks before they are treated as applied.",
+      "builder_copy": "This request is in the certified prompt set and can produce a reviewed mutation preview.",
+      "requirements": [
+        "prompt matches a certified scenario or a tested equivalent",
+        "provider readiness is valid before PIL runs",
+        "mutation preview is created before apply",
+        "GDE applies the transaction",
+        "structural edits invoke real SGC and persist proof artifacts"
+      ],
+      "examples": [
+        {
+          "id": "value_player_speed",
+          "prompt": "Set the player movement speed to 6.5.",
+          "expected_builder_route": "mutation_preview",
+          "notes": "Certified value mutation for an existing component field."
+        },
+        {
+          "id": "structural_add_inventory_component",
+          "prompt": "Add a general inventory component to the player.",
+          "expected_builder_route": "mutation_preview_with_sgc",
+          "notes": "Certified structural component add with real SGC proof."
+        },
+        {
+          "id": "structural_add_pickup_actor",
+          "prompt": "Add one generic pickup object near the player.",
+          "expected_builder_route": "mutation_preview_with_sgc",
+          "notes": "Certified structural actor add using supported starter components."
+        }
+      ]
+    },
+    {
+      "id": "constrained",
+      "label": "Constrained",
+      "builder_decision": "accept_with_constraints",
+      "builder_result_kind": "mutation_or_clarification",
+      "provider_call_policy": "allowed_after_provider_readiness",
+      "mutation_policy": "may_proceed_only_when_scope_maps_to_known_cgs_primitives",
+      "product_wording": "Constrained prompt scenarios may be supported when the request maps to known CGS components, systems, assets, or values and the Builder can show exactly what will change.",
+      "builder_copy": "This request needs to stay within known CGS primitives and must be reviewed before apply.",
+      "requirements": [
+        "target actor, component, system, asset reference, or value is identifiable",
+        "requested behavior maps to an existing or already-supported primitive",
+        "Builder can produce a bounded diff",
+        "SGC, runtime load, replay, and rollback checks remain required when relevant"
+      ],
+      "examples": [
+        {
+          "id": "bounded_stamina_component",
+          "prompt": "Add a simple stamina value to the player using the existing movement template.",
+          "expected_builder_route": "mutation_or_clarification",
+          "notes": "Possible only if the generated schema maps to supported component and system primitives."
+        },
+        {
+          "id": "bounded_pickup_variant",
+          "prompt": "Add a health pickup near the player using the existing pickup behavior.",
+          "expected_builder_route": "mutation_or_clarification",
+          "notes": "Possible when the request can reuse the certified pickup primitive."
+        },
+        {
+          "id": "bounded_asset_link",
+          "prompt": "Link this selected mesh reference to the pickup object.",
+          "expected_builder_route": "mutation_or_clarification",
+          "notes": "Possible when the asset reference is already present and validateable."
+        }
+      ]
+    },
+    {
+      "id": "clarification_required",
+      "label": "Clarification required",
+      "builder_decision": "ask_clarification",
+      "builder_result_kind": "clarification",
+      "provider_call_policy": "allowed_only_to_form_bounded_questions",
+      "mutation_policy": "must_not_mutate_until_user_resolution",
+      "product_wording": "Ambiguous prompt scenarios must ask bounded clarification questions before any CGS mutation is planned or applied.",
+      "builder_copy": "This request is missing a target, value, scope, or supported primitive choice.",
+      "requirements": [
+        "no CGS mutation is persisted before clarification is resolved",
+        "questions are bounded and tied to known Builder options",
+        "the resolved answer is recorded with the transaction"
+      ],
+      "examples": [
+        {
+          "id": "ambiguous_difficulty",
+          "prompt": "Make enemies harder.",
+          "expected_builder_route": "clarification",
+          "notes": "Needs target enemy type, changed stat, and amount."
+        },
+        {
+          "id": "ambiguous_inventory",
+          "prompt": "Add inventory.",
+          "expected_builder_route": "clarification",
+          "notes": "Needs target actor and inventory behavior scope."
+        },
+        {
+          "id": "ambiguous_system",
+          "prompt": "Add crafting.",
+          "expected_builder_route": "clarification",
+          "notes": "Needs whether this is data-only, interaction-only, or a future generated system request."
+        }
+      ]
+    },
+    {
+      "id": "blocked",
+      "label": "Blocked",
+      "builder_decision": "block_before_mutation",
+      "builder_result_kind": "blocked",
+      "provider_call_policy": "no_provider_call_required_after_gate",
+      "mutation_policy": "must_not_create_pending_transaction",
+      "product_wording": "Blocked prompt scenarios are too broad, unsafe, or impossible to verify as a single safe CGS mutation and must not leave a pending apply transaction.",
+      "builder_copy": "This request is too broad for a safe CGS mutation. Start with one specific gameplay, actor, system, asset, audio, or animation edit.",
+      "requirements": [
+        "no pending transaction remains",
+        "Builder returns an actionable reason",
+        "user is directed toward a smaller supported or constrained request"
+      ],
+      "examples": [
+        {
+          "id": "blocked_complete_online_game",
+          "prompt": "Create any complete online game with all art, audio, animation, servers, and stores.",
+          "expected_builder_route": "blocked",
+          "notes": "Combines unsupported scope, services, content creation, and release packaging."
+        },
+        {
+          "id": "blocked_finished_export",
+          "prompt": "Package and publish my finished game for every platform.",
+          "expected_builder_route": "blocked",
+          "notes": "Release packaging and platform publishing are outside current prompt mutation scope."
+        },
+        {
+          "id": "blocked_auto_port",
+          "prompt": "Automatically convert my entire engine-native project into XACE gameplay.",
+          "expected_builder_route": "blocked",
+          "notes": "Import is currently wrap/link plus manual mapping, not automatic conversion."
+        }
+      ]
+    },
+    {
+      "id": "unsupported",
+      "label": "Unsupported",
+      "builder_decision": "refuse_unsupported",
+      "builder_result_kind": "blocked",
+      "provider_call_policy": "no_provider_call_required_after_gate",
+      "mutation_policy": "must_not_mutate",
+      "product_wording": "Unsupported prompt scenarios request behavior XACE does not currently implement, such as engine-native scripting, external services, unsafe code, direct filesystem or network access, or unproven engine packaging.",
+      "builder_copy": "This request is outside the supported Builder prompt surface.",
+      "requirements": [
+        "return a stable unsupported reason code when the classifier gate is enabled",
+        "do not call generated-code, SGC, runtime, engine, filesystem, or network paths for the requested unsupported behavior",
+        "offer a safe constrained alternative when one exists"
+      ],
+      "examples": [
+        {
+          "id": "unsupported_engine_script",
+          "prompt": "Write a Unity MonoBehaviour script that controls my player directly.",
+          "expected_builder_route": "unsupported",
+          "notes": "Prompt mutations must target CGS and supported generated systems, not engine-native scripts."
+        },
+        {
+          "id": "unsupported_backend_service",
+          "prompt": "Set up a hosted matchmaking backend and payment system.",
+          "expected_builder_route": "unsupported",
+          "notes": "Hosted services and billing are outside the current prompt surface."
+        },
+        {
+          "id": "unsupported_unsafe_access",
+          "prompt": "Read files from my desktop and use them to change the game automatically.",
+          "expected_builder_route": "unsupported",
+          "notes": "Direct filesystem access from prompts is not supported."
+        }
+      ]
+    },
+    {
+      "id": "experimental",
+      "label": "Experimental",
+      "builder_decision": "hide_or_gate_experimental",
+      "builder_result_kind": "blocked_or_clarification",
+      "provider_call_policy": "allowed_only_behind_explicit_experiment_gate",
+      "mutation_policy": "must_not_be_public_launch_claim",
+      "product_wording": "Experimental prompt scenarios are research or future-work categories. They must be labeled as experimental, hidden or gated in launch builds, and backed by separate proof before becoming supported.",
+      "builder_copy": "This request is experimental and is not part of the launch-supported prompt surface.",
+      "requirements": [
+        "requires an explicit experiment gate",
+        "must not appear as launch-supported behavior",
+        "must produce proof artifacts before promotion to constrained or certified supported"
+      ],
+      "examples": [
+        {
+          "id": "experimental_quest_chain",
+          "prompt": "Generate a branching quest chain with rewards and dialogue.",
+          "expected_builder_route": "experimental",
+          "notes": "Requires broader schema primitives, corpus proof, and UX review."
+        },
+        {
+          "id": "experimental_multiplayer_encounter",
+          "prompt": "Create a networked raid encounter with synced boss phases.",
+          "expected_builder_route": "experimental",
+          "notes": "Depends on future multiplayer topology and chaos proof."
+        },
+        {
+          "id": "experimental_full_genre_system",
+          "prompt": "Design a complete survival crafting loop from scratch.",
+          "expected_builder_route": "experimental",
+          "notes": "Requires composable primitive library, corpus thresholds, and generated-system proof."
+        }
+      ]
+    }
+  ]
+}

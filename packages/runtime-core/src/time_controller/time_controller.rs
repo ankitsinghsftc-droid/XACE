@@ -68,7 +68,7 @@ impl std::fmt::Display for TimeMode {
 /// of ticks to simulate this frame. Then run the PhaseOrchestrator
 /// that many times.
 ///
-/// ```ignore
+/// ```text
 /// let ticks = time_controller.update(frame_delta_seconds)?;
 /// for _ in 0..ticks {
 ///     orchestrator.tick(...)?;

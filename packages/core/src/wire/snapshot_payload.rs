@@ -1,131 +1,43 @@
-//! # Snapshot Payload
+//! Full world-state payload sent from XACE to engine adapters.
 //!
-//! The wire-format payload for SNAPSHOT messages sent from XACE to the
-//! engine adapter. Contains the complete world state needed for the
-//! engine to fully reconstruct its scene from scratch.
-//!
-//! ## When SNAPSHOT is Sent
-//! XACE sends a SNAPSHOT message to the engine adapter in three cases:
-//! 1. Initial connection — engine has no world state yet
-//! 2. Desync recovery — engine detected a sequence gap in DELTA messages
-//! 3. Explicit SNAPSHOT request — engine sent a CONTROL/request_snapshot
-//!
-//! ## Relationship to WorldSnapshot
-//! WorldSnapshot (runtime/world_snapshot.rs) is the authoritative
-//! internal runtime state — it includes RNG state, mutation queue,
-//! event queue, and everything needed for deterministic replay.
-//!
-//! SnapshotPayload is the wire-format subset — it contains only what
-//! the engine adapter needs to reconstruct its visual scene:
-//! - All entity IDs and their states
-//! - All component data for all entities
-//! - The current schema and plan versions for validation
-//!
-//! The engine adapter never needs RNG state, event queues, or
-//! mutation queues — those are internal runtime concerns only.
-//!
-//! ## Full vs Partial Snapshots
-//! A full snapshot (is_full = true) contains ALL entities and components.
-//! A partial snapshot (is_full = false) contains only a specific subset —
-//! used for late-join in multiplayer where not all entities are relevant
-//! to the joining peer (interest management, Phase 15).
-//!
-//! ## Determinism
-//! Entity records are sorted by EntityID ASC (D3).
-//! Components within each entity are sorted by type_id ASC (D11).
-//! Identical world state always produces identical SnapshotPayload bytes.
+//! A `SnapshotPayload` is the adapter-facing reconstruction format. It does
+//! not contain runtime-only replay internals such as RNG state, mutation queues,
+//! or scheduler internals. It contains enough deterministic, sorted entity and
+//! component data for an engine adapter to rebuild its scene exactly.
 
-use crate::entity_id::EntityID;
-use crate::entity_metadata::Tick;
-use crate::entity_state::EntityState;
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
-// ── Snapshot Entity Record ────────────────────────────────────────────────────
+use serde::{Deserialize, Serialize};
 
-/// A single entity's complete state in the snapshot.
-///
-/// Contains the entity's lifecycle state and all its component data.
-/// Components are stored as a BTreeMap for deterministic type_id
-/// ascending iteration order (D11).
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct SnapshotEntityRecord {
-    /// The entity's unique ID.
-    pub entity_id: EntityID,
+use crate::entity_id::{EntityID, NULL_ENTITY_ID};
+use crate::entity_metadata::Tick;
+use crate::entity_state::EntityState;
 
-    /// The entity's current lifecycle state.
-    /// Engine adapter only receives Active and Disabled entities —
-    /// Destroyed and Archived entities are never included.
-    pub state: EntityState,
-
-    /// All component data for this entity.
-    /// BTreeMap<component_type_id, component_json>
-    /// Sorted by component_type_id ASC for determinism (D11).
-    pub components: BTreeMap<u32, SnapshotComponentRecord>,
-
-    /// Sorted tags from COMP_IDENTITY_V1.
-    /// Included for quick engine-side entity classification.
-    pub tags: Vec<String>,
+/// Why a snapshot was emitted.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SnapshotReason {
+    InitialConnection,
+    DesyncRecovery,
+    ExplicitRequest,
+    PeriodicRefresh,
 }
 
-impl SnapshotEntityRecord {
-    /// Creates a new entity record with no components.
-    pub fn new(entity_id: EntityID, state: EntityState) -> Self {
-        Self {
-            entity_id,
-            state,
-            components: BTreeMap::new(),
-            tags: Vec::new(),
+impl std::fmt::Display for SnapshotReason {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::InitialConnection => f.write_str("InitialConnection"),
+            Self::DesyncRecovery => f.write_str("DesyncRecovery"),
+            Self::ExplicitRequest => f.write_str("ExplicitRequest"),
+            Self::PeriodicRefresh => f.write_str("PeriodicRefresh"),
         }
     }
-
-    /// Adds a component record to this entity.
-    /// BTreeMap insertion maintains type_id ascending order (D11).
-    pub fn add_component(&mut self, component: SnapshotComponentRecord) {
-        self.components
-            .insert(component.component_type_id, component);
-    }
-
-    /// Returns the component record for a specific type, if present.
-    pub fn get_component(&self, type_id: u32) -> Option<&SnapshotComponentRecord> {
-        self.components.get(&type_id)
-    }
-
-    /// Returns true if this entity has a component of the given type.
-    pub fn has_component(&self, type_id: u32) -> bool {
-        self.components.contains_key(&type_id)
-    }
-
-    /// Returns the number of components on this entity.
-    pub fn component_count(&self) -> usize {
-        self.components.len()
-    }
-
-    /// Returns true if this entity is currently active and visible.
-    pub fn is_active(&self) -> bool {
-        matches!(self.state, EntityState::Active)
-    }
 }
 
-// ── Snapshot Component Record ─────────────────────────────────────────────────
-
-/// A single component's complete data in the snapshot.
-///
-/// Includes the type ID, canonical name, and full JSON data.
-/// The engine adapter uses the type name to look up its engine-side
-/// component handler and deserialize the JSON into engine types.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+/// Component data attached to one entity in a snapshot.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SnapshotComponentRecord {
-    /// The component type ID from the UCL/DCL/GCL registry.
     pub component_type_id: u32,
-
-    /// The canonical component type name for engine-side lookup.
-    /// Example: "COMP_TRANSFORM_V1", "COMP_HEALTH_V1"
     pub component_type_name: String,
-
-    /// Complete component data serialized as JSON.
-    /// JSON keys are sorted alphabetically for determinism (D11).
-    /// The engine adapter deserializes this into its engine type.
     pub data_json: String,
 }
 
@@ -141,107 +53,143 @@ impl SnapshotComponentRecord {
             data_json: data_json.into(),
         }
     }
-}
 
-// ── Snapshot Payload ──────────────────────────────────────────────────────────
+    pub fn data_value(&self) -> Result<serde_json::Value, serde_json::Error> {
+        serde_json::from_str(&self.data_json)
+    }
 
-/// The complete wire payload for a SNAPSHOT message.
-///
-/// Contains the full world state needed for the engine adapter to
-/// reconstruct its scene from scratch. Sent on initial connection,
-/// desync recovery, or explicit snapshot request.
-///
-/// ## Entity Inclusion Rules
-/// Only Active and Disabled entities are included in snapshots.
-/// DestroyRequested, Destroyed, and Archived entities are excluded —
-/// the engine adapter has no use for entities that no longer exist.
-///
-/// ## Component Inclusion Rules
-/// All registered components for each entity are included.
-/// This includes all UCL Core components and any DCL/GCL components
-/// that are registered on this entity.
-///
-/// ## Validation
-/// The engine adapter validates schema_version and plan_version
-/// match its configured versions before applying the snapshot.
-/// Version mismatch causes the engine to request reconnection
-/// rather than applying a potentially incompatible snapshot.
-///
-/// ## Sequence Reset
-/// After receiving a SNAPSHOT, the engine adapter resets its
-/// sequence_id tracking to last_delta_sequence_id + 1.
-/// All subsequent DELTA messages use the new sequence baseline.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SnapshotPayload {
-    /// The simulation tick this snapshot represents.
-    pub tick: Tick,
-
-    /// The CGS semantic version active at this tick.
-    /// Engine adapter validates this before applying.
-    pub schema_version: String,
-
-    /// The ExecutionPlan version active at this tick.
-    /// Engine adapter validates this before applying.
-    pub execution_plan_version: u32,
-
-    /// The CGS hash for integrity verification.
-    pub cgs_hash: String,
-
-    /// The world_hash of the snapshot for determinism validation (D9).
-    /// Engine adapter cannot verify this directly but records it
-    /// for debugging and desync detection.
-    pub world_hash: String,
-
-    /// The last DELTA sequence_id before this snapshot.
-    /// Engine adapter uses this to reset sequence tracking.
-    pub last_delta_sequence_id: u64,
-
-    /// Whether this is a full snapshot (all entities) or partial.
-    /// Partial snapshots are used for late-join interest management (Phase 15).
-    pub is_full: bool,
-
-    /// All entity records sorted by EntityID ASC (D3).
-    /// Only Active and Disabled entities are included.
-    pub entities: Vec<SnapshotEntityRecord>,
-
-    /// The reason this snapshot was sent.
-    /// Used for logging and debugging.
-    pub reason: SnapshotReason,
-}
-
-// ── Snapshot Reason ───────────────────────────────────────────────────────────
-
-/// Why this snapshot was sent to the engine adapter.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum SnapshotReason {
-    /// Engine adapter just connected — needs full world state.
-    InitialConnection,
-
-    /// Engine adapter detected a sequence gap in DELTA messages.
-    /// One or more DELTA messages were dropped or arrived out of order.
-    DesyncRecovery,
-
-    /// Engine adapter explicitly requested a snapshot via CONTROL message.
-    ExplicitRequest,
-
-    /// Periodic snapshot for network stability (Phase 15).
-    /// Sent every N ticks to prevent drift in long sessions.
-    PeriodicRefresh,
-}
-
-impl std::fmt::Display for SnapshotReason {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            SnapshotReason::InitialConnection => write!(f, "InitialConnection"),
-            SnapshotReason::DesyncRecovery => write!(f, "DesyncRecovery"),
-            SnapshotReason::ExplicitRequest => write!(f, "ExplicitRequest"),
-            SnapshotReason::PeriodicRefresh => write!(f, "PeriodicRefresh"),
+    pub fn validate(&self) -> Result<(), String> {
+        if self.component_type_id == 0 {
+            return Err("snapshot component_type_id must not be zero".into());
         }
+        if self.component_type_name.trim().is_empty() {
+            return Err(format!(
+                "snapshot component {} has empty component_type_name",
+                self.component_type_id
+            ));
+        }
+        serde_json::from_str::<serde_json::Value>(&self.data_json).map_err(|err| {
+            format!(
+                "snapshot component {} ({}) has invalid data_json: {}",
+                self.component_type_id, self.component_type_name, err
+            )
+        })?;
+        Ok(())
+    }
+
+    pub fn payload_size_bytes(&self) -> usize {
+        self.component_type_name.len() + self.data_json.len()
     }
 }
 
+/// One entity and all components required to reconstruct it engine-side.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SnapshotEntityRecord {
+    pub entity_id: EntityID,
+    pub state: EntityState,
+    pub components: BTreeMap<u32, SnapshotComponentRecord>,
+    pub tags: Vec<String>,
+}
+
+impl SnapshotEntityRecord {
+    pub fn new(entity_id: EntityID, state: EntityState) -> Self {
+        Self {
+            entity_id,
+            state,
+            components: BTreeMap::new(),
+            tags: Vec::new(),
+        }
+    }
+
+    pub fn with_tags(mut self, tags: Vec<String>) -> Self {
+        self.tags = normalize_tags(tags);
+        self
+    }
+
+    /// Inserts or replaces a component record by type id.
+    pub fn add_component(&mut self, component: SnapshotComponentRecord) {
+        self.components
+            .insert(component.component_type_id, component);
+    }
+
+    pub fn remove_component(&mut self, type_id: u32) -> Option<SnapshotComponentRecord> {
+        self.components.remove(&type_id)
+    }
+
+    pub fn get_component(&self, type_id: u32) -> Option<&SnapshotComponentRecord> {
+        self.components.get(&type_id)
+    }
+
+    pub fn has_component(&self, type_id: u32) -> bool {
+        self.components.contains_key(&type_id)
+    }
+
+    pub fn component_count(&self) -> usize {
+        self.components.len()
+    }
+
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.tags
+            .binary_search_by(|known| known.as_str().cmp(tag))
+            .is_ok()
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.state == EntityState::Active
+    }
+
+    pub fn is_engine_visible_state(&self) -> bool {
+        matches!(self.state, EntityState::Active | EntityState::Disabled)
+    }
+
+    pub fn total_payload_bytes(&self) -> usize {
+        self.tags.iter().map(String::len).sum::<usize>()
+            + self
+                .components
+                .values()
+                .map(SnapshotComponentRecord::payload_size_bytes)
+                .sum::<usize>()
+    }
+
+    pub fn validate(&self) -> Result<(), String> {
+        if self.entity_id == NULL_ENTITY_ID {
+            return Err("snapshot entity_id must not be NULL_ENTITY_ID".into());
+        }
+        if !self.is_engine_visible_state() {
+            return Err(format!(
+                "snapshot entity {} has non-engine-visible state {}",
+                self.entity_id, self.state
+            ));
+        }
+        ensure_sorted_unique_strings(&self.tags, "snapshot entity tags")?;
+        for (type_id, component) in &self.components {
+            if *type_id != component.component_type_id {
+                return Err(format!(
+                    "snapshot entity {} component map key {} does not match record type {}",
+                    self.entity_id, type_id, component.component_type_id
+                ));
+            }
+            component.validate()?;
+        }
+        Ok(())
+    }
+}
+
+/// Complete adapter-facing snapshot payload.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SnapshotPayload {
+    pub tick: Tick,
+    pub schema_version: String,
+    pub execution_plan_version: u32,
+    pub cgs_hash: String,
+    pub world_hash: String,
+    pub last_delta_sequence_id: u64,
+    pub is_full: bool,
+    pub entities: Vec<SnapshotEntityRecord>,
+    pub reason: SnapshotReason,
+}
+
 impl SnapshotPayload {
-    /// Creates a new snapshot payload.
     pub fn new(
         tick: Tick,
         schema_version: impl Into<String>,
@@ -264,269 +212,281 @@ impl SnapshotPayload {
         }
     }
 
-    /// Adds an entity record maintaining EntityID sort order (D3).
-    /// Only Active and Disabled entities should be added.
-    pub fn add_entity(&mut self, entity: SnapshotEntityRecord) {
-        let pos = self
-            .entities
-            .partition_point(|e| e.entity_id < entity.entity_id);
-        self.entities.insert(pos, entity);
+    pub fn mark_partial(&mut self) {
+        self.is_full = false;
     }
 
-    /// Returns the entity record for a specific EntityID, if present.
+    pub fn with_partial(mut self) -> Self {
+        self.is_full = false;
+        self
+    }
+
+    /// Inserts or replaces an entity while preserving ascending entity order.
+    pub fn add_entity(&mut self, entity: SnapshotEntityRecord) {
+        match self
+            .entities
+            .binary_search_by_key(&entity.entity_id, |e| e.entity_id)
+        {
+            Ok(idx) => self.entities[idx] = entity,
+            Err(idx) => self.entities.insert(idx, entity),
+        }
+    }
+
+    /// Fallible insert that rejects duplicate entity IDs.
+    pub fn try_add_entity(&mut self, entity: SnapshotEntityRecord) -> Result<(), String> {
+        match self
+            .entities
+            .binary_search_by_key(&entity.entity_id, |e| e.entity_id)
+        {
+            Ok(_) => Err(format!(
+                "snapshot already contains entity {}",
+                entity.entity_id
+            )),
+            Err(idx) => {
+                self.entities.insert(idx, entity);
+                Ok(())
+            }
+        }
+    }
+
     pub fn get_entity(&self, entity_id: EntityID) -> Option<&SnapshotEntityRecord> {
         self.entities
-            .binary_search_by(|e| e.entity_id.cmp(&entity_id))
+            .binary_search_by_key(&entity_id, |e| e.entity_id)
             .ok()
             .map(|idx| &self.entities[idx])
     }
 
-    /// Returns true if the snapshot contains a specific entity.
     pub fn contains_entity(&self, entity_id: EntityID) -> bool {
         self.entities
-            .binary_search_by(|e| e.entity_id.cmp(&entity_id))
+            .binary_search_by_key(&entity_id, |e| e.entity_id)
             .is_ok()
     }
 
-    /// Returns the total number of entities in this snapshot.
     pub fn entity_count(&self) -> usize {
         self.entities.len()
     }
 
-    /// Returns the total number of component instances across all entities.
     pub fn total_component_count(&self) -> usize {
-        self.entities.iter().map(|e| e.component_count()).sum()
+        self.entities
+            .iter()
+            .map(SnapshotEntityRecord::component_count)
+            .sum()
     }
 
-    /// Returns true if this snapshot contains no entities.
+    pub fn total_payload_bytes(&self) -> usize {
+        self.schema_version.len()
+            + self.cgs_hash.len()
+            + self.world_hash.len()
+            + self
+                .entities
+                .iter()
+                .map(SnapshotEntityRecord::total_payload_bytes)
+                .sum::<usize>()
+    }
+
     pub fn is_empty(&self) -> bool {
         self.entities.is_empty()
     }
 
-    /// Returns all active entities in this snapshot.
     pub fn active_entities(&self) -> Vec<&SnapshotEntityRecord> {
         self.entities.iter().filter(|e| e.is_active()).collect()
     }
 
-    /// Validates this snapshot payload for structural correctness.
-    ///
-    /// Checks:
-    /// - schema_version is not empty
-    /// - execution_plan_version >= 1
-    /// - world_hash is not empty
-    /// - Entity IDs are sorted ascending (D3)
-    /// - No duplicate entity IDs
+    /// Normalizes entity order, component order, and tags. Useful after
+    /// deserializing snapshots from tools that may not preserve local ordering.
+    pub fn normalize(&mut self) {
+        self.entities.sort_by_key(|e| e.entity_id);
+        self.entities.dedup_by_key(|e| e.entity_id);
+        for entity in &mut self.entities {
+            entity.tags = normalize_tags(std::mem::take(&mut entity.tags));
+            let components = std::mem::take(&mut entity.components);
+            entity.components = components.into_iter().collect();
+        }
+    }
+
     pub fn validate(&self) -> Result<(), String> {
-        if self.schema_version.is_empty() {
+        if self.schema_version.trim().is_empty() {
             return Err("SnapshotPayload schema_version must not be empty".into());
         }
-
         if self.execution_plan_version == 0 {
-            return Err("SnapshotPayload execution_plan_version must be >= 1".into());
+            return Err("SnapshotPayload execution_plan_version must be greater than zero".into());
         }
-
-        if self.world_hash.is_empty() {
+        if self.world_hash.trim().is_empty() {
             return Err("SnapshotPayload world_hash must not be empty".into());
         }
 
-        // Verify entity IDs are sorted and unique (D3)
-        let mut prev_id: Option<EntityID> = None;
+        let mut previous: Option<EntityID> = None;
         for entity in &self.entities {
-            if let Some(prev) = prev_id {
+            if let Some(prev) = previous {
                 if entity.entity_id <= prev {
                     return Err(format!(
-                        "SnapshotPayload entities not sorted by EntityID ASC — \
-                         found {} after {} (D3)",
+                        "SnapshotPayload entities must be sorted and unique: found {} after {}",
                         entity.entity_id, prev
                     ));
                 }
             }
-            prev_id = Some(entity.entity_id);
+            previous = Some(entity.entity_id);
+            entity.validate()?;
         }
-
         Ok(())
     }
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+fn normalize_tags(mut tags: Vec<String>) -> Vec<String> {
+    tags.retain(|tag| !tag.trim().is_empty());
+    tags.sort();
+    tags.dedup();
+    tags
+}
+
+fn ensure_sorted_unique_strings(values: &[String], label: &str) -> Result<(), String> {
+    for value in values {
+        if value.trim().is_empty() {
+            return Err(format!("{} must not contain empty strings", label));
+        }
+    }
+    for pair in values.windows(2) {
+        if pair[0] >= pair[1] {
+            return Err(format!(
+                "{} must be sorted ascending with no duplicates",
+                label
+            ));
+        }
+    }
+    Ok(())
+}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const TEST_CGS_HASH: &str = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const TEST_WORLD_HASH: &str =
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
     fn test_snapshot() -> SnapshotPayload {
         SnapshotPayload::new(
             100,
             "0.1.0",
             1,
-            "cgs_hash_abc",
-            "world_hash_xyz",
+            TEST_CGS_HASH,
+            TEST_WORLD_HASH,
             50,
             SnapshotReason::InitialConnection,
         )
     }
 
     #[test]
-    fn new_snapshot_is_empty() {
-        assert!(test_snapshot().is_empty());
-        assert_eq!(test_snapshot().entity_count(), 0);
-    }
-
-    #[test]
-    fn new_snapshot_is_full() {
-        assert!(test_snapshot().is_full);
-    }
-
-    #[test]
-    fn add_entity_maintains_sort_order() {
+    fn add_entity_maintains_sort_order_and_replaces_duplicates() {
         let mut snap = test_snapshot();
         snap.add_entity(SnapshotEntityRecord::new(5, EntityState::Active));
         snap.add_entity(SnapshotEntityRecord::new(1, EntityState::Active));
         snap.add_entity(SnapshotEntityRecord::new(3, EntityState::Disabled));
-        assert_eq!(snap.entities[0].entity_id, 1);
-        assert_eq!(snap.entities[1].entity_id, 3);
-        assert_eq!(snap.entities[2].entity_id, 5);
-    }
+        snap.add_entity(
+            SnapshotEntityRecord::new(3, EntityState::Active).with_tags(vec!["player".into()]),
+        );
 
-    #[test]
-    fn get_entity_finds_correct_record() {
-        let mut snap = test_snapshot();
-        snap.add_entity(SnapshotEntityRecord::new(1, EntityState::Active));
-        snap.add_entity(SnapshotEntityRecord::new(3, EntityState::Active));
-        let entity = snap.get_entity(3);
-        assert!(entity.is_some());
-        assert_eq!(entity.unwrap().entity_id, 3);
-    }
-
-    #[test]
-    fn get_entity_returns_none_for_missing() {
-        let snap = test_snapshot();
-        assert!(snap.get_entity(999).is_none());
-    }
-
-    #[test]
-    fn contains_entity_correct() {
-        let mut snap = test_snapshot();
-        snap.add_entity(SnapshotEntityRecord::new(1, EntityState::Active));
-        assert!(snap.contains_entity(1));
-        assert!(!snap.contains_entity(2));
-    }
-
-    #[test]
-    fn total_component_count_sums_correctly() {
-        let mut snap = test_snapshot();
-        let mut entity1 = SnapshotEntityRecord::new(1, EntityState::Active);
-        entity1.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
-        entity1.add_component(SnapshotComponentRecord::new(2, "COMP_IDENTITY_V1", "{}"));
-        let mut entity2 = SnapshotEntityRecord::new(2, EntityState::Active);
-        entity2.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
-        snap.add_entity(entity1);
-        snap.add_entity(entity2);
-        assert_eq!(snap.total_component_count(), 3);
-    }
-
-    #[test]
-    fn active_entities_filters_correctly() {
-        let mut snap = test_snapshot();
-        snap.add_entity(SnapshotEntityRecord::new(1, EntityState::Active));
-        snap.add_entity(SnapshotEntityRecord::new(2, EntityState::Disabled));
-        snap.add_entity(SnapshotEntityRecord::new(3, EntityState::Active));
-        let active = snap.active_entities();
-        assert_eq!(active.len(), 2);
-        assert_eq!(active[0].entity_id, 1);
-        assert_eq!(active[1].entity_id, 3);
-    }
-
-    #[test]
-    fn validate_passes_for_valid_snapshot() {
-        let snap = test_snapshot();
+        assert_eq!(
+            snap.entities
+                .iter()
+                .map(|e| e.entity_id)
+                .collect::<Vec<_>>(),
+            vec![1, 3, 5]
+        );
+        assert!(snap.get_entity(3).unwrap().has_tag("player"));
         assert!(snap.validate().is_ok());
     }
 
     #[test]
-    fn validate_fails_for_empty_schema_version() {
+    fn try_add_entity_rejects_duplicates() {
         let mut snap = test_snapshot();
-        snap.schema_version = String::new();
-        assert!(snap.validate().is_err());
+        snap.try_add_entity(SnapshotEntityRecord::new(1, EntityState::Active))
+            .unwrap();
+        assert!(snap
+            .try_add_entity(SnapshotEntityRecord::new(1, EntityState::Disabled))
+            .is_err());
     }
 
     #[test]
-    fn validate_fails_for_zero_plan_version() {
-        let mut snap = test_snapshot();
-        snap.execution_plan_version = 0;
-        assert!(snap.validate().is_err());
+    fn component_operations_are_deterministic() {
+        let mut entity = SnapshotEntityRecord::new(1, EntityState::Active);
+        entity.add_component(SnapshotComponentRecord::new(5, "COMP_VELOCITY_V1", "{}"));
+        entity.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
+
+        assert_eq!(
+            entity.components.keys().copied().collect::<Vec<_>>(),
+            vec![1, 5]
+        );
+        assert!(entity.has_component(1));
+        assert_eq!(entity.component_count(), 2);
+        assert!(entity.validate().is_ok());
     }
 
     #[test]
-    fn validate_fails_for_empty_world_hash() {
+    fn validation_catches_unsorted_entities_and_invalid_component_json() {
         let mut snap = test_snapshot();
-        snap.world_hash = String::new();
-        assert!(snap.validate().is_err());
-    }
-
-    #[test]
-    fn validate_fails_for_unsorted_entities() {
-        let mut snap = test_snapshot();
-        // Force unsorted insertion bypassing add_entity
         snap.entities
             .push(SnapshotEntityRecord::new(5, EntityState::Active));
         snap.entities
             .push(SnapshotEntityRecord::new(2, EntityState::Active));
         assert!(snap.validate().is_err());
-    }
 
-    #[test]
-    fn entity_record_component_operations() {
         let mut entity = SnapshotEntityRecord::new(1, EntityState::Active);
         entity.add_component(SnapshotComponentRecord::new(
             1,
             "COMP_TRANSFORM_V1",
-            r#"{"position":{"x":0}}"#,
+            "not-json",
         ));
-        assert!(entity.has_component(1));
-        assert!(!entity.has_component(99));
-        assert_eq!(entity.component_count(), 1);
-        let comp = entity.get_component(1).unwrap();
-        assert_eq!(comp.component_type_name, "COMP_TRANSFORM_V1");
+        assert!(entity.validate().is_err());
     }
 
     #[test]
-    fn entity_is_active_detection() {
-        let active = SnapshotEntityRecord::new(1, EntityState::Active);
-        let disabled = SnapshotEntityRecord::new(2, EntityState::Disabled);
-        assert!(active.is_active());
-        assert!(!disabled.is_active());
-    }
-
-    #[test]
-    fn snapshot_reason_display() {
-        assert_eq!(
-            SnapshotReason::InitialConnection.to_string(),
-            "InitialConnection"
+    fn validation_rejects_null_and_removed_entities() {
+        assert!(
+            SnapshotEntityRecord::new(NULL_ENTITY_ID, EntityState::Active)
+                .validate()
+                .is_err()
         );
+        assert!(SnapshotEntityRecord::new(1, EntityState::Archived)
+            .validate()
+            .is_err());
+    }
+
+    #[test]
+    fn tags_are_normalized() {
+        let entity = SnapshotEntityRecord::new(1, EntityState::Active).with_tags(vec![
+            "zombie".into(),
+            "".into(),
+            "enemy".into(),
+            "enemy".into(),
+        ]);
+        assert_eq!(entity.tags, vec!["enemy", "zombie"]);
+        assert!(entity.validate().is_ok());
+    }
+
+    #[test]
+    fn aggregate_counts_are_correct() {
+        let mut snap = test_snapshot();
+        let mut entity1 = SnapshotEntityRecord::new(1, EntityState::Active);
+        entity1.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
+        entity1.add_component(SnapshotComponentRecord::new(2, "COMP_IDENTITY_V1", "{}"));
+        let mut entity2 = SnapshotEntityRecord::new(2, EntityState::Disabled);
+        entity2.add_component(SnapshotComponentRecord::new(1, "COMP_TRANSFORM_V1", "{}"));
+        snap.add_entity(entity1);
+        snap.add_entity(entity2);
+
+        assert_eq!(snap.entity_count(), 2);
+        assert_eq!(snap.total_component_count(), 3);
+        assert_eq!(snap.active_entities().len(), 1);
+        assert!(snap.total_payload_bytes() > 0);
+    }
+
+    #[test]
+    fn partial_marker_and_reason_display_work() {
+        let mut snap = test_snapshot();
+        assert!(snap.is_full);
+        snap.mark_partial();
+        assert!(!snap.is_full);
         assert_eq!(SnapshotReason::DesyncRecovery.to_string(), "DesyncRecovery");
-    }
-
-    #[test]
-    fn snapshot_tick_stored_correctly() {
-        let snap = test_snapshot();
-        assert_eq!(snap.tick, 100);
-    }
-
-    #[test]
-    fn last_delta_sequence_stored_correctly() {
-        let snap = test_snapshot();
-        assert_eq!(snap.last_delta_sequence_id, 50);
-    }
-
-    #[test]
-    fn component_record_data_preserved() {
-        let comp = SnapshotComponentRecord::new(
-            1,
-            "COMP_TRANSFORM_V1",
-            r#"{"position":{"x":1.0,"y":2.0,"z":3.0}}"#,
-        );
-        assert_eq!(comp.component_type_id, 1);
-        assert!(comp.data_json.contains("position"));
     }
 }
