@@ -64,8 +64,22 @@ from schema_path_validator import SchemaPathValidator, PathValidationResult
 from operation_type_validator import OperationTypeValidator, OperationValidationResult
 
 import sys, os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "llm_orchestrator"))
+_SRC_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _SRC_ROOT not in sys.path:
+    sys.path.append(_SRC_ROOT)
+sys.path.insert(0, os.path.join(_SRC_ROOT, "llm_orchestrator"))
 from pass2_dsl_draft import DraftMutationTransaction, MutationOp
+from typed_operations import (
+    CompositePromptPlan,
+    TypedCgsFragmentPlan,
+    TypedCgsOperationBatch,
+    TypedOperationError,
+    TypedOperationValidationResult,
+    apply_typed_operation_batch,
+    build_composite_prompt_plan,
+    normalized_typed_operation_batch,
+    parse_typed_operation_batch,
+)
 
 _VALID_OPS = frozenset({
     "SET", "SCALE", "ADD_ACTOR", "REMOVE_ACTOR",
@@ -74,6 +88,7 @@ _VALID_OPS = frozenset({
     "ADD_RULE", "REMOVE_RULE",
 })
 _VALID_TYPE_HINTS = frozenset({"float", "int", "bool", "str", "dict", "list"})
+_LEGACY_VALUE_OPS = frozenset({"SET", "SCALE"})
 _VALID_SCHEMA_DELTA_TYPES = frozenset({
     "value_mutation", "structural_add", "structural_remove", "rule_change"
 })
@@ -133,6 +148,33 @@ class CanonicalMutation:
         conf  = f"conf={self.parser_confidence:.2f}"
         warns = f" warns={len(self.all_warnings)}" if self.has_warnings else ""
         return f"CanonicalMutation({valid}, {conf}{warns})"
+
+
+@dataclass
+class CanonicalTypedMutation:
+    """Path-free typed schema mutation validated against the current CGS."""
+
+    batch: TypedCgsOperationBatch
+    fragment_plan: TypedCgsFragmentPlan
+    composite_plan: CompositePromptPlan | None
+    normalized_batch: dict[str, Any]
+    proposed_cgs: dict[str, Any] | None
+    validation: TypedOperationValidationResult
+    parser_confidence: float = 1.0
+    had_markdown_fences: bool = False
+    warnings: list[str] = field(default_factory=list)
+
+    @property
+    def is_fully_valid(self) -> bool:
+        return self.validation.valid and self.proposed_cgs is not None
+
+    @property
+    def has_warnings(self) -> bool:
+        return bool(self.warnings)
+
+    def __repr__(self) -> str:
+        valid = "VALID" if self.is_fully_valid else "INVALID"
+        return f"CanonicalTypedMutation({valid}, conf={self.parser_confidence:.2f})"
 
 
 # ── Structured Output Parser ──────────────────────────────────────────────────
@@ -210,6 +252,12 @@ class StructuredOutputParser:
                 f"Must be one of: {sorted(_VALID_SCHEMA_DELTA_TYPES)}",
                 raw_text,
             )
+        if delta != "value_mutation":
+            raise ParseError(
+                "Legacy path/op/value structural mutations are disabled. "
+                "Use a typed CGS operation batch.",
+                raw_text,
+            )
 
         # operations
         raw_ops = data.get("operations")
@@ -238,6 +286,14 @@ class StructuredOutputParser:
             ops.append(op)
             warnings.extend(op_warnings)
 
+        structural_ops = [op.op for op in ops if op.op not in _LEGACY_VALUE_OPS]
+        if structural_ops:
+            raise ParseError(
+                "Legacy path/op/value payloads accept SET and SCALE only; "
+                f"structural operations require a typed CGS batch: {structural_ops}",
+                raw_text,
+            )
+
         # Slight confidence penalty for each warning
         confidence = max(0.0, confidence - 0.03 * len(warnings))
 
@@ -260,6 +316,51 @@ class StructuredOutputParser:
             parser_confidence   = confidence,
             had_markdown_fences = had_fences,
             warnings            = warnings,
+        )
+
+    def parse_typed(
+        self,
+        raw_text: str,
+        cgs: dict[str, Any],
+        *,
+        allow_materialized_generated_systems: bool = False,
+    ) -> CanonicalTypedMutation:
+        """Parse, normalize, and locally validate a typed CGS operation batch."""
+
+        had_fences, clean_text = self._strip_fences(raw_text)
+        try:
+            batch = parse_typed_operation_batch(
+                clean_text,
+                allow_materialized_generated_systems=(
+                    allow_materialized_generated_systems
+                ),
+            )
+        except TypedOperationError as exc:
+            raise ParseError(str(exc), raw_text) from exc
+
+        apply_result = apply_typed_operation_batch(batch, cgs)
+        composite_plan = None
+        if apply_result.validation.valid and apply_result.proposed_cgs is not None:
+            composite_plan = build_composite_prompt_plan(
+                batch,
+                cgs,
+                apply_result.proposed_cgs,
+            )
+        warnings = (
+            ["Provider output contained markdown fences."]
+            if had_fences
+            else []
+        )
+        return CanonicalTypedMutation(
+            batch=batch,
+            fragment_plan=apply_result.fragment_plan,
+            composite_plan=composite_plan,
+            normalized_batch=normalized_typed_operation_batch(batch),
+            proposed_cgs=apply_result.proposed_cgs,
+            validation=apply_result.validation,
+            parser_confidence=0.95 if had_fences else 1.0,
+            had_markdown_fences=had_fences,
+            warnings=warnings,
         )
 
     # ── Operation parsing ─────────────────────────────────────────────────────

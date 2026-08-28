@@ -62,12 +62,17 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from pass1_planning import Pass1Planning, ReasoningPlan, OutputParseError
-from pass2_dsl_draft import Pass2DSLDraft, DraftMutationTransaction
+from pass2_dsl_draft import (
+    Pass2DSLDraft,
+    DraftMutationTransaction,
+    requires_typed_operations,
+)
 from pass3_self_critique import Pass3SelfCritique, CritiqueResult
 from pass4_determinism_audit import Pass4DeterminismAudit, DeterminismAuditResult
 from pass5_final_output import Pass5FinalOutput, MutationTransaction
 from retry_policy import PILRetryPolicy, RetryBudgetExhausted, MAX_ATTEMPTS_PER_PASS
 from llm_context_packet import LLMContextPacket
+from typed_operations import TypedCgsOperationBatch
 
 
 # ── Exceptions ────────────────────────────────────────────────────────────────
@@ -107,9 +112,15 @@ class PipelineResult:
     tier_s_shortcut:     bool                      = False
     error:               str                       = ""
     pass_summary:        dict                      = field(default_factory=dict)
+    typed_operation_batch: TypedCgsOperationBatch | None = None
 
     def __repr__(self) -> str:
         if self.success:
+            if self.typed_operation_batch is not None:
+                return (
+                    "PipelineResult(SUCCESS, typed_ops="
+                    f"{len(self.typed_operation_batch.operations)})"
+                )
             return f"PipelineResult(SUCCESS, conf={self.transaction.confidence_score:.2f})"
         if self.tier_s_shortcut:
             return "PipelineResult(TIER_S_SHORTCUT)"
@@ -241,6 +252,19 @@ class LLMOrchestrator:
         if plan is None:
             raise RetryBudgetExhausted("pass1_planning", 2, ["OutputParseError exhausted"])
 
+        if requires_typed_operations(plan):
+            typed_batch = self._run_typed_pass2(packet, plan, policy, sid)
+            if typed_batch is None:
+                raise RetryBudgetExhausted(
+                    "pass2_dsl_draft",
+                    MAX_ATTEMPTS_PER_PASS,
+                    ["Typed operation generation exhausted"],
+                )
+            return PipelineResult(
+                success=True,
+                typed_operation_batch=typed_batch,
+            )
+
         # ── Pass 2 + 3 loop: Draft + Self-Critique ────────────────────────────
         draft = self._run_pass2_with_critique(packet, plan, policy, sid)
         if draft is None:
@@ -291,6 +315,33 @@ class LLMOrchestrator:
             except OutputParseError as exc:
                 policy.record_failure("pass1_planning", [str(exc)])
                 if not policy.can_retry("pass1_planning"):
+                    return None
+        return None
+
+    def _run_typed_pass2(
+        self,
+        packet: LLMContextPacket,
+        plan: ReasoningPlan,
+        policy: PILRetryPolicy,
+        sid: str,
+    ) -> TypedCgsOperationBatch | None:
+        """Run the strict typed producer with the normal Pass 2 retry budget."""
+
+        for _ in range(MAX_ATTEMPTS_PER_PASS):
+            policy.begin_attempt("pass2_dsl_draft")
+            correction = policy.correction_prompt("pass2_dsl_draft")
+            try:
+                batch = self._pass2.run_typed(
+                    packet,
+                    plan,
+                    session_id=sid,
+                    correction=correction,
+                )
+                policy.record_success("pass2_dsl_draft")
+                return batch
+            except OutputParseError as exc:
+                policy.record_failure("pass2_dsl_draft", [str(exc)])
+                if not policy.can_retry("pass2_dsl_draft"):
                     return None
         return None
 

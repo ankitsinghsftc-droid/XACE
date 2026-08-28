@@ -24,6 +24,7 @@
 //! The report carries:
 //! - All WAW conflict pairs (for diagnostics / builder UI)
 //! - All RAW hazard pairs (for diagnostics)
+//! - Direct same-phase ordering constraints (including explicit dependencies)
 //! - Per-phase SerializationGroups (for the scheduler)
 //! - A summary flag: requires_recompile if structural changes were made
 //!
@@ -87,6 +88,14 @@ pub struct ConflictReport {
     /// All read-write hazard pairs detected, sorted (D11).
     pub read_write_hazards: Vec<ConflictEntry>,
 
+    /// Direct same-phase ordering constraints.
+    ///
+    /// Maps phase ordinal -> from_system -> directly ordered successor systems.
+    /// These constraints stay separate from transitive component-conflict groups
+    /// so dependency siblings may still execute in parallel after their common
+    /// predecessor has completed.
+    pub direct_ordering_constraints: BTreeMap<u8, BTreeMap<String, BTreeSet<String>>>,
+
     /// Per-phase serialization groups.
     /// BTreeMap<phase_ordinal, Vec<SerializationGroup>> sorted (D11).
     pub serialization_groups: BTreeMap<u8, Vec<SerializationGroup>>,
@@ -103,6 +112,7 @@ impl ConflictReport {
         Self {
             write_conflicts: Vec::new(),
             read_write_hazards: Vec::new(),
+            direct_ordering_constraints: BTreeMap::new(),
             serialization_groups: BTreeMap::new(),
             total_systems_analyzed: 0,
             total_conflicts: 0,
@@ -117,8 +127,32 @@ impl ConflictReport {
             .unwrap_or(&[])
     }
 
+    /// Returns true if the systems share a direct ordering edge in this phase.
+    pub fn has_direct_ordering_constraint(
+        &self,
+        system_a: &str,
+        system_b: &str,
+        phase: PhaseEnum,
+    ) -> bool {
+        let Some(constraints) = self.direct_ordering_constraints.get(&phase.as_u8()) else {
+            return false;
+        };
+        constraints
+            .get(system_a)
+            .is_some_and(|successors| successors.contains(system_b))
+            || constraints
+                .get(system_b)
+                .is_some_and(|successors| successors.contains(system_a))
+    }
+
     /// Returns true if system_a and system_b must be serialized in the given phase.
+    ///
+    /// Direct dependency edges serialize only the connected pair. Component
+    /// hazards retain their existing transitive serialization-group behavior.
     pub fn must_serialize(&self, system_a: &str, system_b: &str, phase: PhaseEnum) -> bool {
+        if self.has_direct_ordering_constraint(system_a, system_b, phase) {
+            return true;
+        }
         let groups = self.groups_for_phase(phase);
         SerializationGroupBuilder::are_serialized(system_a, system_b, groups)
     }
@@ -168,7 +202,26 @@ impl ConflictAnalyzer {
         for bucket in buckets {
             let phase = bucket.phase;
             let sys_ids: Vec<&str> = bucket.system_ids();
+            let sys_id_set: BTreeSet<&str> = sys_ids.iter().copied().collect();
             report.total_systems_analyzed += sys_ids.len();
+
+            // Preserve direct graph ordering constraints for the parallel-window
+            // pass. Keeping these pairwise avoids over-serializing dependency
+            // siblings that share a predecessor but have no edge between them.
+            let phase_constraints = report
+                .direct_ordering_constraints
+                .entry(phase.as_u8())
+                .or_default();
+            for edge in graph.edges.values() {
+                if sys_id_set.contains(edge.from_system.as_str())
+                    && sys_id_set.contains(edge.to_system.as_str())
+                {
+                    phase_constraints
+                        .entry(edge.from_system.clone())
+                        .or_default()
+                        .insert(edge.to_system.clone());
+                }
+            }
 
             // ── Pairwise conflict detection ────────────────────────────────────
             // Sorted pairs: (sys_ids[i], sys_ids[j]) with i < j (D11)

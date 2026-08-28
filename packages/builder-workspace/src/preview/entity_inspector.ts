@@ -169,6 +169,7 @@ export class EntityInspector {
       this.deps.client.send(makeEngineEdit('focus_entity', this.deps.client.sessionId, {
         entity_id: String(liveEntityId),
         source: 'builder_inspector',
+        ...this.editEnvelope(),
       }));
     });
     head.appendChild(focus);
@@ -295,6 +296,7 @@ export class EntityInspector {
           field_path: field,
           value: next.value,
           source: 'builder_inspector',
+          ...this.editEnvelope(),
         }));
       });
     }
@@ -362,6 +364,13 @@ export class EntityInspector {
     this.committing.add(key);
     this.commitStatus = 'Saving accepted preview edit into the project...';
     this.deps.client.send(makeEngineEditCommit(this.deps.client.sessionId, {
+      kind: 'set_component_field',
+      preview_id: item.preview_id,
+      preview_cgs_hash: item.preview_cgs_hash,
+      cgs_hash: this.deps.cgsStore.hash,
+      schema_version: this.deps.cgsStore.state.version,
+      runtime_world_hash: item.runtime_world_hash,
+      engine_adapter_sequence: item.engine_adapter_sequence ?? 0,
       mode_id: item.mode_id,
       actor_id: item.actor_id,
       component_type_id: Number(item.component_type_id),
@@ -408,6 +417,21 @@ export class EntityInspector {
       this.commitStatus = ack.reason || 'Could not save that preview edit.';
     }
     this.render();
+  }
+
+  private editEnvelope(): {
+    cgs_hash: string;
+    schema_version: string;
+    runtime_world_hash: string;
+    engine_adapter_sequence: number;
+  } {
+    const runtime = this.deps.client.runtimeStatus;
+    return {
+      cgs_hash: this.deps.cgsStore.hash,
+      schema_version: this.deps.cgsStore.state.version,
+      runtime_world_hash: runtime.latestWorldHash || runtime.lastTick?.world_hash || '',
+      engine_adapter_sequence: runtime.engineAdapterSequence,
+    };
   }
 
   private runtimeEntityId(actor: CGSActor): number | null {
@@ -467,6 +491,11 @@ function canCommitAudit(item: EngineEditAuditEntry): item is EngineEditAuditEntr
   actor_id: string;
   component_type_id: number;
   field_path: string;
+  preview_id: string;
+  preview_cgs_hash: string;
+  preview_schema_version: string;
+  runtime_world_hash: string;
+  engine_adapter_sequence: number | string;
 } {
   return item.accepted
     && item.kind === 'set_component_field'
@@ -474,6 +503,12 @@ function canCommitAudit(item: EngineEditAuditEntry): item is EngineEditAuditEntr
     && Boolean(item.actor_id)
     && typeof item.component_type_id === 'number'
     && Boolean(item.field_path)
+    && Boolean(item.preview_id)
+    && Boolean(item.preview_cgs_hash)
+    && Boolean(item.preview_schema_version)
+    && Boolean(item.runtime_world_hash)
+    && item.engine_adapter_sequence !== undefined
+    && item.engine_adapter_sequence !== null
     && (typeof item.value === 'number' || typeof item.value === 'string' || typeof item.value === 'boolean');
 }
 
@@ -484,6 +519,7 @@ function auditKey(item: EngineEditAuditEntry): string {
     item.actor_id ?? '',
     item.component_type_id ?? '',
     item.field_path ?? '',
+    item.preview_id ?? '',
     JSON.stringify(item.value),
   ].join(':');
 }

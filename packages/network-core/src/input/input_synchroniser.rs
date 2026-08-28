@@ -34,7 +34,7 @@ pub enum TimeoutPolicy {
     ErrorAfter { wait_ticks: Tick },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InputSynchroniserConfig {
     pub mode: LockstepMode,
     pub fixed_delay_ticks: u32,
@@ -194,6 +194,34 @@ impl InputSynchroniser {
                 missing_peers: missing,
             }),
         }
+    }
+
+    pub fn release_with_synthetic_for_sim_tick(
+        &mut self,
+        sim_tick: Tick,
+    ) -> Result<LockstepDecision, NetworkError> {
+        if self.config.mode == LockstepMode::Offline || self.required_peers.is_empty() {
+            return Ok(LockstepDecision::Offline);
+        }
+
+        let Some(target_tick) = self.pending_or_target_tick_for_sim_tick(sim_tick) else {
+            return Ok(LockstepDecision::Wait {
+                tick: 0,
+                missing_peers: self.required_peers.iter().copied().collect(),
+            });
+        };
+
+        if self.released_ticks.contains(&target_tick) {
+            return Ok(LockstepDecision::AlreadyReleased { tick: target_tick });
+        }
+
+        let missing = self
+            .buffer
+            .missing_for_tick(target_tick, &self.required_peers);
+        for packet in self.synthetic_empty_packets(target_tick, &missing) {
+            let _ = self.buffer.insert_with_outcome(packet);
+        }
+        Ok(self.release_tick(target_tick))
     }
 
     pub fn status_for_sim_tick(&mut self, sim_tick: Tick) -> LockstepStatus {

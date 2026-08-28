@@ -50,6 +50,10 @@ Safe claim today:
   candidate changes as `additive`, `migratable`, `state_transforming`, or
   `reset_required`; only fully additive candidates can proceed through the live
   hot-swap path today.
+- Engine-originated Builder edits are preview-first and audit-bound. Durable
+  engine edit commits are limited to accepted primitive component-default audit
+  rows and must echo the accepted `preview_id`, CGS hash, schema version,
+  runtime world hash, and adapter sequence before GDE or persistence can run.
 
 Do not overclaim yet:
 
@@ -59,15 +63,20 @@ Do not overclaim yet:
   X10-019 makes the Builder prompt apply path atomic across GDE, SGC,
   persistence, runtime validation, adapter validation, and UI completion. X10-020
   adds state-preserving runtime hot-swap for compatible/additive schedule
-  changes, and X10-021 classifies/enforces hot-swap compatibility. X10-022 and
-  X10-023 still own runtime migration and engine-side rollback.
+  changes, X10-021 classifies/enforces hot-swap compatibility, X10-022 adds
+  deterministic migration hooks, and X10-023 adds adapter side-effect rollback
+  notices for restored runtime state.
 - "Engine-side visual/audio side effects roll back with runtime state." X10-023
-  still owns adapter-spawned object, playback, feedback, pending edit, and
-  asset binding rollback.
+  now covers the protocol/runtime restore notice plus Godot, Unity, and Unreal
+  adapter cleanup for spawned mirror objects, playback commands, feedback
+  queues, pending edit previews, and asset-binding caches. Installed editor
+  execution remains part of the global installed-engine proof gate.
 - "Live schema hot-swap handles every schema change." X10-020 proves the
   state-preserving runtime swap path for compatible/additive schedule changes;
   X10-021 now refuses migratable, state-transforming, and reset-required changes
-  before live mutation; X10-022 still owns deterministic state migrations.
+  before live mutation; X10-022 adds deterministic state migrations. X10-024
+  hardens the Builder/live-engine edit boundary but does not open structural
+  engine-originated CGS mutation classes.
 
 Current failure contract:
 

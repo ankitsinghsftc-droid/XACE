@@ -29,6 +29,7 @@ pub enum EngineMessageType {
     InputPacket,
     FeedbackPayload,
     PlaybackCommands,
+    AdapterSideEffectRollback,
     Disconnect,
     Error,
 }
@@ -42,6 +43,7 @@ impl EngineMessageType {
             Self::InputPacket => "input_packet",
             Self::FeedbackPayload => "feedback_payload",
             Self::PlaybackCommands => "playback_commands",
+            Self::AdapterSideEffectRollback => "adapter_side_effect_rollback",
             Self::Disconnect => "disconnect",
             Self::Error => "error",
         }
@@ -55,6 +57,7 @@ impl EngineMessageType {
             "input_packet" => Some(Self::InputPacket),
             "feedback_payload" => Some(Self::FeedbackPayload),
             "playback_commands" => Some(Self::PlaybackCommands),
+            "adapter_side_effect_rollback" => Some(Self::AdapterSideEffectRollback),
             "disconnect" => Some(Self::Disconnect),
             "error" => Some(Self::Error),
             _ => None,
@@ -177,6 +180,7 @@ impl HandshakeAck {
                 "input_packet_v1".to_string(),
                 "length_prefixed_json".to_string(),
                 "multi_engine_clients".to_string(),
+                "adapter_side_effect_rollback_v1".to_string(),
             ],
         }
     }
@@ -455,6 +459,92 @@ impl EnginePlaybackCommandBatch {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AdapterSideEffectRollback {
+    pub msg_type: String,
+    pub rollback_id: String,
+    pub reason: String,
+    pub failed_stage: String,
+    pub tick: u64,
+    pub restore_tick: u64,
+    pub restored_cgs_hash: String,
+    pub failed_cgs_hash: String,
+    pub restored_world_hash: String,
+    pub restored_snapshot: TickSnapshot,
+    #[serde(default)]
+    pub revoked_playback_commands: Vec<EnginePlaybackCommand>,
+    pub clear_feedback_queue: bool,
+    pub clear_pending_edits: bool,
+    pub reset_asset_bindings: bool,
+}
+
+impl AdapterSideEffectRollback {
+    pub fn new(
+        rollback_id: impl Into<String>,
+        reason: impl Into<String>,
+        failed_stage: impl Into<String>,
+        tick: u64,
+        restore_tick: u64,
+        restored_cgs_hash: impl Into<String>,
+        failed_cgs_hash: impl Into<String>,
+        restored_world_hash: impl Into<String>,
+        restored_snapshot: TickSnapshot,
+        revoked_playback_commands: Vec<EnginePlaybackCommand>,
+    ) -> Self {
+        Self {
+            msg_type: EngineMessageType::AdapterSideEffectRollback
+                .as_str()
+                .to_string(),
+            rollback_id: rollback_id.into(),
+            reason: reason.into(),
+            failed_stage: failed_stage.into(),
+            tick,
+            restore_tick,
+            restored_cgs_hash: restored_cgs_hash.into(),
+            failed_cgs_hash: failed_cgs_hash.into(),
+            restored_world_hash: restored_world_hash.into(),
+            restored_snapshot,
+            revoked_playback_commands,
+            clear_feedback_queue: true,
+            clear_pending_edits: true,
+            reset_asset_bindings: true,
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), ProtocolError> {
+        validate_msg_type(&self.msg_type, EngineMessageType::AdapterSideEffectRollback)?;
+        validate_portable_field("rollback_id", &self.rollback_id, 128, true)?;
+        validate_portable_field("failed_stage", &self.failed_stage, 96, true)?;
+        validate_portable_field(
+            "restored_cgs_hash",
+            &self.restored_cgs_hash,
+            MAX_CGS_HASH_BYTES,
+            false,
+        )?;
+        validate_portable_field(
+            "failed_cgs_hash",
+            &self.failed_cgs_hash,
+            MAX_CGS_HASH_BYTES,
+            false,
+        )?;
+        validate_portable_field("restored_world_hash", &self.restored_world_hash, 128, false)?;
+        validate_msg_type(
+            &self.restored_snapshot.msg_type,
+            EngineMessageType::TickSnapshot,
+        )?;
+        if self.revoked_playback_commands.len() > 4096 {
+            return Err(ProtocolError::InvalidField {
+                field: "revoked_playback_commands",
+                reason: "rollback contains more than 4096 playback commands".to_string(),
+            });
+        }
+        for command in &self.revoked_playback_commands {
+            command.validate()?;
+        }
+        Ok(())
+    }
+}
+
 impl EngineFeedbackPacket {
     pub fn validate(&self) -> Result<(), ProtocolError> {
         validate_msg_type(&self.msg_type, EngineMessageType::FeedbackPayload)?;
@@ -491,6 +581,7 @@ pub enum OutboundMessage {
     HandshakeAck(HandshakeAck),
     TickSnapshot(TickSnapshot),
     PlaybackCommands(EnginePlaybackCommandBatch),
+    AdapterSideEffectRollback(AdapterSideEffectRollback),
     Disconnect(DisconnectMessage),
     Error(ErrorMessage),
 }
@@ -887,5 +978,57 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    #[test]
+    fn adapter_side_effect_rollback_validates_and_serializes() {
+        let restored = TickSnapshot::new(
+            7,
+            116,
+            vec![EntityState {
+                id: 1,
+                actor_id: "Player".to_string(),
+                components: BTreeMap::new(),
+            }],
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+        );
+        let revoked = EnginePlaybackCommand {
+            binding_id: "bind_hit".to_string(),
+            event_name: "combat.hit".to_string(),
+            playback_kind: SemanticPlaybackKind::Audio,
+            entity_id: 1,
+            asset: AssetReference::placeholder("hit_sfx", xace_core::assets::AssetType::AudioClip),
+            semantic_action: "play".to_string(),
+            parameters: BTreeMap::new(),
+            priority: 0,
+        };
+        let rollback = AdapterSideEffectRollback::new(
+            "rollback-7",
+            "adapter validation failed",
+            "adapter_validation",
+            9,
+            7,
+            "a".repeat(64),
+            "b".repeat(64),
+            "c".repeat(64),
+            restored,
+            vec![revoked],
+        );
+
+        rollback.validate().unwrap();
+        let json = serde_json::to_value(&rollback).unwrap();
+        assert_eq!(
+            json["msg_type"].as_str(),
+            Some("adapter_side_effect_rollback")
+        );
+        assert_eq!(json["clear_feedback_queue"].as_bool(), Some(true));
+        assert_eq!(json["clear_pending_edits"].as_bool(), Some(true));
+        assert_eq!(json["reset_asset_bindings"].as_bool(), Some(true));
+        assert_eq!(
+            EngineMessageType::parse("adapter_side_effect_rollback"),
+            Some(EngineMessageType::AdapterSideEffectRollback)
+        );
     }
 }

@@ -62,6 +62,18 @@ class PromptMutationTransaction:
 
 
 @dataclass(frozen=True)
+class PromptTypedMutation:
+    normalized_batch: dict[str, Any]
+    parser_confidence: float = 1.0
+
+    def clone(self) -> "PromptTypedMutation":
+        return PromptTypedMutation(
+            normalized_batch=copy.deepcopy(self.normalized_batch),
+            parser_confidence=self.parser_confidence,
+        )
+
+
+@dataclass(frozen=True)
 class PromptPipelineResult:
     kind: str
     turn_index: int
@@ -71,6 +83,7 @@ class PromptPipelineResult:
     auto_committed: bool = False
     diff_text: str = ""
     transaction: PromptMutationTransaction | None = None
+    typed_mutation: PromptTypedMutation | None = None
     reason: str = ""
     guard: str = ""
 
@@ -84,6 +97,7 @@ class PromptPipelineScenario:
     expected_path: str = ""
     expected_value: Any = None
     expected_actor_id: str = ""
+    expected_component_type_id: int | None = None
     expects_execution_plan: bool = False
 
 
@@ -107,6 +121,11 @@ class DeterministicPromptPipeline:
 
         result = scenario.result
         transaction = result.transaction.clone() if result.transaction is not None else None
+        typed_mutation = (
+            result.typed_mutation.clone()
+            if result.typed_mutation is not None
+            else None
+        )
         return PromptPipelineResult(
             kind=result.kind,
             turn_index=self._turn_index,
@@ -116,6 +135,7 @@ class DeterministicPromptPipeline:
             auto_committed=result.auto_committed,
             diff_text=result.diff_text,
             transaction=transaction,
+            typed_mutation=typed_mutation,
             reason=result.reason,
             guard=result.guard,
         )
@@ -156,27 +176,14 @@ def supported_prompt_pipeline_scenarios() -> list[PromptPipelineScenario]:
             category="structural_add_component",
             prompt="Add a general inventory component to the player.",
             expected_actor_id="actor_player",
+            expected_component_type_id=10000,
             expects_execution_plan=True,
-            result=_mutation_result(
-                PromptMutationTransaction(
-                    operations=(
-                        PromptMutationOp(
-                            path="modes.mode_gameplay.actors.actor_player.components",
-                            op="ADD_COMPONENT",
-                            value=_inventory_component(),
-                            type_hint="dict",
-                            field_name="components",
-                            actor_id="actor_player",
-                            type_id=201,
-                        ),
-                    ),
-                    schema_delta_type="structural_add",
-                    confidence_score=0.98,
-                    risk_level="low",
-                    required_recompile=True,
-                    affected_systems=("InventorySystem",),
-                    mutation_summary="Add a general inventory component to the player.",
-                )
+            result=_typed_mutation_result(
+                PromptTypedMutation(
+                    normalized_batch=_inventory_component_batch(),
+                    parser_confidence=1.0,
+                ),
+                confidence=0.98,
             ),
         ),
         PromptPipelineScenario(
@@ -242,6 +249,23 @@ def _mutation_result(txn: PromptMutationTransaction) -> PromptPipelineResult:
     )
 
 
+def _typed_mutation_result(
+    typed_mutation: PromptTypedMutation,
+    *,
+    confidence: float,
+) -> PromptPipelineResult:
+    return PromptPipelineResult(
+        kind="mutation",
+        turn_index=0,
+        intent_category="MutationRequest",
+        confidence=confidence,
+        auto_committed=False,
+        diff_text="",
+        transaction=None,
+        typed_mutation=typed_mutation,
+    )
+
+
 def _blocked_result(turn_index: int, reason: str) -> PromptPipelineResult:
     return PromptPipelineResult(
         kind="blocked",
@@ -257,20 +281,66 @@ def _component(type_id: int, name: str, defaults: dict[str, Any]) -> dict[str, A
     return {"type_id": type_id, "name": name, "defaults": defaults}
 
 
-def _inventory_component() -> dict[str, Any]:
-    return _component(
-        201,
-        "COMP_INVENTORY_V1",
-        {
-            "slots": [],
-            "max_capacity": 20,
-            "current_count": 0,
-            "weight_current": 0.0,
-            "weight_max": 50.0,
-            "equipped_slot_id": "",
-            "equipped_item_entity_id": 0,
-        },
-    )
+def _inventory_component_batch() -> dict[str, Any]:
+    return {
+        "schema": "xace.typed_cgs_operation_batch.v1",
+        "request_id": "request.prompt.inventory",
+        "prompt_id": "prompt.add.inventory",
+        "operations": [
+            {
+                "operation_id": "declare.prompt_inventory",
+                "kind": "declare_component",
+                "explanation": "Declare portable inventory state for the player.",
+                "component_type_id": 10000,
+                "component_name": "COMP_PROMPT_INVENTORY_V1",
+                "version": "1.0.0",
+                "fields": [
+                    {
+                        "name": "slots",
+                        "field_type": "string_list",
+                        "default": [],
+                        "description": "Stable item identifiers in inventory order.",
+                    },
+                    {
+                        "name": "max_capacity",
+                        "field_type": "uint",
+                        "default": 20,
+                        "description": "Maximum item capacity.",
+                    },
+                    {
+                        "name": "current_count",
+                        "field_type": "uint",
+                        "default": 0,
+                        "description": "Current item count.",
+                    },
+                    {
+                        "name": "equipped_slot_id",
+                        "field_type": "string",
+                        "default": "",
+                        "description": "Equipped inventory slot identifier.",
+                    },
+                    {
+                        "name": "equipped_item_entity_id",
+                        "field_type": "entity_id",
+                        "default": 0,
+                        "description": "Equipped authoritative entity identifier.",
+                    },
+                ],
+                "source": "generated",
+            },
+            {
+                "operation_id": "attach.prompt_inventory",
+                "kind": "add_component",
+                "explanation": "Attach inventory state to the player.",
+                "mode_id": "mode_gameplay",
+                "actor_id": "actor_player",
+                "component_type_id": 10000,
+                "component_name": "COMP_PROMPT_INVENTORY_V1",
+                "use_schema_defaults": True,
+            },
+        ],
+        "summary": "Add a general inventory component to the player.",
+    }
 
 
 def _pickup_actor() -> dict[str, Any]:

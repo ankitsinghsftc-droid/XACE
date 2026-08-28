@@ -18,8 +18,11 @@ The current public claim is intentionally narrow:
 - XACE can create local CGS-backed projects from supported templates.
 - Builder can wrap or link an existing engine project by creating a XACE project
   manifest and preparing starter adapter files.
-- The export flow copies an adapter package for engine-owned integration. It is
-  not a finished-game shipping pipeline.
+- The adapter package handoff runs target/CGS/SGC/runtime/assets/bindings/secrets
+  preflight checks before copying a versioned adapter package with compatibility
+  metadata, dependencies, lifecycle scripts, rollback declarations, and
+  checksums for engine-owned integration. It is not a finished-game shipping
+  pipeline.
 - The prompt path supports certified mutation scenarios and blocks unsupported
   broad requests.
 - The System Graph Compiler CLI has been repaired and smoke-tested with a small
@@ -91,18 +94,16 @@ unless the master plan marks the live proof complete.
 
 Bridge runtime deltas and engine feedback for Godot, Unity, and Unreal. Adapter
 packages are integration handoffs for engine projects; they are not complete
-game exports.
+game shipping packages.
 
-## Import And Export
+## Import And Adapter Package Handoff
 
 Import means "wrap/link an existing engine project." XACE creates or updates a
 project manifest, starter CGS files, launcher state, and adapter preparation
 where supported. It does not reverse-engineer an existing Unity, Godot, or Unreal
 game into CGS automatically.
 
-Export means "export/copy an adapter package." The receiving engine project
-still owns build settings, scenes, assets, packaging, platform SDKs, QA, and
-release.
+Adapter package handoff means "validate, then copy a XACE adapter package into an engine-owned project." The preflight gate checks the target engine, CGS, persisted SGC plan, runtime compatibility proof, adapter protocol/version markers, asset references, semantic bindings, and local secret patterns before copy. The copied handoff package includes `xace_adapter_package_version_manifest.json` with version, compatibility matrix, dependency declarations, install/uninstall/rollback lifecycle script declarations, rollback support metadata, and SHA-256 file checksums. The receiving engine project still owns build settings, scenes, assets, packaging, platform SDKs, QA, and release.
 
 ## Multiplayer Scope
 
@@ -119,6 +120,16 @@ runtime payloads, and adapters can make supported gameplay definitions portable
 across adapter targets. Finished-game portability remains out of scope until
 engine-native content, build pipelines, assets, input maps, scenes, physics
 settings, and platform services are proven.
+
+The canonical cross-engine vertical-slice fixture lives at
+`projects/canonical_cross_engine_vertical_slice`. It is a versioned CGS-owned
+fixture covering movement, combat, health, inventory, save/load, rollback,
+replay, semantic bindings, animation, audio, VFX fallback, and network-ready
+input for Godot, Unity, and Unreal certification tasks. Godot and Unity now have
+retained installed-engine proofs with validation JSON, PNG evidence, logs, and
+hash reports under `target-codex-task64-godot-vertical-slice` and
+`target-codex-task65-unity-vertical-slice`; Unreal, packaging/export, and
+cross-engine hash equivalence remain separate gates.
 
 ## Prompt And AI Scope
 

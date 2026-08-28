@@ -276,13 +276,6 @@ class ValidationLoop:
                 )
             seen_paths.add(op.path)
 
-        # Unknown paths are warnings, not errors (SchemaPathValidator already
-        # puts them in unknown_paths, not invalid_paths)
-        for p in path_result.unknown_paths:
-            warnings.append(
-                f"Path grammar unrecognised: {p!r}. "
-                f"Manual review recommended before commit."
-            )
 
         return LayerResult(
             layer   = "structural",

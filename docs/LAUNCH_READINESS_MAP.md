@@ -24,7 +24,7 @@ Guardrail:
 - Historical slice entries record local proof at the time they were written; they are not public product claims by themselves.
 - "Import" means wrap/link an existing engine project with XACE manifest, starter CGS, and adapter preparation. It does not mean automatic conversion of existing engine-native gameplay.
 - "Export" means export/copy an adapter package for engine-owned integration. It does not mean a finished-game shipping pipeline.
-- "Multiplayer" means network primitives and local smoke coverage until topology, security, chaos, soak, and installed-engine proof gates pass.
+- "Multiplayer" means host/client authoritative lockstep plus local smoke coverage; dedicated-server, peer-to-peer, NAT/matchmaking, security, chaos, soak, and installed-engine proof gates remain separate unless explicitly closed below.
 - "Portability" means gameplay-core portability through CGS/runtime/adapters. It does not mean finished-game portability for engine-native content, scenes, assets, builds, or platform services.
 - "Prompt/AI" means guarded supported CGS mutation scenarios. It does not mean open-ended gameplay-system creation from prompts.
 
@@ -1456,6 +1456,33 @@ Verification:
 Follow-up:
 
 - Save/load replay hash is recorded in the Thirtieth Slice below.
+
+## X10-024 Slice: Hardened Bidirectional Edit Boundaries
+
+Status: engine-originated durable commits are now constrained to accepted
+primitive component-default preview edits. Selection and focus remain supported
+preview classes, while unsupported durable commit classes are refused before GDE
+or persistence.
+
+What This Slice Proves:
+
+- Accepted live-edit audit rows carry `preview_id`, CGS hash, schema version,
+  runtime world hash, and adapter sequence evidence.
+- Commit requests must echo that accepted envelope and the current CGS/schema
+  runtime context before a value mutation transaction is built.
+- Stale preview IDs, CGS hashes, schema versions, runtime hashes, and adapter
+  sequences are rejected before persistence.
+- Failed GDE commits leave the accepted preview row recoverable and uncommitted.
+- Quick launch certification now includes the focused `engine edit boundary`
+  gate.
+
+Verification:
+
+- `python -m unittest packages/builder-workspace/server/tests/test_engine_edit_router.py` passes: 14 tests.
+- `python -m unittest discover packages/builder-workspace/server/tests` passes: 74 tests.
+- `npm run build --workspace @xace/builder-workspace` passes.
+- `cargo test -p xace-runtime-core --lib --target-dir target-codex-task24-runtime` passes: 676 tests.
+- `python tools/certify_launch.py --quick --target-dir target-codex-certify-task24-quick --report-path target-codex-certify-task24-quick\launch_certification_report.json` passes: 57 checks.
 
 ## Thirtieth Slice: Save / Load Replay Hash
 
@@ -4477,7 +4504,7 @@ Files touched:
 | --- | --- | --- |
 | `packages/runtime-core/src/runtime_orchestrator.rs` | Runtime session authority. | Adds compatibility class/report/issue types, public classify-before-swap API, shared scratch candidate loading, additive-only enforcement, stable refusal diagnostics, and X10-021 tests for additive/migratable/state-transforming/reset-required cases. |
 | `tools/certify_launch.py` | Launch certification orchestrator. | Adds `runtime hot-swap compatibility classes` to quick/full certification. |
-| `docs/05_mutation_lifecycle.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Mutation lifecycle, claims, readiness, and task docs. | Records implemented compatibility classification/enforcement while keeping deterministic migrations and engine side-effect rollback as X10-022 through X10-023 work. |
+| `docs/05_mutation_lifecycle.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Mutation lifecycle, claims, readiness, and task docs. | Records implemented compatibility classification/enforcement, deterministic migrations, and local engine side-effect rollback bindings while keeping installed-editor execution evidence in the global proof gates. |
 
 Verification:
 
@@ -4485,9 +4512,1604 @@ Verification:
 - `cargo test -p xace-runtime-core --target-dir target-codex-task21-runtime`
 - `python tools/certify_launch.py --quick --target-dir target-codex-certify-task21-quick --report-path target-codex-certify-task21-quick\launch_certification_report.json`
 
+## X10-025: Provider-Level Structured Output Constraints
+
+Status: Task X10-025 makes the final mutation-transaction provider call request a concrete structured-output contract wherever the selected provider can enforce one natively, and routes unsupported providers through a stricter repair/quarantine validation path before any mutation transaction can continue downstream.
+
+What This Slice Proves:
+
+- Pass 5 requests the `xace.mutation_transaction.v1` contract for final mutation transaction output.
+- OpenAI-compatible native support sends `response_format` with strict `json_schema`.
+- Google Gemini native support sends JSON MIME plus `responseSchema` inside `generationConfig`.
+- Anthropic native-equivalent support sends a required tool with `input_schema` and forced `tool_choice`, then normalizes `tool_use.input` back into JSON text.
+- Unsupported providers do not receive a native contract; they receive strict repair/quarantine prompt injection and their response text is schema-validated inside `InferenceAdapter` so malformed output becomes a retryable schema failure.
+- Inference telemetry records requested/supported/enforced mode, schema ID/name/hash, and quarantine status.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/inference/src/structured_output.py` | Structured-output contract authority. | Defines the mutation transaction JSON schema, provider-native request helpers, repair/quarantine prompt, schema hash, and lightweight response validator. |
+| `packages/inference/src/inference_adapter.py`, `packages/inference/src/inference_retry_policy.py`, `packages/inference/src/telemetry_pipeline.py` | Inference boundary, retry, and telemetry. | Carries structured contracts through provider dispatch, bypasses stale response-cache hits for constrained calls, validates/quarantines malformed output, and records structured-output proof fields. |
+| `packages/inference/providers/openai_provider.py`, `packages/inference/providers/google_provider.py`, `packages/inference/providers/anthropic_provider.py`, `packages/inference/providers/local_provider.py`, `packages/inference/src/local_model_manager.py` | Provider clients. | Adds native structured-output payloads for supported providers and keeps local/Ollama on the unsupported repair/quarantine path. |
+| `packages/inference/src/model_descriptor.py`, `packages/builder-workspace/server/provider_settings.py` | Model capability registry. | Adds `STRUCTURED_OUTPUT` capability for builtin and BYOK providers that have native or native-equivalent enforcement. |
+| `packages/prompt-intelligence/src/llm_orchestrator/pass5_final_output.py` | Final PIL mutation transaction pass. | Requests the mutation-transaction contract for production provider calls. |
+| `packages/inference/tests/test_structured_output_constraints.py`, `tools/provider_structured_output_check.py`, `tools/certify_launch.py` | Tests and launch gates. | Proves provider body shapes, adapter telemetry, unsupported retry/quarantine behavior, and adds the gate to quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Source inventory and readiness docs. | Classifies and records the provider structured-output constraint slice. |
+
+Verification:
+
+- `python -m unittest packages.inference.tests.test_structured_output_constraints`
+- `python tools/provider_structured_output_check.py target-codex-task25-provider-structured-output\provider_structured_output_report.json`
+- `python tools/certify_launch.py --quick --target-dir target-codex-certify-task25-quick --report-path target-codex-certify-task25-quick\launch_certification_report.json`
+
+## X10-026: Unknown CGS Path Hard Failures
+
+Task 26 closes the warning-only parser gap for unrecognised CGS mutation paths.
+The schema path validator now records unknown grammar for diagnostics and also
+counts it as an invalid production mutation path, so parser, structured-output,
+and validation-loop paths all fail before a proposed CGS can be produced.
+
+What This Slice Proves:
+
+- `SchemaPathValidator` treats unrecognised path grammar as a hard production
+  mutation failure while preserving `unknown_paths` for diagnostics.
+- `StructuredOutputParser` marks canonical mutations with unknown CGS paths as
+  not fully valid.
+- `ValidationLoop` blocks unknown paths in layer 1 and does not downgrade them
+  to manual-review warnings.
+- The reviewed prompt corpus pins `pc099` as an adversarial unknown-path case
+  with expected blocked production apply behavior.
+- Quick/full launch certification runs the unknown CGS path gate and stores a
+  JSON proof report.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/prompt-intelligence/src/output_parser/schema_path_validator.py` | CGS path validation boundary for parsed mutations. | Makes unrecognised grammar invalid for production mutation applies and emits a blocking reason. |
+| `packages/prompt-intelligence/src/validation_loop/validation_loop.py` | Multi-layer mutation validation before commit. | Removes the old warning-only downgrade for unknown paths. |
+| `packages/prompt-intelligence/src/tests/test_unknown_cgs_path_failures.py` | Parser and validation-loop regression tests. | Proves valid paths still pass while unknown grammar fails in parser and validation layers. |
+| `docs/prompt_corpus_100.jsonl`, `docs/prompt_corpus_manifest.json`, `docs/PROMPT_CORPUS.md` | Reviewed prompt corpus and manifest. | Adds the `pc099` adversarial unknown-path evidence case and refreshes the corpus hash. |
+| `tools/prompt_unknown_cgs_path_check.py`, `tools/certify_launch.py` | Governance and launch certification. | Adds executable parser/corpus proof and runs it in quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Source inventory, claims, readiness, and task docs. | Records X10-026 as locally complete with explicit proof boundaries. |
+
+Verification:
+
+- `python -m py_compile packages/prompt-intelligence/src/output_parser/schema_path_validator.py packages/prompt-intelligence/src/validation_loop/validation_loop.py packages/prompt-intelligence/src/tests/test_unknown_cgs_path_failures.py tools/prompt_unknown_cgs_path_check.py tools/certify_launch.py`
+- `python packages/prompt-intelligence/src/tests/test_unknown_cgs_path_failures.py`
+- `python tools/prompt_unknown_cgs_path_check.py --output target-codex-task26-unknown-path\prompt_unknown_cgs_path_report.json --json`
+- `python tools/prompt_corpus_check.py --json`
+- `python tools/source_inventory_check.py --json`
+- `python tools/certify_launch.py --quick --target-dir target-codex-certify-task26-quick --report-path target-codex-certify-task26-quick\launch_certification_report.json`
+## X10-027: Prompt Test Packaging Normalization
+
+Task 27 promotes prompt-intelligence tests from ad-hoc per-file/manual runners to
+a public one-command suite artifact. The focused command now runs every
+`packages/prompt-intelligence/src/tests/test*.py` method through the Python gate
+without synthetic `pil_retry_policy` aliasing, and launch certification stores
+that focused report.
+
+What This Slice Proves:
+
+- `python tools/python_test_gate.py --suite prompt-intelligence --output ...`
+  is the canonical one-command prompt-intelligence test runner.
+- The focused run executes 405 prompt-intelligence tests with zero failures,
+  errors, or not-run cases.
+- Child suite runners create their report directories before writing JSON, so
+  direct suite invocations do not fail with missing output directories.
+- `packages/prompt-intelligence/src/llm_orchestrator/pil_retry_policy.py`
+  provides the legacy import surface used by existing tests and modules.
+- Quick/full launch certification runs the focused prompt suite and stores the
+  `xace.python_test_gate.v1` artifact under the certification target directory.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/prompt-intelligence/src/llm_orchestrator/pil_retry_policy.py` | Legacy PIL retry-policy import compatibility. | Re-exports the real `retry_policy` public API so direct tests no longer need runner-only aliasing. |
+| `tools/python_test_gate.py` | Python package/tool suite orchestrator. | Adds public `--suite` selection, focused suite artifacts, child-output directory creation, selected-suite metadata, and suite-specific skip accounting for repo-wide tools/syntax. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the focused prompt-intelligence Python suite to quick/full certification and compiles the compatibility module. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, claims, readiness, and task docs. | Records X10-027 as locally complete with the prompt suite artifact boundary. |
+
+Verification:
+
+- `python -m py_compile tools/python_test_gate.py tools/certify_launch.py packages/prompt-intelligence/src/llm_orchestrator/pil_retry_policy.py`
+- `python tools/python_test_gate.py --suite prompt-intelligence --output target-codex-task27-prompt-suite\python_gate_report.json`
+- `python tools/source_inventory_check.py --json`
+- `python tools/forbidden_claims_check.py`
+- Focused launch-certification binding: `python -c "from pathlib import Path; import tools.certify_launch as c; target=Path('target-codex-task27-cert-check'); check=next(ch for ch in c.build_checks(target, quick=True) if ch.label == 'prompt intelligence Python suite'); result=c.run_check(check, verbose=True); raise SystemExit(result.returncode)"`
+## X10-028: Launch Provider/Runtime Prompt Benchmark Profile
+
+Task 28 turns the stricter `launch_provider_runtime` threshold profile from a
+future-only contract into an executable local benchmark. The benchmark runs the
+reviewed 100-prompt corpus through the classifier, executes provider-allowed
+rows through the real `InferenceAdapter` telemetry/accounting path with a
+deterministic local provider client, runs `tools/sgc_runtime_proof.py` against
+real SGC/runtime binaries, runs `tools/prompt_apply_recovery_check.py`, and then
+evaluates the launch profile thresholds.
+
+What This Slice Proves:
+
+- 100 corpus cases classify with zero route mismatches under the launch profile.
+- 40 mutation-capable rows execute provider/accounting plus compile, runtime,
+  and rollback dimensions; unsupported, blocked, clarification, and experimental
+  rows remain no-mutation routes before provider/runtime mutation.
+- The launch threshold report passes classification, route, result-kind,
+  unsupported blocking, provider reliability, cost, latency, compile, runtime,
+  rollback, and reproducibility checks.
+- Hosted BYOK provider reliability is not claimed by this slice; that remains
+  the explicit opt-in hosted-provider proof gate.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/builder-workspace/server/prompt_classifier_gate.py` | Prompt route classifier. | Tightens route selection and unsupported/adversarial pattern precedence so certified launch corpus rows hit the expected routes. |
+| `tools/prompt_corpus_benchmark.py` | Shared prompt benchmark and threshold evaluator. | Scores compile/runtime/rollback success over attempted launch rows while preserving local classifier-only not-run semantics. |
+| `tools/launch_provider_runtime_benchmark.py` | Launch provider/runtime benchmark. | Adds the X10-028 benchmark profile, provider accounting artifacts, real SGC/runtime proof execution, rollback recovery proof execution, launch threshold evaluation, and Markdown/JSON/JSONL reports. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Compiles and runs the launch provider/runtime prompt benchmark in quick/full certification after building SGC and runtime binaries. |
+| `tools/prompt_launch_threshold_check.py` | Prompt threshold contract validator. | Verifies the launch benchmark command is documented and the benchmark tool exists. |
+| `docs/PROMPT_LAUNCH_THRESHOLDS.md`, `docs/prompt_launch_thresholds.json` | Prompt launch threshold contract. | Records the launch profile as locally executable while keeping hosted BYOK reliability separate. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, claims, readiness, and task docs. | Records X10-028 as locally complete with explicit hosted-provider boundaries. |
+
+Verification:
+
+- `python -m py_compile tools/launch_provider_runtime_benchmark.py tools/prompt_corpus_benchmark.py tools/certify_launch.py tools/prompt_launch_threshold_check.py packages/builder-workspace/server/prompt_classifier_gate.py`
+- `python tools/prompt_classifier_gate_check.py --json`
+- `python tools/prompt_corpus_benchmark.py --output target-codex-task28-classifier-check --json`
+- `cargo build -p xace-runtime-core --bin xace_runtime --target-dir target-codex-task28-runtime`
+- `cargo build -p xace-system-graph-compiler --target-dir target-codex-task28-runtime`
+- `python tools/launch_provider_runtime_benchmark.py --output target-codex-task28-launch-provider-runtime --runtime-bin target-codex-task28-runtime\debug\xace_runtime.exe --sgc-bin target-codex-task28-runtime\debug\xace-system-graph-compiler.exe --json`
+- `python tools/prompt_launch_threshold_check.py --target-dir target-codex-task28-thresholds --json`
+- `python tools/source_inventory_check.py --json`
+
+## X10-029: Production Gameplay Primitive Library
+
+Task 29 adds a reusable production catalog for platformer, RPG, shooter,
+survival, puzzle, strategy, simulation, inventory, combat, and multiplayer
+combat. Each catalog entry materializes a committed CGS document instead of a
+label-only template and declares the complete schema, system, event, input,
+asset, save, and network facet set.
+
+What This Slice Proves:
+
+- All ten required genres are represented by versioned primitives with
+  validated component defaults, semantic inputs/events, asset bindings, save
+  scope, and network policy.
+- Catalog systems use real runtime registry IDs and exact runtime read/write
+  contracts. The SGC compiles and persists every plan, and the scheduled system
+  sequence exactly matches the primitive declaration.
+- Every primitive launches twice through the standalone runtime for four ticks
+  from a deterministic seed. Both tick-hash logs and final world hashes match,
+  while every run records four distinct tick hashes so the proof cannot pass on
+  a static world.
+- The SGC scheduler now treats direct same-phase ordering edges as parallel
+  window barriers. Explicit dependency chains serialize correctly, while
+  independent non-conflicting siblings that share a predecessor remain eligible
+  to co-schedule.
+- The generated report passes 10/10 primitive rows with no remaining required
+  genres. Its SHA-256 is
+  `da6ff3244c93f1a99b3dd7ba0dcda883444bdb585f2ccc92d1fb82833a0f2d41`.
+
+Scope Boundary:
+
+- This is a certified reusable primitive catalog, not proof of arbitrary
+  prompt-generated gameplay; typed prompt operations and generated systems are
+  owned by X10-030 and X10-031.
+- The multiplayer-combat entry proves deterministic component, authority, and
+  replication-policy composition through the local runtime. It does not upgrade
+  the separate multiplayer launch-readiness claim.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/dcl/gameplay_primitives.py`, `packages/dcl/tests/test_gameplay_primitives.py` | Primitive catalog and focused contract tests. | Defines and validates the ten-genre, seven-facet catalog and committed-CGS materialization. |
+| `packages/core/src/input/`, `packages/core/src/ucl/`, `packages/core/src/events/semantic_event_registry.rs` | Canonical gameplay contracts. | Adds semantic input plus movement/character/event contracts consumed by the catalog and runtime. |
+| `packages/runtime-core/src/builtin_systems.rs`, `packages/runtime-core/src/cgs_loader.rs`, `packages/runtime-core/src/bin/xace_runtime.rs` | Executable primitive runtime path. | Registers and executes the production primitive systems and preserves their state mutation in strict CGS-derived runtime launches. |
+| `packages/system-graph-compiler/src/conflict_analyzer/conflict_analyzer.rs`, `packages/system-graph-compiler/src/scheduler/parallel_group_analyzer.rs` | SGC ordering and parallel-window safety. | Carries direct same-phase ordering edges into scheduling and prevents dependency-linked systems from co-scheduling without reducing independent sibling parallelism. |
+| `tools/gameplay_primitive_library_check.py`, `tools/certify_launch.py` | End-to-end proof and launch gate. | Builds committed CGS fixtures, runs real SGC plan persistence, performs two runtime replays per primitive, and binds the full-catalog proof into certification. |
+
+Verification:
+
+- `cargo fmt -p xace-system-graph-compiler`
+- `python -m unittest packages.dcl.tests.test_gameplay_primitives -v` passes 14 tests.
+- `cargo test -p xace-system-graph-compiler scheduler::parallel_group_analyzer::tests:: --target-dir target-codex-task29-primitives` passes 11 tests.
+- `cargo test -p xace-system-graph-compiler --target-dir target-codex-task29-primitives` passes 250 library tests, 3 CLI tests, and 1 doc test.
+- `cargo build -p xace-system-graph-compiler --target-dir target-codex-task29-primitives`
+- `cargo build -p xace-runtime-core --bin xace_runtime --target-dir target-codex-task29-primitives`
+- `python tools/gameplay_primitive_library_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --output target-codex-task29-primitives\gameplay-primitives\report.json --artifact-dir target-codex-task29-primitives\gameplay-primitives\artifacts --require-full-catalog --json`
+
+## X10-030: Typed Prompt-to-CGS Operations
+
+Task 30 replaces provider-authored structural paths with a closed, path-free
+operation grammar. Structural prompt output is normalized as one typed batch,
+previewed and approved in Builder, resolved against live IDs at the GDE trust
+boundary, and committed atomically before the real SGC/runtime path runs.
+
+What This Slice Proves:
+
+- The provider schema exposes only the seven registered operation families:
+  `declare_component`, `add_component`, `set_defaults`, `add_system`,
+  `add_event`, `add_rule`, and `add_asset`. It exposes no generic path, patch,
+  or arbitrary executor-body field.
+- Request/prompt IDs, stable operation IDs, exact object keys, target IDs,
+  field types, safe asset sources, and registered builtin system contracts are
+  validated again at each production boundary. Existing schema writes require
+  explicit exact field metadata; `fixed`, `int`, `uint`, and `entity_id` are
+  never interchanged. Floats, bool-as-int values, negative unsigned/entity
+  values, unknown kinds/fields/IDs, mixed legacy structural operations, and
+  duplicate targets fail closed.
+- The provider contract stays inside the native strict structured-output
+  subset: a closed root object, nested `anyOf` variants, all object properties
+  required, and no `oneOf`, `$id`, `uniqueItems`, or generic patch/path field.
+- Builder retains the canonical typed batch and path-free previews, binds batch
+  provenance into approval/audit/recovery state, and always requires SGC for a
+  typed structural batch.
+- GDE applies the entire batch to an isolated CGS copy, runs whole-CGS
+  consistency validation, and performs one minor-version commit. A failure at
+  any operation exposes no partial mutation.
+- The retained 17-check proof commits all seven families through the live Builder/GDE
+  boundary, validates the resulting CGS, persists a real SGC plan, runs the
+  real runtime twice with matching schedules/tick hashes/world hashes, proves
+  late-operation failure atomicity, and restores the exact pre-commit CGS.
+
+Scope Boundary:
+
+- X10-030 can select only an already registered runtime builtin through
+  `builtin.<SystemID>.v1` with its exact phase/read/write contract. Generating a
+  new executable system body and deterministic executor is owned by X10-031.
+- Declared events and assets are authoritative contracts; runtime behavior
+  still requires a registered consuming system or engine binding.
+- Existing scalar `SET`/`SCALE` edits retain their certified value-mutation
+  path. Legacy structural path operations are rejected at the typed boundary.
+
+Files touched:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/prompt-intelligence/src/typed_operations/`, `packages/prompt-intelligence/src/output_parser/structured_output_parser.py`, `packages/prompt-intelligence/src/llm_orchestrator/pass2_dsl_draft.py`, `packages/prompt-intelligence/src/pil_pipeline.py` | Provider grammar, parsing, normalization, and live PIL dispatch. | Adds the closed seven-family schema, request binding, live-CGS validation, canonical batches, and typed structural routing. |
+| `packages/gde/src/domain_dsl/typed_operations/`, `packages/gde/src/gde_orchestrator.py`, `packages/gde/src/cgs/cgs_manager.py` | Atomic typed operation execution and CGS commit authority. | Revalidates trust-boundary payloads, resolves stable IDs/contracts, applies on a copy, validates the whole document, and commits one correctly hashed minor version. |
+| `packages/builder-workspace/server/session_manager.py`, `packages/builder-workspace/server/ws_message_router.py` | Builder approval, apply, audit, and recovery boundary. | Stores path-free typed previews/provenance, rejects mixed legacy structural operations, forces SGC, and routes the approved batch to GDE atomically. |
+| `tools/cgs_schema_validate.py`, `docs/TYPED_CGS_OPERATIONS.md` | Standalone consistency checks and production contract. | Extends validation for typed semantic-event/asset records and documents the supported grammar, flow, failure semantics, and generated-system boundary. |
+| `tools/typed_cgs_operation_e2e_check.py`, `tools/certify_launch.py` | Retained end-to-end proof and launch gate. | Proves all seven families through Builder/GDE/SGC/runtime plus failure atomicity and exact rollback, and binds the proof into quick/full certification. |
+
+Verification:
+
+- `python -m py_compile tools/typed_cgs_operation_e2e_check.py tools/certify_launch.py`
+- `python -m unittest packages/prompt-intelligence/src/tests/test_typed_cgs_operations.py packages/prompt-intelligence/src/tests/test_typed_operation_boundary.py -v` passes 30 tests.
+- `python -m unittest packages/inference/tests/test_structured_output_constraints.py -v` passes 6 tests.
+- Focused GDE typed executor coverage passes 8 tests; `python packages/builder-workspace/server/tests/test_typed_operation_router.py -v` passes 3 tests.
+- `python packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py -v` passes 21 tests.
+- `python tools/python_test_gate.py --suite prompt-intelligence --output target-codex-task30-typed-operations\prompt-suite.json` passes 435 tests.
+- `python tools/typed_cgs_operation_e2e_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --artifact-dir target-codex-task30-typed-operations\artifacts --output target-codex-task30-typed-operations\report.json --json`
+- `python tools/source_inventory_check.py --json`
+
+## X10-031: Prompt-Generated System Definitions
+
+Status: complete. The closed typed provider contract, local materialization
+bridge, Builder handoff, independent GDE executor boundary, real-SGC/runtime
+proof, and launch-certification gate are implemented.
+
+Readiness established:
+
+- A `system_add` Pass 1 plan may resolve to either registered-builtin
+  `add_system` or the separate `add_generated_system` operation. Existing
+  builtin routing and exact registry-contract validation remain unchanged.
+- The provider-facing generated-system variant is closed and path-free. It
+  carries system ID, phase, sorted unique reads/writes, dependencies, scope,
+  version, deterministic metadata, explanation, and a schema-constrained
+  behavior. It exposes `behavior` but never `runtime_executor`, ABI, compile
+  artifact, generated source, or arbitrary code.
+- The first production behavior is `increment_numeric_field`. Its component
+  must exist in both reads and writes, the target field must have exact
+  `fixed` schema metadata, and the delta must be an integer whole-unit value.
+- The local materializer operates on copies, derives
+  `xace.generated_system_abi.v1` plus the exact mutation/event/RNG rollback
+  hooks, stages the system, invokes the existing safe code-generation and real
+  SGC path, verifies the signed compile artifact, and only then attaches the
+  trusted executor. Provider-supplied executors fail closed. Wall-clock Cargo
+  duration is normalized to zero in the authoritative artifact so identical
+  successful materializations do not drift CGS hashes.
+- The trusted parser requires an explicit internal materialization flag. GDE
+  independently checks the complete generated system record and executor
+  envelope before atomic whole-CGS validation and commit.
+- Builder preserves locally materialized executors across preview/approval,
+  includes generated systems in affected-system summaries, and requires SGC
+  before persistence.
+
+Scope boundary:
+
+- This slice currently supports one closed deterministic behavior; it is not a
+  general provider-authored Rust or arbitrary-code execution surface.
+- The retained proof covers the initial closed increment behavior. It does not
+  claim arbitrary provider-authored Rust or an unrestricted behavior language.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/prompt-intelligence/src/typed_operations/`, `packages/prompt-intelligence/src/llm_orchestrator/pass2_dsl_draft.py` | Closed provider grammar and Pass 2 routing. | Adds `add_generated_system`, the strict increment behavior, dual-kind `system_add` routing, and the internal-only materialized-executor parser escape. |
+| `packages/prompt-intelligence/src/code_generation/generated_system_materializer.py`, `packages/prompt-intelligence/src/pil_pipeline.py` | Local provider-to-executable trust bridge. | Derives and signs executor metadata locally through the safe compiler/SGC path before typed CGS validation. |
+| `packages/gde/src/domain_dsl/typed_operations/`, `packages/gde/src/gde_orchestrator.py` | Atomic generated-system commit authority. | Revalidates the complete signed executor/system definition and commits only after whole-CGS consistency validation. |
+| `packages/builder-workspace/server/session_manager.py` | Builder preview/approval and GDE handoff. | Preserves the locally signed executor at the trusted server boundary and reports generated systems in preview/affected-system metadata. |
+| `tools/generated_system_prompt_e2e_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Proves provider-shaped definition through local signing, GDE, real SGC, persisted-plan runtime replay, atomic adversarial rejection, and exact rollback; runs immediately after the X10-030 typed-operation proof. |
+
+Verification:
+
+- Focused prompt typed/materializer/boundary suites pass 45 tests; the complete
+  prompt-intelligence suite passes 446/446.
+- Focused generated-system GDE tests pass 5/5; the complete GDE suite passes
+  200/200.
+- Focused Builder generated-system/router tests pass 5/5,
+  `test_prompt_pipeline_e2e.py` passes 21/21, and the complete Builder server
+  suite passes 79/79.
+- `python tools/generated_system_prompt_e2e_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --artifact-dir target-codex-task31-generated-systems\artifacts --output target-codex-task31-generated-systems\report.json --json` passes 25/25 checks twice with identical report SHA-256 `5dfd9f7395128b2709b2639ac2decf5ad2f692a0fb7f8c8391c16320ea0e03b1`.
+- `python tools/source_inventory_check.py --json` returns `[]`.
+
+## X10-032: Composite Prompt Planning
+
+Status: complete. Complex multi-system prompts now have a dedicated
+`composite_feature_add` planning route that still resolves to the closed typed
+operation grammar, plus a retained composite plan envelope for preview, apply,
+rollback, and audit.
+
+Readiness established:
+
+- Pass 1 can classify a prompt as `composite_feature_add` when one user request
+  needs ordered schema, systems, assets, save policy, and network policy.
+- Pass 2 must emit one ordered self-contained typed batch. The local planner
+  derives `xace.composite_prompt_plan.v1` with operation order, batch hash,
+  required facet membership, `xace.composite_prompt_dependency_graph.v1`,
+  save/network facet plans, and `xace.composite_prompt_rollback_plan.v1`.
+- Composite prompts require schema, system, asset, save, and network facets and
+  at least two systems. Missing facets fail closed before Builder preview.
+- Builder preview preserves the composite plan, exposes save/network facet
+  diffs, and fingerprints the plan alongside the canonical typed batch.
+- Pending apply revalidates the stored composite plan against the reparsed typed
+  batch before GDE can commit. Apply provenance carries the plan hash, schema,
+  operation order, and rollback pre-CGS hash.
+- The retained proof commits a nine-operation composite prompt through Builder
+  and GDE, validates the resulting CGS, persists a real SGC plan, invokes the
+  real runtime twice, compares schedule and tick-hash replay, rejects a tampered
+  plan before apply, proves mid-batch failure atomicity, and restores the exact
+  pre-commit CGS hash.
+
+Scope boundary:
+
+- X10-032 is a planning/audit layer for the existing typed operation path. It is
+  not a new generic JSON patch language and does not bypass the X10-030 or
+  X10-031 trust boundaries.
+- Save and network coverage in this slice means composite prompt operations
+  touch canonical save/network component policy through typed defaults or
+  attachments. Broader save/load and multiplayer launch readiness remain owned
+  by their dedicated proof tracks.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/prompt-intelligence/src/typed_operations/composite_plan.py`, `packages/prompt-intelligence/src/typed_operations/__init__.py` | Composite prompt plan derivation and validation. | Adds the local plan envelope, dependency graph, facet extraction, save/network plans, rollback binding, and plan validation helpers. |
+| `packages/prompt-intelligence/src/llm_orchestrator/pass1_planning.py`, `packages/prompt-intelligence/src/llm_orchestrator/pass2_dsl_draft.py`, `packages/prompt-intelligence/src/output_parser/structured_output_parser.py` | Prompt planning, typed provider routing, and canonical parser handoff. | Adds `composite_feature_add`, enforces required facets/systems at Pass 2, and carries the derived composite plan on typed transactions. |
+| `packages/builder-workspace/server/session_manager.py`, `packages/builder-workspace/server/ws_message_router.py` | Builder preview/apply/audit boundary. | Preserves and fingerprints composite plans, previews save/network facets, revalidates pending composite plans before apply, and emits plan provenance on apply feedback and CGS updates. |
+| `packages/prompt-intelligence/src/tests/test_typed_cgs_operations.py`, `packages/prompt-intelligence/src/tests/test_typed_operation_boundary.py` | Focused typed prompt tests. | Covers composite plan derivation/validation and Pass 2 fail-closed facet enforcement. |
+| `tools/composite_prompt_planning_e2e_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Proves the composite prompt path through Builder/GDE/SGC/runtime/adversarial/rollback checks and binds it into certification after the X10-031 generated-system proof. |
+| `docs/TYPED_CGS_OPERATIONS.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Contract, inventory, readiness, and task docs. | Records the X10-032 production path, proof command, retained report hash, and source inventory coverage. |
+
+Verification:
+
+- `python -m py_compile packages/prompt-intelligence/src/typed_operations/composite_plan.py packages/prompt-intelligence/src/typed_operations/__init__.py packages/prompt-intelligence/src/output_parser/structured_output_parser.py packages/prompt-intelligence/src/llm_orchestrator/pass1_planning.py packages/prompt-intelligence/src/llm_orchestrator/pass2_dsl_draft.py packages/builder-workspace/server/session_manager.py packages/builder-workspace/server/ws_message_router.py tools/composite_prompt_planning_e2e_check.py tools/certify_launch.py`
+- `python -m unittest packages/prompt-intelligence/src/tests/test_typed_cgs_operations.py packages/prompt-intelligence/src/tests/test_typed_operation_boundary.py -v` passes 33 tests.
+- `python -m unittest packages/builder-workspace/server/tests/test_typed_operation_router.py -v` passes 3 tests.
+- `python tools/composite_prompt_planning_e2e_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --artifact-dir target-codex-task32-composite-planning\artifacts --output target-codex-task32-composite-planning\report.json --json` passes 17/17 checks. Report SHA-256: `2d382a49df1ce3cbc5f76c81fcc75907303b36b4f3eab440e90ba40b306f87db`.
+
+## X10-033: Prompt Undo/Redo With Proof Links
+
+Status: complete. Prompt-authored CGS changes now append a durable linear
+history entry with proof-linked pre/post state hashes, and Builder exposes
+hash-checked undo/redo messages that restore only retained snapshots backed by
+persisted ExecutionPlans and SGC proof bundles.
+
+Readiness established:
+
+- Successful prompt applies persist `.xace/audit/prompt_history.json` with a
+  cursor, monotonically sequenced entries, pre/post CGS hashes, typed operation
+  provenance, optional composite-plan hash, version IDs, and proof-link status.
+- Redo tails are truncated when a new prompt mutation is applied after an undo;
+  if the current CGS hash is outside the retained history, a new branch starts
+  from the current authoritative hash instead of pretending the old cursor is
+  valid.
+- Undo/redo planning rejects stale current CGS hashes, empty history, cursor
+  underrun/overrun, missing target snapshots, missing ExecutionPlans, or missing
+  SGC proof bundles before Builder changes the active CGS.
+- Accepted undo/redo restores load the exact snapshot, re-save it as the active
+  project CGS, append `.xace/audit/prompt_history_events.jsonl`, record mutation
+  audit rows, and emit `prompt_history_ack` plus `cgs_update` payloads carrying
+  proof links and the refreshed prompt-history state.
+- The retained proof creates 50 chained closed typed prompt mutations, persists
+  every intermediate snapshot/SGC plan/proof bundle, walks 50 undos and 50
+  redos, and verifies restored CGS JSON hash, plan hash, runtime world hash,
+  hash-log hash, and schedule/replay fingerprint for every target state.
+
+Scope boundary:
+
+- X10-033 is a proof-linked restore layer over committed prompt mutations. It
+  does not introduce a second mutation language, infer missing SGC/runtime
+  artifacts, or allow undo/redo from unproven snapshots.
+- Runtime matching is certified by the retained tool using local SGC/runtime
+  executions. Live UI undo/redo is still constrained to the Builder session
+  protocol and current project persistence root.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/builder-workspace/server/cgs_persistence.py` | Crash-safe CGS persistence, snapshots, plan/proof metadata, and mutation audit. | Adds durable prompt-history state, apply entries, branch truncation, proof-link validation, undo/redo planning, and restore-event persistence. |
+| `packages/builder-workspace/server/ws_message_router.py` | Builder WebSocket mutation protocol. | Records prompt-history entries after successful prompt apply, serves prompt-history requests, handles proof-checked `prompt_undo`/`prompt_redo`, and emits prompt-history proof metadata in ACK/update/audit payloads. |
+| `packages/builder-workspace/src/api/message_types.ts` | Builder client/server protocol types. | Adds prompt-history request, undo, redo, history, and ack wire types plus typed message factories and guards. |
+| `packages/builder-workspace/server/tests/test_prompt_history_undo_redo.py` | Focused persistence tests. | Covers cursor movement, redo-tail truncation after branching, and fail-closed proof-link requirements. |
+| `tools/prompt_undo_redo_e2e_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Proves 50 chained prompt mutations through history apply/undo/redo, real SGC plan/proof persistence, runtime replay matching, and certification integration. |
+| `docs/TYPED_CGS_OPERATIONS.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Contract, inventory, readiness, and task docs. | Records the X10-033 prompt-history contract, proof command, retained report hash, and source inventory coverage. |
+
+Verification:
+
+- `python -m py_compile packages/builder-workspace/server/cgs_persistence.py packages/builder-workspace/server/ws_message_router.py packages/builder-workspace/server/tests/test_prompt_history_undo_redo.py tools/prompt_undo_redo_e2e_check.py tools/certify_launch.py`
+- `python -m unittest packages/builder-workspace/server/tests/test_prompt_history_undo_redo.py -v` passes 2 tests.
+- `python tools/prompt_undo_redo_e2e_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --artifact-dir target-codex-task33-prompt-history\artifacts --output target-codex-task33-prompt-history\report.json --json` passes 14/14 checks. Report SHA-256: `3463436e16a817f668a24a5a88c534fce40797a37b6d2475fda66ee419ba999d`.
+
+## X10-034: Long-Session Prompt Degradation
+
+Status: complete. Launch certification now uses a deterministic fixed-length
+long-session profile instead of requiring an eight-hour wall-clock soak. The
+retained proof stresses the same degradation vectors: accumulated context,
+bounded active context, repeated typed edits, proof-linked undo/redo, simulated
+provider failures, stale-state mutation attempts, cost accounting, and real
+SGC/runtime replay checkpoints.
+
+Readiness established:
+
+- The retained profile runs 240 prompt turns with 216 committed typed CGS edits,
+  14 synthetic provider timeouts before commit, 10 stale parent-hash mutation
+  attempts, 5 proof-linked undo/redo cycles, and 14 SGC/runtime checkpoints.
+- Context growth is represented by the full source trace while the active
+  context window stays under a 16 KB budget through deterministic compaction.
+  The retained report records source bytes, active high-water bytes, compaction
+  count, compacted event count, and active context hash.
+- Provider failures write `xace.provider_accounting_summary.v1` artifacts and
+  prove that failed provider turns do not mutate CGS, prompt history, snapshots,
+  plans, or proof bundles.
+- Stale-state turns intentionally submit typed batches with an old
+  `parent_cgs_hash`; GDE rejects them through the existing stale mutation guard
+  and the proof checks that CGS bytes and prompt history remain unchanged.
+- Periodic undo/redo cycles use the X10-033 proof-linked restore path and
+  compare restored CGS hash, SGC plan hash, runtime world hash, hash-log hash,
+  and schedule/replay fingerprint.
+
+Scope boundary:
+
+- X10-034 is a fixed-length degradation proof, not a claim that an unattended
+  eight-hour hosted-provider UI session has been run. The command exposes knobs
+  for longer/manual soak profiles, but the retained launch gate is intentionally
+  deterministic and offline.
+- Provider failures are synthetic local failure cases aligned to the Task 52/53
+  retry/accounting ABI. Hosted-provider reliability at long-session scale
+  remains a separate live-provider evidence track.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `tools/prompt_long_session_degradation_check.py` | Retained fixed-length long-session proof. | Drives 240 prompt turns through typed edits, context compaction, provider-failure no-mutation checks, stale-state rejection, proof-linked undo/redo, provider accounting, and SGC/runtime replay checkpoints. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Compiles and runs the long-session degradation proof after the X10-033 undo/redo proof. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the fixed-length profile, retained artifacts, launch-scope boundary, and report hash. |
+
+Verification:
+
+- `python -m py_compile tools/prompt_long_session_degradation_check.py tools/certify_launch.py`
+- `python tools/prompt_long_session_degradation_check.py --runtime-bin target-codex-task29-primitives\debug\xace_runtime.exe --sgc-bin target-codex-task29-primitives\debug\xace-system-graph-compiler.exe --artifact-dir target-codex-task34-long-session\artifacts --output target-codex-task34-long-session\report.json --json` passes 22/22 checks. Report SHA-256: `da930090c99afe10673c84a995c20c597d7d1881cf8638a99c8b4f0ece1a7f9b`.
+
+## X10-035: Multiplayer Launch Topology
+
+Status: complete. The Phase 5 launch multiplayer topology is explicitly
+selected as `host_client_lockstep_v1`: a host-authoritative session where the
+host owns the simulation clock and releases ticks only after required client
+input packets are present. Offline mode remains launch-allowed as local-only
+gameplay, not as a multiplayer topology. Dedicated-server and peer-to-peer
+profiles now fail visibly for launch scope with `XACE_NETWORK_TOPOLOGY_UNSUPPORTED`.
+
+Readiness established:
+
+- `docs/multiplayer_launch_topology_matrix.json` is the machine-readable launch
+  topology matrix. It enumerates `host`, `client`, `offline`,
+  `dedicated_server`, and `peer_to_peer` with support status, authority model,
+  tick model, and failure code.
+- `packages/network-core/src/session/launch_topology.rs` exposes the same policy
+  as code through `launch_topology_for_mode`, `launch_topology_matrix`, and
+  `require_launch_topology`.
+- `NetworkMode::Host` and `NetworkMode::Client` are the only supported
+  multiplayer launch modes. `NetworkMode::Offline` is allowed only as
+  `LocalOnly`.
+- `NetworkMode::DedicatedServer` and `NetworkMode::PeerToPeer` return a typed
+  `NetworkError::UnsupportedTopology` with stable failure-code/mode/topology/reason
+  fields.
+- The retained proof validates the matrix and runs focused network-core tests,
+  including the existing deterministic networked runtime smoke for host/client
+  lockstep input release across arrival orders.
+
+Scope boundary:
+
+- X10-035 chooses topology and fail-fast boundaries. It does not yet integrate
+  the runtime tick loop with `InputSynchroniser`; that is X10-036.
+- Dedicated-server hosting, peer-to-peer distributed authority, NAT traversal,
+  matchmaking, 4-16 client chaos, and 60-minute soak claims remain unsupported
+  until later Phase 5 tasks explicitly certify them.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `docs/multiplayer_launch_topology_matrix.json` | Machine-readable topology decision. | Selects `host_client_lockstep_v1`, marks host/client as supported multiplayer, offline as local-only, and dedicated-server/peer-to-peer as unsupported launch profiles. |
+| `packages/network-core/src/session/launch_topology.rs`, `packages/network-core/src/session/session_manager.rs`, `packages/network-core/src/session/mod.rs`, `packages/network-core/src/lib.rs` | Runtime-independent network topology policy. | Adds stable mode IDs, launch topology decisions, exported gate helpers, and the visible `UnsupportedTopology` error. |
+| `packages/network-core/tests/test_launch_topology.rs` | Focused topology tests. | Proves the matrix policy, host/client authority/input scope, offline local-only allowance, and dedicated/peer-to-peer visible rejection. |
+| `tools/multiplayer_topology_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Validates the topology matrix, runs focused cargo topology/smoke tests, writes a retained report, and binds the proof into certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the selected launch topology, unsupported topology boundaries, retained report hash, and source inventory coverage. |
+
+Verification:
+
+- `python -m py_compile tools/multiplayer_topology_check.py tools/certify_launch.py`
+- `cargo fmt --check --package xace-network-core`
+- `cargo test -p xace-network-core launch_topology --target-dir target-codex-task35-multiplayer-topology`
+- `cargo test -p xace-network-core unsupported_launch_topologies_fail_visibly --target-dir target-codex-task35-multiplayer-topology`
+- `python tools/multiplayer_topology_check.py --output target-codex-task35-multiplayer-topology\report.json --target-dir target-codex-task35-multiplayer-topology --json` passes 10/10 checks. Report SHA-256: `dd281a8c388b3e2445ff311cb096417326f205e5b24ff145fb9c90a17e91cc80`.
+
+## X10-036: Runtime Input Synchronisation Tick Gate
+
+Status: complete. Runtime tick advancement can now consume
+`xace_network_core::input::InputSynchroniser` decisions before phase execution
+instead of directly applying raw pending engine inputs. The default direct mode
+keeps offline/local development behavior unchanged, while the lockstep mode used
+for the X10-035 host/client topology waits, releases, synthesizes, or rejects
+late inputs deterministically before the world tick can advance.
+
+Readiness established:
+
+- `RuntimeInputSyncConfig` selects direct or lockstep runtime input mode and
+  owns the required peer set, synchroniser config, and optional synthetic timeout
+  policy.
+- `RuntimeOrchestrator::tick()` now calls
+  `synchronise_and_apply_engine_inputs()` before schedule validation and phase
+  execution. A lockstep wait returns `XACE_RUNTIME_INPUT_SYNC_WAIT` without
+  advancing the simulation tick or writing a replay trace for that tick.
+- Delayed peer input for the same target tick releases the held tick and applies
+  only the packets emitted by `InputSynchroniser`.
+- Synthetic timeout release can unblock a tick with empty packets, but synthetic
+  packets without `player_id` are recorded as `missing_player_id` and do not
+  spoof player-owned component mutations.
+- Late packets for already released ticks are recorded as `late_after_release`
+  and are not applied to the next simulation tick.
+- Runtime status/control payloads expose `input_sync_mode` and
+  `input_sync_last_decision`; replay traces include `RuntimeInputSyncTrace` with
+  mode, decision, sim/input tick, missing peers, released packet count, and
+  waited tick count.
+
+Scope boundary:
+
+- X10-036 gates tick advancement through the input synchroniser. Runtime
+  rollback/resimulation after authoritative late input or desync is recorded in
+  X10-037, and client prediction/reconciliation is recorded in X10-038.
+- Dedicated-server, peer-to-peer, NAT traversal, matchmaking, 4-16 client chaos,
+  and 60-minute soak claims remain unsupported until later Phase 5 tasks.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Own runtime tick sequencing, engine input application, replay traces, and runtime status. | Adds direct/lockstep runtime input sync config, `InputSynchroniser` ownership, wait/release/synthetic/late decision handling, trace/status fields, and four X10-036 runtime tests. |
+| `packages/network-core/src/input/input_synchroniser.rs`, `packages/network-core/src/input/input_buffer.rs` | Deterministic lockstep input buffering and release decisions. | Adds explicit forced synthetic release helper and derives needed by runtime config. |
+| `packages/runtime-core/src/control_protocol.rs`, `packages/runtime-core/src/control_server.rs`, `packages/runtime-core/src/bin/xace_runtime.rs` | Runtime control/status wire contract and binary mapping. | Exposes `input_sync_mode` and `input_sync_last_decision` to control clients and offline status. |
+| `tools/runtime_input_sync_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused X10-036 runtime tests, writes the retained report, and binds the proof into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the runtime input-sync gate, retained report hash, current claim boundary, and next rollback/resimulation task. |
+
+Verification:
+
+- `python -m py_compile tools/runtime_input_sync_check.py tools/certify_launch.py`
+- `cargo fmt --check --package xace-network-core --package xace-runtime-core`
+- `cargo test -p xace-runtime-core x10_036 --target-dir target-codex-task36-input-sync`
+- `python tools/runtime_input_sync_check.py --output target-codex-task36-input-sync\report.json --target-dir target-codex-task36-input-sync --json` passes 5/5 checks. Report SHA-256: `698dbe64924a5a0f24d72a34f763c591d12812b6feddb85ec3d8cfdcb8e626e9`.
+
+## X10-037: Runtime Rollback Snapshot Resimulation
+
+Status: complete. Runtime rollback now uses the existing
+`xace_network_core::prediction::RollbackManager` to plan clean-boundary restore
+and deterministic resimulation, while `RuntimeOrchestrator` retains the actual
+`WorldSnapshot` anchors and released input history needed to replay the
+supported host/client lockstep timeline.
+
+Readiness established:
+
+- `RuntimeOrchestrator::tick()` captures a clean pre-tick `WorldSnapshot` in a
+  retained `SnapshotStore` before input synchronisation and phase execution.
+  Snapshot metadata is recorded in `RollbackManager` under the configured
+  rollback retention and replay-span limits.
+- Released lockstep inputs are retained by simulation tick. Ordinary late input
+  remains non-mutating, but an explicit authoritative correction through
+  `resimulate_authoritative_late_input()` can replace the corrected peer/tick
+  packet and replay the affected timeline.
+- `resimulate_after_desync()` accepts a `DesyncReport`, restores the retained
+  clean-boundary snapshot, resets runtime side channels through the existing
+  snapshot restore path, and replays the released input history through normal
+  `tick()` execution.
+- `RuntimeRollbackResimulationReport` records trigger, requested/restored/live
+  ticks, replayed ticks, corrected input digests, rollback count, pre/final
+  hashes, `hash_validation_passed`, and the adapter side-effect rollback report
+  used as adapter resync evidence.
+- Hash validation recomputes the final clean-boundary world hash and verifies
+  replayed tick traces match the deterministic guard hash log after resim.
+
+Scope boundary:
+
+- X10-037 covers local runtime retained-snapshot rollback/resimulation for the
+  supported host/client lockstep path. X10-038 now covers the client
+  prediction/reconciliation overlay; X10-037 itself remains the authoritative
+  clean-boundary rollback/resimulation slice.
+- X10-041 malicious-input hardening and X10-042 diagnostics are now complete;
+  4-16 client chaos and 60-minute soak certification remain later Phase 5 gates.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Own runtime tick sequencing, snapshots, input application, replay traces, and adapter side-effect rollback notifications. | Adds retained rollback snapshots, released input history, authoritative late-input and desync resimulation APIs, hash validation, rollback reports, and two X10-037 runtime tests. |
+| `packages/network-core/src/prediction/rollback_manager.rs` | Deterministic rollback snapshot metadata, planning, and records. | Adds clean-boundary planning that can replay the restored pre-tick snapshot tick and future-anchor pruning for corrected timelines. |
+| `packages/runtime-core/src/snapshot_engine/snapshot_store.rs` | Retention-policy-aware `WorldSnapshot` storage. | Adds future-anchor pruning so corrected timelines rebuild retained rollback snapshots after restore. |
+| `tools/runtime_rollback_resimulation_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused runtime and rollback-manager tests, writes retained evidence including rollback count/restored tick, and binds the proof into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 37 runtime rollback/resimulation gate, retained report hash, and remaining multiplayer boundaries. |
+
+Verification:
+
+- `python -m py_compile tools/runtime_rollback_resimulation_check.py tools/certify_launch.py`
+- `cargo fmt --check --package xace-network-core --package xace-runtime-core`
+- `cargo test -p xace-runtime-core x10_037 --target-dir target-codex-task37-rollback-resim`
+- `cargo test -p xace-network-core rollback_manager_clean_boundary --target-dir target-codex-task37-rollback-resim`
+- `python tools/runtime_rollback_resimulation_check.py --output target-codex-task37-rollback-resim\report.json --target-dir target-codex-task37-rollback-resim --json` passes 7/7 checks. Report SHA-256: `bf537dc355f2f0d568b88c77bacb7f8ffc314bfbc582897ef9f594ab5a45c96f`.
+
+## X10-038: Runtime Client Prediction and Reconciliation
+
+Status: complete. Supported lockstep clients now have a runtime-owned
+prediction/reconciliation overlay that uses the existing network-core
+`ClientPredictor`, `PredictionBuffer`, and `ReconciliationEngine` without
+writing predicted state into authoritative component tables.
+
+Readiness established:
+
+- `RuntimeClientPredictionConfig::lockstep_client()` enables prediction only
+  for the selected local peer in the supported lockstep input topology. Direct
+  input mode is rejected for this feature.
+- `RuntimeOrchestrator::preview_client_prediction_for_packet()` can produce a
+  read-only prediction preview from authoritative `COMP_TRANSFORM_V1` and
+  `COMP_VELOCITY_V1` state before the input packet is applied.
+- Released local lockstep inputs are stored in a bounded
+  `PredictionBuffer<RuntimeClientPredictionEntry>` as side-channel client
+  prediction state; authoritative input/component/system mutation continues
+  through the existing runtime tick path.
+- After the authoritative tick completes, `ReconciliationEngine` compares the
+  predicted clean-boundary position with the authoritative post-tick transform
+  and records correction vector, correction distance, mode, blend ticks,
+  prediction-buffer ticks, authoritative world hash, and a deterministic
+  authoritative-state digest.
+- `compare_client_prediction_server_hash()` records client/server authoritative
+  tick hash equality for the supported host/client lockstep slice.
+
+Scope boundary:
+
+- X10-038 proves the local runtime overlay and hash comparison for supported
+  lockstep clients. It does not add dedicated-server, peer-to-peer/NAT,
+  matchmaking, malicious-input hardening beyond existing packet validation, or
+  chaos/soak certification.
+- Prediction is intentionally non-authoritative: it may drive client-side
+  presentation/reconciliation reports, but it does not directly mutate world
+  component tables.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Own runtime tick sequencing, input application, replay/status, snapshots, and runtime-side multiplayer overlays. | Adds `RuntimeClientPredictionConfig`, prediction preview/report/hash-comparison structs, bounded prediction-buffer ownership, local lockstep prediction recording, post-tick reconciliation reports, status/accessors, and three X10-038 runtime tests. |
+| `packages/network-core/src/prediction/client_predictor.rs`, `packages/network-core/src/prediction/prediction_buffer.rs`, `packages/network-core/src/prediction/reconciliation_engine.rs` | Deterministic client prediction, bounded prediction history, and correction planning primitives. | Used as the production primitive path by the runtime overlay instead of a duplicate implementation. |
+| `tools/runtime_prediction_reconciliation_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused X10-038 runtime tests, records prediction-buffer/correction/hash evidence, and binds the proof into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 38 client prediction/reconciliation gate, retained report hash, and remaining multiplayer boundaries. |
+
+Verification:
+
+- `python -m py_compile tools/runtime_prediction_reconciliation_check.py tools/certify_launch.py`
+- `cargo fmt --check --package xace-network-core --package xace-runtime-core`
+- `cargo test -p xace-runtime-core x10_038 --target-dir target-codex-task38-prediction`
+- `python tools/runtime_prediction_reconciliation_check.py --output target-codex-task38-prediction\report.json --target-dir target-codex-task38-prediction --json` passes 8/8 checks. Report SHA-256: `6a72b505534383723425c2f414b4b7a12b78cb8c3396193695c86b91c19bb056`.
+
+## X10-039: Lobby/Session Lifecycle
+
+Status: complete. The selected `host_client_lockstep_v1` launch topology now
+has an explicit session lifecycle instead of only direct peer insertion/live
+promotion helpers.
+
+Readiness established:
+
+- `SessionPlayerIdentity` binds a non-zero `player_id`, `peer_id`, display
+  name, engine name, and adapter version to a peer for lifecycle/status use.
+- `SessionManager` supports lobby creation, identity-backed join, ready state,
+  live start only after active peers are ready, leave, reconnect into sync, late
+  join, and teardown for the supported host/client topology.
+- `SessionLifecycleEventKind` and `SessionStatus` now expose lifecycle events,
+  ready peers, player identities, peer stats, and required lockstep input peers
+  as one status surface.
+- Late-joining peers enter sync without being included in
+  `required_input_peers()` until promoted live, so existing live peers are not
+  blocked by the joiner.
+- Runtime evidence derives `RuntimeInputSyncConfig::lockstep(...)` directly from
+  `session.required_input_peers()` and proves missing/arriving required peer
+  input still waits/releases the runtime tick.
+- Builder's multiplayer smoke endpoint now runs both the existing network
+  primitives smoke and the `x10_039` lifecycle test, and the UI contract guards
+  the lifecycle checklist row.
+
+Scope boundary:
+
+- X10-039 covers lifecycle semantics for the chosen host/client lockstep launch
+  topology. It does not add session compatibility gates, dedicated-server,
+  peer-to-peer/NAT traversal, matchmaking, malicious-input hardening beyond
+  existing packet validation, or chaos/soak proof.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/network-core/src/session/session_manager.rs`, `packages/network-core/src/session/peer.rs`, `packages/network-core/src/session/peer_manager.rs`, `packages/network-core/src/session/mod.rs` | Own deterministic session, peer identity, ready state, lifecycle event, and status primitives. | Adds `SessionPlayerIdentity`, `SessionLifecycleEventKind`, ready peer tracking, lifecycle event recording, join/ready/live/leave/reconnect/late-join/teardown APIs, and status fields. |
+| `packages/network-core/tests/test_session_authority.rs`, `packages/network-core/tests/test_networked_runtime_smoke.rs` | Network-core lifecycle regression and product smoke coverage. | Adds the X10-039 lifecycle test and routes the smoke session through lobby/identity/ready semantics. |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Runtime tick/input synchronization proof surface. | Adds an X10-039 runtime test proving lockstep required peers are derived from session lifecycle state and still gate tick advancement. |
+| `packages/builder-workspace/server/builder_server.py`, `packages/builder-workspace/src/project/project_dashboard.ts`, `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder multiplayer smoke endpoint and UI contract. | Adds the lifecycle checklist step, runs the X10-039 network lifecycle test from the smoke endpoint, and guards the UI copy/endpoint contract. |
+| `tools/session_lifecycle_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs network/runtime/UI lifecycle checks, writes the retained report, and binds the gate into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 39 lifecycle gate, retained report hash, and remaining multiplayer boundaries. |
+
+Verification:
+
+- `python -m py_compile tools/session_lifecycle_check.py tools/certify_launch.py`
+- `cargo test -p xace-network-core x10_039 --target-dir target-codex-task39-session-lifecycle`
+- `cargo test -p xace-runtime-core x10_039 --target-dir target-codex-task39-session-lifecycle`
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `python tools/session_lifecycle_check.py --output target-codex-task39-session-lifecycle\report.json --target-dir target-codex-task39-session-lifecycle --json` passes 8/8 checks. Report SHA-256: `ffed695ea7486f4fe117e0eb407af8c26a44717d1879f909439a60bc05358f79`.
+
+## X10-040: Session Compatibility Checks
+
+Status: complete. Host/client lockstep sessions now have a pre-start
+compatibility gate for project/runtime identity, so mismatched peers can sit in
+the lobby but cannot move the session to live.
+
+Readiness established:
+
+- `SessionCompatibilityProfile` captures the launch-critical session identity:
+  schema version, SGC plan hash, adapter version, asset manifest hash,
+  package-set hash, provider-free metadata hash, and template ID.
+- `SessionCompatibilityReport` records exact blocking mismatch rows with stable
+  mismatch IDs for `schema`, `sgc_plan`, `adapter_version`, `assets`,
+  `packages`, `provider_free_metadata`, `template`, and `missing_profile`.
+- `SessionManager::start_live_when_ready()` now fails closed when a host
+  compatibility profile is configured and any active ready peer has a blocking
+  compatibility mismatch or missing profile.
+- Session status exposes `compatibility_required`, `compatibility_ok`, the host
+  profile, per-peer reports, and blockers so Builder/diagnostics can explain why
+  a lobby cannot start.
+- The networked runtime smoke now uses compatible session profiles in its happy
+  path, and Builder's multiplayer smoke exposes a compatibility checklist row.
+
+Scope boundary:
+
+- X10-040 covers deterministic pre-start compatibility gating for the selected
+  host/client lockstep session profile. It does not add malicious-input
+  hardening, transport authentication, asset/package download or repair,
+  dedicated-server/P2P compatibility, or chaos/soak proof.
+
+Files in the completed slice:
+
+| File | Single Responsibility | Slice Change |
+| --- | --- | --- |
+| `packages/network-core/src/session/session_compatibility.rs` | Defines deterministic session compatibility profiles, mismatch kinds, and reports. | Adds launch-critical profile fields plus exact blocking mismatch records for schema, SGC plan, adapter version, assets, packages, provider-free metadata, template, and missing profile. |
+| `packages/network-core/src/session/session_manager.rs`, `packages/network-core/src/session/mod.rs` | Own session state transitions and public session API. | Stores host compatibility profiles, per-peer reports, compatibility blockers/status, lifecycle pass/fail events, and start-live enforcement. |
+| `packages/network-core/tests/test_session_authority.rs`, `packages/network-core/tests/test_networked_runtime_smoke.rs` | Network-core regression and product-smoke coverage. | Adds the X10-040 mismatch matrix and compatible/missing-profile tests, and routes the network smoke through compatible profiles. |
+| `packages/builder-workspace/server/builder_server.py`, `packages/builder-workspace/src/project/project_dashboard.ts`, `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder multiplayer smoke endpoint and UI contract. | Adds the session compatibility checklist row and runs the `x10_040` focused test from the smoke endpoint. |
+| `tools/session_compatibility_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused mismatch matrix plus Builder UI contract, writes the retained report, and binds the gate into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 40 compatibility gate, retained report hash, and remaining multiplayer boundaries. |
+
+Verification:
+
+- `cargo fmt --check --package xace-network-core`
+- `python -m py_compile tools/session_compatibility_check.py tools/certify_launch.py`
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `cargo test -p xace-network-core x10_040 --target-dir target-codex-task40-session-compatibility`
+- `cargo test -p xace-network-core networked_runtime_smoke_is_deterministic_across_arrival_orders --target-dir target-codex-task40-session-compatibility`
+- `python tools/session_compatibility_check.py --output target-codex-task40-session-compatibility\report.json --target-dir target-codex-task40-session-compatibility --json` passes 8/8 checks. Report SHA-256: `026f71bc8e327523cd626efd566fa1e11d1363aa3153f26b561d350294e0ca12`.
+
+## X10-041: Malicious Input Limits
+
+Readiness delta:
+
+- The supported host/client lockstep path now has a deterministic malicious-input ingress gate before `InputSynchroniser` mutation.
+- `MaliciousInputGate` composes per-peer tick-window rate limits, required-peer checks, packet/schema validation, signature/player/device/action/tick policy, sequence/replay protection, target-entity authority checks, and `CheatGuard` enforcement.
+- Rejected packets record stable rejection kinds and do not enter synchronizer buffers or input logs.
+- Cheat-guard state is committed only after successful synchronizer insertion, so a buffer-level duplicate-tick rejection cannot poison the next valid sequence.
+- Builder's multiplayer smoke checklist now exposes the malicious-input limit row and runs the focused X10-041 test filter.
+
+Scope boundary:
+
+- X10-041 covers typed input-packet ingress hardening for the selected host/client lockstep topology. It does not add transport authentication, encryption, NAT/P2P hardening, asset/package download or repair, broader security review, or chaos/soak proof.
+
+Files in the completed slice:
+
+| File | Role | X10-041 change |
+| --- | --- | --- |
+| `packages/network-core/src/input/malicious_input_gate.rs` | Deterministic malicious-input ingress gate. | Adds rate limiting, stable rejection kinds, two-phase cheat-guard preview/commit, and accepted/rejected stats before synchronizer mutation. |
+| `packages/network-core/src/authority/cheat_guard.rs` | Packet policy, replay, authority, and cheat enforcement. | Adds public preview/commit APIs so rejected synchronizer inserts cannot advance replay/action state. |
+| `packages/network-core/tests/test_malicious_input_limits.rs` | Malicious packet evidence. | Adds X10-041 tests for rate limits, invalid packets, signatures, future ticks, action limits, replay, authority, unknown peers, duplicate-tick rejection, valid release, and no sequence poisoning. |
+| `packages/builder-workspace/server/builder_server.py`, `packages/builder-workspace/src/project/project_dashboard.ts`, `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder multiplayer smoke endpoint and UI contract. | Adds the malicious-input checklist row and runs the `x10_041` focused test from the smoke endpoint. |
+| `tools/malicious_input_limits_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused malicious-input matrix plus Builder UI contract, writes the retained report, and binds the gate into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 41 malicious-input limit gate, retained report hash, and remaining multiplayer boundaries. |
+
+Verification:
+
+- `cargo fmt --check --package xace-network-core`
+- `python -m py_compile tools/malicious_input_limits_check.py tools/certify_launch.py`
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `cargo test -p xace-network-core x10_041 --target-dir target-codex-task41-malicious-input`
+- `python tools/malicious_input_limits_check.py --output target-codex-task41-malicious-input\report.json --target-dir target-codex-task41-malicious-input --json` passes 12/12 checks. Report SHA-256: `5a84ced6bee42c5216d8dcff30be8dafa51ba0a8cb3447354bab669004b2df70`.
+
+## X10-042: Multiplayer Diagnostics Panel
+
+Readiness delta:
+
+- `xace_network_core::diagnostics` now exposes a serializable `MultiplayerDiagnosticsSnapshot` for the selected host/client lockstep topology.
+- The snapshot captures peers, session/ticks, input buffers, latency and packet loss, rollback count/details, resync sessions, hash comparisons, and authority ownership from the existing production network primitives.
+- Builder exposes `/api/project/demo/multiplayer/diagnostics` and an `Open Network Diagnostics` panel beside the multiplayer smoke action.
+- The panel renders the required diagnostic fields and includes a deterministic chaos diagnostics report fixture for packet loss, jitter, missing input, divergent hash, and resync status visibility.
+- `tools/multiplayer_diagnostics_check.py` binds the focused network-core test, Builder server payload test, and Builder UI contract into quick/full launch certification.
+
+Scope boundary:
+
+- X10-042 proves diagnostic visibility and retained report generation. The chaos report is a deterministic diagnostics fixture; the 4-16 client chaos proof and accelerated multi-user soak are tracked by the retained X10-043/X10-044 reports.
+- It does not add dedicated-server support, peer-to-peer/NAT traversal, matchmaking, transport authentication/encryption, or asset/package repair.
+
+Files in the completed slice:
+
+| File | Role | X10-042 change |
+| --- | --- | --- |
+| `packages/network-core/src/diagnostics.rs`, `packages/network-core/src/lib.rs`, `packages/network-core/src/input/input_buffer.rs` | Runtime/network diagnostics capture. | Adds the diagnostics snapshot schema/capture helper and serde support for missing-input ranges. |
+| `packages/network-core/tests/test_multiplayer_diagnostics.rs` | Network diagnostics evidence. | Proves the snapshot exposes peers, ticks, input buffers, latency/packet loss, rollback count/reason, resync state, hash comparison divergence, and authority ownership. |
+| `packages/builder-workspace/server/builder_server.py`, `packages/builder-workspace/server/tests/test_multiplayer_diagnostics_panel.py` | Builder diagnostics endpoint and server payload test. | Adds `/api/project/demo/multiplayer/diagnostics` and validates the payload/chaos-report fields. |
+| `packages/builder-workspace/src/project/project_dashboard.ts`, `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder visible panel and static UI contract. | Adds `Open Network Diagnostics`, renders the required panel fields, and guards the endpoint/schema/copy contract. |
+| `tools/multiplayer_diagnostics_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused Rust/server/UI checks, writes the retained report, and binds the gate into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 42 diagnostics gate, retained report hash, and remaining X10-043 chaos/soak boundary. |
+
+Verification:
+
+- `python -m py_compile tools\multiplayer_diagnostics_check.py tools\certify_launch.py packages\builder-workspace\server\tests\test_multiplayer_diagnostics_panel.py`
+- `cargo fmt --check --package xace-network-core`
+- `python -m unittest packages/builder-workspace/server/tests/test_multiplayer_diagnostics_panel.py -v`
+- `node.exe tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `cargo test -p xace-network-core x10_042 --target-dir target-codex-task42-diagnostics`
+- `python tools\multiplayer_diagnostics_check.py --output target-codex-task42-diagnostics\report.json --target-dir target-codex-task42-diagnostics --json` passes 11/11 checks. Report SHA-256: `51e293dd29b5eb0c6e4b7740dc185cfbc2575f5aa04ca6fd010d6ffcd23ac8ae`.
+- `python tools\source_inventory_check.py --json`
+
+## X10-045: Minimum Tick Debugger
+
+Readiness delta:
+
+- Builder's live preview tick debugger is now protocol-driven rather than source-driven: it consumes `engine_tick`, `runtime_control_ack.snapshot`, runtime status, and `hash_log` payloads.
+- The panel exposes Play, Pause, Step, and Snapshot controls, a timeline, snapshot list, selected-snapshot state diff, mutation history, event trace, and explicit hash-mismatch display.
+- Snapshot rows are built from runtime `TickSnapshot` payloads forwarded by the existing runtime control command and Builder server bridge; state diffs and mutation/event rows are derived from entity/component/event payloads.
+- `tools/tick_debugger_minimum_check.py` retains a known-divergence fixture that shows two protocol snapshots for the same tick with different hashes, a component diff, mutation history, and event trace.
+
+Scope boundary:
+
+- X10-045 is the minimum source-free debugger surface. Reverse-step/time-travel navigation, 1,000-tick scrub retention, delta compression, breakpoint/watch expressions, profile overlays, and exported support bundles remain X10-046 and later Phase 6 work.
+
+Files in the completed slice:
+
+| File | Role | X10-045 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/preview/tick_debugger.ts` | Builder live tick debugger. | Adds protocol-derived timeline, pause/step/snapshot control, snapshot list, selected state diff, mutation history, event trace, and hash-mismatch display. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Static Builder UI contract. | Guards the required X10-045 visible labels, controls, and protocol wiring markers. |
+| `tools/tick_debugger_minimum_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Validates Builder/runtime/server protocol coverage, records a known-divergence inspection fixture, writes the retained report, and binds the gate into certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 45 debugger boundary, retained report hash, and remaining Phase 6 debugger work. |
+
+Verification:
+
+- `python -m py_compile tools\tick_debugger_minimum_check.py tools\certify_launch.py`
+- `npm run typecheck` from `packages/builder-workspace`
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `python tools\tick_debugger_minimum_check.py --output target-codex-task45-tick-debugger\report.json --json` passes 12/12 checks. Report SHA-256: `3d17680e9f6705c61e83528402cc24c6aafb810092e97a29134698404e0b1a16`.
+- `python tools\source_inventory_check.py --json`
+
+## X10-046: Reverse-Step And Time-Travel Navigation
+
+Readiness delta:
+
+- Builder's tick debugger now retains a 1,000-tick hash timeline from runtime `hash_log`, `engine_tick`, and retained snapshot records.
+- The panel adds a Time travel section with Reverse step, Forward step, and Live tick controls. Navigating off live mode selects a timeline tick, marks that tick in the visible timeline, selects a same-tick snapshot when one is retained, and displays the selected tick hash.
+- Selected time-travel records show a Matching hash status when the retained snapshot hash and timeline hash agree; conflicting same-tick hashes still flow through the X10-045 hash-mismatch display.
+- `tools/tick_debugger_time_travel_check.py` retains a synthetic 1,000-tick proof that walks 999 reverse steps and 999 forward steps with exact expected hash equality, then returns to the latest live tick hash.
+
+Scope boundary:
+
+- X10-046 closes hash-timeline navigation, not authoritative runtime rewind or full state restoration for every tick. Snapshot/delta compression, memory-bounded authoritative scrubbing, and restore capability remain X10-047.
+
+Files in the completed slice:
+
+| File | Role | X10-046 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/preview/tick_debugger.ts` | Builder live tick debugger. | Adds the 1,000-tick timeline retention constant, time-travel records, Reverse step/Forward step/Live tick controls, selected-tick rendering, and matching-hash display. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Static Builder UI contract. | Guards the X10-046 visible controls, labels, 1,000-tick constant, and navigation method markers. |
+| `tools/tick_debugger_time_travel_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Validates source wiring and writes the retained 1,000-tick forward/backward hash-navigation proof. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 46 navigation boundary, retained report hash, and remaining X10-047 snapshot/delta work. |
+
+Verification:
+
+- `python -m py_compile tools\tick_debugger_time_travel_check.py tools\certify_launch.py`
+- `npm run typecheck` from `packages/builder-workspace`
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace`
+- `python tools\tick_debugger_time_travel_check.py --output target-codex-task46-time-travel\report.json --json` passes 8/8 checks over 1,000 retained ticks, 999 reverse steps, and 999 forward steps. Report SHA-256: `4e8477d9cdb35cd545458ea0ccbd191299f4afff933742a2798d8ea4364dbcd6`.
+- `python tools\source_inventory_check.py --json`
+
+## X10-047: Delta-Compressed Timeline Retention
+
+Readiness delta:
+
+- Runtime-core now owns a delta-compressed authoritative debugger timeline in `DeltaCompressedTimelineRetention`.
+- The store keeps sparse full `WorldSnapshot` anchors plus consecutive per-tick `SnapshotTimelineDelta` records, enforces a default 1,000-tick scrub window, tracks retained bytes versus full-snapshot bytes, and prunes only complete restore chains.
+- Every retained tick reconstructs into a complete `WorldSnapshot`; reconstruction validates the canonical `WorldHasher` hash before the snapshot can be used by the runtime restore path.
+- `RuntimeOrchestrator::tick()` now captures the end-of-tick authoritative snapshot into the compressed timeline, and runtime APIs expose retention stats, retained-tick reconstruction, and `restore_retained_timeline_tick()` through the existing `restore_world_snapshot()` validation path.
+- `tools/tick_debugger_delta_retention_check.py` retains the memory/restore proof by running the focused X10-047 Rust tests and checking the source wiring markers.
+
+Scope boundary:
+
+- X10-047 closes the runtime memory-bounded snapshot/delta retention and authoritative retained-tick restore capability. It does not yet add conditional breakpoints, causality graphing, RNG seed tracing, support-bundle export, or installed-engine UI proof for driving the restore from the visible debugger panel; those remain X10-048 through X10-051.
+
+Files in the completed slice:
+
+| File | Role | X10-047 change |
+| --- | --- | --- |
+| `packages/runtime-core/src/snapshot_engine/delta_timeline_retention.rs` | Runtime compressed timeline store. | Adds 1,000-tick retention config, sparse anchors, snapshot deltas, byte/tick pruning, retained-tick reconstruction, restore proofs, and memory/restore tests. |
+| `packages/runtime-core/src/snapshot_engine/mod.rs` | Runtime snapshot module surface. | Exposes the X10-047 retention config, store, stats, proof, constants, and schema IDs. |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Authoritative runtime tick lifecycle. | Feeds end-of-tick snapshots into retention, exposes stats/reconstruction APIs, and restores retained scrub ticks through `restore_world_snapshot()`. |
+| `packages/runtime-core/src/snapshot_engine/snapshot_serializer.rs` | Canonical snapshot serializer. | Adds `Debug`/`Clone`/`Copy`/`Default` derives for the unit serializer used by the retention store. |
+| `tools/tick_debugger_delta_retention_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-047 certification check and retained report writer. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 47 implementation boundary, retained report hash, and remaining debugger work. |
+
+Verification:
+
+- `cargo fmt -p xace-runtime-core`
+- `cargo test -p xace-runtime-core x10_047 --target-dir target-codex-task47-delta-retention` passes 4/4 focused tests, including 1,000 retained ticks restored and runtime retained-tick restore integration.
+- `python -m py_compile tools\tick_debugger_delta_retention_check.py tools\certify_launch.py`
+- `python tools\tick_debugger_delta_retention_check.py --output target-codex-task47-delta-retention\report.json --target-dir target-codex-task47-delta-retention --json` passes 7/7 checks with `x10_047_complete=true`. Report SHA-256: `8edbbf4ecd51890d05f43b041db17011e64c085717a739d07c5f7ee0107abf43`.
+
+## X10-048: Debugger Conditional Breakpoints
+
+Readiness delta:
+
+- Builder now has a source-free `ConditionalBreakpointEngine` that evaluates debugger protocol candidates rather than generated gameplay source.
+- The live tick debugger exposes a Conditional breakpoints panel with arm/off toggles, hit history, and automatic runtime pause requests when an armed condition hits.
+- Breakpoint candidates cover all required Task 48 sources: entity state, component value, event type, mutation type, system ID, RNG call, hash mismatch, and network desync.
+- Existing snapshot/event/mutation/hash data feeds the evaluator directly; the Builder protocol also defines `runtime_debug_trace` for runtime/replay diagnostics that carry system, RNG, and network-desync records.
+- `tools/tick_debugger_breakpoint_check.py` compiles the actual TypeScript breakpoint engine and runs a synthetic trace where every required breakpoint kind must hit its exact expected tick.
+
+Scope boundary:
+
+- X10-048 closes conditional breakpoint hit detection, visible arming, hit history, and pause-on-hit behavior for the eight required source categories. It does not yet add causality graphing, RNG seed trace panel, exported support bundles, or installed-engine visual proof for debugger-driven scrub/restore; those remain later Phase 6 tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-048 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/preview/conditional_breakpoints.ts` | Builder debugger breakpoint engine. | Adds typed conditions, candidate extraction, de-duplicated hit history, exact field/operator matching, and runtime-debug-trace ingestion for system/RNG/network-desync candidates. |
+| `packages/builder-workspace/src/preview/tick_debugger.ts` | Builder live tick debugger panel. | Adds breakpoint panel rendering, arm/off controls, snapshot/event/mutation/hash/debug-trace evaluation, hit history, and pause-on-hit runtime control. |
+| `packages/builder-workspace/src/api/message_types.ts` | Builder WebSocket protocol types. | Adds the typed `runtime_debug_trace` server message and system/RNG/network-desync trace payload contracts. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder UI contract guard. | Extends the static UI contract to require the breakpoint panel, source kinds, controls, and debug-trace protocol markers. |
+| `tools/tick_debugger_breakpoint_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-048 exact-hit proof and wires it into quick/full launch certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 48 implementation boundary, retained report hash, and remaining debugger work. |
+
+Verification:
+
+- `npm run typecheck` from `packages/builder-workspace` passes.
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace` passes.
+- `python -m py_compile tools\tick_debugger_breakpoint_check.py tools\certify_launch.py`
+- `python tools\tick_debugger_breakpoint_check.py --output target-codex-task48-breakpoints\report.json --artifact-dir target-codex-task48-breakpoints\artifacts --json` passes 6/6 checks with `x10_048_complete=true`; exact hits are entity state #7, component value #11, event type #13, mutation type #17, system ID #19, RNG call #23, hash mismatch #29, and network desync #31. Report SHA-256: `eca10949e163471f2cd1bc2172bd1d38269e91a47270c2131278a6e9ecbef4d6`.
+
+## X10-049: Debugger Causality Graph
+
+Readiness delta:
+
+- Builder now has a source-free `CausalityGraphEngine` that ingests explicit `runtime_causality_trace` DAG payloads and reports the ancestor chain for a selected state-change node.
+- The live tick debugger exposes a Causality graph panel that shows graph validity, per-kind coverage, cause edges, and the ordered chain leading to the selected state change.
+- The causality graph covers the required Task 49 cause categories: prompt, mutation, system, event, RNG call, feedback, and network packet, plus the terminal state-change node.
+- The graph validator rejects missing nodes, duplicate IDs, missing edge endpoints, missing required cause kinds, and cycles before marking a trace complete.
+- `tools/tick_debugger_causality_graph_check.py` compiles the actual TypeScript graph engine and runs a combat-damage trace from prompt-authored mutation and live runtime causes to a Health component state change.
+
+Scope boundary:
+
+- X10-049 closes causality graph reporting for explicit runtime/debugger DAG traces and proves the combat-damage end-to-end case. It does not yet add the dedicated RNG seed trace panel, exported support bundle, or installed-engine visual proof for debugger-driven scrub/restore; those remain later Phase 6 tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-049 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/preview/causality_graph.ts` | Builder debugger causality engine. | Adds typed DAG normalization, retained trace storage, strict validation, ancestor traversal, topological cause reporting, and per-kind coverage for state-change explanations. |
+| `packages/builder-workspace/src/preview/tick_debugger.ts` | Builder live tick debugger panel. | Adds `runtime_causality_trace` ingestion and the visible Causality graph panel with summary, coverage, validity, edge count, and ordered cause chain. |
+| `packages/builder-workspace/src/api/message_types.ts` | Builder WebSocket protocol types. | Adds the typed `runtime_causality_trace` server message plus node/edge/kind/field contracts. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder UI contract guard. | Extends the static UI contract to require the causality panel, graph engine, source kinds, and protocol markers. |
+| `tools/tick_debugger_causality_graph_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-049 combat-damage causality proof and wires it into quick/full launch certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 49 implementation boundary, retained report hash, and remaining debugger work. |
+
+Verification:
+
+- `npm run typecheck` from `packages/builder-workspace` passes.
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace` passes.
+- `python -m py_compile tools\tick_debugger_causality_graph_check.py tools\certify_launch.py`
+- `python tools\tick_debugger_causality_graph_check.py --output target-codex-task49-causality\report.json --artifact-dir target-codex-task49-causality\artifacts --json` passes 6/6 checks with `x10_049_complete=true`; the retained combat-damage trace includes prompt, mutation, network packet, feedback, system, RNG call, event, and `Health` state change from `100` to `75`. Report SHA-256: `76af736ea8b0862f49b604c0e18f1d580e9f15e3c4ac39c19027704e71af44c3`.
+
+## X10-050: RNG Seed Trace Panel
+
+Readiness delta:
+
+- Builder now has a source-free `RngSeedTraceEngine` that ingests explicit `runtime_rng_trace` payloads and validates deterministic RNG visibility by tick, system, seed, stream position, and result.
+- The live tick debugger exposes an RNG seed trace panel that summarizes deterministic-call completeness, retained illegal-RNG block evidence, retained legal-replay identity evidence, recent call rows, violations, and replay hashes.
+- The RNG trace path also normalizes legacy `runtime_debug_trace.rng_calls` records into the same panel when they include seed/result fields, while marking incomplete records as missing field evidence instead of silently treating them as proven.
+- The Builder protocol now includes typed `RuntimeRngTraceMessage`, `RuntimeRngTraceCall`, `RuntimeRngTraceViolation`, and `RuntimeRngReplayTrace` payloads, and the UI contract requires the panel/protocol markers.
+- `tools/tick_debugger_rng_seed_trace_check.py` compiles the actual TypeScript RNG seed trace engine and runs an end-to-end source-free trace proving visible deterministic calls, blocked illegal RNG, and identical legal replay hashes.
+
+Scope boundary:
+
+- X10-050 closes the dedicated RNG seed trace panel and retained source-free proof for explicit runtime/proof RNG trace payloads. It does not yet add the support diagnostics bundle, exportable debug report, or installed-engine visual proof for debugger-driven scrub/restore; those remain later Phase 6 tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-050 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/preview/rng_seed_trace.ts` | Builder debugger RNG trace engine. | Adds bounded retained call/violation/replay storage, runtime RNG trace normalization, legacy debug RNG-call normalization, completeness validation, and replay/illegal-RNG summary reporting. |
+| `packages/builder-workspace/src/preview/tick_debugger.ts` | Builder live tick debugger panel. | Adds `runtime_rng_trace` ingestion and the visible RNG seed trace panel with call rows, missing-field diagnostics, violation rows, and replay hash rows. |
+| `packages/builder-workspace/src/api/message_types.ts` | Builder WebSocket protocol types. | Adds the typed `runtime_rng_trace` server message plus RNG call, violation, and replay contracts; extends debug RNG calls with optional seed/result/deterministic fields. |
+| `packages/builder-workspace/src/preview/conditional_breakpoints.ts` | Builder breakpoint candidate extraction. | Extends RNG-call breakpoint candidates with seed, result, and deterministic fields while preserving existing value compatibility. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder UI contract guard. | Extends the static UI contract to require the RNG seed trace panel, engine, and protocol markers. |
+| `tools/tick_debugger_rng_seed_trace_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-050 RNG seed trace proof and wires it into quick/full launch certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 50 implementation boundary, retained report hash, and remaining debugger work. |
+
+Verification:
+
+- `npm run typecheck` from `packages/builder-workspace` passes.
+- `node tools\builder_ui_contract_test.mjs` from `packages/builder-workspace` passes.
+- `python -m py_compile tools\tick_debugger_rng_seed_trace_check.py tools\certify_launch.py`
+- `python tools\tick_debugger_rng_seed_trace_check.py --output target-codex-task50-rng-seed-trace\report.json --artifact-dir target-codex-task50-rng-seed-trace\artifacts --json` passes 9/9 checks with `x10_050_complete=true`; the retained trace includes two visible deterministic calls, one blocked illegal-RNG violation, and identical legal replay hashes. Report SHA-256: `fdbef19e013e7d9565a1452c16df84c04c363ed1bec5b87236f93d3732f93147`.
+
+## X10-051: Support Diagnostics Bundle
+
+Readiness delta:
+
+- `tools/support_diagnostics_bundle.py` now provides a one-command, local-only support diagnostics export that writes both an inspectable bundle folder and a zip artifact.
+- The bundle manifest records the required support sections: redacted versions, repo/project manifests, logs, proof links, config, adapter health, provider readiness, and reproduction commands.
+- Logs and provider/config snapshots are passed through the existing Builder redaction helpers, and the bundle runs the existing secret-shape scanner against its output before reporting success.
+- Adapter health is captured from the project engine/adapter payload state, including missing-file diagnostics for prepared adapters and explicit headless skip semantics.
+- Provider readiness is captured from local provider settings metadata without running live provider calls or uploading anything.
+- Reproduction commands include recreating the support bundle, running quick launch certification, printing the Builder launch plan, and replaying the captured CGS through the runtime command shape.
+- `tools/support_diagnostics_bundle_check.py` creates a fixture project, plants credential-shaped canaries in logs/provider config, runs the exporter as one command, validates required bundle sections and zip output, and proves the exported bundle is secret-scan clean.
+
+Scope boundary:
+
+- X10-051 closes local redacted support diagnostics bundle export. It does not yet make debugger state, replay inputs, hash logs, SGC plan, mutation log, and adapter feedback reloadable in a fresh checkout; that remains X10-052 exportable debug report work. Installed-engine visual proof for debugger-driven scrub/restore remains separate evidence.
+
+Files in the completed slice:
+
+| File | Role | X10-051 change |
+| --- | --- | --- |
+| `tools/support_diagnostics_bundle.py` | Support diagnostics exporter. | Adds one-command redacted bundle folder/zip creation with versions, manifests, logs, proof links, config, adapter health, provider readiness, reproduction commands, manifest generation, and secret-scan validation. |
+| `tools/support_diagnostics_bundle_check.py` | Retained support bundle smoke proof. | Creates a fixture project with planted secret-shaped canaries, runs the exporter as a command, validates required bundle content, proves zip creation, and verifies no credential-shaped leaks survive. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the support diagnostics bundle gate to py-compile, full certification, and quick certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 51 implementation boundary, retained report hash, and remaining debugger/export work. |
+
+Verification:
+
+- `python -m py_compile tools\support_diagnostics_bundle.py tools\support_diagnostics_bundle_check.py tools\certify_launch.py`
+- `python tools\support_diagnostics_bundle_check.py --output target-codex-task51-support-bundle\report.json --bundle-root target-codex-task51-support-bundle\bundle --json` passes 2/2 checks with `x10_051_complete=true`; the retained smoke validates the one-command bundle, all required sections, proof links, reproduction commands, zip output, planted-secret redaction, and zero secret-scan findings. Report SHA-256: `18aa40598258277c30ce475f461bfa6e28cd61ad92cade3f10ccf240638d5f4c`.
+
+## X10-052: Exportable Debug Report
+
+Readiness delta:
+
+- `tools/export_debug_report.py` now provides a local-only `xace.exportable_debug_report.v1` exporter and validator for debugger/replay/runtime evidence.
+- The exported report embeds the six required portable debug sections: debugger state, replay inputs, runtime hash logs, persisted SGC plan, mutation-log records, and adapter-feedback records.
+- The report records source-file manifests, per-section canonical JSON digests, reproduction commands, and a fresh-checkout load contract so another checkout can inspect the report without the original project tree.
+- Optional artifact output writes one JSON file per section plus `debug_report_artifact_manifest.json`, while the report remains self-contained for JSON-only transfer.
+- Debug JSON/JSONL payloads are passed through the existing Builder redaction helper, and the exported report/artifact directory is scanned with the existing secret-shape scanner before success is reported.
+- `tools/export_debug_report_check.py` creates a fixture project containing all six required evidence streams plus planted credential-shaped canaries, exports the report as one command, validates it from an empty fresh-checkout directory, and proves all required sections load from the exported JSON alone.
+
+Scope boundary:
+
+- X10-052 closes the Phase 6 exportable debug-report round-trip. It does not claim installed-engine visual proof for driving authoritative scrub/restore from the visible debugger panel; that remains separate installed-engine evidence.
+
+Files in the completed slice:
+
+| File | Role | X10-052 change |
+| --- | --- | --- |
+| `tools/export_debug_report.py` | Exportable debug report tool. | Adds local-only self-contained debug report export/validation with embedded debugger state, replay inputs, hash logs, SGC plan, mutation log, adapter feedback, section/source/artifact manifests, reproduction commands, fresh-checkout validation, and redaction/secret-scan reporting. |
+| `tools/export_debug_report_check.py` | Retained debug report round-trip proof. | Creates a complete debug-evidence fixture, exports a report, validates it from a fresh checkout, verifies per-section artifacts and all required loaded sections, and proves planted credential-shaped values are redacted with zero secret-scan findings. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the exportable debug report gate to py-compile, full certification, and quick certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 52 implementation boundary, retained report hash, and completed Phase 6 debugger/export scope. |
+
+Verification:
+
+- `python -m py_compile tools\export_debug_report.py tools\export_debug_report_check.py`
+- `python tools\export_debug_report_check.py --output target-codex-task52-debug-report\report.json --artifact-dir target-codex-task52-debug-report\artifacts --json` passes 3/3 checks with `x10_052_complete=true`; the retained proof validates the one-command export, six required report sections, per-section artifact manifest, fresh-checkout report-only load, planted-secret redaction, and zero secret-scan findings. Report SHA-256: `5e56c7f7244bbf3ec84c923e1d96962c6633e73bace623ba9cbb005037d1ce68`.
+
+## X10-053: Harden Asset Reference Validation
+
+Readiness delta:
+
+- `packages/asset-registry/asset_reference_preflight.py` adds a strict production-boundary validator for asset references before runtime start, save, and adapter package handoff.
+- The validator accepts current Python registry casing and Rust/CGS runtime casing, then normalizes asset types and statuses into one canonical gate model.
+- Linked assets must provide a local path and a valid SHA-256 content hash; local files are checked for existence and, when present, byte-hashed against the declared digest.
+- Non-linked, missing, unsupported, or unresolved references block by default. A documented fallback field records `DOCUMENTED_FALLBACK_USED` and allows the handoff only when the ref itself carries fallback policy evidence.
+- Semantic playback bindings are checked before handoff so `Animation`, `Audio`, and `Vfx` bindings only carry compatible asset types.
+- Engine support is validated per target engine, including an explicit support matrix and extension policy for Godot, Unity, and Unreal.
+- `tools/asset_reference_validation_check.py` creates a retained fixture project and proves a runtime/save/adapter-package-handoff x 3-engine passing matrix plus blocked cases for missing hash, invalid hash, hash mismatch, missing file, invalid type, invalid status, unsupported engine extension, semantic type mismatch, and Godot-vs-Unity support discrimination.
+- `tools/certify_launch.py` now compiles the new production/proof modules and runs the retained asset reference validation gate in quick and full certification.
+
+Scope boundary:
+
+- X10-053 closes the reusable strict asset-reference validation core for Phase 7 handoff gates. The older `AssetValidator` remains intentionally permissive for CGS commit, where PLACEHOLDER and MISSING assets can still be committed so creators can build gameplay before art is final.
+- This task does not yet build the semantic binding authoring UI, per-engine binding status surface, deterministic runtime fallback binding catalog, full adapter-package handoff preflight umbrella, adapter package versioning, or installed-engine vertical-slice proof. Those remain X10-054 through X10-067.
+
+Files in the completed slice:
+
+| File | Role | X10-053 change |
+| --- | --- | --- |
+| `packages/asset-registry/asset_reference_preflight.py` | Strict production-boundary asset validator. | Adds runtime/save/adapter-package handoff validation for refs, types, statuses, SHA-256 hashes, local paths/files, semantic playback compatibility, documented fallback evidence, and per-engine support/extension policy. |
+| `packages/asset-registry/tests/test_asset_reference_preflight.py` | Asset preflight unit tests. | Covers passing linked/hashed assets at every boundary, unresolved blocking, fallback allowance, hash mismatch blocking, and Godot/Unity support discrimination. |
+| `tools/asset_reference_validation_check.py` | Retained asset-validation proof. | Builds a fixture project and writes `xace.asset_reference_validation_check_report.v1` with valid phase/engine matrix, unresolved block matrix, fallback report, blocked asset matrix, and engine support reports. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the asset reference validation gate to py-compile, full certification, and quick certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the X10-053 implementation boundary, retained report hash, and remaining Phase 7 asset/export work. |
+
+Verification:
+
+- `python -m py_compile packages\asset-registry\asset_reference_preflight.py tools\asset_reference_validation_check.py tools\certify_launch.py`
+- `python -m unittest discover packages\asset-registry\tests` passes: 205 tests.
+- `python tools\asset_reference_validation_check.py --output target-codex-task53-asset-validation\report.json --artifact-dir target-codex-task53-asset-validation\artifacts --json` passes 6/6 checks with `x10_053_complete=true`; the retained proof validates all four handoff phases, all three engines, unresolved blocking, documented fallback evidence, hash/file/type/status/semantic mismatch blockers, and Godot/Unity support discrimination. Report SHA-256: `9d0a512f79bf1cc33650fc83d45f508ddb465212f50f275b822eec9dda34e846`.
+
+## X10-054: Build Semantic Binding UI
+
+Readiness delta:
+
+- `packages/builder-workspace/src/panels/semantic_binding_catalog.ts` defines the creator-facing semantic event catalog, supported playback kinds, compatible animation/audio/VFX asset types, default actions, and Godot/Unity/Unreal target choices.
+- `packages/builder-workspace/src/panels/semantic_binding_panel.ts` adds the Builder authoring panel under Assets so creators can map a semantic event to a compatible asset playback command with entity selector, action, priority, resource path, and per-engine target metadata.
+- The Assets workflow exposes a `Bindings` navigation action that opens the semantic binding panel without requiring creators to edit raw CGS JSON.
+- `packages/builder-workspace/src/types/cgs.ts` and `packages/builder-workspace/src/state/cgs_store.ts` now model top-level assets and `semantic_bindings.bindings`, derive manifest-backed asset references, and expose existing bindings to the UI.
+- `packages/builder-workspace/src/api/message_types.ts` adds the `semantic_binding_update` client message, and `packages/builder-workspace/server/ws_message_router.py` validates and persists semantic binding updates through the CGS hash/authority/static-conflict/audit path.
+- The server rejects duplicate binding IDs, unknown events, event/playback mismatches, wrong asset types, unresolved assets, invalid entity selectors, unknown engine target metadata, and stale CGS hashes before persistence.
+- Existing runtime tests cover semantic binding load and command generation into `EnginePlaybackCommand`, while existing Godot, Unity, and Unreal adapter code consumes playback commands and updates adapter-side asset binding state from the shared payload.
+- `tools/semantic_binding_ui_check.py` writes retained fixture CGS and playback-command artifacts, checks the Builder UI/catalog/server/runtime/adapter contracts, and is wired into quick/full launch certification as `semantic binding UI gate`.
+
+Scope boundary:
+
+- X10-054 closes semantic binding authoring and shared runtime/adapter command-contract proof. It does not yet surface per-engine resolved/unresolved/unsupported/missing/fallback binding status, add deterministic fallback binding catalogs, run full adapter-package handoff preflight, version adapter packages, or prove an installed-engine vertical slice; those remain X10-055 through X10-067.
+- Per-engine target selection is persisted as command metadata (`parameters.xace_engine_targets`) while the playback command itself remains engine-agnostic CGS/runtime contract data. Engine-specific status and fallback behavior are intentionally next tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-054 change |
+| --- | --- | --- |
+| `packages/builder-workspace/src/panels/semantic_binding_catalog.ts` | Builder semantic binding catalog. | Adds event, playback-kind, asset-type, engine-target, default-action, and binding-ID helpers for Animation, Audio, and VFX authoring. |
+| `packages/builder-workspace/src/panels/semantic_binding_panel.ts` | Builder semantic binding UI. | Adds creator controls for semantic event, compatible asset, entity selector, action, priority, resource path, target engines, binding list, add, remove, and save. |
+| `packages/builder-workspace/src/types/cgs.ts`, `packages/builder-workspace/src/state/cgs_store.ts`, `packages/builder-workspace/src/api/message_types.ts` | Builder CGS model/state/protocol. | Adds typed top-level asset and semantic binding contracts, derives manifest-backed asset refs, exposes existing bindings, and sends `semantic_binding_update`. |
+| `packages/builder-workspace/src/canvas/builder_canvas.ts`, `packages/builder-workspace/src/layout/main_layout.ts` | Builder shell wiring. | Mounts the semantic binding panel in Assets and adds a `Bindings` workflow navigation action. |
+| `packages/builder-workspace/server/ws_message_router.py` | Builder persistence route. | Adds validated `semantic_binding_update` handling with CGS hash authority, static conflict checks, persistence, audit, and `cgs_update` notification. |
+| `packages/builder-workspace/server/tests/test_semantic_binding_router.py` | Focused server regression. | Covers successful sanitized persistence, invalid asset-type rejection, and stale-hash rejection without save. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder UI static contract. | Adds static markers for the semantic binding panel, catalog, route, and state/message wiring. |
+| `tools/semantic_binding_ui_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-054 semantic binding UI/runtime/adapter contract proof and runs it from launch certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the X10-054 implementation boundary, retained report hash, and remaining Phase 7 asset/export work. |
+
+Verification:
+
+- `python -m py_compile packages\builder-workspace\server\ws_message_router.py tools\semantic_binding_ui_check.py tools\certify_launch.py`
+- `python -m unittest packages\builder-workspace\server\tests\test_semantic_binding_router.py` passes 3 tests.
+- `npm run typecheck` from `packages\builder-workspace` passes.
+- `node tools\builder_ui_contract_test.mjs` from `packages\builder-workspace` passes.
+- `python tools\semantic_binding_ui_check.py --output target-codex-task54-semantic-binding-ui\report.json --artifact-dir target-codex-task54-semantic-binding-ui\artifacts --json` passes 8/8 checks with `x10_054_complete=true`; retained artifacts include a three-binding CGS fixture and a playback command payload covering Animation, Audio, VFX, Godot, Unity, and Unreal. Report SHA-256: `36deccfa3fc72e74440bb741b7e9aceebd34aa6f632ad3b5cd37535f0661b3f6`.
+- `cargo test -p xace-runtime-core semantic_playback_bindings_resolve_into_engine_snapshot_commands --lib --target-dir target-codex-task54-bindings` passes.
+- `cargo test -p xace-runtime-core load_and_spawn_accepts_valid_semantic_playback_bindings --lib --target-dir target-codex-task54-bindings` passes.
+- `python tools\source_inventory_check.py` passes.
+- `python tools\forbidden_claims_check.py` passes.
+
+## X10-055: Add Engine-Specific Binding Status
+
+Readiness delta:
+
+- `packages/asset-registry/semantic_binding_status.py` adds the canonical pre-runtime/pre-handoff semantic binding status report for Godot, Unity, and Unreal.
+- The report evaluates every semantic playback binding per engine and emits exactly the launch-visible statuses required by X10-055: `resolved`, `unresolved`, `unsupported`, `missing`, and `fallback`.
+- The evaluator reuses the X10-053 asset handoff vocabulary and checks binding target engines, playback kind compatibility, asset type/status, engine support, extension support, local path, SHA-256 field shape, local file presence, and hash match when possible.
+- `fallback` is visible and not reported as `resolved`; unresolved/missing/unsupported states remain blocking for runtime/handoff launch for the affected engine.
+- `packages/builder-workspace/src/panels/semantic_binding_status.ts` adds the Builder-side status derivation used by the semantic binding panel, and `packages/builder-workspace/src/panels/semantic_binding_panel.ts` now shows pre-runtime/handoff summary chips plus per-engine status badges for each binding.
+- `packages/builder-workspace/src/state/cgs_store.ts` now preserves asset hash and fallback metadata from the CGS asset manifest so Builder status surfacing can distinguish fallback from missing/unresolved where the CGS carries policy evidence.
+- Godot, Unity, and Unreal adapters now retain semantic binding status records alongside asset binding state and expose `xace.adapter.semantic_binding_status_report.v1` report surfaces using the same five status values.
+- `tools/semantic_binding_status_check.py` builds a retained fixture that produces one `resolved`, `unresolved`, `unsupported`, `missing`, and `fallback` record for every engine, writes adapter report artifacts, checks Builder UI status surfacing, checks adapter report hooks, and is wired into quick/full launch certification as `semantic binding status gate`.
+
+Scope boundary:
+
+- X10-055 closes status tracking and surfacing before runtime/handoff launch. It does not define how fallback animation/audio/VFX/prefab/mesh playback should behave at runtime; deterministic fallback behavior remains X10-056.
+- Adapter status hooks record and expose status reports. Installed-editor visual validation of status UX remains part of later installed-engine vertical-slice evidence.
+
+Files in the completed slice:
+
+| File | Role | X10-055 change |
+| --- | --- | --- |
+| `packages/asset-registry/semantic_binding_status.py` | Semantic binding status evaluator. | Adds `xace.semantic_binding_status_report.v1` and adapter report generation for resolved/unresolved/unsupported/missing/fallback per engine before runtime/handoff launch. |
+| `packages/asset-registry/tests/test_semantic_binding_status.py` | Asset-registry regression tests. | Covers the five-status matrix per Godot/Unity/Unreal and validates adapter report split by engine. |
+| `packages/builder-workspace/src/panels/semantic_binding_status.ts` | Builder status derivation. | Adds client-side status records, launch-blocking status classification, and summary helpers for the semantic binding panel. |
+| `packages/builder-workspace/src/panels/semantic_binding_panel.ts`, `packages/builder-workspace/src/types/cgs.ts`, `packages/builder-workspace/src/state/cgs_store.ts` | Builder UI/model/state. | Adds pre-runtime/handoff summary chips, per-engine status badges, unresolved asset status, hash metadata, and fallback metadata preservation. |
+| `adapters/godot/xace_entity_manager.gd`, `adapters/unity/XaceDeltaApplicator.cs`, `adapters/unreal/XaceDeltaApplicator.h`, `adapters/unreal/XaceDeltaApplicator.cpp` | Engine adapter status reports. | Adds adapter-side status tracking/report surfaces for semantic binding playback outcomes and declared binding status payloads. |
+| `packages/builder-workspace/tools/builder_ui_contract_test.mjs` | Builder UI static contract. | Adds markers for the semantic binding status module, status summary, badges, and five status values. |
+| `tools/semantic_binding_status_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-055 proof artifact and wires it into quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the X10-055 implementation boundary, retained report hash, and remaining fallback/export work. |
+
+Verification:
+
+- `python -m py_compile packages\asset-registry\semantic_binding_status.py tools\semantic_binding_status_check.py tools\certify_launch.py`
+- `python -m unittest packages\asset-registry\tests\test_semantic_binding_status.py` passes 2 tests.
+- `npm run typecheck` from `packages\builder-workspace` passes.
+- `node tools\builder_ui_contract_test.mjs` from `packages\builder-workspace` passes.
+- `python tools\semantic_binding_status_check.py --output target-codex-task55-binding-status\report.json --artifact-dir target-codex-task55-binding-status\artifacts --json` passes 5/5 checks with `x10_055_complete=true`; retained artifacts include a full status report plus Godot, Unity, and Unreal adapter report JSON files, each covering all five status values. Report SHA-256: `f2f4b7e10b5a8b58de8521d6761352cabb8cb41df48dcc083882ca29e4dcfe83`.
+
+## X10-056: Define Deterministic Runtime Fallback Bindings
+
+Readiness delta:
+
+- `packages/core/src/assets/semantic_binding.rs` now defines `xace.runtime.fallback_binding_catalog.v1` and the runtime fallback parameter vocabulary used on emitted playback commands.
+- Missing or placeholder committable semantic playback assets emit deterministic fallback metadata when resolved: `xace_binding_status=fallback`, visible/deterministic flags, fallback kind, asset id/type/status, label, catalog schema, and a stable SHA-256 seed.
+- `packages/runtime-core/src/runtime_orchestrator.rs` includes the focused `x10_056_missing_semantic_bindings_emit_deterministic_runtime_fallback_commands` regression test proving missing animation/audio/VFX semantic bindings produce stable fallback command metadata and are not reported as resolved by the runtime contract.
+- Godot, Unity, and Unreal adapters now apply a visible fallback side effect when command metadata or missing/placeholder asset status requests fallback. The fallback is a deterministic marker/label, not a silent no-op, and it is tracked with playback side effects so rollback cleanup can remove it.
+- Adapter status records report `fallback` with `reason=fallback_applied`; successful fallback rendering is never upgraded to `resolved`.
+- `tools/runtime_fallback_binding_check.py` writes retained adapter proof artifacts for missing animation, audio, VFX, prefab, and mesh binding domains across Godot, Unity, and Unreal.
+
+Scope boundary:
+
+- X10-056 closes the editor-free runtime fallback contract and adapter proof artifacts. It does not prove installed-editor visual appearance, asset/package repair, remote asset download, or export packaging acceptance of missing assets.
+- Prefab and mesh fallback coverage is adapter-catalog coverage, not a claim that prefab/mesh are valid semantic audio/animation/VFX playback asset types.
+
+Files in the completed slice:
+
+| File | Role | X10-056 change |
+| --- | --- | --- |
+| `packages/core/src/assets/semantic_binding.rs`, `packages/core/src/assets/mod.rs` | Shared semantic binding and asset contract. | Adds the runtime fallback catalog schema, exported parameter constants, deterministic fallback metadata, stable seed generation, and mesh/prefab fallback catalog entries. |
+| `packages/runtime-core/src/runtime_orchestrator.rs` | Runtime playback command path. | Adds the X10-056 regression proving missing semantic playback bindings emit deterministic fallback command parameters. |
+| `adapters/godot/xace_entity_manager.gd` | Godot playback applicator. | Adds visible fallback marker/label creation, fallback detection, rollback-tracked side effects, and fallback status reporting. |
+| `adapters/unity/XaceDeltaApplicator.cs` | Unity playback applicator. | Adds visible fallback cube/label creation, fallback detection, rollback-tracked side effects, and fallback status reporting. |
+| `adapters/unreal/XaceDeltaApplicator.h`, `adapters/unreal/XaceDeltaApplicator.cpp` | Unreal playback applicator. | Adds visible fallback debug components/labels, fallback detection, rollback-tracked side effects, and fallback status reporting. |
+| `tools/runtime_fallback_binding_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Adds the X10-056 adapter artifact proof and wires it into quick/full certification as `runtime fallback binding gate`. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the deterministic runtime fallback boundary, retained report hash, and remaining handoff/preflight/installed-engine work. |
+
+Verification:
+
+- `cargo test -p xace-core runtime_fallback --lib --target-dir target-codex-task56-fallback` passes 3 tests.
+- `cargo test -p xace-runtime-core x10_056 --lib --target-dir target-codex-task56-fallback` passes 1 test.
+- `python -m py_compile tools\runtime_fallback_binding_check.py tools\certify_launch.py` passes.
+- `python tools\runtime_fallback_binding_check.py --output target-codex-task56-runtime-fallback\report.json --artifact-dir target-codex-task56-runtime-fallback\artifacts --json` passes 5/5 checks with `x10_056_complete=true`; retained artifacts include the runtime fallback catalog, fallback command payloads, and Godot/Unity/Unreal adapter report JSON files covering animation, audio, VFX, prefab, and mesh. Report SHA-256: `6a3d2f962bac8b82253817938c481ec6bbf3678321ec560db6c813bb32c7ac69`.
+
+## X10-057: Harden Import Marker Validation and Read-Only Inventory
+
+Readiness delta:
+
+- `packages/project-system/engine_project_inventory.py` adds the canonical read-only import scanner for existing Godot, Unity, and Unreal project roots.
+- The scanner detects Godot `project.godot`, Unity `Assets` + `ProjectSettings` / `ProjectVersion.txt`, and Unreal root `.uproject` markers without creating, copying, normalizing, or repairing engine-owned files.
+- Scene, asset, script, plugin, and input-map references are inventoried as `reference_only=true` records under `xace.import_marker_inventory.v1`; this is an inventory for guided wrapping/migration, not a gameplay conversion pass.
+- Ambiguous roots are refused with deterministic reports before XACE project files are written. Multi-engine marker combinations and multiple root Unreal `.uproject` files are explicit refusal cases.
+- `ProjectCreator.import_engine_project` now calls the read-only scanner before creating any XACE project files, stores a compact reference inventory in `manifest.adapter_config["engine_project_inventory"]` for accepted imports, and raises `ProjectImportValidationError` with the refusal report for blocked imports.
+- `tools/import_marker_inventory_check.py` creates retained Godot, Unity, Unreal, and ambiguous mixed-marker fixtures and proves engine-owned fixture files remain byte/mtime-stable after scan and safe wrap.
+- `tools/certify_launch.py` compiles the new proof tool and runs the retained `import marker inventory gate` in quick and full editor-free certification.
+
+Scope boundary:
+
+- X10-057 closes marker validation, read-only reference inventory, and ambiguous-root refusal for existing engine project import/wrap flows.
+- It does not automatically migrate existing engine gameplay into CGS, map entities/scenes/assets into semantic bindings, install/uninstall adapters, or certify installed-editor behavior. X10-058 and later Phase 7 tasks own those workflows.
+
+Files in the completed slice:
+
+| File | Role | X10-057 change |
+| --- | --- | --- |
+| `packages/project-system/engine_project_inventory.py` | Import scanner. | Adds `xace.import_marker_inventory.v1`, marker detection, read-only scene/asset/script/plugin/input-map reference inventory, compact manifest inventory export, and missing/mismatched/ambiguous refusal reasons. |
+| `packages/project-system/project_creator.py` | Project import wrapper. | Runs the scanner before XACE project creation, blocks refused imports before writes, stores compact inventory references on accepted manifests, and exposes full inventory reports in `ProjectCreationResult`. |
+| `packages/project-system/tests/test_project_system.py` | Focused project-system regression. | Covers all three engines, verifies reference-only inventory categories, proves read-only byte/mtime stability, and proves ambiguous imports refuse before writing `xace.project.json`. |
+| `tools/import_marker_inventory_check.py` | Retained proof. | Writes retained Godot/Unity/Unreal inventory artifacts plus an ambiguous-refusal report and emits `xace.import_marker_inventory_check_report.v1` with `x10_057_complete=true`. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the import marker inventory gate and py-compile coverage to quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the read-only import boundary, retained report hash, and remaining manual migration work. |
+
+Verification:
+
+- `python -m py_compile packages\project-system\engine_project_inventory.py packages\project-system\project_creator.py tools\import_marker_inventory_check.py tools\certify_launch.py` passes.
+- `python -m unittest packages/project-system/tests/test_project_system.py` passes 9 tests.
+- `python tools\import_marker_inventory_check.py --output target-codex-task57-import-inventory\report.json --artifact-dir target-codex-task57-import-inventory\artifacts --json` passes 4/4 checks with `x10_057_complete=true`; retained artifacts include Godot, Unity, Unreal inventory reports and an ambiguous Godot+Unity refusal report. Report SHA-256: `ea58b4c11349a10ddc4442d82b38679a575b31612ccd8cf4d132eceeba1aeff3`.
+
+## X10-058: Build Manual Migration Wizard
+
+Readiness delta:
+
+- `packages/project-system/engine_migration_wizard.py` adds `xace.manual_migration_plan.v1`, `xace.manual_migration_draft.v1`, and `xace.manual_migration_work_report.v1` for read-only manual migration planning.
+- The planner consumes the X10-057 import inventory and maps engine scene references to non-default CGS starter modes, editor-free entity candidates to starter actors/components, asset references to CGS asset records, and animation/audio/VFX-compatible assets to semantic binding candidates.
+- Godot scene nodes, Unity scene `m_Name` GameObject markers, and editor-free Unreal map actor markers are extracted when present. Binary/native semantics that are not editor-free remain manual review items, not automatic conversion claims.
+- Every mapping is reversible: proposed CGS modes, actors, assets, and semantic bindings carry removable target metadata while engine-owned files stay `reference_only=true` and `restore_engine_action=none_engine_files_not_modified`.
+- `materialize_manual_migration_draft` creates a preview-only CGS with migration metadata and rollback instructions. `revert_manual_migration_draft` removes the proposed records and returns to the original CGS without touching engine files.
+- `packages/builder-workspace/server/builder_server.py` exposes `/api/project/migration/manual-plan`, which reads the linked engine project from the manifest and returns the wizard plan plus an optional preview CGS. The endpoint is non-mutating and preview-only.
+- `tools/manual_migration_wizard_check.py` writes retained per-engine plans, manual-work reports, preview CGS files, and rollback manifests for Godot, Unity, and Unreal.
+- `tools/certify_launch.py` compiles the new wizard/proof modules and runs the retained `manual migration wizard gate` in quick and full editor-free certification.
+
+Scope boundary:
+
+- X10-058 closes editor-free manual migration planning, reversible CGS preview mapping, and file-backed manual-work reporting for existing engine projects.
+- It does not automatically migrate arbitrary engine gameplay, infer unavailable binary scene semantics without human review, persist migration changes without approval, install/uninstall adapters, or certify installed-editor migration UX.
+
+Files in the completed slice:
+
+| File | Role | X10-058 change |
+| --- | --- | --- |
+| `packages/project-system/engine_migration_wizard.py` | Manual migration planner. | Adds read-only migration plan/report schemas, scene/entity/asset/semantic-binding mapping candidates, preview CGS materialization, and rollback removal. |
+| `packages/project-system/tests/test_project_system.py` | Focused project-system regression. | Covers Godot/Unity/Unreal manual migration plans, reference-only file evidence, preview CGS records, starter components, and exact rollback to the original CGS. |
+| `packages/builder-workspace/server/builder_server.py` | Builder backend. | Adds `/api/project/migration/manual-plan` for preview-only linked-project migration planning and optional preview CGS generation. |
+| `tools/manual_migration_wizard_check.py` | Retained proof. | Generates Godot/Unity/Unreal fixtures, plan/manual-work/preview/rollback artifacts, file evidence checks, exact rollback checks, and engine-file stability checks. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the manual migration wizard gate and py-compile coverage to quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the manual migration boundary, retained report hash, and remaining adapter install/export work. |
+
+Verification:
+
+- `python -m py_compile packages\project-system\engine_migration_wizard.py packages\project-system\engine_project_inventory.py packages\project-system\project_creator.py packages\builder-workspace\server\builder_server.py tools\manual_migration_wizard_check.py` passes.
+- `python -m unittest packages/project-system/tests/test_project_system.py` passes 10 tests.
+- `python tools\manual_migration_wizard_check.py --output target-codex-task58-manual-migration\report.json --artifact-dir target-codex-task58-manual-migration\artifacts --json` passes 3/3 engine checks with `x10_058_complete=true`; retained artifacts include Godot, Unity, and Unreal manual migration plans, manual-work reports, preview CGS files, and rollback manifests. Report SHA-256: `eea5c6ba1b51184674bc4a7a36c51c80b615718cd0ba561453caa501e217e401`.
+
+## X10-059: Add Reversible Adapter Install/Uninstall
+
+Readiness delta:
+
+- `packages/project-system/adapter_installation.py` adds `xace.adapter_engine_install_manifest.v1`, `xace.adapter_install_transaction.v1`, and `xace.adapter_uninstall_report.v1` for ownership-aware Godot, Unity, and Unreal adapter install/update/rollback/uninstall.
+- Adapter installs now write a XACE-owned manifest plus transaction backups under the adapter destination. Updates overwrite only manifest-owned files whose current bytes still match the previous manifest hash; non-XACE files and user-modified adapter files are preserved and surfaced as conflicts.
+- Uninstall removes only files still listed in the XACE ownership manifest and still matching their recorded hashes. User files inside the adapter folder, project scenes/settings/content outside the adapter folder, and modified adapter files are not deleted.
+- `packages/builder-workspace/server/builder_server.py` now routes `/api/project/adapter/install-engine` through the reversible transaction layer and exposes `/api/project/adapter/rollback-engine` and `/api/project/adapter/uninstall-engine` endpoints.
+- `tools/adapter_reversibility_check.py` uses the real adapter source folders for Godot, Unity, and Unreal, records before/after file signatures, runs install, update, latest-transaction rollback, reinstall, and uninstall, and proves creator-owned sentinel files survive byte-for-byte.
+- `tools/certify_launch.py` compiles the new module/proof tool and runs the retained `adapter reversibility gate` in quick and full editor-free certification.
+
+Scope boundary:
+
+- X10-059 closes editor-free reversible adapter install/update/rollback/uninstall safety for the supported adapter destinations: Godot `addons/xace`, Unity `Assets/XACE`, and Unreal `Plugins/XACE`.
+- It does not auto-merge user-edited adapter files, certify installed-editor visual playthrough after install, download/repair remote adapter packages, or migrate arbitrary engine gameplay; those remain separate package/installed-engine readiness tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-059 change |
+| --- | --- | --- |
+| `packages/project-system/adapter_installation.py` | Adapter transaction layer. | Adds manifest-owned install/update, per-transaction backups, rollback, uninstall, legacy manifest upgrade handling, safe path validation, and user-file conflict preservation. |
+| `packages/project-system/tests/test_project_system.py` | Focused project-system regression. | Covers install, update, latest rollback, reinstall, uninstall, manifest removal, update-marker removal, and byte-stable user file preservation. |
+| `packages/builder-workspace/server/builder_server.py` | Builder backend. | Routes engine adapter install through the reversible transaction layer and adds rollback/uninstall endpoints for linked engine projects. |
+| `tools/adapter_reversibility_check.py` | Retained proof. | Runs real Godot/Unity/Unreal adapter source fixtures through install/update/rollback/uninstall and writes operation reports plus before/after signatures. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the adapter reversibility gate and py-compile coverage to quick/full certification. |
+| `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the reversible adapter-install boundary, retained report hash, and remaining handoff/preflight/installed-engine work. |
+
+Verification:
+
+- `python -m py_compile packages\project-system\adapter_installation.py tools\adapter_reversibility_check.py packages\builder-workspace\server\builder_server.py packages\project-system\tests\test_project_system.py` passes.
+- `python -m unittest packages/project-system/tests/test_project_system.py` passes 11 tests.
+- `python tools\adapter_reversibility_check.py --output target-codex-task59-adapter-reversibility\report.json --artifact-dir target-codex-task59-adapter-reversibility\artifacts --json` passes 3/3 engine checks with `x10_059_complete=true`; retained artifacts include Godot, Unity, and Unreal operation reports plus before/after file signatures. Report SHA-256: `3923a44d34941e5e5e35f32c3a73f5ca394f2a86575dd021741be639dba7c009`.
+
+## X10-060: Rename Adapter Package Handoff Surfaces
+
+Readiness delta:
+
+- Builder no longer exposes the adapter package copy flow as a finished-game shipping action. The backend route is `/api/adapter-package/handoff/{target}`, artifacts land under `.xace/adapter_package_handoffs/<target>`, and the retained manifest is `xace_adapter_package_handoff_manifest.json` with schema `xace.adapter_package_handoff_manifest.v1`.
+- The manifest records `package_role=adapter_package_handoff` and `shipping_boundary=engine_project_owns_shipping_package`, making the product boundary explicit: XACE hands adapter packages to an engine project; the engine project owns platform builds, stores, and final distribution.
+- Builder menu CSS, labels, fetch route, and completion event use handoff wording. Semantic binding status UI says `Pre-runtime/handoff status`; adapter status reports now emit `blocks_handoff`; asset preflight reports use `adapter_package_handoff` for the handoff phase.
+- `tools/adapter_package_handoff_wording_check.py` is a retained wording/API proof gate for the renamed surfaces and is wired into quick/full editor-free certification.
+
+Scope boundary:
+
+- X10-060 closes naming and claim precision for the adapter package handoff path. X10-061 covers the full preflight umbrella, and X10-062 covers versioned adapter packages; sign/update channels and installed-editor final shipping behavior remain separate work.
+- The asset preflight validator accepts legacy `export` as an input alias for compatibility, but new reports, docs, UI, and certification output use `adapter_package_handoff`.
+
+Files in the completed slice:
+
+| File | Role | X10-060 change |
+| --- | --- | --- |
+| `packages/builder-workspace/server/builder_server.py` | Builder backend. | Renames the active adapter package handoff route, artifact directory, manifest file/schema, response wording, and shipping-boundary metadata. |
+| `packages/builder-workspace/src/layout/main_layout.ts` | Builder shell UI. | Renames the adapter package menu classes, button titles, fetch route, and completion event to handoff terminology. |
+| `packages/builder-workspace/src/panels/semantic_binding_panel.ts`, `packages/builder-workspace/src/panels/semantic_binding_status.ts` | Semantic binding UI/status helpers. | Uses runtime/handoff status language for launch readiness labels and summaries. |
+| `packages/asset-registry/asset_reference_preflight.py`, `tools/asset_reference_validation_check.py` | Asset validation core and proof. | Uses `ADAPTER_PACKAGE_HANDOFF` / `adapter_package_handoff` for the handoff phase while preserving legacy alias compatibility. |
+| `packages/asset-registry/semantic_binding_status.py`, `tools/semantic_binding_status_check.py`, `adapters/godot/xace_entity_manager.gd`, `adapters/unity/XaceDeltaApplicator.cs`, `adapters/unreal/XaceDeltaApplicator.cpp` | Semantic binding report producers/consumers. | Renames adapter report block field to `blocks_handoff`. |
+| `tools/adapter_package_handoff_wording_check.py` | Retained proof. | Scans UI/API/report/docs/tasklist surfaces for required handoff markers and stale adapter-export surface names. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the adapter package handoff wording gate and py-compile coverage to quick/full certification. |
+| `README.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/XACE_PRODUCTION_READINESS_MASTER_PLAN.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Product, claims, readiness, inventory, and task docs. | Records adapter package handoff wording, the shipping boundary, retained proof, and remaining package/preflight work. |
+
+Verification:
+
+- `python -m py_compile tools\adapter_package_handoff_wording_check.py tools\certify_launch.py packages\asset-registry\asset_reference_preflight.py packages\asset-registry\semantic_binding_status.py tools\asset_reference_validation_check.py tools\semantic_binding_status_check.py packages\builder-workspace\server\builder_server.py` passes.
+- `python -m unittest packages/asset-registry/tests/test_asset_reference_preflight.py packages/asset-registry/tests/test_semantic_binding_status.py` passes 7 tests.
+- `python tools/asset_reference_validation_check.py --output target-codex-task60-handoff-asset-validation\report.json --artifact-dir target-codex-task60-handoff-asset-validation\artifacts --json` passes 6/6 checks and emits `adapter_package_handoff` in the handoff phase matrix.
+- `python tools/semantic_binding_status_check.py --output target-codex-task60-handoff-status\report.json --artifact-dir target-codex-task60-handoff-status\artifacts --json` passes 5/5 checks and verifies `blocks_handoff` adapter report fields.
+- `npm run test:ui` from `packages/builder-workspace` passes.
+- `python tools/source_inventory_check.py --json` passes with no findings.
+- `python tools/forbidden_claims_check.py` passes.
+- `python tools/adapter_package_handoff_wording_check.py --output target-codex-task60-adapter-handoff-wording\report.json --json` passes 4/4 checks with `x10_060_complete=true`; retained report SHA-256: `e55b8036ed0740b94bdfc06daf13784fc3118787afa5cd50300c1e90937ca8ed`.
+
+## X10-061: Add Adapter Package Handoff Preflight Validation
+
+Readiness delta:
+
+- `packages/project-system/adapter_package_handoff_preflight.py` adds the umbrella pre-copy gate for adapter package handoff. It evaluates target engine support, strict CGS validation, persisted SGC plan contract/runtime-load validation, retained runtime compatibility proof, adapter protocol/version markers, asset reference preflight, semantic binding status, and local secret-pattern scanning.
+- `/api/adapter-package/handoff/{target}` now writes `.xace/adapter_package_handoff_preflight/<target>/<cgs_hash>.json` and returns `ok=false` without copying files when any required category blocks handoff.
+- `tools/adapter_package_handoff_preflight_check.py` retains a blocked handoff matrix covering `target_engine`, `cgs`, `sgc_plan`, `runtime_compatibility`, `adapter_version`, `assets`, `bindings`, and `secrets`, plus a Builder endpoint proof that a blocked handoff does not create the handoff directory.
+- `tools/certify_launch.py` runs the adapter package handoff preflight gate in quick/full certification and py-compiles both the production module and proof tool.
+
+Scope boundary:
+
+- X10-061 proves adapter handoff refusal before copy. X10-062 versions adapter packages; signing, update channels, installed-editor package imports, and engine-owned platform builds remain separate work.
+- Runtime compatibility is accepted only through a retained clean compatibility proof matching the CGS hash; stale, missing, or default-system-injected compatibility evidence blocks handoff.
+
+Files in the completed slice:
+
+| File | Role | X10-061 change |
+| --- | --- | --- |
+| `packages/project-system/adapter_package_handoff_preflight.py` | Project-system preflight module. | Adds composable category checks and retained preflight report writer for adapter package handoff. |
+| `packages/builder-workspace/server/builder_server.py` | Builder backend. | Calls the preflight before delete/copy and exposes the retained preflight report path/payload in success and failure responses. |
+| `tools/adapter_package_handoff_preflight_check.py` | Retained proof. | Builds valid and blocked fixtures for every required category and proves the endpoint blocks before copy. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the preflight gate to quick/full certification and Python compile coverage. |
+| `README.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/XACE_PRODUCTION_READINESS_MASTER_PLAN.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Product, claims, readiness, inventory, and task docs. | Records the pre-copy handoff gate, blocked matrix evidence, and remaining package/build boundaries. |
+
+Verification:
+
+- `python -m py_compile packages\project-system\adapter_package_handoff_preflight.py tools\adapter_package_handoff_preflight_check.py packages\builder-workspace\server\builder_server.py tools\certify_launch.py` passes.
+- `python tools\adapter_package_handoff_preflight_check.py --output target-codex-task61-adapter-package-handoff-preflight\report.json --artifact-dir target-codex-task61-adapter-package-handoff-preflight\artifacts --json` passes 4/4 proof checks with all 8 preflight categories validated in the passing fixture and blocked in the matrix. Retained report SHA-256: `fb4bb74feba4fb7a6eae251411d5eaa268b5ff8ffb221f20f6f021eeae97e834`.
+- `python tools\adapter_package_handoff_wording_check.py --output target-codex-task61-adapter-handoff-wording\report.json --json` passes.
+- `python tools\source_inventory_check.py --json` passes with no findings.
+- `python tools\forbidden_claims_check.py` passes.
+- `git diff --check` passes.
+
+## X10-062: Version Adapter Packages
+
+Readiness delta:
+
+- `packages/project-system/adapter_package_versioning.py` adds the adapter package manifest contract `xace.adapter_package_version_manifest.v1` and verifier `xace.adapter_package_version_verification.v1` for Godot, Unity, and Unreal handoff packages.
+- Each adapter package now includes `xace_adapter_package_lifecycle.py`, which declares and exposes `install`, `uninstall`, `rollback`, and `describe` commands backed by the existing reversible `adapter_installation.py` transaction layer when an XACE repo is supplied.
+- `/api/adapter-package/handoff/{target}` verifies source-package metadata before copy, writes `xace_adapter_package_version_manifest.json` into the copied package, verifies the copied package checksums, records `.xace/adapter_package_versions/<target>/<package_content_sha256>.json`, and includes package version, compatibility matrix, dependencies, lifecycle scripts, rollback metadata, and package digest in the handoff manifest/response.
+- `tools/adapter_package_version_check.py` is the retained package verification gate. It stages Godot/Unity/Unreal packages, verifies manifest fields, runs lifecycle `describe`, mutates a checksummed file to prove tamper rejection, and proves Builder handoff writes versioned package manifests for all three targets.
+- `tools/certify_launch.py` runs the adapter package version gate in quick/full certification and py-compiles both the production module and proof tool.
+
+Scope boundary:
+
+- X10-062 versions and verifies local adapter packages. It does not sign packages, publish/update package channels, certify installed-editor package import UX, or perform engine-owned platform packaging/builds.
+- The lifecycle script delegates mutating install/uninstall/rollback operations to the local XACE project-system transaction layer; the handoff package remains source plus metadata, not a standalone installer product.
+
+Files in the completed slice:
+
+| File | Role | X10-062 change |
+| --- | --- | --- |
+| `packages/project-system/adapter_package_versioning.py` | Project-system package manifest/verifier. | Defines package version, compatibility matrix, dependencies, lifecycle declarations, rollback metadata, SHA-256 file inventory, package content digest, and verification reports. |
+| `adapters/godot/xace_adapter_package_lifecycle.py`, `adapters/unity/xace_adapter_package_lifecycle.py`, `adapters/unreal/xace_adapter_package_lifecycle.py` | Adapter package lifecycle wrappers. | Expose `describe`, `install`, `uninstall`, and `rollback` commands for versioned packages, backed by XACE adapter install transactions. |
+| `packages/builder-workspace/server/builder_server.py` | Builder backend. | Verifies source package metadata before copy, writes and verifies `xace_adapter_package_version_manifest.json` after copy, and includes package metadata in the handoff manifest/response. |
+| `tools/adapter_package_version_check.py` | Retained proof. | Verifies all three staged adapter packages, lifecycle script commands, checksum tamper rejection, and Builder endpoint versioned package output. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the adapter package version gate to quick/full certification and Python compile coverage. |
+| `README.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/XACE_PRODUCTION_READINESS_MASTER_PLAN.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Product, claims, readiness, inventory, and task docs. | Records versioned adapter package scope, CI proof, and remaining signing/update/build boundaries. |
+
+Verification:
+
+- `python -m py_compile packages\project-system\adapter_package_versioning.py tools\adapter_package_version_check.py adapters\godot\xace_adapter_package_lifecycle.py adapters\unity\xace_adapter_package_lifecycle.py adapters\unreal\xace_adapter_package_lifecycle.py packages\builder-workspace\server\builder_server.py tools\certify_launch.py` passes.
+- `python tools\adapter_package_version_check.py --output target-codex-task62-adapter-package-version\report.json --artifact-dir target-codex-task62-adapter-package-version\artifacts --json` passes 14/14 checks with `x10_062_complete=true`; retained report SHA-256 `084a6b8451e6559932cbdd2adb9c7e2d6d6aaa2ec13d8ba806fa5d4719a49058`.
+- `python tools\adapter_package_handoff_preflight_check.py --output target-codex-task62-adapter-package-handoff-preflight\report.json --artifact-dir target-codex-task62-adapter-package-handoff-preflight\artifacts --json` passes after the handoff endpoint gained package-version verification.
+- `python tools\adapter_package_handoff_wording_check.py --output target-codex-task62-adapter-handoff-wording\report.json --json` passes.
+- `python tools\source_inventory_check.py --json` passes with no findings.
+- `python tools\forbidden_claims_check.py` passes.
+- `git diff --check` passes.
+
+## X10-063: Define Canonical Cross-Engine Vertical Slice
+
+Readiness delta:
+
+- `projects/canonical_cross_engine_vertical_slice` is now the single versioned CGS-owned fixture for the Godot, Unity, and Unreal installed-engine certification tasks that follow.
+- `game.cgs.json` is a committed `xace.cgs.export` v1 file with canonical CGS hash `a5856b8c95068a27ce47885c32c7d3e2729c4ff988a47f2dee840bfd13ff0a8a`.
+- `xace.vertical_slice_manifest.json` pins fixture version `0.1.0`, target engines, CGS file SHA-256, feature map, linked asset hashes, and the host/client lockstep input scenario.
+- The fixture covers movement, combat, health, inventory, save/load, clean-boundary rollback, input-log replay, semantic bindings, animation, audio, VFX fallback, and network-ready input through concrete CGS systems, components, semantic events, assets, and binding IDs.
+- `tools/canonical_vertical_slice_check.py` is the retained fixture verification gate and is wired into quick/full launch certification.
+
+Scope boundary:
+
+- X10-063 defines and verifies the canonical fixture only. It does not certify installed-editor import, screenshots/video, native engine scenes, platform packaging, or matching cross-engine runtime-authoritative hashes; those remain X10-064 through X10-067.
+- VFX is represented by a documented deterministic fallback binding because the current asset preflight matrices do not share one linked particle extension across Godot, Unity, and Unreal. Native per-engine VFX assets are part of the installed-engine proof tasks.
+
+Files in the completed slice:
+
+| File | Role | X10-063 change |
+| --- | --- | --- |
+| `projects/canonical_cross_engine_vertical_slice/game.cgs.json` | Canonical CGS fixture. | Defines the single cross-engine gameplay-core slice with committed hash and required feature coverage. |
+| `projects/canonical_cross_engine_vertical_slice/xace.vertical_slice_manifest.json` | Versioned fixture manifest. | Pins fixture identity, version, target engines, CGS/file hashes, feature map, asset hashes, input scenario, and later-task boundary. |
+| `projects/canonical_cross_engine_vertical_slice/assets/*` | Hash-stable placeholder assets. | Supplies linked animation/audio assets that pass cross-engine asset preflight without installed editors. |
+| `tools/canonical_vertical_slice_check.py` | Retained proof. | Validates CGS hash, manifest identity, feature references, linked asset hashes, asset preflight, and semantic binding status. |
+| `tools/certify_launch.py` | Launch certification orchestrator. | Adds the canonical vertical slice fixture gate to quick/full certification and Python compile coverage. |
+| `README.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `docs/XACE_PRODUCTION_READINESS_MASTER_PLAN.md`, `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Product, claims, readiness, inventory, and task docs. | Records fixture scope, proof, and remaining installed-engine/hash boundaries. |
+
+Verification:
+
+- `python -m py_compile tools\canonical_vertical_slice_check.py` passes.
+- `python tools\cgs_schema_validate.py projects\canonical_cross_engine_vertical_slice\game.cgs.json --json` passes with matching declared/computed hash and no warnings.
+- `python tools\canonical_vertical_slice_check.py --output target-codex-task63-canonical-vertical-slice\report.json --json` passes 10/10 checks with `x10_063_complete=true`; retained report SHA-256 `9f0a7077d262eea55f6d6d7d12075c7bb9878f3f157d6f3eb58dfd4c01742faf`.
+
+## X10-064: Certify Vertical Slice In Godot
+
+Readiness delta:
+
+- `tools/godot_vertical_slice_certification.py` is the retained installed-Godot certification gate for the canonical cross-engine slice.
+- The proof stages `projects/canonical_cross_engine_vertical_slice` into a disposable Godot project under `target-codex-task64-godot-vertical-slice\artifacts\godot_project` and copies the current Godot adapter scripts under `addons/xace`.
+- The wrapper reruns the X10-063 canonical fixture proof, then launches installed Godot 4.6.3 headless from `C:\Users\ankit\Downloads\Godot_v4.6.3-stable_win64.exe\Godot_v4.6.3-stable_win64_console.exe`.
+- Godot itself parses the staged CGS and manifest, verifies the canonical hash/version, confirms Godot is a target engine, checks all 12 required gameplay features, loads all 9 adapter scripts, verifies asset SHA-256 values, confirms the host/client input scenario, and writes `godot_vertical_slice_validation.json`.
+- Godot also emits `godot_vertical_slice_screenshot.png`, a deterministic installed-engine PNG evidence image for headless certification. Logs and command details are retained, and `godot_vertical_slice_hash_report.json` hashes the fixture, adapter scripts, runner, JSON, PNG, and logs.
+
+Scope boundary:
+
+- This proves installed Godot headless certification for the canonical CGS-owned slice and current Godot adapter script loadability. It does not claim a finished-game package, human-recorded gameplay video, Godot platform export, Unity/Unreal parity, or cross-engine runtime-authoritative hash equivalence.
+- Unity installed-engine slice certification is now covered by X10-065; Unreal remains X10-066. Cross-engine core-hash comparison remains X10-067.
+
+Files in the completed slice proof:
+
+| File | Role | X10-064 change |
+| --- | --- | --- |
+| `tools/godot_vertical_slice_certification.py` | Retained installed-Godot proof. | Stages the canonical slice, runs installed Godot, collects JSON/PNG/log/hash artifacts, and emits the final Task 64 report. |
+| `target-codex-task64-godot-vertical-slice\report.json` | Final generated proof report. | Records `x10_064_complete=true`, 7/7 wrapper checks, installed Godot version, evidence paths, and boundary. |
+| `target-codex-task64-godot-vertical-slice\artifacts\reports\godot_vertical_slice_validation.json` | Godot-authored validation JSON. | Records 10/10 in-engine checks over fixture identity, features, adapter scripts, assets, and input scenario. |
+| `target-codex-task64-godot-vertical-slice\artifacts\screenshots\godot_vertical_slice_screenshot.png` | Generated PNG evidence. | Deterministic visual artifact emitted by installed Godot through `Image.save_png`. |
+| `target-codex-task64-godot-vertical-slice\artifacts\logs\*` | Generated logs. | Retains command, stdout, and stderr for the installed Godot run. |
+| `target-codex-task64-godot-vertical-slice\artifacts\hashes\godot_vertical_slice_hash_report.json` | Generated hash report. | Hashes fixture files, adapter scripts, runner, validation JSON, PNG, logs, and the Godot executable. |
+
+Verification:
+
+- `python -m py_compile tools\godot_vertical_slice_certification.py` passes.
+- `python tools\godot_vertical_slice_certification.py --godot-bin "C:\Users\ankit\Downloads\Godot_v4.6.3-stable_win64.exe\Godot_v4.6.3-stable_win64_console.exe" --target-dir target-codex-task64-godot-vertical-slice --output target-codex-task64-godot-vertical-slice\report.json --timeout 45 --json` passes 7/7 wrapper checks with `x10_064_complete=true`; Godot-authored validation JSON passes 10/10 in-engine checks.
+- Retained report SHA-256: `cf5b9cbab3da82d412d846944f0a5629e397373af11448ed97d9f34826b42b9f`.
+- Godot validation JSON SHA-256: `5f368ca06dc35741afcc00a6a121834f55d6b4dfd42cfcd79f93110ac969f23a`.
+- Godot PNG evidence SHA-256: `546fb9e492a5558bc85050e4b6035fe06a3ace7df822acac973dccc31eeb1df8`.
+- Godot hash report SHA-256: `c0f8ee83b9daea7b9299c77858118be681a507fc9c82c57c82100d40a021efc6`.
+
+## X10-065: Certify Vertical Slice In Unity
+
+Readiness delta:
+
+- `tools/unity_vertical_slice_certification.py` is now the retained installed-Unity certification gate for the canonical cross-engine slice.
+- The proof stages `projects/canonical_cross_engine_vertical_slice` into a disposable Unity project under `target-codex-task65-unity-vertical-slice\artifacts\unity_project`, copies the current Unity adapter sources into `Assets/XACE`, includes built-in Animation and Particle System modules required by the current adapter source, and adds `XaceUnityVerticalSliceCertification.Run` as an Editor command.
+- The installed Unity 6000.4.9f1 batch run compiles/loads the staged project, constructs `XaceTransport`, `XaceInputCollector`, `XaceDeltaApplicator`, and `XaceConsoleWidget`, parses the staged CGS/manifest, verifies the canonical hash/version, confirms Unity is a target engine, checks all 12 required gameplay features, verifies asset SHA-256 values, confirms the host/client input scenario, emits `unity_vertical_slice_validation.json`, emits deterministic PNG evidence through `Texture2D.EncodeToPNG`, and retains logs plus a hash report.
+
+Scope boundary:
+
+- This proves installed Unity batch-mode certification for the canonical CGS-owned slice and current Unity adapter component construction. It does not claim a finished-game package, human-recorded gameplay video, Unity platform export, Unreal parity, or cross-engine runtime-authoritative hash equivalence.
+- Unreal installed-engine slice certification remains X10-066. Cross-engine core-hash comparison remains X10-067.
+
+Files in the completed slice proof:
+
+| File | Role | X10-065 change |
+| --- | --- | --- |
+| `tools/unity_vertical_slice_certification.py` | Retained installed-Unity proof. | Stages the canonical slice, runs installed Unity, collects JSON/PNG/log/hash artifacts, and emits the final Task 65 report. |
+| `target-codex-task65-unity-vertical-slice\report.json` | Final generated proof report. | Records `x10_065_complete=true`, 7/7 wrapper checks, installed Unity version, evidence paths, and boundary. |
+| `target-codex-task65-unity-vertical-slice\artifacts\reports\unity_vertical_slice_validation.json` | Unity-authored validation JSON. | Records 9/9 in-editor checks over fixture identity, features, adapter components, assets, and input scenario. |
+| `target-codex-task65-unity-vertical-slice\artifacts\screenshots\unity_vertical_slice_screenshot.png` | Generated PNG evidence. | Deterministic visual artifact emitted by installed Unity through `Texture2D.EncodeToPNG`. |
+| `target-codex-task65-unity-vertical-slice\artifacts\logs\*` | Generated logs. | Retains command, editor log, stdout, and stderr for the installed Unity run. |
+| `target-codex-task65-unity-vertical-slice\artifacts\hashes\unity_vertical_slice_hash_report.json` | Generated hash report. | Hashes fixture files, adapter scripts, runner, validation JSON, PNG, logs, and the Unity executable. |
+
+Verification:
+
+- `python -m py_compile tools\unity_vertical_slice_certification.py` passes.
+- `python tools\unity_vertical_slice_certification.py --unity-exe "C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Unity.exe" --target-dir target-codex-task65-unity-vertical-slice --output target-codex-task65-unity-vertical-slice\report.json --timeout 240 --json` passes 7/7 wrapper checks with `x10_065_complete=true`; Unity-authored validation JSON passes 9/9 in-editor checks.
+- Retained report SHA-256: `ea5fa9c222cd7273b316ab2959db6c368e033e383ec3751ea192ba134f60a016`.
+- Unity validation JSON SHA-256: `3a394b403cfb2a10ea9169fa6d86bc6e3d54ef9ea45ec30686ef369506d8e1dc`.
+- Unity PNG evidence SHA-256: `f1a4d3ae0cebc0a3c9aba93f4339ecc5569cb020e578dfd3cf6047fce132b3a4`.
+- Unity hash report SHA-256: `29136de6bbc450b933d415b87634f8745827fd45d1700449080695d296821c84`.
+
 ## Current Risks To Watch
 
-- Prompt and asset hardening prove the supported categories listed above. Prompt mutations now require structured preview approval before persistence, covered rollback recovery for the covered scenarios, crash-safe project/save recovery for the covered corruption scenarios, structured apply feedback in Builder, a reviewed/versioned corpus source fixture, local classifier-only benchmark reports with provider accounting artifacts, local classifier threshold gates, covered prompt-security attack artifacts, inference-adapter provider-call boundary enforcement, provider timeout/retry telemetry proof, provider token/cost accounting proof, provider health/stale-policy proof, an opt-in hosted-provider proof gate, automatic route-evidence gating, provider UX-state coverage, deterministic zero-provider-call proof for certified player-speed value edits, state-preserving runtime hot-swap for compatible/additive schedule changes, and hot-swap compatibility classification/enforcement, but they do not yet prove arbitrary any-game prompts, automatic full art/audio/animation generation, deterministic runtime state migrations, engine-side side-effect rollback, hosted-provider reliability at corpus scale, hosted provider/compile/runtime/rollback benchmark threshold pass, broader security review, or every old/new feature combination.
+- Prompt, asset, and network hardening prove the supported categories listed above. Prompt mutations now require structured preview approval before persistence, covered rollback recovery for the covered scenarios, crash-safe project/save recovery for the covered corruption scenarios, structured apply feedback in Builder, proof-linked prompt undo/redo for retained prompt-history states, fixed-length long-session degradation proof for context growth, edits, undo/redo, provider failure, stale state, and bounded cost, a reviewed/versioned corpus source fixture, local classifier-only benchmark reports with provider accounting artifacts, local classifier threshold gates, covered prompt-security attack artifacts, inference-adapter provider-call boundary enforcement, provider timeout/retry telemetry proof, provider token/cost accounting proof, provider structured-output constraint proof, unknown CGS path hard-failure proof, focused prompt Python suite artifact, provider health/stale-policy proof, an opt-in hosted-provider proof gate, automatic route-evidence gating, provider UX-state coverage, deterministic zero-provider-call proof for certified player-speed value edits, local launch provider/runtime benchmark profile proof for provider/accounting, real SGC/runtime, rollback, cost, latency, and reproducibility, state-preserving runtime hot-swap for compatible/additive schedule changes, hot-swap compatibility classification/enforcement, composite prompt planning for ordered multi-system schema/asset/save/network typed batches, host/client authoritative lockstep launch topology selection with visible unsupported dedicated-server/peer-to-peer failures, runtime tick gating through `InputSynchroniser` wait/release/synthetic/late decisions, local runtime rollback/resimulation for retained snapshots after authoritative late input or desync, lockstep-client prediction/reconciliation overlays with client/server hash comparison, host/client lobby/session lifecycle for identity, ready, leave/reconnect, late join, and teardown, session compatibility mismatch gates for schema, SGC plan, adapter version, assets, packages, provider-free metadata, and template IDs, and typed malicious-input ingress limits for rate, packet, replay/sequence, authority, and cheat-guard policy, but they do not yet prove arbitrary any-game prompts, automatic full art/audio/animation generation, installed-editor execution of engine-side rollback, hosted-provider reliability at corpus scale, live hosted-provider variant of the launch benchmark, broader security review, dedicated-server or peer-to-peer multiplayer, multiplayer chaos/soak certification, transport authentication, asset/package download repair, or every old/new feature combination.
 - `workspace/builder` is archived; keep all active Builder work in `packages/builder-workspace`.
 - `packages/asset-registry` is the canonical asset registry path.
 - Full installed-editor live validation and launch certification are now green for Godot, Unity, and Unreal on this machine. One-click local Builder launch is also in place; the remaining engine-readiness risk is the final visual playthrough/onboarding pass, not engine protocol proof.

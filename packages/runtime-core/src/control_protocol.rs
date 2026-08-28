@@ -236,7 +236,13 @@ pub struct RuntimeControlStatus {
     pub engine_malformed_messages: u64,
     #[serde(default)]
     pub engine_dropped_inputs: u64,
+    #[serde(default)]
+    pub engine_adapter_sequence: u64,
     pub pending_engine_inputs: usize,
+    #[serde(default)]
+    pub input_sync_mode: String,
+    #[serde(default)]
+    pub input_sync_last_decision: String,
     pub pending_engine_feedback: usize,
     pub registered_systems: usize,
     pub phase_count: usize,

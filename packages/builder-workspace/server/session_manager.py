@@ -307,6 +307,7 @@ class SessionManager:
             model_provider = self._model_provider,
             model_name     = self._model_name,
             ollama_url     = self._ollama_url,
+            sgc_bin_path   = self._sgc_bin,
         )
         gde = self._create_gde(mode, session_id)
 
@@ -886,12 +887,18 @@ class SessionManager:
         model_provider: str = "auto",
         model_name:     str = "",
         ollama_url:     str = "http://localhost:11434",
+        sgc_bin_path:   str = "",
     ) -> Any | None:
         if PILPipeline is None:
             return None
         real_adapter = _build_adapter(model_provider, model_name, ollama_url)
         streaming    = StreamingInferenceAdapter(real_adapter, send_fn, loop)
-        return PILPipeline(streaming, session_id=session_id)
+        return PILPipeline(
+            streaming,
+            session_id=session_id,
+            enable_code_gen=True,
+            sgc_bin_path=sgc_bin_path,
+        )
 
     @staticmethod
     def _create_gde(mode: str = "COLLABORATIVE", session_id: str = "") -> Any | None:
@@ -1042,6 +1049,61 @@ def _apply_via_gde(
         return GDEApplyResult(error=f"GDE initialisation failed: {exc}")
 
     # ── 2. Build DSLTransaction from PIL ops ──────────────────────────────────
+    typed_batch = txn_dict.get('typed_operation_batch')
+    if isinstance(typed_batch, dict):
+        summary = str(txn_dict.get('mutation_summary', ''))[:100]
+        current_metadata = current_cgs.get('metadata', {})
+        current_hash = current_metadata.get('cgs_hash', '')
+        current_version = current_metadata.get('version', '0.1.0')
+        try:
+            metadata = MutationMetadata.create(
+                source=_gde_mutation_source(txn_dict),
+                parent_cgs_hash=current_hash,
+                schema_version_target=current_version,
+                description=summary or str(typed_batch.get('summary', ''))[:100],
+                session_id=session_id,
+                confidence=float(txn_dict.get('confidence_score', 1.0) or 1.0),
+                risk_level=str(txn_dict.get('risk_level', 'medium') or 'medium'),
+                transaction_id=str(txn_dict.get('transaction_id') or '') or None,
+                extra={
+                    'version_ids': txn_dict.get('version_ids', {}),
+                    'mutation_path': 'typed_cgs_operations',
+                    'typed_request_id': typed_batch.get('request_id', ''),
+                    'typed_prompt_id': typed_batch.get('prompt_id', ''),
+                },
+            )
+            result: GDEResult = gde.process_typed_operation_batch(
+                typed_batch, metadata
+            )
+        except Exception as exc:
+            log.error('GDE typed operation apply raised: %s', exc)
+            return GDEApplyResult(error=f'GDE typed operation error: {exc}')
+
+        if not result.success:
+            return GDEApplyResult(
+                error=result.error,
+                warnings=(
+                    list(result.consistency_report.errors[:5])
+                    if result.consistency_report else []
+                ),
+            )
+
+        snapshot = dict(result.snapshot or {})
+        snapshot['typed_operation_batch_hash'] = result.typed_operation_batch_hash
+        snapshot['typed_operation_ids'] = list(result.typed_operation_ids)
+        snapshot['typed_operation_kinds'] = list(result.typed_operation_kinds)
+        warnings = (
+            list(result.consistency_report.warnings[:5])
+            if result.consistency_report else []
+        )
+        return GDEApplyResult(
+            new_cgs=gde.current_cgs,
+            new_hash=result.new_cgs_hash,
+            snapshot=snapshot,
+            warnings=warnings,
+            used_gde=True,
+        )
+
     PIL_TO_GDE_OP = {
         "SET":              "SET",
         "SCALE":            "MULTIPLY",
@@ -1365,17 +1427,24 @@ def _build_prompt_diff_preview(
     readiness: dict,
 ) -> dict:
     txn = result.get("transaction") if isinstance(result.get("transaction"), dict) else {}
-    operations = list(txn.get("operations", [])) if isinstance(txn.get("operations"), list) else []
+    operations = _transaction_preview_operations(txn)
     parent_hash = str(submitted_hash or cgs.get("metadata", {}).get("cgs_hash", "") or "")
     transaction_fingerprint = _hash_json({
         "parent_cgs_hash": parent_hash,
+        "operation_format": txn.get("operation_format", "legacy_path_v1"),
+        "typed_operation_batch": txn.get("typed_operation_batch"),
+        "composite_prompt_plan": txn.get("composite_prompt_plan"),
         "operations": operations,
         "summary": txn.get("mutation_summary", ""),
         "schema_delta_type": txn.get("schema_delta_type", ""),
     })
     preview_id = f"prompt-preview-{int(time.time() * 1000):013d}-{transaction_fingerprint[:12]}"
     cgs_operations = [_preview_operation(cgs, op, index) for index, op in enumerate(operations)]
-    required_recompile = bool(txn.get("required_recompile")) or str(txn.get("schema_delta_type", "")).startswith("structural")
+    required_recompile = (
+        isinstance(txn.get("typed_operation_batch"), dict)
+        or bool(txn.get("required_recompile"))
+        or str(txn.get("schema_delta_type", "")).startswith("structural")
+    )
     preview_core = {
         "schema": "xace.prompt_diff_preview.v1",
         "preview_id": preview_id,
@@ -1396,6 +1465,21 @@ def _build_prompt_diff_preview(
         },
         "system_diff": _preview_system_diff(txn, operations),
         "asset_diff": _preview_asset_diff(operations),
+        "save_diff": _preview_composite_facet_diff(
+            txn,
+            "save_plan",
+            "xace.prompt_diff_preview.save.v1",
+        ),
+        "network_diff": _preview_composite_facet_diff(
+            txn,
+            "network_plan",
+            "xace.prompt_diff_preview.network.v1",
+        ),
+        "composite_prompt_plan": copy.deepcopy(
+            txn.get("composite_prompt_plan")
+            if isinstance(txn.get("composite_prompt_plan"), dict)
+            else {}
+        ),
         "sgc_diff": {
             "schema": "xace.prompt_diff_preview.sgc.v1",
             "required_recompile": required_recompile,
@@ -1440,7 +1524,34 @@ def _new_prompt_preview_token(session: BuilderSession, preview: dict) -> str:
     return "pat-" + _hash_json(seed)
 
 
+def _transaction_preview_operations(txn: dict) -> list[Any]:
+    typed_batch = txn.get('typed_operation_batch')
+    if isinstance(typed_batch, dict):
+        operations = typed_batch.get('operations')
+        return list(operations) if isinstance(operations, list) else []
+    operations = txn.get('operations')
+    return list(operations) if isinstance(operations, list) else []
+
+
 def _preview_operation(cgs: dict, op: Any, index: int) -> dict:
+    if isinstance(op, dict) and isinstance(op.get('kind'), str):
+        target_keys = (
+            'mode_id', 'actor_id', 'component_type_id', 'component_name',
+            'system_id', 'event_name', 'rule_id', 'asset_id',
+        )
+        return {
+            'index': index,
+            'operation_format': 'typed_cgs_v1',
+            'operation_id': str(op.get('operation_id', '')),
+            'kind': str(op.get('kind', '')),
+            'target': {key: op[key] for key in target_keys if key in op},
+            'explanation': str(op.get('explanation', '')),
+            'typed_details': {
+                key: copy.deepcopy(value)
+                for key, value in op.items()
+                if key not in {'operation_id', 'kind', 'explanation'}
+            },
+        }
     if not isinstance(op, dict):
         return {
             "index": index,
@@ -1479,6 +1590,18 @@ def _preview_system_diff(txn: dict, operations: list[Any]) -> dict:
     added: list[str] = []
     removed: list[str] = []
     touched: list[str] = []
+    for typed_operation in operations:
+        if not isinstance(typed_operation, dict):
+            continue
+        if typed_operation.get('kind') not in {
+            'add_system',
+            'add_generated_system',
+        }:
+            continue
+        system_id = str(typed_operation.get('system_id', ''))
+        if system_id and system_id not in touched:
+            touched.append(system_id)
+            added.append(system_id)
     for op in operations:
         if not isinstance(op, dict):
             continue
@@ -1519,9 +1642,25 @@ def _system_id_from_operation(op: dict) -> str:
 
 def _preview_asset_diff(operations: list[Any]) -> dict:
     touched: list[dict] = []
+    for index, typed_operation in enumerate(operations):
+        if not isinstance(typed_operation, dict):
+            continue
+        if typed_operation.get('kind') != 'add_asset':
+            continue
+        touched.append({
+            'index': index,
+            'operation_format': 'typed_cgs_v1',
+            'operation_id': str(typed_operation.get('operation_id', '')),
+            'kind': 'add_asset',
+            'asset_id': str(typed_operation.get('asset_id', '')),
+            'asset_type': str(typed_operation.get('asset_type', '')),
+            'status': str(typed_operation.get('status', '')),
+        })
     asset_markers = ("asset", "mesh", "audio", "animation", "semantic_binding", "binding", "prefab", "vfx")
     for index, op in enumerate(operations):
         if not isinstance(op, dict):
+            continue
+        if isinstance(op.get('kind'), str):
             continue
         path = str(op.get("path", ""))
         value_text = json.dumps(op.get("value"), sort_keys=True, default=str)
@@ -1537,6 +1676,33 @@ def _preview_asset_diff(operations: list[Any]) -> dict:
         "operation_count": len(touched),
         "operations": touched,
         "status": "changed" if touched else "unchanged",
+    }
+
+
+def _preview_composite_facet_diff(
+    txn: dict,
+    plan_key: str,
+    schema: str,
+) -> dict:
+    composite = txn.get("composite_prompt_plan")
+    plan = composite.get(plan_key) if isinstance(composite, dict) else None
+    if not isinstance(plan, dict):
+        return {
+            "schema": schema,
+            "status": "unplanned",
+            "operation_count": 0,
+            "operation_ids": [],
+            "component_type_ids": [],
+            "policy": {},
+        }
+    operation_ids = list(plan.get("operation_ids") or [])
+    return {
+        "schema": schema,
+        "status": str(plan.get("status") or ("planned" if operation_ids else "not_touched")),
+        "operation_count": len(operation_ids),
+        "operation_ids": operation_ids,
+        "component_type_ids": list(plan.get("component_type_ids") or []),
+        "policy": copy.deepcopy(plan.get("policy") if isinstance(plan.get("policy"), dict) else {}),
     }
 
 
@@ -1681,6 +1847,48 @@ def _blocked(reason: str, source: dict | None = None) -> dict:
 
 
 def _pending_transaction_block_reason(txn: Any) -> str:
+    legacy_schema_adds = {'ADD_COMPONENT', 'ADD_SYSTEM', 'ADD_RULE'}
+    if isinstance(txn, dict) and (
+        txn.get('operation_format') == 'typed_cgs_v1'
+        or 'typed_operation_batch' in txn
+    ):
+        typed_batch = txn.get('typed_operation_batch')
+        if txn.get('operation_format') != 'typed_cgs_v1':
+            return 'Typed CGS operations require operation_format typed_cgs_v1.'
+        if not isinstance(typed_batch, dict):
+            return 'Typed CGS mutation is missing typed_operation_batch.'
+        legacy_operations = txn.get('operations', [])
+        if legacy_operations not in (None, []):
+            return 'Mixed typed and path-based mutation operations are not allowed.'
+        try:
+            from typed_operations import (
+                parse_typed_operation_batch,
+                validate_composite_prompt_plan,
+            )
+
+            # This transaction is the server-retained result of PIL's local
+            # generated-system materializer.  Provider output is parsed with
+            # the default (False) at Pass 2; the trusted handoff must permit
+            # the locally signed runtime_executor so GDE can verify it again.
+            parsed_batch = parse_typed_operation_batch(
+                typed_batch,
+                allow_materialized_generated_systems=True,
+            )
+            composite_plan = txn.get("composite_prompt_plan")
+            if isinstance(composite_plan, dict):
+                composite_validation = validate_composite_prompt_plan(
+                    composite_plan,
+                    parsed_batch,
+                )
+                if not composite_validation.valid:
+                    return (
+                        "Composite prompt plan is invalid: "
+                        + "; ".join(composite_validation.errors[:3])
+                    )
+        except Exception as exc:
+            return f'Typed CGS operation batch is invalid: {exc}'
+        return ''
+
     if not isinstance(txn, dict):
         return "PIL did not return a CGS mutation transaction."
 
@@ -1711,6 +1919,11 @@ def _pending_transaction_block_reason(txn: Any) -> str:
         if not isinstance(op, dict):
             return f"Operation {index} is not a valid mutation object."
         op_name = str(op.get("op", "SET"))
+        if op_name in legacy_schema_adds:
+            return (
+                f'Operation {index} uses legacy structural op {op_name!r}; '
+                'new components, systems, and rules require typed CGS operations.'
+            )
         if op_name not in supported_ops:
             return f"Operation {index} uses unsupported mutation op '{op_name}'."
         if not str(op.get("path", "")).strip():
@@ -1759,9 +1972,71 @@ def _serialize_pil_result(result: Any) -> dict:
     }
 
     if result.kind == "mutation":
-        txn = result.transaction
         d["auto_committed"] = result.auto_committed
         d["diff_text"]      = result.diff_text
+
+        typed_mutation = getattr(result, "typed_mutation", None)
+        if typed_mutation is not None:
+            normalized_batch = copy.deepcopy(
+                getattr(typed_mutation, "normalized_batch", None)
+            )
+            composite_plan_obj = getattr(typed_mutation, "composite_plan", None)
+            composite_plan = (
+                composite_plan_obj.to_dict()
+                if composite_plan_obj is not None
+                else None
+            )
+            batch_operations = (
+                normalized_batch.get("operations", [])
+                if isinstance(normalized_batch, dict)
+                else []
+            )
+            operation_kinds = {
+                str(operation.get("kind", ""))
+                for operation in batch_operations
+                if isinstance(operation, dict)
+            }
+            structural = operation_kinds != {"set_defaults"}
+            affected_systems = [
+                str(operation.get("system_id"))
+                for operation in batch_operations
+                if (
+                    isinstance(operation, dict)
+                    and operation.get("kind") in {
+                        "add_system",
+                        "add_generated_system",
+                    }
+                    and operation.get("system_id")
+                )
+            ]
+            d["transaction"] = {
+                "operation_format": "typed_cgs_v1",
+                "typed_operation_batch": normalized_batch,
+                "operations": [],
+                "schema_delta_type": (
+                    "structural_add" if structural else "value_mutation"
+                ),
+                "confidence_score": float(
+                    getattr(
+                        result,
+                        "confidence",
+                        getattr(typed_mutation, "parser_confidence", 0.0),
+                    )
+                    or 0.0
+                ),
+                "risk_level": "medium" if structural else "low",
+                "required_recompile": True,
+                "affected_systems": affected_systems,
+                "mutation_summary": (
+                    str(normalized_batch.get("summary", ""))
+                    if isinstance(normalized_batch, dict)
+                    else ""
+                ),
+                "composite_prompt_plan": composite_plan,
+            }
+            return d
+
+        txn = result.transaction
         d["transaction"]    = {
             "operations":         [
                 {

@@ -17,6 +17,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 THRESHOLDS_PATH = REPO_ROOT / "docs" / "prompt_launch_thresholds.json"
 THRESHOLDS_DOC = REPO_ROOT / "docs" / "PROMPT_LAUNCH_THRESHOLDS.md"
 BENCHMARK_TOOL = REPO_ROOT / "tools" / "prompt_corpus_benchmark.py"
+LAUNCH_BENCHMARK_TOOL = REPO_ROOT / "tools" / "launch_provider_runtime_benchmark.py"
 DEFAULT_TARGET_DIR = REPO_ROOT / "target-codex-prompt-launch-threshold-check"
 REQUIRED_LOCAL_KEYS = (
     "case_count_min",
@@ -107,6 +108,8 @@ def _validate_thresholds(thresholds: dict[str, Any]) -> list[str]:
 def _validate_docs() -> list[str]:
     if not THRESHOLDS_DOC.exists():
         return ["missing docs/PROMPT_LAUNCH_THRESHOLDS.md"]
+    if not LAUNCH_BENCHMARK_TOOL.exists():
+        return [f"missing {LAUNCH_BENCHMARK_TOOL.relative_to(REPO_ROOT)}"]
     text = THRESHOLDS_DOC.read_text(encoding="utf-8")
     findings: list[str] = []
     for needle in (
@@ -114,6 +117,7 @@ def _validate_docs() -> list[str]:
         "local_classifier",
         "launch_provider_runtime",
         "python tools/prompt_corpus_benchmark.py",
+        "python tools/launch_provider_runtime_benchmark.py",
         "python tools/prompt_launch_threshold_check.py",
     ):
         if needle not in text:
@@ -143,7 +147,7 @@ def _validate_benchmark_pass(target_dir: Path) -> list[str]:
 
 def _validate_benchmark_failure(target_dir: Path, thresholds: dict[str, Any]) -> list[str]:
     stricter = copy.deepcopy(thresholds)
-    stricter["profiles"]["local_classifier"]["route_accuracy_min"] = 0.99
+    stricter["profiles"]["local_classifier"]["case_count_min"] = 101
     stricter_path = target_dir / "intentionally_failing_thresholds.json"
     stricter_path.write_text(json.dumps(stricter, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     output_dir = target_dir / "local-fail"
@@ -158,7 +162,7 @@ def _validate_benchmark_failure(target_dir: Path, thresholds: dict[str, Any]) ->
     )
     findings: list[str] = []
     if completed.returncode == 0:
-        findings.append("benchmark should fail when route_accuracy_min is raised above measured result")
+        findings.append("benchmark should fail when case_count_min is raised above the 100-case corpus")
         return findings
     summary = _load_json(output_dir / "summary.json", findings, "intentional fail summary")
     if not summary:
@@ -167,8 +171,8 @@ def _validate_benchmark_failure(target_dir: Path, thresholds: dict[str, Any]) ->
     if threshold_report.get("status") != "fail":
         findings.append("intentional fail summary did not record threshold failure")
     failure_metrics = {failure.get("metric") for failure in threshold_report.get("failures", [])}
-    if "route_accuracy" not in failure_metrics:
-        findings.append("intentional fail summary did not include route_accuracy failure")
+    if "case_count" not in failure_metrics:
+        findings.append("intentional fail summary did not include case_count failure")
     return findings
 
 

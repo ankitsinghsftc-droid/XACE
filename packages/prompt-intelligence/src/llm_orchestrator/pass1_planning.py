@@ -24,10 +24,10 @@ Output: ReasoningPlan
 
     intended_mutation_type: str
         High-level mutation category:
-        "field_value_set" | "field_value_scale" | "actor_add" |
-        "actor_remove" | "component_add" | "component_remove" |
-        "system_add" | "system_remove" | "rule_add" | "rule_modify" |
-        "rule_remove" | "multi_field_set"
+    "field_value_set" | "field_value_scale" | "actor_add" |
+    "actor_remove" | "component_add" | "component_remove" |
+    "system_add" | "system_remove" | "rule_add" | "rule_modify" |
+    "rule_remove" | "multi_field_set" | "composite_feature_add"
 
     component_targets:    list[dict]
         Which components are touched, with specific field names:
@@ -133,7 +133,8 @@ _VALID_MUTATION_TYPES = frozenset({
     "component_add", "component_remove",
     "system_add", "system_remove",
     "rule_add", "rule_modify", "rule_remove",
-    "multi_field_set",
+    "event_add", "asset_add", "component_schema_add", "defaults_set",
+    "multi_field_set", "composite_feature_add",
 })
 
 _VALID_RISK_LEVELS = frozenset({"low", "medium", "high"})
@@ -452,7 +453,7 @@ Produce a mutation plan as a single JSON object with EXACTLY these fields:
 
 {
   "target_entities": ["<actor_id or system_id or rule_id>"],
-  "intended_mutation_type": "<one of: field_value_set|field_value_scale|actor_add|actor_remove|component_add|component_remove|system_add|system_remove|rule_add|rule_modify|rule_remove|multi_field_set>",
+  "intended_mutation_type": "<one of: field_value_set|field_value_scale|actor_add|actor_remove|component_add|component_remove|system_add|system_remove|rule_add|rule_modify|rule_remove|event_add|asset_add|component_schema_add|defaults_set|multi_field_set|composite_feature_add>",
   "component_targets": [
     {"actor_id": "<id>", "type_id": <int>, "field": "<field_name>"}
   ],
@@ -464,6 +465,9 @@ Produce a mutation plan as a single JSON object with EXACTLY these fields:
 Rules:
 - target_entities must contain at least one ID from the relevant actors/systems/rules shown above.
 - intended_mutation_type must be exactly one of the listed values.
+- Use composite_feature_add when one prompt needs several ordered structural
+  families, especially multi-system behavior plus schema, asset, save, and
+  network facets.
 - component_targets: include one entry per component field that will be changed.
 - requires_recompile: set true if adding/removing systems, changing system phase, or adding/removing rules.
 - Do NOT include any text outside the JSON object.\

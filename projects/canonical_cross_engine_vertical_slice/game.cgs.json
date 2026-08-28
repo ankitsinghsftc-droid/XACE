@@ -1,0 +1,1490 @@
+{
+  "format": "xace.cgs.export",
+  "format_version": "1.0.0",
+  "metadata": {
+    "name": "X10-063 Canonical Cross-Engine Vertical Slice",
+    "game_id": "xace-canonical-cross-engine-vertical-slice",
+    "version": "0.1.0",
+    "schema_version": "0.1.0",
+    "cgs_hash": "a5856b8c95068a27ce47885c32c7d3e2729c4ff988a47f2dee840bfd13ff0a8a",
+    "description": "One CGS-owned gameplay-core slice for Godot, Unity, and Unreal installed-engine certification tasks.",
+    "created_with": "codex-x10-063"
+  },
+  "vertical_slice": {
+    "schema": "xace.canonical_vertical_slice.v1",
+    "id": "x10_063_canonical_cross_engine_vertical_slice",
+    "version": "0.1.0",
+    "deterministic": true,
+    "tick_rate_hz": 60,
+    "target_engines": [
+      "godot",
+      "unity",
+      "unreal"
+    ],
+    "network_profile": {
+      "topology": "host_client_lockstep",
+      "authority": "host_authoritative",
+      "network_ready_input": true,
+      "requires_input_synchroniser": true,
+      "remote_peer_count": 1,
+      "input_packet_schema": "xace.network.input_packet.v1"
+    },
+    "save_load": {
+      "schema": "xace.save.slot.v1",
+      "checkpoint_component": "COMP_CHECKPOINT_V1",
+      "persistence_component": "COMP_PERSISTENCE_V1",
+      "required_roundtrip": "save_load_restores_world_hash"
+    },
+    "rollback": {
+      "schema": "xace.rollback.clean_boundary.v1",
+      "strategy": "clean_boundary_snapshot_then_resimulate",
+      "restore_tick": 0,
+      "required_evidence": "late_input_resimulation_hash_match"
+    },
+    "replay": {
+      "schema": "xace.replay.input_log.v1",
+      "world_seed": 630063,
+      "ticks": 8,
+      "required_evidence": "input_log_replay_hash_match"
+    },
+    "feature_coverage": {
+      "movement": {
+        "systems": [
+          "InputSystem",
+          "KinematicMovementSystem"
+        ],
+        "components": [
+          "COMP_INPUT_V1",
+          "COMP_MOVEMENT_INTENT_V1",
+          "COMP_TRANSFORM_V1",
+          "COMP_VELOCITY_V1",
+          "COMP_KINEMATIC_CHARACTER_V1"
+        ],
+        "semantic_events": [
+          "input.move_vector",
+          "movement.started"
+        ]
+      },
+      "combat": {
+        "systems": [
+          "CombatIntentSystem",
+          "DamageApplicationSystem"
+        ],
+        "components": [
+          "COMP_DAMAGE_V1",
+          "COMP_COMBAT_STATE_V1",
+          "COMP_INTERACTION_V1"
+        ],
+        "semantic_events": [
+          "combat.attack_started",
+          "combat.hit_confirmed"
+        ]
+      },
+      "health": {
+        "systems": [
+          "DamageApplicationSystem",
+          "HealthStateSystem"
+        ],
+        "components": [
+          "COMP_HEALTH_V1"
+        ],
+        "semantic_events": [
+          "health.changed"
+        ]
+      },
+      "inventory": {
+        "systems": [
+          "InventoryPickupSystem",
+          "EquipmentSystem"
+        ],
+        "components": [
+          "COMP_INVENTORY_V1",
+          "COMP_ITEM_V1"
+        ],
+        "semantic_events": [
+          "inventory.item_collected",
+          "inventory.item_equipped"
+        ]
+      },
+      "save_load": {
+        "systems": [
+          "SaveLoadCheckpointSystem"
+        ],
+        "components": [
+          "COMP_PERSISTENCE_V1",
+          "COMP_CHECKPOINT_V1"
+        ],
+        "semantic_events": [
+          "save.checkpoint_written",
+          "save.slot_loaded"
+        ]
+      },
+      "rollback": {
+        "systems": [
+          "RollbackSnapshotSystem"
+        ],
+        "components": [
+          "COMP_ROLLBACK_MARKER_V1",
+          "COMP_CHECKPOINT_V1"
+        ],
+        "semantic_events": [
+          "rollback.restore_requested"
+        ]
+      },
+      "replay": {
+        "systems": [
+          "ReplayRecorderSystem"
+        ],
+        "components": [
+          "COMP_REPLAY_CURSOR_V1",
+          "COMP_INPUT_V1"
+        ],
+        "semantic_events": [
+          "replay.input_recorded"
+        ]
+      },
+      "semantic_bindings": {
+        "systems": [
+          "SemanticPlaybackSystem"
+        ],
+        "components": [
+          "COMP_SEMANTIC_CUE_STATE_V1"
+        ],
+        "semantic_events": [
+          "animation.play",
+          "audio.play",
+          "vfx.spawn"
+        ],
+        "bindings": [
+          "binding_player_run_animation",
+          "binding_sword_hit_audio",
+          "binding_hit_spark_vfx"
+        ]
+      },
+      "animation": {
+        "systems": [
+          "SemanticPlaybackSystem"
+        ],
+        "components": [
+          "COMP_ANIMATION_STATE_V1"
+        ],
+        "assets": [
+          "asset_hero_run_animation"
+        ],
+        "bindings": [
+          "binding_player_run_animation"
+        ]
+      },
+      "audio": {
+        "systems": [
+          "SemanticPlaybackSystem"
+        ],
+        "components": [
+          "COMP_SEMANTIC_CUE_STATE_V1"
+        ],
+        "assets": [
+          "asset_sword_hit_audio"
+        ],
+        "bindings": [
+          "binding_sword_hit_audio"
+        ]
+      },
+      "vfx": {
+        "systems": [
+          "SemanticPlaybackSystem"
+        ],
+        "components": [
+          "COMP_SEMANTIC_CUE_STATE_V1"
+        ],
+        "assets": [
+          "asset_hit_spark_vfx"
+        ],
+        "bindings": [
+          "binding_hit_spark_vfx"
+        ],
+        "fallback_required": true
+      },
+      "network_ready_input": {
+        "systems": [
+          "NetworkInputSyncSystem"
+        ],
+        "components": [
+          "COMP_INPUT_V1",
+          "COMP_AUTHORITY_V1",
+          "COMP_REPLICATION_V1"
+        ],
+        "semantic_events": [
+          "network.input_packet_accepted"
+        ]
+      }
+    }
+  },
+  "component_schemas": [
+    {
+      "type_id": 1,
+      "name": "COMP_TRANSFORM_V1",
+      "source": "ucl",
+      "defaults": {
+        "position_x": 0.0,
+        "position_y": 0.0,
+        "position_z": 0.0,
+        "rotation_y": 0.0,
+        "scale_x": 1.0,
+        "scale_y": 1.0,
+        "scale_z": 1.0
+      }
+    },
+    {
+      "type_id": 2,
+      "name": "COMP_IDENTITY_V1",
+      "source": "ucl",
+      "defaults": {
+        "name": "",
+        "tags": []
+      }
+    },
+    {
+      "type_id": 3,
+      "name": "COMP_RENDER_V1",
+      "source": "ucl",
+      "defaults": {
+        "mesh_asset_id": "",
+        "visible": true
+      }
+    },
+    {
+      "type_id": 5,
+      "name": "COMP_VELOCITY_V1",
+      "source": "ucl",
+      "defaults": {
+        "linear_x": 0.0,
+        "linear_y": 0.0,
+        "linear_z": 0.0,
+        "max_linear_speed": 6.0
+      }
+    },
+    {
+      "type_id": 6,
+      "name": "COMP_INPUT_V1",
+      "source": "ucl",
+      "defaults": {
+        "controller_id": 0,
+        "control_type": "Human",
+        "input_profile_id": "canonical_action_v1",
+        "is_enabled": true
+      }
+    },
+    {
+      "type_id": 7,
+      "name": "COMP_EVENT_V1",
+      "source": "ucl",
+      "defaults": {
+        "pending_events": []
+      }
+    },
+    {
+      "type_id": 9,
+      "name": "COMP_GAMESTATE_V1",
+      "source": "ucl",
+      "defaults": {
+        "elapsed_ticks": 0,
+        "match_state": "playing",
+        "score": 0
+      }
+    },
+    {
+      "type_id": 10,
+      "name": "COMP_AUTHORITY_V1",
+      "source": "ucl",
+      "defaults": {
+        "authority": "host",
+        "prediction_enabled": true,
+        "replication_group": "gameplay"
+      }
+    },
+    {
+      "type_id": 100,
+      "name": "COMP_HEALTH_V1",
+      "source": "ucl",
+      "defaults": {
+        "current": 100.0,
+        "max": 100.0,
+        "regen_rate": 0.0,
+        "is_invincible": false
+      }
+    },
+    {
+      "type_id": 101,
+      "name": "COMP_DAMAGE_V1",
+      "source": "ucl",
+      "defaults": {
+        "amount": 0.0,
+        "source_entity_id": 0,
+        "target_entity_id": 0,
+        "cooldown_ticks": 0
+      }
+    },
+    {
+      "type_id": 120,
+      "name": "COMP_MOVEMENT_INTENT_V1",
+      "source": "ucl",
+      "defaults": {
+        "move_x": 0.0,
+        "move_z": 0.0,
+        "jump_pressed": false,
+        "attack_pressed": false
+      }
+    },
+    {
+      "type_id": 125,
+      "name": "COMP_KINEMATIC_CHARACTER_V1",
+      "source": "ucl",
+      "defaults": {
+        "grounded": true,
+        "max_horizontal_speed": 6000000,
+        "jump_impulse": 12000000,
+        "gravity_per_tick": 500000
+      }
+    },
+    {
+      "type_id": 160,
+      "name": "COMP_AI_V1",
+      "source": "ucl",
+      "defaults": {
+        "behavior_model": "patrol_then_chase",
+        "detection_radius": 12.0,
+        "attack_range": 1.25
+      }
+    },
+    {
+      "type_id": 201,
+      "name": "COMP_INVENTORY_V1",
+      "source": "ucl",
+      "defaults": {
+        "slots": [],
+        "max_capacity": 4,
+        "current_count": 0,
+        "item_ids": [],
+        "equipped_slot": 0
+      }
+    },
+    {
+      "type_id": 205,
+      "name": "COMP_ITEM_V1",
+      "source": "ucl",
+      "defaults": {
+        "item_id": "",
+        "stack_count": 1,
+        "pickup_radius": 1.0
+      }
+    },
+    {
+      "type_id": 232,
+      "name": "COMP_PERSISTENCE_V1",
+      "source": "ucl",
+      "defaults": {
+        "save_slot": "slot_0",
+        "save_on_checkpoint": true,
+        "load_policy": "restore_authoritative_state"
+      }
+    },
+    {
+      "type_id": 260,
+      "name": "COMP_INTERACTION_V1",
+      "source": "ucl",
+      "defaults": {
+        "interaction_kind": "",
+        "usable": true
+      }
+    },
+    {
+      "type_id": 320,
+      "name": "COMP_REPLICATION_V1",
+      "source": "ucl",
+      "defaults": {
+        "replicate": true,
+        "owner_peer_id": 0,
+        "prediction_mode": "lockstep"
+      }
+    },
+    {
+      "type_id": 361,
+      "name": "COMP_CHECKPOINT_V1",
+      "source": "ucl",
+      "defaults": {
+        "last_checkpoint_tick": 0,
+        "checkpoint_id": "start",
+        "world_hash": ""
+      }
+    },
+    {
+      "type_id": 362,
+      "name": "COMP_REPLAY_CURSOR_V1",
+      "source": "gcl",
+      "defaults": {
+        "replay_id": "canonical_replay_v1",
+        "current_tick": 0,
+        "input_log_sha256": ""
+      }
+    },
+    {
+      "type_id": 363,
+      "name": "COMP_ROLLBACK_MARKER_V1",
+      "source": "gcl",
+      "defaults": {
+        "last_restore_tick": 0,
+        "rollback_count": 0,
+        "resimulation_required": false
+      }
+    },
+    {
+      "type_id": 364,
+      "name": "COMP_ANIMATION_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "current_clip": "idle",
+        "playback_speed": 1.0,
+        "loop": true
+      }
+    },
+    {
+      "type_id": 365,
+      "name": "COMP_COMBAT_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "equipped_item_id": "starter_sword",
+        "attack_cooldown_ticks": 0,
+        "last_target_entity_id": 0
+      }
+    },
+    {
+      "type_id": 366,
+      "name": "COMP_SEMANTIC_CUE_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "last_animation_binding": "",
+        "last_audio_binding": "",
+        "last_vfx_binding": "",
+        "fallback_count": 0
+      }
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_hero_run_animation",
+      "asset_type": "AnimationClip",
+      "status": "LINKED",
+      "source": "assets/hero_run.fbx",
+      "path": "assets/hero_run.fbx",
+      "sha256": "9983441969e999e0f66bc415edbb81b078ef01d875a7f8490ecf09c85d365cff"
+    },
+    {
+      "id": "asset_sword_hit_audio",
+      "asset_type": "AudioClip",
+      "status": "LINKED",
+      "source": "assets/sword_hit.wav",
+      "path": "assets/sword_hit.wav",
+      "sha256": "55042b66b500fdb8c5a992e722d76b14c66cf96519a8aff33a7e1a7d7f5dcfde"
+    },
+    {
+      "id": "asset_hit_spark_vfx",
+      "asset_type": "Particle",
+      "status": "MISSING",
+      "fallback_policy": {
+        "kind": "visible_vfx_marker",
+        "reason": "No single linked particle extension is accepted by Godot, Unity, and Unreal preflight matrices; installed-engine tasks bind native VFX assets per engine.",
+        "deterministic": true,
+        "blocks_runtime": false
+      }
+    }
+  ],
+  "semantic_events": [
+    {
+      "name": "input.move_vector",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "move_x",
+          "field_type": "fixed",
+          "required": true
+        },
+        {
+          "name": "move_z",
+          "field_type": "fixed",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "move_x",
+        "move_z"
+      ]
+    },
+    {
+      "name": "movement.started",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id"
+      ]
+    },
+    {
+      "name": "combat.attack_started",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "source_entity_id",
+          "field_type": "entity_id",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "source_entity_id"
+      ]
+    },
+    {
+      "name": "combat.hit_confirmed",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "source_entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "target_entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "damage",
+          "field_type": "fixed",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "source_entity_id",
+        "target_entity_id",
+        "damage"
+      ]
+    },
+    {
+      "name": "health.changed",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "current",
+          "field_type": "fixed",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "current"
+      ]
+    },
+    {
+      "name": "inventory.item_collected",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "item_id"
+      ]
+    },
+    {
+      "name": "inventory.item_equipped",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "item_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "item_id"
+      ]
+    },
+    {
+      "name": "save.checkpoint_written",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "checkpoint_id",
+          "field_type": "string",
+          "required": true
+        },
+        {
+          "name": "world_hash",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "checkpoint_id",
+        "world_hash"
+      ]
+    },
+    {
+      "name": "save.slot_loaded",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "slot_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "slot_id"
+      ]
+    },
+    {
+      "name": "rollback.restore_requested",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "restore_tick",
+          "field_type": "uint",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "restore_tick",
+        "reason"
+      ]
+    },
+    {
+      "name": "replay.input_recorded",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "tick",
+          "field_type": "uint",
+          "required": true
+        },
+        {
+          "name": "input_hash",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "tick",
+        "input_hash"
+      ]
+    },
+    {
+      "name": "animation.play",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "binding_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "binding_id"
+      ]
+    },
+    {
+      "name": "audio.play",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "binding_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "binding_id"
+      ]
+    },
+    {
+      "name": "vfx.spawn",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "entity_id",
+          "field_type": "entity_id",
+          "required": true
+        },
+        {
+          "name": "binding_id",
+          "field_type": "string",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "entity_id",
+        "binding_id"
+      ]
+    },
+    {
+      "name": "network.input_packet_accepted",
+      "version": "0.1.0",
+      "payload_fields": [
+        {
+          "name": "peer_id",
+          "field_type": "uint",
+          "required": true
+        },
+        {
+          "name": "tick",
+          "field_type": "uint",
+          "required": true
+        }
+      ],
+      "required_payload_keys": [
+        "peer_id",
+        "tick"
+      ]
+    }
+  ],
+  "semantic_bindings": {
+    "schema": "xace.semantic_bindings.v1",
+    "bindings": [
+      {
+        "binding_id": "binding_player_run_animation",
+        "event_name": "animation.play",
+        "playback_kind": "Animation",
+        "asset": {
+          "id": "asset_hero_run_animation",
+          "asset_type": "AnimationClip",
+          "status": "LINKED",
+          "path": "assets/hero_run.fbx",
+          "sha256": "9983441969e999e0f66bc415edbb81b078ef01d875a7f8490ecf09c85d365cff"
+        },
+        "parameters": {
+          "xace_engine_targets": "godot,unity,unreal",
+          "clip": "hero_run",
+          "loop": "true"
+        }
+      },
+      {
+        "binding_id": "binding_sword_hit_audio",
+        "event_name": "audio.play",
+        "playback_kind": "Audio",
+        "asset": {
+          "id": "asset_sword_hit_audio",
+          "asset_type": "AudioClip",
+          "status": "LINKED",
+          "path": "assets/sword_hit.wav",
+          "sha256": "55042b66b500fdb8c5a992e722d76b14c66cf96519a8aff33a7e1a7d7f5dcfde"
+        },
+        "parameters": {
+          "xace_engine_targets": "godot,unity,unreal",
+          "volume": "0.75"
+        }
+      },
+      {
+        "binding_id": "binding_hit_spark_vfx",
+        "event_name": "vfx.spawn",
+        "playback_kind": "Vfx",
+        "asset": {
+          "id": "asset_hit_spark_vfx",
+          "asset_type": "Particle",
+          "status": "MISSING",
+          "fallback_policy": {
+            "kind": "visible_vfx_marker",
+            "reason": "Per-engine native VFX assets are installed in X10-064 through X10-066.",
+            "deterministic": true
+          }
+        },
+        "parameters": {
+          "xace_engine_targets": "godot,unity,unreal",
+          "spawn_at": "target_entity",
+          "allow_fallback": "true"
+        }
+      }
+    ]
+  },
+  "input_profiles": [
+    {
+      "id": "canonical_action_v1",
+      "schema": "xace.input_profile.v1",
+      "network_ready": true,
+      "actions": [
+        {
+          "id": "move",
+          "kind": "axis2",
+          "packet_fields": [
+            "move_x",
+            "move_z"
+          ]
+        },
+        {
+          "id": "attack",
+          "kind": "button",
+          "packet_fields": [
+            "attack_pressed"
+          ]
+        },
+        {
+          "id": "pickup",
+          "kind": "button",
+          "packet_fields": [
+            "pickup_pressed"
+          ]
+        }
+      ]
+    }
+  ],
+  "global_systems": [
+    {
+      "id": "InputSystem",
+      "phase": "Input",
+      "reads": [
+        6
+      ],
+      "writes": [
+        120
+      ],
+      "depends_on": [],
+      "deterministic": true
+    },
+    {
+      "id": "NetworkInputSyncSystem",
+      "phase": "Input",
+      "reads": [
+        6,
+        10,
+        120
+      ],
+      "writes": [
+        120,
+        320
+      ],
+      "depends_on": [
+        "InputSystem"
+      ],
+      "deterministic": true
+    },
+    {
+      "id": "SaveLoadCheckpointSystem",
+      "phase": "PostSimulation",
+      "reads": [
+        1,
+        2,
+        100,
+        201,
+        205,
+        232,
+        361
+      ],
+      "writes": [
+        232,
+        361
+      ],
+      "depends_on": [
+        "SemanticPlaybackSystem"
+      ],
+      "deterministic": true
+    },
+    {
+      "id": "ReplayRecorderSystem",
+      "phase": "PostSimulation",
+      "reads": [
+        6,
+        10,
+        120,
+        362
+      ],
+      "writes": [
+        362
+      ],
+      "depends_on": [
+        "SaveLoadCheckpointSystem"
+      ],
+      "deterministic": true
+    },
+    {
+      "id": "RollbackSnapshotSystem",
+      "phase": "Cleanup",
+      "reads": [
+        1,
+        5,
+        6,
+        10,
+        100,
+        101,
+        120,
+        201,
+        232,
+        320,
+        361,
+        362,
+        363
+      ],
+      "writes": [
+        363
+      ],
+      "depends_on": [
+        "ReplayRecorderSystem"
+      ],
+      "deterministic": true
+    }
+  ],
+  "modes": [
+    {
+      "id": "mode_gameplay",
+      "schema_version": "0.1.0",
+      "is_default": true,
+      "actors": [
+        {
+          "id": "actor_player",
+          "actor_type": "PlayerCharacter",
+          "control_type": "Human",
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position_x": 0.0,
+                "position_y": 0.0,
+                "position_z": 0.0,
+                "rotation_y": 0.0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "name": "Hero",
+                "tags": [
+                  "player",
+                  "network_authority"
+                ]
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "linear_x": 0.0,
+                "linear_y": 0.0,
+                "linear_z": 0.0,
+                "max_linear_speed": 6.0
+              }
+            },
+            {
+              "type_id": 6,
+              "name": "COMP_INPUT_V1",
+              "defaults": {
+                "controller_id": 0,
+                "control_type": "Human",
+                "input_profile_id": "canonical_action_v1",
+                "is_enabled": true
+              }
+            },
+            {
+              "type_id": 10,
+              "name": "COMP_AUTHORITY_V1",
+              "defaults": {
+                "authority": "host",
+                "prediction_enabled": true,
+                "replication_group": "player"
+              }
+            },
+            {
+              "type_id": 100,
+              "name": "COMP_HEALTH_V1",
+              "defaults": {
+                "current": 100.0,
+                "max": 100.0,
+                "regen_rate": 0.0,
+                "is_invincible": false
+              }
+            },
+            {
+              "type_id": 120,
+              "name": "COMP_MOVEMENT_INTENT_V1",
+              "defaults": {
+                "move_x": 0.0,
+                "move_z": 0.0,
+                "jump_pressed": false,
+                "attack_pressed": false
+              }
+            },
+            {
+              "type_id": 125,
+              "name": "COMP_KINEMATIC_CHARACTER_V1",
+              "defaults": {
+                "grounded": true,
+                "max_horizontal_speed": 6000000,
+                "jump_impulse": 12000000,
+                "gravity_per_tick": 500000
+              }
+            },
+            {
+              "type_id": 201,
+              "name": "COMP_INVENTORY_V1",
+              "defaults": {
+                "slots": [
+                  "starter_sword"
+                ],
+                "max_capacity": 4,
+                "current_count": 1,
+                "item_ids": [
+                  "starter_sword"
+                ],
+                "equipped_slot": 0
+              }
+            },
+            {
+              "type_id": 232,
+              "name": "COMP_PERSISTENCE_V1",
+              "defaults": {
+                "save_slot": "slot_0",
+                "save_on_checkpoint": true,
+                "load_policy": "restore_authoritative_state"
+              }
+            },
+            {
+              "type_id": 320,
+              "name": "COMP_REPLICATION_V1",
+              "defaults": {
+                "replicate": true,
+                "owner_peer_id": 0,
+                "prediction_mode": "lockstep"
+              }
+            },
+            {
+              "type_id": 361,
+              "name": "COMP_CHECKPOINT_V1",
+              "defaults": {
+                "last_checkpoint_tick": 0,
+                "checkpoint_id": "start",
+                "world_hash": ""
+              }
+            },
+            {
+              "type_id": 362,
+              "name": "COMP_REPLAY_CURSOR_V1",
+              "defaults": {
+                "replay_id": "canonical_replay_v1",
+                "current_tick": 0,
+                "input_log_sha256": ""
+              }
+            },
+            {
+              "type_id": 363,
+              "name": "COMP_ROLLBACK_MARKER_V1",
+              "defaults": {
+                "last_restore_tick": 0,
+                "rollback_count": 0,
+                "resimulation_required": false
+              }
+            },
+            {
+              "type_id": 364,
+              "name": "COMP_ANIMATION_STATE_V1",
+              "defaults": {
+                "current_clip": "idle",
+                "playback_speed": 1.0,
+                "loop": true
+              }
+            },
+            {
+              "type_id": 365,
+              "name": "COMP_COMBAT_STATE_V1",
+              "defaults": {
+                "equipped_item_id": "starter_sword",
+                "attack_cooldown_ticks": 0,
+                "last_target_entity_id": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "actor_enemy",
+          "actor_type": "Enemy",
+          "control_type": "AiProxy",
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position_x": 4.0,
+                "position_y": 0.0,
+                "position_z": 0.0,
+                "rotation_y": 180.0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "name": "Training Dummy",
+                "tags": [
+                  "enemy",
+                  "combat_target"
+                ]
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "linear_x": 0.0,
+                "linear_y": 0.0,
+                "linear_z": 0.0,
+                "max_linear_speed": 3.0
+              }
+            },
+            {
+              "type_id": 6,
+              "name": "COMP_INPUT_V1",
+              "defaults": {
+                "controller_id": 1,
+                "control_type": "AiProxy",
+                "input_profile_id": "canonical_action_v1",
+                "is_enabled": true
+              }
+            },
+            {
+              "type_id": 10,
+              "name": "COMP_AUTHORITY_V1",
+              "defaults": {
+                "authority": "host",
+                "prediction_enabled": false,
+                "replication_group": "enemy"
+              }
+            },
+            {
+              "type_id": 100,
+              "name": "COMP_HEALTH_V1",
+              "defaults": {
+                "current": 40.0,
+                "max": 40.0,
+                "regen_rate": 0.0,
+                "is_invincible": false
+              }
+            },
+            {
+              "type_id": 101,
+              "name": "COMP_DAMAGE_V1",
+              "defaults": {
+                "amount": 0.0,
+                "source_entity_id": 0,
+                "target_entity_id": 0,
+                "cooldown_ticks": 0
+              }
+            },
+            {
+              "type_id": 160,
+              "name": "COMP_AI_V1",
+              "defaults": {
+                "behavior_model": "patrol_then_chase",
+                "detection_radius": 12.0,
+                "attack_range": 1.25
+              }
+            },
+            {
+              "type_id": 320,
+              "name": "COMP_REPLICATION_V1",
+              "defaults": {
+                "replicate": true,
+                "owner_peer_id": 0,
+                "prediction_mode": "authoritative"
+              }
+            }
+          ]
+        },
+        {
+          "id": "actor_starter_sword",
+          "actor_type": "Collectible",
+          "control_type": "None",
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position_x": 1.5,
+                "position_y": 0.0,
+                "position_z": 0.0,
+                "rotation_y": 0.0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "name": "Starter Sword",
+                "tags": [
+                  "item",
+                  "weapon"
+                ]
+              }
+            },
+            {
+              "type_id": 205,
+              "name": "COMP_ITEM_V1",
+              "defaults": {
+                "item_id": "starter_sword",
+                "stack_count": 1,
+                "pickup_radius": 1.0
+              }
+            },
+            {
+              "type_id": 260,
+              "name": "COMP_INTERACTION_V1",
+              "defaults": {
+                "interaction_kind": "pickup",
+                "usable": true
+              }
+            }
+          ]
+        },
+        {
+          "id": "actor_world",
+          "actor_type": "WorldController",
+          "control_type": "System",
+          "components": [
+            {
+              "type_id": 7,
+              "name": "COMP_EVENT_V1",
+              "defaults": {
+                "pending_events": []
+              }
+            },
+            {
+              "type_id": 9,
+              "name": "COMP_GAMESTATE_V1",
+              "defaults": {
+                "elapsed_ticks": 0,
+                "match_state": "playing",
+                "score": 0
+              }
+            },
+            {
+              "type_id": 232,
+              "name": "COMP_PERSISTENCE_V1",
+              "defaults": {
+                "save_slot": "slot_0",
+                "save_on_checkpoint": true,
+                "load_policy": "restore_authoritative_state"
+              }
+            },
+            {
+              "type_id": 366,
+              "name": "COMP_SEMANTIC_CUE_STATE_V1",
+              "defaults": {
+                "last_animation_binding": "",
+                "last_audio_binding": "",
+                "last_vfx_binding": "",
+                "fallback_count": 0
+              }
+            }
+          ]
+        }
+      ],
+      "systems": [
+        {
+          "id": "KinematicMovementSystem",
+          "phase": "Simulation",
+          "reads": [
+            1,
+            5,
+            120,
+            125
+          ],
+          "writes": [
+            1,
+            5,
+            125
+          ],
+          "depends_on": [
+            "NetworkInputSyncSystem"
+          ],
+          "deterministic": true,
+          "parallel": false
+        },
+        {
+          "id": "CombatIntentSystem",
+          "phase": "Simulation",
+          "reads": [
+            120,
+            260,
+            365
+          ],
+          "writes": [
+            101,
+            365
+          ],
+          "depends_on": [
+            "KinematicMovementSystem"
+          ],
+          "deterministic": true,
+          "parallel": false
+        },
+        {
+          "id": "DamageApplicationSystem",
+          "phase": "Simulation",
+          "reads": [
+            10,
+            100,
+            101
+          ],
+          "writes": [
+            100,
+            101
+          ],
+          "depends_on": [
+            "CombatIntentSystem"
+          ],
+          "deterministic": true,
+          "parallel": false
+        },
+        {
+          "id": "HealthStateSystem",
+          "phase": "PostSimulation",
+          "reads": [
+            100
+          ],
+          "writes": [
+            7
+          ],
+          "depends_on": [
+            "DamageApplicationSystem"
+          ],
+          "deterministic": true
+        },
+        {
+          "id": "InventoryPickupSystem",
+          "phase": "Simulation",
+          "reads": [
+            1,
+            201,
+            205,
+            260
+          ],
+          "writes": [
+            201,
+            205
+          ],
+          "depends_on": [
+            "KinematicMovementSystem"
+          ],
+          "deterministic": true,
+          "parallel": false
+        },
+        {
+          "id": "EquipmentSystem",
+          "phase": "Simulation",
+          "reads": [
+            201,
+            205
+          ],
+          "writes": [
+            201,
+            365
+          ],
+          "depends_on": [
+            "InventoryPickupSystem"
+          ],
+          "deterministic": true
+        },
+        {
+          "id": "SemanticPlaybackSystem",
+          "phase": "PostSimulation",
+          "reads": [
+            7,
+            100,
+            101,
+            201,
+            364,
+            365,
+            366
+          ],
+          "writes": [
+            7,
+            364,
+            366
+          ],
+          "depends_on": [
+            "HealthStateSystem",
+            "EquipmentSystem"
+          ],
+          "deterministic": true
+        }
+      ],
+      "rules": [
+        {
+          "id": "rule_player_defeated",
+          "condition": "actor_player.COMP_HEALTH_V1.current <= 0",
+          "effect": "emit('health.changed', entity_id=actor_player, current=0)",
+          "priority": 1,
+          "is_active": true
+        },
+        {
+          "id": "rule_enemy_hit",
+          "condition": "actor_enemy.COMP_DAMAGE_V1.amount > 0",
+          "effect": "emit('combat.hit_confirmed', source_entity_id=actor_player, target_entity_id=actor_enemy, damage=actor_enemy.COMP_DAMAGE_V1.amount)",
+          "priority": 2,
+          "is_active": true
+        },
+        {
+          "id": "rule_checkpoint_after_pickup",
+          "condition": "'starter_sword' in actor_player.COMP_INVENTORY_V1.item_ids",
+          "effect": "emit('save.checkpoint_written', checkpoint_id='after_pickup', world_hash='<runtime_world_hash>')",
+          "priority": 3,
+          "is_active": true
+        }
+      ]
+    }
+  ]
+}

@@ -7,6 +7,9 @@
 
 use crate::events::event_type::EventType;
 
+pub const MOVEMENT_JUMP_STARTED: &str = "movement.jump_started";
+pub const MOVEMENT_LANDED: &str = "movement.landed";
+
 pub const INTERACTION_FOCUSED: &str = "interaction.focused";
 pub const INTERACTION_UNFOCUSED: &str = "interaction.unfocused";
 pub const INTERACTION_INTERACTED: &str = "interaction.interacted";
@@ -38,6 +41,7 @@ pub const VFX_PLAYBACK_COMPLETED: &str = "vfx.playback_completed";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticEventCategory {
+    Movement,
     Interaction,
     Inventory,
     Combat,
@@ -106,6 +110,26 @@ const VFX_BINDING: &[SemanticBindingTarget] = &[
 ];
 
 pub const BUILTIN_SEMANTIC_EVENTS: &[SemanticEventDefinition] = &[
+    SemanticEventDefinition {
+        name: MOVEMENT_JUMP_STARTED,
+        domain: "movement",
+        category: SemanticEventCategory::Movement,
+        summary: "A kinematic actor consumed a jump request.",
+        required_payload_keys: &["actor_entity_id", "movement_state"],
+        binding_targets: AV_TIMELINE,
+        persistent: false,
+        replay_relevant: true,
+    },
+    SemanticEventDefinition {
+        name: MOVEMENT_LANDED,
+        domain: "movement",
+        category: SemanticEventCategory::Movement,
+        summary: "A kinematic actor transitioned from airborne to grounded.",
+        required_payload_keys: &["actor_entity_id", "movement_state"],
+        binding_targets: AV_TIMELINE,
+        persistent: false,
+        replay_relevant: true,
+    },
     SemanticEventDefinition {
         name: INTERACTION_FOCUSED,
         domain: "interaction",
@@ -425,7 +449,9 @@ mod tests {
     }
 
     #[test]
-    fn interaction_and_inventory_events_are_registered() {
+    fn movement_interaction_and_inventory_events_are_registered() {
+        assert!(is_registered_semantic_event(MOVEMENT_JUMP_STARTED));
+        assert!(is_registered_semantic_event(MOVEMENT_LANDED));
         assert!(is_registered_semantic_event(INTERACTION_ACCEPTED));
         assert!(is_registered_semantic_event(INVENTORY_PICKUP_ACCEPTED));
         assert!(is_registered_semantic_event(INVENTORY_EQUIPPED));

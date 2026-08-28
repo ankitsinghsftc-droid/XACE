@@ -39,6 +39,8 @@ func apply_message(message: Dictionary, entity_manager: Node) -> void:
 	elif kind == _protocol_script.MSG_PLAYBACK_COMMANDS:
 		if entity_manager.has_method("apply_playback_commands"):
 			entity_manager.call("apply_playback_commands", message.get("commands", []))
+	elif kind == _protocol_script.MSG_ADAPTER_SIDE_EFFECT_ROLLBACK:
+		apply_side_effect_rollback(message, entity_manager)
 	elif kind == _protocol_script.WIRE_SNAPSHOT:
 		entity_manager.apply_snapshot_payload(_protocol_script.payload_dictionary(message))
 	elif kind == _protocol_script.WIRE_DELTA:
@@ -61,6 +63,17 @@ func apply_message(message: Dictionary, entity_manager: Node) -> void:
 
 	state_applied.emit(tick, kind, operation_count)
 
+
+func apply_side_effect_rollback(message: Dictionary, entity_manager: Node) -> void:
+	_feedback_queue.clear()
+	_last_tick = int(message.get("restore_tick", _last_tick))
+	if entity_manager != null and entity_manager.has_method("rollback_side_effects"):
+		entity_manager.call("rollback_side_effects", message)
+	elif entity_manager != null and entity_manager.has_method("apply_tick_snapshot"):
+		var restored = message.get("restored_snapshot", {})
+		if typeof(restored) == TYPE_DICTIONARY:
+			entity_manager.call("apply_tick_snapshot", restored)
+	state_applied.emit(_last_tick, _protocol_script.MSG_ADAPTER_SIDE_EFFECT_ROLLBACK, 1)
 
 func drain_feedback() -> Array:
 	var drained: Array = _feedback_queue.duplicate(true)

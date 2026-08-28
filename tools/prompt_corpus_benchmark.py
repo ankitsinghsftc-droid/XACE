@@ -607,12 +607,18 @@ def _threshold_metrics(report: dict[str, Any]) -> dict[str, Any]:
     ]
     latency = summary.get("latency_ms") or {}
     execution_scope = summary.get("execution_scope") or {}
-    compiled_not_run = int(summary.get("compiled_not_run") or 0)
-    runtime_not_run = int(summary.get("runtime_not_run") or 0)
-    rollback_not_run = int(summary.get("rollback_not_run") or 0)
-    compile_executed = case_count > 0 and compiled_not_run < case_count
-    runtime_executed = case_count > 0 and runtime_not_run < case_count
-    rollback_executed = case_count > 0 and rollback_not_run < case_count
+    compiled_passed = int(summary.get("compiled") or 0)
+    compiled_failed = int(summary.get("compiled_failed") or 0)
+    runtime_passed = int(summary.get("runtime_passed") or 0)
+    runtime_failed = int(summary.get("runtime_failed") or 0)
+    rollback_passed = int(summary.get("rollback_passed") or 0)
+    rollback_failed = int(summary.get("rollback_failed") or 0)
+    compiled_attempted = compiled_passed + compiled_failed
+    runtime_attempted = runtime_passed + runtime_failed
+    rollback_attempted = rollback_passed + rollback_failed
+    compile_executed = compiled_attempted > 0
+    runtime_executed = runtime_attempted > 0
+    rollback_executed = rollback_attempted > 0
     provider_status = str(execution_scope.get("provider_calls") or "")
     provider_executed = provider_status not in {"not_run", ""}
     case_hashes = [
@@ -631,9 +637,9 @@ def _threshold_metrics(report: dict[str, Any]) -> dict[str, Any]:
         "cost_per_case_usd": _rate(float(summary.get("total_cost_usd") or 0.0), case_count),
         "latency_avg_ms": float(latency.get("avg") or 0.0),
         "latency_p95_ms": float(latency.get("p95") or 0.0),
-        "compilation_success_rate": _rate(int(summary.get("compiled") or 0), case_count) if compile_executed else None,
-        "runtime_success_rate": _rate(int(summary.get("runtime_passed") or 0), case_count) if runtime_executed else None,
-        "rollback_success_rate": _rate(int(summary.get("rollback_passed") or 0), case_count) if rollback_executed else None,
+        "compilation_success_rate": _rate(compiled_passed, compiled_attempted) if compile_executed else None,
+        "runtime_success_rate": _rate(runtime_passed, runtime_attempted) if runtime_executed else None,
+        "rollback_success_rate": _rate(rollback_passed, rollback_attempted) if rollback_executed else None,
         "provider_reliability_rate": None if not provider_executed else float(summary.get("provider_reliability_rate") or 0.0),
         "reproducibility_complete": (
             bool(run_signature)

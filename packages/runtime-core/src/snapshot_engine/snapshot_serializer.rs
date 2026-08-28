@@ -28,6 +28,7 @@ pub fn format_f64(value: f64) -> String {
 }
 
 /// Deterministic full-schema `WorldSnapshot` serializer.
+#[derive(Debug, Clone, Copy, Default)]
 pub struct SnapshotSerializer;
 
 impl SnapshotSerializer {
@@ -100,12 +101,6 @@ impl SnapshotSerializer {
             rule_violated: "X10-013".into(),
             failed_path: failed_path.into(),
         }
-    }
-}
-
-impl Default for SnapshotSerializer {
-    fn default() -> Self {
-        Self::new()
     }
 }
 

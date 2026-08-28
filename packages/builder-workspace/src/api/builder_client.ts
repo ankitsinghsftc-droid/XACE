@@ -57,6 +57,7 @@ export interface RuntimeStatus {
   readonly engineFeedbackMessagesReceived: number;
   readonly engineMalformedMessages: number;
   readonly engineDroppedInputs: number;
+  readonly engineAdapterSequence: number;
   readonly registeredSystems: number;
   readonly phaseCount: number;
   readonly paused: boolean;
@@ -170,6 +171,7 @@ export class BuilderClient {
     engineFeedbackMessagesReceived: 0,
     engineMalformedMessages: 0,
     engineDroppedInputs: 0,
+    engineAdapterSequence: 0,
     registeredSystems: 0,
     phaseCount: 0,
     paused: false,
@@ -524,6 +526,7 @@ export class BuilderClient {
       engineFeedbackMessagesReceived: safeNumber(status.engine_feedback_messages_received, 0),
       engineMalformedMessages: safeNumber(status.engine_malformed_messages, 0),
       engineDroppedInputs: safeNumber(status.engine_dropped_inputs, 0),
+      engineAdapterSequence: safeNumber(status.engine_adapter_sequence, this.runtimeStatusValue.engineAdapterSequence),
       registeredSystems: safeNumber(status.registered_systems, 0),
       phaseCount: safeNumber(status.phase_count, 0),
       paused: Boolean(status.paused),

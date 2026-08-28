@@ -249,12 +249,12 @@ class CGSManager:
 
         # ── Stamp new hash and version ────────────────────────────────────────
         committed = _deep_copy_cgs(new_cgs)
-        new_hash  = CGSSerializer.compute_hash(_strip_hash(committed))
         new_version = _bump_version(self.current_version, bump)
 
         committed.setdefault("metadata", {})
-        committed["metadata"]["cgs_hash"] = new_hash
         committed["metadata"]["version"]  = new_version
+        new_hash = CGSSerializer.compute_hash(_strip_hash(committed))
+        committed["metadata"]["cgs_hash"] = new_hash
 
         # ── Record snapshot ───────────────────────────────────────────────────
         if self._version_manager is not None:

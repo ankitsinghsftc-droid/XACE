@@ -265,13 +265,13 @@ const STYLES = `
   background:  var(--cynd);
   box-shadow:  0 0 12px rgba(0,212,255,.2);
 }
-.xb-export-menu {
+.xb-handoff-menu {
   display: flex;
   gap: 3px;
   align-items: center;
   flex-shrink: 0;
 }
-.xb-export-btn {
+.xb-handoff-btn {
   background: rgba(255,255,255,.03);
   border: 1px solid var(--bd);
   border-radius: var(--rs);
@@ -284,17 +284,17 @@ const STYLES = `
   font-family: inherit;
   white-space: nowrap;
 }
-.xb-export-btn:hover {
+.xb-handoff-btn:hover {
   border-color: rgba(0,212,255,.35);
   color: var(--cyan);
   background: var(--cynd);
 }
-.xb-export-btn.done {
+.xb-handoff-btn.done {
   border-color: rgba(16,185,129,.4);
   color: var(--grn);
   background: rgba(16,185,129,.08);
 }
-.xb-export-btn.error {
+.xb-handoff-btn.error {
   border-color: rgba(239,68,68,.4);
   color: var(--red);
   background: rgba(239,68,68,.08);
@@ -528,6 +528,7 @@ export class MainLayout {
       { label: 'Project', action: () => this._openProjectDashboard('new') },
       { label: 'Prompt', action: () => this._focusWorkflowArea('prompt') },
       { label: 'Assets', action: () => this._focusWorkflowArea('assets') },
+      { label: 'Bindings', action: () => this._focusWorkflowArea('bindings') },
       { label: 'Preview', action: () => this._focusWorkflowArea('preview') },
       { label: 'Inspector', action: () => this._focusWorkflowArea('inspector') },
     ];
@@ -574,20 +575,20 @@ export class MainLayout {
     });
     bar.appendChild(runBtn);
 
-    const exports = el('div', 'xb-export-menu');
+    const handoffs = el('div', 'xb-handoff-menu');
     for (const item of [
       { target: 'unity', label: 'C#' },
       { target: 'unreal', label: 'C++' },
       { target: 'godot', label: 'GD' },
     ]) {
-      const btn = el('button', 'xb-export-btn', {
+      const btn = el('button', 'xb-handoff-btn', {
         textContent: item.label,
-        title:       `Export ${item.target} adapter package`,
+        title:       `Prepare ${item.target} adapter package handoff`,
       }) as HTMLButtonElement;
-      btn.addEventListener('click', () => this._exportAdapter(item.target, btn));
-      exports.appendChild(btn);
+      btn.addEventListener('click', () => this._handoffAdapterPackage(item.target, btn));
+      handoffs.appendChild(btn);
     }
-    bar.appendChild(exports);
+    bar.appendChild(handoffs);
 
     // Settings
     const settingsBtn = el('button', 'xb-icon-btn', {
@@ -720,14 +721,14 @@ export class MainLayout {
 
   // ── Resize handles ────────────────────────────────────────────────────────
 
-  private async _exportAdapter(target: string, btn: HTMLButtonElement): Promise<void> {
+  private async _handoffAdapterPackage(target: string, btn: HTMLButtonElement): Promise<void> {
     const original = btn.textContent || target;
     btn.classList.remove('done', 'error');
     btn.textContent = '...';
     btn.disabled = true;
 
     try {
-      const response = await fetch(`/api/export/${target}`, { method: 'POST' });
+      const response = await fetch(`/api/adapter-package/handoff/${target}`, { method: 'POST' });
       const payload = await response.json() as {
         ok?: boolean;
         path?: string;
@@ -735,18 +736,18 @@ export class MainLayout {
         files?: string[];
       };
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || `Adapter package export failed: ${target}`);
+        throw new Error(payload.error || `Adapter package handoff failed: ${target}`);
       }
       btn.classList.add('done');
       btn.textContent = 'OK';
-      console.info(`[Adapter package export] ${target}: ${payload.files?.length ?? 0} files -> ${payload.path}`);
-      window.dispatchEvent(new CustomEvent('xace:export-complete', {
+      console.info(`[Adapter package handoff] ${target}: ${payload.files?.length ?? 0} files -> ${payload.path}`);
+      window.dispatchEvent(new CustomEvent('xace:adapter-package-handoff-complete', {
         detail: { target, ...payload },
       }));
     } catch (err) {
       btn.classList.add('error');
       btn.textContent = 'ERR';
-      console.error(`[Adapter package export] ${target} failed:`, err);
+      console.error(`[Adapter package handoff] ${target} failed:`, err);
     } finally {
       setTimeout(() => {
         btn.disabled = false;
@@ -803,7 +804,7 @@ export class MainLayout {
     this._projectDashboard.open(mode);
   }
 
-  private _focusWorkflowArea(area: 'prompt' | 'assets' | 'preview' | 'inspector'): void {
+  private _focusWorkflowArea(area: 'prompt' | 'assets' | 'bindings' | 'preview' | 'inspector'): void {
     if (area === 'prompt') {
       this._deps.uiStore.setCenterTab('builder');
       window.dispatchEvent(new CustomEvent('xace:focus-prompt'));
@@ -815,6 +816,14 @@ export class MainLayout {
         this._deps.uiStore.toggleSidebar();
       }
       window.dispatchEvent(new CustomEvent('xace:open-asset-linker'));
+      return;
+    }
+
+    if (area === 'bindings') {
+      if (this._deps.uiStore.state.sidebarCollapsed) {
+        this._deps.uiStore.toggleSidebar();
+      }
+      window.dispatchEvent(new CustomEvent('xace:open-semantic-bindings'));
       return;
     }
 

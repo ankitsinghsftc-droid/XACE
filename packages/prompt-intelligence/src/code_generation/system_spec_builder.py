@@ -54,7 +54,13 @@ from typing import Any
 
 # ── XACE Phase Names ──────────────────────────────────────────────────────────
 
-VALID_PHASES = frozenset({"Input", "Simulation", "PostSimulation", "Render"})
+VALID_PHASES = frozenset({
+    "Initialization",
+    "Input",
+    "Simulation",
+    "PostSimulation",
+    "Cleanup",
+})
 
 # ── Rust Type Mapping ─────────────────────────────────────────────────────────
 
@@ -69,6 +75,18 @@ _TICK_FIELDS = frozenset({
 _U32_FIELDS = frozenset({
     "priority", "controller_id",
 })
+
+_DECLARED_FIELD_RUST_TYPES = {
+    "fixed": "i64",
+    "int": "i64",
+    "uint": "u64",
+    "bool": "bool",
+    "string": "&'static str",
+    "entity_id": "u64",
+    "string_list": "Vec<&'static str>",
+    "int_list": "Vec<i64>",
+    "object": "()",
+}
 
 
 def python_to_rust_type(field_name: str, python_value: Any) -> str:
@@ -330,20 +348,37 @@ class SystemSpecBuilder:
                 f"Valid: {sorted(VALID_PHASES)}"
             )
 
-        # Build component index from CGS
+        # Build component index from authoritative schemas and actor instances.
         comp_index = self._build_component_index(cgs)
+        runtime_executor = sys_dict.get("runtime_executor")
+        generated_system = (
+            isinstance(runtime_executor, dict)
+            and str(runtime_executor.get("kind") or "").startswith("generated.")
+        )
 
         # Build read specs
         read_specs:  list[ComponentAccessSpec] = []
         for tid in read_ids:
-            spec = self._build_component_spec(tid, "read", comp_index, errors)
+            spec = self._build_component_spec(
+                tid,
+                "read",
+                comp_index,
+                errors,
+                require_concrete=generated_system,
+            )
             if spec:
                 read_specs.append(spec)
 
         # Build write specs
         write_specs: list[ComponentAccessSpec] = []
         for tid in write_ids:
-            spec = self._build_component_spec(tid, "write", comp_index, errors)
+            spec = self._build_component_spec(
+                tid,
+                "write",
+                comp_index,
+                errors,
+                require_concrete=generated_system,
+            )
             if spec:
                 write_specs.append(spec)
 
@@ -410,6 +445,34 @@ class SystemSpecBuilder:
         """
         index: dict[int, dict[str, Any]] = {}
 
+        for raw_schema in cgs.get("component_schemas", []):
+            if not isinstance(raw_schema, dict):
+                continue
+            type_id = raw_schema.get("type_id")
+            if isinstance(type_id, bool) or not isinstance(type_id, int) or type_id <= 0:
+                continue
+            raw_defaults = raw_schema.get("defaults")
+            defaults = dict(raw_defaults) if isinstance(raw_defaults, dict) else {}
+            field_types: dict[str, str] = {}
+            for raw_field in raw_schema.get("fields", []):
+                if not isinstance(raw_field, dict):
+                    continue
+                field_name = raw_field.get("name")
+                field_type = raw_field.get("field_type")
+                if not isinstance(field_name, str) or not field_name:
+                    continue
+                if isinstance(field_type, str) and field_type:
+                    field_types[field_name] = field_type
+                if field_name not in defaults and "default" in raw_field:
+                    defaults[field_name] = raw_field["default"]
+            index[type_id] = {
+                "name": raw_schema.get("name", f"COMP_TYPE{type_id}_V1"),
+                "defaults": defaults,
+                "field_types": field_types,
+                "actor_ids": [],
+                "declared": True,
+            }
+
         for mode in cgs.get("modes", []):
             for actor in mode.get("actors", []):
                 aid = actor.get("id", "")
@@ -422,7 +485,9 @@ class SystemSpecBuilder:
                         index[tid] = {
                             "name":      name,
                             "defaults":  defaults,
+                            "field_types": {},
                             "actor_ids": [],
+                            "declared": False,
                         }
                     if aid not in index[tid]["actor_ids"]:
                         index[tid]["actor_ids"].append(aid)
@@ -435,9 +500,18 @@ class SystemSpecBuilder:
         access:     str,
         comp_index: dict[int, dict[str, Any]],
         errors:     list[str],
+        *,
+        require_concrete: bool = False,
     ) -> ComponentAccessSpec | None:
         info = comp_index.get(type_id)
         if info is None:
+            if require_concrete:
+                errors.append(
+                    "Generated system component type_id "
+                    f"{type_id} has no declared schema or actor instance; "
+                    "placeholder component types are forbidden."
+                )
+                return None
             # For global systems or systems whose components are not yet in the CGS
             # (e.g. InputSystem reads type_id=6 which may not be on any actor yet),
             # build a minimal stub spec rather than failing validation.
@@ -454,12 +528,16 @@ class SystemSpecBuilder:
 
         name     = info["name"]
         defaults = info["defaults"]
+        field_types = info.get("field_types", {})
         actor_ids = info["actor_ids"]
 
         # Build field specs
         fields: list[ComponentFieldSpec] = []
         for fname, fvalue in defaults.items():
-            rust_type = python_to_rust_type(fname, fvalue)
+            rust_type = _DECLARED_FIELD_RUST_TYPES.get(
+                field_types.get(fname),
+                python_to_rust_type(fname, fvalue),
+            )
             fields.append(ComponentFieldSpec(
                 field_name     = fname,
                 rust_type      = rust_type,

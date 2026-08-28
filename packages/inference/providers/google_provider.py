@@ -48,6 +48,7 @@ import json
 from typing import Any
 
 from ..src.provider_registry import IProviderClient
+from ..src.structured_output import StructuredOutputContract, google_generation_config
 from ..src.inference_retry_policy import InferenceTransportError, InferenceSchemaError
 
 try:
@@ -103,9 +104,10 @@ class GoogleProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
         url  = self._model_url(model_id)
-        body = self._build_body(prompt, system_prompt, max_tokens, temperature)
+        body = self._build_body(prompt, system_prompt, max_tokens, temperature, structured_output)
         raw  = self._post(url, body, model_id)
         return self._parse_response(raw)
 
@@ -140,6 +142,7 @@ class GoogleProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
         """Builds Gemini API request body from a prepared prompt."""
         body: dict[str, Any] = {
@@ -148,6 +151,9 @@ class GoogleProvider(IProviderClient):
                 "temperature":     temperature,
             }
         }
+
+        if structured_output is not None:
+            body["generationConfig"].update(google_generation_config(structured_output))
 
         # Thinking level for Gemini 3.1 Pro
         if self._thinking_level and self._thinking_level != "none":

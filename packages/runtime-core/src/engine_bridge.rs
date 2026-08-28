@@ -13,8 +13,9 @@ use anyhow::Result;
 
 use crate::component_tables::component_table_store::ComponentTableStore;
 use crate::engine_protocol::{
-    parse_inbound_message, read_message, write_message, DisconnectMessage, EnginePlaybackCommand,
-    EntityState, HandshakeAck, InboundMessage, TickSnapshot, DEFAULT_TICK_RATE,
+    parse_inbound_message, read_message, write_message, AdapterSideEffectRollback,
+    DisconnectMessage, EnginePlaybackCommand, EntityState, HandshakeAck, InboundMessage,
+    TickSnapshot, DEFAULT_TICK_RATE,
 };
 use crate::entity_store::entity_store::EntityStore;
 use xace_engine_feedback::feedback_buffer::{FeedbackBuffer, FeedbackBufferMetrics};
@@ -214,6 +215,38 @@ impl EngineBridge {
         }
     }
 
+    pub fn send_adapter_side_effect_rollback(
+        &mut self,
+        rollback: &AdapterSideEffectRollback,
+    ) -> bool {
+        if !self.connected {
+            return false;
+        }
+        if let Err(err) = rollback.validate() {
+            log::warn!(
+                "Refusing to send invalid adapter side-effect rollback '{}': {}",
+                rollback.rollback_id,
+                err
+            );
+            return false;
+        }
+        match write_message(&mut self.writer, rollback) {
+            Ok(bytes) => {
+                self.stats.bytes_sent = self.stats.bytes_sent.saturating_add(bytes as u64);
+                self.drain_inbound();
+                true
+            }
+            Err(err) => {
+                log::warn!(
+                    "Engine connection lost during adapter side-effect rollback '{}': {}",
+                    rollback.rollback_id,
+                    err
+                );
+                self.connected = false;
+                false
+            }
+        }
+    }
     pub fn disconnect(&mut self, reason: &str) {
         if !self.connected {
             return;

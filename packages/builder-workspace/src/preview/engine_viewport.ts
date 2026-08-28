@@ -326,8 +326,13 @@ export class EngineViewport {
     if (!picked) {
       return;
     }
+    const runtime = this.deps.client.runtimeStatus;
     this.deps.client.send(makeEngineEdit(focus ? 'focus_entity' : 'select_entity', this.deps.client.sessionId, {
       entity_id: picked.id,
+      cgs_hash: this.deps.cgsStore.hash,
+      schema_version: this.deps.cgsStore.state.version,
+      runtime_world_hash: runtime.latestWorldHash || runtime.lastTick?.world_hash || '',
+      engine_adapter_sequence: runtime.engineAdapterSequence,
     }));
     this.deps.uiStore.selectEntity({
       id: actorNodeId(picked),

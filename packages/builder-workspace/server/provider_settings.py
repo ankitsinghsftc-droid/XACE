@@ -1148,6 +1148,8 @@ def _build_inference_adapter(selection: ProviderSelection) -> Any:
         ModelCapability.REASONING,
         ModelCapability.FUNCTION_CALL,
     })
+    if provider in {"anthropic", "google", "openai"}:
+        caps = frozenset({*caps, ModelCapability.STRUCTURED_OUTPUT})
     for logical_name, tier in (
         ("cheap_validation", ComplexityTier.M),
         ("standard_mutation", ComplexityTier.L),

@@ -13,6 +13,16 @@ use xace_engine_feedback::feedback_buffer::FeedbackBuffer;
 use xace_engine_feedback::feedback_log::FeedbackLog;
 use xace_engine_feedback::feedback_router::{FeedbackRouter, RouteBatchReport};
 use xace_engine_feedback::feedback_validator::FeedbackValidator;
+use xace_network_core::input::{
+    InputPacket, InputSynchroniser, InputSynchroniserConfig, LockstepDecision,
+};
+use xace_network_core::prediction::{
+    ClientPredictor, PredictedState, PredictionBuffer, PredictionConfig, PredictionInput,
+    ReconciliationConfig, ReconciliationEngine, ReconciliationMode, RollbackConfig,
+    RollbackManager, RollbackReason, Vec3 as PredictionVec3,
+};
+use xace_network_core::synchronisation::DesyncReport;
+use xace_network_core::PeerId;
 
 use crate::component_tables::component_table::ComponentTable;
 use crate::component_tables::component_table_store::ComponentTableStore;
@@ -23,18 +33,24 @@ use crate::determinism_guard::GoldenLog;
 use crate::engine_bridge::{
     build_entity_states, EngineBridge, EngineBridgeConfig, EngineBridgeStats,
 };
-use crate::engine_protocol::{EnginePlaybackCommand, TickSnapshot};
+use crate::engine_protocol::{AdapterSideEffectRollback, EnginePlaybackCommand, TickSnapshot};
 use crate::entity_store::entity_store::EntityStore;
 use crate::event_bus::event_bus::EventBus;
+use crate::fixed_json::{fixed_field as fixed_json_field, IntegerEncoding};
 use crate::mutation_gate::mutation_gate::MutationGate;
 use crate::phase_orchestrator::parallel_executor::ParallelGroupExecutionPolicy;
 use crate::phase_orchestrator::phase_orchestrator::{PhaseOrchestrator, TickResult};
 use crate::phase_orchestrator::system_registry::SystemRegistry;
 use crate::query_engine::QueryEngine;
-use crate::snapshot_engine::{validate_restorable_snapshot, SnapshotEngine};
+use crate::snapshot_engine::{
+    validate_restorable_snapshot, DeltaCompressedTimelineRetention, DeltaTimelineRestoreProof,
+    DeltaTimelineRetentionConfig, DeltaTimelineRetentionStats, RetentionPolicy, SnapshotEngine,
+    SnapshotSerializer, SnapshotStore,
+};
 use crate::state_printer::{print_state, PrinterOpts};
 use crate::{builtin_systems, cgs_loader, tcp_server};
 use xace_core::events::event_struct::Event;
+use xace_core::fixed_point::{Fixed64, FIXED64_SCALE};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -46,6 +62,10 @@ pub struct RuntimeConfig {
     pub determinism_guard_mode: GuardMode,
     pub bridge: EngineBridgeConfig,
     pub apply_engine_input_components: bool,
+    pub input_sync: RuntimeInputSyncConfig,
+    pub rollback: RollbackConfig,
+    pub timeline_retention: DeltaTimelineRetentionConfig,
+    pub client_prediction: RuntimeClientPredictionConfig,
 }
 
 impl Default for RuntimeConfig {
@@ -58,7 +78,118 @@ impl Default for RuntimeConfig {
             determinism_guard_mode: GuardMode::Strict,
             bridge: EngineBridgeConfig::default(),
             apply_engine_input_components: true,
+            input_sync: RuntimeInputSyncConfig::default(),
+            rollback: RollbackConfig::default(),
+            timeline_retention: DeltaTimelineRetentionConfig::default(),
+            client_prediction: RuntimeClientPredictionConfig::default(),
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeClientPredictionConfig {
+    pub enabled: bool,
+    pub local_peer_id: Option<PeerId>,
+    pub buffer_capacity: usize,
+    pub tick_rate_hz: u32,
+    pub max_velocity_microunits_per_second: u32,
+    pub max_acceleration_microunits_per_second_sq: u32,
+    pub max_prediction_ticks: u16,
+    pub snap_threshold_microunits: u32,
+    pub correction_epsilon_microunits: u32,
+    pub max_interpolation_ticks: u16,
+    pub smooth_correction_ticks: u16,
+    pub preferred_reconciliation_mode: ReconciliationMode,
+}
+
+impl Default for RuntimeClientPredictionConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            local_peer_id: None,
+            buffer_capacity: 32,
+            tick_rate_hz: 60,
+            max_velocity_microunits_per_second: 120_000_000,
+            max_acceleration_microunits_per_second_sq: 240_000_000,
+            max_prediction_ticks: 12,
+            snap_threshold_microunits: 500_000,
+            correction_epsilon_microunits: 100,
+            max_interpolation_ticks: 4,
+            smooth_correction_ticks: 8,
+            preferred_reconciliation_mode: ReconciliationMode::Smooth,
+        }
+    }
+}
+
+impl RuntimeClientPredictionConfig {
+    pub fn lockstep_client(local_peer_id: PeerId) -> Self {
+        Self {
+            enabled: true,
+            local_peer_id: Some(local_peer_id),
+            ..Self::default()
+        }
+    }
+
+    fn prediction_config(&self) -> PredictionConfig {
+        PredictionConfig {
+            tick_rate_hz: self.tick_rate_hz,
+            max_velocity_units_per_second: microunits_to_units_f32(
+                self.max_velocity_microunits_per_second,
+            ),
+            max_acceleration_units_per_second_sq: microunits_to_units_f32(
+                self.max_acceleration_microunits_per_second_sq,
+            ),
+            max_prediction_ticks: self.max_prediction_ticks,
+        }
+    }
+
+    fn reconciliation_config(&self) -> ReconciliationConfig {
+        ReconciliationConfig {
+            snap_threshold: microunits_to_units_f32(self.snap_threshold_microunits),
+            correction_epsilon: microunits_to_units_f32(self.correction_epsilon_microunits),
+            max_interpolation_ticks: self.max_interpolation_ticks,
+            smooth_correction_ticks: self.smooth_correction_ticks,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RuntimeInputSyncMode {
+    Direct,
+    Lockstep,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeInputSyncConfig {
+    pub mode: RuntimeInputSyncMode,
+    pub required_peers: BTreeSet<PeerId>,
+    pub synchroniser: InputSynchroniserConfig,
+    pub synthetic_release_after_wait_ticks: Option<u64>,
+}
+
+impl Default for RuntimeInputSyncConfig {
+    fn default() -> Self {
+        Self {
+            mode: RuntimeInputSyncMode::Direct,
+            required_peers: BTreeSet::new(),
+            synchroniser: InputSynchroniserConfig::default(),
+            synthetic_release_after_wait_ticks: None,
+        }
+    }
+}
+
+impl RuntimeInputSyncConfig {
+    pub fn lockstep(required_peers: impl IntoIterator<Item = PeerId>) -> Self {
+        Self {
+            mode: RuntimeInputSyncMode::Lockstep,
+            required_peers: required_peers.into_iter().collect(),
+            ..Self::default()
+        }
+    }
+
+    pub fn with_synthetic_release_after_wait_ticks(mut self, wait_ticks: u64) -> Self {
+        self.synthetic_release_after_wait_ticks = Some(wait_ticks);
+        self
     }
 }
 
@@ -84,7 +215,14 @@ pub struct RuntimeStatus {
     pub engine_feedback_messages_received: u64,
     pub engine_malformed_messages: u64,
     pub engine_dropped_inputs: u64,
+    pub engine_adapter_sequence: u64,
     pub pending_engine_inputs: usize,
+    pub input_sync_mode: String,
+    pub input_sync_last_decision: String,
+    pub client_prediction_enabled: bool,
+    pub client_prediction_buffered: usize,
+    pub client_prediction_reports: usize,
+    pub client_prediction_corrections: usize,
     pub pending_engine_feedback: usize,
     pub registered_systems: usize,
     pub phase_count: usize,
@@ -104,6 +242,101 @@ pub struct RuntimeStatus {
 pub struct RuntimeHashRecord {
     pub tick: u64,
     pub world_hash: String,
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct RuntimePredictionVec3 {
+    pub x_microunits: i64,
+    pub y_microunits: i64,
+    pub z_microunits: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeClientPredictionPreview {
+    pub schema: String,
+    pub sim_tick: u64,
+    pub predicted_clean_boundary_tick: u64,
+    pub peer_id: u64,
+    pub player_id: u64,
+    pub input_digest: String,
+    pub base_authoritative_position: RuntimePredictionVec3,
+    pub base_authoritative_velocity: RuntimePredictionVec3,
+    pub predicted_position: RuntimePredictionVec3,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeClientPredictionReport {
+    pub schema: String,
+    pub sim_tick: u64,
+    pub authoritative_tick: u64,
+    pub predicted_clean_boundary_tick: u64,
+    pub peer_id: u64,
+    pub player_id: u64,
+    pub input_digest: String,
+    pub predicted_position: RuntimePredictionVec3,
+    pub authoritative_position: RuntimePredictionVec3,
+    pub correction: RuntimePredictionVec3,
+    pub error_microunits: u64,
+    pub mode: String,
+    pub needs_correction: bool,
+    pub blend_ticks: u16,
+    pub prediction_buffer_ticks: Vec<u64>,
+    pub authoritative_world_hash: String,
+    pub authoritative_state_digest: String,
+    pub authoritative_state_mutated_by_prediction: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeClientServerPredictionHashComparison {
+    pub schema: String,
+    pub tick: u64,
+    pub client_world_hash: String,
+    pub server_world_hash: String,
+    pub hashes_match: bool,
+    pub prediction_reports_at_tick: usize,
+    pub corrections_at_tick: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeRollbackCorrectedInput {
+    pub peer_id: u64,
+    pub tick: u64,
+    pub sequence_id: u64,
+    pub digest: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeRollbackResimulationReport {
+    pub schema: String,
+    pub trigger: String,
+    pub reason: String,
+    pub requested_tick: u64,
+    pub restored_tick: u64,
+    pub pre_rollback_tick: u64,
+    pub post_resim_tick: u64,
+    pub rollback_count: usize,
+    pub pre_rollback_world_hash: String,
+    pub restored_snapshot_hash: String,
+    pub final_world_hash: String,
+    pub replay_ticks: Vec<u64>,
+    pub resimulated_ticks: Vec<u64>,
+    pub corrected_inputs: Vec<RuntimeRollbackCorrectedInput>,
+    pub hash_validation_passed: bool,
+    pub adapter_resync: RuntimeAdapterSideEffectRollbackReport,
+    pub desync_tick: Option<u64>,
+    pub desync_divergent_peers: Vec<u64>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeTimelineRestoreReport {
+    pub schema: String,
+    pub requested_tick: u64,
+    pub runtime_tick_before_restore: u64,
+    pub runtime_tick_after_restore: u64,
+    pub expected_world_hash: String,
+    pub restored_world_hash: String,
+    pub restore_proof: DeltaTimelineRestoreProof,
+    pub retention_stats: DeltaTimelineRetentionStats,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -208,6 +441,23 @@ pub struct RuntimeHotSwapMigrationReport {
     pub migrated_world_hash: String,
     pub records: Vec<RuntimeComponentMigrationRecord>,
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RuntimeAdapterSideEffectRollbackReport {
+    pub schema: String,
+    pub rollback_id: String,
+    pub failed_stage: String,
+    pub reason: String,
+    pub tick: u64,
+    pub restore_tick: u64,
+    pub restored_cgs_hash: String,
+    pub failed_cgs_hash: String,
+    pub restored_world_hash: String,
+    pub adapters_notified: usize,
+    pub adapters_dropped: usize,
+    pub revoked_playback_commands: usize,
+    pub pending_feedback_cleared: usize,
+    pub pending_engine_inputs_cleared: usize,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum RuntimeHotSwapCompatibilityClass {
@@ -311,7 +561,19 @@ pub struct RuntimeTickReplayTrace {
     pub emitted_events: Vec<RuntimeReplayEventTrace>,
     pub rng_calls: Vec<RuntimeReplayRngCallTrace>,
     pub mutation: RuntimeReplayMutationTrace,
+    pub input_sync: RuntimeInputSyncTrace,
     pub input_packets: Vec<RuntimeReplayInputPacketTrace>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct RuntimeInputSyncTrace {
+    pub mode: String,
+    pub decision: String,
+    pub sim_tick: u64,
+    pub input_tick: Option<u64>,
+    pub missing_peers: Vec<u64>,
+    pub released_packets: usize,
+    pub waited_ticks: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -414,8 +676,22 @@ pub struct RuntimeOrchestrator {
     schedule_identity: cgs_loader::RuntimeScheduleIdentity,
     schedule_snapshots: Vec<cgs_loader::RuntimeScheduleSnapshot>,
     replay_traces: BTreeMap<u64, RuntimeTickReplayTrace>,
+    rollback_manager: RollbackManager,
+    rollback_snapshots: SnapshotStore,
+    timeline_retention: DeltaCompressedTimelineRetention,
+    rollback_input_history: BTreeMap<u64, Vec<InputPacket>>,
+    rollback_resimulation_log: Vec<RuntimeRollbackResimulationReport>,
+    client_predictor: Option<ClientPredictor>,
+    client_reconciler: Option<ReconciliationEngine>,
+    client_prediction_buffer: Option<PredictionBuffer<RuntimeClientPredictionEntry>>,
+    client_prediction_pending: Vec<RuntimeClientPredictionEntry>,
+    client_prediction_log: Vec<RuntimeClientPredictionReport>,
     bridges: Vec<EngineBridge>,
-    engine_inputs: Vec<xace_network_core::input::InputPacket>,
+    engine_inputs: Vec<InputPacket>,
+    input_synchroniser: Option<InputSynchroniser>,
+    input_sync_last_trace: RuntimeInputSyncTrace,
+    input_sync_wait_attempts: BTreeMap<u64, u64>,
+    last_engine_adapter_sequence: u64,
     feedback_buffer: FeedbackBuffer,
     feedback_validator: FeedbackValidator,
     feedback_router: FeedbackRouter,
@@ -425,6 +701,7 @@ pub struct RuntimeOrchestrator {
     replay_golden_log: Option<GoldenLog>,
     migration_hooks: Vec<RuntimeComponentMigrationHook>,
     migration_log: Vec<RuntimeHotSwapMigrationReport>,
+    adapter_side_effect_rollback_log: Vec<RuntimeAdapterSideEffectRollbackReport>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -433,6 +710,9 @@ pub struct RuntimeTickSummary {
     pub mutations_applied: usize,
     pub events_dispatched: usize,
     pub engine_inputs_applied: usize,
+    pub input_sync_decision: String,
+    pub client_prediction_reports: usize,
+    pub client_prediction_corrections: usize,
     pub engine_feedback_processed: usize,
     pub engine_feedback_invalid: usize,
     pub engine_feedback_errors: usize,
@@ -464,6 +744,37 @@ struct RuntimeEngineInputApplication {
     packet: xace_network_core::input::InputPacket,
     applied: bool,
     status: String,
+}
+
+#[derive(Debug, Clone)]
+struct RuntimeClientPredictionEntry {
+    preview: RuntimeClientPredictionPreview,
+    prediction: PredictedState,
+}
+
+#[derive(Debug, Clone)]
+struct RuntimeClientPredictionBuild {
+    preview: RuntimeClientPredictionPreview,
+    prediction: PredictedState,
+}
+
+#[derive(Debug, Clone)]
+struct RuntimeAuthoritativePredictionState {
+    position: PredictionVec3,
+    velocity: PredictionVec3,
+    raw_transform: String,
+}
+
+#[derive(Debug, Clone)]
+struct RuntimeRollbackInputCorrection {
+    sim_tick: u64,
+    packet: InputPacket,
+}
+
+#[derive(Debug, Clone, Default)]
+struct RuntimeInputSynchronisationReport {
+    trace: RuntimeInputSyncTrace,
+    applications: Vec<RuntimeEngineInputApplication>,
 }
 
 impl RuntimeOrchestrator {
@@ -508,6 +819,22 @@ impl RuntimeOrchestrator {
         );
         let feedback_log_schema_version = spawn_summary.schema_version.clone();
         let feedback_log_execution_plan_version = config.execution_plan_version;
+        let input_synchroniser = build_runtime_input_synchroniser(&config.input_sync);
+        let input_sync_last_trace = RuntimeInputSyncTrace {
+            mode: runtime_input_sync_mode_id(&config.input_sync.mode).to_string(),
+            decision: "not_started".to_string(),
+            ..RuntimeInputSyncTrace::default()
+        };
+        let rollback_manager = RollbackManager::with_config(config.rollback.clone());
+        let rollback_snapshots = SnapshotStore::new(RetentionPolicy::KeepLastN(
+            config.rollback.max_snapshots.max(1),
+        ));
+        let timeline_retention = DeltaCompressedTimelineRetention::with_config(
+            config.timeline_retention,
+        )
+        .map_err(|err| anyhow::anyhow!("invalid runtime timeline retention config: {}", err))?;
+        let (client_predictor, client_reconciler, client_prediction_buffer) =
+            build_runtime_client_prediction_components(&config)?;
 
         Ok(Self {
             config,
@@ -526,8 +853,22 @@ impl RuntimeOrchestrator {
             schedule_identity,
             schedule_snapshots: Vec::new(),
             replay_traces: BTreeMap::new(),
+            rollback_manager,
+            rollback_snapshots,
+            timeline_retention,
+            rollback_input_history: BTreeMap::new(),
+            rollback_resimulation_log: Vec::new(),
+            client_predictor,
+            client_reconciler,
+            client_prediction_buffer,
+            client_prediction_pending: Vec::new(),
+            client_prediction_log: Vec::new(),
             bridges: Vec::new(),
             engine_inputs: Vec::new(),
+            input_synchroniser,
+            input_sync_last_trace,
+            input_sync_wait_attempts: BTreeMap::new(),
+            last_engine_adapter_sequence: 0,
             feedback_buffer,
             feedback_validator: FeedbackValidator::with_defaults(),
             feedback_router: FeedbackRouter::with_default_handlers(),
@@ -540,6 +881,7 @@ impl RuntimeOrchestrator {
             replay_golden_log: None,
             migration_hooks: Vec::new(),
             migration_log: Vec::new(),
+            adapter_side_effect_rollback_log: Vec::new(),
         })
     }
 
@@ -578,14 +920,17 @@ impl RuntimeOrchestrator {
     }
 
     pub fn tick(&mut self) -> Result<TickResult, XaceError> {
+        self.client_prediction_pending.clear();
+        self.capture_runtime_rollback_snapshot()?;
         self.pump_engine_inbound();
         self.collect_engine_inputs_from_bridge();
         let feedback_report = self.process_engine_feedback_at_tick_start();
-        let input_applications = if self.config.apply_engine_input_components {
-            self.apply_pending_engine_inputs()?
+        let input_report = if self.config.apply_engine_input_components {
+            self.synchronise_and_apply_engine_inputs()?
         } else {
-            Vec::new()
+            self.drain_without_applying_engine_inputs()
         };
+        let input_applications = input_report.applications;
         let applied_inputs = input_applications
             .iter()
             .filter(|application| application.applied)
@@ -622,14 +967,25 @@ impl RuntimeOrchestrator {
             .map(|entity| entity.entity_id)
             .collect::<Vec<_>>();
         let playback_commands = self.playback_commands_for_events(&result.emitted_events);
+        let client_prediction_reports =
+            self.reconcile_client_predictions_for_tick(result.tick, &result.world_hash)?;
+        let client_prediction_corrections = client_prediction_reports
+            .iter()
+            .filter(|report| report.needs_correction)
+            .count();
         let replay_trace =
             self.build_replay_trace(&result, &schedule_snapshot, &input_applications);
+        self.record_released_inputs_for_rollback(result.tick, &input_applications);
+        self.capture_delta_compressed_timeline_snapshot(result.tick)?;
         self.send_tick_to_engine(&result, &playback_commands);
         self.last_tick_result = Some(RuntimeTickSummary {
             tick: result.tick,
             mutations_applied: result.mutations_applied,
             events_dispatched: result.events_dispatched,
             engine_inputs_applied: applied_inputs,
+            input_sync_decision: input_report.trace.decision.clone(),
+            client_prediction_reports: client_prediction_reports.len(),
+            client_prediction_corrections,
             engine_feedback_processed: feedback_report.handled,
             engine_feedback_invalid: feedback_report.invalid,
             engine_feedback_errors: feedback_report.errors,
@@ -693,6 +1049,7 @@ impl RuntimeOrchestrator {
                 .map(Self::rng_call_trace)
                 .collect(),
             mutation: Self::mutation_trace(&result.state_delta, result.mutations_applied),
+            input_sync: self.input_sync_last_trace.clone(),
             input_packets: input_applications
                 .iter()
                 .map(Self::input_packet_trace)
@@ -1198,6 +1555,73 @@ impl RuntimeOrchestrator {
         self.engine_inputs.len()
     }
 
+    pub fn last_input_sync_trace(&self) -> &RuntimeInputSyncTrace {
+        &self.input_sync_last_trace
+    }
+
+    pub fn client_prediction_log(&self) -> &[RuntimeClientPredictionReport] {
+        &self.client_prediction_log
+    }
+
+    pub fn client_prediction_buffer_ticks(&self) -> Vec<u64> {
+        self.client_prediction_buffer
+            .as_ref()
+            .map(|buffer| buffer.ticks())
+            .unwrap_or_default()
+    }
+
+    pub fn preview_client_prediction_for_packet(
+        &self,
+        packet: &InputPacket,
+    ) -> Result<Option<RuntimeClientPredictionPreview>, XaceError> {
+        packet.validate().map_err(|err| {
+            runtime_client_prediction_validation_error(
+                "preview_client_prediction_for_packet",
+                packet.tick,
+                format!("client prediction input is invalid: {}", err),
+                "client_prediction.input_packet",
+            )
+        })?;
+        let Some(player_id) = packet.player_id else {
+            return Ok(None);
+        };
+        self.build_client_prediction_for_packet(packet, player_id)
+            .map(|prediction| prediction.map(|prediction| prediction.preview))
+    }
+
+    pub fn compare_client_prediction_server_hash(
+        &self,
+        tick: u64,
+        server_world_hash: &str,
+    ) -> Result<RuntimeClientServerPredictionHashComparison, XaceError> {
+        let Some(client_world_hash) = self.world_hash_at_tick(tick) else {
+            return Err(runtime_client_prediction_validation_error(
+                "compare_client_prediction_server_hash",
+                tick,
+                format!("client runtime has no authoritative hash for tick {}", tick),
+                "client_prediction.hash_log",
+            ));
+        };
+        let reports = self
+            .client_prediction_log
+            .iter()
+            .filter(|report| report.authoritative_tick == tick)
+            .collect::<Vec<_>>();
+        let corrections_at_tick = reports
+            .iter()
+            .filter(|report| report.needs_correction)
+            .count();
+        Ok(RuntimeClientServerPredictionHashComparison {
+            schema: "xace.runtime.client_prediction_hash_comparison.v1".to_string(),
+            tick,
+            client_world_hash: client_world_hash.to_string(),
+            server_world_hash: server_world_hash.to_string(),
+            hashes_match: client_world_hash == server_world_hash,
+            prediction_reports_at_tick: reports.len(),
+            corrections_at_tick,
+        })
+    }
+
     pub fn pending_engine_feedback_count(&self) -> usize {
         self.feedback_buffer.pending_count()
     }
@@ -1237,6 +1661,88 @@ impl RuntimeOrchestrator {
 
     pub fn migration_log(&self) -> &[RuntimeHotSwapMigrationReport] {
         &self.migration_log
+    }
+
+    pub fn adapter_side_effect_rollback_log(&self) -> &[RuntimeAdapterSideEffectRollbackReport] {
+        &self.adapter_side_effect_rollback_log
+    }
+
+    pub fn rollback_resimulation_log(&self) -> &[RuntimeRollbackResimulationReport] {
+        &self.rollback_resimulation_log
+    }
+
+    pub fn rollback_count(&self) -> usize {
+        self.rollback_manager.records().len()
+    }
+
+    pub fn rollback_snapshot_ticks(&self) -> Vec<u64> {
+        self.rollback_snapshots.stored_ticks()
+    }
+
+    pub fn rollback_input_history_ticks(&self) -> Vec<u64> {
+        self.rollback_input_history.keys().copied().collect()
+    }
+
+    pub fn resimulate_authoritative_late_input(
+        &mut self,
+        packet: InputPacket,
+    ) -> Result<RuntimeRollbackResimulationReport, XaceError> {
+        packet.validate().map_err(|err| {
+            runtime_rollback_validation_error(
+                "resimulate_authoritative_late_input",
+                packet.tick,
+                format!("authoritative correction input is invalid: {}", err),
+                "authoritative_input_packet",
+            )
+        })?;
+        if packet.tick >= self.phase_orch.current_tick() {
+            return Err(runtime_rollback_validation_error(
+                "resimulate_authoritative_late_input",
+                packet.tick,
+                format!(
+                    "authoritative input tick {} is not late for live clean-boundary tick {}",
+                    packet.tick,
+                    self.phase_orch.current_tick()
+                ),
+                "authoritative_input_packet.tick",
+            ));
+        }
+        let correction = RuntimeRollbackInputCorrection {
+            sim_tick: packet.tick,
+            packet,
+        };
+        self.resimulate_from_clean_boundary(
+            "authoritative_late_input",
+            "authoritative late input corrected an already released runtime tick".to_string(),
+            correction.sim_tick,
+            vec![correction],
+            None,
+        )
+    }
+
+    pub fn resimulate_after_desync(
+        &mut self,
+        report: DesyncReport,
+    ) -> Result<RuntimeRollbackResimulationReport, XaceError> {
+        if report.tick >= self.phase_orch.current_tick() {
+            return Err(runtime_rollback_validation_error(
+                "resimulate_after_desync",
+                report.tick,
+                format!(
+                    "desync tick {} is not before live clean-boundary tick {}",
+                    report.tick,
+                    self.phase_orch.current_tick()
+                ),
+                "desync_report.tick",
+            ));
+        }
+        self.resimulate_from_clean_boundary(
+            "desync",
+            "desync report requested authoritative runtime resimulation".to_string(),
+            report.tick,
+            Vec::new(),
+            Some(report),
+        )
     }
 
     pub fn config(&self) -> &RuntimeConfig {
@@ -1321,7 +1827,15 @@ impl RuntimeOrchestrator {
             match apply_hot_swap_component_table_additions(&mut self.table_store, &additions) {
                 Ok(added) => added,
                 Err(err) => {
+                    let reason = err.to_string();
                     self.table_store.restore_rollback_snapshot(table_rollback);
+                    self.notify_adapter_side_effect_rollback(
+                        "component_table_additions",
+                        &reason,
+                        &candidate.summary.cgs_hash,
+                        &pre_snapshot.world_hash,
+                        requested_tick,
+                    );
                     return Err(err);
                 }
             };
@@ -1333,40 +1847,80 @@ impl RuntimeOrchestrator {
         ) {
             Ok(report) => report,
             Err(err) => {
+                let reason = err.to_string();
                 self.table_store.restore_rollback_snapshot(table_rollback);
+                self.notify_adapter_side_effect_rollback(
+                    "migration_hooks",
+                    &reason,
+                    &candidate.summary.cgs_hash,
+                    &pre_snapshot.world_hash,
+                    requested_tick,
+                );
                 return Err(err);
             }
         };
         let post_table_snapshot = match self.world_snapshot() {
             Ok(snapshot) => snapshot,
             Err(err) => {
+                let reason = format!("verify hot-swap state preservation: {}", err);
                 self.table_store.restore_rollback_snapshot(table_rollback);
-                anyhow::bail!("verify hot-swap state preservation: {}", err);
+                self.notify_adapter_side_effect_rollback(
+                    "state_preservation_snapshot",
+                    &reason,
+                    &candidate.summary.cgs_hash,
+                    &pre_snapshot.world_hash,
+                    requested_tick,
+                );
+                anyhow::bail!(reason);
             }
         };
         if post_table_snapshot.entity_store_snapshot != pre_snapshot.entity_store_snapshot {
-            self.table_store.restore_rollback_snapshot(table_rollback);
-            anyhow::bail!(
+            let reason = format!(
                 "runtime schema hot-swap changed entity state while preparing tick {}",
                 requested_tick
             );
+            self.table_store.restore_rollback_snapshot(table_rollback);
+            self.notify_adapter_side_effect_rollback(
+                "entity_state_preservation",
+                &reason,
+                &candidate.summary.cgs_hash,
+                &pre_snapshot.world_hash,
+                requested_tick,
+            );
+            anyhow::bail!(reason);
         }
         if let Some(migration_report) = &migration {
             if post_table_snapshot.world_hash != migration_report.migrated_world_hash {
-                self.table_store.restore_rollback_snapshot(table_rollback);
-                anyhow::bail!(
+                let reason = format!(
                     "runtime schema hot-swap migration hash changed during verification at tick {}",
                     requested_tick
                 );
+                self.table_store.restore_rollback_snapshot(table_rollback);
+                self.notify_adapter_side_effect_rollback(
+                    "migration_hash_verification",
+                    &reason,
+                    &candidate.summary.cgs_hash,
+                    &pre_snapshot.world_hash,
+                    requested_tick,
+                );
+                anyhow::bail!(reason);
             }
         } else if post_table_snapshot.component_tables_snapshot
             != pre_snapshot.component_tables_snapshot
         {
-            self.table_store.restore_rollback_snapshot(table_rollback);
-            anyhow::bail!(
+            let reason = format!(
                 "runtime schema hot-swap changed component rows while preparing tick {}",
                 requested_tick
             );
+            self.table_store.restore_rollback_snapshot(table_rollback);
+            self.notify_adapter_side_effect_rollback(
+                "component_row_preservation",
+                &reason,
+                &candidate.summary.cgs_hash,
+                &pre_snapshot.world_hash,
+                requested_tick,
+            );
+            anyhow::bail!(reason);
         }
 
         let RuntimeHotSwapCandidate {
@@ -1925,7 +2479,22 @@ impl RuntimeOrchestrator {
             engine_feedback_messages_received: bridge_stats.feedback_messages_received,
             engine_malformed_messages: bridge_stats.malformed_messages,
             engine_dropped_inputs: bridge_stats.dropped_inputs,
+            engine_adapter_sequence: self.last_engine_adapter_sequence,
             pending_engine_inputs: self.pending_engine_input_count(),
+            input_sync_mode: runtime_input_sync_mode_id(&self.config.input_sync.mode).to_string(),
+            input_sync_last_decision: self.input_sync_last_trace.decision.clone(),
+            client_prediction_enabled: self.config.client_prediction.enabled,
+            client_prediction_buffered: self
+                .client_prediction_buffer
+                .as_ref()
+                .map(|buffer| buffer.len())
+                .unwrap_or(0),
+            client_prediction_reports: self.client_prediction_log.len(),
+            client_prediction_corrections: self
+                .client_prediction_log
+                .iter()
+                .filter(|report| report.needs_correction)
+                .count(),
             pending_engine_feedback: self.pending_engine_feedback_count(),
             registered_systems: self.registry.system_count(),
             phase_count: self.phase_plan.len(),
@@ -1962,6 +2531,58 @@ impl RuntimeOrchestrator {
 
     pub fn world_hash_at_tick(&self, tick: u64) -> Option<&str> {
         self.determinism_guard.hash_at_tick(tick)
+    }
+
+    pub fn timeline_retention_stats(&self) -> DeltaTimelineRetentionStats {
+        self.timeline_retention.stats()
+    }
+
+    pub fn retained_timeline_ticks(&self) -> Vec<u64> {
+        self.timeline_retention.retained_ticks()
+    }
+
+    pub fn retained_timeline_snapshot(&self, tick: u64) -> Result<WorldSnapshot, XaceError> {
+        self.timeline_retention.restore_snapshot(tick)
+    }
+
+    pub fn restore_retained_timeline_tick(
+        &mut self,
+        tick: u64,
+    ) -> Result<RuntimeTimelineRestoreReport, XaceError> {
+        let runtime_tick_before_restore = self.phase_orch.current_tick();
+        let restore_proof = self.timeline_retention.restore_proof(tick)?;
+        let retention_stats = self.timeline_retention.stats();
+        let snapshot = self.timeline_retention.restore_snapshot(tick)?;
+        let expected_world_hash = snapshot.world_hash.clone();
+
+        self.restore_world_snapshot(&snapshot)?;
+
+        let restored_world_hash = self.world_snapshot()?.world_hash;
+        if restored_world_hash != expected_world_hash {
+            return Err(XaceError::FatalError {
+                message: format!(
+                    "Retained timeline restore hash mismatch at tick {}: expected '{}', got '{}'",
+                    tick, expected_world_hash, restored_world_hash,
+                ),
+                context: xace_core::errors::xace_error::ErrorContext::new(
+                    "RuntimeOrchestrator",
+                    "restore_retained_timeline_tick",
+                )
+                .with_tick(tick),
+                snapshot_recovery_possible: false,
+            });
+        }
+
+        Ok(RuntimeTimelineRestoreReport {
+            schema: "xace.runtime.timeline_restore_report.v1".to_string(),
+            requested_tick: tick,
+            runtime_tick_before_restore,
+            runtime_tick_after_restore: self.phase_orch.current_tick(),
+            expected_world_hash,
+            restored_world_hash,
+            restore_proof,
+            retention_stats,
+        })
     }
 
     pub fn record_replay_hash_log(&mut self) -> Result<usize> {
@@ -2155,16 +2776,17 @@ impl RuntimeOrchestrator {
     }
 
     pub fn world_snapshot(&self) -> Result<WorldSnapshot, XaceError> {
+        self.world_snapshot_at_tick(self.phase_orch.current_tick())
+    }
+
+    fn world_snapshot_at_tick(&self, tick: u64) -> Result<WorldSnapshot, XaceError> {
         let mut snapshot_engine = SnapshotEngine::standard(
             self.spawn_summary.schema_version.clone(),
             self.config.execution_plan_version,
             self.config.world_seed,
         );
-        let mut snapshot = snapshot_engine.take_snapshot(
-            self.phase_orch.current_tick(),
-            &self.entity_store,
-            &self.table_store,
-        )?;
+        let mut snapshot =
+            snapshot_engine.take_snapshot(tick, &self.entity_store, &self.table_store)?;
         snapshot.cgs_hash = self.spawn_summary.cgs_hash.clone();
         snapshot.world_hash.clear();
         snapshot.world_hash = WorldHasher::compute(&snapshot);
@@ -2216,7 +2838,6 @@ impl RuntimeOrchestrator {
                 snapshot_recovery_possible: false,
             });
         }
-        self.disconnect_engine("runtime_snapshot_restore");
         let mut snapshot_engine = SnapshotEngine::standard(
             self.spawn_summary.schema_version.clone(),
             self.config.execution_plan_version,
@@ -2246,6 +2867,13 @@ impl RuntimeOrchestrator {
                 snapshot_recovery_possible: false,
             });
         }
+        self.notify_adapter_side_effect_rollback(
+            "world_snapshot_restore",
+            "runtime restored an authoritative world snapshot",
+            &snapshot.cgs_hash,
+            &snapshot.world_hash,
+            snapshot.tick,
+        );
         self.phase_orch.restore_tick(snapshot.tick);
         self.determinism_guard = build_determinism_guard(
             self.config.determinism_guard_mode,
@@ -2258,7 +2886,8 @@ impl RuntimeOrchestrator {
         self.query_engine = QueryEngine::new();
         self.event_bus = EventBus::new();
         self.mutation_gate = MutationGate::new();
-        self.engine_inputs.clear();
+        self.reset_runtime_input_synchroniser();
+        self.reset_runtime_client_prediction_state(snapshot.tick);
         self.schedule_snapshots
             .retain(|schedule| schedule.tick < snapshot.tick);
         self.replay_traces.retain(|tick, _| *tick < snapshot.tick);
@@ -2274,6 +2903,549 @@ impl RuntimeOrchestrator {
         Ok(())
     }
 
+    fn capture_runtime_rollback_snapshot(&mut self) -> Result<(), XaceError> {
+        let tick = self.phase_orch.current_tick();
+        if self.rollback_snapshots.has_snapshot(tick) {
+            return Ok(());
+        }
+
+        let snapshot = self.world_snapshot()?;
+        let serialized = SnapshotSerializer::new().serialize(&snapshot)?;
+        let snapshot_hash = snapshot.world_hash.clone();
+        self.rollback_snapshots.store(snapshot)?;
+        self.rollback_manager
+            .record_snapshot_with_hash(tick, snapshot_hash, serialized.len())
+            .map_err(|err| {
+                runtime_rollback_validation_error(
+                    "capture_runtime_rollback_snapshot",
+                    tick,
+                    format!(
+                        "rollback manager refused runtime snapshot metadata: {}",
+                        err
+                    ),
+                    "rollback_manager.snapshot",
+                )
+            })?;
+
+        if self.config.rollback.snapshot_retention_ticks > 0 {
+            let min_tick = tick.saturating_sub(self.config.rollback.snapshot_retention_ticks);
+            self.rollback_snapshots.purge_before(min_tick);
+        }
+        Ok(())
+    }
+
+    fn capture_delta_compressed_timeline_snapshot(&mut self, tick: u64) -> Result<(), XaceError> {
+        let snapshot = self.world_snapshot_at_tick(tick)?;
+        if let Some(expected_hash) = self.world_hash_at_tick(tick).map(str::to_string) {
+            if snapshot.world_hash != expected_hash {
+                return Err(XaceError::FatalError {
+                    message: format!(
+                        "Delta-compressed timeline snapshot hash mismatch at tick {}: expected '{}', got '{}'",
+                        tick, expected_hash, snapshot.world_hash,
+                    ),
+                    context: xace_core::errors::xace_error::ErrorContext::new(
+                        "RuntimeOrchestrator",
+                        "capture_delta_compressed_timeline_snapshot",
+                    )
+                    .with_tick(tick),
+                    snapshot_recovery_possible: false,
+                });
+            }
+        }
+        self.timeline_retention.remember_snapshot(snapshot)
+    }
+
+    fn record_released_inputs_for_rollback(
+        &mut self,
+        tick: u64,
+        applications: &[RuntimeEngineInputApplication],
+    ) {
+        let mut packets_by_peer = BTreeMap::new();
+        for application in applications {
+            if application.packet.tick != tick {
+                continue;
+            }
+            if !matches!(
+                application.status.as_str(),
+                "applied" | "missing_player_id" | "reserved_player_id" | "player_entity_not_alive"
+            ) {
+                continue;
+            }
+            packets_by_peer.insert(application.packet.peer_id, application.packet.clone());
+        }
+        if packets_by_peer.is_empty() {
+            return;
+        }
+        self.rollback_input_history
+            .insert(tick, packets_by_peer.into_values().collect());
+        self.prune_rollback_input_history();
+    }
+
+    fn prune_rollback_input_history(&mut self) {
+        let Some(latest_tick) = self.rollback_input_history.keys().next_back().copied() else {
+            return;
+        };
+        if self.config.rollback.snapshot_retention_ticks > 0 {
+            let min_tick =
+                latest_tick.saturating_sub(self.config.rollback.snapshot_retention_ticks);
+            self.rollback_input_history
+                .retain(|tick, _| *tick >= min_tick);
+        }
+        while self.rollback_input_history.len() > self.config.rollback.max_snapshots.max(1) {
+            let Some(oldest_tick) = self.rollback_input_history.keys().next().copied() else {
+                break;
+            };
+            self.rollback_input_history.remove(&oldest_tick);
+        }
+    }
+
+    fn record_client_prediction_for_packet(
+        &mut self,
+        packet: &InputPacket,
+        player_id: u64,
+    ) -> Result<(), XaceError> {
+        let Some(build) = self.build_client_prediction_for_packet(packet, player_id)? else {
+            return Ok(());
+        };
+        let entry = RuntimeClientPredictionEntry {
+            preview: build.preview,
+            prediction: build.prediction,
+        };
+        if let Some(buffer) = self.client_prediction_buffer.as_mut() {
+            buffer.insert(entry.preview.predicted_clean_boundary_tick, entry.clone());
+        }
+        self.client_prediction_pending.push(entry);
+        Ok(())
+    }
+
+    fn build_client_prediction_for_packet(
+        &self,
+        packet: &InputPacket,
+        player_id: u64,
+    ) -> Result<Option<RuntimeClientPredictionBuild>, XaceError> {
+        if !self.config.client_prediction.enabled
+            || self.config.input_sync.mode != RuntimeInputSyncMode::Lockstep
+            || self.config.client_prediction.local_peer_id != Some(packet.peer_id)
+        {
+            return Ok(None);
+        }
+        if !self.entity_store.is_alive(player_id) {
+            return Ok(None);
+        }
+        let Some(state) = self.authoritative_prediction_state(player_id) else {
+            return Ok(None);
+        };
+        let predictor = self.client_predictor.as_ref().ok_or_else(|| {
+            runtime_client_prediction_validation_error(
+                "build_client_prediction_for_packet",
+                packet.tick,
+                "client prediction is enabled but predictor is not initialised",
+                "client_prediction.predictor",
+            )
+        })?;
+        let sim_tick = self.phase_orch.current_tick();
+        let predicted_clean_boundary_tick = sim_tick.saturating_add(1);
+        let prediction = predictor
+            .predict(PredictionInput {
+                entity_id: player_id,
+                base_tick: sim_tick,
+                target_tick: predicted_clean_boundary_tick,
+                position: state.position,
+                velocity: state.velocity,
+                acceleration: PredictionVec3::ZERO,
+            })
+            .map_err(|err| {
+                runtime_client_prediction_validation_error(
+                    "build_client_prediction_for_packet",
+                    packet.tick,
+                    format!("client predictor rejected released input: {}", err),
+                    "client_prediction.prediction_input",
+                )
+            })?;
+        let preview = RuntimeClientPredictionPreview {
+            schema: "xace.runtime.client_prediction_preview.v1".to_string(),
+            sim_tick,
+            predicted_clean_boundary_tick,
+            peer_id: packet.peer_id,
+            player_id,
+            input_digest: packet.deterministic_digest(),
+            base_authoritative_position: prediction_vec3_to_report(state.position),
+            base_authoritative_velocity: prediction_vec3_to_report(state.velocity),
+            predicted_position: prediction_vec3_to_report(prediction.position),
+        };
+        Ok(Some(RuntimeClientPredictionBuild {
+            preview,
+            prediction,
+        }))
+    }
+
+    fn reconcile_client_predictions_for_tick(
+        &mut self,
+        tick: u64,
+        authoritative_world_hash: &str,
+    ) -> Result<Vec<RuntimeClientPredictionReport>, XaceError> {
+        let pending = std::mem::take(&mut self.client_prediction_pending);
+        if pending.is_empty() {
+            return Ok(Vec::new());
+        }
+        let reconciler = *self.client_reconciler.as_ref().ok_or_else(|| {
+            runtime_client_prediction_validation_error(
+                "reconcile_client_predictions_for_tick",
+                tick,
+                "client prediction is enabled but reconciler is not initialised",
+                "client_prediction.reconciler",
+            )
+        })?;
+        let mut reports = Vec::new();
+        for entry in pending {
+            if entry.preview.sim_tick != tick {
+                continue;
+            }
+            let Some(authoritative_state) =
+                self.authoritative_prediction_state(entry.preview.player_id)
+            else {
+                return Err(runtime_client_prediction_validation_error(
+                    "reconcile_client_predictions_for_tick",
+                    tick,
+                    format!(
+                        "authoritative transform/velocity state for predicted entity {} is unavailable",
+                        entry.preview.player_id
+                    ),
+                    "client_prediction.authoritative_state",
+                ));
+            };
+            let plan = reconciler
+                .plan_vec3(
+                    entry.preview.player_id,
+                    tick,
+                    entry.prediction.position,
+                    authoritative_state.position,
+                    self.config.client_prediction.preferred_reconciliation_mode,
+                )
+                .map_err(|err| {
+                    runtime_client_prediction_validation_error(
+                        "reconcile_client_predictions_for_tick",
+                        tick,
+                        format!("client reconciliation failed: {}", err),
+                        "client_prediction.reconciliation_plan",
+                    )
+                })?;
+            let report = RuntimeClientPredictionReport {
+                schema: "xace.runtime.client_prediction_reconciliation.v1".to_string(),
+                sim_tick: entry.preview.sim_tick,
+                authoritative_tick: tick,
+                predicted_clean_boundary_tick: entry.preview.predicted_clean_boundary_tick,
+                peer_id: entry.preview.peer_id,
+                player_id: entry.preview.player_id,
+                input_digest: entry.preview.input_digest.clone(),
+                predicted_position: prediction_vec3_to_report(plan.predicted),
+                authoritative_position: prediction_vec3_to_report(plan.authoritative),
+                correction: prediction_vec3_to_report(plan.correction),
+                error_microunits: units_f32_to_microunits_u64(plan.error_distance),
+                mode: reconciliation_mode_id(plan.mode).to_string(),
+                needs_correction: plan.needs_correction,
+                blend_ticks: plan.blend_ticks,
+                prediction_buffer_ticks: self.client_prediction_buffer_ticks(),
+                authoritative_world_hash: authoritative_world_hash.to_string(),
+                authoritative_state_digest: authoritative_prediction_state_digest(
+                    tick,
+                    entry.preview.player_id,
+                    &authoritative_state.raw_transform,
+                    authoritative_world_hash,
+                ),
+                authoritative_state_mutated_by_prediction: false,
+            };
+            self.client_prediction_log.push(report.clone());
+            reports.push(report);
+        }
+        Ok(reports)
+    }
+
+    fn authoritative_prediction_state(
+        &self,
+        entity_id: u64,
+    ) -> Option<RuntimeAuthoritativePredictionState> {
+        let raw_transform = self
+            .table_store
+            .get_component(entity_id, cgs_loader::type_ids::TRANSFORM)?
+            .to_string();
+        let raw_velocity = self
+            .table_store
+            .get_component(entity_id, cgs_loader::type_ids::VELOCITY)?
+            .to_string();
+        Some(RuntimeAuthoritativePredictionState {
+            position: prediction_position_from_component_json(&raw_transform),
+            velocity: prediction_velocity_from_component_json(&raw_velocity),
+            raw_transform,
+        })
+    }
+
+    fn reset_runtime_client_prediction_state(&mut self, restore_tick: u64) {
+        self.client_prediction_pending.clear();
+        if let Some(buffer) = self.client_prediction_buffer.as_mut() {
+            buffer.clear();
+        }
+        self.client_prediction_log
+            .retain(|report| report.authoritative_tick < restore_tick);
+    }
+
+    fn rollback_inputs_for_tick(
+        &self,
+        tick: u64,
+        corrections: &[RuntimeRollbackInputCorrection],
+    ) -> Vec<InputPacket> {
+        let mut packets_by_peer = self
+            .rollback_input_history
+            .get(&tick)
+            .cloned()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|packet| (packet.peer_id, packet))
+            .collect::<BTreeMap<_, _>>();
+        for correction in corrections
+            .iter()
+            .filter(|correction| correction.sim_tick == tick)
+        {
+            packets_by_peer.insert(correction.packet.peer_id, correction.packet.clone());
+        }
+        packets_by_peer.into_values().collect()
+    }
+
+    fn validate_rollback_input_plan(
+        &self,
+        replay_ticks: &[u64],
+        corrections: &[RuntimeRollbackInputCorrection],
+    ) -> Result<(), XaceError> {
+        for correction in corrections {
+            if !replay_ticks.contains(&correction.sim_tick) {
+                return Err(runtime_rollback_validation_error(
+                    "validate_rollback_input_plan",
+                    correction.sim_tick,
+                    format!(
+                        "corrected input tick {} is outside rollback replay plan {:?}",
+                        correction.sim_tick, replay_ticks
+                    ),
+                    "corrections.tick",
+                ));
+            }
+        }
+
+        if self.config.input_sync.mode != RuntimeInputSyncMode::Lockstep {
+            return Ok(());
+        }
+
+        for tick in replay_ticks {
+            let peers = self
+                .rollback_inputs_for_tick(*tick, corrections)
+                .into_iter()
+                .map(|packet| packet.peer_id)
+                .collect::<BTreeSet<_>>();
+            let missing = self
+                .config
+                .input_sync
+                .required_peers
+                .difference(&peers)
+                .copied()
+                .collect::<Vec<_>>();
+            if !missing.is_empty() {
+                return Err(runtime_rollback_validation_error(
+                    "validate_rollback_input_plan",
+                    *tick,
+                    format!(
+                        "rollback resimulation is missing released input history for peers {} at tick {}",
+                        format_peer_ids(&missing),
+                        tick
+                    ),
+                    "rollback_input_history",
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    fn resimulate_from_clean_boundary(
+        &mut self,
+        trigger: &str,
+        reason: String,
+        target_tick: u64,
+        corrections: Vec<RuntimeRollbackInputCorrection>,
+        desync_report: Option<DesyncReport>,
+    ) -> Result<RuntimeRollbackResimulationReport, XaceError> {
+        let pre_rollback_tick = self.phase_orch.current_tick();
+        let pre_rollback_snapshot = self.world_snapshot()?;
+        let pre_rollback_world_hash = pre_rollback_snapshot.world_hash.clone();
+        let rollback_reason = match trigger {
+            "authoritative_late_input" => RollbackReason::AuthoritativeCorrection,
+            "desync" => RollbackReason::DesyncRecovery,
+            _ => RollbackReason::Manual,
+        };
+
+        let plan = self
+            .rollback_manager
+            .begin_clean_boundary_rollback(
+                target_tick,
+                pre_rollback_tick,
+                pre_rollback_tick,
+                rollback_reason,
+            )
+            .map_err(|err| {
+                runtime_rollback_validation_error(
+                    "resimulate_from_clean_boundary",
+                    target_tick,
+                    format!(
+                        "rollback manager could not plan clean-boundary resimulation: {}",
+                        err
+                    ),
+                    "rollback_manager.plan",
+                )
+            })?;
+        self.validate_rollback_input_plan(&plan.replay_ticks, &corrections)?;
+
+        let restored_snapshot = self
+            .rollback_snapshots
+            .get(plan.restore_tick)
+            .cloned()
+            .ok_or_else(|| {
+                runtime_rollback_validation_error(
+                    "resimulate_from_clean_boundary",
+                    plan.restore_tick,
+                    format!(
+                        "retained runtime rollback snapshot for tick {} is missing",
+                        plan.restore_tick
+                    ),
+                    "rollback_snapshots",
+                )
+            })?;
+        let restored_snapshot_hash = restored_snapshot.world_hash.clone();
+
+        self.restore_world_snapshot(&restored_snapshot)?;
+        let adapter_resync = self
+            .adapter_side_effect_rollback_log
+            .last()
+            .cloned()
+            .ok_or_else(|| {
+                runtime_rollback_validation_error(
+                    "resimulate_from_clean_boundary",
+                    plan.restore_tick,
+                    "snapshot restore did not record an adapter side-effect rollback report",
+                    "adapter_side_effect_rollback_log",
+                )
+            })?;
+
+        self.rollback_snapshots.purge_at_or_after(plan.restore_tick);
+        self.rollback_manager.prune_at_or_after(plan.restore_tick);
+
+        let mut resimulated_ticks = Vec::new();
+        for replay_tick in &plan.replay_ticks {
+            if self.phase_orch.current_tick() != *replay_tick {
+                return Err(runtime_rollback_fatal_error(
+                    "resimulate_from_clean_boundary",
+                    *replay_tick,
+                    format!(
+                        "rollback resimulation expected runtime tick {} but found {}",
+                        replay_tick,
+                        self.phase_orch.current_tick()
+                    ),
+                ));
+            }
+            self.engine_inputs
+                .extend(self.rollback_inputs_for_tick(*replay_tick, &corrections));
+            let result = self.tick()?;
+            if result.tick != *replay_tick {
+                return Err(runtime_rollback_fatal_error(
+                    "resimulate_from_clean_boundary",
+                    *replay_tick,
+                    format!(
+                        "rollback resimulation produced tick {} while replaying tick {}",
+                        result.tick, replay_tick
+                    ),
+                ));
+            }
+            resimulated_ticks.push(result.tick);
+        }
+
+        if self.phase_orch.current_tick() != pre_rollback_tick {
+            return Err(runtime_rollback_fatal_error(
+                "resimulate_from_clean_boundary",
+                pre_rollback_tick,
+                format!(
+                    "rollback resimulation ended at tick {} instead of original live tick {}",
+                    self.phase_orch.current_tick(),
+                    pre_rollback_tick
+                ),
+            ));
+        }
+
+        let final_snapshot = self.world_snapshot()?;
+        let final_world_hash = final_snapshot.world_hash.clone();
+        let final_hash_recomputed = WorldHasher::compute(&final_snapshot);
+        let replay_hashes_match = resimulated_ticks.iter().all(|tick| {
+            self.world_hash_at_tick(*tick)
+                .zip(
+                    self.replay_trace_at_tick(*tick)
+                        .map(|trace| trace.world_hash.as_str()),
+                )
+                .is_some_and(|(recorded, traced)| recorded == traced)
+        });
+        let hash_validation_passed = final_hash_recomputed == final_world_hash
+            && final_world_hash.len() == 64
+            && replay_hashes_match;
+        if !hash_validation_passed {
+            return Err(runtime_rollback_fatal_error(
+                "resimulate_from_clean_boundary",
+                pre_rollback_tick,
+                "rollback resimulation hash validation failed",
+            ));
+        }
+        self.rollback_manager
+            .complete_latest(self.phase_orch.current_tick())
+            .map_err(|err| {
+                runtime_rollback_validation_error(
+                    "resimulate_from_clean_boundary",
+                    self.phase_orch.current_tick(),
+                    format!("rollback manager could not complete latest record: {}", err),
+                    "rollback_manager.records",
+                )
+            })?;
+
+        let corrected_inputs = corrections
+            .iter()
+            .map(|correction| RuntimeRollbackCorrectedInput {
+                peer_id: correction.packet.peer_id,
+                tick: correction.packet.tick,
+                sequence_id: correction.packet.sequence_id,
+                digest: correction.packet.deterministic_digest(),
+            })
+            .collect::<Vec<_>>();
+        let desync_tick = desync_report.as_ref().map(|report| report.tick);
+        let desync_divergent_peers = desync_report
+            .as_ref()
+            .map(|report| report.divergent_peer_ids().into_iter().collect())
+            .unwrap_or_default();
+        let report = RuntimeRollbackResimulationReport {
+            schema: "xace.runtime.rollback_resimulation.v1".to_string(),
+            trigger: trigger.to_string(),
+            reason,
+            requested_tick: target_tick,
+            restored_tick: plan.restore_tick,
+            pre_rollback_tick,
+            post_resim_tick: self.phase_orch.current_tick(),
+            rollback_count: self.rollback_manager.records().len(),
+            pre_rollback_world_hash,
+            restored_snapshot_hash,
+            final_world_hash,
+            replay_ticks: plan.replay_ticks.clone(),
+            resimulated_ticks,
+            corrected_inputs,
+            hash_validation_passed,
+            adapter_resync,
+            desync_tick,
+            desync_divergent_peers,
+        };
+        self.rollback_resimulation_log.push(report.clone());
+        Ok(report)
+    }
+
     fn pump_engine_inbound(&mut self) {
         for bridge in &mut self.bridges {
             bridge.pump_inbound();
@@ -2282,7 +3454,12 @@ impl RuntimeOrchestrator {
 
     fn collect_engine_inputs_from_bridge(&mut self) {
         for bridge in &mut self.bridges {
-            self.engine_inputs.extend(bridge.take_input_packets());
+            let packets = bridge.take_input_packets();
+            for packet in &packets {
+                self.last_engine_adapter_sequence =
+                    self.last_engine_adapter_sequence.max(packet.sequence_id);
+            }
+            self.engine_inputs.extend(packets);
         }
     }
 
@@ -2342,6 +3519,87 @@ impl RuntimeOrchestrator {
         Ok(())
     }
 
+    fn notify_adapter_side_effect_rollback(
+        &mut self,
+        failed_stage: &str,
+        reason: &str,
+        failed_cgs_hash: &str,
+        restored_world_hash: &str,
+        restore_tick: u64,
+    ) -> RuntimeAdapterSideEffectRollbackReport {
+        let tick = self.phase_orch.current_tick();
+        let revoked_playback_commands = self.last_playback_commands.clone();
+        let pending_feedback_cleared = self.feedback_buffer.pending_count();
+        let pending_engine_inputs_cleared = self.engine_inputs.len();
+        let _ = self.feedback_buffer.drain_sorted();
+        self.feedback_validator.reset_for_next_tick();
+        self.reset_runtime_input_synchroniser();
+        self.last_playback_commands.clear();
+
+        let mut restored_snapshot = TickSnapshot::new(
+            restore_tick,
+            deterministic_timestamp_ms(restore_tick, self.config.bridge.tick_rate),
+            build_entity_states(&self.entity_store, &self.table_store),
+            Vec::new(),
+            Vec::new(),
+            Vec::new(),
+        );
+        restored_snapshot.playback_commands.clear();
+
+        let rollback_id = adapter_side_effect_rollback_id(
+            tick,
+            restore_tick,
+            failed_stage,
+            failed_cgs_hash,
+            restored_world_hash,
+        );
+        let rollback = AdapterSideEffectRollback::new(
+            rollback_id.clone(),
+            reason.to_string(),
+            failed_stage.to_string(),
+            tick,
+            restore_tick,
+            self.spawn_summary.cgs_hash.clone(),
+            failed_cgs_hash.to_string(),
+            restored_world_hash.to_string(),
+            restored_snapshot,
+            revoked_playback_commands.clone(),
+        );
+
+        let mut adapters_notified = 0usize;
+        let mut adapters_dropped = 0usize;
+        let mut connected_bridges = Vec::with_capacity(self.bridges.len());
+        for mut bridge in std::mem::take(&mut self.bridges) {
+            if bridge.send_adapter_side_effect_rollback(&rollback) {
+                adapters_notified += 1;
+                connected_bridges.push(bridge);
+            } else if bridge.is_connected() {
+                connected_bridges.push(bridge);
+            } else {
+                adapters_dropped += 1;
+            }
+        }
+        self.bridges = connected_bridges;
+
+        let report = RuntimeAdapterSideEffectRollbackReport {
+            schema: "xace.runtime.adapter_side_effect_rollback.v1".to_string(),
+            rollback_id,
+            failed_stage: failed_stage.to_string(),
+            reason: reason.to_string(),
+            tick,
+            restore_tick,
+            restored_cgs_hash: self.spawn_summary.cgs_hash.clone(),
+            failed_cgs_hash: failed_cgs_hash.to_string(),
+            restored_world_hash: restored_world_hash.to_string(),
+            adapters_notified,
+            adapters_dropped,
+            revoked_playback_commands: revoked_playback_commands.len(),
+            pending_feedback_cleared,
+            pending_engine_inputs_cleared,
+        };
+        self.adapter_side_effect_rollback_log.push(report.clone());
+        report
+    }
     fn send_tick_to_engine(
         &mut self,
         result: &TickResult,
@@ -2396,10 +3654,234 @@ impl RuntimeOrchestrator {
             .collect()
     }
 
-    fn apply_pending_engine_inputs(
+    fn synchronise_and_apply_engine_inputs(
         &mut self,
+    ) -> Result<RuntimeInputSynchronisationReport, XaceError> {
+        match self.config.input_sync.mode {
+            RuntimeInputSyncMode::Direct => {
+                let inputs = std::mem::take(&mut self.engine_inputs);
+                let applications = self.apply_pending_engine_inputs_from(inputs)?;
+                self.input_sync_last_trace = RuntimeInputSyncTrace {
+                    mode: "direct".to_string(),
+                    decision: "direct_release".to_string(),
+                    sim_tick: self.phase_orch.current_tick(),
+                    input_tick: Some(self.phase_orch.current_tick()),
+                    missing_peers: Vec::new(),
+                    released_packets: applications.len(),
+                    waited_ticks: 0,
+                };
+                Ok(RuntimeInputSynchronisationReport {
+                    trace: self.input_sync_last_trace.clone(),
+                    applications,
+                })
+            }
+            RuntimeInputSyncMode::Lockstep => self.synchronise_lockstep_engine_inputs(),
+        }
+    }
+
+    fn drain_without_applying_engine_inputs(&mut self) -> RuntimeInputSynchronisationReport {
+        let drained = std::mem::take(&mut self.engine_inputs);
+        let applications = drained
+            .into_iter()
+            .map(|packet| RuntimeEngineInputApplication {
+                packet,
+                applied: false,
+                status: "engine_input_application_disabled".to_string(),
+            })
+            .collect::<Vec<_>>();
+        self.input_sync_last_trace = RuntimeInputSyncTrace {
+            mode: runtime_input_sync_mode_id(&self.config.input_sync.mode).to_string(),
+            decision: "application_disabled".to_string(),
+            sim_tick: self.phase_orch.current_tick(),
+            input_tick: Some(self.phase_orch.current_tick()),
+            missing_peers: Vec::new(),
+            released_packets: 0,
+            waited_ticks: 0,
+        };
+        RuntimeInputSynchronisationReport {
+            trace: self.input_sync_last_trace.clone(),
+            applications,
+        }
+    }
+
+    fn synchronise_lockstep_engine_inputs(
+        &mut self,
+    ) -> Result<RuntimeInputSynchronisationReport, XaceError> {
+        let sim_tick = self.phase_orch.current_tick();
+        let drained = std::mem::take(&mut self.engine_inputs);
+        let mut submission_applications = Vec::new();
+        let mut late_applications = Vec::new();
+
+        {
+            let sync = self.input_synchroniser.as_mut().ok_or_else(|| {
+                runtime_input_sync_error(sim_tick, "lockstep input synchroniser is not initialised")
+            })?;
+            for packet in drained {
+                if sync
+                    .last_released_tick()
+                    .is_some_and(|released| packet.tick <= released)
+                {
+                    late_applications.push(RuntimeEngineInputApplication {
+                        packet,
+                        applied: false,
+                        status: "late_after_release".to_string(),
+                    });
+                    continue;
+                }
+                match sync.submit(packet.clone()) {
+                    Ok(()) => {}
+                    Err(err) => submission_applications.push(RuntimeEngineInputApplication {
+                        packet,
+                        applied: false,
+                        status: format!("sync_submit_rejected:{}", err),
+                    }),
+                }
+            }
+        }
+
+        let decision = self.lockstep_decision_for_runtime_tick(sim_tick)?;
+        let mut trace = self.trace_for_lockstep_decision(sim_tick, &decision);
+        let mut release_applications = Vec::new();
+
+        match decision {
+            LockstepDecision::Offline => {
+                trace.decision = "offline".to_string();
+            }
+            LockstepDecision::AlreadyReleased { tick } => {
+                trace.decision = "already_released".to_string();
+                trace.input_tick = Some(tick);
+            }
+            LockstepDecision::Release { tick, packets } => {
+                self.input_sync_wait_attempts.remove(&tick);
+                trace.decision = "release".to_string();
+                trace.input_tick = Some(tick);
+                trace.released_packets = packets.len();
+                release_applications = self.apply_pending_engine_inputs_from(packets)?;
+            }
+            LockstepDecision::Wait {
+                tick,
+                missing_peers,
+            } => {
+                let waited_ticks = self.record_lockstep_wait(tick);
+                trace.decision = "wait".to_string();
+                trace.input_tick = Some(tick);
+                trace.missing_peers = missing_peers.clone();
+                trace.waited_ticks = waited_ticks;
+                self.input_sync_last_trace = trace.clone();
+                return Err(runtime_lockstep_wait_error(
+                    sim_tick,
+                    tick,
+                    &missing_peers,
+                    waited_ticks,
+                ));
+            }
+        }
+
+        let mut applications = submission_applications;
+        applications.extend(late_applications);
+        applications.extend(release_applications);
+        self.input_sync_last_trace = trace.clone();
+        Ok(RuntimeInputSynchronisationReport {
+            trace,
+            applications,
+        })
+    }
+
+    fn lockstep_decision_for_runtime_tick(
+        &mut self,
+        sim_tick: u64,
+    ) -> Result<LockstepDecision, XaceError> {
+        let target_tick = self
+            .input_synchroniser
+            .as_ref()
+            .and_then(|sync| sync.target_tick_for_sim_tick(sim_tick))
+            .unwrap_or(0);
+        let waited_ticks = self
+            .input_sync_wait_attempts
+            .get(&target_tick)
+            .copied()
+            .unwrap_or(0);
+        let sync = self.input_synchroniser.as_mut().ok_or_else(|| {
+            runtime_input_sync_error(sim_tick, "lockstep input synchroniser is not initialised")
+        })?;
+        if self
+            .config
+            .input_sync
+            .synthetic_release_after_wait_ticks
+            .is_some_and(|limit| waited_ticks >= limit)
+        {
+            sync.release_with_synthetic_for_sim_tick(sim_tick)
+                .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))
+        } else {
+            sync.release_for_sim_tick(sim_tick)
+                .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))
+        }
+    }
+
+    fn record_lockstep_wait(&mut self, input_tick: u64) -> u64 {
+        let waited = self
+            .input_sync_wait_attempts
+            .entry(input_tick)
+            .and_modify(|count| *count = count.saturating_add(1))
+            .or_insert(1);
+        *waited
+    }
+
+    fn trace_for_lockstep_decision(
+        &self,
+        sim_tick: u64,
+        decision: &LockstepDecision,
+    ) -> RuntimeInputSyncTrace {
+        match decision {
+            LockstepDecision::Offline => RuntimeInputSyncTrace {
+                mode: "lockstep".to_string(),
+                decision: "offline".to_string(),
+                sim_tick,
+                ..RuntimeInputSyncTrace::default()
+            },
+            LockstepDecision::AlreadyReleased { tick } => RuntimeInputSyncTrace {
+                mode: "lockstep".to_string(),
+                decision: "already_released".to_string(),
+                sim_tick,
+                input_tick: Some(*tick),
+                ..RuntimeInputSyncTrace::default()
+            },
+            LockstepDecision::Release { tick, packets } => RuntimeInputSyncTrace {
+                mode: "lockstep".to_string(),
+                decision: "release".to_string(),
+                sim_tick,
+                input_tick: Some(*tick),
+                missing_peers: Vec::new(),
+                released_packets: packets.len(),
+                waited_ticks: self
+                    .input_sync_wait_attempts
+                    .get(tick)
+                    .copied()
+                    .unwrap_or(0),
+            },
+            LockstepDecision::Wait {
+                tick,
+                missing_peers,
+            } => RuntimeInputSyncTrace {
+                mode: "lockstep".to_string(),
+                decision: "wait".to_string(),
+                sim_tick,
+                input_tick: Some(*tick),
+                missing_peers: missing_peers.clone(),
+                released_packets: 0,
+                waited_ticks: self
+                    .input_sync_wait_attempts
+                    .get(tick)
+                    .copied()
+                    .unwrap_or(0),
+            },
+        }
+    }
+
+    fn apply_pending_engine_inputs_from(
+        &mut self,
+        inputs: Vec<xace_network_core::input::InputPacket>,
     ) -> Result<Vec<RuntimeEngineInputApplication>, XaceError> {
-        let inputs = std::mem::take(&mut self.engine_inputs);
         let mut applications = Vec::new();
         for packet in inputs {
             let Some(player_id) = packet.player_id else {
@@ -2426,6 +3908,7 @@ impl RuntimeOrchestrator {
                 });
                 continue;
             }
+            self.record_client_prediction_for_packet(&packet, player_id)?;
             let input_json = runtime_input_component_json(&packet);
             if self
                 .table_store
@@ -2452,6 +3935,17 @@ impl RuntimeOrchestrator {
             });
         }
         Ok(applications)
+    }
+
+    fn reset_runtime_input_synchroniser(&mut self) {
+        self.engine_inputs.clear();
+        self.input_synchroniser = build_runtime_input_synchroniser(&self.config.input_sync);
+        self.input_sync_wait_attempts.clear();
+        self.input_sync_last_trace = RuntimeInputSyncTrace {
+            mode: runtime_input_sync_mode_id(&self.config.input_sync.mode).to_string(),
+            decision: "reset".to_string(),
+            ..RuntimeInputSyncTrace::default()
+        };
     }
 
     fn session_id(&self) -> String {
@@ -2552,6 +4046,258 @@ fn aggregate_bridge_stats(acc: EngineBridgeStats, next: EngineBridgeStats) -> En
     }
 }
 
+fn build_runtime_input_synchroniser(config: &RuntimeInputSyncConfig) -> Option<InputSynchroniser> {
+    match config.mode {
+        RuntimeInputSyncMode::Direct => None,
+        RuntimeInputSyncMode::Lockstep => Some(InputSynchroniser::with_config(
+            config.required_peers.clone(),
+            config.synchroniser.clone(),
+        )),
+    }
+}
+
+fn build_runtime_client_prediction_components(
+    config: &RuntimeConfig,
+) -> Result<(
+    Option<ClientPredictor>,
+    Option<ReconciliationEngine>,
+    Option<PredictionBuffer<RuntimeClientPredictionEntry>>,
+)> {
+    if !config.client_prediction.enabled {
+        return Ok((None, None, None));
+    }
+    if config.input_sync.mode != RuntimeInputSyncMode::Lockstep {
+        anyhow::bail!(
+            "X10-038 client prediction is supported only for lockstep runtime input sync"
+        );
+    }
+    let local_peer_id = config
+        .client_prediction
+        .local_peer_id
+        .ok_or_else(|| anyhow::anyhow!("X10-038 client prediction requires local_peer_id"))?;
+    if !config.input_sync.required_peers.contains(&local_peer_id) {
+        anyhow::bail!(
+            "X10-038 client prediction local_peer_id {} is not in required lockstep peers {:?}",
+            local_peer_id,
+            config.input_sync.required_peers
+        );
+    }
+    let predictor = ClientPredictor::with_config(config.client_prediction.prediction_config())
+        .map_err(|err| anyhow::anyhow!("invalid X10-038 prediction config: {}", err))?;
+    let reconciler =
+        ReconciliationEngine::with_config(config.client_prediction.reconciliation_config())
+            .map_err(|err| anyhow::anyhow!("invalid X10-038 reconciliation config: {}", err))?;
+    Ok((
+        Some(predictor),
+        Some(reconciler),
+        Some(PredictionBuffer::new(
+            config.client_prediction.buffer_capacity.max(1),
+        )),
+    ))
+}
+
+fn prediction_position_from_component_json(raw: &str) -> PredictionVec3 {
+    let value = serde_json::from_str::<Value>(raw).unwrap_or_else(|_| json!({}));
+    PredictionVec3::new(
+        fixed_to_units_f32(runtime_fixed_field(&value, &["position_x", "x"])),
+        fixed_to_units_f32(runtime_fixed_field(&value, &["position_y", "y"])),
+        fixed_to_units_f32(runtime_fixed_field(&value, &["position_z", "z"])),
+    )
+}
+
+fn prediction_velocity_from_component_json(raw: &str) -> PredictionVec3 {
+    let value = serde_json::from_str::<Value>(raw).unwrap_or_else(|_| json!({}));
+    PredictionVec3::new(
+        fixed_to_units_f32(runtime_fixed_field(&value, &["linear_x", "vx", "x"])),
+        fixed_to_units_f32(runtime_fixed_field(&value, &["linear_y", "vy", "y"])),
+        fixed_to_units_f32(runtime_fixed_field(&value, &["linear_z", "vz", "z"])),
+    )
+}
+
+fn runtime_fixed_field(value: &Value, names: &[&str]) -> Fixed64 {
+    fixed_json_field(value, names, IntegerEncoding::RawMicroUnits).unwrap_or(Fixed64::ZERO)
+}
+
+fn fixed_to_units_f32(value: Fixed64) -> f32 {
+    value.raw() as f32 / FIXED64_SCALE as f32
+}
+
+fn microunits_to_units_f32(value: u32) -> f32 {
+    value as f32 / FIXED64_SCALE as f32
+}
+
+fn prediction_vec3_to_report(value: PredictionVec3) -> RuntimePredictionVec3 {
+    RuntimePredictionVec3 {
+        x_microunits: units_f32_to_microunits_i64(value.x),
+        y_microunits: units_f32_to_microunits_i64(value.y),
+        z_microunits: units_f32_to_microunits_i64(value.z),
+    }
+}
+
+fn units_f32_to_microunits_i64(value: f32) -> i64 {
+    if !value.is_finite() {
+        return 0;
+    }
+    (value * FIXED64_SCALE as f32).round() as i64
+}
+
+fn units_f32_to_microunits_u64(value: f32) -> u64 {
+    units_f32_to_microunits_i64(value).max(0) as u64
+}
+
+fn reconciliation_mode_id(mode: ReconciliationMode) -> &'static str {
+    match mode {
+        ReconciliationMode::None => "none",
+        ReconciliationMode::Snap => "snap",
+        ReconciliationMode::Interpolate => "interpolate",
+        ReconciliationMode::Smooth => "smooth",
+    }
+}
+
+fn authoritative_prediction_state_digest(
+    tick: u64,
+    player_id: u64,
+    raw_transform: &str,
+    authoritative_world_hash: &str,
+) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(tick.to_le_bytes());
+    hasher.update(player_id.to_le_bytes());
+    hasher.update(raw_transform.as_bytes());
+    hasher.update(authoritative_world_hash.as_bytes());
+    format!("{:x}", hasher.finalize())
+}
+
+fn runtime_input_sync_mode_id(mode: &RuntimeInputSyncMode) -> &'static str {
+    match mode {
+        RuntimeInputSyncMode::Direct => "direct",
+        RuntimeInputSyncMode::Lockstep => "lockstep",
+    }
+}
+
+fn runtime_input_sync_error(tick: u64, message: impl Into<String>) -> XaceError {
+    XaceError::RecoverableError {
+        message: message.into(),
+        context: xace_core::errors::xace_error::ErrorContext::new(
+            "RuntimeOrchestrator",
+            "input_synchroniser",
+        )
+        .with_tick(tick)
+        .with_detail("code", "XACE_RUNTIME_INPUT_SYNC_ERROR"),
+        max_retries: 0,
+        retry_count: 0,
+    }
+}
+
+fn runtime_client_prediction_validation_error(
+    operation: &'static str,
+    tick: u64,
+    message: impl Into<String>,
+    failed_path: impl Into<String>,
+) -> XaceError {
+    XaceError::ValidationFailure {
+        message: format!(
+            "XACE_RUNTIME_CLIENT_PREDICTION_RECONCILIATION: {}",
+            message.into()
+        ),
+        context: xace_core::errors::xace_error::ErrorContext::new(
+            "RuntimeClientPredictionReconciliation",
+            operation,
+        )
+        .with_tick(tick)
+        .with_detail("code", "XACE_RUNTIME_CLIENT_PREDICTION_RECONCILIATION"),
+        rule_violated: "X10-038".into(),
+        failed_path: failed_path.into(),
+    }
+}
+
+fn runtime_rollback_validation_error(
+    operation: &'static str,
+    tick: u64,
+    message: impl Into<String>,
+    failed_path: impl Into<String>,
+) -> XaceError {
+    XaceError::ValidationFailure {
+        message: message.into(),
+        context: xace_core::errors::xace_error::ErrorContext::new(
+            "RuntimeRollbackResimulation",
+            operation,
+        )
+        .with_tick(tick),
+        rule_violated: "X10-037".into(),
+        failed_path: failed_path.into(),
+    }
+}
+
+fn runtime_rollback_fatal_error(
+    operation: &'static str,
+    tick: u64,
+    message: impl Into<String>,
+) -> XaceError {
+    XaceError::FatalError {
+        message: message.into(),
+        context: xace_core::errors::xace_error::ErrorContext::new(
+            "RuntimeRollbackResimulation",
+            operation,
+        )
+        .with_tick(tick),
+        snapshot_recovery_possible: true,
+    }
+}
+
+fn runtime_lockstep_wait_error(
+    sim_tick: u64,
+    input_tick: u64,
+    missing_peers: &[PeerId],
+    waited_ticks: u64,
+) -> XaceError {
+    XaceError::RecoverableError {
+        message: format!(
+            "XACE_RUNTIME_INPUT_SYNC_WAIT: simulation tick {} is waiting for input tick {} from peers {:?} after {} wait attempts",
+            sim_tick, input_tick, missing_peers, waited_ticks
+        ),
+        context: xace_core::errors::xace_error::ErrorContext::new(
+            "RuntimeOrchestrator",
+            "input_synchroniser_wait",
+        )
+        .with_tick(sim_tick)
+        .with_detail("code", "XACE_RUNTIME_INPUT_SYNC_WAIT")
+        .with_detail("input_tick", input_tick.to_string())
+        .with_detail("missing_peers", format_peer_ids(missing_peers))
+        .with_detail("waited_ticks", waited_ticks.to_string()),
+        max_retries: 0,
+        retry_count: 0,
+    }
+}
+
+fn format_peer_ids(peers: &[PeerId]) -> String {
+    peers
+        .iter()
+        .map(PeerId::to_string)
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
+fn adapter_side_effect_rollback_id(
+    tick: u64,
+    restore_tick: u64,
+    failed_stage: &str,
+    failed_cgs_hash: &str,
+    restored_world_hash: &str,
+) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(tick.to_le_bytes());
+    hasher.update(restore_tick.to_le_bytes());
+    hasher.update(failed_stage.as_bytes());
+    hasher.update(failed_cgs_hash.as_bytes());
+    hasher.update(restored_world_hash.as_bytes());
+    let digest = hasher.finalize();
+    format!(
+        "x10_023_{:02x}{:02x}{:02x}{:02x}",
+        digest[0], digest[1], digest[2], digest[3]
+    )
+}
+
 fn deterministic_timestamp_ms(tick: u64, tick_rate: u32) -> u64 {
     let rate = u64::from(tick_rate.max(1));
     tick.saturating_mul(1000) / rate
@@ -2568,6 +4314,10 @@ fn runtime_input_component_json(packet: &xace_network_core::input::InputPacket) 
     let mut pickup_started = false;
     let mut dash_pressed = false;
     let mut dash_started = false;
+    let mut jump_pressed = false;
+    let mut jump_started = false;
+    let mut crouch_pressed = false;
+    let mut crouch_started = false;
     let mut active_actions = Vec::new();
 
     for action in &packet.actions {
@@ -2617,6 +4367,22 @@ fn runtime_input_component_json(packet: &xace_network_core::input::InputPacket) 
                     active_actions.push("Dash");
                 }
             }
+            "jump" => {
+                let state = button_state(action);
+                jump_pressed |= state.pressed;
+                jump_started |= state.started;
+                if state.pressed {
+                    active_actions.push("Jump");
+                }
+            }
+            "crouch" | "duck" => {
+                let state = button_state(action);
+                crouch_pressed |= state.pressed;
+                crouch_started |= state.started;
+                if state.pressed {
+                    active_actions.push("Crouch");
+                }
+            }
             _ => {}
         }
     }
@@ -2635,6 +4401,10 @@ fn runtime_input_component_json(packet: &xace_network_core::input::InputPacket) 
         "pickup_started": pickup_started,
         "dash_pressed": dash_pressed,
         "dash_started": dash_started,
+        "jump_pressed": jump_pressed,
+        "jump_started": jump_started,
+        "crouch_pressed": crouch_pressed,
+        "crouch_started": crouch_started,
         "active_actions": active_actions,
         "sequence_id": packet.sequence_id,
         "peer_id": packet.peer_id,
@@ -2693,14 +4463,23 @@ fn validate_preview_field_path(field_path: &str) -> Result<()> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::{BTreeMap, BTreeSet};
     use std::path::{Path, PathBuf};
     use std::time::{SystemTime, UNIX_EPOCH};
 
     use serde_json::Value;
+    use xace_core::assets::{
+        PARAM_BINDING_STATUS, PARAM_FALLBACK_ASSET_STATUS, PARAM_FALLBACK_DETERMINISTIC,
+        PARAM_FALLBACK_KIND, PARAM_FALLBACK_SCHEMA, PARAM_FALLBACK_SEED, PARAM_FALLBACK_VISIBLE,
+        RUNTIME_FALLBACK_CATALOG_SCHEMA,
+    };
     use xace_core::events::event_struct::Event;
     use xace_core::events::semantic_event_registry::{domain_event, INTERACTION_ACCEPTED};
     use xace_core::runtime::phase_enum::PhaseEnum;
     use xace_network_core::input::{InputAction, InputActionKind, InputActionPhase, InputPacket};
+    use xace_network_core::session::{
+        NetworkMode, SessionConfig, SessionManager, SessionPlayerIdentity,
+    };
 
     use super::*;
 
@@ -2719,6 +4498,84 @@ mod tests {
 
     fn initialise_dev(cgs_path: &Path) -> RuntimeOrchestrator {
         RuntimeOrchestrator::initialise_with_config(cgs_path, dev_config()).unwrap()
+    }
+
+    fn lockstep_config(required_peers: &[u64]) -> RuntimeConfig {
+        RuntimeConfig {
+            input_sync: RuntimeInputSyncConfig::lockstep(required_peers.iter().copied()),
+            ..dev_config()
+        }
+    }
+
+    fn initialise_lockstep(cgs_path: &Path, required_peers: &[u64]) -> RuntimeOrchestrator {
+        RuntimeOrchestrator::initialise_with_config(cgs_path, lockstep_config(required_peers))
+            .unwrap()
+    }
+
+    fn prediction_lockstep_config(required_peers: &[u64], local_peer_id: u64) -> RuntimeConfig {
+        RuntimeConfig {
+            input_sync: RuntimeInputSyncConfig::lockstep(required_peers.iter().copied()),
+            client_prediction: RuntimeClientPredictionConfig::lockstep_client(local_peer_id),
+            ..dev_config()
+        }
+    }
+
+    fn initialise_prediction_lockstep(
+        cgs_path: &Path,
+        required_peers: &[u64],
+        local_peer_id: u64,
+    ) -> RuntimeOrchestrator {
+        RuntimeOrchestrator::initialise_with_config(
+            cgs_path,
+            prediction_lockstep_config(required_peers, local_peer_id),
+        )
+        .unwrap()
+    }
+
+    fn runtime_player_id(runtime: &RuntimeOrchestrator) -> u64 {
+        runtime.spawn_summary().spawned_actors[0].entity_ids[0]
+    }
+
+    fn player_input_component(runtime: &RuntimeOrchestrator, player_id: u64) -> Value {
+        let snapshot = runtime.world_snapshot().unwrap();
+        let component_json = snapshot
+            .component_tables_snapshot
+            .get_table(cgs_loader::type_ids::INPUT)
+            .and_then(|table| table.get(player_id))
+            .unwrap_or_else(|| panic!("missing input component for entity {}", player_id));
+        serde_json::from_str::<Value>(component_json).unwrap()
+    }
+
+    fn queued_input(peer_id: u64, tick: u64, sequence_id: u64, player_id: u64) -> InputPacket {
+        InputPacket::with_actions(
+            peer_id,
+            tick,
+            sequence_id,
+            vec![InputAction::button("Attack", true)],
+        )
+        .with_player(player_id)
+        .with_device("keyboard")
+    }
+
+    fn player_attack_input(
+        peer_id: u64,
+        tick: u64,
+        sequence_id: u64,
+        player_id: u64,
+        pressed: bool,
+    ) -> InputPacket {
+        InputPacket::with_actions(
+            peer_id,
+            tick,
+            sequence_id,
+            vec![InputAction::button("Attack", pressed)],
+        )
+        .with_player(player_id)
+        .with_device("keyboard")
+    }
+
+    fn no_player_lockstep_input(peer_id: u64, tick: u64, sequence_id: u64) -> InputPacket {
+        InputPacket::unsigned(peer_id, tick, sequence_id).with_device("keyboard")
     }
 
     fn classify_refused_hot_swap_candidate(
@@ -2865,6 +4722,67 @@ mod tests {
         runtime.last_playback_commands = commands;
         let snapshot = runtime.control_snapshot();
         assert_eq!(snapshot.playback_commands.len(), 3);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_056_missing_semantic_bindings_emit_deterministic_runtime_fallback_commands() {
+        let path = write_temp_cgs(cgs_with_missing_runtime_fallback_bindings());
+        let runtime = initialise_dev(&path);
+        let event = Event::directed(
+            1,
+            2,
+            domain_event(INTERACTION_ACCEPTED),
+            0,
+            PhaseEnum::Simulation,
+        )
+        .with_payload("actor_entity_id", "1")
+        .with_payload("target_entity_id", "2")
+        .with_payload("interaction_state", "accepted")
+        .with_payload("interaction_type", "generic");
+
+        let first = runtime.playback_commands_for_events(&[event.clone()]);
+        let second = runtime.playback_commands_for_events(&[event]);
+
+        assert_eq!(first.len(), 3);
+        assert_eq!(second.len(), 3);
+        for (left, right) in first.iter().zip(second.iter()) {
+            left.validate().unwrap();
+            assert_eq!(left.binding_id, right.binding_id);
+            assert_eq!(
+                left.parameters.get(PARAM_BINDING_STATUS),
+                Some(&"fallback".to_string())
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_BINDING_STATUS),
+                right.parameters.get(PARAM_BINDING_STATUS)
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_FALLBACK_VISIBLE),
+                Some(&"true".to_string())
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_FALLBACK_DETERMINISTIC),
+                Some(&"true".to_string())
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_FALLBACK_SCHEMA),
+                Some(&RUNTIME_FALLBACK_CATALOG_SCHEMA.to_string())
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_FALLBACK_ASSET_STATUS),
+                Some(&"Missing".to_string())
+            );
+            assert_ne!(
+                left.parameters.get(PARAM_FALLBACK_KIND),
+                Some(&"resolved".to_string())
+            );
+            assert_eq!(
+                left.parameters.get(PARAM_FALLBACK_SEED),
+                right.parameters.get(PARAM_FALLBACK_SEED)
+            );
+            assert_eq!(left.parameters.get(PARAM_FALLBACK_SEED).unwrap().len(), 64);
+        }
         let _ = std::fs::remove_file(path);
     }
 
@@ -3888,6 +5806,37 @@ mod tests {
     }
 
     #[test]
+    fn x10_023_world_restore_records_adapter_side_effect_rollback_report() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        runtime.tick().unwrap();
+        let rollback_snapshot = runtime.world_snapshot().unwrap();
+        let restored_hash = rollback_snapshot.world_hash.clone();
+        let restored_cgs_hash = rollback_snapshot.cgs_hash.clone();
+        runtime.tick().unwrap();
+        assert!(runtime.adapter_side_effect_rollback_log().is_empty());
+
+        runtime.restore_world_snapshot(&rollback_snapshot).unwrap();
+
+        assert_eq!(runtime.status().tick, rollback_snapshot.tick);
+        let reports = runtime.adapter_side_effect_rollback_log();
+        assert_eq!(reports.len(), 1);
+        let report = &reports[0];
+        assert_eq!(
+            report.schema,
+            "xace.runtime.adapter_side_effect_rollback.v1"
+        );
+        assert_eq!(report.failed_stage, "world_snapshot_restore");
+        assert_eq!(report.restore_tick, rollback_snapshot.tick);
+        assert_eq!(report.restored_world_hash, restored_hash);
+        assert_eq!(report.restored_cgs_hash, restored_cgs_hash);
+        assert_eq!(report.adapters_dropped, 0);
+        assert_eq!(report.pending_feedback_cleared, 0);
+        assert_eq!(report.pending_engine_inputs_cleared, 0);
+        assert!(report.rollback_id.starts_with("x10_023_"));
+        let _ = std::fs::remove_file(path);
+    }
+    #[test]
     fn live_restore_rejects_snapshot_hash_mismatch_before_restore() {
         let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
         let mut runtime = initialise_dev(&path);
@@ -3926,6 +5875,476 @@ mod tests {
     }
 
     #[test]
+    fn x10_036_runtime_waits_for_missing_lockstep_input_before_tick_advance() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_lockstep(&path, &[1, 2]);
+        let player_id = runtime_player_id(&runtime);
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+
+        let err = runtime.tick().unwrap_err();
+
+        assert!(err.to_string().contains("XACE_RUNTIME_INPUT_SYNC_WAIT"));
+        assert_eq!(runtime.status().tick, 0);
+        assert_eq!(runtime.status().input_sync_mode, "lockstep");
+        assert_eq!(runtime.status().input_sync_last_decision, "wait");
+        let trace = runtime.last_input_sync_trace();
+        assert_eq!(trace.decision, "wait");
+        assert_eq!(trace.input_tick, Some(0));
+        assert_eq!(trace.missing_peers, vec![2]);
+        assert_eq!(trace.waited_ticks, 1);
+        assert!(runtime.replay_trace_at_tick(0).is_none());
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_036_delayed_lockstep_input_releases_same_runtime_tick_deterministically() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_lockstep(&path, &[1, 2]);
+        let player_id = runtime_player_id(&runtime);
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+        assert!(runtime.tick().is_err());
+
+        runtime.engine_inputs.push(queued_input(2, 0, 1, player_id));
+        let result = runtime.tick().unwrap();
+
+        assert_eq!(result.tick, 0);
+        assert_eq!(runtime.status().tick, 1);
+        assert_eq!(runtime.last_tick_result().unwrap().engine_inputs_applied, 2);
+        assert_eq!(
+            runtime.last_tick_result().unwrap().input_sync_decision,
+            "release"
+        );
+        let trace = &runtime.replay_trace_at_tick(0).unwrap().input_sync;
+        assert_eq!(trace.mode, "lockstep");
+        assert_eq!(trace.decision, "release");
+        assert_eq!(trace.input_tick, Some(0));
+        assert_eq!(trace.released_packets, 2);
+        assert_eq!(trace.waited_ticks, 1);
+        let input = player_input_component(&runtime, player_id);
+        assert_eq!(input["source_tick"], 0);
+        assert_eq!(input["attack_pressed"], true);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_036_synthetic_timeout_release_advances_with_empty_missing_peer_input() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let config = RuntimeConfig {
+            input_sync: RuntimeInputSyncConfig::lockstep([1, 2])
+                .with_synthetic_release_after_wait_ticks(1),
+            ..dev_config()
+        };
+        let mut runtime = RuntimeOrchestrator::initialise_with_config(&path, config).unwrap();
+        let player_id = runtime_player_id(&runtime);
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+        assert!(runtime.tick().is_err());
+
+        let result = runtime.tick().unwrap();
+
+        assert_eq!(result.tick, 0);
+        assert_eq!(runtime.status().tick, 1);
+        assert_eq!(
+            runtime.last_tick_result().unwrap().input_sync_decision,
+            "release"
+        );
+        let replay_trace = runtime.replay_trace_at_tick(0).unwrap();
+        assert_eq!(replay_trace.input_sync.decision, "release");
+        assert_eq!(replay_trace.input_sync.released_packets, 2);
+        assert_eq!(replay_trace.input_sync.waited_ticks, 1);
+        assert!(replay_trace
+            .input_packets
+            .iter()
+            .any(|packet| packet.peer_id == 2
+                && packet.device_id == "synthetic-timeout"
+                && packet.status == "missing_player_id"
+                && !packet.applied));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_036_late_released_input_is_not_applied_to_future_tick() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_lockstep(&path, &[1, 2]);
+        let player_id = runtime_player_id(&runtime);
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+        runtime.engine_inputs.push(queued_input(2, 0, 1, player_id));
+        runtime.tick().unwrap();
+
+        runtime.engine_inputs.push(queued_input(1, 0, 2, player_id));
+        runtime.engine_inputs.push(queued_input(1, 1, 3, player_id));
+        runtime.engine_inputs.push(queued_input(2, 1, 2, player_id));
+        let result = runtime.tick().unwrap();
+
+        assert_eq!(result.tick, 1);
+        let replay_trace = runtime.replay_trace_at_tick(1).unwrap();
+        assert_eq!(replay_trace.input_sync.decision, "release");
+        assert!(replay_trace
+            .input_packets
+            .iter()
+            .any(|packet| packet.peer_id == 1
+                && packet.tick == 0
+                && packet.status == "late_after_release"
+                && !packet.applied));
+        assert_eq!(runtime.last_tick_result().unwrap().engine_inputs_applied, 2);
+        let input = player_input_component(&runtime, player_id);
+        assert_eq!(input["source_tick"], 1);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_037_authoritative_late_input_restores_snapshot_resimulates_and_resyncs_adapter() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_lockstep(&path, &[1, 2]);
+        let player_id = runtime_player_id(&runtime);
+        runtime
+            .engine_inputs
+            .push(player_attack_input(1, 0, 1, player_id, false));
+        runtime
+            .engine_inputs
+            .push(no_player_lockstep_input(2, 0, 1));
+        let original = runtime.tick().unwrap();
+        let original_hash = original.world_hash.clone();
+        let original_clean_boundary_hash = runtime.world_snapshot().unwrap().world_hash;
+        assert_eq!(runtime.status().tick, 1);
+        assert_eq!(runtime.rollback_snapshot_ticks(), vec![0]);
+
+        let correction = player_attack_input(1, 0, 1, player_id, true);
+        let correction_digest = correction.deterministic_digest();
+        let report = runtime
+            .resimulate_authoritative_late_input(correction)
+            .unwrap();
+
+        assert_eq!(report.schema, "xace.runtime.rollback_resimulation.v1");
+        assert_eq!(report.trigger, "authoritative_late_input");
+        assert_eq!(report.requested_tick, 0);
+        assert_eq!(report.restored_tick, 0);
+        assert_eq!(report.pre_rollback_tick, 1);
+        assert_eq!(report.post_resim_tick, 1);
+        assert_eq!(report.replay_ticks, vec![0]);
+        assert_eq!(report.resimulated_ticks, vec![0]);
+        assert_eq!(report.rollback_count, 1);
+        assert_eq!(report.corrected_inputs.len(), 1);
+        assert_eq!(report.corrected_inputs[0].peer_id, 1);
+        assert_eq!(report.corrected_inputs[0].digest, correction_digest);
+        assert!(report.hash_validation_passed);
+        assert_eq!(report.adapter_resync.restore_tick, 0);
+        assert_eq!(report.adapter_resync.failed_stage, "world_snapshot_restore");
+        assert_eq!(runtime.adapter_side_effect_rollback_log().len(), 1);
+        assert_eq!(runtime.rollback_resimulation_log(), &[report.clone()]);
+        assert_eq!(runtime.rollback_count(), 1);
+        assert_ne!(report.final_world_hash, original_clean_boundary_hash);
+        let input = player_input_component(&runtime, player_id);
+        assert_eq!(input["source_tick"], 0);
+        assert_eq!(input["attack_pressed"], true);
+        let trace = runtime.replay_trace_at_tick(0).unwrap();
+        assert_ne!(trace.world_hash, original_hash);
+        assert_eq!(
+            runtime.world_hash_at_tick(0),
+            Some(trace.world_hash.as_str())
+        );
+        assert_eq!(trace.input_sync.decision, "release");
+        assert!(trace.input_packets.iter().any(|packet| {
+            packet.peer_id == 1 && packet.status == "applied" && packet.digest == correction_digest
+        }));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_037_desync_restore_resimulates_same_inputs_and_validates_hash() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_lockstep(&path, &[1, 2]);
+        let player_id = runtime_player_id(&runtime);
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+        runtime
+            .engine_inputs
+            .push(no_player_lockstep_input(2, 0, 1));
+        let original = runtime.tick().unwrap();
+        let original_hash = original.world_hash.clone();
+        let original_clean_boundary_hash = runtime.world_snapshot().unwrap().world_hash;
+        let mut consecutive_counts = BTreeMap::new();
+        consecutive_counts.insert(2, 1);
+        let desync_report = DesyncReport {
+            tick: 0,
+            expected_hash: original_hash.clone(),
+            divergent_peers: vec![(2, "f".repeat(64))],
+            matching_peers: vec![1],
+            missing_peers: Vec::new(),
+            majority_hash: Some(original_hash.clone()),
+            consecutive_counts,
+        };
+
+        let report = runtime.resimulate_after_desync(desync_report).unwrap();
+
+        assert_eq!(report.trigger, "desync");
+        assert_eq!(report.desync_tick, Some(0));
+        assert_eq!(report.desync_divergent_peers, vec![2]);
+        assert_eq!(report.restored_tick, 0);
+        assert_eq!(report.replay_ticks, vec![0]);
+        assert_eq!(report.resimulated_ticks, vec![0]);
+        assert_eq!(report.rollback_count, 1);
+        assert!(report.hash_validation_passed);
+        assert_eq!(report.final_world_hash, original_clean_boundary_hash);
+        assert_eq!(report.adapter_resync.restore_tick, 0);
+        assert_eq!(runtime.status().tick, 1);
+        assert_eq!(runtime.rollback_resimulation_log().len(), 1);
+        assert_eq!(runtime.world_hash_at_tick(0), Some(original_hash.as_str()));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_047_runtime_feeds_delta_retention_and_restores_scrub_tick() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let config = RuntimeConfig {
+            timeline_retention: DeltaTimelineRetentionConfig {
+                max_retained_ticks: 32,
+                anchor_interval_ticks: 7,
+                max_retained_bytes: 4 * 1024 * 1024,
+            },
+            ..dev_config()
+        };
+        let mut runtime = RuntimeOrchestrator::initialise_with_config(&path, config).unwrap();
+        let mut expected_hashes = BTreeMap::new();
+
+        for _ in 0..48 {
+            let result = runtime.tick().unwrap();
+            expected_hashes.insert(result.tick, result.world_hash.clone());
+        }
+
+        let stats = runtime.timeline_retention_stats();
+        assert_eq!(stats.schema, "xace.delta_timeline_retention_stats.v1");
+        assert_eq!(stats.retained_ticks, 32);
+        assert_eq!(stats.oldest_tick, Some(16));
+        assert_eq!(stats.latest_tick, Some(47));
+        assert!(stats.first_entry_is_anchor);
+        assert!(stats.contiguous_restore_chain);
+        assert!(stats.anchor_count < stats.retained_ticks);
+        assert!(stats.delta_count > 0);
+        assert!(stats.retained_bytes < stats.full_snapshot_bytes);
+
+        let scrub_tick = 20;
+        let scrub_snapshot = runtime.retained_timeline_snapshot(scrub_tick).unwrap();
+        assert_eq!(
+            scrub_snapshot.world_hash,
+            expected_hashes.get(&scrub_tick).unwrap().as_str()
+        );
+
+        let report = runtime.restore_retained_timeline_tick(scrub_tick).unwrap();
+        assert_eq!(report.schema, "xace.runtime.timeline_restore_report.v1");
+        assert_eq!(report.requested_tick, scrub_tick);
+        assert_eq!(report.runtime_tick_before_restore, 48);
+        assert_eq!(report.runtime_tick_after_restore, scrub_tick);
+        assert_eq!(
+            report.expected_world_hash,
+            expected_hashes.get(&scrub_tick).unwrap().as_str()
+        );
+        assert_eq!(report.expected_world_hash, report.restored_world_hash);
+        assert_eq!(
+            report.restore_proof.expected_world_hash,
+            report.restore_proof.restored_world_hash
+        );
+        assert!(report.restore_proof.anchor_tick <= scrub_tick);
+        assert_eq!(runtime.status().tick, scrub_tick);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_038_client_prediction_preview_is_read_only_and_reconciles_after_authority() {
+        let path = write_temp_cgs(cgs_with_prediction_movement_runtime_systems(
+            &"d".repeat(64),
+            60_000_000,
+            500_000,
+        ));
+        let mut runtime = initialise_prediction_lockstep(&path, &[1, 2], 1);
+        let player_id = runtime_player_id(&runtime);
+        let local_packet = queued_input(1, 0, 1, player_id);
+        let pre_preview_hash = runtime.world_snapshot().unwrap().world_hash;
+
+        let preview = runtime
+            .preview_client_prediction_for_packet(&local_packet)
+            .unwrap()
+            .unwrap();
+
+        assert_eq!(preview.schema, "xace.runtime.client_prediction_preview.v1");
+        assert_eq!(preview.sim_tick, 0);
+        assert_eq!(preview.predicted_clean_boundary_tick, 1);
+        assert_eq!(preview.peer_id, 1);
+        assert_eq!(preview.player_id, player_id);
+        assert_eq!(preview.predicted_position.x_microunits, 1_000_000);
+        assert_eq!(
+            runtime.world_snapshot().unwrap().world_hash,
+            pre_preview_hash
+        );
+
+        runtime.engine_inputs.push(local_packet);
+        runtime
+            .engine_inputs
+            .push(no_player_lockstep_input(2, 0, 1));
+        let result = runtime.tick().unwrap();
+
+        assert_eq!(result.tick, 0);
+        let report = runtime.client_prediction_log().last().unwrap();
+        assert_eq!(
+            report.schema,
+            "xace.runtime.client_prediction_reconciliation.v1"
+        );
+        assert_eq!(report.sim_tick, 0);
+        assert_eq!(report.authoritative_tick, 0);
+        assert_eq!(report.predicted_clean_boundary_tick, 1);
+        assert_eq!(report.predicted_position.x_microunits, 1_000_000);
+        assert_eq!(report.authoritative_position.x_microunits, 500_000);
+        assert_eq!(report.correction.x_microunits, -500_000);
+        assert_eq!(report.error_microunits, 500_000);
+        assert_eq!(report.mode, "snap");
+        assert!(report.needs_correction);
+        assert!(!report.authoritative_state_mutated_by_prediction);
+        assert_eq!(report.prediction_buffer_ticks, vec![1]);
+        assert_eq!(runtime.client_prediction_buffer_ticks(), vec![1]);
+        assert_component_i64(
+            &runtime,
+            player_id,
+            cgs_loader::type_ids::TRANSFORM,
+            "position_x",
+            500_000,
+        );
+        let status = runtime.status();
+        assert!(status.client_prediction_enabled);
+        assert_eq!(status.client_prediction_buffered, 1);
+        assert_eq!(status.client_prediction_reports, 1);
+        assert_eq!(status.client_prediction_corrections, 1);
+        assert_eq!(
+            runtime
+                .last_tick_result()
+                .unwrap()
+                .client_prediction_reports,
+            1
+        );
+        assert_eq!(
+            runtime
+                .last_tick_result()
+                .unwrap()
+                .client_prediction_corrections,
+            1
+        );
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_038_client_server_hash_comparison_matches_authoritative_server() {
+        let path = write_temp_cgs(cgs_with_prediction_movement_runtime_systems(
+            &"e".repeat(64),
+            60_000_000,
+            500_000,
+        ));
+        let mut server = initialise_lockstep(&path, &[1, 2]);
+        let mut client = initialise_prediction_lockstep(&path, &[1, 2], 1);
+        let player_id = runtime_player_id(&server);
+        let local_packet = queued_input(1, 0, 1, player_id);
+        let remote_packet = no_player_lockstep_input(2, 0, 1);
+
+        server.engine_inputs.push(local_packet.clone());
+        server.engine_inputs.push(remote_packet.clone());
+        client.engine_inputs.push(local_packet);
+        client.engine_inputs.push(remote_packet);
+        let server_result = server.tick().unwrap();
+        let client_result = client.tick().unwrap();
+
+        assert_eq!(client_result.world_hash, server_result.world_hash);
+        let comparison = client
+            .compare_client_prediction_server_hash(0, &server_result.world_hash)
+            .unwrap();
+        assert_eq!(
+            comparison.schema,
+            "xace.runtime.client_prediction_hash_comparison.v1"
+        );
+        assert!(comparison.hashes_match);
+        assert_eq!(comparison.prediction_reports_at_tick, 1);
+        assert_eq!(comparison.corrections_at_tick, 1);
+        assert_eq!(
+            client.client_prediction_log()[0].authoritative_world_hash,
+            server_result.world_hash
+        );
+        assert_eq!(server.client_prediction_log().len(), 0);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_038_client_prediction_requires_lockstep_topology() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let config = RuntimeConfig {
+            client_prediction: RuntimeClientPredictionConfig::lockstep_client(1),
+            ..dev_config()
+        };
+
+        let result = RuntimeOrchestrator::initialise_with_config(&path, config);
+
+        let error = match result {
+            Ok(_) => panic!("client prediction unexpectedly initialised without lockstep"),
+            Err(error) => error,
+        };
+        assert!(error.to_string().contains("supported only for lockstep"));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn x10_039_runtime_lockstep_required_peers_follow_session_lifecycle() {
+        let mut session = SessionManager::with_config(SessionConfig {
+            mode: NetworkMode::Host,
+            max_peers: 4,
+            allow_late_join: true,
+            ..SessionConfig::default()
+        })
+        .unwrap();
+        session.create_lobby().unwrap();
+        session
+            .join_peer(
+                SessionPlayerIdentity::new(1, 101, "Host Player")
+                    .with_adapter("headless", "x10-039"),
+            )
+            .unwrap();
+        session
+            .join_peer(
+                SessionPlayerIdentity::new(2, 102, "Client Player")
+                    .with_adapter("headless", "x10-039"),
+            )
+            .unwrap();
+        session.mark_peer_ready(1).unwrap();
+        session.mark_peer_ready(2).unwrap();
+        session.start_live_when_ready().unwrap();
+        let status = session.status();
+        assert_eq!(status.ready_peers, BTreeSet::from([1, 2]));
+        assert_eq!(status.required_input_peers, BTreeSet::from([1, 2]));
+        assert_eq!(status.player_identities.len(), 2);
+
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let config = RuntimeConfig {
+            input_sync: RuntimeInputSyncConfig::lockstep(session.required_input_peers()),
+            ..dev_config()
+        };
+        let mut runtime = RuntimeOrchestrator::initialise_with_config(&path, config).unwrap();
+        let player_id = runtime_player_id(&runtime);
+
+        runtime.engine_inputs.push(queued_input(1, 0, 1, player_id));
+        let wait = runtime.tick().unwrap_err();
+        assert!(wait.to_string().contains("XACE_RUNTIME_INPUT_SYNC_WAIT"));
+        assert_eq!(runtime.status().tick, 0);
+        assert_eq!(runtime.last_input_sync_trace().missing_peers, vec![2]);
+
+        runtime
+            .engine_inputs
+            .push(no_player_lockstep_input(2, 0, 1));
+        let result = runtime.tick().unwrap();
+        assert_eq!(result.tick, 0);
+        assert_eq!(runtime.status().tick, 1);
+        assert_eq!(runtime.last_input_sync_trace().decision, "release");
+
+        session.leave_peer(2).unwrap();
+        assert_eq!(session.required_input_peers(), BTreeSet::from([1]));
+        let reconfigured = RuntimeInputSyncConfig::lockstep(session.required_input_peers());
+        assert_eq!(reconfigured.required_peers, BTreeSet::from([1]));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
     fn runtime_input_component_accepts_semantic_button_actions() {
         let packet = InputPacket::with_actions(
             7,
@@ -3943,6 +6362,8 @@ mod tests {
                 },
                 InputAction::button("Pickup", true),
                 InputAction::button("Dash", true),
+                InputAction::button("Jump", true),
+                InputAction::button("Crouch", true),
             ],
         )
         .with_player(1)
@@ -3954,6 +6375,8 @@ mod tests {
         assert_eq!(value["interact_pressed"], true);
         assert_eq!(value["pickup_pressed"], true);
         assert_eq!(value["dash_pressed"], true);
+        assert_eq!(value["jump_pressed"], true);
+        assert_eq!(value["crouch_pressed"], true);
         assert_eq!(value["peer_id"], 7);
         assert_eq!(value["source_tick"], 12);
     }
@@ -4087,6 +6510,74 @@ mod tests {
         .to_string()
     }
 
+    fn cgs_with_missing_runtime_fallback_bindings() -> String {
+        r#"
+        {
+          "metadata": {"name": "Runtime Fallback Binding Test", "version": "0.1.0", "schema_version": "0.1.0", "cgs_hash": "5656565656565656565656565656565656565656565656565656565656565656"},
+          "semantic_bindings": {
+            "bindings": [
+              {
+                "binding_id": "bind_missing_anim",
+                "event_name": "interaction.accepted",
+                "playback_kind": "Animation",
+                "asset": {"id": "missing_interact_anim_clip_v1", "asset_type": "AnimationClip", "status": "Missing"},
+                "semantic_action": "play",
+                "entity_selector": "SourceEntity",
+                "priority": 0
+              },
+              {
+                "binding_id": "bind_missing_audio",
+                "event_name": "interaction.accepted",
+                "playback_kind": "Audio",
+                "asset": {"id": "missing_interact_sfx_v1", "asset_type": "AudioClip", "status": "Missing"},
+                "semantic_action": "play",
+                "entity_selector": "SourceEntity",
+                "priority": 1
+              },
+              {
+                "binding_id": "bind_missing_vfx",
+                "event_name": "interaction.accepted",
+                "playback_kind": "Vfx",
+                "asset": {"id": "missing_interact_particle_v1", "asset_type": "Particle", "status": "Missing"},
+                "semantic_action": "spawn",
+                "entity_selector": "TargetEntity",
+                "priority": 2
+              }
+            ]
+          },
+          "global_systems": [],
+          "modes": [
+            {
+              "id": "default",
+              "schema_version": "0.1.0",
+              "is_default": true,
+              "actors": [
+                {
+                  "id": "player",
+                  "spawn_count": 1,
+                  "components": [
+                    {"type_id": 1, "name": "COMP_TRANSFORM_V1", "defaults": {"position_x": 0, "position_y": 0, "position_z": 0}},
+                    {"type_id": 2, "name": "COMP_IDENTITY_V1", "defaults": {"name": "player"}}
+                  ]
+                },
+                {
+                  "id": "target",
+                  "spawn_count": 1,
+                  "components": [
+                    {"type_id": 1, "name": "COMP_TRANSFORM_V1", "defaults": {"position_x": 1, "position_y": 0, "position_z": 0}},
+                    {"type_id": 2, "name": "COMP_IDENTITY_V1", "defaults": {"name": "target"}}
+                  ]
+                }
+              ],
+              "systems": [],
+              "rules": []
+            }
+          ]
+        }
+        "#
+        .to_string()
+    }
+
     fn cgs_with_runtime_systems(
         cgs_hash: &str,
         execution_plan_version: u32,
@@ -4125,6 +6616,44 @@ mod tests {
         }}
         "#,
             execution_plan_version, cgs_hash, global_systems
+        )
+    }
+
+    fn cgs_with_prediction_movement_runtime_systems(
+        cgs_hash: &str,
+        velocity_x_microunits: i64,
+        bounds_max_x_microunits: i64,
+    ) -> String {
+        format!(
+            r#"
+        {{
+          "metadata": {{"name": "Prediction Movement Runtime Test", "schema_version": "0.1.0", "version": "0.1.0", "cgs_hash": "{}"}},
+          "global_systems": [
+            {{"id": "MovementSystem", "phase": "Simulation", "reads": [1, 5], "writes": [1], "depends_on": [], "deterministic": true}}
+          ],
+          "modes": [
+            {{
+              "id": "default",
+              "schema_version": "0.1.0",
+              "is_default": true,
+              "actors": [
+                {{
+                  "id": "player",
+                  "spawn_count": 1,
+                  "components": [
+                    {{"type_id": 1, "name": "COMP_TRANSFORM_V1", "defaults": {{"position_x": 0, "position_y": 0, "position_z": 0, "bounds_max_x": {}}}}},
+                    {{"type_id": 2, "name": "COMP_IDENTITY_V1", "defaults": {{"name": "player"}}}},
+                    {{"type_id": 5, "name": "COMP_VELOCITY_V1", "defaults": {{"linear_x": {}, "linear_y": 0, "linear_z": 0}}}}
+                  ]
+                }}
+              ],
+              "systems": [],
+              "rules": []
+            }}
+          ]
+        }}
+        "#,
+            cgs_hash, bounds_max_x_microunits, velocity_x_microunits
         )
     }
 

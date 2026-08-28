@@ -281,6 +281,16 @@ namespace Xace.Adapter.Unity
                 return;
             }
 
+            if (message.MessageType == XaceProtocolNames.AdapterSideEffectRollback)
+            {
+                preview = "";
+                mutationId = "";
+                confidence = 0f;
+                state = ConsoleState.Idle;
+                AppendLog("rollback: " + message.GetString("reason", "adapter side effects restored"));
+                return;
+            }
+
             if (message.MessageType != "control")
                 return;
             var controlType = message.GetString("control_type", "");

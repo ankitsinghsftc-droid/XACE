@@ -4,6 +4,7 @@ pub mod input_delay_manager;
 pub mod input_log;
 pub mod input_packet;
 pub mod input_synchroniser;
+pub mod malicious_input_gate;
 
 pub use input_broadcaster::{
     DeliveryAckResult, DeliveryFailure, DeliveryFailureReason, DeliveryKey, DeliveryQueueResult,
@@ -20,4 +21,8 @@ pub use input_packet::{
 pub use input_synchroniser::{
     InputSynchroniser, InputSynchroniserConfig, LockstepDecision, LockstepMode, LockstepStatus,
     PeerReadiness, TimeoutPolicy,
+};
+pub use malicious_input_gate::{
+    MaliciousInputGate, MaliciousInputGateConfig, MaliciousInputGateStats, MaliciousInputRejection,
+    MaliciousInputRejectionKind,
 };

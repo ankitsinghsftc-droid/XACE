@@ -33,12 +33,18 @@ RESERVED_COMPONENT_TYPE_IDS = {
     2: "COMP_IDENTITY_V1",
     5: "COMP_VELOCITY_V1",
     6: "COMP_INPUT_V1",
+    10: "COMP_AUTHORITY_V1",
     100: "COMP_HEALTH_V1",
     101: "COMP_DAMAGE_V1",
+    120: "COMP_MOVEMENT_INTENT_V1",
+    125: "COMP_KINEMATIC_CHARACTER_V1",
     160: "COMP_AI_V1",
     201: "COMP_INVENTORY_V1",
     205: "COMP_ITEM_V1",
+    232: "COMP_PERSISTENCE_V1",
     260: "COMP_INTERACTION_V1",
+    320: "COMP_REPLICATION_V1",
+    361: "COMP_CHECKPOINT_V1",
 }
 
 CANONICAL_PHASES = {
@@ -143,11 +149,15 @@ def validate_cgs(
     modes = check_array(cgs, "modes", result)
     global_systems = check_array(cgs, "global_systems", result)
     component_schemas = check_optional_array(cgs, "component_schemas", result)
+    semantic_events = check_optional_array(cgs, "semantic_events", result)
+    assets = check_optional_array(cgs, "assets", result)
 
     declared_components = collect_declared_components(component_schemas, modes, result)
     all_system_ids = collect_system_ids(global_systems, modes, result)
     check_modes(modes, result)
     check_systems(global_systems, modes, all_system_ids, declared_components, result)
+    check_semantic_events(semantic_events, result)
+    check_assets(assets, result)
     check_hash(
         cgs,
         metadata,
@@ -444,6 +454,97 @@ def check_system(
         result.error(f"system {system_id!r} parallel must be boolean when present")
     if "runtime_executor" in system and not isinstance(system.get("runtime_executor"), dict):
         result.error(f"system {system_id!r} runtime_executor must be an object when present")
+
+
+def check_semantic_events(events: list[Any], result: ValidationResult) -> None:
+    '''Validate optional declarative semantic-event records.'''
+    field_types = {
+        'fixed', 'int', 'uint', 'bool', 'string', 'entity_id',
+        'string_list', 'int_list', 'object',
+    }
+    seen: set[str] = set()
+    for index, event in enumerate(objects(events, 'semantic_events', result)):
+        path = f'semantic_events[{index}]'
+        name = event.get('name')
+        if not isinstance(name, str) or not name.strip():
+            result.error(f'{path}.name must be a non-empty string')
+            continue
+        if name in seen:
+            result.error(f'duplicate semantic event name {name!r}')
+        seen.add(name)
+
+        version = event.get('version')
+        if version is not None and (
+            not isinstance(version, str) or not SEMVER_RE.fullmatch(version)
+        ):
+            result.error(f'{path}.version must be a MAJOR.MINOR.PATCH string when present')
+
+        payload_fields = event.get('payload_fields', [])
+        if not isinstance(payload_fields, list):
+            result.error(f'{path}.payload_fields must be an array when present')
+            payload_fields = []
+        payload_names: set[str] = set()
+        for field_index, payload in enumerate(
+            objects(payload_fields, f'{path}.payload_fields', result)
+        ):
+            field_path = f'{path}.payload_fields[{field_index}]'
+            field_name = payload.get('name')
+            if not isinstance(field_name, str) or not field_name.strip():
+                result.error(f'{field_path}.name must be a non-empty string')
+                continue
+            if field_name in payload_names:
+                result.error(f'{path} declares duplicate payload field {field_name!r}')
+            payload_names.add(field_name)
+            if payload.get('field_type') not in field_types:
+                result.error(f'{field_path}.field_type is not a supported typed field')
+            if 'required' in payload and not isinstance(payload.get('required'), bool):
+                result.error(f'{field_path}.required must be boolean when present')
+
+        required_keys = event.get('required_payload_keys', [])
+        if not isinstance(required_keys, list) or any(
+            not isinstance(key, str) or not key for key in required_keys
+        ):
+            result.error(f'{path}.required_payload_keys must be an array of strings')
+        elif len(required_keys) != len(set(required_keys)):
+            result.error(f'{path}.required_payload_keys must be unique')
+        elif payload_fields:
+            unknown = sorted(set(required_keys) - payload_names)
+            if unknown:
+                result.error(f'{path}.required_payload_keys references unknown fields {unknown}')
+
+
+def check_assets(assets: list[Any], result: ValidationResult) -> None:
+    '''Validate optional declarative asset records without resolving files.'''
+    statuses = {'PLACEHOLDER', 'LINKED', 'MISSING'}
+    seen: set[str] = set()
+    for index, asset in enumerate(objects(assets, 'assets', result)):
+        path = f'assets[{index}]'
+        asset_id = asset.get('id')
+        if not isinstance(asset_id, str) or not asset_id.strip():
+            result.error(f'{path}.id must be a non-empty string')
+            continue
+        if asset_id in seen:
+            result.error(f'duplicate asset id {asset_id!r}')
+        seen.add(asset_id)
+        if not isinstance(asset.get('asset_type'), str) or not asset.get('asset_type', '').strip():
+            result.error(f'{path}.asset_type must be a non-empty string')
+        status = asset.get('status')
+        normalized_status = status.upper() if isinstance(status, str) else ''
+        if normalized_status not in statuses:
+            result.error(f'{path}.status must be one of {sorted(statuses)}')
+        source = asset.get('source', '')
+        if not isinstance(source, str):
+            result.error(f'{path}.source must be a string when present')
+            continue
+        normalized_source = source.replace('\\', '/')
+        if normalized_source and (
+            normalized_source.startswith('/')
+            or re.match(r'^[A-Za-z]:/', normalized_source)
+            or '..' in normalized_source.split('/')
+        ):
+            result.error(f'{path}.source must be project-relative and traversal-free')
+        if normalized_status == 'LINKED' and not normalized_source:
+            result.error(f'{path}.source is required for LINKED assets')
 
 
 def check_hash(

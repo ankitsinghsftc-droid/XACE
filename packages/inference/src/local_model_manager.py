@@ -157,6 +157,7 @@ class LocalModelManager(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: Any | None = None,
     ) -> dict[str, Any]:
         """
         Dispatches a completion request to the local model.
@@ -371,6 +372,7 @@ class LocalModelManager(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: Any | None = None,
     ) -> dict[str, Any]:
         """Builds request body, stripping cache_control from all blocks."""
         messages: list[dict[str, str]] = []

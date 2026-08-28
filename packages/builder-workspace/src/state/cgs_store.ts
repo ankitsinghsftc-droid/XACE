@@ -13,7 +13,7 @@
  * mutation.
  */
 
-import type { CGS, CGSSnapshot, CGSGraph, AssetRef } from '../types/cgs';
+import type { CGS, CGSAssetReference, CGSSnapshot, CGSGraph, AssetRef, SemanticAssetBinding } from '../types/cgs';
 import {
   EMPTY_CGS,
   allActors,
@@ -59,6 +59,7 @@ interface DerivedCache {
   ruleCount:   number;
   graph:       CGSGraph;
   assetRefs:   AssetRef[];
+  semanticBindings: SemanticAssetBinding[];
 }
 
 // ── Store implementation ──────────────────────────────────────────────────────
@@ -105,10 +106,18 @@ export class CGSStore {
     // Build graph for visualization
     const graph = buildCGSGraph(cgs);
 
+    const manifestAssets = collectCgsAssets(cgs);
+    const manifestById = new Map<string, CGSAssetReference>();
+    for (const asset of manifestAssets) {
+      const id = assetRecordId(asset);
+      if (id) manifestById.set(id, asset);
+    }
+
     // Scan for asset references in component defaults. The identity field is
     // the asset placeholder (`mesh_id`, `audio_ref`, etc.); a sibling
     // `<field>_path` stores the designer-linked project path.
     const assetRefs: AssetRef[] = [];
+    const componentAssetIds = new Set<string>();
     for (const { actor, modeId } of allActors(cgs)) {
       void modeId;
       for (const comp of actor.components) {
@@ -121,18 +130,45 @@ export class CGSStore {
           ) {
             const pathKey = `${key}_path`;
             const rawPath = comp.defaults[pathKey];
+            const manifest = manifestById.get(value);
             const assetPath = typeof rawPath === 'string' ? rawPath.trim() : '';
+            const manifestPath = manifest ? assetRecordPath(manifest) : '';
+            const finalPath = assetPath || manifestPath;
+            componentAssetIds.add(value);
             assetRefs.push({
               placeholder_id: value,
-              asset_path:     assetPath || undefined,
-              status:         assetPath ? 'linked' : 'placeholder',
+              asset_path:     finalPath || undefined,
+              status:         normaliseAssetStatus(manifest?.status, Boolean(finalPath)),
               component_name: comp.name,
               actor_id:       actor.id,
+              asset_type:     assetRecordType(manifest) || inferAssetType(key, comp.name, value),
+              source:         'component',
+              sha256:         assetRecordHash(manifest) || undefined,
+              ...assetFallbackMetadata(manifest),
             });
           }
         }
       }
     }
+
+    for (const asset of manifestAssets) {
+      const id = assetRecordId(asset);
+      if (!id || componentAssetIds.has(id)) continue;
+      const path = assetRecordPath(asset);
+      assetRefs.push({
+        placeholder_id: id,
+        asset_path: path || undefined,
+        status: normaliseAssetStatus(asset.status, Boolean(path)),
+        component_name: 'assets',
+        actor_id: 'project',
+        asset_type: assetRecordType(asset),
+        source: 'manifest',
+        sha256: assetRecordHash(asset) || undefined,
+        ...assetFallbackMetadata(asset),
+      });
+    }
+
+    const semanticBindings = collectSemanticBindings(cgs);
 
     this._cache = {
       hash: this._state.hash,
@@ -141,6 +177,7 @@ export class CGSStore {
       ruleCount,
       graph,
       assetRefs,
+      semanticBindings,
     };
     return this._cache;
   }
@@ -150,6 +187,7 @@ export class CGSStore {
   get ruleCount():   number    { return this.ensureCache().ruleCount; }
   get graph():       CGSGraph  { return this.ensureCache().graph; }
   get assetRefs():   AssetRef[] { return this.ensureCache().assetRefs; }
+  get semanticBindings(): SemanticAssetBinding[] { return this.ensureCache().semanticBindings; }
 
   get assetStatusSummary(): { linked: number; placeholder: number; missing: number } {
     const refs = this.assetRefs;
@@ -260,6 +298,100 @@ export class CGSStore {
     this._state = { ...this._state, ...partial };
     this._listeners.forEach(fn => fn(this._state));
   }
+}
+
+function collectCgsAssets(cgs: CGS): CGSAssetReference[] {
+  return [
+    ...assetArrayFrom((cgs as any).assets),
+    ...assetArrayFrom((cgs.metadata as any)?.assets),
+  ];
+}
+
+function assetArrayFrom(value: unknown): CGSAssetReference[] {
+  if (Array.isArray(value)) return value.filter(isRecord) as CGSAssetReference[];
+  if (isRecord(value) && Array.isArray(value['items'])) return value['items'].filter(isRecord) as CGSAssetReference[];
+  return [];
+}
+
+function collectSemanticBindings(cgs: CGS): SemanticAssetBinding[] {
+  const table = cgs.semantic_bindings;
+  if (!table || !Array.isArray(table.bindings)) return [];
+  return table.bindings.filter(isRecord) as unknown as SemanticAssetBinding[];
+}
+
+function assetRecordId(asset: CGSAssetReference | undefined): string {
+  if (!asset) return '';
+  return stringField(asset.id) || stringField(asset.asset_id);
+}
+
+function assetRecordType(asset: CGSAssetReference | undefined): string | undefined {
+  if (!asset) return undefined;
+  return stringField(asset.asset_type) || stringField(asset.type) || undefined;
+}
+
+function assetRecordPath(asset: CGSAssetReference | undefined): string {
+  if (!asset) return '';
+  return (
+    stringField(asset.resolved_path)
+    || stringField(asset.source_path)
+    || stringField(asset.path)
+    || stringField(asset.resource_path)
+    || stringField(asset.asset_path)
+  );
+}
+
+function assetRecordHash(asset: CGSAssetReference | undefined): string {
+  if (!asset) return '';
+  return (
+    stringField(asset.sha256)
+    || stringField(asset.content_hash)
+    || stringField(asset.asset_hash)
+    || stringField(asset.hash)
+  );
+}
+
+function assetFallbackMetadata(asset: CGSAssetReference | undefined): Partial<AssetRef> {
+  if (!asset) return {};
+  const result: Record<string, unknown> = {};
+  if (asset.fallback !== undefined) result.fallback = asset.fallback;
+  if (asset.fallback_asset !== undefined) result.fallback_asset = asset.fallback_asset;
+  if (asset.fallback_asset_id !== undefined) result.fallback_asset_id = asset.fallback_asset_id;
+  if (asset.fallback_policy !== undefined) result.fallback_policy = asset.fallback_policy;
+  if (asset.placeholder_fallback !== undefined) result.placeholder_fallback = asset.placeholder_fallback;
+  if (asset.allow_fallback !== undefined) result.allow_fallback = asset.allow_fallback;
+  return result as Partial<AssetRef>;
+}
+
+function normaliseAssetStatus(rawStatus: string | undefined, hasPath: boolean): AssetRef['status'] {
+  const value = (rawStatus || '').trim().toLowerCase();
+  if (value === 'unresolved') return 'unresolved';
+  if (value === 'missing') return 'missing';
+  if (value === 'linked') return 'linked';
+  return hasPath ? 'linked' : 'placeholder';
+}
+
+function inferAssetType(fieldName: string, componentName: string, assetId: string): string | undefined {
+  const text = `${fieldName} ${componentName} ${assetId}`.toLowerCase();
+  if (text.includes('anim_clip') || text.includes('animation_clip')) return 'AnimationClip';
+  if (text.includes('anim') || text.includes('animation')) return 'AnimationClip';
+  if (text.includes('audio') || text.includes('sfx') || text.includes('sound')) return 'AudioClip';
+  if (text.includes('music') || text.includes('bgm')) return 'AudioMusic';
+  if (text.includes('vfx') || text.includes('particle')) return 'Particle';
+  if (text.includes('sprite')) return 'Sprite';
+  if (text.includes('texture') || text.includes('tex')) return 'Texture';
+  if (text.includes('material') || text.includes('mat')) return 'Material';
+  if (text.includes('prefab')) return 'Prefab';
+  if (text.includes('font')) return 'Font';
+  if (text.includes('mesh')) return 'Mesh';
+  return undefined;
+}
+
+function stringField(value: unknown): string {
+  return typeof value === 'string' ? value.trim() : '';
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }
 
 /** Shared singleton */

@@ -2,9 +2,10 @@
   "schema": "xace.prompt_launch_thresholds.v1",
   "version": 1,
   "owner_task": 48,
-  "updated": "2026-07-01",
+  "updated": "2026-07-30",
   "source_of_truth": "docs/prompt_launch_thresholds.json",
   "benchmark_tool": "tools/prompt_corpus_benchmark.py",
+  "launch_benchmark_tool": "tools/launch_provider_runtime_benchmark.py",
   "corpus_id": "xace.prompt_corpus_100.v1",
   "profiles": {
     "local_classifier": {
@@ -26,7 +27,7 @@
       "rollback_status": "not_run_local_classifier_only"
     },
     "launch_provider_runtime": {
-      "description": "Launch threshold profile for future hosted-provider plus compile/runtime/rollback benchmark execution. Selecting this profile against local classifier-only reports must fail because provider, compile, runtime, and rollback dimensions are not executed.",
+      "description": "Launch threshold profile for local provider/accounting plus compile/runtime/rollback benchmark execution. tools/launch_provider_runtime_benchmark.py must provide provider, compile, runtime, rollback, unsupported blocking, cost, latency, and reproducibility dimensions; hosted BYOK reliability remains a separate opt-in proof.",
       "case_count_min": 100,
       "classification_accuracy_min": 0.95,
       "route_accuracy_min": 0.95,
@@ -45,7 +46,7 @@
   },
   "notes": [
     "Task 48 defines measurable prompt launch thresholds and makes the benchmark fail below the selected profile.",
-    "The local_classifier profile is the only profile expected to pass before hosted provider, compile, runtime, and rollback execution are implemented.",
-    "The launch_provider_runtime profile documents the stricter launch bar but is intentionally not claimed as passing in local classifier-only mode."
+    "The local_classifier profile is the fast default; it is expected to pass without provider, compile, runtime, or rollback execution.",
+    "The launch_provider_runtime profile is expected to pass when run through tools/launch_provider_runtime_benchmark.py with built SGC/runtime binaries; running it against local classifier-only reports must still fail."
   ]
 }

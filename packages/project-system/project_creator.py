@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from engine_project_inventory import compact_import_inventory, scan_engine_project_inventory
 from project_manifest import (
     MANIFEST_FILENAME,
     ProjectManifestError,
@@ -29,6 +30,16 @@ class ProjectCreationError(ValueError):
     """Raised when a project cannot be safely created."""
 
 
+class ProjectImportValidationError(ProjectCreationError):
+    """Raised when an existing engine project cannot be safely imported."""
+
+    def __init__(self, report: dict[str, Any]):
+        reason = str(report.get("reason") or "ENGINE_IMPORT_REFUSED")
+        summary = str(report.get("summary") or "Engine project import was refused.")
+        super().__init__(f"{reason}: {summary}")
+        self.report = report
+
+
 @dataclass(frozen=True)
 class CreateProjectRequest:
     project_dir: str
@@ -46,9 +57,10 @@ class ProjectCreationResult:
     asset_root: str
     manifest: XaceProjectManifest
     cgs_hash: str
+    engine_inventory: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        data = {
             "project_dir": self.project_dir,
             "manifest_path": self.manifest_path,
             "cgs_path": self.cgs_path,
@@ -56,6 +68,9 @@ class ProjectCreationResult:
             "manifest": self.manifest.to_dict(),
             "cgs_hash": self.cgs_hash,
         }
+        if self.engine_inventory is not None:
+            data["engine_inventory"] = self.engine_inventory
+        return data
 
 
 @dataclass(frozen=True)
@@ -168,15 +183,23 @@ class ProjectCreator:
         engine_root = Path(engine_project_dir).resolve()
         if not engine_root.exists() or not engine_root.is_dir():
             raise ProjectCreationError(f"Engine project folder not found: {engine_root}")
+        engine_type_normalized = engine_type.strip().lower()
+        inventory_report = scan_engine_project_inventory(
+            engine_root,
+            expected_engine_type=engine_type_normalized,
+        )
+        if not inventory_report.get("ok"):
+            raise ProjectImportValidationError(inventory_report)
         result = self.create_project(CreateProjectRequest(
             project_dir=str(xace_project_dir),
             name=name,
-            engine_type=engine_type,
+            engine_type=engine_type_normalized,
             template_id=template_id,
             force=force,
         ))
         manifest = result.manifest
         manifest.adapter_config["engine_project_path"] = str(engine_root)
+        manifest.adapter_config["engine_project_inventory"] = compact_import_inventory(inventory_report)
         save_manifest(result.project_dir, manifest)
         return ProjectCreationResult(
             project_dir=result.project_dir,
@@ -185,6 +208,7 @@ class ProjectCreator:
             asset_root=result.asset_root,
             manifest=manifest,
             cgs_hash=result.cgs_hash,
+            engine_inventory=inventory_report,
         )
 
     def _ensure_writable_project_dir(self, project_dir: Path, *, force: bool) -> None:

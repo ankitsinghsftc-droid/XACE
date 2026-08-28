@@ -98,6 +98,7 @@ class ModelCapability:
     FUNCTION_CALL = "function_call"
     STREAMING     = "streaming"
     VISION        = "vision"
+    STRUCTURED_OUTPUT = "structured_output"
 
 
 # ── Model Descriptor ──────────────────────────────────────────────────────────
@@ -164,7 +165,7 @@ class ModelDescriptor:
 _ANTHROPIC_FULL = frozenset({
     ModelCapability.GENERATION, ModelCapability.CODE_GEN, ModelCapability.CRITIQUE,
     ModelCapability.REASONING,  ModelCapability.FUNCTION_CALL, ModelCapability.STREAMING,
-    ModelCapability.VISION,
+    ModelCapability.VISION, ModelCapability.STRUCTURED_OUTPUT,
 })
 
 ANTHROPIC_OPUS_4_7 = ModelDescriptor(
@@ -221,6 +222,7 @@ ANTHROPIC_HAIKU_4_5 = ModelDescriptor(
     capabilities             = frozenset({
         ModelCapability.GENERATION, ModelCapability.CRITIQUE,
         ModelCapability.FUNCTION_CALL, ModelCapability.STREAMING, ModelCapability.VISION,
+        ModelCapability.STRUCTURED_OUTPUT,
     }),
     notes                    = (
         "TIER_M. Validation passes (pass3/pass4), simple queries. "
@@ -251,7 +253,7 @@ OPENAI_GPT5_5 = ModelDescriptor(
     capabilities             = frozenset({
         ModelCapability.GENERATION, ModelCapability.CODE_GEN, ModelCapability.CRITIQUE,
         ModelCapability.REASONING,  ModelCapability.FUNCTION_CALL, ModelCapability.STREAMING,
-        ModelCapability.VISION,
+        ModelCapability.VISION, ModelCapability.STRUCTURED_OUTPUT,
     }),
     notes                    = (
         "TIER_XL OpenAI fallback. Released April 24, 2026. "
@@ -426,6 +428,7 @@ GOOGLE_GEMINI_31_PRO = ModelDescriptor(
         ModelCapability.GENERATION, ModelCapability.CODE_GEN,
         ModelCapability.CRITIQUE, ModelCapability.REASONING,
         ModelCapability.FUNCTION_CALL, ModelCapability.STREAMING,
+        ModelCapability.STRUCTURED_OUTPUT,
     }),
     notes                    = (
         "Gemini 3.1 Pro Preview. Released February 19, 2026. "
@@ -454,6 +457,7 @@ GOOGLE_GEMINI_3_FLASH = ModelDescriptor(
     capabilities             = frozenset({
         ModelCapability.GENERATION, ModelCapability.CRITIQUE,
         ModelCapability.FUNCTION_CALL, ModelCapability.STREAMING,
+        ModelCapability.STRUCTURED_OUTPUT,
     }),
     notes                    = (
         "Gemini 3 Flash. $0.50/$3.00/MTok. 1M context. Free tier available. "

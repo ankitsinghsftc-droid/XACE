@@ -51,6 +51,7 @@ from typing import Any
 try:
     from inference_adapter import InferenceRequest, PromptPart
     from model_descriptor import ComplexityTier
+    from structured_output import mutation_transaction_contract
 except ImportError:
     import dataclasses as _dc, uuid as _uuid
 
@@ -65,9 +66,33 @@ except ImportError:
         session_id: str = ""; call_label: str = ""
         request_id: str = _dc.field(default_factory=lambda: _uuid.uuid4().hex)
         cgs_structural_hash: str = ""; intent_class: str = ""; bypass_response_cache: bool = False
+        structured_output: Any | None = None
 
     class ComplexityTier:  # type: ignore[no-redef]
         L = "TIER_L"; M = "TIER_M"; S = "TIER_S"; XL = "TIER_XL"
+
+    @dataclass(frozen=True)
+    class _FallbackStructuredOutputContract:
+        schema_id: str = "xace.mutation_transaction.v1"
+        name: str = "xace_mutation_transaction_v1"
+        schema: dict[str, Any] = field(default_factory=dict)
+        description: str = "Final XACE mutation transaction envelope."
+        strict: bool = True
+
+        @property
+        def schema_hash(self) -> str:
+            return "sha256:fallback"
+
+    def mutation_transaction_contract() -> _FallbackStructuredOutputContract:
+        return _FallbackStructuredOutputContract(schema={
+            "type": "object",
+            "required": [
+                "schema_delta_type", "confidence_score", "risk_level",
+                "required_recompile", "mutation_summary",
+            ],
+        })
+
+
 
 from pass1_planning import OutputParseError
 from pass2_dsl_draft import DraftMutationTransaction, MutationOp
@@ -214,6 +239,7 @@ class Pass5FinalOutput:
             session_id=session_id,
             call_label=PASS_LABEL,
             intent_class=packet.intent_category,
+            structured_output=mutation_transaction_contract(),
         )
 
     def _parse_response(

@@ -21,6 +21,7 @@ public:
 
 	void SetComponents(const TMap<int32, FString>& InComponents);
 	bool TryGetComponentJson(int32 TypeId, FString& OutJson) const;
+	void ClearPlaybackCommands();
 	void RecordPlaybackCommand(const FXacePlaybackCommand& Command);
 
 private:
@@ -30,6 +31,7 @@ private:
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FXaceSnapshotApplied, int64, Tick, int32, EntityCount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceFeedbackQueued, const FString&, FeedbackJson);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FXacePlaybackCommandApplied, const FXacePlaybackCommand&, Command, bool, bApplied);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceSideEffectsRolledBack, const FXaceAdapterSideEffectRollback&, Rollback);
 
 UCLASS(ClassGroup=(XACE), meta=(BlueprintSpawnableComponent))
 class UXaceDeltaApplicatorComponent : public UActorComponent
@@ -42,6 +44,7 @@ public:
 	UPROPERTY(BlueprintAssignable) FXaceSnapshotApplied OnSnapshotApplied;
 	UPROPERTY(BlueprintAssignable) FXaceFeedbackQueued OnFeedbackQueued;
 	UPROPERTY(BlueprintAssignable) FXacePlaybackCommandApplied OnPlaybackCommandApplied;
+	UPROPERTY(BlueprintAssignable) FXaceSideEffectsRolledBack OnSideEffectsRolledBack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Scene") TSubclassOf<AActor> FallbackActorClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Scene") bool bCreateDebugActors = true;
@@ -54,6 +57,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category="XACE") AActor* GetEntityActor(int64 EntityId) const;
 	UFUNCTION(BlueprintCallable, Category="XACE") int32 GetEntityCount() const { return EntityActors.Num(); }
 	UFUNCTION(BlueprintCallable, Category="XACE") int64 GetCurrentTick() const { return CurrentTick; }
+	UFUNCTION(BlueprintCallable, Category="XACE") FString AssetBindingStatusReportJson() const;
 	UFUNCTION(BlueprintCallable, Category="XACE") void BindTransportNow();
 
 protected:
@@ -70,6 +74,9 @@ private:
 	UPROPERTY() UXaceTransportComponent* Transport = nullptr;
 	UPROPERTY() TMap<int64, AActor*> EntityActors;
 	UPROPERTY() TMap<FString, TSubclassOf<AActor>> ActorRegistry;
+	UPROPERTY() TArray<UActorComponent*> PlaybackSpawnedComponents;
+	UPROPERTY() TMap<FString, FXaceAssetReference> AssetBindingState;
+	UPROPERTY() TMap<FString, FString> AssetBindingStatusReport;
 
 	int64 CurrentTick = 0;
 	int64 GeneratedFrame = 0;
@@ -81,9 +88,13 @@ private:
 	void UnsubscribeTransport();
 	UFUNCTION() void OnHandshakeAccepted(const FXaceHandshakeAck& Ack);
 	UFUNCTION() void OnTickSnapshot(const FXaceTickSnapshot& Snapshot);
+	UFUNCTION() void OnAdapterSideEffectRollback(const FXaceAdapterSideEffectRollback& Rollback);
 	void ApplyEntityList(int64 Tick, const TArray<FXaceEntityState>& Entities, bool bRemoveMissing, const TArray<int64>& DestroyedIds);
 	void ApplyPlaybackCommands(const TArray<FXacePlaybackCommand>& Commands);
-	bool TryApplyPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command) const;
+	void RecordAssetBindingStatus(const FXacePlaybackCommand& Command, bool bApplied, const FString& Reason);
+	bool TryApplyPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command);
+	bool ApplyFallbackPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command);
+	void ClearPlaybackSideEffects();
 	void QueueLiveValidationFeedback(int64 Tick, const FString& MessageType, int32 OperationCount);
 	void UpsertEntity(const FXaceEntityState& State);
 	void DestroyEntity(int64 EntityId);
@@ -101,6 +112,12 @@ private:
 	static FString GetString(const TSharedPtr<FJsonObject>& Object, const FString& Field, const FString& Fallback);
 	static bool HasAnyField(const TSharedPtr<FJsonObject>& Object, std::initializer_list<const TCHAR*> Fields);
 	static FString GetCommandParameter(const FXacePlaybackCommand& Command, const FString& Key, const FString& Fallback);
+	static FString SemanticBindingStatus(const FXacePlaybackCommand& Command, bool bApplied);
+	static FString DeclaredBindingStatus(const FXacePlaybackCommand& Command);
+	static bool ShouldUseFallback(const FXacePlaybackCommand& Command);
+	static bool TruthyCommandParameter(const FXacePlaybackCommand& Command, const FString& Key);
+	static FString FallbackKind(const FXacePlaybackCommand& Command);
+	static FString FallbackLabel(const FXacePlaybackCommand& Command);
 	static FString CommandResourcePath(const FXacePlaybackCommand& Command);
 	static float GetNumber(const TSharedPtr<FJsonObject>& Object, const FString& Field, float Fallback);
 	static FString VectorJson(const FVector& Value);

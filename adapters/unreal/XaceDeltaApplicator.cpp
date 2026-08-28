@@ -3,12 +3,14 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Components/AudioComponent.h"
 #include "Dom/JsonValue.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/AnimationAsset.h"
 #include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "Sound/SoundBase.h"
@@ -26,6 +28,11 @@ bool UXaceEntityMarkerComponent::TryGetComponentJson(int32 TypeId, FString& OutJ
 		return true;
 	}
 	return false;
+}
+
+void UXaceEntityMarkerComponent::ClearPlaybackCommands()
+{
+	RecentPlaybackCommands.Reset();
 }
 
 void UXaceEntityMarkerComponent::RecordPlaybackCommand(const FXacePlaybackCommand& Command)
@@ -83,6 +90,32 @@ AActor* UXaceDeltaApplicatorComponent::GetEntityActor(int64 EntityId) const
 	return nullptr;
 }
 
+FString UXaceDeltaApplicatorComponent::AssetBindingStatusReportJson() const
+{
+	TSharedRef<FJsonObject> Report = MakeShared<FJsonObject>();
+	Report->SetStringField(TEXT("schema"), TEXT("xace.adapter.semantic_binding_status_report.v1"));
+	Report->SetStringField(TEXT("engine"), TEXT("unreal"));
+	TArray<TSharedPtr<FJsonValue>> Statuses;
+	Statuses.Add(MakeShared<FJsonValueString>(TEXT("resolved")));
+	Statuses.Add(MakeShared<FJsonValueString>(TEXT("unresolved")));
+	Statuses.Add(MakeShared<FJsonValueString>(TEXT("unsupported")));
+	Statuses.Add(MakeShared<FJsonValueString>(TEXT("missing")));
+	Statuses.Add(MakeShared<FJsonValueString>(TEXT("fallback")));
+	Report->SetArrayField(TEXT("statuses"), Statuses);
+	TArray<TSharedPtr<FJsonValue>> Records;
+	for (const auto& Pair : AssetBindingStatusReport)
+	{
+		TSharedPtr<FJsonObject> RecordObject;
+		TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Pair.Value);
+		if (FJsonSerializer::Deserialize(Reader, RecordObject) && RecordObject.IsValid())
+		{
+			Records.Add(MakeShared<FJsonValueObject>(RecordObject));
+		}
+	}
+	Report->SetArrayField(TEXT("records"), Records);
+	return JsonToString(Report);
+}
+
 void UXaceDeltaApplicatorComponent::BindTransportNow()
 {
 	SubscribeTransport();
@@ -105,6 +138,7 @@ void UXaceDeltaApplicatorComponent::SubscribeTransport()
 	}
 	Transport->OnHandshakeAccepted.AddDynamic(this, &UXaceDeltaApplicatorComponent::OnHandshakeAccepted);
 	Transport->OnTickSnapshot.AddDynamic(this, &UXaceDeltaApplicatorComponent::OnTickSnapshot);
+	Transport->OnAdapterSideEffectRollback.AddDynamic(this, &UXaceDeltaApplicatorComponent::OnAdapterSideEffectRollback);
 	bTransportSubscribed = true;
 }
 
@@ -116,6 +150,7 @@ void UXaceDeltaApplicatorComponent::UnsubscribeTransport()
 	}
 	Transport->OnHandshakeAccepted.RemoveDynamic(this, &UXaceDeltaApplicatorComponent::OnHandshakeAccepted);
 	Transport->OnTickSnapshot.RemoveDynamic(this, &UXaceDeltaApplicatorComponent::OnTickSnapshot);
+	Transport->OnAdapterSideEffectRollback.RemoveDynamic(this, &UXaceDeltaApplicatorComponent::OnAdapterSideEffectRollback);
 	bTransportSubscribed = false;
 }
 
@@ -131,6 +166,55 @@ void UXaceDeltaApplicatorComponent::OnTickSnapshot(const FXaceTickSnapshot& Snap
 	ApplyPlaybackCommands(Snapshot.PlaybackCommands);
 	QueueLiveValidationFeedback(Snapshot.Tick, TEXT("tick_snapshot"), Snapshot.Entities.Num() + Snapshot.DestroyedIds.Num());
 	FlushFeedback();
+}
+void UXaceDeltaApplicatorComponent::OnAdapterSideEffectRollback(const FXaceAdapterSideEffectRollback& Rollback)
+{
+	CurrentTick = Rollback.RestoreTick;
+	if (Rollback.bClearFeedbackQueue)
+	{
+		PendingFeedback.Reset();
+	}
+	ClearPlaybackSideEffects();
+	if (Rollback.bResetAssetBindings)
+	{
+		AssetBindingState.Reset();
+		AssetBindingStatusReport.Reset();
+	}
+	ApplyEntityList(Rollback.RestoreTick, Rollback.RestoredSnapshot.Entities, true, Rollback.RestoredSnapshot.DestroyedIds);
+	OnSideEffectsRolledBack.Broadcast(Rollback);
+}
+
+void UXaceDeltaApplicatorComponent::ClearPlaybackSideEffects()
+{
+	for (UActorComponent* Component : PlaybackSpawnedComponents)
+	{
+		if (Component != nullptr)
+		{
+			Component->DestroyComponent();
+		}
+	}
+	PlaybackSpawnedComponents.Reset();
+
+	for (const auto& Pair : EntityActors)
+	{
+		AActor* Actor = Pair.Value;
+		if (Actor == nullptr)
+		{
+			continue;
+		}
+		if (UAudioComponent* Audio = Actor->FindComponentByClass<UAudioComponent>())
+		{
+			Audio->Stop();
+		}
+		if (USkeletalMeshComponent* Mesh = Actor->FindComponentByClass<USkeletalMeshComponent>())
+		{
+			Mesh->Stop();
+		}
+		if (UXaceEntityMarkerComponent* Marker = Actor->FindComponentByClass<UXaceEntityMarkerComponent>())
+		{
+			Marker->ClearPlaybackCommands();
+		}
+	}
 }
 
 void UXaceDeltaApplicatorComponent::ApplyEntityList(int64 Tick, const TArray<FXaceEntityState>& Entities, bool bRemoveMissing, const TArray<int64>& DestroyedIds)
@@ -197,6 +281,7 @@ void UXaceDeltaApplicatorComponent::ApplyPlaybackCommands(const TArray<FXacePlay
 		AActor* Actor = GetEntityActor(Command.EntityId);
 		if (Actor == nullptr)
 		{
+			RecordAssetBindingStatus(Command, false, TEXT("entity_missing"));
 			OnPlaybackCommandApplied.Broadcast(Command, false);
 			continue;
 		}
@@ -204,12 +289,40 @@ void UXaceDeltaApplicatorComponent::ApplyPlaybackCommands(const TArray<FXacePlay
 		{
 			Marker->RecordPlaybackCommand(Command);
 		}
+		if (!Command.BindingId.TrimStartAndEnd().IsEmpty())
+		{
+			AssetBindingState.Add(Command.BindingId.TrimStartAndEnd(), Command.Asset);
+		}
 		const bool bApplied = TryApplyPlaybackCommand(Actor, Command);
+		const FString Reason = bApplied && ShouldUseFallback(Command) ? TEXT("fallback_applied") : (bApplied ? TEXT("applied") : TEXT("playback_resource_missing"));
+		RecordAssetBindingStatus(Command, bApplied, Reason);
 		OnPlaybackCommandApplied.Broadcast(Command, bApplied);
 	}
 }
 
-bool UXaceDeltaApplicatorComponent::TryApplyPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command) const
+void UXaceDeltaApplicatorComponent::RecordAssetBindingStatus(const FXacePlaybackCommand& Command, bool bApplied, const FString& Reason)
+{
+	FString BindingId = Command.BindingId.TrimStartAndEnd();
+	if (BindingId.IsEmpty())
+	{
+		BindingId = TEXT("<unbound>");
+	}
+	const FString Status = SemanticBindingStatus(Command, bApplied);
+	TSharedRef<FJsonObject> Record = MakeShared<FJsonObject>();
+	Record->SetStringField(TEXT("schema"), TEXT("xace.adapter.semantic_binding_status_record.v1"));
+	Record->SetStringField(TEXT("engine"), TEXT("unreal"));
+	Record->SetStringField(TEXT("binding_id"), BindingId);
+	Record->SetStringField(TEXT("status"), Status);
+	Record->SetStringField(TEXT("asset_id"), Command.Asset.Id);
+	Record->SetStringField(TEXT("playback_kind"), Command.PlaybackKind);
+	Record->SetStringField(TEXT("reason"), Reason);
+	const bool bBlocks = Status == TEXT("unresolved") || Status == TEXT("unsupported") || Status == TEXT("missing");
+	Record->SetBoolField(TEXT("blocks_runtime"), bBlocks);
+	Record->SetBoolField(TEXT("blocks_handoff"), bBlocks);
+	AssetBindingStatusReport.Add(BindingId, JsonToString(Record));
+}
+
+bool UXaceDeltaApplicatorComponent::TryApplyPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command)
 {
 	if (Actor == nullptr)
 	{
@@ -218,48 +331,102 @@ bool UXaceDeltaApplicatorComponent::TryApplyPlaybackCommand(AActor* Actor, const
 
 	const FString Kind = Command.PlaybackKind.ToLower();
 	const FString ResourcePath = CommandResourcePath(Command);
+	bool bApplied = false;
 	if (Kind == TEXT("audio"))
 	{
-		if (ResourcePath.IsEmpty())
+		if (!ResourcePath.IsEmpty())
 		{
-			return false;
+			if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *ResourcePath))
+			{
+				if (UAudioComponent* Audio = UGameplayStatics::SpawnSoundAtLocation(Actor->GetWorld(), Sound, Actor->GetActorLocation()))
+				{
+					PlaybackSpawnedComponents.Add(Audio);
+					bApplied = true;
+				}
+			}
 		}
-		if (USoundBase* Sound = LoadObject<USoundBase>(nullptr, *ResourcePath))
-		{
-			UGameplayStatics::PlaySoundAtLocation(Actor, Sound, Actor->GetActorLocation());
-			return true;
-		}
-		return false;
 	}
-	if (Kind == TEXT("animation"))
+	else if (Kind == TEXT("animation"))
 	{
-		if (ResourcePath.IsEmpty())
+		if (!ResourcePath.IsEmpty())
 		{
-			return false;
+			USkeletalMeshComponent* Mesh = Actor->FindComponentByClass<USkeletalMeshComponent>();
+			UAnimationAsset* Animation = LoadObject<UAnimationAsset>(nullptr, *ResourcePath);
+			if (Mesh != nullptr && Animation != nullptr)
+			{
+				Mesh->PlayAnimation(Animation, false);
+				bApplied = true;
+			}
 		}
-		USkeletalMeshComponent* Mesh = Actor->FindComponentByClass<USkeletalMeshComponent>();
-		UAnimationAsset* Animation = LoadObject<UAnimationAsset>(nullptr, *ResourcePath);
-		if (Mesh != nullptr && Animation != nullptr)
-		{
-			Mesh->PlayAnimation(Animation, false);
-			return true;
-		}
-		return false;
 	}
-	if (Kind == TEXT("vfx"))
+	else if (Kind == TEXT("vfx"))
 	{
-		if (ResourcePath.IsEmpty())
+		if (!ResourcePath.IsEmpty())
+		{
+			if (UParticleSystem* Particle = LoadObject<UParticleSystem>(nullptr, *ResourcePath))
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(Actor->GetWorld(), Particle, Actor->GetActorTransform());
+				bApplied = true;
+			}
+		}
+	}
+	if (bApplied)
+	{
+		return true;
+	}
+	return ShouldUseFallback(Command) && ApplyFallbackPlaybackCommand(Actor, Command);
+}
+
+bool UXaceDeltaApplicatorComponent::ApplyFallbackPlaybackCommand(AActor* Actor, const FXacePlaybackCommand& Command)
+{
+	if (Actor == nullptr)
+	{
+		return false;
+	}
+	USceneComponent* Root = Actor->GetRootComponent();
+	if (Root == nullptr)
+	{
+		Root = NewObject<USceneComponent>(Actor, TEXT("XaceFallbackRoot"));
+		if (Root == nullptr)
 		{
 			return false;
 		}
-		if (UParticleSystem* Particle = LoadObject<UParticleSystem>(nullptr, *ResourcePath))
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(Actor->GetWorld(), Particle, Actor->GetActorTransform());
-			return true;
-		}
+		Root->RegisterComponent();
+		Actor->SetRootComponent(Root);
+		Actor->AddInstanceComponent(Root);
+	}
+	const FName CapsuleName(*FString::Printf(TEXT("XaceFallbackVisual_%d"), PlaybackSpawnedComponents.Num()));
+	UCapsuleComponent* Capsule = NewObject<UCapsuleComponent>(Actor, CapsuleName);
+	if (Capsule == nullptr)
+	{
 		return false;
 	}
-	return false;
+	Capsule->InitCapsuleSize(18.0f, 18.0f);
+	Capsule->SetRelativeLocation(FVector(0.0f, 0.0f, 120.0f));
+	Capsule->SetHiddenInGame(false);
+	Capsule->SetVisibility(true);
+	Capsule->ComponentTags.Add(FName(TEXT("xace_runtime_fallback")));
+	Capsule->ComponentTags.Add(FName(*FallbackKind(Command)));
+	Capsule->SetupAttachment(Root);
+	Capsule->RegisterComponent();
+	Actor->AddInstanceComponent(Capsule);
+	PlaybackSpawnedComponents.Add(Capsule);
+
+	const FName LabelName(*FString::Printf(TEXT("XaceFallbackLabel_%d"), PlaybackSpawnedComponents.Num()));
+	UTextRenderComponent* Label = NewObject<UTextRenderComponent>(Actor, LabelName);
+	if (Label != nullptr)
+	{
+		Label->SetText(FText::FromString(FallbackLabel(Command)));
+		Label->SetHorizontalAlignment(EHTA_Center);
+		Label->SetWorldSize(18.0f);
+		Label->SetRelativeLocation(FVector(0.0f, 0.0f, 150.0f));
+		Label->ComponentTags.Add(FName(TEXT("xace_runtime_fallback")));
+		Label->SetupAttachment(Root);
+		Label->RegisterComponent();
+		Actor->AddInstanceComponent(Label);
+		PlaybackSpawnedComponents.Add(Label);
+	}
+	return true;
 }
 
 void UXaceDeltaApplicatorComponent::UpsertEntity(const FXaceEntityState& State)
@@ -550,6 +717,101 @@ FString UXaceDeltaApplicatorComponent::GetCommandParameter(const FXacePlaybackCo
 		return *Found;
 	}
 	return Fallback;
+}
+
+FString UXaceDeltaApplicatorComponent::SemanticBindingStatus(const FXacePlaybackCommand& Command, bool bApplied)
+{
+	const FString Declared = DeclaredBindingStatus(Command);
+	if (!Declared.IsEmpty())
+	{
+		return Declared;
+	}
+	if (ShouldUseFallback(Command))
+	{
+		return TEXT("fallback");
+	}
+	if (bApplied)
+	{
+		return TEXT("resolved");
+	}
+	const FString Kind = Command.PlaybackKind.ToLower();
+	if (Kind != TEXT("audio") && Kind != TEXT("animation") && Kind != TEXT("vfx"))
+	{
+		return TEXT("unsupported");
+	}
+	return CommandResourcePath(Command).IsEmpty() ? TEXT("unresolved") : TEXT("missing");
+}
+
+FString UXaceDeltaApplicatorComponent::DeclaredBindingStatus(const FXacePlaybackCommand& Command)
+{
+	const FString Declared = GetCommandParameter(Command, TEXT("xace_binding_status"), TEXT("")).ToLower();
+	if (Declared == TEXT("resolved") || Declared == TEXT("unresolved") || Declared == TEXT("unsupported") || Declared == TEXT("missing") || Declared == TEXT("fallback"))
+	{
+		return Declared;
+	}
+	return TEXT("");
+}
+
+bool UXaceDeltaApplicatorComponent::ShouldUseFallback(const FXacePlaybackCommand& Command)
+{
+	if (DeclaredBindingStatus(Command) == TEXT("fallback"))
+	{
+		return true;
+	}
+	if (TruthyCommandParameter(Command, TEXT("xace_runtime_fallback")) || TruthyCommandParameter(Command, TEXT("xace_fallback_visible")) || TruthyCommandParameter(Command, TEXT("allow_fallback")))
+	{
+		return true;
+	}
+	const FString Status = Command.Asset.Status.ToLower().TrimStartAndEnd();
+	return Status == TEXT("missing") || Status == TEXT("placeholder");
+}
+
+bool UXaceDeltaApplicatorComponent::TruthyCommandParameter(const FXacePlaybackCommand& Command, const FString& Key)
+{
+	const FString Value = GetCommandParameter(Command, Key, TEXT("")).ToLower().TrimStartAndEnd();
+	return Value == TEXT("true") || Value == TEXT("1") || Value == TEXT("yes") || Value == TEXT("fallback");
+}
+
+FString UXaceDeltaApplicatorComponent::FallbackKind(const FXacePlaybackCommand& Command)
+{
+	const FString Explicit = GetCommandParameter(Command, TEXT("xace_fallback_kind"), TEXT("")).ToLower().TrimStartAndEnd();
+	if (!Explicit.IsEmpty())
+	{
+		return Explicit;
+	}
+	const FString Kind = Command.PlaybackKind.ToLower().TrimStartAndEnd();
+	const FString AssetType = Command.Asset.AssetType.ToLower().TrimStartAndEnd();
+	if (Kind == TEXT("animation") || AssetType.Contains(TEXT("animation")))
+	{
+		return TEXT("visible_animation_marker");
+	}
+	if (Kind == TEXT("audio") || AssetType.Contains(TEXT("audio")))
+	{
+		return TEXT("visible_audio_pulse");
+	}
+	if (Kind == TEXT("vfx") || AssetType == TEXT("particle"))
+	{
+		return TEXT("visible_vfx_marker");
+	}
+	if (Kind == TEXT("mesh") || AssetType == TEXT("mesh"))
+	{
+		return TEXT("visible_mesh_proxy");
+	}
+	if (Kind == TEXT("prefab") || AssetType == TEXT("prefab"))
+	{
+		return TEXT("visible_prefab_proxy");
+	}
+	return TEXT("visible_asset_proxy");
+}
+
+FString UXaceDeltaApplicatorComponent::FallbackLabel(const FXacePlaybackCommand& Command)
+{
+	const FString Explicit = GetCommandParameter(Command, TEXT("xace_fallback_label"), TEXT("")).TrimStartAndEnd();
+	if (!Explicit.IsEmpty())
+	{
+		return Explicit;
+	}
+	return FString::Printf(TEXT("XACE fallback\n%s\n%s"), *FallbackKind(Command).Replace(TEXT("visible_"), TEXT("")), *Command.Asset.Id);
 }
 
 FString UXaceDeltaApplicatorComponent::CommandResourcePath(const FXacePlaybackCommand& Command)

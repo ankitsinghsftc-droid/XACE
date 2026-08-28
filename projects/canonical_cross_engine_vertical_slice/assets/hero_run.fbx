@@ -1,0 +1,3 @@
+XACE canonical vertical slice placeholder animation clip v1.
+This is a small hash-stable fixture file; installed-engine tasks may replace it
+with engine-native imported assets while preserving the CGS asset identity.

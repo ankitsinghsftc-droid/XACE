@@ -57,7 +57,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any
 
-from .model_descriptor import ModelDescriptor, ComplexityTier
+from .model_descriptor import ModelDescriptor, ComplexityTier, ModelCapability
 from .provider_registry import ProviderRegistry, ProviderNotFoundError
 from .telemetry_pipeline import TelemetryPipeline, InferenceTelemetryEvent
 from .inference_budget import InferenceBudget, BudgetExceededError
@@ -65,7 +65,13 @@ from .inference_retry_policy import InferenceRetryPolicy
 from .prompt_cache import PromptCache
 from .response_cache import ResponseCache
 from .cache_key_builder import CacheKeyBuilder
-
+from .structured_output import (
+    StructuredOutputContract,
+    StructuredOutputPlan,
+    repair_quarantine_prompt,
+    structured_output_plan_for,
+    validate_structured_output_text,
+)
 
 # ── Prompt Part ───────────────────────────────────────────────────────────────
 
@@ -135,6 +141,7 @@ class InferenceRequest:
     cgs_structural_hash:   str             = ""
     intent_class:          str             = ""
     bypass_response_cache: bool            = False
+    structured_output:     StructuredOutputContract | None = None
 
     def full_prompt_text(self) -> str:
         """Returns all prompt parts concatenated (for token estimation)."""
@@ -269,8 +276,15 @@ class InferenceAdapter:
         # Budget pre-check
         self._budget.pre_check(request.session_id)
 
+        # Resolve descriptor (model_router decides which model within the tier)
+        descriptor = self._registry.get(request.logical_model)
+        structured_plan = self._structured_output_plan(request, descriptor)
+
+        # Provider-level structured output must not be hidden by a stale cache hit.
+        use_response_cache = not request.structured_output and not request.bypass_response_cache
+
         # Response cache lookup
-        if not request.bypass_response_cache and request.cgs_structural_hash:
+        if use_response_cache and request.cgs_structural_hash:
             cache_key = self._key_builder.build(
                 intent_class        = request.intent_class,
                 structural_cgs_hash = request.cgs_structural_hash,
@@ -280,19 +294,29 @@ class InferenceAdapter:
             if cached_text is not None:
                 return self._cached_response(cached_text, request)
 
-        # Resolve descriptor (model_router decides which model within the tier)
-        descriptor = self._registry.get(request.logical_model)
+        prompt_parts = request.prompt_parts
+        if request.structured_output is not None and structured_plan.mode == "repair_quarantine":
+            prompt_parts = [
+                *prompt_parts,
+                PromptPart(
+                    text=repair_quarantine_prompt(request.structured_output),
+                    cacheable=False,
+                    label="structured_output_repair_quarantine",
+                ),
+            ]
 
         # Build prompt with cache_control directives applied
         prepared_prompt = self._prompt_cache.prepare(
-            request.prompt_parts, descriptor, request.system_prompt
+            prompt_parts, descriptor, request.system_prompt
         )
 
         # Dispatch with retry
         start_ms = time.monotonic() * 1000
         retry_report: dict[str, Any] = {}
         try:
-            raw_resp, retry_report = self._dispatch_with_retry(request, descriptor, prepared_prompt)
+            raw_resp, retry_report = self._dispatch_with_retry(
+                request, descriptor, prepared_prompt, structured_plan
+            )
         except Exception as exc:
             latency = time.monotonic() * 1000 - start_ms
             retry_report = getattr(exc, "retry_report", None) or retry_report
@@ -332,7 +356,7 @@ class InferenceAdapter:
         )
 
         # Store in response cache if structural hash available
-        if request.cgs_structural_hash and not request.bypass_response_cache:
+        if request.cgs_structural_hash and use_response_cache:
             self._resp_cache.put(cache_key, response.text)
 
         # Telemetry — II8: every call emits an event
@@ -353,6 +377,7 @@ class InferenceAdapter:
             cached             = False,
             provider_kind      = self._telemetry_provider_kind(descriptor.provider, cached=False),
             **self._retry_telemetry_fields(retry_report),
+            **structured_plan.telemetry_fields(),
         ))
 
         return response
@@ -364,21 +389,35 @@ class InferenceAdapter:
         request:         InferenceRequest,
         descriptor:      ModelDescriptor,
         prepared_prompt: Any,
+        structured_plan: StructuredOutputPlan,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         """Dispatches to provider with retry logic applied."""
         provider_client = self._registry.get_client(descriptor.provider)
         max_tokens      = request.max_tokens or descriptor.max_output_tokens
         prepared_payload = getattr(prepared_prompt, "payload", prepared_prompt)
+        native_contract = request.structured_output if structured_plan.supported else None
         reports: list[dict[str, Any]] = []
 
         def _attempt() -> dict[str, Any]:
-            return provider_client.complete(
-                model_id      = descriptor.model_id,
-                prompt        = prepared_payload,
-                system_prompt = request.system_prompt,
-                max_tokens    = max_tokens,
-                temperature   = request.temperature,
-            )
+            call_kwargs = {
+                "model_id": descriptor.model_id,
+                "prompt": prepared_payload,
+                "system_prompt": request.system_prompt,
+                "max_tokens": max_tokens,
+                "temperature": request.temperature,
+            }
+            if native_contract is not None:
+                call_kwargs["structured_output"] = native_contract
+            response = provider_client.complete(**call_kwargs)
+            if request.structured_output is not None:
+                errors = validate_structured_output_text(
+                    str(response.get("text", "")), request.structured_output
+                )
+                if errors:
+                    quarantined = dict(response)
+                    quarantined["__xace_structured_output_error"] = "; ".join(errors[:3])
+                    return quarantined
+            return response
 
         response = self._retry.execute(
             _attempt,
@@ -390,6 +429,16 @@ class InferenceAdapter:
         )
         return response, (reports[-1] if reports else {})
 
+    @staticmethod
+    def _structured_output_plan(
+        request: InferenceRequest,
+        descriptor: ModelDescriptor,
+    ) -> StructuredOutputPlan:
+        return structured_output_plan_for(
+            descriptor.provider,
+            request.structured_output,
+            descriptor_supports_structured_output=descriptor.can(ModelCapability.STRUCTURED_OUTPUT),
+        )
     def _emit_provider_failure_telemetry(
         self,
         request: InferenceRequest,
@@ -408,6 +457,7 @@ class InferenceAdapter:
         retry_fields = self._retry_telemetry_fields(report)
         if not retry_fields.get("failure_category"):
             retry_fields["failure_category"] = category
+        structured_plan = self._structured_output_plan(request, descriptor)
         self._telemetry.emit(InferenceTelemetryEvent(
             request_id      = request.request_id,
             session_id      = request.session_id,
@@ -420,6 +470,7 @@ class InferenceAdapter:
             cached          = False,
             provider_kind   = self._telemetry_provider_kind(descriptor.provider, cached=False),
             **retry_fields,
+            **structured_plan.telemetry_fields(quarantined=(category == "schema_error")),
         ))
 
     @staticmethod

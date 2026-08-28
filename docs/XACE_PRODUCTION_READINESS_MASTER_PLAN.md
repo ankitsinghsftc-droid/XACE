@@ -56,10 +56,10 @@ What is incomplete or unproven:
   reports, hosted-provider/runtime threshold execution, and broader security
   review remain pending.
 - Import currently wraps an engine project with a new XACE project and records `engine_project_path`; it does not reverse-engineer engine-native gameplay into CGS.
-- Export currently copies adapter source into `.xace/exports/<target>`; it is not final platform packaging.
+- Adapter package handoff now runs a pre-copy gate over target engine, CGS, persisted SGC plan, runtime compatibility, adapter protocol/version markers, asset refs, semantic bindings, and local secret patterns before copying a versioned adapter package with compatibility matrix, dependency declarations, lifecycle scripts, rollback metadata, and SHA-256 checksums into `.xace/adapter_package_handoffs/<target>`; it is not final platform packaging.
 - Provider settings now store API keys through an OS credential backend: Windows Credential Manager, macOS Keychain, and Linux Secret Service/libsecret via `secret-tool`. The JSON settings file stores metadata, fingerprints, and credential references only. Linux can use an unsafe file fallback only when explicitly enabled for development/testing. Hosted model IDs start unresolved unless inference-owned provider discovery or user entry supplies an exact model. Builder, PIL, GDE, and tools now have a CI/certification gate preventing provider execution outside `packages/inference`; provider calls through `InferenceAdapter` also record timeout, retry, rate-limit, backoff, failure-category, final-outcome, deterministic user-facing error telemetry, and redacted prompt/completion/cache token, cost, model, tier, latency, request ID, cache, deterministic, and failure accounting artifacts for local simulated paths.
 - Multiplayer modules provide primitives, not a complete user-facing multiplayer flow with chaos proof.
-- Cross-engine portability is not proven as a single CGS-owned vertical slice with movement, combat, inventory, save/load, rollback, replay, semantic bindings, and multiplayer across Godot, Unity, and Unreal.
+- Cross-engine portability now has a single versioned CGS-owned vertical-slice fixture covering movement, combat, health, inventory, save/load, rollback, replay, semantic bindings, animation, audio, VFX fallback, and network-ready input for Godot, Unity, and Unreal; installed-engine execution and cross-engine hash comparison remain pending.
 
 Contradictions requiring correction:
 
@@ -106,12 +106,12 @@ Reality table:
 | Rollback | Rollback bookkeeping | `network-core/src/prediction/rollback_manager.rs`, snapshots | Partial primitive | Live snapshot ring, restore validation, UX | High | No | Yes | Yes | Yes |
 | Resync | Desync recovery | `network-core/src/synchronisation/resync_engine.rs`, adapter delta recovery | Partial primitive | End-to-end runtime/client proof | High | No | Yes | Yes | Yes |
 | Replication | Interest/relevance | `network-core/src/replication/**` | Partial primitive | Integrated sessions, perf, mismatch handling | High | No | Yes | Yes | Yes |
-| Engine adapters | Godot/Unity/Unreal bridge | `adapters/godot`, `adapters/unity`, `adapters/unreal`, `engine-adapter` | Adapter source and validation hooks exist | Versioned packages, installed-editor proof artifacts, long-run proof | Medium-High | No, if scoped | Yes | Yes | Yes |
+| Engine adapters | Godot/Unity/Unreal bridge | `adapters/godot`, `adapters/unity`, `adapters/unreal`, `engine-adapter` | Adapter source, validation hooks, and versioned package lifecycle wrappers exist | Signed packages, installed-editor proof artifacts, long-run proof | Medium-High | No, if scoped | Yes | Yes | Yes |
 | Godot integration | Live adapter | `adapters/godot/*.gd`, `tools/xace_godot_dev.py`, cert runner | More complete than others locally | Product packaging, user install, visual proof, cross-platform | Medium | No | Yes | Yes | Yes |
 | Unity integration | Live adapter | `adapters/unity/*.cs`, editor validation command | Source and commandlet path | Installed Unity matrix, package import proof | Medium | No | Yes | Yes | Yes |
 | Unreal integration | Live adapter | `adapters/unreal/*.cpp/.h`, commandlet validation | Source and commandlet path | Unreal version matrix, plugin packaging, automation reliability | Medium | No | Yes | Yes | Yes |
 | Import | Existing engine project import | `ProjectCreator.import_engine_project()`, `/api/project/import-engine` | Wraps engine project and creates starter CGS | Assisted migration, honest detection/mapping, no reverse-engineering overclaim | High | Yes, if import advertised | Yes | Yes | Yes |
-| Export | Adapter export | `/api/export/{target}` in `builder_server.py` | Copies adapter files only | Packaging boundary UX, preflight, engine-owned build handoff | Medium | No | Yes | Yes | Yes |
+| Adapter package handoff | Adapter package handoff | `/api/adapter-package/handoff/{target}` in `builder_server.py`, `packages/project-system/adapter_package_handoff_preflight.py`, `packages/project-system/adapter_package_versioning.py` | Preflight-gated, version-manifested adapter copy only | Package signing/update channel, installed-editor import matrix, engine-owned build handoff | Medium | No | Yes | Yes | Yes |
 | Bidirectional edit loop | Runtime/editor edits | `engine_edit`, `engine_edit_commit`, `set_preview_component_field()` | Narrow preview field edits | Authority/version/conflict model, multi-step proof | High | No | Yes | Yes | Yes |
 | SGC | System graph compiler | `packages/system-graph-compiler/src/**`, `tools/sgc_cli_integration.py`, `tools/runtime_sgc_plan_loader_smoke.py`, `tools/runtime_sgc_schedule_snapshot_smoke.py`, `tools/sgc_runtime_proof.py`, `tools/cgs_end_to_end_proof.py`, `tools/generated_system_safe_compile_smoke.py`, `sgc_plan_validator.py`, `tools/prompt_pipeline_smoke.py`, `docs/SGC_EXECUTION_PLAN_CONTRACT.md` | CLI input/error contract, persisted-plan schema/contract, Builder proof persistence, strict runtime persisted-plan loading and compatibility checks, stale-plan migration invalidation proof, no-silent-filtering CGS-derived compatibility proof, local generated-system ABI validation, local safe generated-code compile/sign/register gate, local unsupported generated-system rejection, runtime schedule snapshot/replay proof for persisted plans, retained local CGS-to-SGC-to-runtime tick-hash replay proof command, retained end-to-end CGS proof command with rollback failure and adapter snapshot output, explicit deterministic sequential runtime policy for SGC-parallel-eligible groups, two generated executor kinds registered/executed through the real runtime registry, real-binary prompt certification, plan validation, actionable failure surfacing, CI artifact-retention workflow, and 100-system benchmark exist locally | Plugin/external executor contracts, release-wide artifact signing, and release CI artifact review | Critical | Yes | Yes | Yes | Yes |
 | Prompt pipeline | AI-assisted authoring | `PILPipeline`, deterministic prompt contract, provider gate, real-SGC prompt smoke, `docs/prompt_capability_matrix.json`, `docs/PROMPT_CAPABILITY_MATRIX.md`, `docs/prompt_corpus_100.jsonl`, `docs/prompt_corpus_manifest.json`, `docs/PROMPT_CORPUS.md`, `docs/prompt_launch_thresholds.json`, `docs/PROMPT_LAUNCH_THRESHOLDS.md`, `docs/prompt_security_cases.jsonl`, `docs/PROMPT_SECURITY_TESTS.md`, `docs/INFERENCE_ADAPTER_BOUNDARY.md`, `docs/HOSTED_PROVIDER_PROOF_GATE.md`, `docs/PROVIDER_ROUTE_EVIDENCE_POLICY.md`, `docs/PROVIDER_TIMEOUT_RETRY_POLICY.md`, `docs/PROVIDER_TOKEN_COST_ACCOUNTING.md`, `docs/PROVIDER_HEALTH_STALE_POLICY.md`, Builder `/api/prompt/capability-matrix`, `prompt_classifier_gate.py`, classifier clarification session/resolution records, prompt diff preview approval records, deterministic simple-edit records, prompt apply recovery reports, prompt apply feedback reports, prompt security reports, inference boundary reports, provider retry reports, provider accounting reports, provider health/stale-policy reports, hosted-provider proof reports when opted in, provider route-evidence reports, provider UX state tests, `tools/prompt_corpus_check.py`, `tools/prompt_corpus_benchmark.py`, `tools/deterministic_simple_edit_benchmark.py`, `tools/prompt_launch_threshold_check.py`, `tools/prompt_security_check.py`, `tools/inference_adapter_boundary_check.py`, `tools/hosted_provider_proof_gate.py`, `tools/provider_route_evidence_check.py`, `tools/provider_timeout_retry_check.py`, `tools/provider_token_cost_accounting_check.py`, `tools/provider_readiness_smoke.py` | Partial; supported examples, shared Task 35 matrix, Task 36 classifier gate, Task 37 bounded clarification loop, Task 42 structured approval gate, Task 44 covered rollback recovery, Task 45 structured apply feedback, Task 46 reviewed corpus, Task 47 local benchmark reports, Task 48 thresholds, Task 50 prompt-security attack cases, Task 51 inference boundary, Task 52 provider retry telemetry, Task 53 provider accounting, Task 54 provider health/stale-policy proof, Task 55 opt-in proof gate, Task 56 route-evidence gate, Task 57 provider UX-state coverage, and Task 58 deterministic simple-edit proof certify routing, no persistence without approval, no partial CGS/artifact/UI-success state on covered failures, non-generic Builder failure surfacing, versioned corpus coverage, generated JSON/Markdown/accounting benchmark artifacts, fail-below-threshold behavior, blocked/quarantined covered attack cases, CI failure for direct provider execution outside `packages/inference`, deterministic timeout/rate-limit/server/schema/quality provider-call telemetry, exact token/cost/request accounting, blocked stale/missing/invalid/untested provider settings, no live provider calls before opt-in, stale/unbenchmarked automatic route rejection, explicit no-key/invalid-key/stale-proof/quota/rate-limit/outage Builder states, and zero provider/provider-readiness/PIL/LLM calls for certified player-speed value edits | Live hosted provider/runtime threshold pass and broader security review | High | Yes, for prompt feature | Yes | Yes | Yes |
@@ -620,17 +620,16 @@ Launch tier: P1.
 
 ### Workstream 10: Cross-Engine Gameplay-Core Migration
 
-Current state: Adapter source and validation tooling exist; complete vertical slice proof is not yet recorded in this plan.
+Current state: Adapter source and validation tooling exist, and X10-063 records a versioned canonical CGS-owned vertical-slice fixture at `projects/canonical_cross_engine_vertical_slice` with a retained local verifier. Installed-engine execution and cross-engine hash comparison are not yet recorded in this plan.
 
-Repository areas: `adapters/**`, `tools/certify_launch.py`, `tools/three_engine_runtime_smoke.py`, templates, runtime.
+Repository areas: `projects/canonical_cross_engine_vertical_slice`, `tools/canonical_vertical_slice_check.py`, `adapters/**`, `tools/certify_launch.py`, `tools/three_engine_runtime_smoke.py`, templates, runtime.
 
 Missing work:
 
-1. Define one CGS-owned vertical slice with movement, combat, health, inventory, save/load, rollback, replay, semantic asset bindings, animation/audio/VFX triggers.
-2. Run in Godot, Unity, and Unreal with installed engines.
-3. Compare runtime hashes and adapter reports.
-4. Record visual proof.
-5. Document what auto-ports versus what must be rebound.
+1. Run the canonical fixture in Godot, Unity, and Unreal with installed engines.
+2. Compare runtime hashes and adapter reports.
+3. Record visual proof.
+4. Document what auto-ports versus what must be rebound.
 
 Tests: cross-engine certification, hash compare, adapter command validation.
 
@@ -650,30 +649,30 @@ Complexity: High.
 
 Launch tier: P1/P2 depending launch promise.
 
-### Workstream 11: Export And Finished-Game Shipping Boundary
+### Workstream 11: Adapter Package Handoff And Finished-Game Shipping Boundary
 
-Current state: Adapter source export exists.
+Current state: Adapter package handoff exists with a pre-copy gate and versioned package manifest.
 
-Repository areas: `/api/export/{target}`, adapter install helpers, `builder_server.py`.
+Repository areas: `/api/adapter-package/handoff/{target}`, `packages/project-system/adapter_package_handoff_preflight.py`, `packages/project-system/adapter_package_versioning.py`, adapter install helpers, adapter lifecycle wrappers, `builder_server.py`.
 
 Honest boundary:
 
-- XACE exports adapters/config/runtime artifacts.
+- XACE hands off adapters/config/runtime artifacts for engine-owned integration.
 - Engines own final packaging/builds.
 
 Missing work:
 
-1. Rename export UX to "Export/install adapter package" unless full packaging exists.
-2. Add preflight validation.
-3. Add engine handoff instructions.
-4. Capture packaging failures if invoking engine builds in future.
-5. Add export cleanliness scan for secrets.
+1. Keep UX/API/report wording as "adapter package handoff" unless full packaging exists.
+2. Add engine handoff instructions.
+3. Capture packaging failures if invoking engine builds in future.
+4. Add package signing/update-channel metadata.
+5. Add installed-editor package import matrix.
 
-Tests: export each target, manifest content, no secrets, install into sample engine project.
+Tests: hand off each target, manifest content, no secrets, install into sample engine project.
 
 Failure injection: target folder existing, permission failure, unknown target.
 
-Proof artifacts: export manifest, file list, hash.
+Proof artifacts: handoff manifest, file list, hash.
 
 Exit criteria: no UI/docs imply XACE alone ships a finished game.
 
@@ -1102,7 +1101,7 @@ Pass: OS credential storage used; no keys in source, project, CGS, logs, exports
 | 11. Import/edit loop | Honest migration/editing | Assisted import, live edit conflicts | Project system, adapters | Journey tests | No false import/edit claim | Phase 3 | Parallel |
 | 12. Cross-engine proof | Prove core portability | Vertical slice in 3 engines | Adapters/runtime/templates | Installed engine reports | All required engines pass | Phases 5-6 | Engine tasks parallel |
 | 13. Assets/bindings | Polish semantic assets | Registry path, binding UI/proof | Assets/adapters/UI | Playback proof | Missing refs handled | Phase 12 partly | Parallel |
-| 14. Export boundary | Honest handoff | Adapter/package export and preflight | Builder/adapters | Export manifests | No finished-game overclaim | Phase 8 | Parallel |
+| 14. Adapter package handoff boundary | Honest handoff | Adapter package handoff, preflight, and version manifests | Builder/adapters | Handoff manifests and package verification reports | No finished-game overclaim | Phase 8 | Parallel |
 | 15. Scale/fuzz/soak/CI | Production pressure | Benchmarks, fuzz, soak, CI artifacts | All | CI/artifacts | Regression gates exist | Core phases | Parallel after core |
 | 16. Docs/onboarding/gates | Launch readiness | Final docs, onboarding, gate checklist | Docs/UI/tools | Gate review | Alpha/beta/launch gates signed | All prior | Sequential finish |
 
@@ -1117,11 +1116,11 @@ Pass: OS credential storage used; no keys in source, project, CGS, logs, exports
 | Deterministic gameplay runtime. | Interface/partial, not live guarantee | Guard modules, tests; live path lacks hooks | Live enforcement and torture test | No, unless narrowed | Yes only after proof |
 | Rollback multiplayer. | Primitive partial | network-core rollback modules | Integrated rollback/resync chaos | No | Only if chaos passes |
 | Production-grade multiplayer. | Unsupported | Primitives only | Full product flow/chaos/security | No | No unless fully proven |
-| Portable gameplay core across Godot, Unity, and Unreal. | Partially demonstrated, not complete | Adapters and certification hooks | Cross-engine vertical slice | Narrowly for adapter protocol | Yes after slice proof |
+| Portable gameplay core across Godot, Unity, and Unreal. | Fixture defined, installed proof pending | Adapters, certification hooks, and `projects/canonical_cross_engine_vertical_slice` | Installed-engine vertical slice and core-hash comparison | Narrowly for the versioned CGS fixture and adapter protocol | Yes after installed slice proof |
 | Import an existing engine project into XACE. | Wrapper only | `import_engine_project()` creates starter CGS | Assisted migration | Only as "wrap/link" | Yes, honestly scoped |
 | Bidirectional XACE-engine editing. | Narrow partial | engine edit/commit routes | Authority/conflict journeys | No or very narrow | Yes after P1 |
 | Migrate a project cleanly between engines. | Not proven | Project/adapter setup | Vertical slice and rebinding | No | Narrow gameplay-core only |
-| Export a finished game. | Unsupported | Adapter export only | Engine packaging integration | No | No unless engine-owned handoff wording |
+| Export a finished game. | Unsupported | Adapter package handoff only | Engine packaging integration | No | No unless engine-owned handoff wording |
 | Integrate real animation, audio, VFX, and assets. | Semantic partial | bindings/assets/playback smoke | Creator binding workflows | Narrow semantic refs | Yes after binding proof |
 | Ready for non-technical public creators. | Not yet | Builder onboarding partial | UX validation, guardrails | No | Not until human UX proof |
 | Ready for professional studios. | Not yet | Architecture foundations | CI/security/compat/perf/team workflows | No | No; P2/P3 roadmap |
