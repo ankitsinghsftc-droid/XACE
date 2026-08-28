@@ -136,7 +136,7 @@ def classify_prompt(prompt: str) -> PromptClassifierResult:
                 category,
                 confidence=confidence,
                 reason=category["builder_copy"],
-                route=_route_for(category),
+                route=_route_for_pattern(category, signals, normalized),
                 signals=tuple(name for name, _pattern in signals),
             )
 
@@ -215,6 +215,18 @@ def _route_for(category: dict[str, Any]) -> str:
     return "blocked"
 
 
+def _route_for_pattern(
+    category: dict[str, Any],
+    signals: tuple[tuple[str, re.Pattern[str]], ...],
+    normalized_prompt: str,
+) -> str:
+    if str(category.get("id") or "") == "certified_supported":
+        matched = {name for name, pattern in signals if pattern.search(normalized_prompt)}
+        if "certified_inventory_component" in matched or "certified_pickup_actor" in matched:
+            return "mutation_preview_with_sgc"
+    return _route_for(category)
+
+
 def _clarification_question(result: PromptClassifierResult) -> dict[str, Any]:
     return {
         "question_id": "prompt-capability-scope",
@@ -255,20 +267,12 @@ _PATTERN_CLASSIFIERS: tuple[tuple[str, float, tuple[tuple[str, re.Pattern[str]],
         "unsupported",
         0.99,
         (
-            ("prompt_injection", _p(r"\b(?:ignore|forget|bypass)\b.{0,40}\b(?:instructions|guard|gate|policy|safety|classifier)\b")),
+            ("prompt_injection", _p(r"\b(?:ignore|forget|bypass)\b.{0,40}\b(?:instructions|guard|gate|policy|safety|classifier|parser)\b")),
             ("secret_or_file_exfiltration", _p(r"\b(?:read|scan|exfiltrate|upload|send|steal)\b.{0,50}\b(?:desktop|files?|secrets?|api keys?|env|environment|\.env|credentials?)\b")),
             ("code_execution", _p(r"\b(?:os\.system|subprocess|eval\(|exec\(|rm -rf|curl |powershell|cmd\.exe|chmod|sudo)\b")),
             ("path_traversal", _p(r"(?:\.\./|/etc/passwd|c:\\\\users\\\\)")),
-        ),
-    ),
-    (
-        "unsupported",
-        0.96,
-        (
-            ("engine_native_code", _p(r"\b(?:monobehaviour|gdscript|blueprint|unreal c\+\+|unity script|engine-native script)\b")),
-            ("hosted_service", _p(r"\b(?:hosted matchmaking|payment system|billing|storefront|dedicated server|backend service|database service)\b")),
-            ("direct_filesystem_or_network", _p(r"\b(?:read files?|write files?|delete files?|network access|http request|download from|upload to)\b")),
-            ("unproven_packaging", _p(r"\b(?:publish|package|ship|deploy)\b.{0,40}\b(?:every platform|steam|app store|google play|console)\b")),
+            ("unknown_cgs_path_mutation", _p(r"\b(?:force|apply|commit)\b.{0,50}\b(?:set|mutation)\b.{0,50}\b(?:unknown cgs path|modes\.[\w.]+)\b")),
+            ("automatic_project_conversion", _p(r"\b(?:automatically|auto)\b.{0,40}\b(?:convert|port|migrate)\b.{0,40}\b(?:entire|whole|engine-native|unity project|unreal project)\b")),
         ),
     ),
     (
@@ -277,7 +281,17 @@ _PATTERN_CLASSIFIERS: tuple[tuple[str, float, tuple[tuple[str, re.Pattern[str]],
         (
             ("complete_game_scope", _p(r"\b(?:complete|entire|full|finished)\b.{0,50}\b(?:online game|game|project)\b")),
             ("all_content_scope", _p(r"\ball\b.{0,40}\b(?:art|audio|animation|servers?|stores?|levels?|assets?)\b")),
-            ("automatic_project_conversion", _p(r"\b(?:automatically|auto)\b.{0,40}\b(?:convert|port|migrate)\b.{0,40}\b(?:entire|whole|engine-native)\b")),
+        ),
+    ),
+    (
+        "unsupported",
+        0.96,
+        (
+            ("engine_native_code", _p(r"(?:\bmonobehaviour\b|\bgdscript\b|\bblueprint\b|\bunreal\s+c\+\+|\bunity script\b|\bengine-native script\b)")),
+            ("hosted_service", _p(r"\b(?:hosted matchmaking|payment system|billing|storefront|dedicated server|backend service|database service)\b")),
+            ("direct_filesystem_or_network", _p(r"\b(?:read files?|write files?|delete files?|network access|http request|download\b.{0,40}\b(?:internet|external|market prices)|download from|upload to)\b")),
+            ("unproven_packaging", _p(r"\b(?:publish|package|ship|deploy)\b.{0,40}\b(?:every platform|steam|app store|google play|console)\b")),
+            ("automatic_project_conversion", _p(r"\b(?:automatically|auto)\b.{0,40}\b(?:convert|port|migrate)\b.{0,40}\b(?:entire|whole|engine-native|unity project|unreal project)\b")),
         ),
     ),
     (
@@ -290,21 +304,21 @@ _PATTERN_CLASSIFIERS: tuple[tuple[str, float, tuple[tuple[str, re.Pattern[str]],
         ),
     ),
     (
-        "certified_supported",
-        0.94,
-        (
-            ("certified_player_speed", _p(r"\b(?:set|change|update)\b.{0,30}\bplayer\b.{0,30}\b(?:movement )?speed\b.{0,20}\bto\b\s+\d+(?:\.\d+)?\b")),
-            ("certified_inventory_component", _p(r"\badd\b.{0,20}\b(?:general )?inventory component\b.{0,20}\bplayer\b")),
-            ("certified_pickup_actor", _p(r"\badd\b.{0,20}\b(?:one )?(?:generic )?pickup\b.{0,40}\bplayer\b")),
-        ),
-    ),
-    (
         "constrained",
         0.84,
         (
             ("bounded_stamina", _p(r"\badd\b.{0,30}\bstamina\b.{0,40}\bplayer\b")),
             ("bounded_pickup_variant", _p(r"\badd\b.{0,25}\bhealth pickup\b")),
             ("bounded_asset_link", _p(r"\blink\b.{0,40}\b(?:mesh|asset|reference)\b")),
+        ),
+    ),
+    (
+        "certified_supported",
+        0.94,
+        (
+            ("certified_player_speed", _p(r"\b(?:set|change|update)\b.{0,30}\bplayer\b.{0,30}\b(?:movement )?speed\b.{0,20}\bto\b\s+\d+(?:\.\d+)?\b")),
+            ("certified_inventory_component", _p(r"\badd\b.{0,20}\b(?:general )?inventory component\b.{0,20}\bplayer\b")),
+            ("certified_pickup_actor", _p(r"\badd\b.{0,20}\b(?:one )?(?:generic )?pickup\b.{0,40}\bplayer\b")),
         ),
     ),
     (

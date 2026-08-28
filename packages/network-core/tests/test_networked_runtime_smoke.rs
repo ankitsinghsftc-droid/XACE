@@ -5,7 +5,10 @@ use xace_network_core::input::{InputAction, InputPacket, InputSynchroniser, Lock
 use xace_network_core::prediction::{
     ClientPredictor, PredictionInput, ReconciliationEngine, ReconciliationMode, Vec3,
 };
-use xace_network_core::session::{NetworkMode, SessionConfig, SessionManager, SessionPhase};
+use xace_network_core::session::{
+    NetworkMode, SessionCompatibilityProfile, SessionConfig, SessionLifecycleEventKind,
+    SessionManager, SessionPhase, SessionPlayerIdentity,
+};
 use xace_network_core::synchronisation::{DesyncDetector, DesyncDetectorConfig, TickBarrier};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -27,6 +30,9 @@ struct SmokeDigest {
 #[derive(Debug, Clone, PartialEq, Eq)]
 struct SessionDigest {
     host_live_peers: usize,
+    host_ready_peers: Vec<u64>,
+    host_player_ids: Vec<u64>,
+    host_lifecycle_events: Vec<SessionLifecycleEventKind>,
     client_required_input_peers: Vec<u64>,
     host_can_advance: bool,
     client_can_advance: bool,
@@ -38,15 +44,37 @@ fn peers() -> BTreeSet<u64> {
 
 fn product_session_pair() -> SessionDigest {
     let mut host = SessionManager::new(NetworkMode::Host);
-    host.add_peer(1).unwrap();
-    host.add_peer(2).unwrap();
-    host.mark_peer_live(1).unwrap();
-    host.mark_peer_live(2).unwrap();
-    host.start_live().unwrap();
+    host.create_lobby().unwrap();
+    host.require_compatibility_profile(compatibility(1))
+        .unwrap();
+    host.join_peer(identity(1, 101, "Host Player")).unwrap();
+    host.join_peer_with_compatibility(identity(2, 102, "Client Player"), compatibility(2))
+        .unwrap();
+    host.mark_peer_ready(1).unwrap();
+    host.mark_peer_ready(2).unwrap();
+    host.start_live_when_ready().unwrap();
 
     let host_status = host.status();
     assert_eq!(host_status.phase, SessionPhase::Live);
     assert_eq!(host_status.required_input_peers, peers());
+    assert_eq!(host_status.ready_peers, peers());
+    assert_eq!(
+        host_status
+            .player_identities
+            .iter()
+            .map(|identity| identity.player_id)
+            .collect::<Vec<_>>(),
+        vec![101, 102]
+    );
+    assert!(host_status
+        .lifecycle_events
+        .iter()
+        .any(|event| event.kind == SessionLifecycleEventKind::LobbyCreated));
+    assert!(host_status
+        .lifecycle_events
+        .iter()
+        .any(|event| event.kind == SessionLifecycleEventKind::LiveStarted));
+    assert!(host_status.compatibility_ok);
     assert!(host.can_advance_simulation());
 
     let mut client = SessionManager::with_config(SessionConfig {
@@ -57,9 +85,13 @@ fn product_session_pair() -> SessionDigest {
         ..SessionConfig::default()
     })
     .unwrap();
-    client.add_peer(1).unwrap();
-    client.mark_peer_live(1).unwrap();
-    client.start_live().unwrap();
+    client.create_lobby().unwrap();
+    client
+        .require_compatibility_profile(compatibility(1))
+        .unwrap();
+    client.join_peer(identity(1, 101, "Host Player")).unwrap();
+    client.mark_peer_ready(1).unwrap();
+    client.start_live_when_ready().unwrap();
 
     let client_required = client.required_input_peers();
     assert_eq!(client.phase(), SessionPhase::Live);
@@ -68,10 +100,38 @@ fn product_session_pair() -> SessionDigest {
 
     SessionDigest {
         host_live_peers: host_status.peer_stats.live,
+        host_ready_peers: host_status.ready_peers.into_iter().collect(),
+        host_player_ids: host_status
+            .player_identities
+            .iter()
+            .map(|identity| identity.player_id)
+            .collect(),
+        host_lifecycle_events: host_status
+            .lifecycle_events
+            .iter()
+            .map(|event| event.kind)
+            .collect(),
         client_required_input_peers: client_required.into_iter().collect(),
         host_can_advance: host.can_advance_simulation(),
         client_can_advance: client.can_advance_simulation(),
     }
+}
+
+fn identity(peer_id: u64, player_id: u64, name: &str) -> SessionPlayerIdentity {
+    SessionPlayerIdentity::new(peer_id, player_id, name).with_adapter("headless", "x10-039")
+}
+
+fn compatibility(peer_id: u64) -> SessionCompatibilityProfile {
+    SessionCompatibilityProfile::new(
+        peer_id,
+        "0.1.0",
+        "sgc-plan-smoke",
+        "xace-adapter-1.0.0",
+        "assets-smoke",
+        "packages-smoke",
+        "provider-free-smoke",
+        "multiplayer_lobby:v1",
+    )
 }
 
 fn packet(peer_id: u64, tick: u64) -> InputPacket {

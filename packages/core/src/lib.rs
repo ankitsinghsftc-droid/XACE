@@ -10,6 +10,7 @@ pub mod entity_state;
 pub mod errors;
 pub mod events;
 pub mod fixed_point;
+pub mod input;
 pub mod mutation;
 pub mod runtime;
 pub mod schema;

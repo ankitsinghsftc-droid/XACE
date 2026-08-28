@@ -3,7 +3,9 @@ use xace_network_core::authority::{
     AuthorityTransferState,
 };
 use xace_network_core::session::{
-    ConnectionState, NetworkMode, PauseReason, SessionConfig, SessionManager, SessionPhase,
+    ConnectionState, NetworkMode, PauseReason, SessionCompatibilityMismatchKind,
+    SessionCompatibilityProfile, SessionConfig, SessionLifecycleEventKind, SessionManager,
+    SessionPhase, SessionPlayerIdentity,
 };
 use xace_network_core::NetworkError;
 
@@ -67,6 +69,276 @@ fn session_marks_timeouts_reconnecting_and_pauses() {
     assert_eq!(timed_out, vec![1]);
     assert_eq!(session.phase(), SessionPhase::Paused);
     assert_eq!(session.pause_reason(), Some(&PauseReason::PeerTimeout(1)));
+}
+
+#[test]
+fn x10_039_host_client_session_lifecycle_covers_create_join_ready_leave_reconnect_late_join_and_teardown(
+) {
+    let mut session = SessionManager::with_config(SessionConfig {
+        mode: NetworkMode::Host,
+        max_peers: 4,
+        allow_late_join: true,
+        ..SessionConfig::default()
+    })
+    .unwrap();
+
+    session.create_lobby().unwrap();
+    session
+        .join_peer(
+            SessionPlayerIdentity::new(1, 101, "Host Player").with_adapter("headless", "x10-039"),
+        )
+        .unwrap();
+    session
+        .join_peer(
+            SessionPlayerIdentity::new(2, 102, "Client Player").with_adapter("headless", "x10-039"),
+        )
+        .unwrap();
+    assert_eq!(session.phase(), SessionPhase::Lobby);
+    assert_eq!(session.player_identities().len(), 2);
+
+    session.mark_peer_ready(1).unwrap();
+    session.mark_peer_ready(2).unwrap();
+    assert!(session.all_lobby_peers_ready());
+    assert_eq!(
+        session.ready_peer_ids().into_iter().collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+
+    session.start_live_when_ready().unwrap();
+    assert_eq!(session.phase(), SessionPhase::Live);
+    assert_eq!(
+        session
+            .required_input_peers()
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+    assert_eq!(session.status().peer_stats.live, 2);
+    assert_eq!(session.status().peer_stats.ready, 2);
+    assert!(session.can_advance_simulation());
+
+    session.leave_peer(2).unwrap();
+    assert_eq!(
+        session.peers().require(2).unwrap().state,
+        ConnectionState::Disconnected
+    );
+    assert_eq!(
+        session
+            .required_input_peers()
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![1]
+    );
+    assert_eq!(
+        session.ready_peer_ids().into_iter().collect::<Vec<_>>(),
+        vec![1]
+    );
+
+    session.reconnect_peer(2).unwrap();
+    assert_eq!(
+        session.peers().require(2).unwrap().state,
+        ConnectionState::Syncing
+    );
+    session.mark_peer_ready(2).unwrap();
+    session.promote_ready_peer_to_live(2).unwrap();
+    assert_eq!(
+        session
+            .required_input_peers()
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+
+    session
+        .late_join_peer(
+            SessionPlayerIdentity::new(3, 103, "Late Join Player")
+                .with_adapter("headless", "x10-039"),
+        )
+        .unwrap();
+    assert_eq!(
+        session.peers().require(3).unwrap().state,
+        ConnectionState::Syncing
+    );
+    assert_eq!(
+        session
+            .required_input_peers()
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![1, 2]
+    );
+    session.mark_peer_ready(3).unwrap();
+    session.promote_ready_peer_to_live(3).unwrap();
+    assert_eq!(
+        session
+            .required_input_peers()
+            .into_iter()
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3]
+    );
+    assert_eq!(session.status().player_identities.len(), 3);
+
+    session.teardown().unwrap();
+    let status = session.status();
+    assert_eq!(status.phase, SessionPhase::Ended);
+    assert_eq!(status.peer_stats.disconnected, 3);
+    assert!(status.required_input_peers.is_empty());
+    assert!(status.ready_peers.is_empty());
+
+    let kinds = status
+        .lifecycle_events
+        .iter()
+        .map(|event| event.kind)
+        .collect::<Vec<_>>();
+    for expected in [
+        SessionLifecycleEventKind::Created,
+        SessionLifecycleEventKind::LobbyCreated,
+        SessionLifecycleEventKind::Joined,
+        SessionLifecycleEventKind::Ready,
+        SessionLifecycleEventKind::LiveStarted,
+        SessionLifecycleEventKind::Left,
+        SessionLifecycleEventKind::Reconnecting,
+        SessionLifecycleEventKind::Reconnected,
+        SessionLifecycleEventKind::LateJoined,
+        SessionLifecycleEventKind::TeardownStarted,
+        SessionLifecycleEventKind::Ended,
+    ] {
+        assert!(
+            kinds.contains(&expected),
+            "missing lifecycle event {expected:?}"
+        );
+    }
+}
+
+#[test]
+fn x10_040_session_compatibility_mismatch_matrix_blocks_start() {
+    for kind in [
+        SessionCompatibilityMismatchKind::Schema,
+        SessionCompatibilityMismatchKind::SgcPlan,
+        SessionCompatibilityMismatchKind::AdapterVersion,
+        SessionCompatibilityMismatchKind::Assets,
+        SessionCompatibilityMismatchKind::Packages,
+        SessionCompatibilityMismatchKind::ProviderFreeMetadata,
+        SessionCompatibilityMismatchKind::Template,
+    ] {
+        let mut session = compatibility_lobby();
+        let report = session
+            .record_peer_compatibility(mismatched_profile(2, kind))
+            .unwrap();
+        assert!(!report.compatible);
+        assert_eq!(report.mismatches.len(), 1);
+        assert_eq!(report.mismatches[0].kind, kind);
+
+        session.mark_peer_ready(1).unwrap();
+        session.mark_peer_ready(2).unwrap();
+        let err = session.start_live_when_ready().unwrap_err().to_string();
+
+        assert!(err.contains("session compatibility check failed"));
+        assert!(err.contains(kind.stable_id()));
+        assert_eq!(session.phase(), SessionPhase::Lobby);
+        let status = session.status();
+        assert!(status.compatibility_required);
+        assert!(!status.compatibility_ok);
+        assert_eq!(status.compatibility_blockers[0].kind, kind);
+        assert!(status
+            .lifecycle_events
+            .iter()
+            .any(|event| event.kind == SessionLifecycleEventKind::CompatibilityFailed));
+    }
+}
+
+#[test]
+fn x10_040_compatible_session_profiles_allow_start_and_missing_profiles_block_start() {
+    let mut compatible = compatibility_lobby();
+    let report = compatible
+        .record_peer_compatibility(compatibility_profile(2))
+        .unwrap();
+    assert!(report.compatible);
+    compatible.mark_peer_ready(1).unwrap();
+    compatible.mark_peer_ready(2).unwrap();
+    compatible.start_live_when_ready().unwrap();
+    let status = compatible.status();
+    assert_eq!(status.phase, SessionPhase::Live);
+    assert!(status.compatibility_required);
+    assert!(status.compatibility_ok);
+    assert!(status.compatibility_blockers.is_empty());
+
+    let mut missing = compatibility_lobby();
+    missing.mark_peer_ready(1).unwrap();
+    missing.mark_peer_ready(2).unwrap();
+    let err = missing.start_live_when_ready().unwrap_err().to_string();
+    assert!(err.contains("missing_profile"));
+    assert_eq!(
+        missing.status().compatibility_blockers[0].kind,
+        SessionCompatibilityMismatchKind::MissingProfile
+    );
+}
+
+fn compatibility_lobby() -> SessionManager {
+    let mut session = SessionManager::with_config(SessionConfig {
+        mode: NetworkMode::Host,
+        max_peers: 4,
+        allow_late_join: true,
+        ..SessionConfig::default()
+    })
+    .unwrap();
+    session
+        .require_compatibility_profile(compatibility_profile(1))
+        .unwrap();
+    session.create_lobby().unwrap();
+    session
+        .join_peer(
+            SessionPlayerIdentity::new(1, 101, "Host Player").with_adapter("headless", "x10-040"),
+        )
+        .unwrap();
+    session
+        .join_peer(
+            SessionPlayerIdentity::new(2, 102, "Client Player").with_adapter("headless", "x10-040"),
+        )
+        .unwrap();
+    session
+}
+
+fn compatibility_profile(peer_id: u64) -> SessionCompatibilityProfile {
+    SessionCompatibilityProfile::new(
+        peer_id,
+        "0.1.0",
+        "sgc-plan-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "xace-adapter-1.0.0",
+        "assets-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "packages-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "provider-free-dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "multiplayer_lobby:v1",
+    )
+}
+
+fn mismatched_profile(
+    peer_id: u64,
+    kind: SessionCompatibilityMismatchKind,
+) -> SessionCompatibilityProfile {
+    let mut profile = compatibility_profile(peer_id);
+    match kind {
+        SessionCompatibilityMismatchKind::Schema => profile.schema_version = "0.2.0".to_string(),
+        SessionCompatibilityMismatchKind::SgcPlan => {
+            profile.sgc_plan_hash = "sgc-plan-mismatch".to_string();
+        }
+        SessionCompatibilityMismatchKind::AdapterVersion => {
+            profile.adapter_version = "xace-adapter-2.0.0".to_string();
+        }
+        SessionCompatibilityMismatchKind::Assets => {
+            profile.asset_manifest_hash = "assets-mismatch".to_string();
+        }
+        SessionCompatibilityMismatchKind::Packages => {
+            profile.package_set_hash = "packages-mismatch".to_string();
+        }
+        SessionCompatibilityMismatchKind::ProviderFreeMetadata => {
+            profile.provider_free_metadata_hash = "provider-free-mismatch".to_string();
+        }
+        SessionCompatibilityMismatchKind::Template => {
+            profile.template_id = "arena_shooter:v2".to_string();
+        }
+        SessionCompatibilityMismatchKind::MissingProfile => {}
+    }
+    profile
 }
 
 #[test]

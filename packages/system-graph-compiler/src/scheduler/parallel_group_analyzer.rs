@@ -15,9 +15,10 @@
 //! Maintains a "current window" of systems that can all run in parallel.
 //!
 //! For each system S:
-//! - If S has no conflict with ANY system already in the current window:
+//! - If S has no conflict or direct ordering edge with ANY system already in
+//!   the current window:
 //!   → Add S to the current window
-//! - If S conflicts with any system in the window:
+//! - If S conflicts with or is directly ordered against any system in the window:
 //!   → Flush the window as one execution group
 //!   → Start a new window containing only S
 //!
@@ -107,7 +108,8 @@ impl ParallelGroupAnalyzer {
                 // Start of a new window
                 current_window.push(system_id.clone());
             } else {
-                // Check if this system conflicts with any system in current window
+                // Component hazards and direct graph dependencies both require
+                // the connected systems to occupy different execution windows.
                 let conflicts_with_window = current_window
                     .iter()
                     .any(|existing| conflict_report.must_serialize(existing, system_id, phase));
@@ -268,14 +270,30 @@ mod tests {
         ];
         let (ordered, report) = full_pipeline(&defs);
         let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
-        // sys_b depends on sys_a, sys_c depends on sys_b — no parallelism
-        // But without component conflicts, whether they parallel depends on
-        // whether the conflict report marks them as serialized
-        // With only explicit deps (no RAW/WAW), they can technically run in parallel
-        // after the dep is satisfied. Explicit deps set ordering but not parallelism.
-        // So: one parallel window possible here since no component overlap.
-        // This is correct — explicit deps are ordering constraints, not conflict markers.
-        assert!(!windows.is_empty());
+        assert_eq!(windows.len(), 3);
+        assert_eq!(windows[0].systems, vec!["sys_a"]);
+        assert_eq!(windows[1].systems, vec!["sys_b"]);
+        assert_eq!(windows[2].systems, vec!["sys_c"]);
+        assert!(windows.iter().all(|window| !window.is_parallel));
+    }
+
+    #[test]
+    fn dependency_siblings_still_co_schedule_after_predecessor() {
+        // sys_b and sys_c both wait for sys_a, but have no edge or component
+        // conflict between each other. Once sys_a completes they may co-schedule.
+        let defs = vec![
+            dep("sys_a", vec![]),
+            dep("sys_b", vec!["sys_a"]),
+            dep("sys_c", vec!["sys_a"]),
+        ];
+        let (ordered, report) = full_pipeline(&defs);
+        let windows = ParallelGroupAnalyzer::analyze_all(&ordered, &report);
+
+        assert_eq!(windows.len(), 2);
+        assert_eq!(windows[0].systems, vec!["sys_a"]);
+        assert!(!windows[0].is_parallel);
+        assert_eq!(windows[1].systems, vec!["sys_b", "sys_c"]);
+        assert!(windows[1].is_parallel);
     }
 
     #[test]

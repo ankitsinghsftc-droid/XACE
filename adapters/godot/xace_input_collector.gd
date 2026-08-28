@@ -14,6 +14,8 @@ signal actions_collected(tick: int, actions: Array)
 @export var attack_action := "attack"
 @export var interact_action := "interact"
 @export var dash_action := "dash"
+@export var jump_action := "jump"
+@export var crouch_action := "crouch"
 
 var _pointer_delta := Vector2.ZERO
 var _pointer_position := Vector2.ZERO
@@ -50,6 +52,18 @@ func get_action_profile() -> Dictionary:
 				"godot_actions": [dash_action],
 				"kind": "button",
 			},
+			{
+				"semantic_action": "Jump",
+				"wire_actions": ["Jump"],
+				"godot_actions": [jump_action],
+				"kind": "button",
+			},
+			{
+				"semantic_action": "Crouch",
+				"wire_actions": ["Crouch"],
+				"godot_actions": [crouch_action],
+				"kind": "button",
+			},
 		],
 	}
 
@@ -83,6 +97,8 @@ func collect_actions(runtime_tick: int) -> Array:
 	_append_button(actions, attack_action, "Attack", "button")
 	_append_button(actions, interact_action, "Interact", "button")
 	_append_button(actions, dash_action, "Dash", "button")
+	_append_button(actions, jump_action, "Jump", "button")
+	_append_button(actions, crouch_action, "Crouch", "button")
 	if include_pointer:
 		_append_pointer(actions)
 

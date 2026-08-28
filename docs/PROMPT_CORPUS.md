@@ -11,7 +11,7 @@ Corpus id: `xace.prompt_corpus_100.v1`
 Corpus version: `1`
 
 Corpus SHA-256:
-`479aa5e130cbe9822c4b492a16ac0d5e8d005c75d4496e819cec19fb1bb689cf`
+`9fa5bac704aa6472f28a01b09703a25771604a36d2707e38a797cf0d511b974a`
 
 Task 46 defines the reviewed 100-prompt JSONL corpus used by benchmark and
 launch-threshold work. This corpus is a static, reviewed source artifact. Task
@@ -56,6 +56,18 @@ python tools/prompt_corpus_check.py
 The checker validates JSONL syntax, manifest hash, exact case count, unique
 prompt IDs, category/route consistency, required genre/difficulty/category
 coverage, and review metadata.
+
+## X10-026 Unknown Path Case
+
+`pc099` is the reviewed adversarial case for unknown CGS path production
+hard-failure. It includes `x10_026_adversarial_case.parser_path` with the
+unsupported grammar
+`modes.mode_default.actors.actor_zombie.components.5.defaults.max_linear_speed`
+and expects a blocked production apply result.
+
+```powershell
+python tools/prompt_unknown_cgs_path_check.py --json
+```
 
 ## Benchmark
 

@@ -60,6 +60,13 @@ UNITTEST_SUITES = (
         top_level_dir="packages/asset-registry",
     ),
     SuiteSpec(
+        id="dcl",
+        label="DCL gameplay primitive catalog tests",
+        runner="unittest",
+        start_dir="packages/dcl/tests",
+        top_level_dir="packages/dcl",
+    ),
+    SuiteSpec(
         id="builder-server",
         label="Builder server unit tests",
         runner="unittest",
@@ -132,9 +139,6 @@ PYTEST_STYLE_SUITES = (
             "packages/inference/src",
         ),
         module_prefix="file",
-        alias_modules={
-            "pil_retry_policy": "retry_policy",
-        },
     ),
 )
 
@@ -392,7 +396,9 @@ def _child_run_suite(argv: list[str]) -> int:
         result = _run_unittest_suite(spec, verbose=args.verbose)
     else:
         result = _run_pytest_style_suite(spec, verbose=args.verbose)
-    Path(args.output).write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return 0 if result["ok"] else 1
 
 
@@ -530,7 +536,13 @@ def _write_report(report: dict[str, Any], output_path: Path) -> None:
     output_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def run_gate(output_path: Path, *, fail_fast: bool, verbose: bool) -> dict[str, Any]:
+def run_gate(
+    output_path: Path,
+    *,
+    fail_fast: bool,
+    verbose: bool,
+    suite_ids: list[str] | None = None,
+) -> dict[str, Any]:
     started_at = datetime.now(timezone.utc)
     start = time.perf_counter()
     output_path = output_path.resolve()
@@ -539,9 +551,15 @@ def run_gate(output_path: Path, *, fail_fast: bool, verbose: bool) -> dict[str, 
     isolation_dir = work_dir / "isolated_settings"
     isolation_dir.mkdir(parents=True, exist_ok=True)
     env = _isolation_env(isolation_dir)
+    selected_suites = (
+        tuple(_suite_by_id(suite_id) for suite_id in suite_ids)
+        if suite_ids
+        else ALL_SUITES
+    )
+    run_tool_commands = not suite_ids
 
     suites: list[dict[str, Any]] = []
-    for spec in ALL_SUITES:
+    for spec in selected_suites:
         result = _run_suite_subprocess(spec, env, work_dir, verbose=verbose)
         suites.append(result)
         status = "PASS" if result.get("ok") else "FAIL"
@@ -550,7 +568,7 @@ def run_gate(output_path: Path, *, fail_fast: bool, verbose: bool) -> dict[str, 
             break
 
     tools: list[dict[str, Any]] = []
-    if not fail_fast or all(suite.get("ok") for suite in suites):
+    if run_tool_commands and (not fail_fast or all(suite.get("ok") for suite in suites)):
         for command_id, label, command in TOOL_COMMANDS:
             result = _run_tool_command(command_id, label, command, env)
             tools.append(result)
@@ -559,11 +577,26 @@ def run_gate(output_path: Path, *, fail_fast: bool, verbose: bool) -> dict[str, 
             if fail_fast and not result.get("ok"):
                 break
 
-    syntax = _syntax_check_python_files()
-    print(
-        f"[python-gate] {'PASS' if syntax.get('ok') else 'FAIL'} "
-        f"{syntax['label']} ({syntax.get('files', 0)} files, {syntax.get('elapsed_seconds')}s)"
-    )
+    if run_tool_commands:
+        syntax = _syntax_check_python_files()
+        print(
+            f"[python-gate] {'PASS' if syntax.get('ok') else 'FAIL'} "
+            f"{syntax['label']} ({syntax.get('files', 0)} files, {syntax.get('elapsed_seconds')}s)"
+        )
+    else:
+        syntax = {
+            "id": "python-syntax",
+            "label": "Production Python syntax check",
+            "runner": "compile",
+            "ok": True,
+            "files": 0,
+            "failed": 0,
+            "elapsed_seconds": 0.0,
+            "failures": [],
+            "skipped": True,
+            "reason": "suite-specific run",
+        }
+        print("[python-gate] SKIP Production Python syntax check (suite-specific run)")
 
     elapsed = time.perf_counter() - start
     summary = _summarize(suites, tools, syntax)
@@ -571,16 +604,22 @@ def run_gate(output_path: Path, *, fail_fast: bool, verbose: bool) -> dict[str, 
         all(suite.get("ok") for suite in suites)
         and all(tool.get("ok") for tool in tools)
         and bool(syntax.get("ok"))
-        and len(suites) == len(ALL_SUITES)
-        and len(tools) == len(TOOL_COMMANDS)
+        and len(suites) == len(selected_suites)
+        and (len(tools) == len(TOOL_COMMANDS) if run_tool_commands else True)
     )
+    command = [sys.executable, "tools/python_test_gate.py", "--output", str(output_path)]
+    for suite_id in suite_ids or []:
+        command.extend(["--suite", suite_id])
+
     report = {
         "schema": "xace.python_test_gate.v1",
         "ok": ok,
         "started_at_utc": started_at.isoformat(),
         "elapsed_seconds": round(elapsed, 3),
         "repo_root": str(REPO_ROOT),
-        "command": [sys.executable, "tools/python_test_gate.py", "--output", str(output_path)],
+        "command": command,
+        "selected_suites": [suite.id for suite in selected_suites],
+        "tool_commands_enabled": run_tool_commands,
         "isolation": {
             "settings_path": env["XACE_PROVIDER_SETTINGS_PATH"],
             "credential_store_path": env["XACE_UNSAFE_CREDENTIAL_STORE_PATH"],
@@ -610,9 +649,23 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--fail-fast", action="store_true", help="Stop after the first failing suite or tool.")
     parser.add_argument("--verbose", action="store_true", help="Use verbose suite output in child runners.")
+    parser.add_argument(
+        "--suite",
+        action="append",
+        choices=[suite.id for suite in ALL_SUITES],
+        help=(
+            "Run only the named suite and skip repository tool commands. "
+            "May be repeated. Example: --suite prompt-intelligence."
+        ),
+    )
     args = parser.parse_args(argv)
 
-    report = run_gate(Path(args.output), fail_fast=bool(args.fail_fast), verbose=bool(args.verbose))
+    report = run_gate(
+        Path(args.output),
+        fail_fast=bool(args.fail_fast),
+        verbose=bool(args.verbose),
+        suite_ids=args.suite,
+    )
     return 0 if report["ok"] else 1
 
 

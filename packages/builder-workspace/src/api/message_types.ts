@@ -6,7 +6,7 @@
  * live runtime, engine preview, and PIL state stay in one protocol surface.
  */
 
-import type { CGS, CGSSnapshot } from '../types/cgs';
+import type { CGS, CGSSnapshot, SemanticAssetBinding } from '../types/cgs';
 import type {
   AssistanceMode,
   ClarificationQuestion,
@@ -31,9 +31,7 @@ export type RuntimeControlAction =
 export type EngineEditKind =
   | 'select_entity'
   | 'set_component_field'
-  | 'focus_entity'
-  | 'spawn_preview'
-  | 'delete_preview';
+  | 'focus_entity';
 
 export interface MessageEnvelope {
   readonly type: string;
@@ -99,10 +97,34 @@ export interface AssetLinkMessage extends MessageEnvelope {
   readonly session_id: string;
 }
 
+export interface SemanticBindingUpdateMessage extends MessageEnvelope {
+  readonly type: 'semantic_binding_update';
+  readonly bindings: readonly SemanticAssetBinding[];
+  readonly cgs_hash: string;
+  readonly session_id: string;
+}
+
 export interface CgsRollbackMessage extends MessageEnvelope {
   readonly type: 'cgs_rollback';
   readonly target_hash: string;
   readonly session_id: string;
+}
+
+export interface PromptHistoryRequestMessage extends MessageEnvelope {
+  readonly type: 'prompt_history_request';
+  readonly session_id: string;
+}
+
+export interface PromptUndoMessage extends MessageEnvelope {
+  readonly type: 'prompt_undo';
+  readonly session_id: string;
+  readonly cgs_hash?: string;
+}
+
+export interface PromptRedoMessage extends MessageEnvelope {
+  readonly type: 'prompt_redo';
+  readonly session_id: string;
+  readonly cgs_hash?: string;
 }
 
 export interface RuntimeControlMessage extends MessageEnvelope {
@@ -123,11 +145,22 @@ export interface EngineEditMessage extends MessageEnvelope {
   readonly field_path?: string;
   readonly value?: unknown;
   readonly source?: string;
+  readonly cgs_hash?: string;
+  readonly schema_version?: string;
+  readonly runtime_world_hash?: string;
+  readonly engine_adapter_sequence?: number | string;
   readonly session_id: string;
 }
 
 export interface EngineEditCommitMessage extends MessageEnvelope {
   readonly type: 'engine_edit_commit';
+  readonly kind?: EngineEditKind;
+  readonly preview_id: string;
+  readonly preview_cgs_hash: string;
+  readonly cgs_hash: string;
+  readonly schema_version: string;
+  readonly runtime_world_hash: string;
+  readonly engine_adapter_sequence: number | string;
   readonly mode_id: string;
   readonly actor_id: string;
   readonly component_type_id: number;
@@ -158,7 +191,11 @@ export type ClientMessage =
   | ModeChangeMessage
   | ModelChangeMessage
   | AssetLinkMessage
+  | SemanticBindingUpdateMessage
   | CgsRollbackMessage
+  | PromptHistoryRequestMessage
+  | PromptUndoMessage
+  | PromptRedoMessage
   | RuntimeControlMessage
   | EngineEditMessage
   | EngineEditCommitMessage
@@ -172,6 +209,7 @@ export interface SessionInitMessage extends MessageEnvelope {
   readonly hash: string;
   readonly snapshots: CGSSnapshot[];
   readonly version: string;
+  readonly prompt_history?: Record<string, unknown>;
 }
 
 export interface PilPassUpdateMessage extends MessageEnvelope {
@@ -198,6 +236,29 @@ export interface CgsUpdateMessage extends MessageEnvelope {
   readonly version_ids?: Record<string, unknown>;
   readonly execution_plan_available?: boolean;
   readonly warnings?: unknown[];
+  readonly proof_links?: Record<string, unknown>;
+  readonly prompt_history?: Record<string, unknown>;
+  readonly prompt_history_entry?: Record<string, unknown>;
+  readonly prompt_history_restore?: Record<string, unknown>;
+}
+
+export interface PromptHistoryMessage extends MessageEnvelope {
+  readonly type: 'prompt_history';
+  readonly prompt_history: Record<string, unknown>;
+}
+
+export interface PromptHistoryAckMessage extends MessageEnvelope {
+  readonly type: 'prompt_history_ack';
+  readonly action: 'undo' | 'redo' | string;
+  readonly accepted: boolean;
+  readonly reason: string;
+  readonly hash?: string;
+  readonly transaction_id?: string;
+  readonly restore_plan?: Record<string, unknown>;
+  readonly restore_event?: Record<string, unknown>;
+  readonly proof_links?: Record<string, unknown>;
+  readonly prompt_history?: Record<string, unknown>;
+  readonly latency_ms?: number;
 }
 
 export interface PilAnswerAckMessage extends MessageEnvelope {
@@ -250,6 +311,7 @@ export interface RuntimeBridgeStatus {
   readonly engine_feedback_messages_received?: number;
   readonly engine_malformed_messages?: number;
   readonly engine_dropped_inputs?: number;
+  readonly engine_adapter_sequence?: number | string;
   readonly pending_engine_inputs: number;
   readonly pending_engine_feedback?: number;
   readonly registered_systems: number;
@@ -258,6 +320,9 @@ export interface RuntimeBridgeStatus {
   readonly last_engine_feedback_invalid?: number;
   readonly last_engine_feedback_errors?: number;
   readonly latest_world_hash?: string;
+  readonly cgs_hash?: string;
+  readonly schema_version?: string;
+  readonly execution_plan_version?: string;
   readonly hash_log?: RuntimeBridgeHashRecord[];
   readonly paused?: boolean;
   readonly step_budget?: number;
@@ -304,6 +369,15 @@ export interface EngineEditAuditEntry {
   readonly reason: string;
   readonly affected_entity_ids?: string[];
   readonly runtime_tick?: number | null;
+  readonly runtime_world_hash?: string;
+  readonly runtime_cgs_hash?: string;
+  readonly runtime_schema_version?: string;
+  readonly engine_adapter_sequence?: number | string | null;
+  readonly preview_id?: string;
+  readonly preview_cgs_hash?: string;
+  readonly preview_schema_version?: string;
+  readonly commit_class?: string;
+  readonly commit_supported?: boolean;
   readonly source?: string;
 }
 
@@ -313,6 +387,7 @@ export interface EngineEditCommitAckMessage extends MessageEnvelope {
   readonly reason: string;
   readonly cgs_hash?: string;
   readonly audit_ts?: number;
+  readonly preview_id?: string;
 }
 
 export interface RuntimeControlAckMessage extends MessageEnvelope {
@@ -344,6 +419,109 @@ export interface RuntimeTickSnapshot {
   readonly spawned_ids?: number[];
   readonly destroyed_ids?: number[];
   readonly events?: RuntimeGameEvent[];
+}
+
+export interface RuntimeDebugTraceMessage extends MessageEnvelope {
+  readonly type: 'runtime_debug_trace';
+  readonly tick: number;
+  readonly systems?: RuntimeDebugSystemTrace[];
+  readonly rng_calls?: RuntimeDebugRngCallTrace[];
+  readonly network_desyncs?: RuntimeDebugNetworkDesyncTrace[];
+}
+
+export interface RuntimeDebugSystemTrace {
+  readonly system_id: string;
+  readonly phase?: string;
+}
+
+export interface RuntimeDebugRngCallTrace {
+  readonly tick?: number;
+  readonly system_id: string;
+  readonly seed?: string | number;
+  readonly stream_id?: string;
+  readonly stream_position?: number;
+  readonly call_index?: number;
+  readonly result?: string | number | boolean;
+  readonly value?: string | number | boolean;
+  readonly deterministic?: boolean;
+}
+
+export interface RuntimeDebugNetworkDesyncTrace {
+  readonly peer_id?: string | number;
+  readonly expected_hash?: string;
+  readonly actual_hash?: string;
+  readonly reason?: string;
+}
+
+export type RuntimeCausalityNodeKind =
+  | 'prompt'
+  | 'mutation'
+  | 'system'
+  | 'event'
+  | 'rng_call'
+  | 'feedback'
+  | 'network_packet'
+  | 'state_change';
+
+export type RuntimeCausalityFieldValue = string | number | boolean | null | RuntimeCausalityFieldValue[] | { readonly [key: string]: RuntimeCausalityFieldValue };
+
+export interface RuntimeCausalityTraceMessage extends MessageEnvelope {
+  readonly type: 'runtime_causality_trace';
+  readonly trace_id: string;
+  readonly tick: number;
+  readonly summary?: string;
+  readonly state_change_node_id: string;
+  readonly nodes: RuntimeCausalityNode[];
+  readonly edges: RuntimeCausalityEdge[];
+}
+
+export interface RuntimeCausalityNode {
+  readonly id: string;
+  readonly kind: RuntimeCausalityNodeKind;
+  readonly tick?: number;
+  readonly label: string;
+  readonly detail?: string;
+  readonly fields?: Record<string, RuntimeCausalityFieldValue>;
+}
+
+export interface RuntimeCausalityEdge {
+  readonly from: string;
+  readonly to: string;
+  readonly relation?: string;
+}
+
+export interface RuntimeRngTraceMessage extends MessageEnvelope {
+  readonly type: 'runtime_rng_trace';
+  readonly tick: number;
+  readonly calls: RuntimeRngTraceCall[];
+  readonly violations?: RuntimeRngTraceViolation[];
+  readonly replay?: RuntimeRngReplayTrace;
+}
+
+export interface RuntimeRngTraceCall {
+  readonly tick?: number;
+  readonly system_id: string;
+  readonly seed?: string | number;
+  readonly stream_id?: string;
+  readonly stream_position?: number;
+  readonly result?: string | number | boolean;
+  readonly call_index?: number;
+  readonly deterministic?: boolean;
+}
+
+export interface RuntimeRngTraceViolation {
+  readonly tick?: number;
+  readonly system_id?: string;
+  readonly reason?: string;
+  readonly source?: string;
+  readonly blocked?: boolean;
+}
+
+export interface RuntimeRngReplayTrace {
+  readonly replay_id?: string;
+  readonly first_hash?: string;
+  readonly second_hash?: string;
+  readonly identical?: boolean;
 }
 
 export interface TerminalOutputMessage extends MessageEnvelope {
@@ -382,6 +560,8 @@ export type ServerMessage =
   | PilPassUpdateMessage
   | PilResultMessage
   | CgsUpdateMessage
+  | PromptHistoryMessage
+  | PromptHistoryAckMessage
   | PilAnswerAckMessage
   | EngineTickMessage
   | EngineConnectedMessage
@@ -389,6 +569,9 @@ export type ServerMessage =
   | EngineEditAckMessage
   | EngineEditCommitAckMessage
   | RuntimeControlAckMessage
+  | RuntimeDebugTraceMessage
+  | RuntimeCausalityTraceMessage
+  | RuntimeRngTraceMessage
   | TerminalOutputMessage
   | TelemetryUpdateMessage
   | ServerErrorMessage
@@ -398,6 +581,8 @@ export const isSessionInit = (m: ServerMessage): m is SessionInitMessage => m.ty
 export const isPilPassUpdate = (m: ServerMessage): m is PilPassUpdateMessage => m.type === 'pil_pass_update';
 export const isPilResult = (m: ServerMessage): m is PilResultMessage => m.type === 'pil_result';
 export const isCgsUpdate = (m: ServerMessage): m is CgsUpdateMessage => m.type === 'cgs_update';
+export const isPromptHistory = (m: ServerMessage): m is PromptHistoryMessage => m.type === 'prompt_history';
+export const isPromptHistoryAck = (m: ServerMessage): m is PromptHistoryAckMessage => m.type === 'prompt_history_ack';
 export const isPilAnswerAck = (m: ServerMessage): m is PilAnswerAckMessage => m.type === 'pil_answer_ack';
 export const isEngineTick = (m: ServerMessage): m is EngineTickMessage => m.type === 'engine_tick';
 export const isEngineConnected = (m: ServerMessage): m is EngineConnectedMessage => m.type === 'engine_connected';
@@ -405,6 +590,9 @@ export const isEngineDisconnected = (m: ServerMessage): m is EngineDisconnectedM
 export const isEngineEditAck = (m: ServerMessage): m is EngineEditAckMessage => m.type === 'engine_edit_ack';
 export const isEngineEditCommitAck = (m: ServerMessage): m is EngineEditCommitAckMessage => m.type === 'engine_edit_commit_ack';
 export const isRuntimeControlAck = (m: ServerMessage): m is RuntimeControlAckMessage => m.type === 'runtime_control_ack';
+export const isRuntimeDebugTrace = (m: ServerMessage): m is RuntimeDebugTraceMessage => m.type === 'runtime_debug_trace';
+export const isRuntimeCausalityTrace = (m: ServerMessage): m is RuntimeCausalityTraceMessage => m.type === 'runtime_causality_trace';
+export const isRuntimeRngTrace = (m: ServerMessage): m is RuntimeRngTraceMessage => m.type === 'runtime_rng_trace';
 export const isTerminalOutput = (m: ServerMessage): m is TerminalOutputMessage => m.type === 'terminal_output';
 export const isTelemetryUpdate = (m: ServerMessage): m is TelemetryUpdateMessage => m.type === 'telemetry_update';
 export const isServerError = (m: ServerMessage): m is ServerErrorMessage => m.type === 'server_error';
@@ -448,6 +636,18 @@ export function makePilDiscard(sessionId: string): PilDiscardMessage {
   return { type: 'pil_discard', session_id: sessionId };
 }
 
+export function makePromptHistoryRequest(sessionId: string): PromptHistoryRequestMessage {
+  return { type: 'prompt_history_request', session_id: sessionId };
+}
+
+export function makePromptUndo(sessionId: string, cgsHash?: string): PromptUndoMessage {
+  return { type: 'prompt_undo', session_id: sessionId, ...(cgsHash ? { cgs_hash: cgsHash } : {}) };
+}
+
+export function makePromptRedo(sessionId: string, cgsHash?: string): PromptRedoMessage {
+  return { type: 'prompt_redo', session_id: sessionId, ...(cgsHash ? { cgs_hash: cgsHash } : {}) };
+}
+
 export function makeAssetLink(
   placeholderId: string,
   assetPath: string,
@@ -461,6 +661,19 @@ export function makeAssetLink(
     asset_path: assetPath,
     actor_id: actorId,
     component_name: componentName,
+    session_id: sessionId,
+  };
+}
+
+export function makeSemanticBindingUpdate(
+  bindings: readonly SemanticAssetBinding[],
+  cgsHash: string,
+  sessionId: string,
+): SemanticBindingUpdateMessage {
+  return {
+    type: 'semantic_binding_update',
+    bindings,
+    cgs_hash: cgsHash,
     session_id: sessionId,
   };
 }

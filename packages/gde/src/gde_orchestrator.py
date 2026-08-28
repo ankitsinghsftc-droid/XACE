@@ -50,6 +50,10 @@ from .domain_dsl.transaction_model.transaction_builder import (
 from .domain_dsl.transaction_model.transaction_executor import (
     TransactionExecutor, TransactionExecutionError,
 )
+from .domain_dsl.typed_operations import (
+    TypedOperationExecutionError,
+    TypedOperationExecutor,
+)
 from .prompt_interpretation.intent_object import IntentObject, GDEIntentType
 from .prompt_interpretation.intent_classifier import IntentClassifier
 from .prompt_interpretation.context_loader import ContextLoader
@@ -105,6 +109,10 @@ class GDEResult:
     unsupported:           bool                      = False
     intent:                IntentObject | None        = None
     new_cgs_hash:          str                       = ""
+
+    typed_operation_batch_hash: str                  = ''
+    typed_operation_ids:   tuple[str, ...]           = ()
+    typed_operation_kinds: tuple[str, ...]           = ()
 
     @property
     def needs_clarification(self) -> bool:
@@ -167,6 +175,7 @@ class GDEOrchestrator:
         self._q_engine       = QuestionEngine()
         self._q_sessions     = QuestionSessionManager()
         self._executor       = TransactionExecutor()
+        self._typed_executor = TypedOperationExecutor()
         self._validator      = ConsistencyValidator()
 
     # ── Initialisation ────────────────────────────────────────────────────────
@@ -292,6 +301,72 @@ class GDEOrchestrator:
 
         cgs = self._cgs_manager.current_cgs
         return self._execute_and_commit(transaction, cgs)
+
+    def process_typed_operation_batch(
+        self,
+        batch: dict[str, Any],
+        metadata: MutationMetadata,
+    ) -> GDEResult:
+        '''Apply one closed prompt operation batch without CGS path lowering.
+
+        The executor works on an isolated copy. Whole-CGS consistency is
+        checked before the sole commit call, so any failure leaves the
+        authoritative CGS byte-for-byte unchanged.
+        '''
+        if not self.is_initialised:
+            return GDEResult(error='No CGS loaded.')
+
+        cgs = self._cgs_manager.current_cgs
+        try:
+            execution = self._typed_executor.execute(batch, cgs)
+        except TypedOperationExecutionError as exc:
+            return GDEResult(
+                success=False,
+                error=f'Typed CGS operation batch rejected: {exc}',
+                code='GDE_TYPED_OPERATION_INVALID',
+                action='Regenerate the structural mutation against the current CGS.',
+            )
+
+        report = self._validator.validate_cgs_only(execution.proposed_cgs)
+        if not report.is_valid:
+            return GDEResult(
+                success=False,
+                consistency_report=report,
+                error='; '.join(report.errors[:3]),
+                code='GDE_TYPED_CGS_INCONSISTENT',
+                action='Repair the typed operation batch before retrying the mutation.',
+                typed_operation_batch_hash=execution.batch_hash,
+                typed_operation_ids=execution.operation_ids,
+                typed_operation_kinds=execution.operation_kinds,
+            )
+
+        try:
+            snapshot = self._cgs_manager.commit(
+                new_cgs=execution.proposed_cgs,
+                metadata=metadata,
+                bump='minor',
+            )
+        except CGSManagerError as exc:
+            return GDEResult(
+                success=False,
+                consistency_report=report,
+                error=str(exc),
+                code='GDE_TYPED_OPERATION_COMMIT_FAILED',
+                action='Rebase the typed operation batch on the current CGS and retry.',
+                typed_operation_batch_hash=execution.batch_hash,
+                typed_operation_ids=execution.operation_ids,
+                typed_operation_kinds=execution.operation_kinds,
+            )
+
+        return GDEResult(
+            success=True,
+            snapshot=snapshot,
+            consistency_report=report,
+            new_cgs_hash=snapshot.get('cgs_hash', ''),
+            typed_operation_batch_hash=execution.batch_hash,
+            typed_operation_ids=execution.operation_ids,
+            typed_operation_kinds=execution.operation_kinds,
+        )
 
     # ── Clarification Resume ──────────────────────────────────────────────────
 

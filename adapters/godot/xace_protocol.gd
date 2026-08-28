@@ -12,6 +12,7 @@ const MSG_TICK_SNAPSHOT := "tick_snapshot"
 const MSG_INPUT_PACKET := "input_packet"
 const MSG_FEEDBACK_PAYLOAD := "feedback_payload"
 const MSG_PLAYBACK_COMMANDS := "playback_commands"
+const MSG_ADAPTER_SIDE_EFFECT_ROLLBACK := "adapter_side_effect_rollback"
 const MSG_DISCONNECT := "disconnect"
 const MSG_ERROR := "error"
 
@@ -206,7 +207,7 @@ static func payload_dictionary(message: Dictionary) -> Dictionary:
 
 static func is_state_message(message: Dictionary) -> bool:
 	var kind: String = classify_message(message)
-	return kind == MSG_HANDSHAKE_ACK or kind == MSG_TICK_SNAPSHOT or kind == WIRE_SNAPSHOT or kind == WIRE_DELTA
+	return kind == MSG_HANDSHAKE_ACK or kind == MSG_TICK_SNAPSHOT or kind == MSG_ADAPTER_SIDE_EFFECT_ROLLBACK or kind == WIRE_SNAPSHOT or kind == WIRE_DELTA
 
 
 static func is_disconnect(message: Dictionary) -> bool:
@@ -239,6 +240,12 @@ static func _validate_legacy_message(message: Dictionary) -> String:
 				return "playback_commands has invalid tick"
 			if typeof(message.get("commands", [])) != TYPE_ARRAY:
 				return "playback_commands commands must be an array"
+			return ""
+		MSG_ADAPTER_SIDE_EFFECT_ROLLBACK:
+			if int(message.get("restore_tick", -1)) < 0:
+				return "adapter_side_effect_rollback has invalid restore_tick"
+			if typeof(message.get("restored_snapshot", {})) != TYPE_DICTIONARY:
+				return "adapter_side_effect_rollback restored_snapshot must be a dictionary"
 			return ""
 		MSG_DISCONNECT:
 			return ""

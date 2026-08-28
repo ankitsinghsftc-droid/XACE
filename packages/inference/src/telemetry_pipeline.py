@@ -145,6 +145,14 @@ class InferenceTelemetryEvent:
     failure_category:   str                = ""
     user_error_code:    str                = ""
     retry_report:       dict[str, Any]     = field(default_factory=dict)
+    structured_output_requested: bool      = False
+    structured_output_supported:  bool      = False
+    structured_output_enforced:   bool      = False
+    structured_output_mode:       str       = "none"
+    structured_output_schema_id:  str       = ""
+    structured_output_schema_name: str      = ""
+    structured_output_schema_hash: str      = ""
+    structured_output_quarantined: bool     = False
 
     @property
     def total_tokens(self) -> int:

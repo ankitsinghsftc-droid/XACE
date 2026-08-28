@@ -80,6 +80,7 @@ class IProviderClient(ABC):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: Any | None = None,
     ) -> dict[str, Any]:
         """
         Sends a completion request to the provider.

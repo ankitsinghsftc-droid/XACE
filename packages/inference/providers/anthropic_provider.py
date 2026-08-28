@@ -49,6 +49,7 @@ import time
 from typing import Any
 
 from ..src.provider_registry import IProviderClient
+from ..src.structured_output import StructuredOutputContract, anthropic_tool_config
 from ..src.inference_retry_policy import InferenceTransportError, InferenceSchemaError
 
 # Try requests, fall back to urllib for zero-dependency environments
@@ -105,6 +106,7 @@ class AnthropicProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
         """
         Dispatches a completion request to the Anthropic Messages API.
@@ -118,7 +120,7 @@ class AnthropicProvider(IProviderClient):
         dict with keys: text, input_tokens, output_tokens,
                         cache_read_tokens, cache_write_tokens
         """
-        body = self._build_body(model_id, prompt, system_prompt, max_tokens, temperature)
+        body = self._build_body(model_id, prompt, system_prompt, max_tokens, temperature, structured_output)
         raw  = self._post(body)
         return self._parse_response(raw)
 
@@ -151,6 +153,7 @@ class AnthropicProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
         """
         Builds the Anthropic API request body.
@@ -163,6 +166,8 @@ class AnthropicProvider(IProviderClient):
         }
 
         fmt = prompt.get("__format__", "")
+        if structured_output is not None:
+            body.update(anthropic_tool_config(structured_output))
 
         if fmt == "anthropic":
             # PreparedPrompt from prompt_cache.py — use structured blocks directly
@@ -269,6 +274,10 @@ class AnthropicProvider(IProviderClient):
         for block in content:
             if isinstance(block, dict) and block.get("type") == "text":
                 text += block.get("text", "")
+            elif isinstance(block, dict) and block.get("type") == "tool_use":
+                tool_input = block.get("input")
+                if isinstance(tool_input, dict):
+                    text += json.dumps(tool_input, separators=(",", ":"))
 
         usage = raw.get("usage", {})
         return {

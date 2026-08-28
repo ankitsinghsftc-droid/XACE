@@ -7,6 +7,7 @@ use crate::{EntityId, NetworkError, PeerId, Tick};
 pub struct PeerManagerStats {
     pub total: usize,
     pub live: usize,
+    pub ready: usize,
     pub disconnected: usize,
     pub desynced: usize,
 }
@@ -56,8 +57,9 @@ impl PeerManager {
     }
 
     pub fn disconnect_peer(&mut self, peer_id: PeerId, tick: Tick) -> Result<(), NetworkError> {
-        self.require_mut(peer_id)?
-            .transition(ConnectionState::Disconnected, tick)
+        let peer = self.require_mut(peer_id)?;
+        peer.set_ready(false);
+        peer.transition(ConnectionState::Disconnected, tick)
     }
 
     pub fn get(&self, peer_id: PeerId) -> Option<&Peer> {
@@ -95,6 +97,11 @@ impl PeerManager {
         tick: Tick,
     ) -> Result<(), NetworkError> {
         self.require_mut(peer_id)?.transition(state, tick)
+    }
+
+    pub fn set_ready(&mut self, peer_id: PeerId, ready: bool) -> Result<(), NetworkError> {
+        self.require_mut(peer_id)?.set_ready(ready);
+        Ok(())
     }
 
     pub fn observe_input(
@@ -169,6 +176,14 @@ impl PeerManager {
             .collect()
     }
 
+    pub fn ready_peer_ids(&self) -> BTreeSet<PeerId> {
+        self.peers
+            .iter()
+            .filter(|(_, peer)| peer.ready)
+            .map(|(&peer_id, _)| peer_id)
+            .collect()
+    }
+
     pub fn peers_in_state(&self, state: ConnectionState) -> Vec<PeerId> {
         self.peers
             .iter()
@@ -197,6 +212,7 @@ impl PeerManager {
         PeerManagerStats {
             total: self.peers.len(),
             live: self.peers_in_state(ConnectionState::Live).len(),
+            ready: self.ready_peer_ids().len(),
             disconnected: self.peers_in_state(ConnectionState::Disconnected).len(),
             desynced: self.peers_in_state(ConnectionState::Desynced).len(),
         }

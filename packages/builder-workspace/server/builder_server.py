@@ -81,6 +81,24 @@ EXPORT_TARGETS = {
 _PROJECT_SYSTEM = Path(__file__).resolve().parents[2] / "project-system"
 sys.path.insert(0, str(_PROJECT_SYSTEM))
 from project_creator import CreateProjectRequest, ProjectCreator  # noqa: E402
+from adapter_installation import (  # noqa: E402
+    AdapterInstallationError,
+    install_or_update_adapter,
+    rollback_latest_adapter_transaction,
+    uninstall_adapter,
+)
+from adapter_package_handoff_preflight import (  # noqa: E402
+    validate_adapter_package_handoff,
+    write_adapter_package_handoff_preflight_report,
+)
+from adapter_package_versioning import (  # noqa: E402
+    ADAPTER_PACKAGE_MANIFEST,
+    build_adapter_package_manifest,
+    verify_adapter_package,
+    write_adapter_package_manifest,
+    write_adapter_package_verification_report,
+)
+from engine_migration_wizard import build_manual_migration_plan, materialize_manual_migration_draft  # noqa: E402
 from project_manifest import ProjectManifestError, save_manifest  # noqa: E402
 from project_templates import list_templates  # noqa: E402
 
@@ -546,7 +564,7 @@ def create_app(
     async def install_project_adapter_to_engine(payload: dict):
         nonlocal project_path
         """
-        Copies the prepared XACE adapter payload into the selected engine project folder.
+        Installs or updates the prepared XACE adapter payload in the selected engine project folder.
         """
         creator = ProjectCreator()
         try:
@@ -562,6 +580,52 @@ def create_app(
         return {
             "ok": bool(result.get("ok")),
             "adapter_engine_install": result,
+            "adapter_install_plan": _adapter_install_plan(opened.project_dir, opened.manifest),
+            "adapter_status": _adapter_status(opened.project_dir, opened.manifest.engine_type),
+        }
+
+    @app.post("/api/project/adapter/rollback-engine")
+    async def rollback_project_adapter_in_engine(payload: dict):
+        nonlocal project_path
+        """
+        Rolls back the latest XACE-owned adapter install/update transaction.
+        """
+        creator = ProjectCreator()
+        try:
+            opened = creator.open_project(project_path)
+            result = _rollback_adapter_in_engine_project(
+                project_dir=opened.project_dir,
+                manifest=opened.manifest,
+                engine_project_path=str(payload.get("engine_project_path") or ""),
+            )
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {
+            "ok": bool(result.get("ok")),
+            "adapter_engine_rollback": result,
+            "adapter_install_plan": _adapter_install_plan(opened.project_dir, opened.manifest),
+            "adapter_status": _adapter_status(opened.project_dir, opened.manifest.engine_type),
+        }
+
+    @app.post("/api/project/adapter/uninstall-engine")
+    async def uninstall_project_adapter_from_engine(payload: dict):
+        nonlocal project_path
+        """
+        Uninstalls XACE-owned adapter files without deleting user engine data.
+        """
+        creator = ProjectCreator()
+        try:
+            opened = creator.open_project(project_path)
+            result = _uninstall_adapter_from_engine_project(
+                project_dir=opened.project_dir,
+                manifest=opened.manifest,
+                engine_project_path=str(payload.get("engine_project_path") or ""),
+            )
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+        return {
+            "ok": bool(result.get("ok")),
+            "adapter_engine_uninstall": result,
             "adapter_install_plan": _adapter_install_plan(opened.project_dir, opened.manifest),
             "adapter_status": _adapter_status(opened.project_dir, opened.manifest.engine_type),
         }
@@ -661,6 +725,21 @@ def create_app(
             "ok": bool(smoke.get("ok")),
             "smoke": smoke,
         }
+
+    @app.get("/api/project/demo/multiplayer/diagnostics")
+    async def get_multiplayer_diagnostics_panel():
+        """
+        Returns the Builder multiplayer diagnostics panel payload for the
+        supported host/client lockstep topology.
+        """
+        try:
+            diagnostics = await asyncio.to_thread(_build_multiplayer_diagnostics_panel)
+            return {
+                "ok": True,
+                "diagnostics": diagnostics,
+            }
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
 
     @app.get("/api/project/certify/status")
     async def get_launch_certification_status():
@@ -968,6 +1047,49 @@ def create_app(
             "adapter_status": _adapter_status(result.project_dir, result.manifest.engine_type),
         }
 
+    @app.post("/api/project/migration/manual-plan")
+    async def build_project_manual_migration_plan(payload: dict):
+        nonlocal project_path
+        """
+        Builds a read-only manual migration plan for a linked engine project.
+
+        The response is a wizard preview only: it maps engine scenes, entity
+        candidates, and asset references to reversible CGS-shaped records, but
+        it does not write CGS, adapter, or engine-owned files.
+        """
+        creator = ProjectCreator()
+        try:
+            opened = creator.open_project(project_path)
+            engine_project_path = str(
+                payload.get("engine_project_path")
+                or opened.manifest.adapter_config.get("engine_project_path")
+                or ""
+            ).strip()
+            if not engine_project_path:
+                return {
+                    "ok": False,
+                    "error": "No linked engine project path is available. Import/link an engine project first.",
+                }
+            cgs: dict[str, Any] | None = None
+            cgs_path = Path(opened.cgs_path)
+            if cgs_path.exists():
+                cgs = json.loads(cgs_path.read_text(encoding="utf-8"))
+            plan = build_manual_migration_plan(
+                engine_project_path,
+                expected_engine_type=str(payload.get("engine_type") or opened.manifest.engine_type),
+                base_cgs=cgs,
+            )
+            response: dict[str, Any] = {
+                "ok": bool(plan.get("ok")),
+                "manual_migration_plan": plan,
+                "preview_only": True,
+            }
+            if bool(payload.get("include_preview_cgs", False)) and cgs is not None and plan.get("ok"):
+                response["manual_migration_preview"] = materialize_manual_migration_draft(cgs, plan)
+            return response
+        except Exception as exc:
+            return {"ok": False, "error": str(exc)}
+
     @app.post("/api/system/pick-folder")
     async def pick_folder(payload: dict, request: Request):
         """
@@ -990,33 +1112,85 @@ def create_app(
             return {"ok": False, "cancelled": True, "error": "No folder selected."}
         return {"ok": True, "path": selected}
 
-    @app.post("/api/export/{target}")
-    async def export_adapter(target: str):
+    @app.post("/api/adapter-package/handoff/{target}")
+    async def handoff_adapter_package(target: str):
         """
-        Exports an adapter package into the active project's
-        .xace/exports/<target>/ directory.
+        Copies an adapter package into the active project's
+        .xace/adapter_package_handoffs/<target>/ directory.
+
+        This is an engine-integration handoff. The receiving engine project owns
+        shipping packages, platform builds, and release validation.
         """
         key = target.lower()
-        if key not in EXPORT_TARGETS:
+        repo_root = Path(__file__).resolve().parents[3]
+        preflight = validate_adapter_package_handoff(project_path, key, repo_root=repo_root)
+        preflight_path = write_adapter_package_handoff_preflight_report(project_path, key, preflight)
+        if not preflight.get("ok"):
             return {
                 "ok": False,
-                "error": f"Unknown export target: {target}",
+                "error": "Adapter package handoff preflight failed.",
+                "preflight_report_path": str(preflight_path),
+                "preflight": preflight,
                 "targets": sorted(EXPORT_TARGETS),
             }
 
-        repo_root = Path(__file__).resolve().parents[3]
+        if key not in EXPORT_TARGETS:
+            return {
+                "ok": False,
+                "error": f"Unknown adapter package handoff target: {target}",
+                "preflight_report_path": str(preflight_path),
+                "preflight": preflight,
+                "targets": sorted(EXPORT_TARGETS),
+            }
+
         src_dir = repo_root / EXPORT_TARGETS[key]["source"]
         if not src_dir.exists():
             return {
                 "ok": False,
                 "error": f"Adapter source missing: {src_dir}",
+                "preflight_report_path": str(preflight_path),
+                "preflight": preflight,
                 "targets": sorted(EXPORT_TARGETS),
             }
 
-        export_root = Path(project_path).resolve() / ".xace" / "exports" / key
-        if export_root.exists():
-            shutil.rmtree(export_root)
-        shutil.copytree(src_dir, export_root)
+        source_package_manifest = build_adapter_package_manifest(src_dir, key)
+        source_package_report = verify_adapter_package(
+            src_dir,
+            key,
+            manifest=source_package_manifest,
+            require_manifest_file=False,
+        )
+        source_package_report_path = write_adapter_package_verification_report(project_path, key, source_package_report)
+        if not source_package_report.get("ok"):
+            return {
+                "ok": False,
+                "error": "Adapter package version verification failed.",
+                "preflight_report_path": str(preflight_path),
+                "preflight": preflight,
+                "package_version_report_path": str(source_package_report_path),
+                "package_version_report": source_package_report,
+                "targets": sorted(EXPORT_TARGETS),
+            }
+
+        handoff_root = Path(project_path).resolve() / ".xace" / "adapter_package_handoffs" / key
+        if handoff_root.exists():
+            shutil.rmtree(handoff_root)
+        shutil.copytree(src_dir, handoff_root, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
+        export_root = handoff_root  # Internal compatibility alias for the file-list loop below.
+
+        package_manifest_path, package_manifest = write_adapter_package_manifest(handoff_root, key)
+        package_version_report = verify_adapter_package(handoff_root, key)
+        package_version_report_path = write_adapter_package_verification_report(project_path, key, package_version_report)
+        if not package_version_report.get("ok"):
+            return {
+                "ok": False,
+                "error": "Adapter package checksum verification failed after handoff copy.",
+                "preflight_report_path": str(preflight_path),
+                "preflight": preflight,
+                "package_version_report_path": str(package_version_report_path),
+                "package_version_report": package_version_report,
+                "targets": sorted(EXPORT_TARGETS),
+            }
 
         files = [
             str(path.relative_to(export_root)).replace("\\", "/")
@@ -1024,12 +1198,25 @@ def create_app(
             if path.is_file()
         ]
         manifest = {
+            "schema": "xace.adapter_package_handoff_manifest.v1",
             "target": key,
             "label": EXPORT_TARGETS[key]["label"],
+            "package_role": "adapter_package_handoff",
+            "shipping_boundary": "engine_project_owns_shipping_package",
+            "adapter_package_manifest": ADAPTER_PACKAGE_MANIFEST,
+            "adapter_package_id": package_manifest["package_id"],
+            "adapter_package_version": package_manifest["version"],
+            "adapter_protocol_version": package_manifest["adapter_protocol_version"],
+            "package_content_sha256": package_manifest["checksums"]["package_content_sha256"],
+            "package_checksum_algorithm": package_manifest["checksums"]["algorithm"],
+            "compatibility_matrix": package_manifest["compatibility_matrix"],
+            "dependencies": package_manifest["dependencies"],
+            "lifecycle_scripts": package_manifest["lifecycle_scripts"],
+            "rollback_support": package_manifest["rollback_support"],
             "file_count": len(files),
             "files": files,
         }
-        (export_root / "xace_export_manifest.json").write_text(
+        (handoff_root / "xace_adapter_package_handoff_manifest.json").write_text(
             json.dumps(manifest, indent=2),
             encoding="utf-8",
         )
@@ -1038,8 +1225,15 @@ def create_app(
             "ok": True,
             "target": key,
             "label": EXPORT_TARGETS[key]["label"],
-            "path": str(export_root),
+            "path": str(handoff_root),
             "files": files,
+            "manifest": manifest,
+            "preflight_report_path": str(preflight_path),
+            "preflight": preflight,
+            "package_version_manifest_path": str(package_manifest_path),
+            "package_version_manifest": package_manifest,
+            "package_version_report_path": str(package_version_report_path),
+            "package_version_report": package_version_report,
         }
 
     @app.post("/api/run-smoke")
@@ -1331,7 +1525,7 @@ def _copy_adapter_to_engine_project(
     )
 
 
-def _copy_named_adapter_to_engine_project(
+def _legacy_copy_named_adapter_to_engine_project(
     project_dir: str | Path,
     manifest: Any,
     engine_type: str,
@@ -1363,6 +1557,9 @@ def _copy_named_adapter_to_engine_project(
     engine_root = Path(engine_project_path).resolve()
     if not engine_root.exists() or not engine_root.is_dir():
         return {"ok": False, "target": key, "error": f"Engine project folder not found: {engine_root}"}
+    marker_ok, marker_reason = _engine_project_marker_ok(engine_root, key)
+    if not marker_ok:
+        return {"ok": False, "target": key, "error": marker_reason}
 
     status = _adapter_status(project_dir, key)
     if not status.get("healthy"):
@@ -2919,29 +3116,66 @@ def _run_multiplayer_product_smoke() -> dict:
             "steps": _multiplayer_smoke_steps(False),
         }
 
-    command = [
-        "cargo",
-        "test",
-        "-p",
-        "xace-network-core",
-        "--target-dir",
-        "target-codex-network-smoke",
-        "networked_runtime_smoke_is_deterministic_across_arrival_orders",
+    commands = [
+        [
+            "cargo",
+            "test",
+            "-p",
+            "xace-network-core",
+            "--target-dir",
+            "target-codex-network-smoke",
+            "networked_runtime_smoke_is_deterministic_across_arrival_orders",
+        ],
+        [
+            "cargo",
+            "test",
+            "-p",
+            "xace-network-core",
+            "--target-dir",
+            "target-codex-network-smoke",
+            "x10_039",
+        ],
+        [
+            "cargo",
+            "test",
+            "-p",
+            "xace-network-core",
+            "--target-dir",
+            "target-codex-network-smoke",
+            "x10_040",
+        ],
+        [
+            "cargo",
+            "test",
+            "-p",
+            "xace-network-core",
+            "--target-dir",
+            "target-codex-network-smoke",
+            "x10_041",
+        ],
     ]
+    results = []
     try:
-        completed = subprocess.run(
-            command,
-            cwd=str(repo_root),
-            capture_output=True,
-            text=True,
-            timeout=120,
-            check=False,
-        )
+        for command in commands:
+            completed = subprocess.run(
+                command,
+                cwd=str(repo_root),
+                capture_output=True,
+                text=True,
+                timeout=120,
+                check=False,
+            )
+            results.append({
+                "command": command,
+                "returncode": completed.returncode,
+                "stdout": completed.stdout[-4000:],
+                "stderr": completed.stderr[-4000:],
+            })
     except FileNotFoundError:
         return {
             "ok": False,
             "kind": "cargo_test",
-            "command": command,
+            "commands": commands,
             "error": "cargo was not found on PATH.",
             "steps": _multiplayer_smoke_steps(False),
         }
@@ -2949,23 +3183,187 @@ def _run_multiplayer_product_smoke() -> dict:
         return {
             "ok": False,
             "kind": "cargo_test",
-            "command": command,
+            "commands": commands,
             "error": "Network primitives smoke timed out after 120 seconds.",
             "stdout": (exc.stdout or "")[-4000:] if isinstance(exc.stdout, str) else "",
             "stderr": (exc.stderr or "")[-4000:] if isinstance(exc.stderr, str) else "",
             "steps": _multiplayer_smoke_steps(False),
         }
 
-    ok = completed.returncode == 0
+    ok = all(result["returncode"] == 0 for result in results)
+    stdout = "\n".join(str(result.get("stdout") or "") for result in results)[-4000:]
+    stderr = "\n".join(str(result.get("stderr") or "") for result in results)[-4000:]
+    error = ""
+    if not ok:
+        failed = next((result for result in results if result["returncode"] != 0), results[-1] if results else {})
+        error = str(failed.get("stderr") or failed.get("stdout") or "Network primitives smoke failed.").strip()
     return {
         "ok": ok,
         "kind": "cargo_test",
-        "command": command,
-        "returncode": completed.returncode,
-        "stdout": completed.stdout[-4000:],
-        "stderr": completed.stderr[-4000:],
+        "command": commands[0],
+        "commands": commands,
+        "results": results,
+        "returncode": 0 if ok else 1,
+        "stdout": stdout,
+        "stderr": stderr,
         "steps": _multiplayer_smoke_steps(ok),
-        "error": "" if ok else (completed.stderr.strip() or completed.stdout.strip()),
+        "error": error,
+    }
+
+
+def _build_multiplayer_diagnostics_panel() -> dict:
+    """
+    Build the deterministic Builder diagnostics payload for the selected
+    host/client lockstep launch topology.
+
+    Runtime-facing capture lives in xace-network-core diagnostics; this Python
+    payload mirrors that schema so the Builder panel and server contract can be
+    verified without opening an engine editor.
+    """
+    return {
+        "schema": "xace.multiplayer_diagnostics_snapshot.v1",
+        "topology_id": "host_client_authoritative_lockstep_v1",
+        "session": {
+            "mode": "Host",
+            "phase": "Live",
+            "tick": 42,
+            "paused": False,
+            "peer_total": 2,
+            "live_peers": 2,
+            "ready_peers": [1, 2],
+            "required_input_peers": [1, 2],
+            "compatibility_required": True,
+            "compatibility_ok": True,
+        },
+        "peers": [
+            {
+                "peer_id": 1,
+                "player_id": 101,
+                "display_name": "Host Player",
+                "state": "Live",
+                "ready": True,
+                "latency_ms": 16,
+                "jitter_ms": 2,
+                "packet_loss_ppm": 0,
+                "last_seen_tick": 42,
+                "last_input_tick": 41,
+                "last_sequence_id": 41,
+                "buffered_input_packets": 0,
+                "missing_input_ranges": [],
+                "authoritative_entities": [501],
+            },
+            {
+                "peer_id": 2,
+                "player_id": 102,
+                "display_name": "Client Player",
+                "state": "Live",
+                "ready": True,
+                "latency_ms": 96,
+                "jitter_ms": 12,
+                "packet_loss_ppm": 25000,
+                "last_seen_tick": 42,
+                "last_input_tick": 39,
+                "last_sequence_id": 39,
+                "buffered_input_packets": 1,
+                "missing_input_ranges": [{"from_tick": 40, "to_tick": 41}],
+                "authoritative_entities": [502],
+            },
+        ],
+        "ticks": {
+            "session_tick": 42,
+            "simulation_tick": 42,
+            "input_tick": 42,
+            "last_released_tick": 41,
+            "missing_peers": [2],
+            "can_release": False,
+        },
+        "input_buffers": {
+            "total_packet_count": 1,
+            "accepted_count": 82,
+            "duplicate_count": 1,
+            "rejected_count": 1,
+            "per_peer": [
+                {
+                    "peer_id": 1,
+                    "buffered_packets": 0,
+                    "missing_input_ranges": [],
+                    "has_input_for_current_tick": True,
+                },
+                {
+                    "peer_id": 2,
+                    "buffered_packets": 1,
+                    "missing_input_ranges": [{"from_tick": 40, "to_tick": 41}],
+                    "has_input_for_current_tick": False,
+                },
+            ],
+        },
+        "latency": {
+            "recommended_delay_ticks": 4,
+            "worst_peer": 2,
+            "max_rtt_ms": 96,
+            "max_jitter_ms": 12,
+            "max_packet_loss_ppm": 25000,
+        },
+        "rollback": {
+            "rollback_count": 1,
+            "pending": False,
+            "latest_restore_tick": 39,
+            "latest_target_tick": 41,
+            "latest_completed_tick": 42,
+            "latest_reason": "desync_recovery",
+        },
+        "resync": [
+            {
+                "peer_id": 2,
+                "state": "AwaitingAck",
+                "mode": "DeltaFromSnapshot",
+                "snapshot_tick": 39,
+                "target_tick": 42,
+                "attempts": 1,
+                "expected_hash": "authoritative-hash",
+                "completed_tick": None,
+                "failure_reason": None,
+            }
+        ],
+        "hash_comparisons": [
+            {
+                "tick": 42,
+                "expected_hash": "authoritative-hash",
+                "majority_hash": "authoritative-hash",
+                "matching_peers": [1],
+                "divergent_peers": [{"peer_id": 2, "hash": "divergent-hash"}],
+                "missing_peers": [],
+            }
+        ],
+        "authority": [
+            {
+                "entity_id": 501,
+                "owner_peer": 1,
+                "fallback_peer": None,
+                "shared_peers": [],
+                "scope": "Exclusive",
+                "version": 10,
+                "transfer_locked": False,
+            },
+            {
+                "entity_id": 502,
+                "owner_peer": 2,
+                "fallback_peer": 1,
+                "shared_peers": [],
+                "scope": "Exclusive",
+                "version": 10,
+                "transfer_locked": False,
+            },
+        ],
+        "chaos_report": {
+            "scenario": "deterministic_diagnostics_fixture",
+            "packet_loss_ppm": 25000,
+            "jitter_ms": 12,
+            "missing_input_ranges": [{"peer_id": 2, "from_tick": 40, "to_tick": 41}],
+            "divergent_hash_peer": 2,
+            "resync_status": "AwaitingAck",
+            "boundary": "Panel diagnostic fixture only; 4-16 client chaos/soak certification remains X10-043.",
+        },
     }
 
 
@@ -2973,10 +3371,28 @@ def _multiplayer_smoke_steps(ok: bool) -> list[dict]:
     suffix = "Verified by network-core primitives smoke." if ok else "Run the smoke again after fixing the reported test error."
     return [
         {
+            "id": "session_lifecycle",
+            "label": "Lobby/session lifecycle",
+            "ok": ok,
+            "detail": f"Create, join, ready state, leave, reconnect, late join, player identity, and teardown are covered by the X10-039 lifecycle test. {suffix}",
+        },
+        {
+            "id": "session_compatibility",
+            "label": "Session compatibility gate",
+            "ok": ok,
+            "detail": f"Schema, SGC plan, adapter version, assets, packages, provider-free metadata, and template mismatches block session start in the X10-040 mismatch matrix. {suffix}",
+        },
+        {
+            "id": "malicious_input_limits",
+            "label": "Malicious input limits",
+            "ok": ok,
+            "detail": f"Rate limits, packet validation, replay/sequence checks, authority checks, and cheat-guard policy block bad packets before synchroniser mutation in the X10-041 matrix. {suffix}",
+        },
+        {
             "id": "host_client",
             "label": "Host/client session",
             "ok": ok,
-            "detail": f"Host reaches live with two peers; client waits on the server peer. {suffix}",
+            "detail": f"Host reaches live through lobby readiness with two identified peers; client waits on the server peer. {suffix}",
         },
         {
             "id": "lockstep",
@@ -3688,6 +4104,201 @@ except Exception as exc:
     print(json.dumps({"ok": False, "error": str(exc)}))
     raise SystemExit(2)
 '''
+
+
+def _generated_adapter_files(engine_type: str) -> dict[str, str]:
+    key = engine_type.strip().lower()
+    if key == 'godot':
+        return {
+            'plugin.cfg': '\n'.join([
+                '[plugin]',
+                '',
+                'name="XACE Adapter"',
+                'description="Connects a Godot project to the XACE runtime."',
+                'author="XACE"',
+                'version="0.1.0"',
+                'script="xace_editor_plugin.gd"',
+                '',
+            ]),
+            'xace_editor_plugin.gd': '\n'.join([
+                '@tool',
+                'extends EditorPlugin',
+                '',
+                '',
+                'func _enter_tree() -> void:',
+                '\tpass',
+                '',
+                '',
+                'func _exit_tree() -> void:',
+                '\tpass',
+                '',
+            ]),
+        }
+    if key == 'unreal':
+        return {
+            'XACE.uplugin': _unreal_uplugin_text(),
+            'Source/XACEAdapter/XACEAdapter.Build.cs': _unreal_build_cs_text(),
+            'Source/XACEAdapter/Public/XACEAdapterModule.h': _unreal_module_h_text(),
+            'Source/XACEAdapter/Private/XACEAdapterModule.cpp': _unreal_module_cpp_text(),
+        }
+    return {}
+
+
+def _copy_named_adapter_to_engine_project(
+    project_dir: str | Path,
+    manifest: Any,
+    engine_type: str,
+    engine_project_path: str,
+    *,
+    overwrite: bool,
+    save_primary_config: bool = False,
+) -> dict:
+    key = engine_type.strip().lower()
+    if key == 'headless':
+        return {
+            'ok': True,
+            'status': 'not_applicable',
+            'code': 'ADAPTER_NOT_APPLICABLE',
+            'target': key,
+            'skipped': True,
+            'unsupported': False,
+            'reason': 'Headless projects do not need an engine adapter.',
+            'action': 'Choose Godot, Unity, or Unreal as the project engine before copying an adapter.',
+        }
+    if key not in EXPORT_TARGETS:
+        return {
+            'ok': False,
+            'target': key,
+            'error': f'Unknown adapter target: {engine_type}',
+            'targets': sorted(EXPORT_TARGETS),
+        }
+
+    engine_root = Path(engine_project_path).resolve()
+    if not engine_root.exists() or not engine_root.is_dir():
+        return {'ok': False, 'target': key, 'error': f'Engine project folder not found: {engine_root}'}
+    marker_ok, marker_reason = _engine_project_marker_ok(engine_root, key)
+    if not marker_ok:
+        return {'ok': False, 'target': key, 'error': marker_reason}
+
+    status = _adapter_status(project_dir, key)
+    if not status.get('healthy'):
+        _install_project_adapter(project_dir, key)
+        status = _adapter_status(project_dir, key)
+    if not status.get('healthy'):
+        return {
+            'ok': False,
+            'target': key,
+            'error': 'Prepared adapter is missing files. Use Repair Adapter first.',
+            'adapter_status': status,
+        }
+
+    adapter_root = Path(str(status['path'])).resolve()
+    destination = _engine_adapter_destination(engine_root, key)
+    if not _is_within(engine_root, destination):
+        return {
+            'ok': False,
+            'target': key,
+            'error': f'Refusing to install adapter outside engine project: {destination}',
+        }
+
+    try:
+        install_result = install_or_update_adapter(
+            source_root=adapter_root,
+            engine_project_root=engine_root,
+            engine_type=key,
+            destination=destination,
+            overwrite=overwrite,
+            generated_files=_generated_adapter_files(key),
+            metadata={'builder_endpoint': '/api/project/adapter/install-engine'},
+        )
+    except AdapterInstallationError as exc:
+        return {'ok': False, 'target': key, 'error': str(exc)}
+
+    demo_projects = dict(manifest.adapter_config.get('demo_engine_projects', {}) or {})
+    demo_projects[key] = str(engine_root)
+    manifest.adapter_config['demo_engine_projects'] = demo_projects
+    demo_install_paths = dict(manifest.adapter_config.get('demo_engine_adapter_install_paths', {}) or {})
+    demo_install_paths[key] = str(install_result['destination_path'])
+    manifest.adapter_config['demo_engine_adapter_install_paths'] = demo_install_paths
+    if save_primary_config:
+        manifest.adapter_config['engine_project_path'] = str(engine_root)
+        manifest.adapter_config['engine_adapter_install_path'] = str(install_result['destination_path'])
+    save_manifest(project_dir, manifest)
+
+    install_result['steps'] = _engine_adapter_steps(key)
+    return install_result
+
+
+def _rollback_adapter_in_engine_project(
+    project_dir: str | Path,
+    manifest: Any,
+    engine_project_path: str,
+) -> dict:
+    key = str(manifest.engine_type).strip().lower()
+    root = _resolve_engine_project_root(manifest, engine_project_path)
+    if not root['ok']:
+        return {'ok': False, 'target': key, 'error': root['error']}
+    engine_root = Path(root['path'])
+    marker_ok, marker_reason = _engine_project_marker_ok(engine_root, key)
+    if not marker_ok:
+        return {'ok': False, 'target': key, 'error': marker_reason}
+    destination = _engine_adapter_destination(engine_root, key)
+    try:
+        result = rollback_latest_adapter_transaction(
+            engine_project_root=engine_root,
+            engine_type=key,
+            destination=destination,
+        )
+    except AdapterInstallationError as exc:
+        return {'ok': False, 'target': key, 'error': str(exc)}
+    result['steps'] = _engine_adapter_steps(key)
+    return result
+
+
+def _uninstall_adapter_from_engine_project(
+    project_dir: str | Path,
+    manifest: Any,
+    engine_project_path: str,
+) -> dict:
+    key = str(manifest.engine_type).strip().lower()
+    root = _resolve_engine_project_root(manifest, engine_project_path)
+    if not root['ok']:
+        return {'ok': False, 'target': key, 'error': root['error']}
+    engine_root = Path(root['path'])
+    marker_ok, marker_reason = _engine_project_marker_ok(engine_root, key)
+    if not marker_ok:
+        return {'ok': False, 'target': key, 'error': marker_reason}
+    destination = _engine_adapter_destination(engine_root, key)
+    try:
+        result = uninstall_adapter(
+            engine_project_root=engine_root,
+            engine_type=key,
+            destination=destination,
+        )
+    except AdapterInstallationError as exc:
+        return {'ok': False, 'target': key, 'error': str(exc)}
+    if result.get('ok'):
+        if manifest.adapter_config.get('engine_project_path') == str(engine_root):
+            manifest.adapter_config.pop('engine_adapter_install_path', None)
+        install_paths = dict(manifest.adapter_config.get('demo_engine_adapter_install_paths', {}) or {})
+        if install_paths.get(key) == str(destination):
+            install_paths.pop(key, None)
+            manifest.adapter_config['demo_engine_adapter_install_paths'] = install_paths
+        save_manifest(project_dir, manifest)
+    result['steps'] = _engine_adapter_steps(key)
+    return result
+
+
+def _resolve_engine_project_root(manifest: Any, engine_project_path: str) -> dict:
+    configured = str(engine_project_path or '').strip()
+    if not configured:
+        configured = str((manifest.adapter_config or {}).get('engine_project_path') or '').strip()
+    if not configured:
+        return {'ok': False, 'error': 'Engine project path is required.'}
+    engine_root = Path(configured).resolve()
+    if not engine_root.exists() or not engine_root.is_dir():
+        return {'ok': False, 'error': f'Engine project folder not found: {engine_root}'}
+    return {'ok': True, 'path': str(engine_root)}
 
 
 def main() -> None:

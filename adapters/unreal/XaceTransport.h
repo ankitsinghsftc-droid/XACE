@@ -100,6 +100,25 @@ struct FXaceTickSnapshot
 };
 
 USTRUCT(BlueprintType)
+struct FXaceAdapterSideEffectRollback
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString RollbackId;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString Reason;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString FailedStage;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") int64 Tick = 0;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") int64 RestoreTick = 0;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString RestoredCgsHash;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString FailedCgsHash;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FString RestoredWorldHash;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") FXaceTickSnapshot RestoredSnapshot;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") TArray<FXacePlaybackCommand> RevokedPlaybackCommands;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") bool bClearFeedbackQueue = true;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") bool bClearPendingEdits = true;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|Rollback") bool bResetAssetBindings = true;
+};
+USTRUCT(BlueprintType)
 struct FXaceTransportStats
 {
 	GENERATED_BODY()
@@ -116,6 +135,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceConnectionChanged, bool, bConne
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceHandshakeAccepted, const FXaceHandshakeAck&, Ack);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceHandshakeRejected, const FString&, Reason);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceTickSnapshotReceived, const FXaceTickSnapshot&, Snapshot);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceAdapterSideEffectRollbackReceived, const FXaceAdapterSideEffectRollback&, Rollback);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceProtocolError, const FString&, Message);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FXaceJsonMessageReceived, const TSharedPtr<FJsonObject>&);
@@ -132,6 +152,7 @@ public:
 	UPROPERTY(BlueprintAssignable) FXaceHandshakeAccepted OnHandshakeAccepted;
 	UPROPERTY(BlueprintAssignable) FXaceHandshakeRejected OnHandshakeRejected;
 	UPROPERTY(BlueprintAssignable) FXaceTickSnapshotReceived OnTickSnapshot;
+	UPROPERTY(BlueprintAssignable) FXaceAdapterSideEffectRollbackReceived OnAdapterSideEffectRollback;
 	UPROPERTY(BlueprintAssignable) FXaceProtocolError OnProtocolError;
 
 	FXaceJsonMessageReceived OnJsonMessage;
@@ -194,6 +215,7 @@ private:
 	static FXaceAssetReference ParseAssetReference(const TSharedPtr<FJsonObject>& Object);
 	static FXacePlaybackCommand ParsePlaybackCommand(const TSharedPtr<FJsonObject>& Object);
 	static FXaceTickSnapshot ParseTickSnapshot(const TSharedPtr<FJsonObject>& Object);
+	static FXaceAdapterSideEffectRollback ParseAdapterSideEffectRollback(const TSharedPtr<FJsonObject>& Object);
 	static FXaceHandshakeAck ParseHandshakeAck(const TSharedPtr<FJsonObject>& Object);
 	static FString JsonToString(const TSharedRef<FJsonObject>& Object);
 	static FString PortableText(const FString& Value, int32 MaxBytes, const FString& Fallback);

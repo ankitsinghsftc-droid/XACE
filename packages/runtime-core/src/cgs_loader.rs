@@ -3322,12 +3322,18 @@ fn builtin_component_names() -> Vec<(u32, &'static str)> {
         (type_ids::IDENTITY, "COMP_IDENTITY_V1"),
         (type_ids::VELOCITY, "COMP_VELOCITY_V1"),
         (type_ids::INPUT, "COMP_INPUT_V1"),
+        (type_ids::AUTHORITY, "COMP_AUTHORITY_V1"),
         (type_ids::HEALTH, "COMP_HEALTH_V1"),
         (type_ids::DAMAGE, "COMP_DAMAGE_V1"),
+        (type_ids::MOVEMENT_INTENT, "COMP_MOVEMENT_INTENT_V1"),
+        (type_ids::KINEMATIC_CHARACTER, "COMP_KINEMATIC_CHARACTER_V1"),
         (type_ids::AI, "COMP_AI_V1"),
         (type_ids::INVENTORY, "COMP_INVENTORY_V1"),
         (type_ids::ITEM, "COMP_ITEM_V1"),
+        (type_ids::PERSISTENCE, "COMP_PERSISTENCE_V1"),
         (type_ids::INTERACTION, "COMP_INTERACTION_V1"),
+        (type_ids::REPLICATION, "COMP_REPLICATION_V1"),
+        (type_ids::CHECKPOINT, "COMP_CHECKPOINT_V1"),
     ]
 }
 
@@ -3335,6 +3341,8 @@ fn is_builtin_runtime_system(system_id: &str) -> bool {
     matches!(
         system_id,
         "InputSystem"
+            | "MovementIntentSystem"
+            | "PlatformerMotionSystem"
             | "MovementSystem"
             | "InteractionSystem"
             | "InventorySystem"
@@ -3403,12 +3411,18 @@ pub mod type_ids {
     pub const IDENTITY: u32 = 2;
     pub const VELOCITY: u32 = 5;
     pub const INPUT: u32 = 6;
+    pub const AUTHORITY: u32 = 10;
     pub const HEALTH: u32 = 100;
     pub const DAMAGE: u32 = 101;
+    pub const MOVEMENT_INTENT: u32 = 120;
+    pub const KINEMATIC_CHARACTER: u32 = 125;
     pub const AI: u32 = 160;
     pub const INVENTORY: u32 = 201;
     pub const ITEM: u32 = 205;
+    pub const PERSISTENCE: u32 = 232;
     pub const INTERACTION: u32 = 260;
+    pub const REPLICATION: u32 = 320;
+    pub const CHECKPOINT: u32 = 361;
 }
 
 #[cfg(test)]

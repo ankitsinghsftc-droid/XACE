@@ -5,6 +5,7 @@ signal entity_spawned(entity_id: int, node: Node3D)
 signal entity_updated(entity_id: int, node: Node3D)
 signal entity_destroyed(entity_id: int)
 signal playback_command_applied(command: Dictionary, applied: bool)
+signal side_effects_rolled_back(report: Dictionary)
 
 @export var create_visual_nodes := true
 @export var default_scale := Vector3(0.8, 1.8, 0.8)
@@ -20,6 +21,9 @@ var _components: Dictionary = {}
 var _actor_ids: Dictionary = {}
 var _target_positions: Dictionary = {}
 var _recent_playback_commands: Dictionary = {}
+var _playback_side_effect_nodes: Array[Node] = []
+var _asset_binding_state: Dictionary = {}
+var _asset_binding_status_report: Dictionary = {}
 var _last_tick := 0
 var _protocol_script: Script
 
@@ -50,6 +54,8 @@ func apply_message(message: Dictionary) -> void:
 		apply_handshake_ack(message)
 	elif kind == _protocol_script.MSG_TICK_SNAPSHOT:
 		apply_tick_snapshot(message)
+	elif kind == _protocol_script.MSG_ADAPTER_SIDE_EFFECT_ROLLBACK:
+		rollback_side_effects(message)
 	elif kind == _protocol_script.WIRE_SNAPSHOT:
 		apply_snapshot_payload(_protocol_script.payload_dictionary(message))
 	elif kind == _protocol_script.WIRE_DELTA:
@@ -83,6 +89,73 @@ func apply_tick_snapshot(snapshot: Dictionary) -> void:
 				upsert_legacy_entity(entity)
 	apply_playback_commands(snapshot.get("playback_commands", []))
 
+
+func rollback_side_effects(message: Dictionary) -> void:
+	_clear_playback_side_effects()
+	_recent_playback_commands.clear()
+	_asset_binding_state.clear()
+	_asset_binding_status_report.clear()
+	var restored = message.get("restored_snapshot", {})
+	if typeof(restored) == TYPE_DICTIONARY:
+		_restore_full_tick_snapshot(restored)
+	var report: Dictionary = {
+		"rollback_id": str(message.get("rollback_id", "")),
+		"restore_tick": int(message.get("restore_tick", _last_tick)),
+		"entity_count": entity_count(),
+		"playback_commands": 0,
+		"asset_bindings": 0,
+	}
+	side_effects_rolled_back.emit(report)
+
+
+func _restore_full_tick_snapshot(snapshot: Dictionary) -> void:
+	var live_ids: Dictionary = {}
+	for entity in snapshot.get("entities", []):
+		if typeof(entity) == TYPE_DICTIONARY:
+			var entity_id := int(entity.get("id", entity.get("entity_id", 0)))
+			if entity_id > 0:
+				live_ids[entity_id] = true
+	apply_tick_snapshot(snapshot)
+	var existing_ids: Array = _nodes.keys()
+	for entity_id in existing_ids:
+		if not live_ids.has(int(entity_id)):
+			destroy_entity(int(entity_id))
+
+
+func _clear_playback_side_effects() -> void:
+	for node in _playback_side_effect_nodes:
+		if is_instance_valid(node):
+			node.queue_free()
+	_playback_side_effect_nodes.clear()
+	for node in _nodes.values():
+		if not is_instance_valid(node):
+			continue
+		_stop_playback_nodes(node)
+
+
+func _stop_playback_nodes(root: Node) -> void:
+	if root is AudioStreamPlayer3D:
+		(root as AudioStreamPlayer3D).stop()
+	elif root is AnimationPlayer:
+		(root as AnimationPlayer).stop()
+	elif root is GPUParticles3D or root is CPUParticles3D:
+		root.set("emitting", false)
+	for child in root.get_children():
+		if child is Node:
+			_stop_playback_nodes(child)
+
+
+func asset_binding_snapshot() -> Dictionary:
+	return _asset_binding_state.duplicate(true)
+
+
+func asset_binding_status_report() -> Dictionary:
+	return {
+		"schema": "xace.adapter.semantic_binding_status_report.v1",
+		"engine": "godot",
+		"statuses": ["resolved", "unresolved", "unsupported", "missing", "fallback"],
+		"records": _asset_binding_status_report.values(),
+	}
 
 func apply_snapshot_payload(payload: Dictionary) -> void:
 	_last_tick = int(payload.get("tick", _last_tick))
@@ -289,6 +362,7 @@ func apply_playback_commands(commands: Array) -> void:
 		var entity_id := int(command.get("entity_id", 0))
 		var node: Node3D = get_entity_node(entity_id)
 		if node == null:
+			_record_asset_binding_status(command, false, "entity_missing")
 			playback_command_applied.emit(command.duplicate(true), false)
 			continue
 		if not _recent_playback_commands.has(entity_id):
@@ -296,8 +370,56 @@ func apply_playback_commands(commands: Array) -> void:
 		_recent_playback_commands[entity_id].append(command.duplicate(true))
 		while _recent_playback_commands[entity_id].size() > 32:
 			_recent_playback_commands[entity_id].pop_front()
+		var binding_id := str(command.get("binding_id", ""))
+		var asset = command.get("asset", {})
+		if not binding_id.is_empty() and typeof(asset) == TYPE_DICTIONARY:
+			_asset_binding_state[binding_id] = asset.duplicate(true)
 		var applied := _try_apply_playback_command(node, command)
+		var reason := "applied" if applied else "playback_resource_missing"
+		if applied and _should_use_fallback(command):
+			reason = "fallback_applied"
+		_record_asset_binding_status(command, applied, reason)
 		playback_command_applied.emit(command.duplicate(true), applied)
+
+
+func _record_asset_binding_status(command: Dictionary, applied: bool, reason: String) -> void:
+	var binding_id := str(command.get("binding_id", "")).strip_edges()
+	if binding_id.is_empty():
+		binding_id = "<unbound>"
+	var status := _semantic_binding_status(command, applied)
+	_asset_binding_status_report[binding_id] = {
+		"schema": "xace.adapter.semantic_binding_status_record.v1",
+		"engine": "godot",
+		"binding_id": binding_id,
+		"status": status,
+		"asset_id": _asset_id(command),
+		"playback_kind": str(command.get("playback_kind", "")),
+		"reason": reason,
+		"blocks_runtime": status in ["unresolved", "unsupported", "missing"],
+		"blocks_handoff": status in ["unresolved", "unsupported", "missing"],
+	}
+
+
+func _semantic_binding_status(command: Dictionary, applied: bool) -> String:
+	var declared := _declared_binding_status(command)
+	if not declared.is_empty():
+		return declared
+	if _should_use_fallback(command):
+		return "fallback"
+	if applied:
+		return "resolved"
+	var kind := str(command.get("playback_kind", "")).to_lower()
+	if not (kind in ["audio", "animation", "vfx"]):
+		return "unsupported"
+	if _command_resource_path(command).is_empty():
+		return "unresolved"
+	return "missing"
+
+
+func _declared_binding_status(command: Dictionary) -> String:
+	var parameters: Dictionary = _command_parameters(command)
+	var declared := str(parameters.get("xace_binding_status", "")).to_lower().strip_edges()
+	return declared if declared in ["resolved", "unresolved", "unsupported", "missing", "fallback"] else ""
 
 
 func _ensure_node(entity_id: int, actor_id: String, tags: Array) -> Node3D:
@@ -339,15 +461,130 @@ func _create_default_visual(node: Node3D, actor_id: String, tags: Array) -> void
 
 func _try_apply_playback_command(node: Node3D, command: Dictionary) -> bool:
 	var kind := str(command.get("playback_kind", "")).to_lower()
+	var applied := false
 	match kind:
 		"audio":
-			return _try_apply_audio_command(node, command)
+			applied = _try_apply_audio_command(node, command)
 		"animation":
-			return _try_apply_animation_command(node, command)
+			applied = _try_apply_animation_command(node, command)
 		"vfx":
-			return _try_apply_vfx_command(node, command)
+			applied = _try_apply_vfx_command(node, command)
 		_:
-			return false
+			applied = false
+	if applied:
+		return true
+	if _should_use_fallback(command):
+		return _apply_fallback_playback_command(node, command)
+	return false
+
+
+func _should_use_fallback(command: Dictionary) -> bool:
+	if _declared_binding_status(command) == "fallback":
+		return true
+	var parameters: Dictionary = _command_parameters(command)
+	for key in ["xace_runtime_fallback", "xace_fallback_visible", "allow_fallback"]:
+		if parameters.has(key) and _truthy_string(parameters[key]):
+			return true
+	var status := _asset_status(command)
+	return status in ["missing", "placeholder"]
+
+
+func _truthy_string(value) -> bool:
+	if typeof(value) == TYPE_BOOL:
+		return bool(value)
+	var text := str(value).to_lower().strip_edges()
+	return text in ["true", "1", "yes", "fallback"]
+
+
+func _asset_status(command: Dictionary) -> String:
+	var asset = command.get("asset", {})
+	if typeof(asset) == TYPE_DICTIONARY:
+		return str(asset.get("status", "")).to_lower().strip_edges()
+	return ""
+
+
+func _asset_type(command: Dictionary) -> String:
+	var asset = command.get("asset", {})
+	if typeof(asset) == TYPE_DICTIONARY:
+		return str(asset.get("asset_type", "")).to_lower().strip_edges()
+	return ""
+
+
+func _fallback_kind(command: Dictionary) -> String:
+	var parameters: Dictionary = _command_parameters(command)
+	var explicit := str(parameters.get("xace_fallback_kind", "")).to_lower().strip_edges()
+	if not explicit.is_empty():
+		return explicit
+	var kind := str(command.get("playback_kind", "")).to_lower().strip_edges()
+	var asset_type := _asset_type(command)
+	if kind == "animation" or asset_type.contains("animation"):
+		return "visible_animation_marker"
+	if kind == "audio" or asset_type.contains("audio"):
+		return "visible_audio_pulse"
+	if kind == "vfx" or asset_type == "particle":
+		return "visible_vfx_marker"
+	if kind == "mesh" or asset_type == "mesh":
+		return "visible_mesh_proxy"
+	if kind == "prefab" or asset_type == "prefab":
+		return "visible_prefab_proxy"
+	return "visible_asset_proxy"
+
+
+func _apply_fallback_playback_command(node: Node3D, command: Dictionary) -> bool:
+	var fallback_kind := _fallback_kind(command)
+	var marker := Node3D.new()
+	marker.name = "XaceFallback_%s" % _safe_name(str(command.get("binding_id", "binding")))
+	marker.set_meta("xace_runtime_fallback", true)
+	marker.set_meta("xace_runtime_fallback_schema", "xace.runtime.fallback_binding_catalog.v1")
+	marker.set_meta("xace_fallback_kind", fallback_kind)
+	marker.position = Vector3(0.0, 1.65, 0.0)
+
+	var mesh_instance := MeshInstance3D.new()
+	mesh_instance.name = "XaceFallbackVisual"
+	var mesh := BoxMesh.new()
+	mesh.size = Vector3(0.35, 0.35, 0.35)
+	mesh_instance.mesh = mesh
+	var material := StandardMaterial3D.new()
+	material.albedo_color = _fallback_color(fallback_kind)
+	material.emission_enabled = true
+	material.emission = material.albedo_color
+	material.emission_energy_multiplier = 0.35
+	mesh_instance.material_override = material
+	marker.add_child(mesh_instance)
+
+	var label := Label3D.new()
+	label.name = "XaceFallbackLabel"
+	label.text = _fallback_label(command, fallback_kind)
+	label.position = Vector3(0.0, 0.42, 0.0)
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	marker.add_child(label)
+
+	node.add_child(marker)
+	_playback_side_effect_nodes.append(marker)
+	return true
+
+
+func _fallback_label(command: Dictionary, fallback_kind: String) -> String:
+	var parameters: Dictionary = _command_parameters(command)
+	var explicit := str(parameters.get("xace_fallback_label", "")).strip_edges()
+	if not explicit.is_empty():
+		return explicit
+	var asset_id := _asset_id(command)
+	if asset_id.is_empty():
+		asset_id = str(command.get("binding_id", "binding"))
+	return "XACE fallback %s\n%s" % [fallback_kind.replace("visible_", ""), asset_id]
+
+
+func _fallback_color(fallback_kind: String) -> Color:
+	if fallback_kind.contains("audio"):
+		return Color(0.25, 0.65, 1.0, 0.9)
+	if fallback_kind.contains("animation"):
+		return Color(0.7, 0.45, 1.0, 0.9)
+	if fallback_kind.contains("vfx"):
+		return Color(0.2, 1.0, 0.55, 0.9)
+	if fallback_kind.contains("mesh") or fallback_kind.contains("prefab"):
+		return Color(1.0, 0.72, 0.25, 0.9)
+	return Color(1.0, 0.55, 0.25, 0.9)
 
 
 func _try_apply_audio_command(node: Node3D, command: Dictionary) -> bool:
@@ -398,6 +635,7 @@ func _try_apply_vfx_command(node: Node3D, command: Dictionary) -> bool:
 		if instance is Node:
 			instance.name = "XaceVfx"
 			node.add_child(instance)
+			_playback_side_effect_nodes.append(instance)
 			_start_particles(instance)
 			return true
 	if _start_particles(node):

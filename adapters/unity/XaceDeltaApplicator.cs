@@ -40,7 +40,10 @@ namespace Xace.Adapter.Unity
 
         private readonly Dictionary<ulong, GameObject> entityMap = new Dictionary<ulong, GameObject>();
         private readonly Dictionary<string, GameObject> prefabRegistry = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+        private readonly Dictionary<string, XaceAssetReference> assetBindingState = new Dictionary<string, XaceAssetReference>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Dictionary<string, object>> assetBindingStatusReport = new Dictionary<string, Dictionary<string, object>>(StringComparer.Ordinal);
         private readonly List<Dictionary<string, object>> feedbackQueue = new List<Dictionary<string, object>>();
+        private readonly List<GameObject> spawnedPlaybackObjects = new List<GameObject>();
 
         private XaceTransport transport;
         private ulong currentTick;
@@ -84,6 +87,7 @@ namespace Xace.Adapter.Unity
                 return;
             transport.OnHandshakeAccepted += OnHandshakeAccepted;
             transport.OnTickSnapshot += ApplyTickSnapshot;
+            transport.OnAdapterSideEffectRollback += ApplyAdapterSideEffectRollback;
             transportSubscribed = true;
         }
 
@@ -93,6 +97,7 @@ namespace Xace.Adapter.Unity
                 return;
             transport.OnHandshakeAccepted -= OnHandshakeAccepted;
             transport.OnTickSnapshot -= ApplyTickSnapshot;
+            transport.OnAdapterSideEffectRollback -= ApplyAdapterSideEffectRollback;
             transportSubscribed = false;
         }
 
@@ -120,6 +125,19 @@ namespace Xace.Adapter.Unity
         }
 
         public IReadOnlyDictionary<ulong, GameObject> Entities => entityMap;
+        public IReadOnlyDictionary<string, XaceAssetReference> AssetBindingState => assetBindingState;
+        public IReadOnlyDictionary<string, Dictionary<string, object>> AssetBindingStatusReport => assetBindingStatusReport;
+
+        public Dictionary<string, object> BuildAssetBindingStatusReport()
+        {
+            return new Dictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["schema"] = "xace.adapter.semantic_binding_status_report.v1",
+                ["engine"] = "unity",
+                ["statuses"] = new[] { "resolved", "unresolved", "unsupported", "missing", "fallback" },
+                ["records"] = new List<Dictionary<string, object>>(assetBindingStatusReport.Values)
+            };
+        }
 
         public void BindTransportNow()
         {
@@ -144,6 +162,49 @@ namespace Xace.Adapter.Unity
             FlushFeedback();
         }
 
+        private void ApplyAdapterSideEffectRollback(XaceAdapterSideEffectRollback rollback)
+        {
+            if (rollback == null)
+                return;
+            currentTick = rollback.restore_tick;
+            if (rollback.clear_feedback_queue)
+                feedbackQueue.Clear();
+            ClearPlaybackSideEffects();
+            if (rollback.reset_asset_bindings)
+            {
+                assetBindingState.Clear();
+                assetBindingStatusReport.Clear();
+            }
+            ApplyEntityList(rollback.restore_tick, rollback.restored_snapshot.entities, true, rollback.restored_snapshot.destroyed_ids);
+        }
+
+        private void ClearPlaybackSideEffects()
+        {
+            foreach (var spawned in spawnedPlaybackObjects)
+            {
+                if (spawned != null)
+                    Destroy(spawned);
+            }
+            spawnedPlaybackObjects.Clear();
+
+            foreach (var pair in entityMap)
+            {
+                var go = pair.Value;
+                if (go == null)
+                    continue;
+                foreach (var source in go.GetComponentsInChildren<AudioSource>(true))
+                    source.Stop();
+                foreach (var particle in go.GetComponentsInChildren<ParticleSystem>(true))
+                    particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                foreach (var animation in go.GetComponentsInChildren<Animation>(true))
+                    animation.Stop();
+                foreach (var animator in go.GetComponentsInChildren<Animator>(true))
+                    animator.Rebind();
+                var marker = go.GetComponent<XaceEntityMarker>();
+                if (marker != null)
+                    marker.ClearPlaybackCommands();
+            }
+        }
         private void ApplyEntityList(ulong tick, List<XaceEntityState> entities, bool removeMissing, List<ulong> destroyedIds)
         {
             EnsureSceneRoot();
@@ -219,6 +280,7 @@ namespace Xace.Adapter.Unity
                     continue;
                 if (!entityMap.TryGetValue(command.entity_id, out var go) || go == null)
                 {
+                    RecordAssetBindingStatus(command, false, "entity_missing");
                     OnPlaybackCommandApplied?.Invoke(command, false);
                     continue;
                 }
@@ -226,25 +288,119 @@ namespace Xace.Adapter.Unity
                 var marker = go.GetComponent<XaceEntityMarker>();
                 if (marker != null)
                     marker.RecordPlaybackCommand(command);
+                if (!string.IsNullOrWhiteSpace(command.binding_id) && command.asset != null)
+                    assetBindingState[command.binding_id.Trim()] = command.asset;
                 var applied = TryApplyPlaybackCommand(go, command);
+                var reason = applied ? "applied" : "playback_resource_missing";
+                if (applied && ShouldUseFallback(command))
+                    reason = "fallback_applied";
+                RecordAssetBindingStatus(command, applied, reason);
                 OnPlaybackCommandApplied?.Invoke(command, applied);
+            }
+        }
+
+        private void RecordAssetBindingStatus(XacePlaybackCommand command, bool applied, string reason)
+        {
+            if (command == null)
+                return;
+            var bindingId = string.IsNullOrWhiteSpace(command.binding_id) ? "<unbound>" : command.binding_id.Trim();
+            var status = SemanticBindingStatus(command, applied);
+            assetBindingStatusReport[bindingId] = new Dictionary<string, object>(StringComparer.Ordinal)
+            {
+                ["schema"] = "xace.adapter.semantic_binding_status_record.v1",
+                ["engine"] = "unity",
+                ["binding_id"] = bindingId,
+                ["status"] = status,
+                ["asset_id"] = command.asset != null ? command.asset.id ?? "" : "",
+                ["playback_kind"] = command.playback_kind ?? "",
+                ["reason"] = reason ?? "",
+                ["blocks_runtime"] = status == "unresolved" || status == "unsupported" || status == "missing",
+                ["blocks_handoff"] = status == "unresolved" || status == "unsupported" || status == "missing"
+            };
+        }
+
+        private static string SemanticBindingStatus(XacePlaybackCommand command, bool applied)
+        {
+            var declared = DeclaredBindingStatus(command);
+            if (!string.IsNullOrEmpty(declared))
+                return declared;
+            if (ShouldUseFallback(command))
+                return "fallback";
+            if (applied)
+                return "resolved";
+            var kind = (command.playback_kind ?? "").Trim().ToLowerInvariant();
+            if (kind != "audio" && kind != "animation" && kind != "vfx")
+                return "unsupported";
+            return string.IsNullOrWhiteSpace(CommandResourcePath(command)) ? "unresolved" : "missing";
+        }
+
+        private static string DeclaredBindingStatus(XacePlaybackCommand command)
+        {
+            var declared = CommandParameter(command, "xace_binding_status", "").Trim().ToLowerInvariant();
+            switch (declared)
+            {
+                case "resolved":
+                case "unresolved":
+                case "unsupported":
+                case "missing":
+                case "fallback":
+                    return declared;
+                default:
+                    return "";
             }
         }
 
         private bool TryApplyPlaybackCommand(GameObject go, XacePlaybackCommand command)
         {
             var kind = (command.playback_kind ?? "").Trim().ToLowerInvariant();
+            var applied = false;
             switch (kind)
             {
                 case "audio":
-                    return TryApplyAudioCommand(go, command);
+                    applied = TryApplyAudioCommand(go, command);
+                    break;
                 case "animation":
-                    return TryApplyAnimationCommand(go, command);
+                    applied = TryApplyAnimationCommand(go, command);
+                    break;
                 case "vfx":
-                    return TryApplyVfxCommand(go, command);
+                    applied = TryApplyVfxCommand(go, command);
+                    break;
                 default:
-                    return false;
+                    applied = false;
+                    break;
             }
+            if (applied)
+                return true;
+            return ShouldUseFallback(command) && TryApplyFallbackCommand(go, command);
+        }
+
+        private bool TryApplyFallbackCommand(GameObject go, XacePlaybackCommand command)
+        {
+            if (go == null || command == null)
+                return false;
+            var marker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            marker.name = "XACE_Fallback_" + SafeAssetName(command);
+            marker.transform.SetParent(go.transform, false);
+            marker.transform.localPosition = new Vector3(0f, 1.65f, 0f);
+            marker.transform.localRotation = Quaternion.identity;
+            marker.transform.localScale = new Vector3(0.35f, 0.35f, 0.35f);
+            var renderer = marker.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                renderer.material.color = FallbackColor(FallbackKind(command));
+            }
+
+            var labelObject = new GameObject("XACE Fallback Label");
+            labelObject.transform.SetParent(marker.transform, false);
+            labelObject.transform.localPosition = new Vector3(0f, 0.55f, 0f);
+            var label = labelObject.AddComponent<TextMesh>();
+            label.text = FallbackLabel(command);
+            label.anchor = TextAnchor.MiddleCenter;
+            label.alignment = TextAlignment.Center;
+            label.characterSize = 0.1f;
+            label.fontSize = 42;
+            spawnedPlaybackObjects.Add(marker);
+            return true;
         }
 
         private bool TryApplyAudioCommand(GameObject go, XacePlaybackCommand command)
@@ -298,6 +454,7 @@ namespace Xace.Adapter.Unity
             {
                 var instance = Instantiate(prefab, go.transform);
                 instance.name = "XACE_VFX_" + SafeAssetName(command);
+                spawnedPlaybackObjects.Add(instance);
                 foreach (var particle in instance.GetComponentsInChildren<ParticleSystem>())
                     particle.Play(true);
                 return true;
@@ -328,6 +485,66 @@ namespace Xace.Adapter.Unity
             if (string.IsNullOrWhiteSpace(path) && command.asset != null)
                 path = command.asset.id ?? "";
             return path.Trim();
+        }
+
+        private static bool ShouldUseFallback(XacePlaybackCommand command)
+        {
+            if (command == null)
+                return false;
+            if (DeclaredBindingStatus(command) == "fallback")
+                return true;
+            if (TruthyParameter(command, "xace_runtime_fallback") || TruthyParameter(command, "xace_fallback_visible") || TruthyParameter(command, "allow_fallback"))
+                return true;
+            var status = (command.asset != null ? command.asset.status ?? "" : "").Trim().ToLowerInvariant();
+            return status == "missing" || status == "placeholder";
+        }
+
+        private static bool TruthyParameter(XacePlaybackCommand command, string key)
+        {
+            var value = CommandParameter(command, key, "").Trim().ToLowerInvariant();
+            return value == "true" || value == "1" || value == "yes" || value == "fallback";
+        }
+
+        private static string FallbackKind(XacePlaybackCommand command)
+        {
+            var explicitKind = CommandParameter(command, "xace_fallback_kind", "").Trim().ToLowerInvariant();
+            if (!string.IsNullOrWhiteSpace(explicitKind))
+                return explicitKind;
+            var kind = (command.playback_kind ?? "").Trim().ToLowerInvariant();
+            var assetType = (command.asset != null ? command.asset.asset_type ?? "" : "").Trim().ToLowerInvariant();
+            if (kind == "animation" || assetType.Contains("animation"))
+                return "visible_animation_marker";
+            if (kind == "audio" || assetType.Contains("audio"))
+                return "visible_audio_pulse";
+            if (kind == "vfx" || assetType == "particle")
+                return "visible_vfx_marker";
+            if (kind == "mesh" || assetType == "mesh")
+                return "visible_mesh_proxy";
+            if (kind == "prefab" || assetType == "prefab")
+                return "visible_prefab_proxy";
+            return "visible_asset_proxy";
+        }
+
+        private static string FallbackLabel(XacePlaybackCommand command)
+        {
+            var explicitLabel = CommandParameter(command, "xace_fallback_label", "").Trim();
+            if (!string.IsNullOrWhiteSpace(explicitLabel))
+                return explicitLabel;
+            return "XACE fallback\n" + FallbackKind(command).Replace("visible_", "") + "\n" + SafeAssetName(command);
+        }
+
+        private static Color FallbackColor(string fallbackKind)
+        {
+            var kind = (fallbackKind ?? "").ToLowerInvariant();
+            if (kind.Contains("audio"))
+                return new Color(0.25f, 0.65f, 1.0f, 0.9f);
+            if (kind.Contains("animation"))
+                return new Color(0.7f, 0.45f, 1.0f, 0.9f);
+            if (kind.Contains("vfx"))
+                return new Color(0.2f, 1.0f, 0.55f, 0.9f);
+            if (kind.Contains("mesh") || kind.Contains("prefab"))
+                return new Color(1.0f, 0.72f, 0.25f, 0.9f);
+            return new Color(1.0f, 0.55f, 0.25f, 0.9f);
         }
 
         private static string NormaliseResourcesPath(string path)
@@ -690,6 +907,11 @@ namespace Xace.Adapter.Unity
         }
 
         public IReadOnlyList<XacePlaybackCommand> PlaybackCommands => playbackCommands;
+
+        public void ClearPlaybackCommands()
+        {
+            playbackCommands.Clear();
+        }
 
         public void RecordPlaybackCommand(XacePlaybackCommand command)
         {

@@ -96,6 +96,7 @@ class LocalProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: Any | None = None,
     ) -> dict[str, Any]:
         effective_model = self._model_id_override or model_id
         body = self._build_body(effective_model, prompt, system_prompt,
@@ -131,6 +132,7 @@ class LocalProvider(IProviderClient):
         system_prompt: str,
         max_tokens:    int,
         temperature:   float,
+        structured_output: Any | None = None,
     ) -> dict[str, Any]:
         """
         Builds OpenAI-compatible body.

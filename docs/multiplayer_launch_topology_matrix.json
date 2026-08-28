@@ -1,0 +1,64 @@
+{
+  "schema": "xace.multiplayer_launch_topology_matrix.v1",
+  "updated": "2026-08-13",
+  "selected_launch_topology_id": "host_client_lockstep_v1",
+  "selected_launch_topology": "Host/client authoritative lockstep",
+  "scope": "Phase 5 launch multiplayer topology decision for X10-035.",
+  "topologies": [
+    {
+      "mode": "host",
+      "topology_id": "host_client_lockstep_v1",
+      "launch_support": "supported_multiplayer",
+      "multiplayer": true,
+      "authority_model": "host_authoritative",
+      "tick_model": "lockstep_required_peer_inputs",
+      "transport_claim": "transport_adapter_supplied",
+      "failure_code": "",
+      "notes": "Host owns the authoritative simulation clock and releases a tick only after required client input packets are present."
+    },
+    {
+      "mode": "client",
+      "topology_id": "host_client_lockstep_v1",
+      "launch_support": "supported_multiplayer",
+      "multiplayer": true,
+      "authority_model": "server_authoritative_client",
+      "tick_model": "lockstep_server_input_source",
+      "transport_claim": "transport_adapter_supplied",
+      "failure_code": "",
+      "notes": "Client joins a host-authoritative session and treats the host/server peer as upstream tick authority."
+    },
+    {
+      "mode": "offline",
+      "topology_id": "offline_local_v1",
+      "launch_support": "supported_local_only",
+      "multiplayer": false,
+      "authority_model": "local_only",
+      "tick_model": "local_runtime_tick",
+      "transport_claim": "none",
+      "failure_code": "",
+      "notes": "Offline gameplay is launch-allowed, but it is not the multiplayer topology for Phase 5."
+    },
+    {
+      "mode": "dedicated_server",
+      "topology_id": "dedicated_server_future_v1",
+      "launch_support": "unsupported_launch_profile",
+      "multiplayer": true,
+      "authority_model": "dedicated_server_authoritative_future",
+      "tick_model": "unsupported_launch_profile",
+      "transport_claim": "not_launch_supported",
+      "failure_code": "XACE_NETWORK_TOPOLOGY_UNSUPPORTED",
+      "notes": "Reserved for a later topology profile; current launch certification does not claim dedicated-server hosting."
+    },
+    {
+      "mode": "peer_to_peer",
+      "topology_id": "peer_to_peer_future_v1",
+      "launch_support": "unsupported_launch_profile",
+      "multiplayer": true,
+      "authority_model": "distributed_authority_future",
+      "tick_model": "unsupported_launch_profile",
+      "transport_claim": "not_launch_supported",
+      "failure_code": "XACE_NETWORK_TOPOLOGY_UNSUPPORTED",
+      "notes": "Reserved for a later topology profile; current launch certification does not claim distributed authority or NAT traversal."
+    }
+  ]
+}

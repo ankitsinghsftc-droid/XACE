@@ -349,6 +349,7 @@ interface MultiplayerSmokeStep {
 interface MultiplayerSmokeResult {
   readonly ok?: boolean;
   readonly command?: string[];
+  readonly commands?: string[][];
   readonly returncode?: number;
   readonly stdout?: string;
   readonly stderr?: string;
@@ -359,6 +360,123 @@ interface MultiplayerSmokeResult {
 interface MultiplayerSmokeResponse {
   readonly ok?: boolean;
   readonly smoke?: MultiplayerSmokeResult;
+  readonly error?: string;
+}
+
+interface MultiplayerMissingInputRange {
+  readonly from_tick?: number;
+  readonly to_tick?: number;
+}
+
+interface MultiplayerDiagnosticsPeer {
+  readonly peer_id?: number;
+  readonly player_id?: number;
+  readonly display_name?: string;
+  readonly state?: string;
+  readonly ready?: boolean;
+  readonly latency_ms?: number;
+  readonly jitter_ms?: number;
+  readonly packet_loss_ppm?: number;
+  readonly last_seen_tick?: number;
+  readonly last_input_tick?: number;
+  readonly last_sequence_id?: number;
+  readonly buffered_input_packets?: number;
+  readonly missing_input_ranges?: readonly MultiplayerMissingInputRange[];
+  readonly authoritative_entities?: readonly number[];
+}
+
+interface MultiplayerDiagnosticsSnapshot {
+  readonly schema?: string;
+  readonly topology_id?: string;
+  readonly session?: {
+    readonly mode?: string;
+    readonly phase?: string;
+    readonly tick?: number;
+    readonly paused?: boolean;
+    readonly peer_total?: number;
+    readonly live_peers?: number;
+    readonly ready_peers?: readonly number[];
+    readonly required_input_peers?: readonly number[];
+    readonly compatibility_required?: boolean;
+    readonly compatibility_ok?: boolean;
+  };
+  readonly peers?: readonly MultiplayerDiagnosticsPeer[];
+  readonly ticks?: {
+    readonly session_tick?: number;
+    readonly simulation_tick?: number;
+    readonly input_tick?: number;
+    readonly last_released_tick?: number;
+    readonly missing_peers?: readonly number[];
+    readonly can_release?: boolean;
+  };
+  readonly input_buffers?: {
+    readonly total_packet_count?: number;
+    readonly accepted_count?: number;
+    readonly duplicate_count?: number;
+    readonly rejected_count?: number;
+    readonly per_peer?: readonly {
+      readonly peer_id?: number;
+      readonly buffered_packets?: number;
+      readonly missing_input_ranges?: readonly MultiplayerMissingInputRange[];
+      readonly has_input_for_current_tick?: boolean;
+    }[];
+  };
+  readonly latency?: {
+    readonly recommended_delay_ticks?: number;
+    readonly worst_peer?: number;
+    readonly max_rtt_ms?: number;
+    readonly max_jitter_ms?: number;
+    readonly max_packet_loss_ppm?: number;
+  };
+  readonly rollback?: {
+    readonly rollback_count?: number;
+    readonly pending?: boolean;
+    readonly latest_restore_tick?: number;
+    readonly latest_target_tick?: number;
+    readonly latest_completed_tick?: number;
+    readonly latest_reason?: string;
+  };
+  readonly resync?: readonly {
+    readonly peer_id?: number;
+    readonly state?: string;
+    readonly mode?: string;
+    readonly snapshot_tick?: number;
+    readonly target_tick?: number;
+    readonly attempts?: number;
+    readonly expected_hash?: string;
+    readonly completed_tick?: number;
+    readonly failure_reason?: string;
+  }[];
+  readonly hash_comparisons?: readonly {
+    readonly tick?: number;
+    readonly expected_hash?: string;
+    readonly majority_hash?: string;
+    readonly matching_peers?: readonly number[];
+    readonly divergent_peers?: readonly { readonly peer_id?: number; readonly hash?: string }[];
+    readonly missing_peers?: readonly number[];
+  }[];
+  readonly authority?: readonly {
+    readonly entity_id?: number;
+    readonly owner_peer?: number;
+    readonly fallback_peer?: number;
+    readonly shared_peers?: readonly number[];
+    readonly scope?: string;
+    readonly version?: number;
+    readonly transfer_locked?: boolean;
+  }[];
+  readonly chaos_report?: {
+    readonly scenario?: string;
+    readonly packet_loss_ppm?: number;
+    readonly jitter_ms?: number;
+    readonly divergent_hash_peer?: number;
+    readonly resync_status?: string;
+    readonly boundary?: string;
+  };
+}
+
+interface MultiplayerDiagnosticsResponse {
+  readonly ok?: boolean;
+  readonly diagnostics?: MultiplayerDiagnosticsSnapshot;
   readonly error?: string;
 }
 
@@ -683,6 +801,7 @@ export class ProjectDashboard {
   private _demoRuntimeStatus: DemoRuntimeStatus | null = null;
   private _lastLiveValidation: LiveValidationStatus | null = null;
   private _lastMultiplayerSmoke: MultiplayerSmokeResult | null = null;
+  private _lastMultiplayerDiagnostics: MultiplayerDiagnosticsSnapshot | null = null;
   private _certificationStatus: CertificationStatusResult | null = null;
   private _lastCertification: CertificationRunResult | null = null;
 
@@ -1287,6 +1406,13 @@ export class ProjectDashboard {
     multiplayer.disabled = this._busy;
     multiplayer.addEventListener('click', () => this._runMultiplayerSmoke());
     actions.appendChild(multiplayer);
+    const diagnostics = el('button', 'xb-pd-browse', {
+      textContent: 'Open Network Diagnostics',
+      type: 'button',
+    }) as HTMLButtonElement;
+    diagnostics.disabled = this._busy;
+    diagnostics.addEventListener('click', () => this._loadMultiplayerDiagnostics());
+    actions.appendChild(diagnostics);
     form.appendChild(actions);
 
     if (this._lastDemoStatus) {
@@ -1320,6 +1446,7 @@ export class ProjectDashboard {
         'Use Start Session to start runtime and launch every ready engine project.',
         'Use Run Editor-Free Proof to confirm one runtime can feed three clients without opening the engines.',
         'Use Run Network Primitives Smoke to confirm host/client, lockstep, prediction, reconciliation, and desync checks.',
+        'Use Open Network Diagnostics to inspect peers, ticks, input buffers, latency, rollback count, resync status, packet loss, hash comparisons, and authority owner.',
       ]) {
         steps.appendChild(el('li', '', { textContent: step }));
       }
@@ -1327,6 +1454,9 @@ export class ProjectDashboard {
     }
     if (this._lastMultiplayerSmoke) {
       form.appendChild(this._buildMultiplayerSmokeStatus(this._lastMultiplayerSmoke));
+    }
+    if (this._lastMultiplayerDiagnostics) {
+      form.appendChild(this._buildMultiplayerDiagnosticsPanel(this._lastMultiplayerDiagnostics));
     }
     if (this._lastLiveValidation) {
       form.appendChild(this._buildLiveValidationStatus(this._lastLiveValidation));
@@ -1382,7 +1512,7 @@ export class ProjectDashboard {
       'Network primitives smoke',
       Boolean(smoke.ok),
       smoke.ok
-        ? 'Passed: host/client lifecycle, lockstep input, prediction/reconciliation, desync detection, and deterministic final digest.'
+        ? 'Passed: lobby/session lifecycle, compatibility gates, malicious-input limits, host/client lockstep, prediction/reconciliation, desync detection, and deterministic final digest.'
         : `Failed: ${smoke.error || 'see terminal output for details.'}`,
     ));
     for (const step of smoke.steps ?? []) {
@@ -1392,6 +1522,62 @@ export class ProjectDashboard {
         step.detail ?? '',
       ));
     }
+    return wrap;
+  }
+
+  private _buildMultiplayerDiagnosticsPanel(diagnostics: MultiplayerDiagnosticsSnapshot): HTMLElement {
+    const wrap = el('div', 'xb-pd-demo-list');
+    const peers = diagnostics.peers ?? [];
+    const ticks = diagnostics.ticks ?? {};
+    const inputBuffers = diagnostics.input_buffers ?? {};
+    const latency = diagnostics.latency ?? {};
+    const rollback = diagnostics.rollback ?? {};
+    const resync = diagnostics.resync ?? [];
+    const hashes = diagnostics.hash_comparisons ?? [];
+    const authority = diagnostics.authority ?? [];
+    const chaos = diagnostics.chaos_report ?? {};
+    const requiredSummary = 'Shows peers, ticks, input buffers, latency, rollback count, resync status, packet loss, hash comparisons, and authority owner.';
+
+    wrap.appendChild(demoItem(
+      'Multiplayer diagnostics panel',
+      Boolean(diagnostics.schema),
+      `${requiredSummary} Schema ${diagnostics.schema ?? 'unknown'}; topology ${diagnostics.topology_id ?? 'unknown'}.`,
+    ));
+    wrap.appendChild(demoItem(
+      'Peers and ticks',
+      peers.length > 0,
+      `Peers ${peers.map(peer => `peer ${peer.peer_id ?? '?'} ${peer.state ?? 'unknown'} ready ${yesNo(peer.ready)} loss ${peer.packet_loss_ppm ?? 0} ppm`).join('; ') || 'none'}. Session tick ${ticks.session_tick ?? 0}; input tick ${ticks.input_tick ?? 'none'}; missing peers ${(ticks.missing_peers ?? []).join(', ') || 'none'}; can release ${yesNo(ticks.can_release)}.`,
+    ));
+    wrap.appendChild(demoItem(
+      'Input buffers',
+      Boolean(inputBuffers.per_peer?.length),
+      `Buffered ${inputBuffers.total_packet_count ?? 0}; accepted ${inputBuffers.accepted_count ?? 0}; duplicate ${inputBuffers.duplicate_count ?? 0}; rejected ${inputBuffers.rejected_count ?? 0}; per-peer ${(inputBuffers.per_peer ?? []).map(row => `peer ${row.peer_id ?? '?'}=${row.buffered_packets ?? 0}`).join(', ') || 'none'}.`,
+    ));
+    wrap.appendChild(demoItem(
+      'Latency and packet loss',
+      latency.worst_peer !== undefined,
+      `Worst peer ${latency.worst_peer ?? 'none'}; RTT ${latency.max_rtt_ms ?? 0}ms; jitter ${latency.max_jitter_ms ?? 0}ms; packet loss ${latency.max_packet_loss_ppm ?? 0} ppm; recommended delay ${latency.recommended_delay_ticks ?? 0} ticks.`,
+    ));
+    wrap.appendChild(demoItem(
+      'Rollback and resync status',
+      rollback.rollback_count !== undefined,
+      `Rollback count ${rollback.rollback_count ?? 0}; pending ${yesNo(rollback.pending)}; restore tick ${rollback.latest_restore_tick ?? 'none'}; target tick ${rollback.latest_target_tick ?? 'none'}; reason ${rollback.latest_reason ?? 'none'}; resync status ${resync.map(row => `peer ${row.peer_id ?? '?'} ${row.state ?? 'unknown'} ${row.mode ?? ''}`).join('; ') || 'none'}.`,
+    ));
+    wrap.appendChild(demoItem(
+      'Hash comparisons',
+      hashes.length > 0,
+      hashes.map(row => `tick ${row.tick ?? '?'} majority ${shortHash(row.majority_hash ?? '')}; matching ${(row.matching_peers ?? []).join(', ') || 'none'}; divergent ${(row.divergent_peers ?? []).map(peer => `peer ${peer.peer_id ?? '?'} ${shortHash(peer.hash ?? '')}`).join(', ') || 'none'}`).join('; ') || 'No hash comparisons reported.',
+    ));
+    wrap.appendChild(demoItem(
+      'Authority owner',
+      authority.length > 0,
+      authority.map(row => `entity ${row.entity_id ?? '?'} owner peer ${row.owner_peer ?? 'none'} fallback ${row.fallback_peer ?? 'none'} scope ${row.scope ?? 'unknown'}`).join('; ') || 'No authority owners reported.',
+    ));
+    wrap.appendChild(demoItem(
+      'Chaos diagnostics report',
+      Boolean(chaos.scenario),
+      `Scenario ${chaos.scenario ?? 'none'}; packet loss ${chaos.packet_loss_ppm ?? 0} ppm; jitter ${chaos.jitter_ms ?? 0}ms; divergent hash peer ${chaos.divergent_hash_peer ?? 'none'}; resync status ${chaos.resync_status ?? 'none'}. ${chaos.boundary ?? ''}`.trim(),
+    ));
     return wrap;
   }
 
@@ -1998,6 +2184,30 @@ export class ProjectDashboard {
       const passed = result.smoke.steps?.filter(step => step.ok).length ?? 0;
       const total = result.smoke.steps?.length ?? 0;
       this._setStatus(`Network primitives smoke passed. ${passed}/${total} checks ready.`, 'ok');
+    } catch (error) {
+      this._setStatus(readError(error), 'err');
+    } finally {
+      this._busy = false;
+      this._primaryBtn.disabled = this._loading;
+      this._render();
+    }
+  }
+
+  private async _loadMultiplayerDiagnostics(): Promise<void> {
+    this._busy = true;
+    this._primaryBtn.disabled = true;
+    this._setStatus('Loading multiplayer diagnostics...', '');
+
+    try {
+      const result = await fetchJson<MultiplayerDiagnosticsResponse>('/api/project/demo/multiplayer/diagnostics');
+      if (!result.ok || !result.diagnostics) {
+        throw new Error(result.error || 'Multiplayer diagnostics unavailable.');
+      }
+      this._lastMultiplayerDiagnostics = result.diagnostics;
+      const peerCount = result.diagnostics.peers?.length ?? 0;
+      const rollbackCount = result.diagnostics.rollback?.rollback_count ?? 0;
+      const resyncStatus = result.diagnostics.resync?.map(row => `${row.peer_id ?? '?'}:${row.state ?? 'unknown'}`).join(', ') || 'none';
+      this._setStatus(`Multiplayer diagnostics ready. ${peerCount} peers, rollback count ${rollbackCount}, resync status ${resyncStatus}.`, 'ok');
     } catch (error) {
       this._setStatus(readError(error), 'err');
     } finally {

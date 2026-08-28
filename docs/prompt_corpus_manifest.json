@@ -6,7 +6,7 @@
   "updated": "2026-07-01",
   "source_of_truth": "docs/prompt_corpus_100.jsonl",
   "case_count": 100,
-  "corpus_sha256": "479aa5e130cbe9822c4b492a16ac0d5e8d005c75d4496e819cec19fb1bb689cf",
+  "corpus_sha256": "9fa5bac704aa6472f28a01b09703a25771604a36d2707e38a797cf0d511b974a",
   "review": {
     "reviewed": true,
     "reviewed_at": "2026-07-01",

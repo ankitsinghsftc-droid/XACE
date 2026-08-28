@@ -35,6 +35,7 @@ import logging
 import threading
 import hashlib
 import shutil
+import copy
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -187,6 +188,8 @@ class CGSPersistence:
     AUDIT_DIR       = "audit"
     AUDIT_LEDGER    = "transactions.jsonl"
     AUDIT_DATASET   = "mutations.jsonl"
+    PROMPT_HISTORY  = "prompt_history.json"
+    PROMPT_HISTORY_EVENTS = "prompt_history_events.jsonl"
     TXN_COUNTER     = "transaction_counter.json"
     CGS_WRITE_LOCK  = "cgs.write.lock"
 
@@ -199,6 +202,8 @@ class CGSPersistence:
         self._audit_dir     = self._xace_dir / self.AUDIT_DIR
         self._audit_ledger  = self._audit_dir / self.AUDIT_LEDGER
         self._audit_dataset = self._audit_dir / self.AUDIT_DATASET
+        self._prompt_history_file = self._audit_dir / self.PROMPT_HISTORY
+        self._prompt_history_events = self._audit_dir / self.PROMPT_HISTORY_EVENTS
         self._txn_counter   = self._audit_dir / self.TXN_COUNTER
         self._write_lock_file = self._xace_dir / self.CGS_WRITE_LOCK
         self._audit_lock    = threading.Lock()
@@ -650,6 +655,206 @@ class CGSPersistence:
             self._append_jsonl(self._audit_ledger, ledger_entry)
             self._append_jsonl(self._audit_dataset, dataset_entry)
 
+    def prompt_history_state(self) -> dict[str, Any]:
+        """Returns the durable prompt undo/redo history index."""
+        with self._audit_lock:
+            return copy.deepcopy(self._load_prompt_history())
+
+    def record_prompt_history_apply(
+        self,
+        *,
+        transaction_id: str,
+        pre_cgs_hash: str,
+        post_cgs_hash: str,
+        summary: str,
+        mutation_count: int,
+        version_ids: dict[str, Any] | None = None,
+        proof_links: dict[str, Any] | None = None,
+        typed_operation_provenance: dict[str, Any] | None = None,
+        composite_prompt_plan: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Appends one prompt apply to the durable linear undo/redo history.
+
+        If the user applies a new prompt after undoing, the redo tail is
+        truncated. If another writer moves the CGS outside the known history,
+        the prompt history safely starts a new branch at ``pre_cgs_hash``.
+        """
+        pre_hash = str(pre_cgs_hash or "")
+        post_hash = str(post_cgs_hash or "")
+        if not _HASH_RE.fullmatch(pre_hash) or not _HASH_RE.fullmatch(post_hash):
+            raise CGSSaveError("Prompt history apply requires valid pre/post CGS hashes.")
+        timestamp = time.time()
+        with self._audit_lock:
+            state = self._load_prompt_history()
+            entries = list(state.get("entries") or [])
+            cursor = _prompt_history_cursor(state)
+            origin = str(state.get("origin_cgs_hash") or "")
+            if not origin:
+                origin = pre_hash
+                state["origin_cgs_hash"] = origin
+
+            expected_current = _prompt_history_hash_at_cursor(state, cursor)
+            if expected_current != pre_hash:
+                matching_cursor = _prompt_history_cursor_for_hash(state, pre_hash)
+                if matching_cursor is None:
+                    state = _empty_prompt_history_state(origin_cgs_hash=pre_hash)
+                    entries = []
+                    cursor = 0
+                    state["branch_reset_count"] = 1
+                else:
+                    cursor = matching_cursor
+                    entries = entries[:cursor]
+                    state["entries"] = entries
+                    state["cursor"] = cursor
+
+            redo_truncated = max(0, len(entries) - cursor)
+            if redo_truncated:
+                entries = entries[:cursor]
+
+            sequence = int(state.get("next_sequence") or (len(entries) + 1))
+            composite_hash = ""
+            if isinstance(composite_prompt_plan, dict):
+                composite_hash = _sha256_text(_canonical_json(composite_prompt_plan))
+            entry = {
+                "schema": "xace.prompt_mutation_history_entry.v1",
+                "sequence": sequence,
+                "transaction_id": str(transaction_id or ""),
+                "timestamp": timestamp,
+                "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(timestamp)),
+                "summary": str(summary or "")[:500],
+                "mutation_count": int(mutation_count or 0),
+                "pre_cgs_hash": pre_hash,
+                "post_cgs_hash": post_hash,
+                "redo_entries_truncated": redo_truncated,
+                "proof_links": (
+                    copy.deepcopy(proof_links)
+                    if isinstance(proof_links, dict)
+                    else self._prompt_history_proof_links(post_hash, transaction_id=str(transaction_id or ""))
+                ),
+                "undo_target_proof_links": self._prompt_history_proof_links(pre_hash, transaction_id=str(transaction_id or "")),
+                "version_ids": copy.deepcopy(version_ids) if isinstance(version_ids, dict) else {},
+                "typed_operation_provenance": copy.deepcopy(typed_operation_provenance) if isinstance(typed_operation_provenance, dict) else {},
+                "composite_prompt_plan_hash": composite_hash,
+            }
+            entries.append(entry)
+            state["entries"] = entries
+            state["cursor"] = len(entries)
+            state["next_sequence"] = sequence + 1
+            state["updated_at"] = timestamp
+            state["last_entry"] = copy.deepcopy(entry)
+            state["history_hash"] = _prompt_history_hash(state)
+            self._save_prompt_history(state)
+            return copy.deepcopy(entry)
+
+    def plan_prompt_history_restore(
+        self,
+        action: str,
+        *,
+        current_cgs_hash: str,
+        require_proof: bool = True,
+    ) -> dict[str, Any]:
+        """Plans one prompt undo or redo without mutating project state."""
+        normalized_action = str(action or "").lower()
+        if normalized_action not in {"undo", "redo"}:
+            return _prompt_history_rejected(normalized_action, "action must be 'undo' or 'redo'")
+        current_hash = str(current_cgs_hash or "")
+        with self._audit_lock:
+            state = self._load_prompt_history()
+            entries = list(state.get("entries") or [])
+            cursor = _prompt_history_cursor(state)
+            expected_current = _prompt_history_hash_at_cursor(state, cursor)
+            if not entries:
+                return _prompt_history_rejected(normalized_action, "No prompt mutations are recorded.", state)
+            if current_hash != expected_current:
+                return _prompt_history_rejected(
+                    normalized_action,
+                    "Current CGS hash does not match the prompt history cursor.",
+                    state,
+                )
+            if normalized_action == "undo":
+                if cursor <= 0:
+                    return _prompt_history_rejected("undo", "No earlier prompt mutation state is available.", state)
+                entry = entries[cursor - 1]
+                source_hash = str(entry.get("post_cgs_hash") or "")
+                target_hash = str(entry.get("pre_cgs_hash") or "")
+                target_cursor = cursor - 1
+            else:
+                if cursor >= len(entries):
+                    return _prompt_history_rejected("redo", "No later prompt mutation state is available.", state)
+                entry = entries[cursor]
+                source_hash = str(entry.get("pre_cgs_hash") or "")
+                target_hash = str(entry.get("post_cgs_hash") or "")
+                target_cursor = cursor + 1
+
+            proof_status = self._prompt_history_proof_status(target_hash)
+            if not proof_status["snapshot_available"]:
+                return _prompt_history_rejected(normalized_action, "Target prompt snapshot is missing.", state, proof_status)
+            if require_proof and not proof_status["execution_plan_available"]:
+                return _prompt_history_rejected(normalized_action, "Target prompt ExecutionPlan is missing or invalid.", state, proof_status)
+            if require_proof and not proof_status["sgc_proof_bundle_available"]:
+                return _prompt_history_rejected(normalized_action, "Target prompt SGC proof bundle is missing or invalid.", state, proof_status)
+            plan = {
+                "schema": "xace.prompt_history_restore_plan.v1",
+                "accepted": True,
+                "action": normalized_action,
+                "cursor_before": cursor,
+                "cursor_after": target_cursor,
+                "entry_sequence": int(entry.get("sequence") or 0),
+                "entry_transaction_id": str(entry.get("transaction_id") or ""),
+                "source_cgs_hash": source_hash,
+                "target_cgs_hash": target_hash,
+                "current_cgs_hash": current_hash,
+                "proof_links": self._prompt_history_proof_links(target_hash, transaction_id=str(entry.get("transaction_id") or "")),
+                "proof_status": proof_status,
+                "history_hash_before": _prompt_history_hash(state),
+            }
+            return copy.deepcopy(plan)
+
+    def complete_prompt_history_restore(
+        self,
+        restore_plan: dict[str, Any],
+        *,
+        transaction_id: str,
+    ) -> dict[str, Any]:
+        """Commits the cursor move after the caller has restored the snapshot."""
+        if not isinstance(restore_plan, dict) or restore_plan.get("accepted") is not True:
+            raise CGSSaveError("Cannot complete an unaccepted prompt history restore plan.")
+        timestamp = time.time()
+        with self._audit_lock:
+            state = self._load_prompt_history()
+            cursor_before = _prompt_history_cursor(state)
+            expected_before_raw = restore_plan.get("cursor_before")
+            expected_before = int(expected_before_raw) if expected_before_raw is not None else -1
+            if cursor_before != expected_before:
+                raise CGSSaveError("Prompt history cursor changed before restore completion.")
+            cursor_after_raw = restore_plan.get("cursor_after")
+            cursor_after = int(cursor_after_raw) if cursor_after_raw is not None else -1
+            entries = list(state.get("entries") or [])
+            if cursor_after < 0 or cursor_after > len(entries):
+                raise CGSSaveError("Prompt history restore target cursor is out of range.")
+            state["cursor"] = cursor_after
+            state["updated_at"] = timestamp
+            event = {
+                "schema": "xace.prompt_history_restore_event.v1",
+                "transaction_id": str(transaction_id or ""),
+                "timestamp": timestamp,
+                "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(timestamp)),
+                "action": str(restore_plan.get("action") or ""),
+                "cursor_before": cursor_before,
+                "cursor_after": cursor_after,
+                "source_cgs_hash": str(restore_plan.get("source_cgs_hash") or ""),
+                "target_cgs_hash": str(restore_plan.get("target_cgs_hash") or ""),
+                "entry_sequence": int(restore_plan.get("entry_sequence") or 0),
+                "proof_links": copy.deepcopy(restore_plan.get("proof_links") if isinstance(restore_plan.get("proof_links"), dict) else {}),
+                "proof_status": copy.deepcopy(restore_plan.get("proof_status") if isinstance(restore_plan.get("proof_status"), dict) else {}),
+            }
+            state["last_restore"] = copy.deepcopy(event)
+            state["history_hash"] = _prompt_history_hash(state)
+            self._save_prompt_history(state)
+            self._append_jsonl(self._prompt_history_events, event)
+            return copy.deepcopy(event)
+
     # ── Internal ──────────────────────────────────────────────────────────────
 
     @staticmethod
@@ -724,6 +929,75 @@ class CGSPersistence:
                 os.fsync(f.fileno())
         except OSError as exc:
             raise CGSSaveError(f"Cannot append audit record to {path}: {exc}") from exc
+
+    def _load_prompt_history(self) -> dict[str, Any]:
+        if not self._prompt_history_file.exists():
+            return _empty_prompt_history_state()
+        try:
+            raw = json.loads(self._prompt_history_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return _empty_prompt_history_state()
+        if not isinstance(raw, dict) or raw.get("schema") != "xace.prompt_mutation_history.v1":
+            return _empty_prompt_history_state()
+        entries = raw.get("entries")
+        if not isinstance(entries, list):
+            raw["entries"] = []
+        cursor = _prompt_history_cursor(raw)
+        raw["cursor"] = min(cursor, len(raw.get("entries") or []))
+        raw.setdefault("origin_cgs_hash", "")
+        raw.setdefault("next_sequence", len(raw.get("entries") or []) + 1)
+        raw.setdefault("branch_reset_count", 0)
+        raw["can_undo"] = raw["cursor"] > 0
+        raw["can_redo"] = raw["cursor"] < len(raw.get("entries") or [])
+        raw["current_cgs_hash"] = _prompt_history_hash_at_cursor(raw, raw["cursor"])
+        raw["history_hash"] = _prompt_history_hash(raw)
+        return raw
+
+    def _save_prompt_history(self, state: dict[str, Any]) -> None:
+        state = copy.deepcopy(state)
+        state["can_undo"] = _prompt_history_cursor(state) > 0
+        state["can_redo"] = _prompt_history_cursor(state) < len(state.get("entries") or [])
+        state["current_cgs_hash"] = _prompt_history_hash_at_cursor(state, _prompt_history_cursor(state))
+        state["history_hash"] = _prompt_history_hash(state)
+        self._atomic_write(self._prompt_history_file, state)
+
+    def _prompt_history_proof_status(self, cgs_hash: str) -> dict[str, Any]:
+        target_hash = str(cgs_hash or "")
+        snapshot_path = self._snapshot_dir / f"{target_hash}.json"
+        plan_path = self._plans_dir / f"{target_hash}.plan.json"
+        proof_dir = self._xace_dir / self.PROOF_DIR / self.SGC_PROOF_DIR / target_hash
+        return {
+            "schema": "xace.prompt_history_proof_status.v1",
+            "cgs_hash": target_hash,
+            "snapshot_available": bool(target_hash and snapshot_path.exists()),
+            "execution_plan_available": self._execution_plan_file_is_valid(target_hash, plan_path),
+            "sgc_proof_bundle_available": self._sgc_proof_bundle_is_valid(target_hash, proof_dir),
+            "snapshot_path": f".xace/snapshots/{target_hash}.json" if target_hash else "",
+            "execution_plan_path": f".xace/execution_plans/{target_hash}.plan.json" if target_hash else "",
+            "sgc_proof_bundle_path": f".xace/proof/sgc/{target_hash}" if target_hash else "",
+        }
+
+    def _prompt_history_proof_links(self, cgs_hash: str, *, transaction_id: str = "") -> dict[str, Any]:
+        target_hash = str(cgs_hash or "")
+        status = self._prompt_history_proof_status(target_hash)
+        return {
+            "schema": "xace.prompt_history.proof_links.v1",
+            "project_root": str(self._root),
+            "transaction_id": str(transaction_id or ""),
+            "cgs_hash": target_hash,
+            "snapshot": status["snapshot_path"],
+            "execution_plan": {
+                "available": bool(status["execution_plan_available"]),
+                "path": status["execution_plan_path"],
+            },
+            "sgc_proof_bundle": {
+                "available": bool(status["sgc_proof_bundle_available"]),
+                "path": status["sgc_proof_bundle_path"],
+            },
+            "audit_dataset": ".xace/audit/mutations.jsonl",
+            "history": ".xace/audit/prompt_history.json",
+            "history_events": ".xace/audit/prompt_history_events.jsonl",
+        }
 
     def _load_index(self) -> list[SnapshotRecord]:
         if not self._index_file.exists():
@@ -962,6 +1236,84 @@ def _remove_file_if_exists(path: Path, errors: list[str]) -> bool:
     except OSError as exc:
         errors.append(f"remove_failed:{path.name}: {exc}")
         return False
+
+
+def _empty_prompt_history_state(*, origin_cgs_hash: str = "") -> dict[str, Any]:
+    return {
+        "schema": "xace.prompt_mutation_history.v1",
+        "origin_cgs_hash": str(origin_cgs_hash or ""),
+        "current_cgs_hash": str(origin_cgs_hash or ""),
+        "cursor": 0,
+        "entries": [],
+        "next_sequence": 1,
+        "can_undo": False,
+        "can_redo": False,
+        "branch_reset_count": 0,
+        "updated_at": 0.0,
+        "history_hash": "",
+    }
+
+
+def _prompt_history_cursor(state: dict[str, Any]) -> int:
+    try:
+        cursor = int(state.get("cursor") or 0)
+    except (TypeError, ValueError):
+        cursor = 0
+    entries = state.get("entries")
+    length = len(entries) if isinstance(entries, list) else 0
+    return max(0, min(cursor, length))
+
+
+def _prompt_history_hash_at_cursor(state: dict[str, Any], cursor: int) -> str:
+    entries = state.get("entries")
+    if not isinstance(entries, list) or cursor <= 0:
+        return str(state.get("origin_cgs_hash") or "")
+    if cursor >= len(entries):
+        cursor = len(entries)
+    entry = entries[cursor - 1]
+    if not isinstance(entry, dict):
+        return ""
+    return str(entry.get("post_cgs_hash") or "")
+
+
+def _prompt_history_cursor_for_hash(state: dict[str, Any], cgs_hash: str) -> int | None:
+    target = str(cgs_hash or "")
+    if target == str(state.get("origin_cgs_hash") or ""):
+        return 0
+    entries = state.get("entries")
+    if not isinstance(entries, list):
+        return None
+    for index, entry in enumerate(entries, start=1):
+        if isinstance(entry, dict) and str(entry.get("post_cgs_hash") or "") == target:
+            return index
+    return None
+
+
+def _prompt_history_hash(state: dict[str, Any]) -> str:
+    payload = copy.deepcopy(state)
+    payload.pop("history_hash", None)
+    payload.pop("updated_at", None)
+    payload.pop("last_restore", None)
+    return _sha256_text(_canonical_json(payload))
+
+
+def _prompt_history_rejected(
+    action: str,
+    reason: str,
+    state: dict[str, Any] | None = None,
+    proof_status: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {
+        "schema": "xace.prompt_history_restore_plan.v1",
+        "accepted": False,
+        "action": str(action or ""),
+        "reason": str(reason or ""),
+        "cursor": _prompt_history_cursor(state) if isinstance(state, dict) else 0,
+        "can_undo": bool(state.get("can_undo")) if isinstance(state, dict) else False,
+        "can_redo": bool(state.get("can_redo")) if isinstance(state, dict) else False,
+        "current_cgs_hash": str(state.get("current_cgs_hash") or "") if isinstance(state, dict) else "",
+        "proof_status": copy.deepcopy(proof_status) if isinstance(proof_status, dict) else {},
+    }
 
 
 def _recovery_errors(report: CGSRecoveryReport) -> list[str]:

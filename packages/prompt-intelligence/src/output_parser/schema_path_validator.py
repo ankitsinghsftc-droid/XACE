@@ -45,7 +45,7 @@ current CGS. This is the safety boundary against hallucinated paths.
     PathValidationResult:
         valid:          bool
         invalid_paths:  list[str]   — paths that do not resolve
-        unknown_paths:  list[str]   — paths that match grammar but can't be fully verified
+        unknown_paths:  list[str]   — paths with unrecognised grammar
         reasons:        list[str]   — human-readable reason per invalid path
 """
 
@@ -114,7 +114,7 @@ class PathValidationResult:
     ----------
     valid          : bool         — True if all paths resolve correctly
     invalid_paths  : tuple[str]   — paths that definitively do not exist
-    unknown_paths  : tuple[str]   — paths with unrecognised grammar (warned, not blocked)
+    unknown_paths  : tuple[str]   — paths with unrecognised grammar (hard failures)
     reasons        : tuple[str]   — one reason string per invalid path
     forbidden_paths: tuple[str]   — paths touching permanently forbidden fields
     """
@@ -192,15 +192,18 @@ class SchemaPathValidator:
             # ── Try each pattern ──────────────────────────────────────────────
             result = self._validate_one(path, mode_index, global_sys)
             if result is None:
-                # Unrecognised grammar — warn but don't block
+                # Unknown grammar is not a production mutation surface.
                 unknown.append(path)
+                reasons.append(
+                    f"Path grammar unrecognised and not allowed in production mutation: {path!r}."
+                )
             elif result is not True:
                 # result is an error string
                 invalid.append(path)
                 reasons.append(result)
             # else: valid
 
-        all_invalid = invalid + forbidden
+        all_invalid = invalid + unknown + forbidden
         return PathValidationResult(
             valid           = len(all_invalid) == 0,
             invalid_paths   = tuple(invalid),
@@ -225,7 +228,7 @@ class SchemaPathValidator:
         Returns:
             True       — path is valid
             str        — error message (path is invalid)
-            None       — grammar unrecognised (unknown, not blocked)
+            None       — grammar unrecognised (unknown, hard failure)
         """
 
         # global_systems[{id}]

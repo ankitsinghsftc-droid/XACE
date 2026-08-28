@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use serde::{Deserialize, Serialize};
 
-use super::ConnectionState;
+use super::{session_manager::SessionPlayerIdentity, ConnectionState};
 use crate::{EntityId, NetworkError, PeerId, Tick};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -37,6 +37,10 @@ pub struct Peer {
     pub last_input_tick: Tick,
     pub last_sequence_id: u64,
     pub missed_heartbeats: u32,
+    #[serde(default)]
+    pub player_id: Option<EntityId>,
+    #[serde(default)]
+    pub ready: bool,
     pub display_name: String,
     pub engine_name: String,
     pub adapter_version: String,
@@ -62,6 +66,8 @@ impl Peer {
             last_input_tick: 0,
             last_sequence_id: 0,
             missed_heartbeats: 0,
+            player_id: None,
+            ready: false,
             display_name: format!("peer_{}", peer_id),
             engine_name: String::new(),
             adapter_version: String::new(),
@@ -82,6 +88,18 @@ impl Peer {
         self
     }
 
+    pub fn with_player_identity(mut self, identity: &SessionPlayerIdentity) -> Self {
+        self.player_id = Some(identity.player_id);
+        self.display_name = identity.display_name.clone();
+        self.engine_name = identity.engine_name.clone();
+        self.adapter_version = identity.adapter_version.clone();
+        self
+    }
+
+    pub fn set_ready(&mut self, ready: bool) {
+        self.ready = ready;
+    }
+
     pub fn transition(
         &mut self,
         next_state: ConnectionState,
@@ -96,6 +114,9 @@ impl Peer {
         if self.state != next_state {
             self.state = next_state;
             self.state_since_tick = tick;
+        }
+        if next_state == ConnectionState::Disconnected {
+            self.ready = false;
         }
         Ok(())
     }

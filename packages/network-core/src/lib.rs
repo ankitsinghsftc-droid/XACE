@@ -6,6 +6,8 @@
 //! packets into these deterministic structures.
 
 pub mod authority;
+pub mod chaos;
+pub mod diagnostics;
 pub mod input;
 pub mod prediction;
 pub mod replication;
@@ -67,6 +69,16 @@ pub enum NetworkError {
 
     #[error("rollback snapshot for tick {0} was not found")]
     RollbackSnapshotMissing(Tick),
+
+    #[error(
+        "{failure_code}: unsupported launch topology mode={mode} topology={topology_id}: {reason}"
+    )]
+    UnsupportedTopology {
+        failure_code: String,
+        mode: String,
+        topology_id: String,
+        reason: String,
+    },
 
     #[error("invalid network operation: {0}")]
     InvalidOperation(String),

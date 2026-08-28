@@ -111,11 +111,6 @@ impl RollbackManager {
         &mut self,
         snapshot: RollbackSnapshotMeta,
     ) -> Result<(), NetworkError> {
-        if snapshot.tick == 0 {
-            return Err(NetworkError::InvalidOperation(
-                "rollback snapshot tick 0 is reserved".to_string(),
-            ));
-        }
         self.snapshots.insert(snapshot.tick, snapshot);
         self.enforce_snapshot_limits();
         Ok(())
@@ -193,6 +188,69 @@ impl RollbackManager {
         Ok(plan)
     }
 
+    pub fn plan_clean_boundary(
+        &self,
+        target_tick: Tick,
+        live_tick: Tick,
+    ) -> Result<RollbackPlan, NetworkError> {
+        self.plan_clean_boundary_with_reason(target_tick, live_tick, RollbackReason::Manual)
+    }
+
+    pub fn plan_clean_boundary_with_reason(
+        &self,
+        target_tick: Tick,
+        live_tick: Tick,
+        reason: RollbackReason,
+    ) -> Result<RollbackPlan, NetworkError> {
+        if target_tick >= live_tick {
+            return Err(NetworkError::InvalidOperation(format!(
+                "rollback target tick {} is not before live clean-boundary tick {}",
+                target_tick, live_tick
+            )));
+        }
+        let restore = self
+            .snapshots
+            .range(..=target_tick)
+            .rev()
+            .find(|(_, snapshot)| snapshot.stable)
+            .map(|(_, snapshot)| snapshot)
+            .ok_or(NetworkError::RollbackSnapshotMissing(target_tick))?;
+
+        let replay_span = live_tick.saturating_sub(restore.tick);
+        if replay_span > self.config.max_replay_ticks {
+            return Err(NetworkError::InvalidOperation(format!(
+                "rollback clean-boundary replay span {} exceeds limit {}",
+                replay_span, self.config.max_replay_ticks
+            )));
+        }
+
+        let replay_ticks = (restore.tick..live_tick).collect();
+        Ok(RollbackPlan {
+            restore_tick: restore.tick,
+            replay_ticks,
+            target_tick,
+            live_tick,
+            reason,
+            snapshot_hash: restore.state_hash.clone(),
+        })
+    }
+
+    pub fn begin_clean_boundary_rollback(
+        &mut self,
+        target_tick: Tick,
+        live_tick: Tick,
+        requested_tick: Tick,
+        reason: RollbackReason,
+    ) -> Result<RollbackPlan, NetworkError> {
+        let plan = self.plan_clean_boundary_with_reason(target_tick, live_tick, reason)?;
+        self.records.push(RollbackRecord {
+            plan: plan.clone(),
+            requested_tick,
+            completed_tick: None,
+        });
+        Ok(plan)
+    }
+
     pub fn complete_latest(&mut self, completed_tick: Tick) -> Result<(), NetworkError> {
         let record = self
             .records
@@ -210,6 +268,18 @@ impl RollbackManager {
         let to_remove = self
             .snapshots
             .range(..tick)
+            .map(|(&snapshot_tick, _)| snapshot_tick)
+            .collect::<Vec<_>>();
+        for snapshot_tick in &to_remove {
+            self.snapshots.remove(snapshot_tick);
+        }
+        to_remove
+    }
+
+    pub fn prune_at_or_after(&mut self, tick: Tick) -> Vec<Tick> {
+        let to_remove = self
+            .snapshots
+            .range(tick..)
             .map(|(&snapshot_tick, _)| snapshot_tick)
             .collect::<Vec<_>>();
         for snapshot_tick in &to_remove {

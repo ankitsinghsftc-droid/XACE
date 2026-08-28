@@ -79,7 +79,17 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
                 self.assertIn("runtime_diff", pil_result["preview"])
                 self.assertIn("cost_diff", pil_result["preview"])
                 self.assertIsNotNone(session.pending_txn, scenario.scenario_id)
-                self.assertGreater(len(session.pending_txn["operations"]), 0)
+                pending_operations = _pending_transaction_operations(session.pending_txn)
+                self.assertGreater(len(pending_operations), 0)
+                if scenario.expected_component_type_id is not None:
+                    self.assertEqual(
+                        session.pending_txn["operation_format"],
+                        "typed_cgs_v1",
+                    )
+                    self.assertEqual(session.pending_txn["operations"], [])
+                    self.assertTrue(
+                        all("path" not in operation for operation in pending_operations)
+                    )
 
                 asyncio.run(_apply_prompt(router, persist, cgs_state, sent))
                 update = _last(sent, "cgs_update")
@@ -96,8 +106,14 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
 
                 if scenario.expected_path:
                     self.assertEqual(_resolve_cgs_path(cgs_state, scenario.expected_path), scenario.expected_value)
-                if scenario.expected_actor_id == "actor_player":
-                    self.assertIsNotNone(_component(cgs_state, "actor_player", 201))
+                if scenario.expected_component_type_id is not None:
+                    self.assertIsNotNone(
+                        _component(
+                            cgs_state,
+                            scenario.expected_actor_id,
+                            scenario.expected_component_type_id,
+                        )
+                    )
                 elif scenario.expected_actor_id:
                     self.assertIsNotNone(_actor(cgs_state, scenario.expected_actor_id))
                 if scenario.expects_execution_plan:
@@ -1227,6 +1243,15 @@ def _failing_sgc_script(root: Path) -> Path:
         encoding="utf-8",
     )
     return script
+
+
+def _pending_transaction_operations(transaction: dict) -> list[dict]:
+    typed_batch = transaction.get("typed_operation_batch")
+    if isinstance(typed_batch, dict):
+        operations = typed_batch.get("operations")
+        return list(operations) if isinstance(operations, list) else []
+    operations = transaction.get("operations")
+    return list(operations) if isinstance(operations, list) else []
 
 
 def _last(messages: list[dict], message_type: str) -> dict:

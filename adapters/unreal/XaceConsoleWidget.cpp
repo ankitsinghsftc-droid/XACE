@@ -200,6 +200,21 @@ void UXaceConsoleWidget::HandleJsonMessage(const TSharedPtr<FJsonObject>& Messag
 		return;
 	}
 
+	if (MsgType == TEXT("adapter_side_effect_rollback"))
+	{
+		PendingMutationId.Reset();
+		CurrentConfidence = 0.0f;
+		if (PreviewText != nullptr)
+		{
+			PreviewText->SetText(FText::GetEmpty());
+		}
+		FString Reason;
+		Message->TryGetStringField(TEXT("reason"), Reason);
+		AppendLog(TEXT("rollback: ") + (Reason.IsEmpty() ? TEXT("adapter side effects restored") : Reason));
+		SetState(EXaceConsoleState::Idle);
+		return;
+	}
+
 	if (MsgType != TEXT("control"))
 	{
 		return;

@@ -84,7 +84,7 @@ TSharedRef<FJsonObject> FXaceInputPacket::ToJson() const
 UXaceTransportComponent::UXaceTransportComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	Capabilities = { TEXT("length_prefixed_json"), TEXT("tick_snapshot_v1"), TEXT("input_packet_v1"), TEXT("feedback_payload_v1"), TEXT("unreal") };
+	Capabilities = { TEXT("length_prefixed_json"), TEXT("tick_snapshot_v1"), TEXT("input_packet_v1"), TEXT("feedback_payload_v1"), TEXT("adapter_side_effect_rollback_v1"), TEXT("unreal") };
 }
 
 void UXaceTransportComponent::BeginPlay()
@@ -325,6 +325,12 @@ void UXaceTransportComponent::DispatchMessage(const TSharedPtr<FJsonObject>& Mes
 		OnTickSnapshot.Broadcast(Snapshot);
 		OnJsonMessage.Broadcast(Message);
 	}
+	else if (MsgType == TEXT("adapter_side_effect_rollback"))
+	{
+		const FXaceAdapterSideEffectRollback Rollback = ParseAdapterSideEffectRollback(Message);
+		OnAdapterSideEffectRollback.Broadcast(Rollback);
+		OnJsonMessage.Broadcast(Message);
+	}
 	else if (MsgType == TEXT("disconnect"))
 	{
 		DisconnectFromRuntime(JsonString(Message, TEXT("reason"), TEXT("runtime disconnect")));
@@ -560,6 +566,36 @@ FXaceTickSnapshot UXaceTransportComponent::ParseTickSnapshot(const TSharedPtr<FJ
 	return Snapshot;
 }
 
+FXaceAdapterSideEffectRollback UXaceTransportComponent::ParseAdapterSideEffectRollback(const TSharedPtr<FJsonObject>& Object)
+{
+	FXaceAdapterSideEffectRollback Rollback;
+	Rollback.RollbackId = JsonString(Object, TEXT("rollback_id"));
+	Rollback.Reason = JsonString(Object, TEXT("reason"));
+	Rollback.FailedStage = JsonString(Object, TEXT("failed_stage"));
+	Rollback.Tick = JsonInt(Object, TEXT("tick"));
+	Rollback.RestoreTick = JsonInt(Object, TEXT("restore_tick"));
+	Rollback.RestoredCgsHash = JsonString(Object, TEXT("restored_cgs_hash"));
+	Rollback.FailedCgsHash = JsonString(Object, TEXT("failed_cgs_hash"));
+	Rollback.RestoredWorldHash = JsonString(Object, TEXT("restored_world_hash"));
+	Object->TryGetBoolField(TEXT("clear_feedback_queue"), Rollback.bClearFeedbackQueue);
+	Object->TryGetBoolField(TEXT("clear_pending_edits"), Rollback.bClearPendingEdits);
+	Object->TryGetBoolField(TEXT("reset_asset_bindings"), Rollback.bResetAssetBindings);
+
+	const TSharedPtr<FJsonObject>* SnapshotObject = nullptr;
+	if (Object->TryGetObjectField(TEXT("restored_snapshot"), SnapshotObject) && SnapshotObject != nullptr)
+	{
+		Rollback.RestoredSnapshot = ParseTickSnapshot(*SnapshotObject);
+	}
+	const TArray<TSharedPtr<FJsonValue>>* Revoked = nullptr;
+	if (Object->TryGetArrayField(TEXT("revoked_playback_commands"), Revoked) && Revoked != nullptr)
+	{
+		for (const TSharedPtr<FJsonValue>& Value : *Revoked)
+		{
+			Rollback.RevokedPlaybackCommands.Add(ParsePlaybackCommand(Value->AsObject()));
+		}
+	}
+	return Rollback;
+}
 FXaceHandshakeAck UXaceTransportComponent::ParseHandshakeAck(const TSharedPtr<FJsonObject>& Object)
 {
 	FXaceHandshakeAck Ack;

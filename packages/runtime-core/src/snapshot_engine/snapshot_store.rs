@@ -210,6 +210,20 @@ impl SnapshotStore {
         }
     }
 
+    /// Manually purges snapshots at or after the given tick.
+    ///
+    /// Used by clean-boundary rollback before deterministic resimulation so
+    /// future rollback anchors are rebuilt from the corrected timeline.
+    pub fn purge_at_or_after(&mut self, tick: Tick) {
+        let to_remove: Vec<Tick> = self.snapshots.range(tick..).map(|(t, _)| *t).collect();
+
+        for t in to_remove {
+            self.snapshots.remove(&t);
+            self.checkpoint_ticks.remove(&t);
+            self.total_purged += 1;
+        }
+    }
+
     /// Clears all stored snapshots. Used for snapshot restore.
     pub fn clear(&mut self) {
         self.total_purged += self.snapshots.len() as u64;

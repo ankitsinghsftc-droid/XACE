@@ -232,6 +232,17 @@ impl CheatGuard {
         authority: &AuthorityResolver,
         server_tick: Option<Tick>,
     ) -> Result<(), NetworkError> {
+        self.validate_authorized_input_preview(packet, authority, server_tick)?;
+        self.record_validated_input(packet);
+        Ok(())
+    }
+
+    pub fn validate_authorized_input_preview(
+        &mut self,
+        packet: &InputPacket,
+        authority: &AuthorityResolver,
+        server_tick: Option<Tick>,
+    ) -> Result<(), NetworkError> {
         self.validate_packet_structure(packet)?;
         self.validate_packet_signature(packet)?;
         self.validate_packet_policy(packet, server_tick)?;
@@ -248,8 +259,11 @@ impl CheatGuard {
                 }
             }
         }
-        self.record_packet(packet);
         Ok(())
+    }
+
+    pub fn record_validated_input(&mut self, packet: &InputPacket) {
+        self.record_packet(packet);
     }
 
     pub fn validate_transform_delta(

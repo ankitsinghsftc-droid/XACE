@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::assets::{AssetReference, AssetType};
 use crate::entity_id::EntityID;
@@ -15,6 +16,19 @@ use crate::events::event_struct::Event;
 use crate::events::semantic_event_registry::{
     event_type_semantic_name, get_semantic_event, SemanticBindingTarget,
 };
+
+pub const RUNTIME_FALLBACK_CATALOG_SCHEMA: &str = "xace.runtime.fallback_binding_catalog.v1";
+pub const PARAM_BINDING_STATUS: &str = "xace_binding_status";
+pub const PARAM_FALLBACK_VISIBLE: &str = "xace_fallback_visible";
+pub const PARAM_FALLBACK_DETERMINISTIC: &str = "xace_fallback_deterministic";
+pub const PARAM_FALLBACK_KIND: &str = "xace_fallback_kind";
+pub const PARAM_FALLBACK_ASSET_ID: &str = "xace_fallback_asset_id";
+pub const PARAM_FALLBACK_ASSET_TYPE: &str = "xace_fallback_asset_type";
+pub const PARAM_FALLBACK_ASSET_STATUS: &str = "xace_fallback_asset_status";
+pub const PARAM_FALLBACK_LABEL: &str = "xace_fallback_label";
+pub const PARAM_FALLBACK_SEED: &str = "xace_fallback_seed";
+pub const PARAM_FALLBACK_SCHEMA: &str = "xace_fallback_catalog_schema";
+pub const PARAM_RUNTIME_FALLBACK: &str = "xace_runtime_fallback";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SemanticPlaybackKind {
@@ -50,6 +64,101 @@ pub enum BindingEntitySelector {
     TargetEntity,
     PayloadEntity { key: String },
     FixedEntity(EntityID),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RuntimeFallbackBinding {
+    pub schema: String,
+    pub asset_id: String,
+    pub asset_type: String,
+    pub asset_status: String,
+    pub fallback_kind: String,
+    pub label: String,
+    pub deterministic_seed: String,
+}
+
+impl RuntimeFallbackBinding {
+    pub fn for_asset(binding_id: &str, asset: &AssetReference) -> Option<Self> {
+        if asset.status.is_renderable() {
+            return None;
+        }
+        if !asset.status.is_committable() {
+            return None;
+        }
+        Some(Self::catalog_entry(binding_id, asset))
+    }
+
+    pub fn catalog_entry(binding_id: &str, asset: &AssetReference) -> Self {
+        let asset_type = format!("{:?}", asset.asset_type);
+        let asset_status = format!("{:?}", asset.status);
+        let fallback_kind = fallback_kind_for_asset_type(&asset.asset_type).to_string();
+        let label = fallback_label_for_asset_type(&asset.asset_type).to_string();
+        let deterministic_seed = deterministic_fallback_seed(
+            binding_id,
+            &asset.id,
+            &asset_type,
+            &asset_status,
+            &fallback_kind,
+        );
+        Self {
+            schema: RUNTIME_FALLBACK_CATALOG_SCHEMA.to_string(),
+            asset_id: asset.id.clone(),
+            asset_type,
+            asset_status,
+            fallback_kind,
+            label,
+            deterministic_seed,
+        }
+    }
+
+    pub fn apply_parameters(&self, parameters: &mut BTreeMap<String, String>) {
+        parameters.insert(PARAM_BINDING_STATUS.to_string(), "fallback".to_string());
+        parameters.insert(PARAM_FALLBACK_VISIBLE.to_string(), "true".to_string());
+        parameters.insert(PARAM_FALLBACK_DETERMINISTIC.to_string(), "true".to_string());
+        parameters.insert(PARAM_FALLBACK_SCHEMA.to_string(), self.schema.clone());
+        parameters.insert(PARAM_RUNTIME_FALLBACK.to_string(), "true".to_string());
+        parameters.insert(PARAM_FALLBACK_KIND.to_string(), self.fallback_kind.clone());
+        parameters.insert(PARAM_FALLBACK_ASSET_ID.to_string(), self.asset_id.clone());
+        parameters.insert(
+            PARAM_FALLBACK_ASSET_TYPE.to_string(),
+            self.asset_type.clone(),
+        );
+        parameters.insert(
+            PARAM_FALLBACK_ASSET_STATUS.to_string(),
+            self.asset_status.clone(),
+        );
+        parameters.insert(PARAM_FALLBACK_LABEL.to_string(), self.label.clone());
+        parameters.insert(
+            PARAM_FALLBACK_SEED.to_string(),
+            self.deterministic_seed.clone(),
+        );
+    }
+}
+
+pub fn fallback_kind_for_asset_type(asset_type: &AssetType) -> &'static str {
+    match asset_type {
+        AssetType::AnimationController | AssetType::AnimationClip => "visible_animation_marker",
+        AssetType::AudioClip | AssetType::AudioMusic => "visible_audio_pulse",
+        AssetType::Particle => "visible_vfx_marker",
+        AssetType::Mesh => "visible_mesh_proxy",
+        AssetType::Prefab => "visible_prefab_proxy",
+        AssetType::Sprite | AssetType::Texture | AssetType::Material | AssetType::Font => {
+            "visible_asset_proxy"
+        }
+    }
+}
+
+pub fn fallback_label_for_asset_type(asset_type: &AssetType) -> &'static str {
+    match asset_type {
+        AssetType::AnimationController | AssetType::AnimationClip => "Missing animation fallback",
+        AssetType::AudioClip | AssetType::AudioMusic => "Missing audio fallback",
+        AssetType::Particle => "Missing VFX fallback",
+        AssetType::Mesh => "Missing mesh fallback",
+        AssetType::Prefab => "Missing prefab fallback",
+        AssetType::Sprite | AssetType::Texture | AssetType::Material | AssetType::Font => {
+            "Missing asset fallback"
+        }
+    }
 }
 
 impl BindingEntitySelector {
@@ -155,6 +264,10 @@ impl SemanticAssetBinding {
             return None;
         }
         let entity_id = self.entity_selector.resolve(event)?;
+        let mut parameters = self.parameters.clone();
+        if let Some(fallback) = RuntimeFallbackBinding::for_asset(&self.binding_id, &self.asset) {
+            fallback.apply_parameters(&mut parameters);
+        }
         Some(PlaybackCommandRequest {
             binding_id: self.binding_id.clone(),
             event_name: self.event_name.clone(),
@@ -162,10 +275,40 @@ impl SemanticAssetBinding {
             entity_id,
             asset: self.asset.clone(),
             semantic_action: self.semantic_action.clone(),
-            parameters: self.parameters.clone(),
+            parameters,
             priority: self.priority,
         })
     }
+}
+
+fn deterministic_fallback_seed(
+    binding_id: &str,
+    asset_id: &str,
+    asset_type: &str,
+    asset_status: &str,
+    fallback_kind: &str,
+) -> String {
+    let mut hasher = Sha256::new();
+    hasher.update(binding_id.as_bytes());
+    hasher.update(b"\0");
+    hasher.update(asset_id.as_bytes());
+    hasher.update(b"\0");
+    hasher.update(asset_type.as_bytes());
+    hasher.update(b"\0");
+    hasher.update(asset_status.as_bytes());
+    hasher.update(b"\0");
+    hasher.update(fallback_kind.as_bytes());
+    hex_lower(&hasher.finalize())
+}
+
+fn hex_lower(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push(HEX[(byte >> 4) as usize] as char);
+        out.push(HEX[(byte & 0x0f) as usize] as char);
+    }
+    out
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -408,5 +551,87 @@ mod tests {
             binding.validate(),
             Err(SemanticBindingError::UncommittableAsset(_))
         ));
+    }
+
+    #[test]
+    fn runtime_fallback_parameters_are_deterministic_for_missing_assets() {
+        let mut asset = AssetReference::linked("missing_anim_v1", AssetType::AnimationClip);
+        asset.mark_missing();
+        let binding = SemanticAssetBinding::new(
+            "bind_missing_anim",
+            INTERACTION_ACCEPTED,
+            SemanticPlaybackKind::Animation,
+            asset,
+            BindingEntitySelector::SourceEntity,
+        );
+
+        let first = binding.resolve(&event(INTERACTION_ACCEPTED)).unwrap();
+        let second = binding.resolve(&event(INTERACTION_ACCEPTED)).unwrap();
+
+        assert_eq!(
+            first.parameters.get(PARAM_BINDING_STATUS),
+            Some(&"fallback".to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_VISIBLE),
+            Some(&"true".to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_DETERMINISTIC),
+            Some(&"true".to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_SCHEMA),
+            Some(&RUNTIME_FALLBACK_CATALOG_SCHEMA.to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_KIND),
+            Some(&"visible_animation_marker".to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_ASSET_STATUS),
+            Some(&"Missing".to_string())
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_FALLBACK_SEED),
+            second.parameters.get(PARAM_FALLBACK_SEED)
+        );
+        assert_eq!(
+            first.parameters.get(PARAM_BINDING_STATUS),
+            second.parameters.get(PARAM_BINDING_STATUS)
+        );
+    }
+
+    #[test]
+    fn linked_assets_are_not_marked_as_runtime_fallbacks() {
+        let binding = SemanticAssetBinding::new(
+            "bind_linked_audio",
+            INVENTORY_EQUIPPED,
+            SemanticPlaybackKind::Audio,
+            AssetReference::linked("linked_sfx_v1", AssetType::AudioClip),
+            BindingEntitySelector::SourceEntity,
+        );
+
+        let command = binding.resolve(&event(INVENTORY_EQUIPPED)).unwrap();
+
+        assert!(!command.parameters.contains_key(PARAM_BINDING_STATUS));
+        assert!(!command.parameters.contains_key(PARAM_FALLBACK_SEED));
+    }
+
+    #[test]
+    fn runtime_fallback_catalog_covers_mesh_and_prefab_types() {
+        let mesh = RuntimeFallbackBinding::catalog_entry(
+            "bind_mesh",
+            &AssetReference::placeholder("missing_mesh_v1", AssetType::Mesh),
+        );
+        let prefab = RuntimeFallbackBinding::catalog_entry(
+            "bind_prefab",
+            &AssetReference::placeholder("missing_prefab_v1", AssetType::Prefab),
+        );
+
+        assert_eq!(mesh.fallback_kind, "visible_mesh_proxy");
+        assert_eq!(prefab.fallback_kind, "visible_prefab_proxy");
+        assert_eq!(mesh.schema, RUNTIME_FALLBACK_CATALOG_SCHEMA);
+        assert_eq!(prefab.schema, RUNTIME_FALLBACK_CATALOG_SCHEMA);
     }
 }

@@ -12,6 +12,7 @@ from typing import Any
 
 from ..src.inference_retry_policy import InferenceSchemaError, InferenceTransportError
 from ..src.provider_registry import IProviderClient
+from ..src.structured_output import StructuredOutputContract, openai_response_format
 
 try:
     import requests as _req
@@ -53,8 +54,9 @@ class OpenAICompatibleProvider(IProviderClient):
         system_prompt: str,
         max_tokens: int,
         temperature: float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
-        body = self._build_body(model_id, prompt, system_prompt, max_tokens, temperature)
+        body = self._build_body(model_id, prompt, system_prompt, max_tokens, temperature, structured_output)
         raw = self._post(body)
         return self._parse_response(raw)
 
@@ -78,6 +80,7 @@ class OpenAICompatibleProvider(IProviderClient):
         system_prompt: str,
         max_tokens: int,
         temperature: float,
+        structured_output: StructuredOutputContract | None = None,
     ) -> dict[str, Any]:
         body: dict[str, Any] = {
             "model": model_id,
@@ -85,6 +88,8 @@ class OpenAICompatibleProvider(IProviderClient):
             "temperature": temperature,
         }
         fmt = prompt.get("__format__", "")
+        if structured_output is not None:
+            body["response_format"] = openai_response_format(structured_output)
         if fmt == "openai":
             body["messages"] = prompt.get("messages", [])
             return body

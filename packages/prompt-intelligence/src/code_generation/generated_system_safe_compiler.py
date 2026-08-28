@@ -322,7 +322,10 @@ def build_compile_artifact(
         "validation_steps": list(REQUIRED_VALIDATION_STEPS),
         "cargo": {
             "sandbox": "temp_cargo_project_no_workspace_writes",
-            "duration_ms": round(float(cargo_duration_ms), 3),
+            # Typed CGS operations forbid floats at every trust boundary.
+            # Wall-clock telemetry is nondeterministic and must remain outside
+            # authoritative CGS. The embedded artifact records the stable zero.
+            "duration_ms": 0,
             "warnings": int(cargo_warnings),
         },
         "signing_key_id": LOCAL_SIGNING_KEY_ID,

@@ -38,6 +38,7 @@ import { InferenceTelemetryPanel } from '../telemetry/inference_telemetry_panel'
 
 // Asset panel
 import { AssetStatusPanel }   from '../panels/asset_status_panel';
+import { SemanticBindingPanel } from '../panels/semantic_binding_panel';
 
 // Command palette
 import { CommandPalette }     from '../command_palette/command_palette';
@@ -120,6 +121,12 @@ export class BuilderCanvas {
         client:   this._deps.client,
       });
       assetPanel.mount(assetSec);
+
+      const bindingPanel = new SemanticBindingPanel({
+        cgsStore: this._deps.cgsStore,
+        client:   this._deps.client,
+      });
+      bindingPanel.mount(assetSec);
     }
   }
 

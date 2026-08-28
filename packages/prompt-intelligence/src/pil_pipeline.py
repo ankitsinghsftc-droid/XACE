@@ -59,6 +59,7 @@ any external system that wants the PIL to process a designer's prompt.
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -71,6 +72,7 @@ for sub in (
     "output_parser", "validation_loop", "critique_engine",
     "clarification_engine", "mutation_planner", "safety_scope_guard",
     "memory_model", "history_manager", "memory",
+    "code_generation",
 ):
     sys.path.insert(0, os.path.join(_src, sub))
 sys.path.insert(0, os.path.join(_src, 'mode_controller'))  # pil_mode_profile.py
@@ -81,7 +83,11 @@ from intent_intake_layer import IntentIntakeLayer
 from intent_envelope import PILIntentCategory
 from context_assembler import ContextAssembler
 from llm_orchestrator import LLMOrchestrator, DiagnosticIntentError
-from structured_output_parser import StructuredOutputParser, ParseError
+from structured_output_parser import (
+    CanonicalTypedMutation,
+    StructuredOutputParser,
+    ParseError,
+)
 from validation_loop import ValidationLoop
 from critique_engine import CritiqueEngine
 from mutation_planner import MutationPlanner
@@ -93,6 +99,11 @@ from history_manager import HistoryManager
 from mode_controller import ModeController
 from mode_profile import get_pil_profile
 from pass5_final_output import MutationTransaction
+from typed_operations import serialize_typed_operation_batch
+from generated_system_materializer import (
+    GeneratedSystemMaterializationError,
+    GeneratedSystemMaterializer,
+)
 
 
 # ── PIL Result ────────────────────────────────────────────────────────────────
@@ -140,6 +151,7 @@ class PILResult:
     intent_category:          str                        = ""
     confidence:               float                      = 0.0
     diff_text:                str                        = ""
+    typed_mutation:           CanonicalTypedMutation | None = None
 
     @property
     def succeeded(self) -> bool:
@@ -189,6 +201,9 @@ class PILPipeline:
         inference_adapter: Any,
         session_id:        str = "",
         enable_code_gen:   bool = False,
+        sgc_bin_path:      str = "",
+        generated_system_materializer: Any = None,
+        code_generation_engine: Any = None,
     ) -> None:
         self._adapter     = inference_adapter
         self._session_id  = session_id
@@ -209,10 +224,23 @@ class PILPipeline:
 
         # Optional code generation (Phase 13.13)
         self._enable_code_gen = enable_code_gen
+        self._code_gen = code_generation_engine
         if enable_code_gen:
-            sys.path.insert(0, os.path.join(_src, "code_generation"))
-            from code_generation_engine import CodeGenerationEngine
-            self._code_gen = CodeGenerationEngine(inference_adapter)
+            if self._code_gen is None:
+                from code_generation_engine import CodeGenerationEngine
+                self._code_gen = CodeGenerationEngine(
+                    inference_adapter,
+                    sgc_bin=sgc_bin_path,
+                )
+        self._generated_system_materializer = (
+            generated_system_materializer
+            if generated_system_materializer is not None
+            else GeneratedSystemMaterializer(
+                enabled=enable_code_gen,
+                sgc_bin_path=sgc_bin_path,
+                code_generation_engine=self._code_gen,
+            )
+        )
 
     # ── Main Entry Point ──────────────────────────────────────────────────────
 
@@ -322,6 +350,16 @@ class PILPipeline:
                 intent_category = envelope.intent_category,
                 confidence      = envelope.confidence,
                 turn_index      = turn,
+            )
+
+        if pipeline_result.typed_operation_batch is not None:
+            return self._finish_typed_mutation(
+                prompt=prompt,
+                envelope=envelope,
+                batch=pipeline_result.typed_operation_batch,
+                cgs=cgs,
+                cgs_hash=cgs_hash,
+                turn=turn,
             )
 
         # Unpack the MutationTransaction from PipelineResult
@@ -467,6 +505,115 @@ class PILPipeline:
             intent_category       = envelope.intent_category,
             confidence            = envelope.confidence,
             diff_text             = "",
+        )
+
+    def _finish_typed_mutation(
+        self,
+        *,
+        prompt: str,
+        envelope: Any,
+        batch: Any,
+        cgs: dict[str, Any],
+        cgs_hash: str,
+        turn: int,
+    ) -> PILResult:
+        """Validate and carry a typed mutation without lowering it to paths."""
+
+        try:
+            provider_batch = json.loads(serialize_typed_operation_batch(batch))
+            materialized = self._generated_system_materializer.materialize(
+                provider_batch,
+                cgs,
+                session_id=self._session_id,
+            )
+            canonical = self._output_parser.parse_typed(
+                json.dumps(
+                    materialized.normalized_batch,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                cgs,
+                allow_materialized_generated_systems=materialized.materialized,
+            )
+        except GeneratedSystemMaterializationError as exc:
+            self._history.on_failure(
+                prompt,
+                "generated_system_materialization",
+                f"{exc.code}: {exc}",
+            )
+            return PILResult(
+                kind="blocked",
+                reason=f"Generated system materialization failed [{exc.code}]: {exc}",
+                guard=f"generated_system_materialization:{exc.stage}",
+                turn_index=turn,
+                intent_category=envelope.intent_category,
+            )
+        except ParseError as exc:
+            self._history.on_failure(prompt, "typed_parse_error", str(exc))
+            return PILResult(
+                kind="blocked",
+                reason=f"Typed output parse failed: {exc}",
+                guard="typed_output_parser",
+                turn_index=turn,
+                intent_category=envelope.intent_category,
+            )
+
+        if not canonical.is_fully_valid:
+            reason = "; ".join(canonical.validation.errors[:3])
+            self._history.on_failure(prompt, "typed_validation", reason)
+            return PILResult(
+                kind="blocked",
+                reason=f"Typed operation validation failed: {reason}",
+                guard="typed_operation_validation",
+                turn_index=turn,
+                intent_category=envelope.intent_category,
+            )
+
+        operation_kinds = {
+            operation.kind.value for operation in canonical.batch.operations
+        }
+        structural = operation_kinds != {"set_defaults"}
+        schema_delta = "structural_add" if structural else "value_mutation"
+        risk_level = "medium" if structural else "low"
+        version_bump = "minor" if structural else "patch"
+        affected_systems = [
+            system["id"] for system in canonical.fragment_plan.global_systems
+        ] + [
+            system["id"]
+            for _, system in canonical.fragment_plan.mode_systems
+        ]
+
+        self._history.on_commit(
+            summary=canonical.batch.summary,
+            schema_delta=schema_delta,
+            risk_level=risk_level,
+            confidence=envelope.confidence,
+            version_bump=version_bump,
+            cgs_hash_before=cgs_hash,
+            cgs_hash_after=cgs_hash,
+            affected_systems=affected_systems,
+        )
+        self._memory.on_commit(
+            mutation=MutationRecord(
+                summary=canonical.batch.summary,
+                schema_delta=schema_delta,
+                risk_level=risk_level,
+                turn_index=turn,
+            ),
+            new_cgs=cgs,
+            new_cgs_hash=cgs_hash,
+        )
+
+        return PILResult(
+            kind="mutation",
+            transaction=None,
+            typed_mutation=canonical,
+            auto_committed=False,
+            turn_index=turn,
+            intent_category=envelope.intent_category,
+            confidence=envelope.confidence,
+            diff_text=materialized.diff_text,
         )
 
     # ── Diagnostic path (QueryExplain | DebugIssue) ───────────────────────────

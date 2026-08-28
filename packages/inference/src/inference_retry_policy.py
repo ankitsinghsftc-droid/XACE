@@ -404,6 +404,9 @@ class InferenceRetryPolicy:
     def _check_schema(response: dict[str, Any]) -> str | None:
         if not isinstance(response, dict):
             return f"Expected dict, got {type(response).__name__}"
+        structured_error = response.get("__xace_structured_output_error")
+        if structured_error:
+            return str(structured_error)
         if "text" not in response:
             return f"Missing 'text' key. Keys present: {sorted(response.keys())}"
         if not isinstance(response["text"], str):

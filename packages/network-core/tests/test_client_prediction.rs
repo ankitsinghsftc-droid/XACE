@@ -123,6 +123,23 @@ fn rollback_manager_plans_from_nearest_snapshot() {
 }
 
 #[test]
+fn rollback_manager_clean_boundary_plan_replays_restore_tick_from_pre_tick_snapshot() {
+    let mut manager = RollbackManager::new();
+    manager.record_snapshot(0);
+    manager.record_snapshot(2);
+
+    let plan = manager
+        .begin_clean_boundary_rollback(0, 3, 3, RollbackReason::AuthoritativeCorrection)
+        .unwrap();
+
+    assert_eq!(plan.restore_tick, 0);
+    assert_eq!(plan.replay_ticks, vec![0, 1, 2]);
+    assert_eq!(plan.live_tick, 3);
+    manager.complete_latest(3).unwrap();
+    assert_eq!(manager.records()[0].completed_tick, Some(3));
+}
+
+#[test]
 fn rollback_manager_ignores_unstable_snapshots_and_tracks_records() {
     let mut manager = RollbackManager::with_config(RollbackConfig {
         max_replay_ticks: 20,

@@ -22,6 +22,8 @@ use crate::fixed_json::{
 use crate::phase_orchestrator::system_registry::SystemRegistry;
 
 pub struct InputSystem;
+pub struct MovementIntentSystem;
+pub struct PlatformerMotionSystem;
 pub struct MovementSystem;
 pub struct AISystem;
 pub struct DamageSystem;
@@ -68,6 +70,230 @@ impl ISystem for InputSystem {
         }
         Ok(())
     }
+}
+
+impl ISystem for MovementIntentSystem {
+    fn system_id(&self) -> &str {
+        "MovementIntentSystem"
+    }
+
+    fn declared_reads(&self) -> &[u32] {
+        &[type_ids::INPUT, type_ids::MOVEMENT_INTENT]
+    }
+
+    fn declared_writes(&self) -> &[u32] {
+        &[type_ids::MOVEMENT_INTENT]
+    }
+
+    fn execute(&self, ctx: &mut dyn ISystemContext) -> std::result::Result<(), XaceError> {
+        for entity_id in ctx.query_entities(&[type_ids::INPUT, type_ids::MOVEMENT_INTENT])? {
+            let Some(input_raw) = ctx.get_component(entity_id, type_ids::INPUT)? else {
+                continue;
+            };
+            let Some(intent_raw) = ctx.get_component(entity_id, type_ids::MOVEMENT_INTENT)? else {
+                continue;
+            };
+            let input = parse_json(input_raw);
+            let previous = parse_json(intent_raw);
+            let jump_held = bool_field(&input, &["jump_pressed"]).unwrap_or(false);
+            let previous_jump_held = bool_field(&previous, &["jump_held"]).unwrap_or(false);
+            let jump_requested = bool_field(&input, &["jump_started"]).unwrap_or(false)
+                || (jump_held && !previous_jump_held);
+            let mut intent = previous;
+            set_number_field(
+                &mut intent,
+                "direction_x",
+                number_field(&input, &["move_x", "axis_x", "x"]).unwrap_or(Fixed64::ZERO),
+            );
+            set_number_field(
+                &mut intent,
+                "direction_y",
+                number_field(&input, &["move_y", "axis_y"]).unwrap_or(Fixed64::ZERO),
+            );
+            set_number_field(
+                &mut intent,
+                "direction_z",
+                number_field(&input, &["move_z", "axis_z", "z"]).unwrap_or(Fixed64::ZERO),
+            );
+            intent["sprint_requested"] =
+                json!(bool_field(&input, &["dash_pressed", "sprint_pressed"]).unwrap_or(false));
+            intent["jump_requested"] = json!(jump_requested);
+            intent["jump_held"] = json!(jump_held);
+            intent["crouch_requested"] =
+                json!(bool_field(&input, &["crouch_pressed"]).unwrap_or(false));
+            ctx.submit_mutation(entity_id, type_ids::MOVEMENT_INTENT, intent.to_string())?;
+        }
+        Ok(())
+    }
+}
+
+impl ISystem for PlatformerMotionSystem {
+    fn system_id(&self) -> &str {
+        "PlatformerMotionSystem"
+    }
+
+    fn declared_reads(&self) -> &[u32] {
+        &[
+            type_ids::VELOCITY,
+            type_ids::MOVEMENT_INTENT,
+            type_ids::KINEMATIC_CHARACTER,
+        ]
+    }
+
+    fn declared_writes(&self) -> &[u32] {
+        &[type_ids::VELOCITY, type_ids::KINEMATIC_CHARACTER]
+    }
+
+    fn execute(&self, ctx: &mut dyn ISystemContext) -> std::result::Result<(), XaceError> {
+        for entity_id in ctx.query_entities(&[
+            type_ids::VELOCITY,
+            type_ids::MOVEMENT_INTENT,
+            type_ids::KINEMATIC_CHARACTER,
+        ])? {
+            update_platformer_entity(ctx, entity_id)?;
+        }
+        Ok(())
+    }
+}
+
+fn update_platformer_entity(
+    ctx: &mut dyn ISystemContext,
+    entity_id: u64,
+) -> std::result::Result<(), XaceError> {
+    let Some(velocity_raw) = ctx
+        .get_component(entity_id, type_ids::VELOCITY)?
+        .map(str::to_owned)
+    else {
+        return Ok(());
+    };
+    let Some(intent_raw) = ctx
+        .get_component(entity_id, type_ids::MOVEMENT_INTENT)?
+        .map(str::to_owned)
+    else {
+        return Ok(());
+    };
+    let Some(state_raw) = ctx
+        .get_component(entity_id, type_ids::KINEMATIC_CHARACTER)?
+        .map(str::to_owned)
+    else {
+        return Ok(());
+    };
+
+    let intent = parse_json(&intent_raw);
+    let mut state = parse_json(&state_raw);
+    let (_, mut vertical_velocity, _) = parse_velocity_xyz(&velocity_raw);
+    let max_speed = number_field(&state, &["max_horizontal_speed"])
+        .unwrap_or(Fixed64::from_units(6))
+        .abs();
+    let jump_impulse = number_field(&state, &["jump_impulse"])
+        .unwrap_or(Fixed64::from_units(12))
+        .abs();
+    let gravity = number_field(&state, &["gravity_per_tick"])
+        .unwrap_or(Fixed64::from_millis(500))
+        .abs();
+    let terminal_fall_speed = number_field(&state, &["terminal_fall_speed"])
+        .unwrap_or(Fixed64::from_units(30))
+        .abs();
+    let coyote_ticks = u64_field(&state, &["coyote_ticks"]).unwrap_or(6);
+    let jump_buffer_ticks = u64_field(&state, &["jump_buffer_ticks"]).unwrap_or(6);
+    let max_jumps = u64_field(&state, &["max_jumps"]).unwrap_or(1);
+
+    let mut grounded = bool_field(&state, &["grounded"]).unwrap_or(false);
+    let was_grounded = bool_field(&state, &["was_grounded"]).unwrap_or(grounded);
+    let landed = grounded && !was_grounded;
+    let mut jumps_used = u64_field(&state, &["jumps_used"]).unwrap_or(0);
+    if grounded {
+        jumps_used = 0;
+    }
+    let mut coyote_remaining = if grounded {
+        coyote_ticks
+    } else {
+        u64_field(&state, &["coyote_ticks_remaining"])
+            .unwrap_or(0)
+            .saturating_sub(1)
+    };
+    if !grounded && coyote_remaining == 0 && jumps_used == 0 {
+        jumps_used = max_jumps.min(1);
+    }
+    let jump_requested = bool_field(&intent, &["jump_requested"]).unwrap_or(false);
+    let mut buffer_remaining = if jump_requested {
+        jump_buffer_ticks
+    } else {
+        u64_field(&state, &["jump_buffer_ticks_remaining"])
+            .unwrap_or(0)
+            .saturating_sub(1)
+    };
+
+    if landed {
+        emit_movement_event(ctx, entity_id, semantic_events::MOVEMENT_LANDED, "Landed")?;
+    }
+    let can_jump = buffer_remaining > 0 && jumps_used < max_jumps;
+    if can_jump {
+        vertical_velocity = jump_impulse;
+        grounded = false;
+        coyote_remaining = 0;
+        buffer_remaining = 0;
+        jumps_used = jumps_used.saturating_add(1);
+        emit_movement_event(
+            ctx,
+            entity_id,
+            semantic_events::MOVEMENT_JUMP_STARTED,
+            "Airborne",
+        )?;
+    } else if grounded {
+        vertical_velocity = Fixed64::ZERO;
+    } else {
+        vertical_velocity = (vertical_velocity - gravity).max(-terminal_fall_speed);
+    }
+
+    let direction_x = number_field(&intent, &["direction_x"]).unwrap_or(Fixed64::ZERO);
+    let direction_z = number_field(&intent, &["direction_z"]).unwrap_or(Fixed64::ZERO);
+    let (horizontal_x, horizontal_z) = normalize_xz(direction_x, direction_z, max_speed);
+    write_platformer_state(
+        &mut state,
+        grounded,
+        coyote_remaining,
+        buffer_remaining,
+        jumps_used,
+    );
+    ctx.submit_mutation(
+        entity_id,
+        type_ids::VELOCITY,
+        velocity_json_from_existing(&velocity_raw, horizontal_x, vertical_velocity, horizontal_z),
+    )?;
+    ctx.submit_mutation(entity_id, type_ids::KINEMATIC_CHARACTER, state.to_string())?;
+    Ok(())
+}
+
+fn write_platformer_state(
+    state: &mut Value,
+    grounded: bool,
+    coyote_ticks_remaining: u64,
+    jump_buffer_ticks_remaining: u64,
+    jumps_used: u64,
+) {
+    state["grounded"] = json!(grounded);
+    state["was_grounded"] = json!(grounded);
+    state["coyote_ticks_remaining"] = json!(coyote_ticks_remaining);
+    state["jump_buffer_ticks_remaining"] = json!(jump_buffer_ticks_remaining);
+    state["jumps_used"] = json!(jumps_used);
+}
+
+fn emit_movement_event(
+    ctx: &mut dyn ISystemContext,
+    actor_id: u64,
+    event_name: &str,
+    movement_state: &str,
+) -> std::result::Result<(), XaceError> {
+    let event = Event::broadcast(
+        actor_id,
+        semantic_events::domain_event(event_name),
+        ctx.current_tick(),
+        PhaseEnum::Simulation,
+    )
+    .with_payload("actor_entity_id", actor_id.to_string())
+    .with_payload("movement_state", movement_state.to_string());
+    ctx.emit_event(event)
 }
 
 impl ISystem for MovementSystem {
@@ -412,6 +638,8 @@ pub fn build_default_registry() -> Result<SystemRegistry> {
 fn builtin_systems() -> Vec<Box<dyn ISystem>> {
     vec![
         Box::new(InputSystem),
+        Box::new(MovementIntentSystem),
+        Box::new(PlatformerMotionSystem),
         Box::new(MovementSystem),
         Box::new(InteractionSystem),
         Box::new(InventorySystem),
@@ -1412,6 +1640,144 @@ mod tests {
             number_field(&value, &["max_linear_speed"]),
             Some(Fixed64::from_units(6))
         );
+    }
+
+    #[test]
+    fn movement_intent_system_emits_only_a_rising_jump_edge() {
+        let mut first = MockContext::default()
+            .with_component(
+                1,
+                type_ids::INPUT,
+                json!({ "move_x": fv_units(1), "move_z": fv_units(0), "jump_pressed": true }),
+            )
+            .with_component(
+                1,
+                type_ids::MOVEMENT_INTENT,
+                json!({ "direction_x": fv_units(0), "direction_z": fv_units(0), "jump_held": false }),
+            );
+
+        MovementIntentSystem.execute(&mut first).unwrap();
+
+        let first_intent = parse_json(&first.mutations[0].2);
+        assert_eq!(bool_field(&first_intent, &["jump_requested"]), Some(true));
+        assert_eq!(bool_field(&first_intent, &["jump_held"]), Some(true));
+        assert_eq!(
+            number_field(&first_intent, &["direction_x"]),
+            Some(Fixed64::ONE)
+        );
+
+        let mut held = MockContext::default()
+            .with_component(
+                1,
+                type_ids::INPUT,
+                json!({ "jump_pressed": true, "jump_started": false }),
+            )
+            .with_component(1, type_ids::MOVEMENT_INTENT, json!({ "jump_held": true }));
+        MovementIntentSystem.execute(&mut held).unwrap();
+        let held_intent = parse_json(&held.mutations[0].2);
+        assert_eq!(bool_field(&held_intent, &["jump_requested"]), Some(false));
+    }
+
+    #[test]
+    fn platformer_motion_consumes_jump_and_emits_semantic_event() {
+        let mut ctx = MockContext::default()
+            .with_component(
+                1,
+                type_ids::VELOCITY,
+                json!({ "linear_x": fv_units(0), "linear_y": fv_units(0), "linear_z": fv_units(0) }),
+            )
+            .with_component(
+                1,
+                type_ids::MOVEMENT_INTENT,
+                json!({ "direction_x": fv_units(1), "direction_z": fv_units(0), "jump_requested": true }),
+            )
+            .with_component(
+                1,
+                type_ids::KINEMATIC_CHARACTER,
+                json!({
+                    "grounded": true,
+                    "was_grounded": true,
+                    "max_horizontal_speed": fv_units(6),
+                    "jump_impulse": fv_units(12),
+                    "gravity_per_tick": fv_millis(500),
+                    "terminal_fall_speed": fv_units(30),
+                    "coyote_ticks": 6,
+                    "coyote_ticks_remaining": 6,
+                    "jump_buffer_ticks": 6,
+                    "jump_buffer_ticks_remaining": 0,
+                    "max_jumps": 1,
+                    "jumps_used": 0
+                }),
+            );
+
+        PlatformerMotionSystem.execute(&mut ctx).unwrap();
+
+        let velocity = ctx
+            .mutations
+            .iter()
+            .find(|(_, type_id, _)| *type_id == type_ids::VELOCITY)
+            .map(|(_, _, value)| parse_json(value))
+            .unwrap();
+        assert_eq!(
+            number_field(&velocity, &["linear_x"]),
+            Some(Fixed64::from_units(6))
+        );
+        assert_eq!(
+            number_field(&velocity, &["linear_y"]),
+            Some(Fixed64::from_units(12))
+        );
+        let state = ctx
+            .mutations
+            .iter()
+            .find(|(_, type_id, _)| *type_id == type_ids::KINEMATIC_CHARACTER)
+            .map(|(_, _, value)| parse_json(value))
+            .unwrap();
+        assert_eq!(bool_field(&state, &["grounded"]), Some(false));
+        assert_eq!(u64_field(&state, &["jumps_used"]), Some(1));
+        assert!(ctx
+            .events
+            .iter()
+            .any(|event| event.event_type.name() == "Domain(movement.jump_started)"));
+    }
+
+    #[test]
+    fn platformer_motion_emits_landing_transition_once() {
+        let mut ctx = MockContext::default()
+            .with_component(
+                1,
+                type_ids::VELOCITY,
+                json!({ "linear_x": 0, "linear_y": -4000000, "linear_z": 0 }),
+            )
+            .with_component(
+                1,
+                type_ids::MOVEMENT_INTENT,
+                json!({ "direction_x": 0, "direction_z": 0, "jump_requested": false }),
+            )
+            .with_component(
+                1,
+                type_ids::KINEMATIC_CHARACTER,
+                json!({
+                    "grounded": true,
+                    "was_grounded": false,
+                    "coyote_ticks": 6,
+                    "jump_buffer_ticks": 6,
+                    "max_jumps": 1,
+                    "jumps_used": 1
+                }),
+            );
+
+        PlatformerMotionSystem.execute(&mut ctx).unwrap();
+
+        assert_eq!(ctx.events.len(), 1);
+        assert_eq!(ctx.events[0].event_type.name(), "Domain(movement.landed)");
+        let state = ctx
+            .mutations
+            .iter()
+            .find(|(_, type_id, _)| *type_id == type_ids::KINEMATIC_CHARACTER)
+            .map(|(_, _, value)| parse_json(value))
+            .unwrap();
+        assert_eq!(bool_field(&state, &["was_grounded"]), Some(true));
+        assert_eq!(u64_field(&state, &["jumps_used"]), Some(0));
     }
 
     #[test]

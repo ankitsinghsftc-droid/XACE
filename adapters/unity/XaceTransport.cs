@@ -57,6 +57,7 @@ namespace Xace.Adapter.Unity
             "tick_snapshot_v1",
             "input_packet_v1",
             "feedback_payload_v1",
+            "adapter_side_effect_rollback_v1",
             "unity"
         };
 
@@ -65,6 +66,7 @@ namespace Xace.Adapter.Unity
         public event Action<string> OnHandshakeRejected;
         public event Action<XaceRuntimeMessage> OnMessageReceived;
         public event Action<XaceTickSnapshot> OnTickSnapshot;
+        public event Action<XaceAdapterSideEffectRollback> OnAdapterSideEffectRollback;
         public event Action<string> OnProtocolError;
 
         private readonly ConcurrentQueue<string> outboundJson = new ConcurrentQueue<string>();
@@ -389,6 +391,10 @@ namespace Xace.Adapter.Unity
                     DispatchTickSnapshot(snapshot);
                     OnMessageReceived?.Invoke(message);
                     break;
+                case XaceProtocolNames.AdapterSideEffectRollback:
+                    DispatchAdapterSideEffectRollback(XaceAdapterSideEffectRollback.FromMessage(message));
+                    OnMessageReceived?.Invoke(message);
+                    break;
                 case XaceProtocolNames.Disconnect:
                     Disconnect(message.GetString("reason", "runtime disconnect"));
                     break;
@@ -435,6 +441,25 @@ namespace Xace.Adapter.Unity
                 catch (Exception ex)
                 {
                     Fail("tick snapshot listener failed: " + ex.Message);
+                }
+            }
+        }
+
+        private void DispatchAdapterSideEffectRollback(XaceAdapterSideEffectRollback rollback)
+        {
+            var handlers = OnAdapterSideEffectRollback;
+            if (handlers == null)
+                return;
+
+            foreach (Action<XaceAdapterSideEffectRollback> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler?.Invoke(rollback);
+                }
+                catch (Exception ex)
+                {
+                    Fail("adapter rollback listener failed: " + ex.Message);
                 }
             }
         }
@@ -574,6 +599,7 @@ namespace Xace.Adapter.Unity
         public const string HandshakeAck = "handshake_ack";
         public const string TickSnapshot = "tick_snapshot";
         public const string PlaybackCommands = "playback_commands";
+        public const string AdapterSideEffectRollback = "adapter_side_effect_rollback";
         public const string InputPacket = "input_packet";
         public const string Disconnect = "disconnect";
         public const string Error = "error";
@@ -774,6 +800,49 @@ namespace Xace.Adapter.Unity
         }
     }
 
+    public sealed class XaceAdapterSideEffectRollback
+    {
+        public string rollback_id = "";
+        public string reason = "";
+        public string failed_stage = "";
+        public ulong tick;
+        public ulong restore_tick;
+        public string restored_cgs_hash = "";
+        public string failed_cgs_hash = "";
+        public string restored_world_hash = "";
+        public XaceTickSnapshot restored_snapshot = new XaceTickSnapshot();
+        public List<XacePlaybackCommand> revoked_playback_commands = new List<XacePlaybackCommand>();
+        public bool clear_feedback_queue = true;
+        public bool clear_pending_edits = true;
+        public bool reset_asset_bindings = true;
+
+        public static XaceAdapterSideEffectRollback FromMessage(XaceRuntimeMessage message)
+        {
+            var rollback = new XaceAdapterSideEffectRollback
+            {
+                rollback_id = message.GetString("rollback_id", ""),
+                reason = message.GetString("reason", ""),
+                failed_stage = message.GetString("failed_stage", ""),
+                tick = message.GetUInt64("tick", 0),
+                restore_tick = message.GetUInt64("restore_tick", 0),
+                restored_cgs_hash = message.GetString("restored_cgs_hash", ""),
+                failed_cgs_hash = message.GetString("failed_cgs_hash", ""),
+                restored_world_hash = message.GetString("restored_world_hash", ""),
+                clear_feedback_queue = message.GetBool("clear_feedback_queue", true),
+                clear_pending_edits = message.GetBool("clear_pending_edits", true),
+                reset_asset_bindings = message.GetBool("reset_asset_bindings", true)
+            };
+            var snapshotObj = message.GetObject("restored_snapshot");
+            if (snapshotObj.Count > 0)
+                rollback.restored_snapshot = XaceTickSnapshot.FromMessage(new XaceRuntimeMessage("", snapshotObj));
+            foreach (var item in message.GetList("revoked_playback_commands"))
+            {
+                if (item is Dictionary<string, object> obj)
+                    rollback.revoked_playback_commands.Add(XacePlaybackCommand.FromDictionary(obj));
+            }
+            return rollback;
+        }
+    }
     public sealed class XaceAssetReference
     {
         public string id = "";

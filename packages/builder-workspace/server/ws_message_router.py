@@ -24,6 +24,9 @@ session operation. Returns response dicts to be sent back.
     pil_apply       → GDE commit + SGC recompile + persist
     pil_discard     → clear pending mutation
     cgs_request     → load CGS from disk + send session_init
+    prompt_history_request → return durable prompt undo/redo history
+    prompt_undo      → restore previous prompt history state with proof links
+    prompt_redo      → restore next prompt history state with proof links
     mode_change     → update session mode
     asset_link      → write asset path ref to CGS + persist
     cgs_rollback    → load snapshot + set as current CGS
@@ -42,7 +45,12 @@ from typing import Any, Awaitable, Callable
 from cgs_persistence import CGSPersistence, SnapshotRecord
 from prompt_classifier_gate import classify_prompt
 from session_manager import SessionManager, _serialize_pil_result
-from state_authority import can_merge_engine_default_edit
+from state_authority import (
+    SUPPORTED_ENGINE_EDIT_COMMIT_KINDS,
+    SUPPORTED_ENGINE_EDIT_KINDS,
+    can_merge_engine_default_edit,
+    engine_edit_commit_class,
+)
 from runtime_control_client import RuntimeControlClient, RuntimeControlError
 
 try:
@@ -107,8 +115,20 @@ class WSMessageRouter:
             elif msg_type == "asset_link":
                 await self._handle_asset_link(session_id, message, send_fn, persist, cgs_state)
 
+            elif msg_type == "semantic_binding_update":
+                await self._handle_semantic_binding_update(session_id, message, send_fn, persist, cgs_state)
+
             elif msg_type == "cgs_rollback":
                 await self._handle_cgs_rollback(session_id, message, send_fn, persist, cgs_state)
+
+            elif msg_type == "prompt_history_request":
+                await self._handle_prompt_history_request(send_fn, persist)
+
+            elif msg_type == "prompt_undo":
+                await self._handle_prompt_history_restore("undo", session_id, message, send_fn, persist, cgs_state)
+
+            elif msg_type == "prompt_redo":
+                await self._handle_prompt_history_restore("redo", session_id, message, send_fn, persist, cgs_state)
 
             elif msg_type == "runtime_control":
                 await self._handle_runtime_control(session_id, message, send_fn, persist, cgs_state)
@@ -288,6 +308,11 @@ class WSMessageRouter:
             return
 
         txn       = session.pending_txn
+        audit_operations = _prompt_apply_audit_operations(txn)
+        operation_count = _prompt_apply_operation_count(txn)
+        sgc_required = _prompt_apply_requires_sgc(txn)
+        typed_operation_batch = _prompt_apply_typed_operation_batch(txn)
+        typed_operation_provenance = _prompt_apply_typed_operation_provenance(txn)
         transaction_id = _ensure_transaction_id(persist, txn)
         authority = _prepare_mutation_authority(
             persist,
@@ -311,12 +336,13 @@ class WSMessageRouter:
                 pre_hash=authority["pre_hash"],
                 post_hash=authority["pre_hash"],
                 submitted_hash=authority["submitted_hash"],
-                operations=txn.get("operations", []),
+                operations=audit_operations,
                 summary=str(txn.get("mutation_summary", "")),
                 error=str(approval_check.get("message") or "Prompt preview approval is required."),
                 rollback_status="not_started",
                 runtime_context=_runtime_context(session),
                 approval=approval_record,
+                typed_operation_provenance=typed_operation_provenance,
             )
             await send_fn({
                 "type": "server_error",
@@ -352,12 +378,13 @@ class WSMessageRouter:
                 pre_hash=authority["pre_hash"],
                 post_hash=authority["pre_hash"],
                 submitted_hash=authority["submitted_hash"],
-                operations=txn.get("operations", []),
+                operations=audit_operations,
                 summary=str(txn.get("mutation_summary", "")),
                 error=authority["reason"],
                 rollback_status="not_started",
                 runtime_context=_runtime_context(session),
                 approval=approval_record,
+                typed_operation_provenance=typed_operation_provenance,
             )
             await send_fn({
                 "type": "server_error",
@@ -381,7 +408,6 @@ class WSMessageRouter:
                 ),
             })
             return
-        required_recompile = txn.get("required_recompile", False)
         summary   = txn.get("mutation_summary", "")
         risk      = txn.get("risk_level", "low")
         affected  = txn.get("affected_systems", [])
@@ -414,12 +440,13 @@ class WSMessageRouter:
                 pre_hash=authority["pre_hash"],
                 post_hash=authority["pre_hash"],
                 submitted_hash=authority["submitted_hash"],
-                operations=txn.get("operations", []),
+                operations=audit_operations,
                 summary=summary,
                 error=gde_result.error or "GDE could not apply this mutation.",
                 rollback_status="not_started",
                 runtime_context=_runtime_context(session),
                 approval=approval_record,
+                typed_operation_provenance=typed_operation_provenance,
             )
             await send_fn({
                 "type":    "server_error",
@@ -454,7 +481,7 @@ class WSMessageRouter:
         # ── Step 2: SGC recompile (structural mutations only) ─────────────────
         execution_plan: str | None = None
         sgc_validation: dict[str, Any] | None = None
-        if required_recompile or schema_delta_type.startswith("structural"):
+        if sgc_required:
             def _run_sgc():
                 return self._sm.compile_sgc_plan(new_cgs)
             sgc_result = await loop.run_in_executor(None, _run_sgc)
@@ -525,7 +552,7 @@ class WSMessageRouter:
                 return
 
         # ── Step 3: Determine version bump ────────────────────────────────────
-        if schema_delta_type.startswith("structural"):
+        if typed_operation_batch is not None or schema_delta_type.startswith("structural"):
             version_bump = "minor"
         elif schema_delta_type == "rule_change":
             version_bump = "patch"
@@ -537,7 +564,7 @@ class WSMessageRouter:
             cgs_hash       = new_hash,
             schema_version = new_cgs.get("metadata", {}).get("version", "0.1.0"),
             turn_index     = 0,
-            mutation_count = len(txn.get("operations", [])),
+            mutation_count = operation_count,
             timestamp      = time.time(),
             summary        = summary,
             version_bump   = version_bump,
@@ -571,7 +598,7 @@ class WSMessageRouter:
                 session_id=session_id,
                 apply_message=message,
                 started_at=apply_started_at,
-                sgc_required=bool(required_recompile or schema_delta_type.startswith("structural")),
+                sgc_required=sgc_required,
                 sgc_validation=sgc_validation,
                 execution_plan=execution_plan,
             ))
@@ -608,7 +635,7 @@ class WSMessageRouter:
                 session_id=session_id,
                 apply_message=message,
                 started_at=apply_started_at,
-                sgc_required=bool(required_recompile or schema_delta_type.startswith("structural")),
+                sgc_required=sgc_required,
                 sgc_validation=sgc_validation,
                 execution_plan=execution_plan,
                 apply_validation=exc.details,
@@ -625,7 +652,7 @@ class WSMessageRouter:
             transaction_id=transaction_id,
             authority=authority,
             approval=approval_record,
-            sgc_required=bool(required_recompile or schema_delta_type.startswith("structural")),
+            sgc_required=sgc_required,
             sgc_validation=sgc_validation,
             execution_plan=execution_plan,
             apply_validation=apply_validation,
@@ -634,6 +661,24 @@ class WSMessageRouter:
             cgs_hash=new_hash,
             started_at=apply_started_at,
         )
+        prompt_history_entry: dict[str, Any] = {}
+        prompt_history: dict[str, Any] = {}
+        try:
+            prompt_history_entry = persist.record_prompt_history_apply(
+                transaction_id=transaction_id,
+                pre_cgs_hash=authority["pre_hash"],
+                post_cgs_hash=new_hash,
+                summary=summary,
+                mutation_count=operation_count,
+                version_ids=post_version_ids,
+                proof_links=apply_feedback.get("proof_links") if isinstance(apply_feedback, dict) else None,
+                typed_operation_provenance=typed_operation_provenance,
+                composite_prompt_plan=_prompt_apply_composite_prompt_plan(txn),
+            )
+            prompt_history = persist.prompt_history_state()
+        except Exception as exc:  # noqa: BLE001 - prompt apply has already persisted; surface evidence failure.
+            log.warning("Failed to record prompt undo/redo history: %s", exc)
+            prompt_history = getattr(persist, "prompt_history_state", lambda: {})()
         self._sm.clear_pending(session_id)
         _record_mutation_audit(
             persist,
@@ -646,19 +691,24 @@ class WSMessageRouter:
             pre_hash=authority["pre_hash"],
             post_hash=new_hash,
             submitted_hash=authority["submitted_hash"],
-            operations=txn.get("operations", []),
+            operations=audit_operations,
             summary=summary,
             error="",
             rollback_status="not_needed",
             runtime_context=_runtime_context(session),
             approval=approval_record,
+            typed_operation_provenance=typed_operation_provenance,
+            proof_links=apply_feedback.get("proof_links") if isinstance(apply_feedback, dict) else None,
+            prompt_history=prompt_history_entry,
         )
 
         # ── Step 6: Build affected node IDs for graph highlight ───────────────
         affected_node_ids = [f"sys:*:{sid}" for sid in affected]
         # Also highlight any actors that were structurally changed
-        if schema_delta_type in ("structural_add", "structural_remove"):
-            for op in txn.get("operations", []):
+        if typed_operation_batch is not None or schema_delta_type in ("structural_add", "structural_remove"):
+            for op in audit_operations:
+                if not isinstance(op, dict):
+                    continue
                 actor_id = op.get("actor_id", "")
                 if actor_id:
                     affected_node_ids.append(f"actor:*:{actor_id}")
@@ -679,6 +729,10 @@ class WSMessageRouter:
             "approval":          approval_record,
             "apply_validation":   apply_validation,
             "apply_feedback":     apply_feedback,
+            "typed_operation_provenance": typed_operation_provenance,
+            "composite_prompt_plan": _prompt_apply_composite_prompt_plan(txn),
+            "prompt_history": prompt_history,
+            "prompt_history_entry": prompt_history_entry,
         })
 
     async def _handle_cgs_request(
@@ -719,6 +773,210 @@ class WSMessageRouter:
             "snapshots":                [s.to_dict() for s in snapshots],
             "version":                  cgs_state.get("metadata", {}).get("schema_version", "0.0.0"),
             "execution_plan_available": has_plan,
+            "prompt_history":           persist.prompt_history_state(),
+        })
+
+    async def _handle_prompt_history_request(
+        self,
+        send_fn: SendFn,
+        persist: CGSPersistence,
+    ) -> None:
+        await send_fn({
+            "type": "prompt_history",
+            "prompt_history": persist.prompt_history_state(),
+        })
+
+    async def _handle_prompt_history_restore(
+        self,
+        action: str,
+        session_id: str,
+        message: dict,
+        send_fn: SendFn,
+        persist: CGSPersistence,
+        cgs_state: dict,
+    ) -> None:
+        started_at = time.time()
+        mutation_path = f"prompt_{action}"
+        session = self._sm._sessions.get(session_id)
+        current_hash = str(
+            (cgs_state.get("metadata", {}) if isinstance(cgs_state, dict) else {}).get("cgs_hash")
+            or persist.current_cgs_hash()
+            or ""
+        )
+        txn = {
+            "source": "prompt_history",
+            "mutation_path": mutation_path,
+            "operations": [{"op": f"PROMPT_{action.upper()}", "path": "prompt_history", "value": current_hash}],
+            "mutation_summary": f"Prompt {action} from {current_hash}",
+            "risk_level": "medium",
+            "required_recompile": False,
+        }
+        transaction_id = _ensure_transaction_id(persist, txn)
+        authority = _prepare_mutation_authority(
+            persist,
+            session,
+            cgs_state,
+            message,
+            txn,
+            mutation_path=mutation_path,
+        )
+        audit_operations = _prompt_apply_audit_operations(txn)
+        if authority["rejected"]:
+            _record_mutation_audit(
+                persist,
+                session_id=session_id,
+                mutation_path=mutation_path,
+                actor=_mutation_actor(message, txn, "builder"),
+                outcome="rejected_stale",
+                transaction_id=transaction_id,
+                version_ids=authority["version_ids"],
+                pre_hash=authority["pre_hash"],
+                post_hash=authority["pre_hash"],
+                submitted_hash=authority["submitted_hash"],
+                operations=audit_operations,
+                summary=txn["mutation_summary"],
+                error=authority["reason"],
+                rollback_status="not_started",
+                runtime_context=_runtime_context(session),
+            )
+            await send_fn({
+                "type": "prompt_history_ack",
+                "action": action,
+                "accepted": False,
+                "reason": authority["reason"],
+                "transaction_id": transaction_id,
+                "prompt_history": persist.prompt_history_state(),
+            })
+            return
+
+        plan = persist.plan_prompt_history_restore(
+            action,
+            current_cgs_hash=authority["pre_hash"],
+            require_proof=True,
+        )
+        if not plan.get("accepted"):
+            reason = str(plan.get("reason") or f"Prompt {action} is not available.")
+            _record_mutation_audit(
+                persist,
+                session_id=session_id,
+                mutation_path=mutation_path,
+                actor=_mutation_actor(message, txn, "builder"),
+                outcome="rejected",
+                transaction_id=transaction_id,
+                version_ids=authority["version_ids"],
+                pre_hash=authority["pre_hash"],
+                post_hash=authority["pre_hash"],
+                submitted_hash=authority["submitted_hash"],
+                operations=audit_operations,
+                summary=txn["mutation_summary"],
+                error=reason,
+                rollback_status="not_started",
+                runtime_context=_runtime_context(session),
+                prompt_history=plan,
+            )
+            await send_fn({
+                "type": "prompt_history_ack",
+                "action": action,
+                "accepted": False,
+                "reason": reason,
+                "transaction_id": transaction_id,
+                "prompt_history": persist.prompt_history_state(),
+                "restore_plan": plan,
+            })
+            return
+
+        target_hash = str(plan.get("target_cgs_hash") or "")
+        try:
+            snap = persist.load_snapshot(target_hash)
+            snap.setdefault("metadata", {})["cgs_hash"] = target_hash
+            if session and session.gde is not None:
+                session.gde.load_cgs(snap, session_id=session_id)
+                log.info("GDE prompt %s restored hash=%s", action, target_hash[:8])
+            persist.save(snap)
+            restore_event = persist.complete_prompt_history_restore(
+                plan,
+                transaction_id=transaction_id,
+            )
+        except Exception as exc:  # noqa: BLE001 - restore must fail visibly.
+            reason = str(exc)
+            _record_mutation_audit(
+                persist,
+                session_id=session_id,
+                mutation_path=mutation_path,
+                actor=_mutation_actor(message, txn, "builder"),
+                outcome="rejected",
+                transaction_id=transaction_id,
+                version_ids=authority["version_ids"],
+                pre_hash=authority["pre_hash"],
+                post_hash=authority["pre_hash"],
+                submitted_hash=authority["submitted_hash"],
+                operations=audit_operations,
+                summary=txn["mutation_summary"],
+                error=reason,
+                rollback_status="restore_failed",
+                runtime_context=_runtime_context(session),
+                prompt_history=plan,
+            )
+            await send_fn({
+                "type": "prompt_history_ack",
+                "action": action,
+                "accepted": False,
+                "reason": reason,
+                "transaction_id": transaction_id,
+                "restore_plan": plan,
+                "prompt_history": persist.prompt_history_state(),
+            })
+            return
+
+        cgs_state.clear()
+        cgs_state.update(snap)
+        post_version_ids = _version_ids_for(session, snap, persist, message, txn)
+        history_state = persist.prompt_history_state()
+        proof_links = plan.get("proof_links") if isinstance(plan.get("proof_links"), dict) else {}
+        _record_mutation_audit(
+            persist,
+            session_id=session_id,
+            mutation_path=mutation_path,
+            actor=_mutation_actor(message, txn, "builder"),
+            outcome="applied",
+            transaction_id=transaction_id,
+            version_ids=post_version_ids,
+            pre_hash=authority["pre_hash"],
+            post_hash=target_hash,
+            submitted_hash=authority["submitted_hash"],
+            operations=audit_operations,
+            summary=txn["mutation_summary"],
+            error="",
+            rollback_status=f"prompt_{action}_restored",
+            runtime_context=_runtime_context(session),
+            proof_links=proof_links,
+            prompt_history=restore_event,
+        )
+        await send_fn({
+            "type": "prompt_history_ack",
+            "action": action,
+            "accepted": True,
+            "reason": "",
+            "hash": target_hash,
+            "transaction_id": transaction_id,
+            "restore_plan": plan,
+            "restore_event": restore_event,
+            "proof_links": proof_links,
+            "prompt_history": history_state,
+            "latency_ms": int((time.time() - started_at) * 1000),
+        })
+        await send_fn({
+            "type": "cgs_update",
+            "cgs": snap,
+            "hash": target_hash,
+            "snapshot": _snapshot_record_for_hash(persist, target_hash),
+            "affected_node_ids": [],
+            "transaction_id": transaction_id,
+            "version_ids": post_version_ids,
+            "execution_plan_available": bool((plan.get("proof_status") or {}).get("execution_plan_available")),
+            "proof_links": proof_links,
+            "prompt_history": history_state,
+            "prompt_history_restore": restore_event,
         })
 
     async def _handle_mode_change(
@@ -922,6 +1180,133 @@ class WSMessageRouter:
             "version_ids":       post_version_ids,
         })
 
+    async def _handle_semantic_binding_update(
+        self,
+        session_id: str,
+        message:    dict,
+        send_fn:    SendFn,
+        persist:    CGSPersistence,
+        cgs_state:  dict,
+    ) -> None:
+        session = self._sm._sessions.get(session_id)
+        try:
+            bindings = _sanitize_semantic_bindings(message.get("bindings"))
+        except ValueError as exc:
+            await send_fn({
+                "type": "server_error",
+                "code": "SEMANTIC_BINDING_INVALID",
+                "message": str(exc),
+            })
+            return
+
+        txn = {
+            "source": "builder_ui",
+            "mutation_path": "semantic_binding_update",
+            "operations": [{
+                "op": "SET_SEMANTIC_BINDINGS",
+                "path": "semantic_bindings.bindings",
+                "value": bindings,
+            }],
+            "mutation_summary": f"Update {len(bindings)} semantic playback binding(s)",
+            "risk_level": "low",
+        }
+        transaction_id = _ensure_transaction_id(persist, txn)
+        authority = _prepare_mutation_authority(
+            persist,
+            session,
+            cgs_state,
+            message,
+            txn,
+            mutation_path="semantic_binding_update",
+        )
+        if authority["rejected"]:
+            _record_mutation_audit(
+                persist,
+                session_id=session_id,
+                mutation_path="semantic_binding_update",
+                actor=_mutation_actor(message, txn, "builder"),
+                outcome="rejected_stale",
+                transaction_id=transaction_id,
+                version_ids=authority["version_ids"],
+                pre_hash=authority["pre_hash"],
+                post_hash=authority["pre_hash"],
+                submitted_hash=authority["submitted_hash"],
+                operations=txn["operations"],
+                summary=txn["mutation_summary"],
+                error=authority["reason"],
+                rollback_status="not_started",
+                runtime_context=_runtime_context(session),
+            )
+            await send_fn({
+                "type": "server_error",
+                "code": "STALE_CGS_WRITE",
+                "message": authority["reason"],
+                "transaction_id": transaction_id,
+            })
+            return
+
+        new_cgs = _set_semantic_bindings(cgs_state, bindings)
+        new_hash = _compute_hash(new_cgs)
+        new_cgs.setdefault("metadata", {})["cgs_hash"] = new_hash
+        static_conflict_reason = _static_precommit_conflict_reason(cgs_state, new_cgs, txn)
+        if static_conflict_reason:
+            _record_mutation_audit(
+                persist,
+                session_id=session_id,
+                mutation_path="semantic_binding_update",
+                actor=_mutation_actor(message, txn, "builder"),
+                outcome="rejected_static_conflict",
+                transaction_id=transaction_id,
+                version_ids=authority["version_ids"],
+                pre_hash=authority["pre_hash"],
+                post_hash=authority["pre_hash"],
+                submitted_hash=authority["submitted_hash"],
+                operations=txn["operations"],
+                summary=txn["mutation_summary"],
+                error=static_conflict_reason,
+                rollback_status="not_started",
+                runtime_context=_runtime_context(session),
+            )
+            await send_fn({
+                "type": "server_error",
+                "code": "STATIC_MUTATION_CONFLICT",
+                "message": static_conflict_reason,
+                "transaction_id": transaction_id,
+            })
+            return
+
+        persist.save(new_cgs)
+        cgs_state.clear()
+        cgs_state.update(new_cgs)
+        post_version_ids = _version_ids_for(session, new_cgs, persist, message, txn)
+        _record_mutation_audit(
+            persist,
+            session_id=session_id,
+            mutation_path="semantic_binding_update",
+            actor=_mutation_actor(message, txn, "builder"),
+            outcome="applied",
+            transaction_id=transaction_id,
+            version_ids=post_version_ids,
+            pre_hash=authority["pre_hash"],
+            post_hash=new_hash,
+            submitted_hash=authority["submitted_hash"],
+            operations=txn["operations"],
+            summary=txn["mutation_summary"],
+            error="",
+            rollback_status="not_needed",
+            runtime_context=_runtime_context(session),
+        )
+
+        await send_fn({
+            "type":              "cgs_update",
+            "cgs":               new_cgs,
+            "hash":              new_hash,
+            "snapshot":          {},
+            "affected_node_ids": ["semantic_bindings"],
+            "transaction_id":    transaction_id,
+            "version_ids":       post_version_ids,
+        })
+
     async def _handle_cgs_rollback(
         self,
         session_id: str,
@@ -1109,6 +1494,12 @@ class WSMessageRouter:
                 session.update_runtime_status(
                     connected=bool(status.get("engine_connected", False)),
                     last_tick=status,
+                    last_hash=str(
+                        status.get("latest_world_hash")
+                        or status.get("runtime_world_hash")
+                        or status.get("world_hash")
+                        or ""
+                    ),
                 )
 
         engine_tick = _runtime_snapshot_to_engine_tick(response)
@@ -1139,18 +1530,11 @@ class WSMessageRouter:
     ) -> None:
         kind = str(message.get("kind", ""))
         entity_id = str(message.get("entity_id", ""))
-        allowed = {
-            "select_entity",
-            "focus_entity",
-            "set_component_field",
-            "spawn_preview",
-            "delete_preview",
-        }
-        if kind not in allowed:
+        if kind not in SUPPORTED_ENGINE_EDIT_KINDS:
             await send_fn({
                 "type": "engine_edit_ack",
                 "accepted": False,
-                "reason": f"Unknown engine edit kind: {kind}",
+                "reason": f"Unsupported engine edit kind: {kind}",
                 "affected_entity_ids": [],
             })
             return
@@ -1161,18 +1545,6 @@ class WSMessageRouter:
                 "type": "engine_edit_ack",
                 "accepted": False,
                 "reason": "Session not found.",
-                "affected_entity_ids": [],
-            })
-            return
-
-        if kind in {"spawn_preview", "delete_preview"}:
-            await send_fn({
-                "type": "engine_edit_ack",
-                "accepted": False,
-                "reason": (
-                    f"{kind} is not exposed by the runtime edit bridge yet. "
-                    "Use PIL/GDE for graph mutations."
-                ),
                 "affected_entity_ids": [],
             })
             return
@@ -1217,6 +1589,23 @@ class WSMessageRouter:
             if item is not None
         ]
         accepted = bool(response.get("accepted", False))
+        meta = cgs_state.get("metadata", {}) if isinstance(cgs_state, dict) else {}
+        runtime_context = _runtime_context_from_status(session, status if isinstance(status, dict) else {})
+        preview_cgs_hash = str(message.get("cgs_hash") or meta.get("cgs_hash", "") or "")
+        preview_schema_version = str(
+            message.get("schema_version")
+            or meta.get("schema_version")
+            or meta.get("version")
+            or ""
+        )
+        preview_id = _engine_edit_preview_id(
+            session_id=session_id,
+            kind=kind,
+            entity_id=entity_id,
+            message=message,
+            preview_cgs_hash=preview_cgs_hash,
+            runtime_context=runtime_context,
+        ) if accepted else ""
         audit_record = {
             "kind": kind,
             "entity_id": entity_id,
@@ -1229,11 +1618,16 @@ class WSMessageRouter:
             "accepted": accepted,
             "reason": str(response.get("reason", "")),
             "affected_entity_ids": affected,
-            "runtime_tick": status.get("tick") if isinstance(status, dict) else None,
-            "preview_cgs_hash": str(
-                message.get("cgs_hash")
-                or cgs_state.get("metadata", {}).get("cgs_hash", "")
-            ),
+            "runtime_tick": runtime_context.get("runtime_tick"),
+            "runtime_world_hash": runtime_context.get("runtime_world_hash", ""),
+            "runtime_cgs_hash": runtime_context.get("cgs_hash", ""),
+            "runtime_schema_version": runtime_context.get("schema_version", ""),
+            "engine_adapter_sequence": runtime_context.get("engine_adapter_sequence"),
+            "preview_id": preview_id,
+            "preview_cgs_hash": preview_cgs_hash,
+            "preview_schema_version": preview_schema_version,
+            "commit_class": engine_edit_commit_class(kind, str(message.get("field_path", "")), message.get("value")),
+            "commit_supported": kind in SUPPORTED_ENGINE_EDIT_COMMIT_KINDS,
             "source": str(message.get("source", "builder")),
         }
         session.record_engine_edit(audit_record)
@@ -1265,6 +1659,18 @@ class WSMessageRouter:
         component_name = str(message.get("component_name", ""))
         field_path = str(message.get("field_path", ""))
         value = message.get("value")
+        commit_kind = str(message.get("kind") or "set_component_field")
+        if commit_kind not in SUPPORTED_ENGINE_EDIT_COMMIT_KINDS:
+            await _send_engine_edit_commit_ack(
+                send_fn,
+                False,
+                (
+                    f"Engine edit kind {commit_kind!r} is preview-only or unsupported for "
+                    "durable CGS commits."
+                ),
+                message,
+            )
+            return
         try:
             component_type_id = int(message.get("component_type_id"))
         except (TypeError, ValueError):
@@ -1280,6 +1686,16 @@ class WSMessageRouter:
             )
             return
 
+        preview_id = str(message.get("preview_id") or "")
+        if not preview_id:
+            await _send_engine_edit_commit_ack(
+                send_fn,
+                False,
+                "Live edit commit requires the accepted preview_id from the audit row.",
+                message,
+            )
+            return
+
         matched_live_edit = _matching_accepted_live_edit(session.engine_edit_log, message)
         if matched_live_edit is None:
             await _send_engine_edit_commit_ack(
@@ -1288,6 +1704,30 @@ class WSMessageRouter:
                 "Run Live Edit first, then commit the accepted audit row.",
                 message,
             )
+            return
+        if matched_live_edit.get("committed"):
+            await _send_engine_edit_commit_ack(
+                send_fn,
+                False,
+                "That live edit preview has already been committed.",
+                message,
+            )
+            return
+
+        current_meta = cgs_state.get("metadata", {}) if isinstance(cgs_state, dict) else {}
+        current_cgs_hash = str(current_meta.get("cgs_hash", "") or "")
+        current_schema_version = str(
+            current_meta.get("schema_version") or current_meta.get("version") or ""
+        )
+        stale_reason = _engine_edit_commit_envelope_conflict_reason(
+            message,
+            matched_live_edit,
+            session,
+            current_cgs_hash,
+            current_schema_version,
+        )
+        if stale_reason:
+            await _send_engine_edit_commit_ack(send_fn, False, stale_reason, message)
             return
 
         resolved = _resolve_component_default_path(
@@ -1307,7 +1747,6 @@ class WSMessageRouter:
             return
 
         cgs_path, _current_value = resolved
-        current_cgs_hash = str(cgs_state.get("metadata", {}).get("cgs_hash", "") or "")
         preview_cgs_hash = str(
             message.get("preview_cgs_hash")
             or matched_live_edit.get("preview_cgs_hash", "")
@@ -1348,7 +1787,11 @@ class WSMessageRouter:
             "required_recompile": False,
             "affected_systems": _systems_touching_component(cgs_state, component_type_id),
             "mutation_summary": summary[:200],
+            "preview_id": preview_id,
             "preview_cgs_hash": preview_cgs_hash,
+            "preview_schema_version": matched_live_edit.get("preview_schema_version", ""),
+            "runtime_world_hash": matched_live_edit.get("runtime_world_hash", ""),
+            "engine_adapter_sequence": matched_live_edit.get("engine_adapter_sequence"),
             "merged_after_newer_cgs": merging_after_newer_cgs,
         }
         transaction_id = _ensure_transaction_id(persist, txn)
@@ -1412,6 +1855,9 @@ class WSMessageRouter:
 
         new_cgs = gde_result.new_cgs
         new_hash = gde_result.new_hash
+        matched_live_edit["committed"] = True
+        matched_live_edit["commit_cgs_hash"] = new_hash
+        matched_live_edit["commit_transaction_id"] = transaction_id
         record = SnapshotRecord(
             cgs_hash       = new_hash,
             schema_version = new_cgs.get("metadata", {}).get("version", "0.1.0"),
@@ -1422,6 +1868,7 @@ class WSMessageRouter:
             version_bump   = "patch",
             risk_level     = "low",
         )
+        persist.save(new_cgs)
         persist.snapshot(new_cgs, record)
 
         cgs_state.clear()
@@ -1504,6 +1951,199 @@ def _link_asset(
                         defaults[k + "_path"] = asset_path
                         break
     return new_cgs
+
+
+_SEMANTIC_EVENT_TARGETS: dict[str, set[str]] = {
+    "movement.jump_started": {"Animation", "Audio", "Vfx"},
+    "movement.landed": {"Animation", "Audio", "Vfx"},
+    "interaction.interacted": {"Animation", "Audio", "Vfx"},
+    "interaction.accepted": {"Animation", "Audio", "Vfx"},
+    "inventory.pickup_accepted": {"Animation", "Audio", "Vfx"},
+    "inventory.equipped": {"Animation", "Audio", "Vfx"},
+    "inventory.dropped": {"Animation", "Audio", "Vfx"},
+    "combat.attack_started": {"Animation", "Audio", "Vfx"},
+    "combat.hit_confirmed": {"Animation", "Audio", "Vfx"},
+    "combat.blocked": {"Animation", "Audio", "Vfx"},
+    "combat.parried": {"Animation", "Audio", "Vfx"},
+    "combat.killed": {"Animation", "Audio", "Vfx"},
+    "animation.command_requested": {"Animation"},
+    "animation.playback_started": {"Animation"},
+    "animation.playback_completed": {"Animation"},
+    "audio.playback_requested": {"Audio"},
+    "audio.playback_completed": {"Audio"},
+    "vfx.playback_requested": {"Vfx"},
+    "vfx.playback_completed": {"Vfx"},
+}
+
+_PLAYBACK_ASSET_TYPES: dict[str, set[str]] = {
+    "Animation": {"AnimationClip", "AnimationController"},
+    "Audio": {"AudioClip", "AudioMusic"},
+    "Vfx": {"Particle"},
+}
+
+_ASSET_STATUS_VALUES = {"Placeholder", "Linked", "Missing", "Unresolved"}
+_ENGINE_TARGET_VALUES = {"godot", "unity", "unreal"}
+
+
+def _set_semantic_bindings(cgs: dict, bindings: list[dict[str, Any]]) -> dict:
+    new_cgs = copy.deepcopy(cgs)
+    new_cgs["semantic_bindings"] = {"bindings": copy.deepcopy(bindings)}
+    return new_cgs
+
+
+def _sanitize_semantic_bindings(value: Any) -> list[dict[str, Any]]:
+    if not isinstance(value, list):
+        raise ValueError("semantic binding update requires bindings array")
+    if len(value) > 512:
+        raise ValueError("semantic binding update contains more than 512 bindings")
+    seen: set[str] = set()
+    sanitized: list[dict[str, Any]] = []
+    for index, item in enumerate(value):
+        binding = _sanitize_semantic_binding(item, index)
+        binding_id = binding["binding_id"]
+        if binding_id in seen:
+            raise ValueError(f"semantic binding {index}: duplicate binding_id {binding_id!r}")
+        seen.add(binding_id)
+        sanitized.append(binding)
+    sanitized.sort(key=lambda item: (int(item.get("priority", 0)), str(item.get("binding_id", ""))))
+    return sanitized
+
+
+def _sanitize_semantic_binding(value: Any, index: int) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise ValueError(f"semantic binding {index}: must be an object")
+    binding_id = _required_semantic_string(value, "binding_id", index, max_len=128)
+    event_name = _required_semantic_string(value, "event_name", index, max_len=128)
+    playback_kind = _required_semantic_string(value, "playback_kind", index, max_len=32)
+    if playback_kind not in _PLAYBACK_ASSET_TYPES:
+        raise ValueError(f"semantic binding {index}: unsupported playback_kind {playback_kind!r}")
+    event_targets = _SEMANTIC_EVENT_TARGETS.get(event_name)
+    if event_targets is None:
+        raise ValueError(f"semantic binding {index}: unknown semantic event {event_name!r}")
+    if playback_kind not in event_targets:
+        raise ValueError(
+            f"semantic binding {index}: event {event_name!r} does not support {playback_kind} playback"
+        )
+
+    asset = value.get("asset")
+    if not isinstance(asset, dict):
+        raise ValueError(f"semantic binding {index}: asset must be an object")
+    asset_id = _required_semantic_string(asset, "id", index, max_len=256, label="asset.id")
+    asset_type = _required_semantic_string(asset, "asset_type", index, max_len=64, label="asset.asset_type")
+    asset_status = _required_semantic_string(asset, "status", index, max_len=32, label="asset.status")
+    if asset_type not in _PLAYBACK_ASSET_TYPES[playback_kind]:
+        raise ValueError(
+            f"semantic binding {index}: {playback_kind} playback cannot use asset type {asset_type!r}"
+        )
+    if asset_status not in _ASSET_STATUS_VALUES:
+        raise ValueError(f"semantic binding {index}: invalid asset status {asset_status!r}")
+    if asset_status == "Unresolved":
+        raise ValueError(f"semantic binding {index}: unresolved asset references cannot be saved")
+
+    semantic_action = _optional_semantic_string(value, "semantic_action", max_len=128)
+    entity_selector = _sanitize_entity_selector(value.get("entity_selector"), index)
+    parameters = _sanitize_semantic_parameters(value.get("parameters"), index)
+    engine_targets = _engine_targets_from_parameters(parameters, index)
+    if engine_targets:
+        parameters["xace_engine_targets"] = ",".join(engine_targets)
+    priority = value.get("priority", 0)
+    if not isinstance(priority, int):
+        raise ValueError(f"semantic binding {index}: priority must be an integer")
+    enabled = value.get("enabled", True)
+    if not isinstance(enabled, bool):
+        raise ValueError(f"semantic binding {index}: enabled must be a boolean")
+
+    return {
+        "binding_id": binding_id,
+        "event_name": event_name,
+        "playback_kind": playback_kind,
+        "asset": {
+            "id": asset_id,
+            "asset_type": asset_type,
+            "status": asset_status,
+        },
+        "semantic_action": semantic_action,
+        "entity_selector": entity_selector,
+        "parameters": parameters,
+        "enabled": enabled,
+        "priority": priority,
+    }
+
+
+def _required_semantic_string(
+    value: dict[str, Any],
+    key: str,
+    index: int,
+    *,
+    max_len: int,
+    label: str | None = None,
+) -> str:
+    raw = value.get(key)
+    text = raw.strip() if isinstance(raw, str) else ""
+    display = label or key
+    if not text:
+        raise ValueError(f"semantic binding {index}: {display} must be a non-empty string")
+    if len(text) > max_len:
+        raise ValueError(f"semantic binding {index}: {display} exceeds {max_len} characters")
+    return text
+
+
+def _optional_semantic_string(value: dict[str, Any], key: str, *, max_len: int) -> str:
+    raw = value.get(key, "")
+    if raw is None:
+        return ""
+    if not isinstance(raw, str):
+        raise ValueError(f"semantic binding: {key} must be a string when present")
+    text = raw.strip()
+    if len(text) > max_len:
+        raise ValueError(f"semantic binding: {key} exceeds {max_len} characters")
+    return text
+
+
+def _sanitize_entity_selector(value: Any, index: int) -> Any:
+    if value in ("SourceEntity", "TargetEntity"):
+        return value
+    if isinstance(value, dict) and isinstance(value.get("PayloadEntity"), dict):
+        key = value["PayloadEntity"].get("key")
+        if isinstance(key, str) and key.strip():
+            return {"PayloadEntity": {"key": key.strip()}}
+    if isinstance(value, dict) and isinstance(value.get("FixedEntity"), int) and value["FixedEntity"] > 0:
+        return {"FixedEntity": value["FixedEntity"]}
+    raise ValueError(f"semantic binding {index}: entity_selector must be SourceEntity, TargetEntity, PayloadEntity, or FixedEntity")
+
+
+def _sanitize_semantic_parameters(value: Any, index: int) -> dict[str, str]:
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise ValueError(f"semantic binding {index}: parameters must be an object")
+    result: dict[str, str] = {}
+    for raw_key, raw_value in value.items():
+        if not isinstance(raw_key, str) or not raw_key.strip():
+            raise ValueError(f"semantic binding {index}: parameter keys must be non-empty strings")
+        key = raw_key.strip()
+        if len(key) > 64:
+            raise ValueError(f"semantic binding {index}: parameter key {key!r} exceeds 64 characters")
+        if isinstance(raw_value, (str, int, float, bool)):
+            text = str(raw_value).strip()
+        elif raw_value is None:
+            text = ""
+        else:
+            raise ValueError(f"semantic binding {index}: parameter {key!r} must be a scalar value")
+        if text:
+            result[key] = text[:512]
+    return result
+
+
+def _engine_targets_from_parameters(parameters: dict[str, str], index: int) -> list[str]:
+    raw = parameters.get("xace_engine_targets", "")
+    if not raw:
+        return []
+    targets = [item.strip().lower() for item in raw.split(",") if item.strip()]
+    unknown = sorted(set(targets) - _ENGINE_TARGET_VALUES)
+    if unknown:
+        raise ValueError(f"semantic binding {index}: unknown engine target(s) {unknown}")
+    return sorted(set(targets), key=targets.index)
 
 
 def _compute_hash(cgs: dict) -> str:
@@ -1661,6 +2301,8 @@ def _runtime_context(session: Any) -> dict[str, Any]:
             "runtime_tick": None,
             "runtime_adapter_type": "",
             "engine_adapter_sequence": None,
+            "cgs_hash": "",
+            "schema_version": "",
         }
     last_tick = getattr(session, "runtime_last_tick", None)
     if not isinstance(last_tick, dict):
@@ -1669,21 +2311,30 @@ def _runtime_context(session: Any) -> dict[str, Any]:
         "runtime_world_hash": str(getattr(session, "runtime_last_hash", "") or last_tick.get("world_hash", "")),
         "runtime_tick": last_tick.get("tick"),
         "runtime_adapter_type": str(getattr(session, "runtime_adapter_type", "") or last_tick.get("adapter_type", "")),
-        "engine_adapter_sequence": (
-            last_tick.get("engine_adapter_sequence")
-            or last_tick.get("adapter_sequence")
-            or last_tick.get("sequence_id")
-            or last_tick.get("sequence")
+        "engine_adapter_sequence": _first_present(
+            last_tick.get("engine_adapter_sequence"),
+            last_tick.get("adapter_sequence"),
+            last_tick.get("sequence_id"),
+            last_tick.get("sequence"),
         ),
+        "cgs_hash": str(last_tick.get("cgs_hash", "") or ""),
+        "schema_version": str(last_tick.get("schema_version", "") or ""),
     }
 
 
 def _engine_adapter_sequence(message: dict, runtime: dict[str, Any]) -> Any:
-    return (
-        message.get("engine_adapter_sequence")
-        or message.get("adapter_sequence")
-        or runtime.get("engine_adapter_sequence")
+    return _first_present(
+        message.get("engine_adapter_sequence"),
+        message.get("adapter_sequence"),
+        runtime.get("engine_adapter_sequence"),
     )
+
+
+def _first_present(*values: Any) -> Any:
+    for value in values:
+        if value is not None and value != "":
+            return value
+    return None
 
 
 def _prompt_apply_feedback(
@@ -1768,6 +2419,8 @@ def _prompt_apply_feedback(
             rollback=rollback,
         ),
         "approval": copy.deepcopy(approval or {}),
+        "typed_operation_provenance": _prompt_apply_typed_operation_provenance(txn),
+        "composite_prompt_plan": _prompt_apply_composite_prompt_plan(txn),
         "authority": {
             "pre_hash": str((authority or {}).get("pre_hash", "") or ""),
             "submitted_hash": str((authority or {}).get("submitted_hash", "") or ""),
@@ -1793,8 +2446,88 @@ def _pending_prompt_result(session: Any) -> dict[str, Any]:
     return copy.deepcopy(result) if isinstance(result, dict) else {}
 
 
+def _prompt_apply_typed_operation_batch(txn: dict) -> dict[str, Any] | None:
+    batch = txn.get("typed_operation_batch")
+    return batch if isinstance(batch, dict) else None
+
+
+def _prompt_apply_composite_prompt_plan(txn: dict) -> dict[str, Any]:
+    plan = txn.get("composite_prompt_plan")
+    return copy.deepcopy(plan) if isinstance(plan, dict) else {}
+
+
+def _prompt_apply_audit_operations(txn: dict) -> list[Any]:
+    """Return the submitted operation records without lowering typed IDs to paths."""
+    if "typed_operation_batch" in txn:
+        batch = _prompt_apply_typed_operation_batch(txn)
+        operations = batch.get("operations") if batch is not None else None
+    else:
+        operations = txn.get("operations")
+    return copy.deepcopy(operations) if isinstance(operations, list) else []
+
+
+def _prompt_apply_operation_count(txn: dict) -> int:
+    return len(_prompt_apply_audit_operations(txn))
+
+
+def _prompt_apply_typed_operation_provenance(txn: dict) -> dict[str, Any]:
+    batch = _prompt_apply_typed_operation_batch(txn)
+    if batch is None:
+        return {}
+    operations = _prompt_apply_audit_operations(txn)
+    canonical = json.dumps(
+        batch,
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    provenance = {
+        "schema": str(batch.get("schema", "")),
+        "request_id": str(batch.get("request_id", "")),
+        "prompt_id": str(batch.get("prompt_id", "")),
+        "batch_hash": hashlib.sha256(canonical).hexdigest(),
+        "operation_ids": [
+            str(operation.get("operation_id", ""))
+            for operation in operations
+            if isinstance(operation, dict)
+        ],
+        "operation_kinds": [
+            str(operation.get("kind", ""))
+            for operation in operations
+            if isinstance(operation, dict)
+        ],
+    }
+    composite_plan = _prompt_apply_composite_prompt_plan(txn)
+    if composite_plan:
+        composite_hash = hashlib.sha256(
+            json.dumps(
+                composite_plan,
+                ensure_ascii=True,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        provenance["composite_prompt_plan_hash"] = composite_hash
+        provenance["composite_prompt_plan_schema"] = str(
+            composite_plan.get("schema", "")
+        )
+        provenance["composite_operation_order"] = list(
+            composite_plan.get("operation_order") or []
+        )
+        rollback = composite_plan.get("rollback_plan")
+        if isinstance(rollback, dict):
+            provenance["composite_rollback_pre_hash"] = str(
+                rollback.get("pre_cgs_hash", "")
+            )
+    return provenance
+
+
 def _prompt_apply_requires_sgc(txn: dict) -> bool:
-    return bool(txn.get("required_recompile", False)) or str(txn.get("schema_delta_type", "")).startswith("structural")
+    return (
+        "typed_operation_batch" in txn
+        or bool(txn.get("required_recompile", False))
+        or str(txn.get("schema_delta_type", "")).startswith("structural")
+    )
 
 
 def _prompt_apply_sgc_feedback(
@@ -2115,13 +2848,14 @@ def _prompt_apply_recovery_error(
         pre_hash=authority["pre_hash"],
         post_hash=authority["pre_hash"],
         submitted_hash=authority["submitted_hash"],
-        operations=txn.get("operations", []),
+        operations=_prompt_apply_audit_operations(txn),
         summary=summary,
         error=message,
         rollback_status="restored_pre_apply" if rollback.get("restored") else "restore_failed",
         runtime_context=_runtime_context(session),
         approval=approval,
         rollback=rollback,
+        typed_operation_provenance=_prompt_apply_typed_operation_provenance(txn),
     )
     apply_feedback = _prompt_apply_feedback(
         session=session,
@@ -2153,6 +2887,7 @@ def _prompt_apply_recovery_error(
         "rollback": rollback,
         "approval": approval,
         "apply_feedback": apply_feedback,
+        "typed_operation_provenance": _prompt_apply_typed_operation_provenance(txn),
     }
     if action:
         response["action"] = action
@@ -2458,12 +3193,19 @@ def _record_mutation_audit(
     runtime_context: dict[str, Any],
     approval: dict[str, Any] | None = None,
     rollback: dict[str, Any] | None = None,
+    typed_operation_provenance: dict[str, Any] | None = None,
+    proof_links: dict[str, Any] | None = None,
+    prompt_history: dict[str, Any] | None = None,
 ) -> None:
     if persist is None or not hasattr(persist, "record_mutation_audit"):
         return
     timestamp = time.time()
     timestamp_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(timestamp))
-    operation_summaries = [_operation_audit_summary(op, idx) for idx, op in enumerate(operations)]
+    typed_audit = bool(typed_operation_provenance)
+    operation_summaries = [
+        _operation_audit_summary(op, idx, typed=typed_audit)
+        for idx, op in enumerate(operations)
+    ]
     ledger_entry = {
         "timestamp": timestamp,
         "timestamp_iso": timestamp_iso,
@@ -2489,6 +3231,7 @@ def _record_mutation_audit(
         "post_state_hash": post_hash,
         "submitted_cgs_hash": submitted_hash,
         "version_ids": dict(version_ids),
+        "operation_count": len(operation_summaries),
         "operations": operation_summaries,
         "summary": str(summary)[:500],
         "error": str(error)[:1000],
@@ -2499,15 +3242,69 @@ def _record_mutation_audit(
         dataset_entry["approval"] = dict(approval)
     if rollback:
         dataset_entry["rollback"] = dict(rollback)
+    if proof_links:
+        dataset_entry["proof_links"] = copy.deepcopy(proof_links)
+    if prompt_history:
+        history_payload = copy.deepcopy(prompt_history)
+        dataset_entry["prompt_history"] = history_payload
+        if isinstance(history_payload, dict):
+            sequence = history_payload.get("sequence") or history_payload.get("entry_sequence")
+            if sequence:
+                ledger_entry["prompt_history_sequence"] = int(sequence)
+            action = history_payload.get("action")
+            if action:
+                ledger_entry["prompt_history_action"] = str(action)
+    if typed_operation_provenance:
+        provenance = copy.deepcopy(typed_operation_provenance)
+        ledger_entry["typed_operation_batch_hash"] = str(provenance.get("batch_hash", ""))
+        dataset_entry["typed_operation_provenance"] = provenance
     try:
         persist.record_mutation_audit(ledger_entry=ledger_entry, dataset_entry=dataset_entry)
     except Exception as exc:
         log.warning("Failed to persist mutation audit record: %s", exc)
 
 
-def _operation_audit_summary(op: Any, index: int) -> dict[str, Any]:
+def _snapshot_record_for_hash(persist: Any, cgs_hash: str) -> dict[str, Any]:
+    if persist is None or not hasattr(persist, "list_snapshots"):
+        return {}
+    target = str(cgs_hash or "")
+    try:
+        for record in persist.list_snapshots(limit=100):
+            if getattr(record, "cgs_hash", "") == target:
+                return record.to_dict() if hasattr(record, "to_dict") else {}
+    except Exception:
+        return {}
+    return {}
+
+
+def _operation_audit_summary(op: Any, index: int, *, typed: bool = False) -> dict[str, Any]:
     if not isinstance(op, dict):
+        if typed:
+            return {"index": index, "type": "invalid", "kind": "", "operation_id": ""}
         return {"index": index, "type": "invalid", "path": "", "entity": "", "component": ""}
+    if typed or "kind" in op or "operation_id" in op:
+        kind = str(op.get("kind", ""))
+        summary = {
+            "index": index,
+            "type": kind,
+            "kind": kind,
+            "operation_id": str(op.get("operation_id", "")),
+            "explanation": str(op.get("explanation", ""))[:500],
+        }
+        for key in (
+            "mode_id",
+            "actor_id",
+            "component_type_id",
+            "component_name",
+            "system_id",
+            "event_name",
+            "rule_id",
+            "asset_id",
+        ):
+            value = op.get(key)
+            if value not in (None, ""):
+                summary[key] = value
+        return summary
     return {
         "index": index,
         "type": str(op.get("op", "")),
@@ -2533,6 +3330,7 @@ async def _send_engine_edit_commit_ack(
         "accepted": accepted,
         "reason": reason,
         "audit_ts": message.get("audit_ts"),
+        "preview_id": message.get("preview_id"),
     }
     if cgs_hash:
         payload["cgs_hash"] = cgs_hash
@@ -2544,11 +3342,14 @@ def _has_matching_accepted_live_edit(log_entries: list[dict], message: dict) -> 
 
 
 def _matching_accepted_live_edit(log_entries: list[dict], message: dict) -> dict | None:
+    preview_id = str(message.get("preview_id") or "")
     audit_ts = message.get("audit_ts")
     for entry in reversed(log_entries):
         if not entry.get("accepted"):
             continue
         if entry.get("kind") != "set_component_field":
+            continue
+        if preview_id and str(entry.get("preview_id") or "") != preview_id:
             continue
         if audit_ts is not None and entry.get("ts") != audit_ts:
             continue
@@ -2560,10 +3361,146 @@ def _matching_accepted_live_edit(log_entries: list[dict], message: dict) -> dict
             continue
         if str(entry.get("field_path", "")) != str(message.get("field_path", "")):
             continue
-        if json.dumps(entry.get("value"), sort_keys=True) != json.dumps(message.get("value"), sort_keys=True):
+        if not _same_json_value(entry.get("value"), message.get("value")):
             continue
         return entry
     return None
+
+
+def _same_json_value(left: Any, right: Any) -> bool:
+    return json.dumps(left, sort_keys=True, separators=(",", ":")) == json.dumps(
+        right,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+
+
+def _runtime_context_from_status(session: Any, status: dict[str, Any]) -> dict[str, Any]:
+    base = _runtime_context(session)
+    if not isinstance(status, dict):
+        status = {}
+    return {
+        "runtime_world_hash": str(
+            status.get("latest_world_hash")
+            or status.get("runtime_world_hash")
+            or status.get("world_hash")
+            or base.get("runtime_world_hash")
+            or ""
+        ),
+        "runtime_tick": status.get("tick", base.get("runtime_tick")),
+        "runtime_adapter_type": str(
+            status.get("adapter_type") or base.get("runtime_adapter_type") or ""
+        ),
+        "engine_adapter_sequence": _engine_adapter_sequence(status, base),
+        "cgs_hash": str(status.get("cgs_hash") or base.get("cgs_hash") or ""),
+        "schema_version": str(status.get("schema_version") or base.get("schema_version") or ""),
+    }
+
+
+def _engine_edit_preview_id(
+    *,
+    session_id: str,
+    kind: str,
+    entity_id: str,
+    message: dict,
+    preview_cgs_hash: str,
+    runtime_context: dict[str, Any],
+) -> str:
+    core = {
+        "session_id": session_id,
+        "kind": kind,
+        "entity_id": entity_id,
+        "mode_id": message.get("mode_id", ""),
+        "actor_id": message.get("actor_id", ""),
+        "component_type_id": message.get("component_type_id"),
+        "field_path": message.get("field_path", ""),
+        "value": message.get("value"),
+        "preview_cgs_hash": preview_cgs_hash,
+        "runtime_world_hash": runtime_context.get("runtime_world_hash", ""),
+        "engine_adapter_sequence": runtime_context.get("engine_adapter_sequence"),
+        "issued_at_ms": int(time.time() * 1000),
+    }
+    digest = hashlib.sha256(
+        json.dumps(core, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()[:16]
+    return f"engine-preview-{core['issued_at_ms']:013d}-{digest}"
+
+
+def _engine_edit_commit_envelope_conflict_reason(
+    message: dict,
+    audit: dict,
+    session: Any,
+    current_cgs_hash: str,
+    current_schema_version: str,
+) -> str:
+    preview_id = str(message.get("preview_id") or "")
+    if preview_id != str(audit.get("preview_id") or ""):
+        return "Stale live edit rejected: preview_id does not match the accepted audit row."
+
+    preview_cgs_hash = _message_version_value(message, "preview_cgs_hash")
+    if not preview_cgs_hash:
+        return "Stale live edit rejected: preview_cgs_hash is required."
+    if preview_cgs_hash != str(audit.get("preview_cgs_hash") or ""):
+        return "Stale live edit rejected: preview_cgs_hash changed since preview."
+
+    submitted_cgs_hash = _message_version_value(message, "cgs_hash")
+    if not submitted_cgs_hash:
+        return "Stale CGS write rejected: cgs_hash is required for live edit commit."
+    if submitted_cgs_hash != current_cgs_hash:
+        return (
+            "Stale CGS write rejected: submitted cgs_hash "
+            f"{_short_hash(submitted_cgs_hash)} does not match current {_short_hash(current_cgs_hash)}."
+        )
+
+    submitted_schema = _message_version_value(message, "schema_version")
+    if not submitted_schema:
+        return "Stale live edit rejected: schema_version is required."
+    if submitted_schema != current_schema_version:
+        return (
+            "Stale live edit rejected: submitted schema_version "
+            f"{submitted_schema!r} does not match current {current_schema_version!r}."
+        )
+    preview_schema = str(audit.get("preview_schema_version") or "")
+    if preview_schema and preview_schema != current_schema_version:
+        return (
+            "Stale live edit rejected: schema_version changed since preview "
+            f"({preview_schema!r} -> {current_schema_version!r})."
+        )
+
+    runtime_hash = _message_version_value(message, "runtime_world_hash")
+    audit_runtime_hash = str(audit.get("runtime_world_hash") or "")
+    if not runtime_hash:
+        return "Stale live edit rejected: runtime_world_hash is required."
+    if audit_runtime_hash and runtime_hash != audit_runtime_hash:
+        return "Stale live edit rejected: runtime_world_hash changed since preview."
+    current_runtime_hash = str(_runtime_context(session).get("runtime_world_hash") or "")
+    if current_runtime_hash and runtime_hash != current_runtime_hash:
+        return "Stale live edit rejected: runtime hash no longer matches the previewed state."
+
+    submitted_sequence = _message_version_value(message, "engine_adapter_sequence")
+    if submitted_sequence == "":
+        return "Stale live edit rejected: engine_adapter_sequence is required."
+    audit_sequence = _version_to_string(audit.get("engine_adapter_sequence"))
+    if audit_sequence != "" and submitted_sequence != audit_sequence:
+        return "Stale live edit rejected: adapter sequence changed since preview."
+    current_sequence = _version_to_string(_runtime_context(session).get("engine_adapter_sequence"))
+    if current_sequence != "" and submitted_sequence != current_sequence:
+        return "Stale live edit rejected: adapter sequence no longer matches runtime state."
+
+    return ""
+
+
+def _message_version_value(message: dict, field: str) -> str:
+    value = message.get(field)
+    if value in (None, "") and isinstance(message.get("version_ids"), dict):
+        value = message["version_ids"].get(field)
+    return _version_to_string(value)
+
+
+def _version_to_string(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value)
 
 
 def _resolve_component_default_path(

@@ -14,15 +14,30 @@ from ws_message_router import WSMessageRouter, _static_precommit_conflict_reason
 from state_authority import can_merge_engine_default_edit  # noqa: E402
 
 LIVE_COMMIT_HASH = "a" * 64
+RUNTIME_HASH = "b" * 64
+PREVIEW_ID = "engine-preview-test"
+ADAPTER_SEQUENCE = 41
+SCHEMA_VERSION = "0.1.0"
 
 
 class FakeSession:
     def __init__(self):
         self.engine_edit_log = []
         self.runtime_status_updates = []
+        self.runtime_connected = False
+        self.runtime_adapter_type = ""
+        self.runtime_last_tick = None
+        self.runtime_last_hash = ""
 
     def update_runtime_status(self, **kwargs):
         self.runtime_status_updates.append(kwargs)
+        self.runtime_connected = bool(kwargs.get("connected", self.runtime_connected))
+        if kwargs.get("adapter_type"):
+            self.runtime_adapter_type = str(kwargs["adapter_type"])
+        if kwargs.get("last_tick") is not None:
+            self.runtime_last_tick = kwargs["last_tick"]
+        if kwargs.get("last_hash"):
+            self.runtime_last_hash = str(kwargs["last_hash"])
 
     def record_engine_edit(self, edit):
         self.engine_edit_log.append({"ts": 123.0, **edit})
@@ -84,6 +99,10 @@ class FakeRuntimeControl:
                 "adapter_type": "headless",
                 "pending_engine_inputs": 0,
                 "registered_systems": 2,
+                "latest_world_hash": RUNTIME_HASH,
+                "cgs_hash": "hash-before",
+                "schema_version": SCHEMA_VERSION,
+                "engine_adapter_sequence": ADAPTER_SEQUENCE,
                 "phase_count": 4,
                 "paused": True,
                 "step_budget": 0,
@@ -155,6 +174,49 @@ def sample_cgs():
     }
 
 
+def accepted_live_edit(**overrides):
+    edit = {
+        "kind": "set_component_field",
+        "accepted": True,
+        "mode_id": "mode_default",
+        "actor_id": "actor_player",
+        "component_type_id": 100,
+        "component_name": "COMP_HEALTH_V1",
+        "field_path": "current",
+        "value": 72,
+        "reason": "preview component field updated",
+        "preview_id": PREVIEW_ID,
+        "preview_cgs_hash": "hash-before",
+        "preview_schema_version": SCHEMA_VERSION,
+        "runtime_world_hash": RUNTIME_HASH,
+        "engine_adapter_sequence": ADAPTER_SEQUENCE,
+    }
+    edit.update(overrides)
+    return edit
+
+
+def commit_payload(**overrides):
+    payload = {
+        "type": "engine_edit_commit",
+        "kind": "set_component_field",
+        "preview_id": PREVIEW_ID,
+        "preview_cgs_hash": "hash-before",
+        "cgs_hash": "hash-before",
+        "schema_version": SCHEMA_VERSION,
+        "runtime_world_hash": RUNTIME_HASH,
+        "engine_adapter_sequence": ADAPTER_SEQUENCE,
+        "mode_id": "mode_default",
+        "actor_id": "actor_player",
+        "component_type_id": 100,
+        "component_name": "COMP_HEALTH_V1",
+        "field_path": "current",
+        "value": 72,
+        "audit_ts": 123.0,
+    }
+    payload.update(overrides)
+    return payload
+
+
 class EngineEditRouterTests(unittest.TestCase):
     def test_static_precommit_conflict_reason_blocks_graph_hazard(self):
         original = sample_cgs()
@@ -206,6 +268,9 @@ class EngineEditRouterTests(unittest.TestCase):
         self.assertEqual(sent[-1]["audit"]["value"], 12.5)
         self.assertEqual(sent[-1]["audit"]["source"], "test")
         self.assertEqual(sm.session.engine_edit_log[-1]["runtime_tick"], 4)
+        self.assertEqual(sm.session.engine_edit_log[-1]["runtime_world_hash"], RUNTIME_HASH)
+        self.assertEqual(sm.session.engine_edit_log[-1]["engine_adapter_sequence"], ADAPTER_SEQUENCE)
+        self.assertTrue(sm.session.engine_edit_log[-1]["preview_id"].startswith("engine-preview-"))
         self.assertEqual(sent[-1]["audit"]["mode_id"], "")
 
     def test_unknown_engine_edit_kind_is_rejected_before_runtime(self):
@@ -231,18 +296,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
     def test_engine_edit_commit_builds_gde_value_mutation_and_updates_cgs(self):
         sm = FakeSessionManager()
-        sm.session.engine_edit_log.append({
-            "ts": 123.0,
-            "kind": "set_component_field",
-            "accepted": True,
-            "mode_id": "mode_default",
-            "actor_id": "actor_player",
-            "component_type_id": 100,
-            "component_name": "COMP_HEALTH_V1",
-            "field_path": "current",
-            "value": 72,
-            "reason": "preview component field updated",
-        })
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
         router = WSMessageRouter(sm, FakeRuntimeControl())
         persist = FakePersistence()
         cgs = sample_cgs()
@@ -253,16 +307,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
         asyncio.run(router.route(
             "session-1",
-            {
-                "type": "engine_edit_commit",
-                "mode_id": "mode_default",
-                "actor_id": "actor_player",
-                "component_type_id": 100,
-                "component_name": "COMP_HEALTH_V1",
-                "field_path": "current",
-                "value": 72,
-                "audit_ts": 123.0,
-            },
+            commit_payload(),
             send_fn,
             persist,
             cgs,
@@ -287,22 +332,13 @@ class EngineEditRouterTests(unittest.TestCase):
         self.assertEqual(persist.audit[-1][1]["outcome"], "applied")
         self.assertEqual(persist.audit[-1][1]["pre_state_hash"], "hash-before")
         self.assertEqual(persist.audit[-1][1]["post_state_hash"], LIVE_COMMIT_HASH)
+        self.assertEqual(txn["preview_id"], PREVIEW_ID)
+        self.assertEqual(sent[-1]["preview_id"], PREVIEW_ID)
+        self.assertTrue(sm.session.engine_edit_log[-1]["committed"])
 
     def test_engine_edit_commit_merges_primitive_default_after_newer_cgs(self):
         sm = FakeSessionManager()
-        sm.session.engine_edit_log.append({
-            "ts": 123.0,
-            "kind": "set_component_field",
-            "accepted": True,
-            "mode_id": "mode_default",
-            "actor_id": "actor_player",
-            "component_type_id": 100,
-            "component_name": "COMP_HEALTH_V1",
-            "field_path": "current",
-            "value": 72,
-            "reason": "preview component field updated",
-            "preview_cgs_hash": "older-hash",
-        })
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit(preview_cgs_hash="older-hash")})
         router = WSMessageRouter(sm, FakeRuntimeControl())
         persist = FakePersistence()
         cgs = sample_cgs()
@@ -313,16 +349,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
         asyncio.run(router.route(
             "session-1",
-            {
-                "type": "engine_edit_commit",
-                "mode_id": "mode_default",
-                "actor_id": "actor_player",
-                "component_type_id": 100,
-                "component_name": "COMP_HEALTH_V1",
-                "field_path": "current",
-                "value": 72,
-                "audit_ts": 123.0,
-            },
+            commit_payload(preview_cgs_hash="older-hash"),
             send_fn,
             persist,
             cgs,
@@ -343,14 +370,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
         asyncio.run(router.route(
             "session-1",
-            {
-                "type": "engine_edit_commit",
-                "mode_id": "mode_default",
-                "actor_id": "actor_player",
-                "component_type_id": 100,
-                "field_path": "current",
-                "value": 72,
-            },
+            commit_payload(component_name=""),
             send_fn,
             FakePersistence(),
             sample_cgs(),
@@ -362,18 +382,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
     def test_engine_edit_commit_rejects_stale_cgs_hash_before_gde(self):
         sm = FakeSessionManager()
-        sm.session.engine_edit_log.append({
-            "ts": 123.0,
-            "kind": "set_component_field",
-            "accepted": True,
-            "mode_id": "mode_default",
-            "actor_id": "actor_player",
-            "component_type_id": 100,
-            "component_name": "COMP_HEALTH_V1",
-            "field_path": "current",
-            "value": 72,
-            "reason": "preview component field updated",
-        })
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
         router = WSMessageRouter(sm, FakeRuntimeControl())
         persist = FakePersistence()
         cgs = sample_cgs()
@@ -384,17 +393,7 @@ class EngineEditRouterTests(unittest.TestCase):
 
         asyncio.run(router.route(
             "session-1",
-            {
-                "type": "engine_edit_commit",
-                "mode_id": "mode_default",
-                "actor_id": "actor_player",
-                "component_type_id": 100,
-                "component_name": "COMP_HEALTH_V1",
-                "field_path": "current",
-                "value": 72,
-                "audit_ts": 123.0,
-                "cgs_hash": "0" * 64,
-            },
+            commit_payload(cgs_hash="0" * 64),
             send_fn,
             persist,
             cgs,
@@ -404,7 +403,140 @@ class EngineEditRouterTests(unittest.TestCase):
         self.assertEqual(sent[-1]["type"], "engine_edit_commit_ack")
         self.assertFalse(sent[-1]["accepted"])
         self.assertIn("Stale CGS write rejected", sent[-1]["reason"])
-        self.assertEqual(persist.audit[-1][1]["outcome"], "rejected_stale")
+        self.assertEqual(persist.audit, [])
+
+    def test_engine_edit_commit_requires_preview_id_envelope(self):
+        sm = FakeSessionManager()
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        payload = commit_payload()
+        payload.pop("preview_id")
+        asyncio.run(router.route("session-1", payload, send_fn, FakePersistence(), sample_cgs()))
+
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("preview_id", sent[-1]["reason"])
+
+    def test_engine_edit_commit_rejects_stale_runtime_hash_before_gde(self):
+        sm = FakeSessionManager()
+        sm.session.update_runtime_status(
+            connected=True,
+            last_tick={"tick": 4, "world_hash": "new-runtime-hash", "engine_adapter_sequence": ADAPTER_SEQUENCE},
+            last_hash="new-runtime-hash",
+        )
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        asyncio.run(router.route("session-1", commit_payload(), send_fn, FakePersistence(), sample_cgs()))
+
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("runtime hash", sent[-1]["reason"])
+
+    def test_engine_edit_commit_rejects_stale_adapter_sequence_before_gde(self):
+        sm = FakeSessionManager()
+        sm.session.update_runtime_status(
+            connected=True,
+            last_tick={"tick": 4, "world_hash": RUNTIME_HASH, "engine_adapter_sequence": ADAPTER_SEQUENCE + 1},
+            last_hash=RUNTIME_HASH,
+        )
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        asyncio.run(router.route("session-1", commit_payload(), send_fn, FakePersistence(), sample_cgs()))
+
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("adapter sequence", sent[-1]["reason"])
+
+    def test_engine_edit_commit_rejects_stale_schema_and_preview_id_before_gde(self):
+        sm = FakeSessionManager()
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit(preview_schema_version="0.0.9")})
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        asyncio.run(router.route("session-1", commit_payload(), send_fn, FakePersistence(), sample_cgs()))
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("schema_version", sent[-1]["reason"])
+
+        sent.clear()
+        sm.session.engine_edit_log[-1] = {"ts": 123.0, **accepted_live_edit()}
+        asyncio.run(router.route(
+            "session-1",
+            commit_payload(preview_id="engine-preview-stale"),
+            send_fn,
+            FakePersistence(),
+            sample_cgs(),
+        ))
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("accepted audit row", sent[-1]["reason"])
+
+    def test_engine_edit_commit_rejects_preview_only_commit_classes(self):
+        sm = FakeSessionManager()
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        asyncio.run(router.route(
+            "session-1",
+            commit_payload(kind="focus_entity"),
+            send_fn,
+            FakePersistence(),
+            sample_cgs(),
+        ))
+
+        self.assertEqual(sm.apply_calls, [])
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertIn("preview-only", sent[-1]["reason"])
+
+    def test_engine_edit_commit_failure_leaves_preview_recoverable(self):
+        class FailingSessionManager(FakeSessionManager):
+            def apply_via_gde(self, session_id, txn, current_cgs):
+                self.apply_calls.append((session_id, txn))
+                return SimpleNamespace(
+                    success=False,
+                    new_cgs=current_cgs,
+                    new_hash="",
+                    error="simulated GDE failure",
+                    warnings=[],
+                    used_gde=True,
+                )
+
+        sm = FailingSessionManager()
+        sm.session.engine_edit_log.append({"ts": 123.0, **accepted_live_edit()})
+        router = WSMessageRouter(sm, FakeRuntimeControl())
+        persist = FakePersistence()
+        sent = []
+
+        async def send_fn(message):
+            sent.append(message)
+
+        asyncio.run(router.route("session-1", commit_payload(), send_fn, persist, sample_cgs()))
+
+        self.assertEqual(len(sm.apply_calls), 1)
+        self.assertFalse(sent[-1]["accepted"])
+        self.assertEqual(persist.saved, [])
+        self.assertFalse(sm.session.engine_edit_log[-1].get("committed", False))
 
     def test_merge_rules_allow_only_primitive_component_defaults(self):
         self.assertTrue(

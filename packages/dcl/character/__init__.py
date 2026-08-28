@@ -8,6 +8,8 @@ Provides character movement and animation components:
 - COMP_CARRY_V1           (type_id=123) — object carrying state
 - COMP_RAGDOLL_V1         (type_id=124) — ragdoll physics state
 
+- COMP_KINEMATIC_CHARACTER_V1 (type_id=125) - deterministic jump/fall state
+
 Type ID block: 120-139 (character reserved range)
 Audit 3: COMP_ANIMATION_V2 full spec with layers, pending_events, feedback fields.
 """
@@ -50,12 +52,28 @@ def get_domain_package() -> DomainPackage:
                         "Zero vector means no movement requested."
                     ),
                     ComponentFieldDefinition(
+                        "direction_x", "i64", False, "0",
+                        "Deterministic X direction in Fixed64 raw micro-units."
+                    ),
+                    ComponentFieldDefinition(
+                        "direction_y", "i64", False, "0",
+                        "Deterministic Y direction in Fixed64 raw micro-units."
+                    ),
+                    ComponentFieldDefinition(
+                        "direction_z", "i64", False, "0",
+                        "Deterministic Z direction in Fixed64 raw micro-units."
+                    ),
+                    ComponentFieldDefinition(
                         "sprint_requested", "bool", False, "false",
                         "True if the sprint action is held this tick."
                     ),
                     ComponentFieldDefinition(
                         "jump_requested", "bool", False, "false",
                         "True if the jump action was pressed this tick."
+                    ),
+                    ComponentFieldDefinition(
+                        "jump_held", "bool", False, "false",
+                        "Current jump hold state used for deterministic edge detection."
                     ),
                     ComponentFieldDefinition(
                         "crouch_requested", "bool", False, "false",
@@ -269,6 +287,31 @@ def get_domain_package() -> DomainPackage:
                         "settled_tick", "u64", False, "0",
                         "Tick on which ragdoll settled."
                     ),
+                ],
+            ),
+            ComponentDefinition(
+                type_id=125,
+                type_name="COMP_KINEMATIC_CHARACTER_V1",
+                layer=ComponentLayer.DCL,
+                domain="character",
+                version=1,
+                description=(
+                    "Deterministic kinematic character configuration and jump/fall state. "
+                    "Grounded feedback may be supplied by an engine adapter."
+                ),
+                fields=[
+                    ComponentFieldDefinition("grounded", "bool", False, "true", "Current grounded state."),
+                    ComponentFieldDefinition("was_grounded", "bool", False, "true", "Grounded state observed on the prior tick."),
+                    ComponentFieldDefinition("max_horizontal_speed", "i64", False, "6000000", "Fixed64 raw horizontal speed limit."),
+                    ComponentFieldDefinition("jump_impulse", "i64", False, "12000000", "Fixed64 raw upward jump velocity."),
+                    ComponentFieldDefinition("gravity_per_tick", "i64", False, "500000", "Fixed64 raw velocity subtracted per airborne tick."),
+                    ComponentFieldDefinition("terminal_fall_speed", "i64", False, "30000000", "Fixed64 raw downward speed cap magnitude."),
+                    ComponentFieldDefinition("coyote_ticks", "u32", False, "6", "Configured post-ground jump grace ticks."),
+                    ComponentFieldDefinition("coyote_ticks_remaining", "u32", False, "6", "Remaining post-ground jump grace ticks."),
+                    ComponentFieldDefinition("jump_buffer_ticks", "u32", False, "6", "Configured pre-ground jump buffer ticks."),
+                    ComponentFieldDefinition("jump_buffer_ticks_remaining", "u32", False, "0", "Remaining buffered jump ticks."),
+                    ComponentFieldDefinition("max_jumps", "u32", False, "1", "Maximum jumps before touching ground."),
+                    ComponentFieldDefinition("jumps_used", "u32", False, "0", "Jumps consumed since touching ground."),
                 ],
             ),
         ],

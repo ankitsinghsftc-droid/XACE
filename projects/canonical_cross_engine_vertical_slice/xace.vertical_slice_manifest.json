@@ -1,0 +1,265 @@
+{
+  "schema": "xace.canonical_vertical_slice_manifest.v1",
+  "slice_id": "x10_063_canonical_cross_engine_vertical_slice",
+  "name": "X10-063 Canonical Cross-Engine Vertical Slice",
+  "version": "0.1.0",
+  "created_at_utc": "2026-08-25T00:00:00Z",
+  "target_engines": [
+    "godot",
+    "unity",
+    "unreal"
+  ],
+  "cgs": {
+    "path": "game.cgs.json",
+    "format": "xace.cgs.export",
+    "format_version": "1.0.0",
+    "metadata_name": "X10-063 Canonical Cross-Engine Vertical Slice",
+    "metadata_version": "0.1.0",
+    "cgs_hash": "a5856b8c95068a27ce47885c32c7d3e2729c4ff988a47f2dee840bfd13ff0a8a",
+    "file_sha256": "b6c7824642ab1deddee958f70f44e9363345d0cca9ab58dc5485b10ced346e00"
+  },
+  "required_features": [
+    "movement",
+    "combat",
+    "health",
+    "inventory",
+    "save_load",
+    "rollback",
+    "replay",
+    "semantic_bindings",
+    "animation",
+    "audio",
+    "vfx",
+    "network_ready_input"
+  ],
+  "feature_map": {
+    "movement": {
+      "systems": [
+        "InputSystem",
+        "KinematicMovementSystem"
+      ],
+      "components": [
+        "COMP_INPUT_V1",
+        "COMP_MOVEMENT_INTENT_V1",
+        "COMP_TRANSFORM_V1",
+        "COMP_VELOCITY_V1",
+        "COMP_KINEMATIC_CHARACTER_V1"
+      ],
+      "semantic_events": [
+        "input.move_vector",
+        "movement.started"
+      ]
+    },
+    "combat": {
+      "systems": [
+        "CombatIntentSystem",
+        "DamageApplicationSystem"
+      ],
+      "components": [
+        "COMP_DAMAGE_V1",
+        "COMP_COMBAT_STATE_V1",
+        "COMP_INTERACTION_V1"
+      ],
+      "semantic_events": [
+        "combat.attack_started",
+        "combat.hit_confirmed"
+      ]
+    },
+    "health": {
+      "systems": [
+        "DamageApplicationSystem",
+        "HealthStateSystem"
+      ],
+      "components": [
+        "COMP_HEALTH_V1"
+      ],
+      "semantic_events": [
+        "health.changed"
+      ]
+    },
+    "inventory": {
+      "systems": [
+        "InventoryPickupSystem",
+        "EquipmentSystem"
+      ],
+      "components": [
+        "COMP_INVENTORY_V1",
+        "COMP_ITEM_V1"
+      ],
+      "semantic_events": [
+        "inventory.item_collected",
+        "inventory.item_equipped"
+      ]
+    },
+    "save_load": {
+      "systems": [
+        "SaveLoadCheckpointSystem"
+      ],
+      "components": [
+        "COMP_PERSISTENCE_V1",
+        "COMP_CHECKPOINT_V1"
+      ],
+      "semantic_events": [
+        "save.checkpoint_written",
+        "save.slot_loaded"
+      ]
+    },
+    "rollback": {
+      "systems": [
+        "RollbackSnapshotSystem"
+      ],
+      "components": [
+        "COMP_ROLLBACK_MARKER_V1",
+        "COMP_CHECKPOINT_V1"
+      ],
+      "semantic_events": [
+        "rollback.restore_requested"
+      ]
+    },
+    "replay": {
+      "systems": [
+        "ReplayRecorderSystem"
+      ],
+      "components": [
+        "COMP_REPLAY_CURSOR_V1",
+        "COMP_INPUT_V1"
+      ],
+      "semantic_events": [
+        "replay.input_recorded"
+      ]
+    },
+    "semantic_bindings": {
+      "systems": [
+        "SemanticPlaybackSystem"
+      ],
+      "components": [
+        "COMP_SEMANTIC_CUE_STATE_V1"
+      ],
+      "semantic_events": [
+        "animation.play",
+        "audio.play",
+        "vfx.spawn"
+      ],
+      "bindings": [
+        "binding_player_run_animation",
+        "binding_sword_hit_audio",
+        "binding_hit_spark_vfx"
+      ]
+    },
+    "animation": {
+      "systems": [
+        "SemanticPlaybackSystem"
+      ],
+      "components": [
+        "COMP_ANIMATION_STATE_V1"
+      ],
+      "assets": [
+        "asset_hero_run_animation"
+      ],
+      "bindings": [
+        "binding_player_run_animation"
+      ]
+    },
+    "audio": {
+      "systems": [
+        "SemanticPlaybackSystem"
+      ],
+      "components": [
+        "COMP_SEMANTIC_CUE_STATE_V1"
+      ],
+      "assets": [
+        "asset_sword_hit_audio"
+      ],
+      "bindings": [
+        "binding_sword_hit_audio"
+      ]
+    },
+    "vfx": {
+      "systems": [
+        "SemanticPlaybackSystem"
+      ],
+      "components": [
+        "COMP_SEMANTIC_CUE_STATE_V1"
+      ],
+      "assets": [
+        "asset_hit_spark_vfx"
+      ],
+      "bindings": [
+        "binding_hit_spark_vfx"
+      ],
+      "fallback_required": true
+    },
+    "network_ready_input": {
+      "systems": [
+        "NetworkInputSyncSystem"
+      ],
+      "components": [
+        "COMP_INPUT_V1",
+        "COMP_AUTHORITY_V1",
+        "COMP_REPLICATION_V1"
+      ],
+      "semantic_events": [
+        "network.input_packet_accepted"
+      ]
+    }
+  },
+  "asset_artifacts": [
+    {
+      "id": "asset_hero_run_animation",
+      "path": "assets/hero_run.fbx",
+      "sha256": "9983441969e999e0f66bc415edbb81b078ef01d875a7f8490ecf09c85d365cff"
+    },
+    {
+      "id": "asset_sword_hit_audio",
+      "path": "assets/sword_hit.wav",
+      "sha256": "55042b66b500fdb8c5a992e722d76b14c66cf96519a8aff33a7e1a7d7f5dcfde"
+    }
+  ],
+  "input_scenarios": [
+    {
+      "id": "canonical_host_client_attack_pickup",
+      "schema": "xace.vertical_slice.input_scenario.v1",
+      "world_seed": 630063,
+      "ticks": 8,
+      "network_topology": "host_client_lockstep",
+      "events": [
+        {
+          "tick": 0,
+          "peer_id": 0,
+          "action": "move",
+          "move_x": 1.0,
+          "move_z": 0.0
+        },
+        {
+          "tick": 1,
+          "peer_id": 0,
+          "action": "pickup",
+          "item_id": "starter_sword"
+        },
+        {
+          "tick": 2,
+          "peer_id": 0,
+          "action": "attack",
+          "target_entity": "actor_enemy"
+        },
+        {
+          "tick": 4,
+          "peer_id": 1,
+          "action": "late_remote_move",
+          "move_x": -1.0,
+          "move_z": 0.0,
+          "rollback_restore_tick": 0
+        }
+      ]
+    }
+  ],
+  "certification_boundary": {
+    "this_task": "Defines and verifies the canonical CGS-owned fixture only.",
+    "later_tasks": [
+      "X10-064 Godot installed-engine proof",
+      "X10-065 Unity installed-engine proof",
+      "X10-066 Unreal installed-engine proof"
+    ],
+    "no_claim": "This manifest does not certify installed editor import, native platform builds, screenshots, video, or finished-game packaging."
+  }
+}

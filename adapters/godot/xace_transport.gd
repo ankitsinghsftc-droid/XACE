@@ -20,6 +20,7 @@ signal stats_changed(stats: Dictionary)
 	"tick_snapshot_v1",
 	"input_packet_v1",
 	"feedback_payload_v1",
+	"adapter_side_effect_rollback_v1",
 	"godot_4",
 ]
 @export var auto_connect := false

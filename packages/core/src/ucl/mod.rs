@@ -12,6 +12,7 @@ pub mod identity_component;
 pub mod input_component;
 pub mod interaction_component;
 pub mod inventory_component;
+pub mod kinematic_character_component;
 pub mod lifetime_component;
 pub mod movement_intent_component;
 pub mod persistence_component;

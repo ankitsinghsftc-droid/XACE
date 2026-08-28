@@ -120,6 +120,58 @@ export interface CGSMetadata {
   readonly version:        string;
   readonly schema_version: string;
   readonly description?:   string;
+  readonly assets?:        readonly CGSAssetReference[] | { readonly items?: readonly CGSAssetReference[] };
+}
+
+export type SemanticPlaybackKind = 'Animation' | 'Audio' | 'Vfx';
+
+export type SemanticBindingEntitySelector =
+  | 'SourceEntity'
+  | 'TargetEntity'
+  | { readonly PayloadEntity: { readonly key: string } }
+  | { readonly FixedEntity: number };
+
+export interface CGSAssetReference {
+  readonly id?: string;
+  readonly asset_id?: string;
+  readonly asset_type?: string;
+  readonly type?: string;
+  readonly status?: string;
+  readonly path?: string;
+  readonly source_path?: string;
+  readonly resolved_path?: string;
+  readonly resource_path?: string;
+  readonly asset_path?: string;
+  readonly sha256?: string;
+  readonly content_hash?: string;
+  readonly asset_hash?: string;
+  readonly hash?: string;
+  readonly fallback?: unknown;
+  readonly fallback_asset?: unknown;
+  readonly fallback_asset_id?: string;
+  readonly fallback_policy?: unknown;
+  readonly placeholder_fallback?: unknown;
+  readonly allow_fallback?: boolean;
+}
+
+export interface SemanticAssetBinding {
+  readonly binding_id: string;
+  readonly event_name: string;
+  readonly playback_kind: SemanticPlaybackKind;
+  readonly asset: {
+    readonly id: string;
+    readonly asset_type: string;
+    readonly status: string;
+  };
+  readonly semantic_action?: string;
+  readonly entity_selector: SemanticBindingEntitySelector | string;
+  readonly parameters?: Record<string, string>;
+  readonly enabled?: boolean;
+  readonly priority?: number;
+}
+
+export interface SemanticBindingTable {
+  readonly bindings?: readonly SemanticAssetBinding[];
 }
 
 /** The complete Canonical Game Schema — root document */
@@ -128,6 +180,8 @@ export interface CGS {
   readonly component_schemas?: CGSComponentSchema[];
   readonly global_systems: CGSSystem[];
   readonly modes:          CGSMode[];
+  readonly assets?:         readonly CGSAssetReference[] | { readonly items?: readonly CGSAssetReference[] };
+  readonly semantic_bindings?: SemanticBindingTable;
 }
 
 // ── Version snapshot (from HistoryManager) ────────────────────────────────────
@@ -145,7 +199,7 @@ export interface CGSSnapshot {
 
 // ── Asset references ──────────────────────────────────────────────────────────
 
-export type AssetLinkStatus = 'linked' | 'placeholder' | 'missing';
+export type AssetLinkStatus = 'linked' | 'placeholder' | 'missing' | 'unresolved';
 
 export interface AssetRef {
   readonly placeholder_id: string;  // e.g. "zombie_mesh"
@@ -153,6 +207,15 @@ export interface AssetRef {
   readonly status:         AssetLinkStatus;
   readonly component_name: string;  // which component holds this ref
   readonly actor_id:       string;
+  readonly asset_type?:    string;
+  readonly source?:        'component' | 'manifest' | 'semantic_binding';
+  readonly sha256?:        string;
+  readonly fallback?:      unknown;
+  readonly fallback_asset?: unknown;
+  readonly fallback_asset_id?: string;
+  readonly fallback_policy?: unknown;
+  readonly placeholder_fallback?: unknown;
+  readonly allow_fallback?: boolean;
 }
 
 // ── Derived / computed types ──────────────────────────────────────────────────

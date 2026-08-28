@@ -38,6 +38,13 @@ AUTHORITY_RULES: tuple[dict[str, str], ...] = (
     },
 )
 
+SUPPORTED_ENGINE_EDIT_KINDS = frozenset({
+    "select_entity",
+    "focus_entity",
+    "set_component_field",
+})
+SUPPORTED_ENGINE_EDIT_COMMIT_KINDS = frozenset({"set_component_field"})
+
 PRIMITIVE_JSON_TYPES = (str, int, float, bool)
 
 
@@ -57,6 +64,22 @@ def can_merge_engine_default_edit(path: str, value: Any) -> bool:
     rules, metadata, and collection edits must go through GDE/PIL.
     """
     return is_component_default_path(path) and is_primitive_json_value(value)
+
+
+def engine_edit_commit_class(kind: str, path: str = "", value: Any = None) -> str:
+    if kind == "select_entity":
+        return "selection"
+    if kind == "focus_entity":
+        return "focus"
+    if kind == "set_component_field" and is_primitive_json_value(value):
+        return "primitive_component_default"
+    if kind == "set_component_field":
+        return "unsupported_component_value"
+    return "unsupported"
+
+
+def can_commit_engine_edit_kind(kind: str) -> bool:
+    return kind in SUPPORTED_ENGINE_EDIT_COMMIT_KINDS
 
 
 def authority_rules_for_docs() -> list[dict[str, str]]:

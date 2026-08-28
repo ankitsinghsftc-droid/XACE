@@ -1,0 +1,3 @@
+XACE canonical vertical slice placeholder hit audio v1.
+This text fixture intentionally uses a cross-engine audio extension so asset
+preflight can verify path and SHA-256 without an installed editor.

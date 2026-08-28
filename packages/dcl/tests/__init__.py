@@ -1,0 +1,1 @@
+"""Gameplay primitive catalog tests."""

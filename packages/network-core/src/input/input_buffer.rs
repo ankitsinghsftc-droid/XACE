@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
+use serde::{Deserialize, Serialize};
+
 use super::InputPacket;
 use crate::{NetworkError, PeerId, Tick};
 
@@ -12,13 +14,13 @@ pub enum InputInsertOutcome {
     DuplicateRetransmit,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct MissingInputRange {
     pub from_tick: Tick,
     pub to_tick: Tick,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InputBufferConfig {
     pub max_packets_per_peer: usize,
     pub max_future_ticks: Tick,
