@@ -138,15 +138,21 @@ export interface PromptPreviewApproval {
 
 export interface PromptDiffPreviewOperation {
   readonly index: number;
-  readonly op: string;
-  readonly path: string;
-  readonly old_value: unknown;
-  readonly new_value: unknown;
-  readonly preview_value: unknown;
-  readonly type_hint: string;
-  readonly field_name: string;
-  readonly actor_id: string;
-  readonly component_type_id: number | null;
+  readonly op?: string;
+  readonly path?: string;
+  readonly old_value?: unknown;
+  readonly new_value?: unknown;
+  readonly preview_value?: unknown;
+  readonly type_hint?: string;
+  readonly field_name?: string;
+  readonly actor_id?: string;
+  readonly component_type_id?: number | null;
+  readonly operation_format?: 'typed_cgs_v1' | string;
+  readonly operation_id?: string;
+  readonly kind?: string;
+  readonly target?: Record<string, unknown>;
+  readonly explanation?: string;
+  readonly typed_details?: Record<string, unknown>;
 }
 
 export interface PromptDiffPreview {

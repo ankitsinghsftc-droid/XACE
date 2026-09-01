@@ -5662,7 +5662,7 @@ Readiness delta:
 Scope boundary:
 
 - X10-053 closes the reusable strict asset-reference validation core for Phase 7 handoff gates. The older `AssetValidator` remains intentionally permissive for CGS commit, where PLACEHOLDER and MISSING assets can still be committed so creators can build gameplay before art is final.
-- This task does not yet build the semantic binding authoring UI, per-engine binding status surface, deterministic runtime fallback binding catalog, full adapter-package handoff preflight umbrella, adapter package versioning, or installed-engine vertical-slice proof. Those remain X10-054 through X10-067.
+- This task does not itself build the semantic binding authoring UI, per-engine binding status surface, deterministic runtime fallback binding catalog, full adapter-package handoff preflight umbrella, adapter package versioning, or installed-engine vertical-slice/hash proof. Those later Phase 7 surfaces are covered by X10-054 through X10-067.
 
 Files in the completed slice:
 
@@ -5695,7 +5695,7 @@ Readiness delta:
 
 Scope boundary:
 
-- X10-054 closes semantic binding authoring and shared runtime/adapter command-contract proof. It does not yet surface per-engine resolved/unresolved/unsupported/missing/fallback binding status, add deterministic fallback binding catalogs, run full adapter-package handoff preflight, version adapter packages, or prove an installed-engine vertical slice; those remain X10-055 through X10-067.
+- X10-054 closes semantic binding authoring and shared runtime/adapter command-contract proof. Per-engine resolved/unresolved/unsupported/missing/fallback binding status, deterministic fallback binding catalogs, full adapter-package handoff preflight, adapter package versioning, and installed-engine vertical-slice/hash proof are covered by X10-055 through X10-067.
 - Per-engine target selection is persisted as command metadata (`parameters.xace_engine_targets`) while the playback command itself remains engine-agnostic CGS/runtime contract data. Engine-specific status and fallback behavior are intentionally next tasks.
 
 Files in the completed slice:
@@ -6019,7 +6019,7 @@ Readiness delta:
 
 Scope boundary:
 
-- X10-063 defines and verifies the canonical fixture only. It does not certify installed-editor import, screenshots/video, native engine scenes, platform packaging, or matching cross-engine runtime-authoritative hashes; those remain X10-064 through X10-067.
+- X10-063 defines and verifies the canonical fixture only. Installed-editor proof and matching portable-core hash comparison are covered by X10-064 through X10-067; native engine scenes, platform packaging, and finished-game export remain separate gates.
 - VFX is represented by a documented deterministic fallback binding because the current asset preflight matrices do not share one linked particle extension across Godot, Unity, and Unreal. Native per-engine VFX assets are part of the installed-engine proof tasks.
 
 Files in the completed slice:
@@ -6051,8 +6051,8 @@ Readiness delta:
 
 Scope boundary:
 
-- This proves installed Godot headless certification for the canonical CGS-owned slice and current Godot adapter script loadability. It does not claim a finished-game package, human-recorded gameplay video, Godot platform export, Unity/Unreal parity, or cross-engine runtime-authoritative hash equivalence.
-- Unity installed-engine slice certification is now covered by X10-065; Unreal remains X10-066. Cross-engine core-hash comparison remains X10-067.
+- This proves installed Godot headless certification for the canonical CGS-owned slice and current Godot adapter script loadability. It does not claim a finished-game package, human-recorded gameplay video, Godot platform export, or broad Unity/Unreal visual parity.
+- Unity and Unreal installed-engine slice certification are covered by X10-065 and X10-066. Cross-engine portable-core hash comparison is covered by X10-067.
 
 Files in the completed slice proof:
 
@@ -6084,8 +6084,8 @@ Readiness delta:
 
 Scope boundary:
 
-- This proves installed Unity batch-mode certification for the canonical CGS-owned slice and current Unity adapter component construction. It does not claim a finished-game package, human-recorded gameplay video, Unity platform export, Unreal parity, or cross-engine runtime-authoritative hash equivalence.
-- Unreal installed-engine slice certification remains X10-066. Cross-engine core-hash comparison remains X10-067.
+- This proves installed Unity batch-mode certification for the canonical CGS-owned slice and current Unity adapter component construction. It does not claim a finished-game package, human-recorded gameplay video, Unity platform export, or broad Unreal visual parity.
+- Unreal installed-engine slice certification is covered by X10-066. Cross-engine portable-core hash comparison is covered by X10-067.
 
 Files in the completed slice proof:
 
@@ -6106,6 +6106,73 @@ Verification:
 - Unity validation JSON SHA-256: `3a394b403cfb2a10ea9169fa6d86bc6e3d54ef9ea45ec30686ef369506d8e1dc`.
 - Unity PNG evidence SHA-256: `f1a4d3ae0cebc0a3c9aba93f4339ecc5569cb020e578dfd3cf6047fce132b3a4`.
 - Unity hash report SHA-256: `29136de6bbc450b933d415b87634f8745827fd45d1700449080695d296821c84`.
+
+## X10-066: Certify Vertical Slice In Unreal
+
+Readiness delta:
+
+- `tools/unreal_vertical_slice_certification.py` is now the retained installed-Unreal certification gate for the canonical cross-engine slice.
+- The proof stages `projects/canonical_cross_engine_vertical_slice` into a disposable Unreal project under `target-codex-task66-unreal-vertical-slice\artifacts\unreal_project`, copies the current Unreal adapter sources into a real `Plugins/XACE` plugin, adds an X10-066 commandlet, and builds the staged plugin through Unreal 5.7.4 `RunUAT.bat BuildPlugin` before running `UnrealEditor-Cmd.exe -run=XaceVerticalSliceCertification`.
+- The installed Unreal commandlet parses the staged CGS/manifest, verifies the canonical hash/version, confirms Unreal is a target engine, checks all 12 required gameplay features, constructs `UXaceTransportComponent`, `UXaceInputCollectorComponent`, `UXaceDeltaApplicatorComponent`, and the `UXaceConsoleWidget` class, confirms the host/client input scenario, emits `unreal_vertical_slice_validation.json`, emits deterministic PNG evidence through Unreal `ImageWrapper`, and retains build/editor/stdout/stderr/command logs plus a hash report.
+
+Scope boundary:
+
+- This proves installed Unreal commandlet certification for the canonical CGS-owned slice and current Unreal adapter plugin compilation/component construction. It does not claim a finished-game package, human-recorded gameplay video, Unreal platform export, broad visual parity, or arbitrary Unreal project migration.
+- Cross-engine portable-core hash comparison is covered by X10-067.
+
+Files in the completed slice proof:
+
+| File | Role | X10-066 change |
+| --- | --- | --- |
+| `tools/unreal_vertical_slice_certification.py` | Retained installed-Unreal proof. | Stages the canonical slice, builds/runs the staged Unreal plugin commandlet, collects JSON/PNG/log/hash artifacts, and emits the final Task 66 report. |
+| `target-codex-task66-unreal-vertical-slice\report.json` | Final generated proof report. | Records `x10_066_complete=true`, 8/8 wrapper checks, installed Unreal version, evidence paths, and boundary. |
+| `target-codex-task66-unreal-vertical-slice\artifacts\reports\unreal_vertical_slice_validation.json` | Unreal-authored validation JSON. | Records 10/10 in-commandlet checks over fixture identity, features, adapter components, assets, and input scenario. |
+| `target-codex-task66-unreal-vertical-slice\artifacts\screenshots\unreal_vertical_slice_screenshot.png` | Generated PNG evidence. | Deterministic visual artifact emitted by installed Unreal through `ImageWrapper`. |
+| `target-codex-task66-unreal-vertical-slice\artifacts\logs\*` | Generated logs. | Retains BuildPlugin command/stdout/stderr, commandlet command/stdout/stderr, and Unreal editor log. |
+| `target-codex-task66-unreal-vertical-slice\artifacts\hashes\unreal_vertical_slice_hash_report.json` | Generated hash report. | Hashes fixture files, adapter sources, generated commandlet, plugin source/binaries, validation JSON, PNG, logs, and the Unreal commandlet executable. |
+
+Verification:
+
+- `python -m py_compile tools\unreal_vertical_slice_certification.py` passes.
+- `python tools\unreal_vertical_slice_certification.py --unreal-editor "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" --target-dir target-codex-task66-unreal-vertical-slice --output target-codex-task66-unreal-vertical-slice\report.json --build-timeout 900 --run-timeout 300 --json` passes 8/8 wrapper checks with `x10_066_complete=true`; Unreal-authored validation JSON passes 10/10 in-commandlet checks.
+- Retained report SHA-256: `6342c9c32019c31b8c2b304fb1597a19fb73592ce2e4e8b56607ca637d3a5272`.
+- Unreal validation JSON SHA-256: `60ecacd8fcf83c5e98e572c7f5f951173b34377fbaeeb57cb07b15ee01c32200`.
+- Unreal PNG evidence SHA-256: `e6c3a5e4f1897972bbc7af7e8b5002c2238691d7b1a88dfa14ca4b3a9bb1f122`.
+- Unreal hash report SHA-256: `62b0d1fd09750a4e4a648092629f1721aeb8aa9be691758fb64d02ff20fd39de`.
+
+## X10-067: Compare Cross-Engine Core Hashes
+
+Readiness delta:
+
+- `tools/cross_engine_core_hash_compare.py` is now the retained comparison gate for the canonical cross-engine slice.
+- The proof reads the retained Godot, Unity, and Unreal installed-engine reports from X10-064 through X10-066 and verifies each proof report, validation JSON, canonical fixture hash, CGS file SHA-256, manifest SHA-256, required feature set, target-engine declaration, linked asset hash declarations, semantic bindings, input scenario, and hash report.
+- The portable runtime-authoritative hash domain is the CGS-owned gameplay core: CGS format/metadata/hash, deterministic vertical-slice runtime contracts, feature coverage, component schemas, global/mode systems, actors/components/rules, asset identities and SHA-256 declarations, semantic events/bindings, input profiles, and the canonical host/client input scenario.
+- Godot, Unity, and Unreal all map to portable core hash `a9852c1849ed26f5a78a0c8d47b4b8a161db77ffce277641e86ac1abceb37222`.
+- The retained output lives under `target-codex-task67-cross-engine-core-hash` with a final report, portable projection, comparison matrix, and hash report.
+
+Scope boundary:
+
+- This proves retained installed-engine evidence maps to the same portable CGS/runtime core. It does not require or claim byte identity for engine versions/install paths, adapter source/plugin/binary artifacts, generated runners, PNG evidence, logs, timings, staging paths, or engine-specific validation schemas.
+- Finished-game packaging/export, platform SDKs, engine-native scene authoring, human gameplay capture, and broader engine-version matrices remain outside this proof.
+
+Files in the completed comparison proof:
+
+| File | Role | X10-067 change |
+| --- | --- | --- |
+| `tools/cross_engine_core_hash_compare.py` | Retained comparison proof. | Reads X10-064/065/066 retained artifacts, verifies each engine attestation, builds the portable core projection, compares hashes, and documents nonportable exclusions. |
+| `target-codex-task67-cross-engine-core-hash\report.json` | Final generated proof report. | Records `x10_067_complete=true`, 6/6 wrapper checks, 13/13 checks per retained engine proof, matching portable-core hashes, and scope boundary. |
+| `target-codex-task67-cross-engine-core-hash\artifacts\reports\portable_runtime_core_projection.json` | Generated portable projection. | Records the normalized CGS/runtime-authoritative core used for the cross-engine hash. |
+| `target-codex-task67-cross-engine-core-hash\artifacts\reports\cross_engine_core_hash_matrix.json` | Generated comparison matrix. | Records Godot/Unity/Unreal portable-core hashes and the unique matching hash set. |
+| `target-codex-task67-cross-engine-core-hash\artifacts\hashes\cross_engine_core_hash_report.json` | Generated hash report. | Hashes the source fixture, projection, matrix, and retained engine proof artifacts. |
+
+Verification:
+
+- `python tools\cross_engine_core_hash_compare.py --output target-codex-task67-cross-engine-core-hash\report.json --json` passes 6/6 wrapper checks with `x10_067_complete=true`; each retained engine attestation passes 13/13 checks.
+- Portable core hash for Godot/Unity/Unreal: `a9852c1849ed26f5a78a0c8d47b4b8a161db77ffce277641e86ac1abceb37222`.
+- Retained report SHA-256: `de9dc1cc7a576024a5b6c1551534eea20d62ad4e09e5e4ac6569f71d773a9a8e`.
+- Portable projection SHA-256: `b436d931997b5d8a15480366729a3a0b24be3eb679287ce66a3d02d8c88b6ecd`.
+- Comparison matrix SHA-256: `b0e1f00cda41db6f4ebba66ff459446e3e9a88c4a37e6023065ccb125e806bf3`.
+- Comparison hash report SHA-256: `45f91db49634b74ab59b0521411a1c7c4965d8e5ecd199a12b673796bec66ebf`.
 
 ## Current Risks To Watch
 

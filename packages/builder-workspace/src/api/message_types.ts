@@ -32,6 +32,31 @@ export type EngineEditKind =
   | 'select_entity'
   | 'set_component_field'
   | 'focus_entity';
+export type AgentEventType =
+  | 'session_started'
+  | 'turn_started'
+  | 'status'
+  | 'tool_call'
+  | 'proposal'
+  | 'turn_completed'
+  | 'turn_cancelled'
+  | 'error';
+export type AgentStatusState =
+  | 'idle'
+  | 'starting'
+  | 'running'
+  | 'cancelling'
+  | 'cancelled'
+  | 'completed'
+  | 'error'
+  | 'unavailable';
+export interface AgentUiState {
+  readonly state: string;
+  readonly label: string;
+  readonly severity: 'info' | 'warning' | 'error' | string;
+  readonly busy: boolean;
+  readonly terminal: boolean;
+}
 
 export interface MessageEnvelope {
   readonly type: string;
@@ -171,6 +196,30 @@ export interface EngineEditCommitMessage extends MessageEnvelope {
   readonly session_id: string;
 }
 
+export interface AgentTurnMessage extends MessageEnvelope {
+  readonly type: 'agent_turn';
+  readonly session_id: string;
+  readonly provider_id: string;
+  readonly prompt: string;
+  readonly cgs_hash: string;
+  readonly project_id?: string;
+  readonly context_capsule_path?: string;
+  readonly allowed_tools?: readonly string[];
+  readonly metadata?: Record<string, unknown>;
+}
+
+export interface AgentCancelMessage extends MessageEnvelope {
+  readonly type: 'agent_cancel';
+  readonly session_id: string;
+  readonly provider_id?: string;
+}
+
+export interface AgentStatusRequestMessage extends MessageEnvelope {
+  readonly type: 'agent_status';
+  readonly session_id: string;
+  readonly provider_id?: string;
+}
+
 export interface TerminalCommandMessage extends MessageEnvelope {
   readonly type: 'terminal_command';
   readonly command: string;
@@ -199,6 +248,9 @@ export type ClientMessage =
   | RuntimeControlMessage
   | EngineEditMessage
   | EngineEditCommitMessage
+  | AgentTurnMessage
+  | AgentCancelMessage
+  | AgentStatusRequestMessage
   | TerminalCommandMessage
   | PingMessage;
 
@@ -524,6 +576,39 @@ export interface RuntimeRngReplayTrace {
   readonly identical?: boolean;
 }
 
+export interface AgentEventMessage extends MessageEnvelope {
+  readonly type: 'agent_event';
+  readonly schema: 'xace.agent_event_stream.v1' | string;
+  readonly session_id: string;
+  readonly provider_id: string;
+  readonly turn_id: string;
+  readonly event_id: string;
+  readonly event_type: AgentEventType;
+  readonly sequence: number;
+  readonly stream_sequence: number;
+  readonly message: string;
+  readonly data: Record<string, unknown>;
+  readonly created_at: string;
+  readonly ui_state: AgentUiState;
+}
+
+export interface AgentStatusMessage extends MessageEnvelope {
+  readonly type: 'agent_status';
+  readonly schema: 'xace.agent_event_stream.v1' | string;
+  readonly session_id: string;
+  readonly provider_id: string;
+  readonly turn_id: string;
+  readonly state: AgentStatusState;
+  readonly code: string;
+  readonly message: string;
+  readonly running: boolean;
+  readonly cancellable: boolean;
+  readonly last_event_sequence: number;
+  readonly event_count: number;
+  readonly updated_at: number;
+  readonly ui_state: AgentUiState;
+}
+
 export interface TerminalOutputMessage extends MessageEnvelope {
   readonly type: 'terminal_output';
   readonly stream: 'stdout' | 'stderr' | 'system';
@@ -572,6 +657,8 @@ export type ServerMessage =
   | RuntimeDebugTraceMessage
   | RuntimeCausalityTraceMessage
   | RuntimeRngTraceMessage
+  | AgentEventMessage
+  | AgentStatusMessage
   | TerminalOutputMessage
   | TelemetryUpdateMessage
   | ServerErrorMessage
@@ -593,6 +680,8 @@ export const isRuntimeControlAck = (m: ServerMessage): m is RuntimeControlAckMes
 export const isRuntimeDebugTrace = (m: ServerMessage): m is RuntimeDebugTraceMessage => m.type === 'runtime_debug_trace';
 export const isRuntimeCausalityTrace = (m: ServerMessage): m is RuntimeCausalityTraceMessage => m.type === 'runtime_causality_trace';
 export const isRuntimeRngTrace = (m: ServerMessage): m is RuntimeRngTraceMessage => m.type === 'runtime_rng_trace';
+export const isAgentEvent = (m: ServerMessage): m is AgentEventMessage => m.type === 'agent_event';
+export const isAgentStatus = (m: ServerMessage): m is AgentStatusMessage => m.type === 'agent_status';
 export const isTerminalOutput = (m: ServerMessage): m is TerminalOutputMessage => m.type === 'terminal_output';
 export const isTelemetryUpdate = (m: ServerMessage): m is TelemetryUpdateMessage => m.type === 'telemetry_update';
 export const isServerError = (m: ServerMessage): m is ServerErrorMessage => m.type === 'server_error';
@@ -684,6 +773,24 @@ export function makeRuntimeControl(
   tick?: number,
 ): RuntimeControlMessage {
   return { type: 'runtime_control', action, session_id: sessionId, tick };
+}
+
+export function makeAgentTurn(
+  providerId: string,
+  prompt: string,
+  cgsHash: string,
+  sessionId: string,
+  fields: Omit<AgentTurnMessage, 'type' | 'provider_id' | 'prompt' | 'cgs_hash' | 'session_id'> = {},
+): AgentTurnMessage {
+  return { type: 'agent_turn', provider_id: providerId, prompt, cgs_hash: cgsHash, session_id: sessionId, ...fields };
+}
+
+export function makeAgentCancel(sessionId: string, providerId?: string): AgentCancelMessage {
+  return { type: 'agent_cancel', session_id: sessionId, ...(providerId ? { provider_id: providerId } : {}) };
+}
+
+export function makeAgentStatusRequest(sessionId: string, providerId?: string): AgentStatusRequestMessage {
+  return { type: 'agent_status', session_id: sessionId, ...(providerId ? { provider_id: providerId } : {}) };
 }
 
 export function makeEngineEdit(

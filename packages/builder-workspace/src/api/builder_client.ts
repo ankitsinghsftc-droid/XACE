@@ -3,6 +3,8 @@
  */
 
 import type {
+  AgentEventMessage,
+  AgentStatusMessage,
   ClientMessage,
   EngineEditAckMessage,
   EngineTickMessage,
@@ -17,6 +19,8 @@ import {
   isEngineDisconnected,
   isEngineEditAck,
   isEngineTick,
+  isAgentEvent,
+  isAgentStatus,
   isPilAnswerAck,
   isPilPassUpdate,
   isPilResult,
@@ -28,6 +32,7 @@ import {
   isTerminalOutput,
 } from './message_types';
 import { consoleSM } from '../state/console_state_machine';
+import { agentEventStore } from '../state/agent_event_store';
 import { cgsStore } from '../state/cgs_store';
 
 export type ConnectionState = 'disconnected' | 'connecting' | 'connected' | 'reconnecting';
@@ -140,6 +145,8 @@ type EngineTickListener = (
 type RuntimeStatusListener = (status: RuntimeStatus) => void;
 type PromptProviderStatusListener = (status: PromptProviderStatus) => void;
 type ServerMessageListener = (message: ServerMessage) => void;
+type AgentEventListener = (message: AgentEventMessage) => void;
+type AgentStatusListener = (message: AgentStatusMessage) => void;
 type EngineEditAckListener = (message: EngineEditAckMessage) => void;
 
 export class BuilderClient {
@@ -196,6 +203,8 @@ export class BuilderClient {
   private readonly runtimeStatusListeners = new Set<RuntimeStatusListener>();
   private readonly providerStatusListeners = new Set<PromptProviderStatusListener>();
   private readonly rawListeners = new Set<ServerMessageListener>();
+  private readonly agentEventListeners = new Set<AgentEventListener>();
+  private readonly agentStatusListeners = new Set<AgentStatusListener>();
   private readonly engineEditAckListeners = new Set<EngineEditAckListener>();
 
   constructor(options: BuilderClientOptions) {
@@ -305,6 +314,20 @@ export class BuilderClient {
   onEngineEditAck(listener: EngineEditAckListener): () => void {
     this.engineEditAckListeners.add(listener);
     return () => this.engineEditAckListeners.delete(listener);
+  }
+
+  onAgentEvent(listener: AgentEventListener): () => void {
+    this.agentEventListeners.add(listener);
+    return () => this.agentEventListeners.delete(listener);
+  }
+
+  onAgentStatus(listener: AgentStatusListener): () => void {
+    this.agentStatusListeners.add(listener);
+    const current = agentEventStore.select().status;
+    if (current) {
+      listener(current);
+    }
+    return () => this.agentStatusListeners.delete(listener);
   }
 
   private openSocket(): void {
@@ -444,6 +467,16 @@ export class BuilderClient {
       } else {
         this.updateRuntimeStatus({ lastError: '' });
       }
+      return;
+    }
+    if (isAgentStatus(message)) {
+      agentEventStore.receiveStatus(message);
+      this.agentStatusListeners.forEach((listener) => listener(message));
+      return;
+    }
+    if (isAgentEvent(message)) {
+      agentEventStore.receiveEvent(message);
+      this.agentEventListeners.forEach((listener) => listener(message));
       return;
     }
     if (isTerminalOutput(message)) {
