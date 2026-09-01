@@ -114,6 +114,8 @@ source. Installed-editor proof artifacts are generated output.
 | `tools/adapter_package_version_check.py` | test-only | X10-062 retained package verification gate for Godot/Unity/Unreal adapter package version manifests, compatibility matrices, dependencies, lifecycle scripts, rollback declarations, checksums, tamper rejection, and Builder handoff manifest output. |
 | `tools/godot_vertical_slice_certification.py` | test-only | X10-064 retained installed-Godot vertical-slice certification gate that stages the canonical slice, loads current Godot adapter scripts in installed Godot, and emits validation JSON, PNG, log, and hash evidence. |
 | `tools/unity_vertical_slice_certification.py` | test-only | X10-065 retained installed-Unity vertical-slice certification gate that stages the canonical slice, compiles/constructs current Unity adapter components in installed Unity, and emits validation JSON, PNG, log, and hash evidence. |
+| `tools/unreal_vertical_slice_certification.py` | test-only | X10-066 retained installed-Unreal vertical-slice certification gate that stages the canonical slice, BuildPlugin-compiles current Unreal adapter sources plus a generated commandlet in installed Unreal, and emits validation JSON, PNG, log, plugin-build, and hash evidence. |
+| `tools/cross_engine_core_hash_compare.py` | test-only | X10-067 retained comparison gate that verifies Godot/Unity/Unreal installed-engine slice proofs attest to the same canonical CGS runtime core and records matching portable-core hashes while documenting nonportable exclusions. |
 
 ## Docs
 

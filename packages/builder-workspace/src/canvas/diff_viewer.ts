@@ -182,21 +182,56 @@ export class DiffViewer {
 }
 
 function renderPreviewOpRow(op: PromptDiffPreview['cgs_diff']['operations'][number], mode: AssistanceMode): HTMLElement {
-  const cls = op.op.startsWith('ADD_') ? 'add' : op.op.startsWith('REMOVE_') ? 'rem' : 'mod';
+  const name = previewOperationName(op);
+  const cls = name.startsWith('ADD_') || name.startsWith('add_') || name.startsWith('declare_')
+    ? 'add'
+    : name.startsWith('REMOVE_') || name.startsWith('remove_')
+      ? 'rem'
+      : 'mod';
   const pre = cls === 'add' ? '+' : cls === 'rem' ? '-' : '~';
-  const oldValue = op.old_value === null || op.old_value === undefined ? 'none' : JSON.stringify(op.old_value);
-  const newValue = op.preview_value === undefined ? JSON.stringify(op.new_value) : JSON.stringify(op.preview_value);
-  const label = mode === 'ARCHITECT_MODE' || mode === 'ADVANCED'
-    ? op.path
-    : (op.field_name || op.path.split('.').slice(-2).join('.'));
+  const label = previewOperationLabel(op, mode);
+  const value = previewOperationValue(op);
+  const showOld = op.operation_format !== 'typed_cgs_v1' && op.old_value !== undefined;
+  const oldValue = showOld ? formatPreviewValue(op.old_value) : '';
   const row = document.createElement('div');
   row.className = `xb-op-row ${cls}`;
   row.innerHTML = `
     <span class="xb-op-pre">${pre}</span>
     <span class="xb-op-path">${escHtml(label)}</span>
-    <span class="xb-op-val"><span class="xb-op-old">${escHtml(oldValue)}</span>${escHtml(newValue ?? 'none')}</span>
+    <span class="xb-op-val">${showOld ? `<span class="xb-op-old">${escHtml(oldValue)}</span>` : ''}${escHtml(value)}</span>
   `;
   return row;
+}
+
+function previewOperationName(op: PromptDiffPreview['cgs_diff']['operations'][number]): string {
+  return String(op.op || op.kind || 'mutation');
+}
+
+function previewOperationLabel(op: PromptDiffPreview['cgs_diff']['operations'][number], mode: AssistanceMode): string {
+  if (op.path) {
+    return mode === 'ARCHITECT_MODE' || mode === 'ADVANCED'
+      ? op.path
+      : (op.field_name || op.path.split('.').slice(-2).join('.'));
+  }
+  const target = formatPreviewTarget(op.target);
+  if (mode === 'ARCHITECT_MODE' || mode === 'ADVANCED') {
+    return [op.kind, op.operation_id, target].filter(Boolean).join(' · ');
+  }
+  return op.explanation || target || op.kind || op.operation_id || 'Typed CGS operation';
+}
+
+function previewOperationValue(op: PromptDiffPreview['cgs_diff']['operations'][number]): string {
+  if (op.operation_format === 'typed_cgs_v1' || op.kind) {
+    return formatPreviewTarget(op.target) || formatPreviewValue(op.typed_details) || previewOperationName(op);
+  }
+  return op.preview_value === undefined ? formatPreviewValue(op.new_value) : formatPreviewValue(op.preview_value);
+}
+
+function formatPreviewTarget(target: Record<string, unknown> | undefined): string {
+  if (!target || typeof target !== 'object') return '';
+  return Object.entries(target)
+    .map(([key, value]) => `${key}:${formatPreviewValue(value)}`)
+    .join(' · ');
 }
 
 function renderOpRow(op: MutationOp, mode: AssistanceMode): HTMLElement {

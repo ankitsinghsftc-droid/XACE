@@ -335,6 +335,8 @@ def build_checks(target_dir: Path, *, quick: bool = False) -> list[Check]:
                 "tools/canonical_vertical_slice_check.py",
                 "tools/godot_vertical_slice_certification.py",
                 "tools/unity_vertical_slice_certification.py",
+                "tools/unreal_vertical_slice_certification.py",
+                "tools/cross_engine_core_hash_compare.py",
                 "tools/replay_cross_platform_proof.py",
                 "tools/cgs_end_to_end_proof.py",
                 "tools/phase1_readiness_score.py",

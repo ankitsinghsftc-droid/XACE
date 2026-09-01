@@ -106,6 +106,7 @@ const STYLES = `
   text-align: left;
 }
 .xb-ms-provider:hover { border-color: var(--bdh); color: var(--txt); }
+.xb-ms-provider:disabled { opacity: .62; cursor: default; }
 .xb-ms-provider.active { border-color: var(--cyan); background: var(--cynd); }
 .xb-ms-provider-name {
   min-width: 0;
@@ -232,6 +233,77 @@ interface ProviderOption {
   message: string;
 }
 
+interface AiModeOption {
+  id: string;
+  label: string;
+  description: string;
+  enabled: boolean;
+  available: boolean;
+  ready: boolean;
+  active: boolean;
+  code: string;
+  message: string;
+  action: string;
+  reserved: boolean;
+}
+
+interface AgentSecurityPolicy {
+  readonly allow_raw_shell: boolean;
+  readonly allow_real_project_writes: boolean;
+  readonly allow_direct_gde_commit: boolean;
+  readonly allow_direct_runtime_mutation: boolean;
+  readonly allow_credential_access: boolean;
+  readonly builder_safe: boolean;
+}
+
+interface AgentCapabilities {
+  readonly supports_mcp_tools: boolean;
+  readonly supports_streaming_events: boolean;
+  readonly supports_thread_resume: boolean;
+  readonly supports_thread_fork: boolean;
+  readonly supports_compaction: boolean;
+  readonly supports_cancellation: boolean;
+  readonly supports_model_discovery: boolean;
+  readonly supports_account_state: boolean;
+  readonly supports_progressive_retrieval: boolean;
+  readonly supported_tool_transports: readonly string[];
+  readonly xace_tools: readonly Record<string, unknown>[];
+  readonly security_policy: AgentSecurityPolicy;
+  readonly warnings: readonly string[];
+}
+
+interface AgentProviderStatus {
+  readonly schema: string;
+  readonly provider_id: string;
+  readonly display_name: string;
+  readonly provider_kind: string;
+  readonly installed: boolean;
+  readonly available: boolean;
+  readonly auth_state: string;
+  readonly executable_path: string | null;
+  readonly version: string | null;
+  readonly min_supported_version: string | null;
+  readonly account_label: string | null;
+  readonly capabilities: AgentCapabilities;
+  readonly warnings: readonly string[];
+  readonly last_checked_at: string;
+  readonly metadata: Record<string, unknown>;
+}
+
+interface AgentModeStatus extends AiModeOption {
+  mode: string;
+  primary_adapter: string;
+  selected_adapter: string;
+  certified_adapters: string[];
+  available_adapters: string[];
+  adapters: AgentProviderStatus[];
+  primary_adapter_status: AgentProviderStatus | null;
+  completion_scope: string;
+  feature_stage: string;
+  tool_transport_preference: string;
+  distribution?: Record<string, unknown>;
+}
+
 interface ProviderSettings {
   ok: boolean;
   provider: string;
@@ -245,6 +317,10 @@ interface ProviderSettings {
   providers: ProviderOption[];
   storage_note: string;
   status_message: string;
+  ai_mode: string;
+  requested_ai_mode: string;
+  ai_modes: AiModeOption[];
+  agent_mode: AgentModeStatus | null;
 }
 
 const UNRESOLVED_MODEL = 'unresolved';
@@ -262,6 +338,10 @@ const EMPTY_SETTINGS: ProviderSettings = {
   providers: [],
   storage_note: '',
   status_message: '',
+  ai_mode: 'api_byok',
+  requested_ai_mode: 'api_byok',
+  ai_modes: [],
+  agent_mode: null,
 };
 
 export class ModelSelector {
@@ -361,6 +441,7 @@ export class ModelSelector {
   private _renderDrop(drop: HTMLElement): void {
     drop.innerHTML = '';
     drop.appendChild(this._buildStatusBlock());
+    this._renderAiModes(drop);
     this._renderProviderChoices(drop);
     drop.appendChild(this._buildForm());
     drop.appendChild(this._buildFooter());
@@ -394,6 +475,8 @@ export class ModelSelector {
     this._appendStatusRow(block, 'Model', this._info.current, '');
     this._appendStatusRow(block, 'State', stateText, stateKind);
     this._appendStatusRow(block, 'Key', keyText, keyKind);
+    const mode = this._aiMode(this._info.ai_mode);
+    this._appendStatusRow(block, 'Mode', mode?.label ?? this._info.ai_mode, mode?.ready ? 'ok' : mode?.active ? 'warn' : '');
     this._appendStatusRow(block, 'Health', testText, testKind);
     return block;
   }
@@ -411,6 +494,47 @@ export class ModelSelector {
     row.appendChild(k);
     row.appendChild(v);
     parent.appendChild(row);
+  }
+
+  private _renderAiModes(parent: HTMLElement): void {
+    if (!this._info.ai_modes.length) return;
+    const section = document.createElement('div');
+    section.className = 'xb-ms-section';
+    section.textContent = 'Mode';
+    parent.appendChild(section);
+
+    const grid = document.createElement('div');
+    grid.className = 'xb-ms-provider-grid';
+    for (const mode of this._info.ai_modes) {
+      const button = document.createElement('button');
+      button.className = `xb-ms-provider${mode.active ? ' active' : ''}`;
+      button.type = 'button';
+      button.disabled = mode.id !== 'api_byok';
+      button.title = mode.message || mode.description || mode.label;
+      const dot = document.createElement('span');
+      dot.className = `xb-ms-dot ${mode.ready ? 'healthy' : mode.enabled ? 'loading' : 'unhealthy'}`;
+      const label = document.createElement('span');
+      label.className = 'xb-ms-provider-name';
+      label.textContent = mode.label;
+      button.appendChild(dot);
+      button.appendChild(label);
+      grid.appendChild(button);
+    }
+    parent.appendChild(grid);
+
+    if (this._info.agent_mode?.message) {
+      const note = document.createElement('div');
+      note.className = 'xb-ms-note';
+      note.textContent = this._info.agent_mode.message;
+      parent.appendChild(note);
+    }
+    const adapter = this._info.agent_mode?.primary_adapter_status ?? this._info.agent_mode?.adapters[0] ?? null;
+    if (adapter) {
+      const note = document.createElement('div');
+      note.className = 'xb-ms-note';
+      note.textContent = this._agentAdapterSummary(adapter);
+      parent.appendChild(note);
+    }
   }
 
   private _renderProviderChoices(parent: HTMLElement): void {
@@ -693,6 +817,10 @@ export class ModelSelector {
       providers,
       storage_note: String(raw.storage_note || ''),
       status_message: String(raw.status_message || ''),
+      ai_mode: String(raw.ai_mode || 'api_byok'),
+      requested_ai_mode: String(raw.requested_ai_mode || raw.ai_mode || 'api_byok'),
+      ai_modes: Array.isArray(raw.ai_modes) ? raw.ai_modes.map(mode => this._normalizeAiMode(mode)) : [],
+      agent_mode: this._normalizeAgentMode(raw.agent_mode),
     };
   }
 
@@ -719,6 +847,115 @@ export class ModelSelector {
         test_call: Boolean(checksRaw.test_call),
       },
     };
+  }
+
+  private _normalizeAiMode(value: unknown): AiModeOption {
+    const raw = (typeof value === 'object' && value !== null ? value : {}) as Partial<AiModeOption>;
+    return {
+      id: String(raw.id || ''),
+      label: String(raw.label || raw.id || ''),
+      description: String(raw.description || ''),
+      enabled: Boolean(raw.enabled),
+      available: Boolean(raw.available),
+      ready: Boolean(raw.ready),
+      active: Boolean(raw.active),
+      code: String(raw.code || ''),
+      message: String(raw.message || ''),
+      action: String(raw.action || ''),
+      reserved: Boolean(raw.reserved),
+    };
+  }
+
+  private _normalizeAgentMode(value: unknown): AgentModeStatus | null {
+    if (typeof value !== 'object' || value === null) return null;
+    const raw = value as Partial<AgentModeStatus>;
+    const base = this._normalizeAiMode(raw);
+    const adapters = Array.isArray(raw.adapters)
+      ? raw.adapters
+          .map(adapter => this._normalizeAgentProviderStatus(adapter))
+          .filter((adapter): adapter is AgentProviderStatus => Boolean(adapter))
+      : [];
+    return {
+      ...base,
+      mode: String(raw.mode || base.id),
+      primary_adapter: String(raw.primary_adapter || ''),
+      selected_adapter: String(raw.selected_adapter || ''),
+      certified_adapters: Array.isArray(raw.certified_adapters) ? raw.certified_adapters.map(String) : [],
+      available_adapters: Array.isArray(raw.available_adapters) ? raw.available_adapters.map(String) : [],
+      adapters,
+      primary_adapter_status: this._normalizeAgentProviderStatus(raw.primary_adapter_status) ?? adapters[0] ?? null,
+      completion_scope: String(raw.completion_scope || ''),
+      feature_stage: String(raw.feature_stage || ''),
+      tool_transport_preference: String(raw.tool_transport_preference || ''),
+      distribution: typeof raw.distribution === 'object' && raw.distribution !== null ? raw.distribution : undefined,
+    };
+  }
+
+  private _normalizeAgentProviderStatus(value: unknown): AgentProviderStatus | null {
+    if (typeof value !== 'object' || value === null) return null;
+    const raw = value as Partial<AgentProviderStatus>;
+    return {
+      schema: String(raw.schema || ''),
+      provider_id: String(raw.provider_id || ''),
+      display_name: String(raw.display_name || raw.provider_id || ''),
+      provider_kind: String(raw.provider_kind || ''),
+      installed: Boolean(raw.installed),
+      available: Boolean(raw.available),
+      auth_state: String(raw.auth_state || 'unknown'),
+      executable_path: typeof raw.executable_path === 'string' ? raw.executable_path : null,
+      version: typeof raw.version === 'string' ? raw.version : null,
+      min_supported_version: typeof raw.min_supported_version === 'string' ? raw.min_supported_version : null,
+      account_label: typeof raw.account_label === 'string' ? raw.account_label : null,
+      capabilities: this._normalizeAgentCapabilities(raw.capabilities),
+      warnings: Array.isArray(raw.warnings) ? raw.warnings.map(String) : [],
+      last_checked_at: String(raw.last_checked_at || ''),
+      metadata: typeof raw.metadata === 'object' && raw.metadata !== null ? raw.metadata : {},
+    };
+  }
+
+  private _normalizeAgentCapabilities(value: unknown): AgentCapabilities {
+    const raw = (typeof value === 'object' && value !== null ? value : {}) as Partial<AgentCapabilities>;
+    const policy = (typeof raw.security_policy === 'object' && raw.security_policy !== null ? raw.security_policy : {}) as Partial<AgentSecurityPolicy>;
+    return {
+      supports_mcp_tools: Boolean(raw.supports_mcp_tools),
+      supports_streaming_events: Boolean(raw.supports_streaming_events),
+      supports_thread_resume: Boolean(raw.supports_thread_resume),
+      supports_thread_fork: Boolean(raw.supports_thread_fork),
+      supports_compaction: Boolean(raw.supports_compaction),
+      supports_cancellation: Boolean(raw.supports_cancellation),
+      supports_model_discovery: Boolean(raw.supports_model_discovery),
+      supports_account_state: Boolean(raw.supports_account_state),
+      supports_progressive_retrieval: Boolean(raw.supports_progressive_retrieval),
+      supported_tool_transports: Array.isArray(raw.supported_tool_transports) ? raw.supported_tool_transports.map(String) : [],
+      xace_tools: Array.isArray(raw.xace_tools) ? raw.xace_tools.filter(tool => typeof tool === 'object' && tool !== null) as Record<string, unknown>[] : [],
+      security_policy: {
+        allow_raw_shell: Boolean(policy.allow_raw_shell),
+        allow_real_project_writes: Boolean(policy.allow_real_project_writes),
+        allow_direct_gde_commit: Boolean(policy.allow_direct_gde_commit),
+        allow_direct_runtime_mutation: Boolean(policy.allow_direct_runtime_mutation),
+        allow_credential_access: Boolean(policy.allow_credential_access),
+        builder_safe: policy.builder_safe !== false,
+      },
+      warnings: Array.isArray(raw.warnings) ? raw.warnings.map(String) : [],
+    };
+  }
+
+  private _aiMode(id: string): AiModeOption | undefined {
+    return this._info.ai_modes.find(mode => mode.id === id);
+  }
+
+  private _agentAdapterSummary(adapter: AgentProviderStatus): string {
+    const metadata = adapter.metadata || {};
+    const modelIds = Array.isArray(metadata.model_ids) ? metadata.model_ids.map(String) : [];
+    const defaultModel = typeof metadata.default_model === 'string' ? metadata.default_model : '';
+    const installText = adapter.installed ? 'installed' : 'missing';
+    const versionText = adapter.version ? `v${adapter.version}` : 'version unknown';
+    const authText = adapter.auth_state.replace(/_/g, ' ');
+    const modelText = modelIds.length
+      ? `${modelIds.length} model${modelIds.length === 1 ? '' : 's'}${defaultModel ? `, default ${defaultModel}` : ''}`
+      : 'no models reported';
+    const transportText = adapter.capabilities.supports_mcp_tools ? 'MCP tools preferred' : 'MCP tools unavailable';
+    return `${adapter.display_name || 'Codex'}: ${installText}, ${authText}, ${versionText}; ${modelText}; ${transportText}.`;
   }
 
   private _normalizeReadiness(value: unknown): ProviderReadiness | null {

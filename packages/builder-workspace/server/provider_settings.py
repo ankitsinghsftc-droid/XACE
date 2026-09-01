@@ -21,7 +21,7 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from urllib.parse import urlparse
 
 from credential_store import (
@@ -45,6 +45,13 @@ DEFAULT_OLLAMA_URL = "http://localhost:11434"
 UNRESOLVED_MODEL = "unresolved"
 PROVIDER_HEALTH_PROOF_SCHEMA = "xace.provider_health_proof.v1"
 PROVIDER_UX_STATE_SCHEMA = "xace.provider_ux_state.v1"
+AI_MODE_STATUS_SCHEMA = "xace.ai_mode_status.v1"
+AI_MODE_API_BYOK = "api_byok"
+AI_MODE_AGENT = "agent"
+AI_MODE_LOCAL_AGENT = "local_agent"
+DEFAULT_AI_MODE = AI_MODE_API_BYOK
+AI_MODE_IDS = (AI_MODE_API_BYOK, AI_MODE_AGENT, AI_MODE_LOCAL_AGENT)
+PRIMARY_AGENT_ADAPTER = "codex_app_server"
 STORAGE_NOTE = (
     "API keys are stored in the operating system credential vault. "
     "The JSON settings file stores provider/model metadata, key fingerprints, "
@@ -167,6 +174,15 @@ class ProviderSelection:
     api_key: str = ""
 
 
+@dataclass(frozen=True)
+class AiModeDefinition:
+    id: str
+    label: str
+    description: str
+    enabled_by_default: bool = False
+    reserved: bool = False
+
+
 PROVIDER_DEFINITIONS: dict[str, ProviderDefinition] = {
     "auto": ProviderDefinition(
         id="auto",
@@ -231,6 +247,27 @@ PROVIDER_DEFINITIONS: dict[str, ProviderDefinition] = {
     ),
 }
 
+AI_MODE_DEFINITIONS: dict[str, AiModeDefinition] = {
+    AI_MODE_API_BYOK: AiModeDefinition(
+        id=AI_MODE_API_BYOK,
+        label="API / BYOK",
+        description="Use the existing provider API path through InferenceAdapter.",
+        enabled_by_default=True,
+    ),
+    AI_MODE_AGENT: AiModeDefinition(
+        id=AI_MODE_AGENT,
+        label="Agent Mode",
+        description="Use a provider-native agent runtime when a certified adapter is wired.",
+    ),
+    AI_MODE_LOCAL_AGENT: AiModeDefinition(
+        id=AI_MODE_LOCAL_AGENT,
+        label="Local Agent Mode",
+        description="Reserved for a future local XACE agent loop.",
+        reserved=True,
+    ),
+}
+
+
 HOSTED_PROVIDER_IDS = {
     provider_id
     for provider_id, definition in PROVIDER_DEFINITIONS.items()
@@ -247,9 +284,13 @@ class ProviderSettingsStore:
         self,
         path: Path | None = None,
         credential_store: CredentialBackend | None = None,
+        agent_status_reader: Callable[[], Any] | None = None,
     ) -> None:
         self.path = (path or _settings_path_from_env() or DEFAULT_SETTINGS_PATH).resolve()
         self._credential_store = credential_store or create_credential_store()
+        self._agent_status_reader = agent_status_reader
+        self._agent_status_cache: dict[str, Any] | None = None
+        self._agent_status_cache_epoch = 0.0
         self._state = self._load()
 
     def active_selection(self) -> ProviderSelection:
@@ -257,6 +298,171 @@ class ProviderSettingsStore:
         if provider not in PROVIDER_DEFINITIONS:
             provider = "auto"
         return self.selection(provider=provider)
+
+    def requested_ai_mode(self) -> str:
+        return _clean_ai_mode_id(str(self._state.get("ai_mode") or DEFAULT_AI_MODE))
+
+    def active_ai_mode(self) -> str:
+        requested = self.requested_ai_mode()
+        if requested == AI_MODE_API_BYOK:
+            return AI_MODE_API_BYOK
+        if self._ai_mode_enabled(requested):
+            return requested
+        return AI_MODE_API_BYOK
+
+    def configure_ai_mode(
+        self,
+        *,
+        mode: str,
+        enabled: bool | None = None,
+        make_active: bool = True,
+    ) -> dict[str, Any]:
+        mode = _clean_ai_mode_id(mode, strict=True)
+        if mode != AI_MODE_API_BYOK:
+            modes = self._state.setdefault("ai_modes", {})
+            entry = dict(self._ai_mode_entry(mode))
+            if enabled is not None:
+                entry["enabled"] = bool(enabled)
+            entry["updated_at_epoch"] = int(time.time())
+            modes[mode] = entry
+        if make_active:
+            self._state["ai_mode"] = mode
+        self._state["version"] = SETTINGS_VERSION
+        self._save()
+        return self.payload()
+
+    def ai_mode_options(
+        self,
+        *,
+        provider_readiness: dict[str, Any] | None = None,
+        agent_status: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
+        readiness = provider_readiness or self.active_readiness(refresh_models=False)
+        active_mode = self.active_ai_mode()
+        agent_status = agent_status or self.agent_mode_status(refresh=False)
+        local_status = self._local_agent_mode_status()
+        api_definition = AI_MODE_DEFINITIONS[AI_MODE_API_BYOK]
+        return [
+            {
+                "schema": AI_MODE_STATUS_SCHEMA,
+                "id": AI_MODE_API_BYOK,
+                "label": api_definition.label,
+                "description": api_definition.description,
+                "enabled": True,
+                "available": True,
+                "ready": bool(readiness.get("ok")),
+                "active": active_mode == AI_MODE_API_BYOK,
+                "code": "" if readiness.get("ok") else str(readiness.get("code") or "PROVIDER_NOT_READY"),
+                "message": str(readiness.get("message") or "Use the existing provider API path."),
+                "action": str(readiness.get("action") or ""),
+                "reserved": False,
+            },
+            agent_status,
+            local_status,
+        ]
+
+    def agent_mode_status(self, *, refresh: bool = False) -> dict[str, Any]:
+        enabled = self._ai_mode_enabled(AI_MODE_AGENT)
+        active = self.active_ai_mode() == AI_MODE_AGENT
+        adapter_status = (
+            self._codex_agent_status(refresh=refresh)
+            if enabled
+            else _codex_agent_status_placeholder()
+        )
+        resolution = _resolve_agent_mode_status(enabled=enabled, adapter_status=adapter_status)
+        available_adapters = [PRIMARY_AGENT_ADAPTER] if bool(adapter_status.get("available")) else []
+        return {
+            "schema": AI_MODE_STATUS_SCHEMA,
+            "id": AI_MODE_AGENT,
+            "mode": AI_MODE_AGENT,
+            "label": AI_MODE_DEFINITIONS[AI_MODE_AGENT].label,
+            "description": AI_MODE_DEFINITIONS[AI_MODE_AGENT].description,
+            "enabled": enabled,
+            "available": bool(resolution["available"]),
+            "ready": bool(resolution["ready"]),
+            "active": active,
+            "code": str(resolution["code"]),
+            "message": str(resolution["message"]),
+            "action": str(resolution["action"]),
+            "reserved": False,
+            "primary_adapter": PRIMARY_AGENT_ADAPTER,
+            "selected_adapter": PRIMARY_AGENT_ADAPTER,
+            "certified_adapters": [],
+            "available_adapters": available_adapters,
+            "adapters": [adapter_status],
+            "primary_adapter_status": adapter_status,
+            "completion_scope": "codex_agent_mode",
+            "feature_stage": "ag_011_codex_mcp_tool_bridge",
+            "tool_transport_preference": "mcp",
+            "distribution": {
+                "preferred_eventual": "xace_managed_pinned_codex_runtime",
+                "external_detection": "development_fallback",
+                "bundling_allowed": False,
+                "verification_required": [
+                    "redistribution",
+                    "packaging",
+                    "auth_storage",
+                    "updates",
+                    "compatibility",
+                ],
+            },
+        }
+
+    def _codex_agent_status(self, *, refresh: bool = False) -> dict[str, Any]:
+        now = time.time()
+        if (
+            self._agent_status_cache is not None
+            and not refresh
+            and now - self._agent_status_cache_epoch < 15.0
+        ):
+            return _json_clone(self._agent_status_cache)
+        try:
+            if self._agent_status_reader is not None:
+                raw_status = self._agent_status_reader()
+            else:
+                from agent_host.codex_adapter import CodexAppServerAdapter  # noqa: PLC0415
+
+                raw_status = CodexAppServerAdapter().detect_sync()
+            status = raw_status.to_dict() if hasattr(raw_status, "to_dict") else dict(raw_status)
+            status = _json_clone(redact_value(status))
+        except Exception as exc:
+            status = _codex_agent_status_error(redact_exception(exc))
+        self._agent_status_cache = _json_clone(status)
+        self._agent_status_cache_epoch = now
+        return status
+
+    def _local_agent_mode_status(self) -> dict[str, Any]:
+        enabled = self._ai_mode_enabled(AI_MODE_LOCAL_AGENT)
+        active = self.active_ai_mode() == AI_MODE_LOCAL_AGENT
+        definition = AI_MODE_DEFINITIONS[AI_MODE_LOCAL_AGENT]
+        return {
+            "schema": AI_MODE_STATUS_SCHEMA,
+            "id": AI_MODE_LOCAL_AGENT,
+            "mode": AI_MODE_LOCAL_AGENT,
+            "label": definition.label,
+            "description": definition.description,
+            "enabled": enabled,
+            "available": False,
+            "ready": False,
+            "active": active,
+            "code": "LOCAL_AGENT_DEFERRED",
+            "message": "Local Agent Mode is reserved for a later implementation window.",
+            "action": "continue_api_byok",
+            "reserved": True,
+            "adapters": [],
+        }
+
+    def _ai_mode_enabled(self, mode: str) -> bool:
+        mode = _clean_ai_mode_id(mode)
+        definition = AI_MODE_DEFINITIONS[mode]
+        if definition.enabled_by_default:
+            return True
+        return bool(self._ai_mode_entry(mode).get("enabled", False))
+
+    def _ai_mode_entry(self, mode: str) -> dict[str, Any]:
+        modes = self._state.setdefault("ai_modes", {})
+        entry = modes.get(_clean_ai_mode_id(mode))
+        return entry if isinstance(entry, dict) else {}
 
     def selection(
         self,
@@ -430,6 +636,7 @@ class ProviderSettingsStore:
     def payload(self, *, refresh_models: bool = False) -> dict[str, Any]:
         active = self.active_selection()
         readiness = self.active_readiness(refresh_models=refresh_models)
+        agent_mode = self.agent_mode_status(refresh=refresh_models)
         provider_payloads = []
         for provider_id, definition in PROVIDER_DEFINITIONS.items():
             option = self._provider_payload(provider_id, refresh_models=refresh_models)
@@ -453,6 +660,10 @@ class ProviderSettingsStore:
             "storage_note": STORAGE_NOTE,
             "credential_backend": self._credential_store.name,
             "credential_unsafe": bool(getattr(self._credential_store, "unsafe", False)),
+            "ai_mode": self.active_ai_mode(),
+            "requested_ai_mode": self.requested_ai_mode(),
+            "ai_modes": self.ai_mode_options(provider_readiness=readiness, agent_status=agent_mode),
+            "agent_mode": agent_mode,
             "status_message": str(readiness.get("message") or active_option.get("message") or ""),
         }
 
@@ -498,6 +709,20 @@ class ProviderSettingsStore:
                 proof_status="invalid_base_url",
                 message=f"{definition.label} needs a valid http(s) base URL before prompting.",
                 action="save_provider_settings",
+            )
+
+        if provider == "auto" and not bool(entry.get("last_test", {}).get("ok")):
+            return _readiness_failure(
+                provider=provider,
+                model=selection.model,
+                kind=definition.kind,
+                base_url=base_url,
+                key_fingerprint="",
+                checks=checks,
+                code="PROVIDER_HEALTH_UNTESTED",
+                proof_status="untested",
+                message="Choose and test a concrete prompt provider before prompting.",
+                action="test_provider",
             )
 
         if definition.kind == "local":
@@ -923,6 +1148,8 @@ class ProviderSettingsStore:
         data.setdefault("version", SETTINGS_VERSION)
         data.setdefault("providers", {})
         data.setdefault("active_provider", "auto")
+        data.setdefault("ai_mode", DEFAULT_AI_MODE)
+        data.setdefault("ai_modes", {})
         return data
 
     def _save(self) -> None:
@@ -949,6 +1176,169 @@ class ProviderSettingsStore:
         entry.pop("credential_backend", None)
         entry.pop("credential_unsafe", None)
         entry.pop("secret", None)
+
+
+def _resolve_agent_mode_status(
+    *,
+    enabled: bool,
+    adapter_status: dict[str, Any],
+) -> dict[str, Any]:
+    if not enabled:
+        return {
+            "available": False,
+            "ready": False,
+            "code": "AGENT_MODE_DISABLED",
+            "message": "Agent Mode is disabled in this build; API/BYOK remains the active prompt path.",
+            "action": "continue_api_byok",
+        }
+
+    installed = bool(adapter_status.get("installed"))
+    metadata = adapter_status.get("metadata") or {}
+    metadata = metadata if isinstance(metadata, dict) else {}
+    responsive = bool(metadata.get("app_server_responsive"))
+    auth_state = str(adapter_status.get("auth_state") or "unknown")
+    version = str(adapter_status.get("version") or "").strip()
+    model_ids = (metadata.get("model_ids") or [])
+    model_count = len(model_ids) if isinstance(model_ids, list) else 0
+
+    if not installed:
+        return {
+            "available": False,
+            "ready": False,
+            "code": "CODEX_NOT_INSTALLED",
+            "message": "Codex App Server was not found. Install Codex or configure the future XACE-managed runtime path.",
+            "action": "install_or_configure_codex",
+        }
+    if auth_state in {"missing", "expired"}:
+        return {
+            "available": False,
+            "ready": False,
+            "code": "CODEX_AUTH_REQUIRED",
+            "message": "Codex is installed, but App Server reports that sign-in or API-key auth is required.",
+            "action": "sign_in_to_codex",
+        }
+    if not responsive or not bool(adapter_status.get("available")):
+        return {
+            "available": False,
+            "ready": False,
+            "code": "CODEX_APP_SERVER_UNAVAILABLE",
+            "message": "Codex was detected, but its App Server capability probe did not return a usable account/model state.",
+            "action": "retry_codex_detection",
+        }
+
+    suffix = f" Version {version}." if version else ""
+    model_text = f" {model_count} model(s) visible." if model_count else ""
+    lifecycle_ready = bool(metadata.get("session_lifecycle_implemented"))
+    turns_ready = bool(metadata.get("turn_execution_implemented"))
+    bridge_ready = bool(metadata.get("mcp_tool_bridge_implemented"))
+    if lifecycle_ready and turns_ready and bridge_ready:
+        return {
+            "available": True,
+            "ready": False,
+            "code": "CODEX_MCP_TOOL_BRIDGE_READY_PROPOSAL_PENDING",
+            "message": (
+                "Codex App Server lifecycle, turn streaming, and read-only MCP tool bridge "
+                "are available; proposal ingress remains gated to AG-012."
+                + suffix
+                + model_text
+            ),
+            "action": "complete_ag_012",
+        }
+
+    if lifecycle_ready and turns_ready:
+        return {
+            "available": True,
+            "ready": False,
+            "code": "CODEX_SESSION_LIFECYCLE_READY_TOOL_BRIDGE_PENDING",
+            "message": (
+                "Codex App Server lifecycle and turn streaming are available; read-only "
+                "MCP tool bridge remains gated to AG-011."
+                + suffix
+                + model_text
+            ),
+            "action": "complete_ag_011",
+        }
+
+    return {
+        "available": True,
+        "ready": False,
+        "code": "CODEX_DETECTED_SESSION_LIFECYCLE_PENDING",
+        "message": (
+            "Codex App Server detection succeeded; session lifecycle and turns are still gated to AG-010."
+            + suffix
+            + model_text
+        ),
+        "action": "complete_ag_010",
+    }
+
+
+def _codex_agent_status_placeholder() -> dict[str, Any]:
+    return {
+        "schema": "xace.agent_host.v1",
+        "provider_id": PRIMARY_AGENT_ADAPTER,
+        "display_name": "Codex App Server",
+        "provider_kind": "codex_app_server",
+        "installed": False,
+        "available": False,
+        "auth_state": "unknown",
+        "executable_path": None,
+        "version": None,
+        "min_supported_version": None,
+        "account_label": None,
+        "capabilities": _agent_capabilities_payload(),
+        "warnings": [],
+        "last_checked_at": "",
+        "metadata": {
+            "probe_skipped": "agent_mode_disabled",
+            "app_server_responsive": False,
+            "transport": "stdio_jsonl",
+        },
+    }
+
+
+def _codex_agent_status_error(message: str) -> dict[str, Any]:
+    clean = redact_text(str(message or "Codex App Server status probe failed."))
+    return {
+        **_codex_agent_status_placeholder(),
+        "installed": True,
+        "auth_state": "unknown",
+        "warnings": [clean],
+        "last_checked_at": "",
+        "metadata": {
+            "probe_error": clean,
+            "app_server_responsive": False,
+            "transport": "stdio_jsonl",
+        },
+    }
+
+
+def _agent_capabilities_payload() -> dict[str, Any]:
+    return {
+        "supports_mcp_tools": True,
+        "supports_streaming_events": True,
+        "supports_thread_resume": True,
+        "supports_thread_fork": True,
+        "supports_compaction": True,
+        "supports_cancellation": True,
+        "supports_model_discovery": True,
+        "supports_account_state": True,
+        "supports_progressive_retrieval": True,
+        "supported_tool_transports": ["mcp"],
+        "xace_tools": [],
+        "security_policy": {
+            "allow_raw_shell": False,
+            "allow_real_project_writes": False,
+            "allow_direct_gde_commit": False,
+            "allow_direct_runtime_mutation": False,
+            "allow_credential_access": False,
+            "builder_safe": True,
+        },
+        "warnings": [],
+    }
+
+
+def _json_clone(value: Any) -> dict[str, Any]:
+    return json.loads(json.dumps(value))
 
 
 def build_provider_adapter(
@@ -1279,6 +1669,26 @@ def _definition(provider: str) -> ProviderDefinition:
     if definition is None:
         raise ProviderConfigError(f"Unsupported provider: {provider}")
     return definition
+
+
+def _clean_ai_mode_id(mode: str, *, strict: bool = False) -> str:
+    mode = str(mode or DEFAULT_AI_MODE).strip().lower().replace("-", "_")
+    aliases = {
+        "api": AI_MODE_API_BYOK,
+        "byok": AI_MODE_API_BYOK,
+        "api_byok_mode": AI_MODE_API_BYOK,
+        "agent_mode": AI_MODE_AGENT,
+        "codex": AI_MODE_AGENT,
+        "codex_agent": AI_MODE_AGENT,
+        "local": AI_MODE_LOCAL_AGENT,
+        "local_agent_mode": AI_MODE_LOCAL_AGENT,
+    }
+    cleaned = aliases.get(mode, mode)
+    if cleaned in AI_MODE_DEFINITIONS:
+        return cleaned
+    if strict:
+        raise ProviderConfigError(f"Unsupported AI mode: {mode}")
+    return DEFAULT_AI_MODE
 
 
 def _clean_provider_id(provider: str) -> str:

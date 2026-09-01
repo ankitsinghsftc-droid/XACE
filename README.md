@@ -284,110 +284,99 @@ XACE separates gameplay meaning from presentation.
 For example:
 
 ```text
-Gameplay:
-    event = player_wall_run_started
-
-Unity:
-    animation = WallRun_Unity.anim
-
-Godot:
-    animation = wall_run.tres
-
-Unreal:
-    montage = AM_WallRun
+User intent
+  -> Prompt Intelligence Layer   [Python]
+  -> Game Definition Engine       [Python]
+  -> Schema Factory               [Python]
+  -> System Graph Compiler        [Rust]
+  -> Runtime Core                 [Rust]
+  -> Engine Adapter Protocol      [Rust + engine language]
+  -> Game Engine                  [Godot / Unity / Unreal]
 ```
 
-The gameplay concept remains stable while engines resolve their own presentation assets.
+## Core Pieces
 
----
+**Prompt Intelligence Layer**
 
-# What XACE is building toward
+Receives natural-language requests and routes only supported scenarios through
+guarded planning, validation, and review. It should not be described as
+open-ended game or system creation.
 
-The current runtime/compiler architecture is the foundation for a much larger creation environment.
+**Game Definition Engine**
 
-Upcoming work includes:
+Owns CGS mutation application, path validation, consistency checks, and
+clarification flow. Schema changes should pass through this layer instead of
+direct ad hoc writes.
 
-### XACE World Contract
+**Schema Factory and SGC**
 
-A minimal canonical representation of gameplay-relevant world semantics—surfaces, triggers, spawn points, interaction volumes, capabilities, gameplay geometry, and other concepts that gameplay systems can depend on without becoming engine-specific.
+Compile schema data into execution-plan inputs. The SGC library and CLI now have
+working proof points, while the broader production path still needs the remaining
+master-plan gates.
 
-### XACE Player
+**Runtime Core**
 
-A lightweight first-party way to immediately run and play XACE-native gameplay without requiring a full external engine project for every iteration.
+Provides tick-driven runtime foundations, entity/component storage, mutation
+gating, phase orchestration, snapshots, replay/hash utilities, and adapter
+protocol payloads. Current claims should say "foundations" or "targeted proof"
+unless the master plan marks the live proof complete.
 
-### XACE Live
+**Engine Adapters**
 
-Shared authoritative sessions where different clients—and eventually different engines—can participate in the same running game.
+Bridge runtime deltas and engine feedback for Godot, Unity, and Unreal. Adapter
+packages are integration handoffs for engine projects; they are not complete
+game shipping packages.
 
-### XACE Black Box
+## Import And Adapter Package Handoff
 
-A causal debugging system intended to turn:
+Import means "wrap/link an existing engine project." XACE creates or updates a
+project manifest, starter CGS files, launcher state, and adapter preparation
+where supported. It does not reverse-engineer an existing Unity, Godot, or Unreal
+game into CGS automatically.
 
-> “Something broke after 47 minutes and I can't reproduce it.”
+Adapter package handoff means "validate, then copy a XACE adapter package into an engine-owned project." The preflight gate checks the target engine, CGS, persisted SGC plan, runtime compatibility proof, adapter protocol/version markers, asset references, semantic bindings, and local secret patterns before copy. The copied handoff package includes `xace_adapter_package_version_manifest.json` with version, compatibility matrix, dependency declarations, install/uninstall/rollback lifecycle script declarations, rollback support metadata, and SHA-256 file checksums. The receiving engine project still owns build settings, scenes, assets, packaging, platform SDKs, QA, and release.
 
-into:
+## Multiplayer Scope
 
-> “The first incorrect state occurred at tick 284,191, here is the system that wrote it, here is the causal chain, and here is the exact replay.”
+Use "network primitives" for the current multiplayer-related work. The network
+core has local proof points for lockstep-style input release,
+prediction/reconciliation, desync detection, session lifecycle, and deterministic
+digests. Shipped game networking still needs topology, security, chaos, soak,
+platform, and engine-installed proof.
 
-### Reality Fork
+## Portability Scope
 
-Branch a running game from an exact moment, try alternate gameplay rules, actually play each version, and promote the version that works.
+Use "gameplay-core portability" for the current cross-engine claim. CGS,
+runtime payloads, and adapters can make supported gameplay definitions portable
+across adapter targets. Finished-game portability remains out of scope until
+engine-native content, build pipelines, assets, input maps, scenes, physics
+settings, and platform services are proven.
 
-Think:
+The canonical cross-engine vertical-slice fixture lives at
+`projects/canonical_cross_engine_vertical_slice`. It is a versioned CGS-owned
+fixture covering movement, combat, health, inventory, save/load, rollback,
+replay, semantic bindings, animation, audio, VFX fallback, and network-ready
+input for Godot, Unity, and Unreal certification tasks. Godot and Unity now have
+retained installed-engine proofs with validation JSON, PNG evidence, logs, and
+hash reports under `target-codex-task64-godot-vertical-slice` and
+`target-codex-task65-unity-vertical-slice`; Unreal, packaging/export, and
+cross-engine hash equivalence remain separate gates.
 
-> **Git branches for a running game universe.**
+## Prompt And AI Scope
 
-### Portable Gameplay Systems
+The prompt workflow is a guarded editing surface over supported CGS mutation
+categories. It should ask clarifying questions, show diffs, block unsupported
+requests, and preserve project state. It should not promise unsupported gameplay
+systems from open-ended text.
 
-Gameplay systems that carry their requirements, state contracts, events, networking behavior, tests, compatibility metadata, and world requirements with them—allowing developers to install and compose mechanics rather than repeatedly rebuilding them from scratch.
+## Verification
 
----
+Useful local checks:
 
-# The bigger idea
-
-AI is making software generation cheap.
-
-That does not make architecture, correctness, debugging, multiplayer, portability, compatibility, or maintainability disappear.
-
-It makes them more important.
-
-XACE is an attempt to build the infrastructure for that world:
-
-> **AI-speed creation with deterministic, inspectable, portable gameplay underneath it.**
-
-The eventual development loop should feel closer to:
-
-```text
-Imagine
-   ↓
-Build
-   ↓
-Play
-   ↓
-Change
-   ↓
-Fork
-   ↓
-Compare
-   ↓
-Debug
-   ↓
-Invite
-   ↓
-Ship
+```powershell
+python tools/forbidden_claims_check.py
+python tools/sgc_cli_smoke.py --json
+cargo test -p xace-system-graph-compiler
 ```
 
-instead of spending most of a development cycle wiring infrastructure together.
-
----
-
-## XACE in one sentence
-
-> **XACE is an AI-native gameplay operating layer that turns game logic into deterministic, inspectable, mutable, network-capable, engine-independent software.**
-
----
-
-**The model can change.
-The engine can change.
-The gameplay remains yours.**
-
+For launch-readiness sequencing, follow the master plan rather than this README.

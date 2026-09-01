@@ -43,6 +43,8 @@ import time
 from typing import Any, Awaitable, Callable
 
 from cgs_persistence import CGSPersistence, SnapshotRecord
+from agent_host.event_stream import AgentEventStreamManager
+from agent_host.session_store import AgentMutationLineageRecord
 from prompt_classifier_gate import classify_prompt
 from session_manager import SessionManager, _serialize_pil_result
 from state_authority import (
@@ -75,9 +77,11 @@ class WSMessageRouter:
         self,
         session_manager: SessionManager,
         runtime_control: RuntimeControlClient | None = None,
+        agent_event_stream: AgentEventStreamManager | None = None,
     ) -> None:
         self._sm = session_manager
         self._runtime_control = runtime_control
+        self._agent_event_stream = agent_event_stream or AgentEventStreamManager()
 
     async def route(
         self,
@@ -100,8 +104,13 @@ class WSMessageRouter:
                 await self._handle_pil_apply(session_id, message, send_fn, persist, cgs_state)
 
             elif msg_type == "pil_discard":
-                self._sm.clear_pending(session_id)
-                await send_fn({"type": "pil_discard_ack"})
+                await self._handle_pil_discard(
+                    session_id,
+                    message,
+                    send_fn,
+                    persist,
+                    cgs_state,
+                )
 
             elif msg_type == "cgs_request":
                 await self._handle_cgs_request(session_id, message, send_fn, persist, cgs_state)
@@ -111,6 +120,15 @@ class WSMessageRouter:
 
             elif msg_type == "model_change":
                 await self._handle_model_change(session_id, message, send_fn)
+
+            elif msg_type == "agent_turn":
+                await self._handle_agent_turn(session_id, message, send_fn, cgs_state)
+
+            elif msg_type == "agent_cancel":
+                await self._handle_agent_cancel(session_id, message, send_fn)
+
+            elif msg_type == "agent_status":
+                await self._handle_agent_status(session_id, message, send_fn)
 
             elif msg_type == "asset_link":
                 await self._handle_asset_link(session_id, message, send_fn, persist, cgs_state)
@@ -241,6 +259,93 @@ class WSMessageRouter:
             session_id, clar_id, answer
         )
         await send_fn({"type": "pil_answer_ack", **response})
+
+    async def _handle_agent_turn(
+        self,
+        session_id: str,
+        message: dict,
+        send_fn: SendFn,
+        cgs_state: dict,
+    ) -> None:
+        metadata = message.get("metadata")
+        if not isinstance(metadata, dict):
+            metadata = {}
+        allowed_tools = message.get("allowed_tools")
+        if not isinstance(allowed_tools, list):
+            allowed_tools = []
+        cgs_metadata = cgs_state.get("metadata") if isinstance(cgs_state, dict) else {}
+        if not isinstance(cgs_metadata, dict):
+            cgs_metadata = {}
+        cgs_hash = str(message.get("cgs_hash") or cgs_metadata.get("cgs_hash") or "")
+        session = self._sm._sessions.get(session_id)
+        project_path = str(getattr(session, "project_path", "") or "")
+        project_id = str(message.get("project_id") or "")
+        if project_path and "project_path" not in metadata:
+            metadata = {**metadata, "project_path": project_path}
+        context_capsule_path = str(message.get("context_capsule_path") or "")
+        await self._agent_event_stream.start_turn(
+            session_id=session_id,
+            provider_id=str(message.get("provider_id") or ""),
+            user_prompt=str(message.get("prompt") or message.get("user_prompt") or ""),
+            cgs_hash=cgs_hash,
+            send_fn=send_fn,
+            project_id=project_id,
+            context_capsule_path=context_capsule_path or None,
+            allowed_tools=tuple(str(tool) for tool in allowed_tools if isinstance(tool, str)),
+            metadata=metadata,
+            current_cgs=cgs_state,
+            xace_session=session,
+            mode=str(message.get("mode") or "AGENT"),
+        )
+
+    async def _handle_agent_cancel(
+        self,
+        session_id: str,
+        message: dict,
+        send_fn: SendFn,
+    ) -> None:
+        await self._agent_event_stream.cancel_turn(
+            session_id=session_id,
+            provider_id=str(message.get("provider_id") or ""),
+            send_fn=send_fn,
+        )
+
+    async def _handle_agent_status(
+        self,
+        session_id: str,
+        message: dict,
+        send_fn: SendFn,
+    ) -> None:
+        await self._agent_event_stream.send_status(
+            session_id=session_id,
+            provider_id=str(message.get("provider_id") or ""),
+            send_fn=send_fn,
+        )
+
+    async def _handle_pil_discard(
+        self,
+        session_id: str,
+        message: dict,
+        send_fn: SendFn,
+        persist: CGSPersistence,
+        cgs_state: dict,
+    ) -> None:
+        session = self._sm._sessions.get(session_id)
+        txn = getattr(session, "pending_txn", None)
+        agent_discard = _record_agent_proposal_discard(
+            self._agent_event_stream.session_store,
+            persist=persist,
+            session_id=session_id,
+            session=session,
+            txn=txn,
+            message=message,
+            cgs_state=cgs_state,
+        )
+        self._sm.clear_pending(session_id)
+        ack = {"type": "pil_discard_ack"}
+        if agent_discard:
+            ack["agent_proposal_discard"] = agent_discard
+        await send_fn(ack)
 
     async def _handle_pil_apply(
         self,
@@ -679,6 +784,18 @@ class WSMessageRouter:
         except Exception as exc:  # noqa: BLE001 - prompt apply has already persisted; surface evidence failure.
             log.warning("Failed to record prompt undo/redo history: %s", exc)
             prompt_history = getattr(persist, "prompt_history_state", lambda: {})()
+        agent_proposal_apply = _record_agent_proposal_applied(
+            self._agent_event_stream.session_store,
+            session_id=session_id,
+            txn=txn,
+            approval=approval_record,
+            transaction_id=transaction_id,
+            pre_hash=authority["pre_hash"],
+            post_hash=new_hash,
+            summary=summary,
+            apply_feedback=apply_feedback,
+            typed_operation_provenance=typed_operation_provenance,
+        )
         self._sm.clear_pending(session_id)
         _record_mutation_audit(
             persist,
@@ -733,6 +850,7 @@ class WSMessageRouter:
             "composite_prompt_plan": _prompt_apply_composite_prompt_plan(txn),
             "prompt_history": prompt_history,
             "prompt_history_entry": prompt_history_entry,
+            "agent_proposal_apply": agent_proposal_apply,
         })
 
     async def _handle_cgs_request(
@@ -2434,6 +2552,165 @@ def _prompt_apply_feedback(
         },
     }
     return feedback
+
+
+def _record_agent_proposal_discard(
+    store: Any,
+    *,
+    persist: Any,
+    session_id: str,
+    session: Any,
+    txn: Any,
+    message: dict,
+    cgs_state: dict,
+) -> dict[str, Any]:
+    if not isinstance(txn, dict):
+        return {}
+    proposal = _agent_proposal_record(txn)
+    proposal_id = str(proposal.get("proposal_id") or "")
+    if not proposal_id:
+        return {}
+    transaction_id = _ensure_transaction_id(persist, txn)
+    pre_hash = str(cgs_state.get("metadata", {}).get("cgs_hash", "") or "")
+    submitted_hash = str(txn.get("parent_cgs_hash") or txn.get("cgs_hash") or pre_hash)
+    version_ids = _version_ids_for(session, cgs_state, persist, message, txn)
+    typed_operation_provenance = _prompt_apply_typed_operation_provenance(txn)
+    _record_mutation_audit(
+        persist,
+        session_id=session_id,
+        mutation_path="agent_proposal_discard",
+        actor=_mutation_actor(message, txn, "agent"),
+        outcome="discarded",
+        transaction_id=transaction_id,
+        version_ids=version_ids,
+        pre_hash=pre_hash,
+        post_hash=pre_hash,
+        submitted_hash=submitted_hash,
+        operations=_prompt_apply_audit_operations(txn),
+        summary=str(txn.get("mutation_summary", "")),
+        error="",
+        rollback_status="not_started",
+        runtime_context=_runtime_context(session),
+        typed_operation_provenance=typed_operation_provenance,
+    )
+    logged = False
+    error = ""
+    if store is not None:
+        try:
+            store.update_proposal_status(
+                proposal_id,
+                status="discarded",
+                mutation_transaction_id=transaction_id,
+            )
+            logged = True
+        except Exception as exc:  # noqa: BLE001 - audit must not block discard.
+            error = str(exc)[:300]
+            log.warning("Failed to update agent proposal discard status: %s", exc)
+    return {
+        "schema": "xace.agent_proposal_disposition.v1",
+        "proposal_id": proposal_id,
+        "status": "discarded",
+        "transaction_id": transaction_id,
+        "logged": logged,
+        "audit_recorded": bool(persist is not None and hasattr(persist, "record_mutation_audit")),
+        "error": error,
+    }
+
+
+def _record_agent_proposal_applied(
+    store: Any,
+    *,
+    session_id: str,
+    txn: dict,
+    approval: dict[str, Any],
+    transaction_id: str,
+    pre_hash: str,
+    post_hash: str,
+    summary: str,
+    apply_feedback: dict[str, Any],
+    typed_operation_provenance: dict[str, Any],
+) -> dict[str, Any]:
+    proposal = _agent_proposal_record(txn)
+    proposal_id = str(proposal.get("proposal_id") or "")
+    if not proposal_id:
+        return {}
+    approval_id = str(
+        approval.get("approval_id")
+        or approval.get("preview_id")
+        or approval.get("id")
+        or ""
+    )
+    provider_id = str(proposal.get("provider_id") or "agent")
+    logged = False
+    error = ""
+    if store is not None:
+        try:
+            store.update_proposal_status(
+                proposal_id,
+                status="applied",
+                approval_id=approval_id,
+                mutation_transaction_id=transaction_id,
+            )
+            store.record_mutation_lineage(
+                AgentMutationLineageRecord(
+                    mutation_id=_agent_mutation_id(proposal_id, transaction_id, post_hash),
+                    proposal_id=proposal_id,
+                    xace_session_id=session_id,
+                    provider_id=provider_id,
+                    base_cgs_hash=pre_hash,
+                    result_cgs_hash=post_hash,
+                    gde_transaction_id=transaction_id,
+                    status="applied",
+                    summary=summary or "Applied agent proposal through Builder approval.",
+                    sgc_plan_id=str(
+                        (apply_feedback.get("proof_links", {}) or {})
+                        .get("execution_plan", {})
+                        .get("path", "")
+                    ),
+                    runtime_validation_id=str(
+                        (apply_feedback.get("runtime_load", {}) or {}).get("status", "")
+                    ),
+                    metadata={
+                        "typed_operation_provenance": typed_operation_provenance,
+                        "proof_links": apply_feedback.get("proof_links", {}),
+                    },
+                )
+            )
+            logged = True
+        except Exception as exc:  # noqa: BLE001 - apply already succeeded.
+            error = str(exc)[:300]
+            log.warning("Failed to record agent proposal apply lineage: %s", exc)
+    return {
+        "schema": "xace.agent_proposal_disposition.v1",
+        "proposal_id": proposal_id,
+        "status": "applied",
+        "transaction_id": transaction_id,
+        "approval_id": approval_id,
+        "logged": logged,
+        "error": error,
+    }
+
+
+def _agent_proposal_record(txn: Any) -> dict[str, Any]:
+    if not isinstance(txn, dict):
+        return {}
+    proposal = txn.get("agent_proposal")
+    return copy.deepcopy(proposal) if isinstance(proposal, dict) else {}
+
+
+def _agent_mutation_id(proposal_id: str, transaction_id: str, cgs_hash: str) -> str:
+    digest = hashlib.sha256(
+        json.dumps(
+            {
+                "proposal_id": proposal_id,
+                "transaction_id": transaction_id,
+                "cgs_hash": cgs_hash,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()[:16]
+    return f"agent-mutation-{digest}"
 
 
 def _pending_prompt_preview(session: Any) -> dict[str, Any] | None:
