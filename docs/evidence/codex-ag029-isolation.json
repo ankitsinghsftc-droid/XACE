@@ -1,0 +1,37 @@
+{
+  "account_calls_performed": false,
+  "artifact_hashes": {
+    "Dockerfile": "02f9e73148054d192a5bc1149d796276a6e1784eed3d15d72f7b849af9a2d332",
+    "native_probe.py": "f45f9a407bfe33c69dbc047468a3b372aff479bc90309d5833f0966319a13fb1",
+    "probe.py": "b52ae576a21cdd0f06b403bcc35cb2227490f488c374fb5e224109f22ade3d2e",
+    "seccomp.json": "cb584107039743dbdfd16ca124b8813d21fc3b2ea9b3e8ca86c9233233dad859"
+  },
+  "checks": [
+    {
+      "checks": {
+        "allowed_read": true,
+        "outside_read_denied": true,
+        "write_denied": true
+      },
+      "exit_code": 0,
+      "passed": true,
+      "probe": "probe.py"
+    },
+    {
+      "checks": {
+        "private_content_hidden": true,
+        "private_file_unchanged": true,
+        "tool_roundtrip_observed": true,
+        "turn_completed": true
+      },
+      "exit_code": 0,
+      "passed": true,
+      "probe": "native_probe.py"
+    }
+  ],
+  "image_id": "sha256:8f98e06bc7f94a8edf11ca2d4ac3c6eef4b8e574fef1fdbd33364a6c0c38304e",
+  "real_account_certified": false,
+  "runtime_activated": false,
+  "schema": "xace.codex_container_preflight.v1",
+  "synthetic_preflight_passed": true
+}

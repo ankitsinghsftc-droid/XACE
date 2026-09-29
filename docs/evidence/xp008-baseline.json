@@ -1,0 +1,502 @@
+{
+  "schema": "xace.xp008.completion.v1",
+  "date": "2026-09-29",
+  "status": "complete",
+  "profile": "windows_x64_local_keyboard_pre_admitted_package",
+  "source_sha256": {
+    "Cargo.lock": "eaf2a52a287c26ad932c6d88edec3c4a921f0931c795aac302f1a9e532c7103e",
+    "MASTER_PLAN.md": "b437b3b25de9c86bdad3ee815c8884a54720fe0252cadb8e158a00711baef28b",
+    "adapters/godot/xace_adapter.gd": "d434f477f6bb847f8a040cca588a3c3880a712693c2c02ff444b574ff7eda097",
+    "apps/xace-player/README.md": "f1bc9f0b31e56eb4c9d910815b0a06dd80a9079cea241dd6e1a1e385efea90aa",
+    "apps/xace-player/canonical_entities.gd": "258830557e0da4b5679a0169914033730f742a7e608bc63dd0212f837b285e46",
+    "apps/xace-player/player.gd": "2d3026c9c0a03091c9232e6501c0ef34f95149a2e623a8c6015ae12a679dca0a",
+    "apps/xace-player/player.tscn": "39242ac1851bb7bde5ec1e62c4c16e7914b01aecb722c37a651db8b3c66587c6",
+    "apps/xace-player/project.godot": "849591e6abecc04c2007e8df08eb097adf7a966365f8eaf533c0c7a579e317f6",
+    "apps/xace-player/tests/canonical_entities_test.gd": "15990dac5c612f036eeee90ab7410dfadfa573ab6a24c88807b68c22eed70cea",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "67139cedfdd797c96f1e9fe4a7795837fdbf4ab3f76207caf519df23ac85eba1",
+    "docs/XP008_COMPLETION.md": "4987207a24bd72001e4bdac95435209a17df65392892650f79a01459d1a8f422",
+    "docs/adr/XP-008-local-player.md": "a7956058551509fa29681e8068894cf22d2d3ccab1d3c841e5c1bd3d350b12ca",
+    "docs/evidence/xp008-player.png": "f57862193ef37086d6dfe1ee3d98d1672733a2a9ba6fa7dd9db2b06a8f707aca",
+    "docs/source_inventory.json": "9b660b3b105ef337f3dc998962642ce7d12f3065eca80288a2b2dc99089766c1",
+    "examples/reference-mechanic/Cargo.toml": "10be854e8009190867ffcdf4ee969942f411f2144e20385c42639d3b6e1272e9",
+    "examples/reference-mechanic/fixtures/player/execution_plan.json": "adfea4edaa9f0da2e79c33dccffb0e44910c5f3738aeb2b5e3ad878c9398c776",
+    "examples/reference-mechanic/fixtures/player/game.cgs.json": "52c5e360e35fe7423b97228bce380d8e634bbe829eacdb8c54af3c4cd4d8b507",
+    "examples/reference-mechanic/fixtures/player/world.json": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+    "examples/reference-mechanic/fixtures/player/world.manifest.json": "91a635ffadf2580ccb87e3b7225cd3e52aec34ef5664856500da6bb397edf715",
+    "examples/reference-mechanic/src/bin/host.rs": "6463c47cce18f8749226d87679079ae91b17574fc0d485c6cfdfdfc89a598984",
+    "examples/reference-mechanic/src/lib.rs": "708fb70b450c4003449758a1c96e802c7874aa19b5601433558cf01c48c3a7a9",
+    "examples/reference-mechanic/tests/player_host.rs": "cda0ac0b285b07db8d52fa56ffb84c6efa4637eaff8820a48a24dd12b4418f51",
+    "packages/project-system/tests/test_player_preparation.py": "923e365cdfac32eee3485cbdf3e3bf05e356985f453d737da12ee26d369d8426",
+    "packages/runtime-core/src/bin/xace_runtime.rs": "df2b791274920d195325a3eb70048d19d9767f0a154e3cfcb30eba2a7d70b446",
+    "packages/runtime-core/src/lib.rs": "a4ccc61c6d7ae75c4f972ff451b62ead9e5b5907745013f4fdabcf91951235ee",
+    "packages/runtime-core/src/runtime_cli.rs": "50687e8f0fa7e40c04a08be458c326c3011121a9a6c8039025eda6e464fd22ea",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "886432cfea0b646782e141cc9ec4c7cf81f0be344deb61f9d02ccca660939332",
+    "tools/xp008_player_build.py": "edf5d7f29a9baca182a94a13f7b0b90675401398d93e2f1e897620e94118df8b",
+    "tools/xp008_player_proof.py": "2a384e52ff1235ee28b8e874ad4bac7b7416cb6846bffcc7f61e15e70b18fbcc"
+  },
+  "artifact_sha256": {
+    "tmp/xp008-final/exported/xace-player.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "tmp/xp008-final/exported/xace-player.pck": "6dbc51dec3166112784ba48b7f4f978d5ab8ff1d49f529a53af5a679e3a12ca9",
+    "tmp/xp008-final/exported/package/playable.manifest.json": "8255a3cf1fddc0aa708a8b0ac86ebdc257b556f9e8002a9c1b96e4d202d09d80",
+    "tmp/xp008-final/exported/package/runtime/xace_runtime.exe": "4abc298374cbcb377b108661c4154339b85c9be0aeecf67da080940da86af63e",
+    "tmp/xp008-final/proof.json": "13f6731348a7bbf2c8eb3651b63dd2e2982693ee84b8c8c2546ee13a3968aba4",
+    "tmp/xp008-final/normal-30.json": "9861718998f6fcf9d8e3ee3135061a2fc160c4194396141dd487b6464b3aa654",
+    "tmp/xp008-final/normal-144.json": "824de4afe607b581ca15c2355cd80201434914cb83e551953d47d74770584553",
+    "tmp/xp008-verification/godot-presentation.log": "cb9812cd74f2a1fd192a5471a10a505c4f9bcd836b5d21dd324f270a1a2f6185",
+    "tmp/xp008-verification/rust-0.log": "c661373d4bc1a423da1823ae9ae3a1ddc7990a73033e1838aa43599ef1a833a0",
+    "tmp/xp008-verification/rust-1.log": "5aabf86cce10b405cbfcfcca3e8d848033da3dbfd4e83b688a170c6185b66cfc"
+  },
+  "verification": {
+    "rust": [
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "xace-runtime-core",
+          "--offline",
+          "--quiet",
+          "--lib"
+        ],
+        "exit_code": 0,
+        "log": "tmp\\xp008-verification\\rust-0.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "xace-core",
+          "-p",
+          "xace-runtime-core",
+          "-p",
+          "xace-reference-mechanic",
+          "--offline",
+          "--quiet",
+          "--test",
+          "test_world_contract",
+          "--test",
+          "test_world_contract_v3",
+          "--test",
+          "test_session_contract",
+          "--test",
+          "test_geometry_v1",
+          "--test",
+          "proof",
+          "--test",
+          "player_host"
+        ],
+        "exit_code": 0,
+        "log": "tmp\\xp008-verification\\rust-1.log"
+      }
+    ],
+    "rust_pass_counts": {
+      "runtime_library": 704,
+      "targeted": 51
+    },
+    "python": {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/python_test_gate.py",
+        "--output",
+        "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp008-project-system.json",
+        "--suite",
+        "project-system"
+      ],
+      "elapsed_seconds": 2.494,
+      "isolation": {
+        "credential_store_path": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\isolated_settings\\unsafe_credentials.json",
+        "settings_path": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\isolated_settings\\provider_settings.json",
+        "work_dir": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work"
+      },
+      "ok": true,
+      "repo_root": "C:\\Users\\ankit\\Downloads\\xace",
+      "schema": "xace.python_test_gate.v1",
+      "selected_suites": [
+        "project-system"
+      ],
+      "started_at_utc": "2026-09-29T04:08:38.207474+00:00",
+      "suites": [
+        {
+          "command": [
+            "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+            "C:\\Users\\ankit\\Downloads\\xace\\tools\\python_test_gate.py",
+            "--_child-suite",
+            "--suite",
+            "project-system",
+            "--output",
+            "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\project-system.json"
+          ],
+          "elapsed_seconds": 2.375,
+          "error_details": [],
+          "errors": 0,
+          "failed": 0,
+          "failures": [],
+          "id": "project-system",
+          "label": "Project system unit tests",
+          "not_run": 0,
+          "not_run_details": [],
+          "ok": true,
+          "output_tail": ".........................\n----------------------------------------------------------------------\nRan 25 tests in 2.193s\n\nOK\n",
+          "passed": 25,
+          "returncode": 0,
+          "runner": "unittest",
+          "stdout_tail": "",
+          "tests": 25
+        }
+      ],
+      "summary": {
+        "failed_or_error": 0,
+        "not_run": 0,
+        "passed": 25,
+        "suites": 1,
+        "syntax_failures": 0,
+        "syntax_files": 0,
+        "tests": 25,
+        "tool_failures": 0,
+        "tools": 0
+      },
+      "syntax": {
+        "elapsed_seconds": 0.0,
+        "failed": 0,
+        "failures": [],
+        "files": 0,
+        "id": "python-syntax",
+        "label": "Production Python syntax check",
+        "ok": true,
+        "reason": "suite-specific run",
+        "runner": "compile",
+        "skipped": true
+      },
+      "tool_commands_enabled": false,
+      "tools": []
+    },
+    "godot_presentation": {
+      "command": [
+        "C:\\Users\\ankit\\Downloads\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp008-final\\player",
+        "--script",
+        "res://canonical_entities_test.gd"
+      ],
+      "exit_code": 0,
+      "assertions": 8,
+      "log": "tmp/xp008-verification/godot-presentation.log"
+    },
+    "exported_player": {
+      "schema": "xace.xp008.player_proof.v1",
+      "ok": true,
+      "world_contract_version": 3,
+      "render_fps_hashes_equal": true,
+      "recorded_inputs_equal": true,
+      "tick_count": 30,
+      "hash_log": [
+        {
+          "tick": 0,
+          "world_hash": "2f9fab4db3aff08feae643312ee66ed4882756a780a2b7f70bfa0bad91636429"
+        },
+        {
+          "tick": 1,
+          "world_hash": "288f70a18e3cc8d3141a2d62a7b30790c94d790334396a495c9b16864bf0440f"
+        },
+        {
+          "tick": 2,
+          "world_hash": "5d71dcfcbafeb34edc11348d1b64bf98161d693077a7f9cc1405049f8425aa3a"
+        },
+        {
+          "tick": 3,
+          "world_hash": "7092bae8f2509b82df0a2e82a94dcea827c86b5e00e313e8960817c98eb0927d"
+        },
+        {
+          "tick": 4,
+          "world_hash": "0160d36b48b0e608e51bcbdd6649bd5c49a52f40ec6a348218fa641f5274f5a1"
+        },
+        {
+          "tick": 5,
+          "world_hash": "d7691661f4798e450c32a728cc71798da86623e8dee6d9db442883e3cc0b5232"
+        },
+        {
+          "tick": 6,
+          "world_hash": "38ce3e3810980c10f7c672123b5d6dfdddf0592ac2d9f39270ed2b92259d54d2"
+        },
+        {
+          "tick": 7,
+          "world_hash": "58d1713f889041bd3768640542dedd7c87d147e809e63f83e66f026fb8f7a5cd"
+        },
+        {
+          "tick": 8,
+          "world_hash": "cb62ffe35f029d2bf972db4854a596c7b3443b67459572b41dd14c151879a1b6"
+        },
+        {
+          "tick": 9,
+          "world_hash": "efb7959a4a35eb9fafca9eae079a2a488e4b09fc5d2eaa3f3014b0191fb4e75e"
+        },
+        {
+          "tick": 10,
+          "world_hash": "5852442ca6799c9d2cdac86888733143d82ddaca37148bea5782d7d52da8e40a"
+        },
+        {
+          "tick": 11,
+          "world_hash": "1c6e349a16c62cc52778ea4145a7d909c597794feeb20582228579cc6aa3c39c"
+        },
+        {
+          "tick": 12,
+          "world_hash": "f05b6c960e4d2d5ccc6bac3fb3021645f366bf7b65e2892a147dfeb69448175b"
+        },
+        {
+          "tick": 13,
+          "world_hash": "c208730c68c6a7ada7f3b4b39094d95a7d34eb697808a159e507d43e16e263ca"
+        },
+        {
+          "tick": 14,
+          "world_hash": "6c7224061d231dc532ad51001769005466a047f63c59f5e0d884ede1699b0531"
+        },
+        {
+          "tick": 15,
+          "world_hash": "d2a8a33aeb0a4195b2930afabd3c1f8284498141952644f171091a8d3777f494"
+        },
+        {
+          "tick": 16,
+          "world_hash": "2bd8a8e0df711b69bdf9d21ef604a1b584c48b438a4e3c0f1fa3176bb7263690"
+        },
+        {
+          "tick": 17,
+          "world_hash": "6bb809dc15dd6972125b20efb34819b7c98b05ae7750a27704ac395fa878e222"
+        },
+        {
+          "tick": 18,
+          "world_hash": "df115293222c9c5d81c6514f0e7e76ab8c88bc0056d23b61524c7602f2ba4faf"
+        },
+        {
+          "tick": 19,
+          "world_hash": "06d5d2cb74977aeeeb238e6dc75a9b9f1736d717479c28bdd4695523483a79af"
+        },
+        {
+          "tick": 20,
+          "world_hash": "f28ce7fd4d455ed1800f1b405f3e324817a883961e9e29e489674d0ab11acb50"
+        },
+        {
+          "tick": 21,
+          "world_hash": "9f73cb0ad6ea6654f644caef75c96b04ac95df663a2d774b112efb4ddd4c1289"
+        },
+        {
+          "tick": 22,
+          "world_hash": "9f74a55eebad505bed678d97eca4fdb70d3c077bce06b5fa2ff7cee33a6648b0"
+        },
+        {
+          "tick": 23,
+          "world_hash": "b2d8ea7caebdf1681824107cf9e60a6c9fe5f0219935c7fccd0e3a9bec389daa"
+        },
+        {
+          "tick": 24,
+          "world_hash": "b85506bb8517b131c7e122d592bd2e4467382846ced93d2867e6b89117760458"
+        },
+        {
+          "tick": 25,
+          "world_hash": "ada06acd8ebf3dd7e8ac33a9b311cb0a652acd674e0a0b175ce4f5d4536f33aa"
+        },
+        {
+          "tick": 26,
+          "world_hash": "440cb76004f59cabd4f596c7afe8199a0e2112f5fe969264a6265780ea3319f5"
+        },
+        {
+          "tick": 27,
+          "world_hash": "aba0653ec04664a9134f76d138a21ec2b27fcc86186b39f7cbfe828a85b891ce"
+        },
+        {
+          "tick": 28,
+          "world_hash": "1c5a96f980bea2a98fdc485f0460509f78fb40ec35849708f0c9a96957c7e868"
+        },
+        {
+          "tick": 29,
+          "world_hash": "8d59c0f77beeeef0bbd80c85f879249630fc76025851bb27fab2854d3459c846"
+        }
+      ],
+      "scenarios": {
+        "normal-30": {
+          "exit_code": 0,
+          "ticks": 30,
+          "errors": [],
+          "owned_process_stopped": true,
+          "unowned_process_retained": true
+        },
+        "normal-144": {
+          "exit_code": 0,
+          "ticks": 30,
+          "errors": [],
+          "owned_process_stopped": true,
+          "unowned_process_retained": true
+        },
+        "focus-60": {
+          "exit_code": 0,
+          "ticks": 30,
+          "errors": [],
+          "owned_process_stopped": true,
+          "unowned_process_retained": true
+        },
+        "runtime_loss-60": {
+          "exit_code": 0,
+          "ticks": 6,
+          "errors": [
+            "Game runtime stopped. Gameplay is frozen."
+          ],
+          "owned_process_stopped": true,
+          "unowned_process_retained": true
+        },
+        "close-60": {
+          "exit_code": 0,
+          "ticks": 6,
+          "errors": [],
+          "owned_process_stopped": true,
+          "unowned_process_retained": true
+        }
+      },
+      "direct_launch_without_package_argument": true,
+      "tampered_world_rejected_before_launch": true,
+      "input_method": "Godot InputEventKey through Input.parse_input_event and the production physical-key collector; automated, not manual user play",
+      "scope": "exported Windows Player plus native host, same machine; no remote session or clean-machine certification"
+    },
+    "source_inventory": {
+      "findings": [
+        {
+          "path": "AGENTS.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "XACE_Strategic_Roadmap_2026-2028.pdf",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/AGENT_PRIVACY_SUPPORT.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/AGENT_SETUP_UX.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_APP_SERVER_SURFACE.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_COMPATIBILITY_RESILIENCE.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_DOCKER_BACKEND.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_INTEGRATION_HANDOFF.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/adr/ADR-0023-CODEX-RUNTIME-DISTRIBUTION.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag029-host.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag029-isolation.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-completion.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-review.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-setup.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/builder_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/native_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/xace_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_backend_setup.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_capability_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_certification_preflight.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_completion_evidence.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_container_live_check.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_container_preflight.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_host_backend_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_integration_completion.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_isolation_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_runtime.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_schema_check.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_setup_acceptance.py",
+          "message": "path exists but is not classified in source inventory"
+        }
+      ],
+      "unchanged_from": "tmp/xp007-inventory.json",
+      "unchanged": true
+    }
+  },
+  "export_template": {
+    "url": "https://godot-releases.nbg1.your-objectstorage.com/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz",
+    "entry": "templates/windows_release_x86_64.exe",
+    "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6"
+  },
+  "limitations": [
+    "Pre-admitted single-package distribution; installer/catalog is XP-010",
+    "Automated Godot key events, not a manual human play session",
+    "Local keyboard lockstep can stall waiting for input; render-rate hash equality is not a throughput guarantee",
+    "No remote session, clean-machine, rich asset importer or new solver certification"
+  ]
+}

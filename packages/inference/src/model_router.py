@@ -264,7 +264,7 @@ class ModelRouter:
         return RoutingDecision(
             descriptor           = local_desc,
             tier                 = tier,
-            reason               = f"TIER_M local: '{model}' loaded. Zero cost. Evidence: {evidence.route_id}.",
+            reason               = f"TIER_M local: '{model}' loaded. No provider API price; local compute cost is not estimated. Evidence: {evidence.route_id}.",
             local_model_selected = True,
             route_evidence_id    = evidence.route_id,
             route_evidence_rejections = tuple(evidence_rejections),

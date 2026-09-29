@@ -1,0 +1,39 @@
+{
+  "schema": "xace.player_program.audit.v1",
+  "date": "2026-09-23",
+  "head": "aaa15fc22207aa188009f9f29006032a2db62c47",
+  "working_tree": "pre-existing dirty working tree; audit reads current bytes",
+  "implementation_started": false,
+  "sources": {
+    "packages/runtime-core/src/runtime_orchestrator.rs": "912b1fa4bed436e80044c64c70f146369a71e0c41931c0f9a45c5d9ab8eca505",
+    "packages/runtime-core/src/engine_protocol.rs": "d2d0bfd83eda46724fc0072a1eb00c4f010f330c2c26a6f5163a8f9a95f1cd93",
+    "packages/runtime-core/src/engine_bridge.rs": "3e76dccc897974398c45c53895b63e030648a7c14bfaef11efe3a84afc1a7fd0",
+    "packages/runtime-core/src/bin/xace_runtime.rs": "82f80e4d75a89206391e3c8f2374265069d6e68836315297019c0781e95a6b7b",
+    "packages/runtime-core/src/builtin_systems.rs": "474cba8f77fd4647b748cca7bd2a96ca712878b5e582828faa24fc400d969a75",
+    "packages/network-core/src/session/session_manager.rs": "1fb0340ced7dc4ce4c8838a2857ed6a069dfac7fd383ad45437b2532a86ce8e4",
+    "packages/network-core/src/session/session_compatibility.rs": "65652a28731957df2fe18d93a1ea5cd6759defdaa79abcbc84d69e975d8c5b78",
+    "packages/network-core/src/input/malicious_input_gate.rs": "d2178135fa7bf58c42aad261e79e2d5adffe50d16ff9a63eba20c76877387125",
+    "packages/builder-workspace/server/session_manager.py": "b450c44d22ea37354ca0e1fbc626877687f3e377877f8082d083bbf57235de1f",
+    "packages/builder-workspace/server/ws_message_router.py": "678486bf18e70457fc7dfbfafaecf3aa9a95c68bdd9b153da022f0844819879a",
+    "packages/schema-factory/src/schema_factory.py": "51d3da41b546efef37414d8d065eec92b2e403e7ae4053a462abc54c6c5d19a5",
+    "packages/core/src/fixed_point.rs": "9d2600cac5e35bf1cc1add078ae3c3697616fc27cf113d8e2a0b46b651b25b69",
+    "packages/dcl/gameplay_primitives.py": "eeb8c5983cc9725eec84f935ce85010f7f4abf8b9d19add0dbbf7523bb7eff11",
+    "adapters/godot/xace_godot_main.gd": "a8ba51abfb4a363ac6403a8f77c2af36afad8027510c3b4a18ff525949067f80",
+    "tools/cross_engine_core_hash_compare.py": "2ab33eb214e9d91ca925aeb5fb36e7b7009e5831913aec0155f9c01ad87236b8"
+  },
+  "verification": {
+    "rust_command": "cargo test -p xace-runtime-core -p xace-network-core -p xace-engine-adapter -p xace-system-graph-compiler --offline --quiet",
+    "rust_passed": 1346,
+    "python_gate_report": "tmp/xp-audit-python-report.json",
+    "python_gate_passed": 545,
+    "python_gate_error": "DCL discovery: ModuleNotFoundError: No module named packages",
+    "direct_dcl_and_builder_tests_passed": 45
+  },
+  "limitations": [
+    "No native editor or Internet session run",
+    "No new hosted provider call",
+    "No full workspace or three-platform certification",
+    "Historical target-codex-task64/65/66/67 proof directories absent",
+    "Retained cross-platform replay artifact requires Windows only and has zero input packets"
+  ]
+}

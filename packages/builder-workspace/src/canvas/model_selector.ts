@@ -3,6 +3,13 @@
  */
 
 import type { BuilderClient, ProviderUxState } from '../api/builder_client';
+import { agentModeStore } from '../state/agent_mode_store';
+import {
+  UNKNOWN_BILLING,
+  billingCostLabel,
+  normalizeBillingUsage,
+  type BillingUsageStatus,
+} from '../types/billing';
 
 const STYLES = `
 .xb-ms-btn {
@@ -231,6 +238,7 @@ interface ProviderOption {
   ready: boolean;
   checks: ProviderChecks;
   message: string;
+  billing: BillingUsageStatus;
 }
 
 interface AiModeOption {
@@ -245,6 +253,7 @@ interface AiModeOption {
   message: string;
   action: string;
   reserved: boolean;
+  billing: BillingUsageStatus;
 }
 
 interface AgentSecurityPolicy {
@@ -288,8 +297,22 @@ interface AgentProviderStatus {
   readonly warnings: readonly string[];
   readonly last_checked_at: string;
   readonly metadata: Record<string, unknown>;
+  readonly billing: BillingUsageStatus;
 }
 
+
+interface AgentModeLaunchStatus {
+  schema: string;
+  status: string;
+  release_certified: boolean;
+  implementation_shippable: boolean;
+  runtime_ready: boolean;
+  preferred_path: boolean;
+  fallback_mode: string;
+  fallback_active: boolean;
+  fallback_available: boolean;
+  requires_claude_or_local: boolean;
+}
 interface AgentModeStatus extends AiModeOption {
   mode: string;
   primary_adapter: string;
@@ -301,6 +324,7 @@ interface AgentModeStatus extends AiModeOption {
   completion_scope: string;
   feature_stage: string;
   tool_transport_preference: string;
+  launch_status: AgentModeLaunchStatus;
   distribution?: Record<string, unknown>;
 }
 
@@ -321,6 +345,7 @@ interface ProviderSettings {
   requested_ai_mode: string;
   ai_modes: AiModeOption[];
   agent_mode: AgentModeStatus | null;
+  billing: BillingUsageStatus;
 }
 
 const UNRESOLVED_MODEL = 'unresolved';
@@ -342,6 +367,7 @@ const EMPTY_SETTINGS: ProviderSettings = {
   requested_ai_mode: 'api_byok',
   ai_modes: [],
   agent_mode: null,
+  billing: UNKNOWN_BILLING,
 };
 
 export class ModelSelector {
@@ -354,6 +380,7 @@ export class ModelSelector {
   private _drop: HTMLElement | null = null;
   private _message = '';
   private _messageKind: '' | 'ok' | 'err' = '';
+  private readonly _onRefreshSettings = () => { void this._fetchSettings(); };
   private readonly _onOpenSettings = () => {
     this._open ? this._close() : this._openDrop();
   };
@@ -373,6 +400,7 @@ export class ModelSelector {
     });
     container.appendChild(this._btn);
     window.addEventListener('xace:open-model-settings', this._onOpenSettings);
+    window.addEventListener('xace:refresh-provider-settings', this._onRefreshSettings);
     this._fetchSettings();
     return this._btn;
   }
@@ -400,10 +428,12 @@ export class ModelSelector {
       this._selectedProvider = this._info.provider;
       this._selectedModel = this._info.current;
       this._publishReadiness();
+      this._publishAgentMode();
       this._renderBtn();
       if (this._drop) this._renderDrop(this._drop);
     } catch {
       this._info = { ...EMPTY_SETTINGS, current: 'no server', model: 'no server' };
+      this._publishAgentMode();
       this._client.updateProviderStatus({
         checked: true,
         ready: false,
@@ -478,6 +508,7 @@ export class ModelSelector {
     const mode = this._aiMode(this._info.ai_mode);
     this._appendStatusRow(block, 'Mode', mode?.label ?? this._info.ai_mode, mode?.ready ? 'ok' : mode?.active ? 'warn' : '');
     this._appendStatusRow(block, 'Health', testText, testKind);
+    this._appendStatusRow(block, 'Billing', billingCostLabel(this._info.billing), '');
     return block;
   }
 
@@ -509,7 +540,7 @@ export class ModelSelector {
       const button = document.createElement('button');
       button.className = `xb-ms-provider${mode.active ? ' active' : ''}`;
       button.type = 'button';
-      button.disabled = mode.id !== 'api_byok';
+      button.disabled = mode.reserved;
       button.title = mode.message || mode.description || mode.label;
       const dot = document.createElement('span');
       dot.className = `xb-ms-dot ${mode.ready ? 'healthy' : mode.enabled ? 'loading' : 'unhealthy'}`;
@@ -519,6 +550,9 @@ export class ModelSelector {
       button.appendChild(dot);
       button.appendChild(label);
       grid.appendChild(button);
+      button.addEventListener('click', () => {
+        void this._selectAiMode(mode, button);
+      });
     }
     parent.appendChild(grid);
 
@@ -709,6 +743,7 @@ export class ModelSelector {
       this._message = 'Saved.';
       this._messageKind = 'ok';
       this._publishReadiness();
+      this._publishAgentMode();
       this._renderBtn();
       this._client.send({
         type: 'model_change',
@@ -782,6 +817,43 @@ export class ModelSelector {
     });
   }
 
+
+  private _publishAgentMode(): void {
+    agentModeStore.receive({
+      aiMode: this._info.ai_mode,
+      agent: this._info.agent_mode,
+      billing: this._info.billing,
+    });
+  }
+
+  private async _selectAiMode(mode: AiModeOption, button: HTMLButtonElement): Promise<void> {
+    if (mode.reserved) return;
+    button.disabled = true;
+    this._message = mode.id === 'agent' ? 'Preparing Agent Mode...' : 'Switching prompt mode...';
+    this._messageKind = '';
+    if (this._drop) this._renderDrop(this._drop);
+    try {
+      const response = await this._postJson<ProviderSettings>('/api/agent-mode', {
+        mode: mode.id,
+        ...(mode.id === 'agent' ? { enabled: true } : {}),
+      });
+      this._info = this._normalizeSettings(response);
+      this._selectedProvider = this._info.provider;
+      this._selectedModel = this._info.current;
+      this._message = mode.id === 'agent'
+        ? this._info.agent_mode?.message || 'Agent Mode updated.'
+        : 'API / BYOK selected.';
+      this._messageKind = this._info.ai_mode === mode.id ? 'ok' : 'err';
+      this._publishReadiness();
+      this._publishAgentMode();
+      this._renderBtn();
+    } catch (error) {
+      this._message = String(error);
+      this._messageKind = 'err';
+    } finally {
+      if (this._drop) this._renderDrop(this._drop);
+    }
+  }
   private async _postJson<T>(url: string, payload: unknown): Promise<T> {
     const response = await fetch(url, {
       method: 'POST',
@@ -821,6 +893,7 @@ export class ModelSelector {
       requested_ai_mode: String(raw.requested_ai_mode || raw.ai_mode || 'api_byok'),
       ai_modes: Array.isArray(raw.ai_modes) ? raw.ai_modes.map(mode => this._normalizeAiMode(mode)) : [],
       agent_mode: this._normalizeAgentMode(raw.agent_mode),
+      billing: normalizeBillingUsage(raw.billing),
     };
   }
 
@@ -840,6 +913,7 @@ export class ModelSelector {
       healthy: Boolean(raw.healthy),
       ready: Boolean(raw.ready),
       message: String(raw.message || ''),
+      billing: normalizeBillingUsage(raw.billing),
       checks: {
         key_present: Boolean(checksRaw.key_present),
         key_valid: Boolean(checksRaw.key_valid),
@@ -863,6 +937,7 @@ export class ModelSelector {
       message: String(raw.message || ''),
       action: String(raw.action || ''),
       reserved: Boolean(raw.reserved),
+      billing: normalizeBillingUsage(raw.billing),
     };
   }
 
@@ -887,7 +962,24 @@ export class ModelSelector {
       completion_scope: String(raw.completion_scope || ''),
       feature_stage: String(raw.feature_stage || ''),
       tool_transport_preference: String(raw.tool_transport_preference || ''),
+      launch_status: this._normalizeAgentLaunchStatus(raw.launch_status),
       distribution: typeof raw.distribution === 'object' && raw.distribution !== null ? raw.distribution : undefined,
+    };
+  }
+
+  private _normalizeAgentLaunchStatus(value: unknown): AgentModeLaunchStatus {
+    const raw = (typeof value === 'object' && value !== null ? value : {}) as Partial<AgentModeLaunchStatus>;
+    return {
+      schema: String(raw.schema || 'xace.agent_mode_launch_status.v1'),
+      status: String(raw.status || 'unavailable'),
+      release_certified: Boolean(raw.release_certified),
+      implementation_shippable: Boolean(raw.implementation_shippable),
+      runtime_ready: Boolean(raw.runtime_ready),
+      preferred_path: Boolean(raw.preferred_path),
+      fallback_mode: String(raw.fallback_mode || 'api_byok'),
+      fallback_active: Boolean(raw.fallback_active),
+      fallback_available: raw.fallback_available !== false,
+      requires_claude_or_local: Boolean(raw.requires_claude_or_local),
     };
   }
 
@@ -910,6 +1002,7 @@ export class ModelSelector {
       warnings: Array.isArray(raw.warnings) ? raw.warnings.map(String) : [],
       last_checked_at: String(raw.last_checked_at || ''),
       metadata: typeof raw.metadata === 'object' && raw.metadata !== null ? raw.metadata : {},
+      billing: normalizeBillingUsage(raw.billing),
     };
   }
 

@@ -18,6 +18,9 @@ from agent_host import (  # noqa: E402
     CodexAppServerAdapter,
     CodexAppServerProbeResult,
     CodexExecutableCandidate,
+    CODEX_RUNTIME_SOURCE_EXTERNAL,
+    CODEX_RUNTIME_SOURCE_HOST_EXTENSION,
+    codex_runtime_compatibility,
     create_default_registry,
     parse_codex_version,
 )
@@ -60,6 +63,12 @@ class CodexDetectionTests(unittest.TestCase):
         self.assertEqual(status.auth_state, AgentAuthState.SIGNED_IN)
         self.assertEqual(status.version, "0.91.0")
         self.assertEqual(status.account_label, "ChatGPT pro u***@example.com")
+        billing = status.billing.to_dict()
+        self.assertEqual(billing["source"], "provider_account")
+        self.assertEqual(billing["cost_state"], "provider_managed")
+        self.assertEqual(billing["token_tracking"], "provider_reported")
+        self.assertIsNone(billing["estimated_cost_cents"])
+        self.assertEqual(billing["usage_summary"]["lifetimeTokens"], 1234567)
         self.assertTrue(status.capabilities.supports_mcp_tools)
         self.assertTrue(status.capabilities.supports_model_discovery)
         self.assertTrue(status.capabilities.supports_account_state)
@@ -72,9 +81,18 @@ class CodexDetectionTests(unittest.TestCase):
         self.assertEqual(metadata["model_ids"], ["gpt-5.6-terra", "gpt-5.6-luna"])
         self.assertEqual(metadata["account"]["email"], "u***@example.com")
         self.assertIn("account/read", metadata["probed_methods"])
+        self.assertIn("account/usage/read", metadata["probed_methods"])
         self.assertIn("model/list", metadata["probed_methods"])
         self.assertNotIn("thread/shellCommand", metadata["probed_methods"])
         self.assertNotIn("fs/writeFile", metadata["probed_methods"])
+
+        compatibility = metadata["runtime_compatibility"]
+        self.assertEqual(compatibility["state"], "compatible_current_protocol")
+        self.assertEqual(compatibility["basis"], "stable_app_server_protocol_probe")
+        self.assertFalse(compatibility["public_distribution_ready"])
+        self.assertTrue(metadata["native_mcp_transport_implemented"])
+        self.assertTrue(metadata["codex_dynamic_tools_fallback_implemented"])
+        self.assertFalse(metadata["experimental_api_required_for_tool_bridge"])
 
     def test_missing_codex_binary_reports_structured_unavailable_status(self) -> None:
         probe = FakeCodexProbe(AssertionError("probe should not be called"))
@@ -114,6 +132,12 @@ class CodexDetectionTests(unittest.TestCase):
         self.assertEqual(status.auth_state, AgentAuthState.UNKNOWN)
         self.assertFalse(status.metadata["app_server_responsive"])
         self.assertIn("model/list result must include data[]", status.warnings[-1])
+        compatibility = status.metadata["runtime_compatibility"]
+        self.assertEqual(compatibility["state"], "protocol_probe_failed")
+        self.assertEqual(
+            compatibility["basis"],
+            "failed_stable_app_server_protocol_probe",
+        )
 
     def test_auth_required_state_is_not_treated_as_turn_ready(self) -> None:
         probe = FakeCodexProbe(
@@ -142,7 +166,7 @@ class CodexDetectionTests(unittest.TestCase):
         status = asyncio.run(registry.detect(CODEX_APP_SERVER_PROVIDER_ID))
         self.assertTrue(status.available)
 
-    def test_provider_settings_serializes_codex_lifecycle_but_keeps_agent_mode_readiness_gated(self) -> None:
+    def test_provider_settings_marks_fully_capable_codex_agent_mode_ready_after_ag13(self) -> None:
         with tempfile.TemporaryDirectory(prefix="xace-codex-settings-") as tmp:
             root = Path(tmp)
             adapter = _adapter(FakeCodexProbe(_successful_probe()))
@@ -158,20 +182,71 @@ class CodexDetectionTests(unittest.TestCase):
             agent_mode = payload["agent_mode"]
             self.assertTrue(agent_mode["enabled"])
             self.assertTrue(agent_mode["available"])
-            self.assertFalse(agent_mode["ready"])
-            self.assertEqual(agent_mode["code"], "CODEX_MCP_TOOL_BRIDGE_READY_PROPOSAL_PENDING")
-            self.assertEqual(agent_mode["feature_stage"], "ag_011_codex_mcp_tool_bridge")
+            self.assertTrue(agent_mode["ready"])
+            self.assertEqual(agent_mode["code"], "CODEX_AGENT_MODE_READY")
+            self.assertEqual(agent_mode["action"], "run_agent")
+            self.assertEqual(
+                agent_mode["feature_stage"],
+                "ag_028_privacy_support_complete",
+            )
             self.assertEqual(agent_mode["available_adapters"], [CODEX_APP_SERVER_PROVIDER_ID])
-            self.assertEqual(agent_mode["certified_adapters"], [])
+            self.assertEqual(agent_mode["certified_adapters"], [CODEX_APP_SERVER_PROVIDER_ID])
+            self.assertEqual(agent_mode["launch_status"]["status"], "production_ready")
+            self.assertTrue(agent_mode["launch_status"]["release_certified"])
+            self.assertTrue(agent_mode["launch_status"]["runtime_ready"])
+            self.assertTrue(agent_mode["launch_status"]["preferred_path"])
+            self.assertFalse(agent_mode["launch_status"]["requires_claude_or_local"])
+            self.assertEqual(
+                agent_mode["launch_status"]["release_scope"],
+                "integration_implementation_only",
+            )
+            self.assertFalse(agent_mode["launch_status"]["public_distribution_ready"])
             self.assertEqual(
                 agent_mode["primary_adapter_status"]["metadata"]["default_model"],
                 "gpt-5.6-terra",
             )
+            self.assertEqual(payload["billing"]["source"], "provider_account")
+            self.assertEqual(payload["billing"]["cost_state"], "provider_managed")
+            self.assertEqual(payload["billing"]["token_tracking"], "provider_reported")
+            self.assertIsNone(payload["billing"]["estimated_cost_cents"])
 
     def test_parse_codex_version_extracts_semver_from_cli_text(self) -> None:
         self.assertEqual(parse_codex_version("codex 0.91.0"), "0.91.0")
         self.assertEqual(parse_codex_version("Codex CLI 1.2.3-beta.1"), "1.2.3-beta.1")
         self.assertIsNone(parse_codex_version("codex dev build"))
+
+
+
+    def test_runtime_provenance_rejects_host_extension_as_public_distribution(self) -> None:
+        profile = codex_runtime_compatibility(
+            CodexExecutableCandidate(
+                path=(
+                    "C:/Users/user/.vscode/extensions/"
+                    "openai.chatgpt-1.2.3-win32-x64/bin/windows-x86_64/codex.exe"
+                ),
+                source="PATH",
+            ),
+            "0.151.0-alpha.7",
+        )
+
+        self.assertEqual(profile["source_kind"], CODEX_RUNTIME_SOURCE_HOST_EXTENSION)
+        self.assertEqual(profile["support_tier"], "development_fallback_only")
+        self.assertEqual(profile["version_channel"], "prerelease")
+        self.assertFalse(profile["public_distribution_ready"])
+        self.assertGreaterEqual(len(profile["warnings"]), 3)
+
+    def test_external_cli_remains_available_as_development_or_fallback_source(self) -> None:
+        profile = codex_runtime_compatibility(
+            CodexExecutableCandidate(
+                path="C:/Program Files/Codex/codex.exe",
+                source="PATH",
+            ),
+            "0.151.0",
+        )
+
+        self.assertEqual(profile["source_kind"], CODEX_RUNTIME_SOURCE_EXTERNAL)
+        self.assertEqual(profile["support_tier"], "external_development_or_fallback")
+        self.assertFalse(profile["public_distribution_ready"])
 
 
 def _adapter(probe: FakeCodexProbe) -> CodexAppServerAdapter:
@@ -250,6 +325,16 @@ def _successful_probe() -> CodexAppServerProbeResult:
                     "resetsAt": 1730947200,
                 },
             }
+        },
+        usage={
+            "summary": {
+                "lifetimeTokens": 1234567,
+                "dailyAverageTokens": 12000,
+            },
+            "dailyUsageBuckets": [
+                {"date": "2026-09-01", "tokens": 11000},
+                {"date": "2026-09-02", "tokens": 13000},
+            ],
         },
     )
 

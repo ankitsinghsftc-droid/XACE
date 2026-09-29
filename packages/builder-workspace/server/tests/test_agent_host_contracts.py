@@ -11,6 +11,10 @@ if str(SERVER_DIR) not in sys.path:
 
 from agent_host import (  # noqa: E402
     AgentAdapterRegistry,
+    AgentBillingSource,
+    AgentBillingUsage,
+    AgentCostState,
+    AgentTokenTrackingState,
     AgentCapabilities,
     AgentContractError,
     AgentEventType,
@@ -22,10 +26,10 @@ from agent_host import (  # noqa: E402
     AgentToolPermission,
     AgentToolSpec,
     AgentTurnRequest,
-    MockAgentAdapter,
     ToolTransport,
     create_default_registry,
 )
+from agent_host.mock_agent import MockAgentAdapter  # noqa: E402
 
 
 CGS_HASH = "a" * 64
@@ -67,6 +71,24 @@ class AgentHostContractTests(unittest.TestCase):
 
         decoded = AgentCapabilities.from_dict(encoded)
         self.assertEqual(capabilities, decoded)
+
+    def test_billing_usage_round_trips_provider_managed_state(self):
+        billing = AgentBillingUsage(
+            source=AgentBillingSource.PROVIDER_ACCOUNT,
+            cost_state=AgentCostState.PROVIDER_MANAGED,
+            token_tracking=AgentTokenTrackingState.PROVIDER_REPORTED,
+            label="Provider-managed Pro usage",
+            detail="Codex owns account billing and usage.",
+            usage_summary={"lifetimeTokens": 1234567},
+            rate_limits={"rateLimits": {"primary": {"usedPercent": 25}}},
+        )
+
+        encoded = billing.to_dict()
+        self.assertEqual(encoded["schema"], "xace.billing_usage.v1")
+        self.assertIsNone(encoded["estimated_cost_cents"])
+        self.assertEqual(encoded["usage_summary"]["lifetimeTokens"], 1234567)
+        self.assertEqual(billing, AgentBillingUsage.from_dict(encoded))
+        json.dumps(encoded, sort_keys=True)
 
     def test_proposal_envelope_allows_no_op_and_requires_ops_for_mutation(self):
         no_op = AgentProposalEnvelope(
@@ -110,7 +132,10 @@ class AgentHostContractTests(unittest.TestCase):
     def test_default_registry_does_not_enable_mock_unless_requested(self):
         self.assertEqual(create_default_registry().provider_ids(), ())
 
-        registry = create_default_registry(enable_mock=True)
+        registry = create_default_registry(
+            enable_mock=True,
+            mock_adapter=MockAgentAdapter(),
+        )
         self.assertEqual(registry.provider_ids(), ("mock",))
 
         status = asyncio.run(registry.detect("mock"))

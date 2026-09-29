@@ -69,11 +69,11 @@ func disconnect_from_runtime(reason: String = "adapter disconnect") -> void:
 		transport.disconnect_from_runtime(reason)
 
 
-func send_input_actions(actions: Array, tick: int = 0, predicted: bool = false) -> bool:
+func send_input_actions(actions: Array, tick: int = -1, predicted: bool = false) -> bool:
 	if transport == null:
 		return false
 	var send_tick := tick
-	if send_tick <= 0:
+	if send_tick < 0:
 		send_tick = max(1, _last_runtime_tick + 1)
 	var sequence_id: int = int(transport.next_sequence_id())
 	var packet: Dictionary = _protocol_script.build_input_packet(
@@ -249,7 +249,7 @@ func _sort_value(value):
 
 func _resolve_or_create_transport() -> Node:
 	var existing = _resolve_optional(transport_path)
-	if existing != null and existing.get_script() == _transport_script:
+	if existing != null and is_instance_of(existing, _transport_script):
 		return existing
 	var node: Node = _transport_script.new()
 	node.name = "XaceTransport"
@@ -259,7 +259,7 @@ func _resolve_or_create_transport() -> Node:
 
 func _resolve_or_create_entity_manager() -> Node:
 	var existing = _resolve_optional(entity_manager_path)
-	if existing != null and existing.get_script() == _entity_manager_script:
+	if existing != null and is_instance_of(existing, _entity_manager_script):
 		return existing
 	var node: Node = _entity_manager_script.new()
 	node.name = "XaceEntityManager"

@@ -91,12 +91,19 @@ class CodexMcpBridgeTests(unittest.TestCase):
                     ),
                 )
 
+            def unavailable_native_transport(_bridge: XaceMcpToolBridge) -> None:
+                raise RuntimeError("native MCP deliberately unavailable in fallback test")
+
             adapter = CodexAppServerAdapter(
-                executable_resolver=lambda: CodexExecutableCandidate("C:/tools/codex.exe", "test"),
+                executable_resolver=lambda: CodexExecutableCandidate(
+                    "C:/tools/codex.exe", "test"
+                ),
                 client_factory=lambda _path: client,
                 version_reader=lambda _path: "codex 0.91.0",
                 tool_bridge_factory=factory,
                 notification_idle_seconds=0.01,
+                native_mcp_transport_factory=unavailable_native_transport,
+                allow_experimental_dynamic_tools_fallback=True,
             )
             handle = await adapter.start_session(
                 AgentStartRequest(
@@ -116,6 +123,10 @@ class CodexMcpBridgeTests(unittest.TestCase):
         client, events = asyncio.run(scenario())
 
         thread_params = next(params for method, params in client.requests if method == "thread/start")
+        initialize_params = next(
+            params for method, params in client.requests if method == "initialize"
+        )
+        self.assertTrue(initialize_params["capabilities"]["experimentalApi"])
         self.assertEqual(thread_params["dynamicTools"][0]["name"], "xace")
         self.assertEqual({tool["name"] for tool in thread_params["dynamicTools"][0]["tools"]}, {
             "read_cgs", "retrieve_context", "search_project", "get_diagnostics", "runtime_status", "runtime_snapshot"

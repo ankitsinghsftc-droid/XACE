@@ -127,7 +127,8 @@ class TestTierMLocalFirstRouting:
         decision = router.route(ComplexityTier.M)
         assert decision.local_model_selected
         assert decision.descriptor.provider == "local"
-        assert "Zero cost" in decision.reason
+        assert "No provider API price" in decision.reason
+        assert "local compute cost is not estimated" in decision.reason
  
     def test_tier_m_falls_to_cloud_when_local_unavailable(self) -> None:
         router   = _router(local_loaded=[])  # no local models

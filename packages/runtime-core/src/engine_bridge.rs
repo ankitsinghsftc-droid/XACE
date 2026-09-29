@@ -22,6 +22,7 @@ use xace_engine_feedback::feedback_buffer::{FeedbackBuffer, FeedbackBufferMetric
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct EngineBridgeConfig {
+    pub world_bindings: std::collections::BTreeMap<String, String>,
     pub tick_rate: u32,
     pub nonblocking_read_timeout: Duration,
     pub max_queued_inputs: usize,
@@ -31,6 +32,7 @@ pub struct EngineBridgeConfig {
 impl Default for EngineBridgeConfig {
     fn default() -> Self {
         Self {
+            world_bindings: Default::default(),
             tick_rate: DEFAULT_TICK_RATE,
             nonblocking_read_timeout: Duration::from_millis(16),
             max_queued_inputs: 4096,
@@ -166,6 +168,8 @@ impl EngineBridge {
             build_entity_states(entity_store, table_store),
         );
         ack.tick_rate = bridge.config.tick_rate;
+        ack.world_bindings = bridge.config.world_bindings.clone();
+        ack.runtime_capabilities.extend(["xace.world_bindings.v1".into(), "xace.presentation_event.v1".into()]);
         bridge.stats.bytes_sent += write_message(&mut bridge.writer, &ack)? as u64;
 
         bridge.connected = true;
@@ -186,6 +190,19 @@ impl EngineBridge {
         destroyed_ids: Vec<u64>,
         playback_commands: Vec<EnginePlaybackCommand>,
     ) -> bool {
+        self.send_tick_with_events(tick, entity_store, table_store, spawned_ids, destroyed_ids, playback_commands, Vec::new())
+    }
+
+    pub fn send_tick_with_events(
+        &mut self,
+        tick: u64,
+        entity_store: &EntityStore,
+        table_store: &ComponentTableStore,
+        spawned_ids: Vec<u64>,
+        destroyed_ids: Vec<u64>,
+        playback_commands: Vec<EnginePlaybackCommand>,
+        events: Vec<crate::engine_protocol::GameEvent>,
+    ) -> bool {
         if !self.connected {
             return false;
         }
@@ -196,7 +213,7 @@ impl EngineBridge {
             build_entity_states(entity_store, table_store),
             spawned_ids,
             destroyed_ids,
-            Vec::new(),
+            events,
         );
         snapshot.playback_commands = playback_commands;
 

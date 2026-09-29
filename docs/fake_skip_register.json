@@ -1,6 +1,6 @@
 {
   "schema": "xace.fake_skip_register.v1",
-  "updated": "2026-06-14",
+  "updated": "2026-09-17",
   "dispositions": [
     "remove",
     "replace",
@@ -505,6 +505,33 @@
         "XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md names fake/mock/skip/smoke/placeholder/fallback terms only as backlog risks, removal targets, or proof requirements"
       ],
       "notes": "The X10 backlog intentionally contains risk vocabulary so unfinished work can be audited. It is not product runtime behavior or a launch proof artifact."
+    },
+    {
+      "id": "FSR-024",
+      "title": "Agent Mode certification and fallback accounting",
+      "category": "governance-tool",
+      "risk": "low",
+      "production_path": true,
+      "disposition": "document-test-only",
+      "owner_task": "AG-015, AG-019, AG-020, AG-021",
+      "covers": [
+        "tools/agent_security_check.py",
+        "docs/AGENT_NATIVE_ARCHITECTURE_PLAN.md",
+        "docs/CODEX_PUBLIC_READINESS_ROADMAP.md",
+        "packages/builder-workspace/server/agent_host/contracts.py",
+        "packages/builder-workspace/server/agent_host/mcp_server.py",
+        "packages/builder-workspace/server/agent_host/codex_adapter.py",
+        "packages/builder-workspace/server/agent_host/mock_agent.py",
+        "packages/builder-workspace/server/agent_host/registry.py",
+        "tools/agent_provider_conformance.py",
+        "tools/agent_mode_production_readiness.py"
+      ],
+      "evidence": [
+        "AG-019 conformance uses deterministic Mock and Codex fixtures to certify provider behavior without exposing a mock production route",
+        "AG-020 names API/BYOK fallback and disabled-adapter outcomes as explicit release decisions rather than silent provider substitution",
+        "AG-021 uses fallback, Mock, smoke, and placeholder language only for explicit development/runtime provenance, deterministic proof, failure recovery, and remaining-work documentation"
+      ],
+      "notes": "Fake, mock, smoke, placeholder, unsupported, disabled, and fallback terminology in these files describes deterministic certification fixtures, development-only provenance, or fail-closed governance outcomes, not normal production execution."
     }
   ]
 }

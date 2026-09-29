@@ -30,6 +30,7 @@ class TypedOperationError(ValueError):
 
 
 class OperationKind(str, Enum):
+    INSTALL_GAMEPLAY_PACKAGE = "install_gameplay_package"
     DECLARE_COMPONENT = "declare_component"
     ADD_COMPONENT = "add_component"
     ADD_SYSTEM = "add_system"
@@ -673,6 +674,36 @@ class SetDefaultsOperation(_OperationBase):
         )
 
 
+@dataclass(frozen=True)
+class InstallGameplayPackageOperation(_OperationBase):
+    package_id: str
+    package_hash: str
+    mode_id: str
+    actor_ids: tuple[str, ...]
+    capability_targets: tuple[dict[str, Any], ...]
+    template_id: str
+    configuration_id: str
+    kind: OperationKind = OperationKind.INSTALL_GAMEPLAY_PACKAGE
+
+    def __post_init__(self):
+        super().__post_init__()
+        for name in ("package_id", "mode_id", "configuration_id"):
+            require_identifier(getattr(self, name), name)
+        if not re.fullmatch(r"[0-9a-f]{64}", self.package_hash):
+            raise TypedOperationError("invalid package hash")
+        if self.template_id:
+            require_identifier(self.template_id, "template_id")
+        for actor in self.actor_ids:
+            require_identifier(actor, "actor_id")
+        require_unique(self.actor_ids, "actor_ids")
+        for target in self.capability_targets:
+            if set(target) != {"capability_id", "object_ids"} or not isinstance(target["object_ids"], list):
+                raise TypedOperationError("invalid capability target")
+            require_identifier(target["capability_id"], "capability_id")
+            for object_id in target["object_ids"]:
+                require_identifier(object_id, "object_id")
+
+
 TypedCgsOperation: TypeAlias = (
     DeclareComponentOperation
     | AddComponentOperation
@@ -682,6 +713,7 @@ TypedCgsOperation: TypeAlias = (
     | AddRuleOperation
     | AddAssetOperation
     | SetDefaultsOperation
+    | InstallGameplayPackageOperation
 )
 
 

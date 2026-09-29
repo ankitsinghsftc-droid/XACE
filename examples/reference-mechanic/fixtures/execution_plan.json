@@ -1,0 +1,135 @@
+{
+  "schema_version": "0.1.0",
+  "plan_version": 1,
+  "created_tick": 0,
+  "plan_hash": "6b37998444aa24a64b335665b838b40648347d24046df4956e29aaf2a6fa83ce",
+  "phases": {
+    "1": {
+      "phase": "Input",
+      "groups": [
+        {
+          "group_id": "Input_group_0",
+          "phase": "Input",
+          "parallel": false,
+          "systems": [
+            "reference.recorded_input.v1"
+          ],
+          "serialization_constraints": [],
+          "execution_index": 0
+        }
+      ],
+      "total_system_count": 1
+    },
+    "2": {
+      "phase": "Simulation",
+      "groups": [
+        {
+          "group_id": "Simulation_group_0",
+          "phase": "Simulation",
+          "parallel": false,
+          "systems": [
+            "reference.traversal.v1"
+          ],
+          "serialization_constraints": [],
+          "execution_index": 0
+        }
+      ],
+      "total_system_count": 1
+    }
+  },
+  "all_system_ids": [
+    "reference.recorded_input.v1",
+    "reference.traversal.v1"
+  ],
+  "compiled_from_cgs_hash": "a0d6d026a46ee1996c6cebfee5c1a4e187c22f6bdadd7d8735e7f66e101b8968",
+  "adapter_protocol_version": 1,
+  "migration_status": "current",
+  "component_access_sets": {
+    "schema": "xace.sgc.component_access_sets.v1",
+    "by_system": {
+      "reference.recorded_input.v1": {
+        "reads": [
+          6,
+          10000
+        ],
+        "writes": [
+          6
+        ]
+      },
+      "reference.traversal.v1": {
+        "reads": [
+          1,
+          4,
+          5,
+          6,
+          10000,
+          10001
+        ],
+        "writes": [
+          1,
+          5,
+          10000
+        ]
+      }
+    },
+    "all_reads": [
+      1,
+      4,
+      5,
+      6,
+      10000,
+      10001
+    ],
+    "all_writes": [
+      1,
+      5,
+      6,
+      10000
+    ],
+    "component_ids": [
+      1,
+      4,
+      5,
+      6,
+      10000,
+      10001
+    ]
+  },
+  "system_metadata": {
+    "schema": "xace.sgc.system_metadata.v1",
+    "systems": {
+      "reference.recorded_input.v1": {
+        "display_name": "reference.recorded_input.v1",
+        "phase": "Input",
+        "depends_on": [],
+        "deterministic": true,
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "description": ""
+      },
+      "reference.traversal.v1": {
+        "display_name": "reference.traversal.v1",
+        "phase": "Simulation",
+        "depends_on": [
+          "reference.recorded_input.v1"
+        ],
+        "deterministic": true,
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "description": ""
+      }
+    }
+  },
+  "proof_bundle": {
+    "schema": "xace.sgc.proof_ref.v1",
+    "path": ".xace/proof/sgc/a0d6d026a46ee1996c6cebfee5c1a4e187c22f6bdadd7d8735e7f66e101b8968",
+    "compiled_from_cgs_hash": "a0d6d026a46ee1996c6cebfee5c1a4e187c22f6bdadd7d8735e7f66e101b8968",
+    "plan_hash": "6b37998444aa24a64b335665b838b40648347d24046df4956e29aaf2a6fa83ce",
+    "input_hash": "cab655b42fd72ab8f7adcca2a9ef383fed115cbb5d7bd728e7b9a7f13e6e9853",
+    "validation_hash": "0c0bebc56bf8396e382192e338ad95167ad6d146f8dafe8b925dda9d24f4ed90"
+  }
+}

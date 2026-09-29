@@ -62,6 +62,17 @@ from cgs_persistence import CGSPersistence, CGSLoadError
 from prompt_capability_matrix import load_prompt_capability_matrix
 from ws_message_router import WSMessageRouter
 from runtime_control_client import RuntimeControlClient, RuntimeControlConfig, RuntimeControlError
+from agent_host.codex_adapter import CodexAppServerAdapter
+from agent_host.context_capsule import (
+    AgentContextCapsuleBuilder,
+    ContextRetrievalSource,
+)
+from agent_host.event_stream import AgentEventStreamManager
+from agent_host.mcp_server import XaceMcpToolBridge, XaceMcpToolContext
+from agent_host.proposal_ingress import AgentProposalIngressGate
+from agent_host.registry import create_default_registry
+from agent_host.session_store import AgentSessionStore
+from agent_host.tool_surface import READ_ONLY_XACE_TOOL_NAMES, XaceToolSurface
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 
@@ -162,11 +173,91 @@ def create_app(
         port=runtime_control_port,
         timeout_seconds=runtime_control_timeout,
     ))
-    router        = WSMessageRouter(session_mgr, runtime_control)
+    agent_session_store = AgentSessionStore(project_path, audit_jsonl=True)
+    proposal_ingress = AgentProposalIngressGate(session_store=agent_session_store)
+
+    def codex_tool_bridge_factory(request) -> XaceMcpToolBridge | None:
+        session = session_mgr._sessions.get(request.xace_session_id)
+        if session is None:
+            return None
+        request_metadata = dict(getattr(request, "metadata", {}) or {})
+        request_cgs_hash = str(
+            getattr(request, "latest_cgs_hash", None)
+            or getattr(request, "base_cgs_hash", "")
+        )
+        request_project_id = str(
+            getattr(request, "project_id", "")
+            or request_metadata.get("project_id")
+            or ""
+        )
+        source = ContextRetrievalSource(
+            cgs=cgs_state,
+            cgs_hash=request_cgs_hash,
+            project_manifest={"project_id": request_project_id, "project_name": Path(project_path).name},
+            adapter_context={"provider_id": "codex_app_server", "tool_transport": "mcp"},
+        )
+        allowed_tools = tuple(
+            getattr(request, "allowed_tools", ())
+            or request_metadata.get("allowed_tools", ())
+            or READ_ONLY_XACE_TOOL_NAMES
+        )
+        surface = XaceToolSurface(
+            source,
+            session_store=agent_session_store,
+            proposal_ingress=proposal_ingress,
+            proposal_session=session,
+            proposal_mode="AGENT",
+            runtime_control=runtime_control,
+        )
+        return XaceMcpToolBridge(
+            surface,
+            XaceMcpToolContext(
+                xace_session_id=request.xace_session_id,
+                provider_id="codex_app_server",
+                cgs_hash=request_cgs_hash,
+                allowed_tools=allowed_tools,
+            ),
+        )
+
+    def build_agent_context_capsule(request):
+        return AgentContextCapsuleBuilder(project_path).build(request)
+
+    from agent_host.isolated_codex_adapter import create_codex_adapter
+    codex_adapter = create_codex_adapter(project_path=project_path, tool_bridge_factory=codex_tool_bridge_factory)
+    session_mgr._provider_store.set_agent_status_reader(codex_adapter.detect_sync)
+    from agent_auth_routes import auth_router
+    app.include_router(auth_router(lambda: codex_adapter.authentication, dev_mode=dev_mode))
+    from agent_setup_routes import AgentRuntimeSetup, setup_router
+    from agent_host.execution_setup import ExecutionBackendSetup
+    runtime_setup = ExecutionBackendSetup(codex_adapter.execution_backend, invalidate=codex_adapter.close)
+    app.include_router(setup_router(runtime_setup, dev_mode=dev_mode))
+    from agent_support_routes import support_router
+    from agent_host.support_diagnostics import AgentSupportDiagnostics
+    agent_support = AgentSupportDiagnostics(runtime=runtime_setup.status,
+        adapter=codex_adapter.diagnostic_snapshot, persistence=agent_session_store.diagnostic_status,
+        validation=proposal_ingress.diagnostic_status)
+    app.include_router(support_router(agent_support, dev_mode=dev_mode))
+
+    @app.on_event("shutdown")
+    async def close_codex_adapter():
+        agent_support.clear()
+        await asyncio.to_thread(runtime_setup.close)
+        await asyncio.to_thread(codex_adapter.close)
+
+    agent_event_stream = AgentEventStreamManager(
+        registry=create_default_registry(enable_codex=True, codex_adapter=codex_adapter),
+        session_store=agent_session_store,
+        proposal_ingress=proposal_ingress,
+        context_capsule_factory=build_agent_context_capsule,
+    )
+    router        = WSMessageRouter(session_mgr, runtime_control, agent_event_stream=agent_event_stream)
     cgs_state: dict = {}
     app.state.persist = persist
     app.state.session_manager = session_mgr
     app.state.router = router
+    app.state.agent_session_store = agent_session_store
+    app.state.agent_event_stream = agent_event_stream
+    app.state.agent_proposal_ingress = proposal_ingress
     app.state.cgs_state = cgs_state
     app.state.recovery_report = recovery_report
     app.state.demo_runtime_process = None
@@ -370,6 +461,20 @@ def create_app(
         Returns whether the active provider is ready for prompt execution.
         """
         return session_mgr.provider_readiness()
+
+    @app.post("/api/agent-mode")
+    async def save_agent_mode(request: Request):
+        """Select the explicit Agent prompt path; API/BYOK remains the default."""
+        if not _is_loopback_http(request):
+            return {"ok": False, "error": "Agent Mode settings are restricted to local Builder clients."}
+        payload = await request.json()
+        mode = str(payload.get("mode") or "api_byok")
+        raw_enabled = payload.get("enabled")
+        enabled = raw_enabled if isinstance(raw_enabled, bool) else None
+        try:
+            return session_mgr.configure_ai_mode(mode=mode, enabled=enabled)
+        except ValueError as exc:
+            return {"ok": False, "error": str(exc)}
 
     @app.get("/api/prompt/capability-matrix")
     async def get_prompt_capability_matrix():

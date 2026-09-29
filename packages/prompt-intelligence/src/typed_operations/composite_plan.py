@@ -364,6 +364,8 @@ def composite_plan_has_required_facets(
 def _operation_facets(operation: Mapping[str, Any]) -> tuple[str, ...]:
     kind = str(operation.get("kind", ""))
     facets: list[str] = []
+    if kind == OperationKind.INSTALL_GAMEPLAY_PACKAGE.value:
+        facets.extend(["schema", "system", "world", "defaults"])
     if kind in {
         OperationKind.DECLARE_COMPONENT.value,
         OperationKind.ADD_COMPONENT.value,

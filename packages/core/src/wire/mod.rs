@@ -4,6 +4,7 @@
 pub mod delta_payload;
 pub mod feedback_payload;
 pub mod message_type;
+pub mod session_contract;
 pub mod snapshot_payload;
 pub mod wire_message;
 

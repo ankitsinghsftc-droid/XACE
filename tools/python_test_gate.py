@@ -65,6 +65,8 @@ UNITTEST_SUITES = (
         runner="unittest",
         start_dir="packages/dcl/tests",
         top_level_dir="packages/dcl",
+        # DCL uses the repository-qualified packages.dcl namespace.
+        import_roots=(".",),
     ),
     SuiteSpec(
         id="builder-server",

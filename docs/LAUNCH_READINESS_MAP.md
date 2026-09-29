@@ -4399,6 +4399,17 @@ Files touched:
 Verification:
 
 - `python tools/mutation_conflict_analysis_check.py --json`
+
+
+## AG-024: Guided Codex Runtime Lifecycle
+
+Completed on 2026-09-19. The ADR-0023 fallback is now implemented through `tools/codex_runtime.py` and `agent_host/codex_runtime_lifecycle.py`; see `docs/CODEX_RUNTIME_GUIDE.md` for operator commands and limits.
+
+- Native platform/CPU checks, stable version, SHA-256, generated App Server schema fingerprint, explicit source confirmation, and revocation precede selection.
+- Activation is atomic local metadata, with exact-pin repair/rollback, retained last-known-good metadata, non-destructive removal, and OS-locked interrupted-operation recovery. Invalid/removed pins do not silently fall through to PATH.
+- Managed acquisition remains disabled; no runtime was copied, redistributed, or activated on this machine. Local integrity and user-confirmed provenance are not publisher-signature or universal-platform certification.
+- Verification: 18 final focused tests; full Builder lint/typecheck/UI plus 189 server tests before three additional passing lifecycle cases; production build; nine readiness checks including Mock/Codex conformance; static Agent security across 16 files. A read-only development-runtime schema probe validated 305 generated documents.
+- API/BYOK defaults, credential ownership, and the proposal/approval boundary are unchanged. Six Codex integration tasks remain: AG-025 through AG-030. Whole-XACE launch readiness is separate.
 - `python -m unittest packages.builder-workspace.server.tests.test_session_manager_authority packages.builder-workspace.server.tests.test_engine_edit_router`
 - `python -m py_compile packages/gde/src/consistency_validator/static_mutation_conflict_analyzer.py packages/gde/src/consistency_validator/consistency_validator.py packages/builder-workspace/server/ws_message_router.py tools/mutation_conflict_analysis_check.py`
 - `python tools/certify_launch.py --quick --target-dir target-codex-certify-task18-quick --report-path target-codex-certify-task18-quick\launch_certification_report.json`
@@ -4442,6 +4453,17 @@ Verification:
 - `python -m unittest packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py`
 - `python tools/certify_launch.py --quick --target-dir target-codex-certify-task19-quick --report-path target-codex-certify-task19-quick\launch_certification_report.json`
 
+
+
+## AG-025: Provider-Native Authentication Lifecycle
+
+Completed on 2026-09-20. See `docs/CODEX_AUTH_LIFECYCLE.md` for the operator contract.
+
+- Optional provider-neutral auth contract, lazy adapter-owned connection, browser/device login, completion/cancel/retry/expiry, refresh, confirmed logout, identity changes, limits/optional usage and recovery codes are implemented.
+- Local-only same-origin controls never accept credential tokens or arbitrary provider calls. No auth endpoint is an agent tool. Login challenges are ephemeral and excluded from snapshots, chat, project history and logs.
+- Identity/logout invalidation closes model connections. Account notifications cannot enter chat persistence; authentication-related turn failures are sanitized before the event store. API/BYOK defaults and compiler/mutation boundaries are unchanged.
+- Verification: 28 focused auth tests including actual SQLite/JSONL canaries; full Builder lint/typecheck/UI and 218 server tests before two additional passing focused cases; production build; static Agent security (18 files); nine readiness checks including conformance; forbidden claims and whitespace checks.
+- No real account was signed in/out and no authenticated model turn was run. AG-026 owns setup UX and AG-029 owns real-account certification. Five Codex integration tasks remain, AG-026 through AG-030; whole-XACE launch remains separate.
 ## X10-020: State-Preserving Runtime Schema Hot-Swap
 
 Status: Task X10-020 makes runtime `reload_cgs` a real hot-swap operation for
@@ -5151,12 +5173,26 @@ Scope boundary:
 
 - X10-037 covers local runtime retained-snapshot rollback/resimulation for the
   supported host/client lockstep path. X10-038 now covers the client
+
+## AG-028 Codex-only privacy and support completion (2026-09-21)
+
+Local content-free diagnostics and separately consented, fully previewed exact-byte support downloads are implemented. Local operator guards, allowlisted categories, bounded/expiring in-memory previews and explicit clearing protect the support workflow. No automatic upload, credentials, prompt/project/history export, new agent authority or API/BYOK default change is introduced. Retention, deletion and support/incident ownership are in `docs/AGENT_PRIVACY_SUPPORT.md`.
+
+Verification: 13 privacy/backend tests, 261 full Builder server tests, lint/typecheck/UI contracts, real-browser support consent flow, production build, static Agent boundary checks and nine internal readiness gates pass. Two Codex tasks remain: AG-029 real-account compatible-runtime certification and AG-030 final integration gate. The existing private alpha is not compatible/certified; no live account/model test was performed. Whole-XACE launch readiness remains separate.
   prediction/reconciliation overlay; X10-037 itself remains the authoritative
   clean-boundary rollback/resimulation slice.
 - X10-041 malicious-input hardening and X10-042 diagnostics are now complete;
   4-16 client chaos and 60-minute soak certification remain later Phase 5 gates.
 
 Files in the completed slice:
+
+## AG-027: App Server Compatibility and Process Resilience
+
+- Implemented versioned consumed-schema admission, persisted generated-schema evidence, stable candidate window, deprecation/revocation policy and explicit legacy-pin reverification.
+- Added bounded stdio frames/queues/read/write timeouts, correlated responses, malformed/stale event rejection, limited pre-thread initialization retry, explicit same-thread recovery, idle timeout, MCP health rechecks and cancellation/process cleanup.
+- Twenty new focused tests pass; the full Builder gate passes all 248 server tests, and the final Codex suite passes 94 tests. Production build, setup browser smoke and all nine internal Agent engineering readiness checks pass. Static Agent security checks cover 20 files with no findings.
+- Generated schemas from installed development alpha 0.154.0-alpha.6.2 provide NEGATIVE evidence: restricted-read access is absent. No real runtime/account is certified. Official documentation's experimental/non-production-support caveat and real compatible-runtime certification remain AG-029/030 release prerequisites.
+- Three Codex integration tasks remain, AG-028 through AG-030. Whole-XACE launch work remains separate. See `docs/CODEX_COMPATIBILITY_RESILIENCE.md`.
 
 | File | Single Responsibility | Slice Change |
 | --- | --- | --- |
@@ -5165,6 +5201,14 @@ Files in the completed slice:
 | `packages/runtime-core/src/snapshot_engine/snapshot_store.rs` | Retention-policy-aware `WorldSnapshot` storage. | Adds future-anchor pruning so corrected timelines rebuild retained rollback snapshots after restore. |
 | `tools/runtime_rollback_resimulation_check.py`, `tools/certify_launch.py` | Retained proof and launch gate. | Runs the focused runtime and rollback-manager tests, writes retained evidence including rollback count/restored tick, and binds the proof into quick/full certification. |
 | `docs/source_inventory.json`, `docs/XACE_SOURCE_OF_TRUTH_INVENTORY.md`, `docs/LAUNCH_READINESS_MAP.md`, `docs/XACE_PRODUCT_CLAIMS_MATRIX.md`, `XACE_10_OUT_OF_10_COMPLETION_TASKLIST.md` | Inventory, readiness, claims, and task docs. | Records the Task 37 runtime rollback/resimulation gate, retained report hash, and remaining multiplayer boundaries. |
+
+## AG-026: Functional Agent Setup and Recovery
+
+- Added the local runtime operator bridge and a stable, replaceable setup section in the existing Agent panel.
+- Consent gates runtime selection changes and sign-out; cancellation before activation preserves the prior pin. OAuth challenges are ephemeral and excluded from diagnostics/storage.
+- Browser fixture proves configuration, auth cancellation, prompt focus, fallback and accessibility semantics; seven focused setup backend tests pass. Production build and nine Agent readiness gates pass. Existing API/BYOK behavior remains covered by Builder regression tests.
+- Fresh installation remains provider-guided. Automated download/bundling, manual screen-reader certification, real-account certification and whole-XACE launch readiness are not claimed.
+- Four Codex-only tasks remain: AG-027 through AG-030. Details: `docs/AGENT_SETUP_UX.md`.
 
 Verification:
 
@@ -6173,6 +6217,89 @@ Verification:
 - Portable projection SHA-256: `b436d931997b5d8a15480366729a3a0b24be3eb679287ce66a3d02d8c88b6ecd`.
 - Comparison matrix SHA-256: `b0e1f00cda41db6f4ebba66ff459446e3e9a88c4a37e6023065ccb125e806bf3`.
 - Comparison hash report SHA-256: `45f91db49634b74ab59b0521411a1c7c4965d8e5ecd199a12b673796bec66ebf`.
+
+## AG-020: Codex Agent Mode Production Readiness Gate
+
+Readiness delta:
+
+- Codex App Server is the first release-certified production AgentAdapter and the preferred Agent Mode path. AG-016 Local Agent and AG-017/018 Claude remain deferred and are not required for this decision.
+- tools/agent_mode_production_readiness.py is the retained nine-check gate for conformance, security policy, provider health contracts, API/BYOK rollback, billing boundaries, functional Agent UX, approval UX, distribution safety, and product claims.
+- Release certification and local runtime readiness are separate. A certified build can ship while a machine without an installed, signed-in compatible Codex runtime shows setup required and keeps API/BYOK available.
+- API/BYOK remains the unchanged default. Agent Mode is visibly preferred, but only becomes active after the user selects it and the local Codex health check succeeds.
+- Provider settings and Builder UI consume xace.agent_mode_launch_status.v1 and show production-ready, certified/setup-required, unavailable, and fallback state without presenting unsupported providers.
+- tools/certify_launch.py includes the AG-020 check in quick and full certification.
+
+Distribution and security boundary:
+
+- Current distribution uses external installed-Codex detection. XACE-managed pinned Codex remains the preferred eventual public-product model, but no bundling is enabled until redistribution, packaging, authentication storage, update, and compatibility implications are verified.
+- The enforced mutation route remains agent -> XACE tools -> typed proposal -> preview -> user/XACE approval -> GDE -> SGC -> runtime.
+- Normal Builder Agent Mode exposes no raw shell, arbitrary real-project write, direct GDE commit, direct runtime mutation, or credential access.
+- Product claims do not imply bundled Codex, universal subscription entitlement, or Claude/Local parity.
+
+Verification:
+
+- python tools/agent_mode_production_readiness.py passes all nine required checks and records shipping_decision=ship_codex_agent_mode.
+- The focused 16-test production-readiness/settings/detection suite, Builder typecheck/lint/UI contract checks, and forbidden-claims check pass.
+- The full 78-test Agent suite and aggregate Builder gate with 163 server tests pass; the production Vite build and the established 233-test inference gate also pass.
+- The optional installed Codex probe was not required or run. Source inventory, fake-register, and production-path scans have no AG-020 findings; their remaining failures are pre-existing repository-wide debt outside this task (two unclassified root artifacts, unrelated PDF/vendor/tool terminology, and two older adapter-package TestClient imports).
+
+## AG-021: Stable Codex Protocol and Runtime Provenance Baseline
+
+Readiness delta:
+
+- Stable App Server clients omit `experimentalApi` unless an explicit development fallback requests dynamic tools.
+- Thread creation uses schema-valid fields and a read-only sandbox.
+- Runtime status separates protocol compatibility from distribution eligibility and records provenance.
+- The live readiness probe starts and deletes its own empty thread without a model turn.
+- API/BYOK behavior is unchanged.
+
+Verification: 20/20 focused AG-021 tests, 80/80 Agent tests, 165 Builder server tests, Builder UI/build gates, 233 inference tests, conformance, security, claims, and the live stable lifecycle smoke passed.
+
+## AG-022: Native XACE MCP Transport
+
+Readiness delta:
+
+- Normal Codex Agent sessions use a native MCP stdio proxy backed by an authenticated loopback broker in the XACE process.
+- App Server receives the XACE MCP server through per-thread config; no user-global Codex config is changed.
+- The server is required, and start/resume verifies `mcpServerStatus/list`, connected state, and exact allowlisted tool parity.
+- The session token is environment-only and absent from argv, config, persisted metadata, logs, and project state.
+- Stable sessions omit `experimentalApi` and `dynamicTools`; dynamic tools remain explicit development fallback only.
+- Built-in shell, unified exec, web search, and image tools are disabled so the XACE MCP contract remains authoritative.
+- Provider-native `mcpToolCall` items map into existing AgentEvent/security contracts.
+- Preview-only typed proposal ingress and the full agent -> tools -> proposal -> preview -> approval -> GDE -> SGC -> runtime boundary remain unchanged.
+- Native transport failure fails closed and leaves API/BYOK available.
+
+Scope decision:
+
+- The remaining Codex-only integration sequence is AG-023 through AG-030.
+- AG-030 owns `codex_integration_complete`; it does not certify whole-XACE packaging, signing, platform support, deployment, or public launch.
+- AG-016 through AG-018 remain deferred and non-blocking.
+
+Verification: 16 focused native/fallback/proposal/detection tests, the 83-test Agent suite, all 168 Builder server tests, the 233-test inference gate, Builder lint, UI contracts, and production build, Mock + Codex conformance, the static Agent security gate, forbidden-claims checks, and the nine-check Agent Mode readiness gate pass. The repository-wide source secret scan still reports the same 11 known intentional canaries/test fixtures; none are in the AG-022 production surface.
+
+## AG-023: Codex Runtime Distribution Decision
+
+Readiness delta:
+
+- Accepted XACE-managed acquisition of an exact certified stable `openai-codex` package and its upstream-pinned Codex runtime as the preferred eventual production source.
+- Raw binary bundling, repackaging, redistribution, mirroring, package-internal scraping, and automatic acquisition remain disabled.
+- Compatible official external Codex remains a fallback after the existing version, App Server, schema, and native MCP probes; private host-extension binaries remain development fallback only.
+- Codex owns authentication and OS-keyring credential storage. XACE never reads, copies, persists, logs, or exports provider credential values or `auth.json`.
+- XACE Agent Integration maintainers own exact pins, compatibility review, revocation, last-known-good rollback, and 7-day security/30-day ordinary-release review SLAs.
+- Provider settings and readiness output expose the versioned non-secret `xace.codex_distribution_policy.v1` decision.
+- AG-024, not AG-023, owns package acquisition, platform artifact/hash verification, activation, repair, update, rollback, removal, and interrupted-operation recovery.
+
+Evidence:
+
+- `docs/adr/ADR-0023-CODEX-RUNTIME-DISTRIBUTION.md` records official evidence, considered outcomes, the chosen acquisition model, provenance, auth boundary, integrity policy, update ownership, SLA, revocation, rollback, and unresolved AG-024 constraints.
+- `packages/builder-workspace/server/agent_host/codex_distribution.py` is the fail-closed machine-readable policy and performs no filesystem, network, process, download, or credential operation.
+- Provider settings, claims, architecture, roadmap, and the production-readiness report publish the same decision while keeping public distribution false until lifecycle and remaining integration work complete.
+
+Verification:
+
+- The 24 focused policy/settings/detection/readiness tests pass, including six new policy tests; the full Agent suite passes 89/89.
+- Builder lint, typecheck, UI contracts, all 174 server tests, the production build, all 233 inference tests, static Agent security across 15 files, Mock + Codex conformance, and forbidden-claims checks pass.
+- The nine-check Agent Mode readiness gate passes and reports seven remaining tasks, AG-024 through AG-030. No runtime was downloaded or bundled and AG-024 was not started.
 
 ## Current Risks To Watch
 

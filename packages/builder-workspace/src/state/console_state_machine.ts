@@ -230,11 +230,14 @@ export class ConsoleSM {
    * Valid from: Processing.
    */
   receivePILResult(result: PILResult): void {
-    if (!isProcessing(this._state)) {
+    const catalogContinuation = this._state.name === 'ClarificationFlow'
+      && this._state.result.clarification_schema === 'xace.gameplay_authoring_selection.v1';
+    if (!isProcessing(this._state) && !catalogContinuation) {
       console.warn(`[SM] receivePILResult ignored in state ${this._state.name}`);
       return;
     }
 
+    if (this._state.name !== 'Processing' && this._state.name !== 'ClarificationFlow') return;
     const prompt = this._state.prompt;
     this._emit({ type: 'result_received', result });
 

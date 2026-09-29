@@ -62,7 +62,6 @@ from .system_registry.system_definition_registry import (
     SystemDefinitionRegistry,
     SchemaSystemDefinition,
     VALID_PHASES,
-    SystemVersion,
 )
 from .system_registry.system_validator import SystemValidator
 from .versioning.schema_version_manager import SchemaVersionManager
@@ -131,6 +130,7 @@ class SchemaFactory:
         self,
         cgs:            dict[str, Any],
         schema_version: str | None = None,
+        source_cgs: dict | None = None,
     ) -> CompiledSchemaPackage:
         """
         Compiles a CGS dict into an immutable CompiledSchemaPackage.
@@ -200,6 +200,14 @@ class SchemaFactory:
             )
 
         # ── Stage 9: Assemble package ─────────────────────────────────────────
+        from .world_contract import compile_world, WorldCompileError
+        try:
+            world_contract = compile_world(cgs, blueprint_registry, source_cgs if source_cgs is not None else cgs)
+            if world_contract is not None and world_contract.manifest()["schema_package"] != {"cgs_hash": cgs_hash, "schema_version": effective_version}:
+                raise WorldCompileError("compiled package identity differs from world provenance")
+        except WorldCompileError as exc:
+            raise SchemaFactoryError([str(exc)], "world_contract") from exc
+
         return CompiledSchemaPackage(
             schema_version=effective_version,
             cgs_hash=cgs_hash,
@@ -215,6 +223,7 @@ class SchemaFactory:
                 m.mode_id for m in composition_result.composed_modes
             ),
             game_name=game_name,
+            world_contract=world_contract,
         )
 
     def compute_diff(

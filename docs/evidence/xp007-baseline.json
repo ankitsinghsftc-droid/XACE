@@ -1,0 +1,603 @@
+{
+  "schema": "xace.xp007.completion.v1",
+  "date": "2026-09-29",
+  "status": "complete",
+  "profile": "windows_x64_native_headless",
+  "source_sha256": {
+    "MASTER_PLAN.md": "8ab17c5b6989e745d8e06e225463d8ef2b458aa91c1db906342e1f0014bae0a1",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "a06f9dfdec1416e90e6c05e596665aa26cfe052547c8c569da31f7109c48c950",
+    "docs/XP007_COMPLETION.md": "66f996f0da071cdbe79dbc966fc6e54394f4a4cfda02eb86771c8fadb5a50b84",
+    "docs/adr/XP-007-playable-package.md": "a86873f1041bb1eeb5b03e6bd5b0b90649db232341c5ce4cf7ba1bb8ba30cfb0",
+    "docs/source_inventory.json": "a0adb0843080d716494f34ab30049e400cbbb77ce497476d84265fe54d28b287",
+    "packages/project-system/playable_package.py": "8448231632641cdcb5a6f5d5074957bd0c9f1bd44ee8a7c7e9053fe7666a3a7b",
+    "packages/project-system/sgc_identity.py": "33ef3de9bd2a7fc4c1988a342e2f92ce9fae01f06d7b93b711cda0ac423e0b2e",
+    "packages/project-system/tests/test_playable_package.py": "34660b2c72909734dc453b26c68a361ff963c8323de6e2e9f6fddc095e527859",
+    "packages/runtime-core/src/bin/xace_runtime.rs": "8fd27930a5c35668517c74569d09f4af90b339102c1199224aaecc8fe88d5268",
+    "packages/runtime-core/src/lib.rs": "42bc763f6e8a1ca92c095a0b196226444d2acec3cdbfda66861833060886832e",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "f1b10d9379f0351d65d541b3d3a7c6f0814db1b4f33a5787e093b3998b4bc6f9",
+    "packages/runtime-core/src/world_loader.rs": "e8e3d3c9e0ed6c99eed50e73ea7ffe3be51d1988451fc94a71bf3764e03645e1",
+    "packages/runtime-core/tests/fixtures/playable_package_v1/execution_plan.json": "b1c022124bcf5a07e3d073b9649aa5fa02eed5b4589a4bbcaa6a8c96b48289f7",
+    "packages/runtime-core/tests/fixtures/playable_package_v1/game.cgs.json": "483d67b858b9470b9c63022447c51f7869b0a6d336476bbd114ca00354c0dfa0",
+    "packages/runtime-core/tests/fixtures/playable_package_v1/world.json": "df2cc265e8a979b3549bcfcbd0a19fd1e15f879c7c55e72c40a333ff4b49944b",
+    "packages/runtime-core/tests/fixtures/playable_package_v1/world.manifest.json": "42b5dfc67697d314920ec45cd31adb6e5d44f81aec7cdbc9d8810ac4ac04dc35",
+    "tools/xp007_package_proof.py": "faace368a0975f158924c66d2816199ddae40ca13bacdd044cf300147bf2e965"
+  },
+  "verification": {
+    "project_system": {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "tools/python_test_gate.py",
+        "--output",
+        "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp007-project-system-final.json",
+        "--suite",
+        "project-system"
+      ],
+      "elapsed_seconds": 1.359,
+      "isolation": {
+        "credential_store_path": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\isolated_settings\\unsafe_credentials.json",
+        "settings_path": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\isolated_settings\\provider_settings.json",
+        "work_dir": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work"
+      },
+      "ok": true,
+      "repo_root": "C:\\Users\\ankit\\Downloads\\xace",
+      "schema": "xace.python_test_gate.v1",
+      "selected_suites": [
+        "project-system"
+      ],
+      "started_at_utc": "2026-09-28T20:57:16.901987+00:00",
+      "suites": [
+        {
+          "command": [
+            "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+            "C:\\Users\\ankit\\Downloads\\xace\\tools\\python_test_gate.py",
+            "--_child-suite",
+            "--suite",
+            "project-system",
+            "--output",
+            "C:\\Users\\ankit\\Downloads\\xace\\tmp\\python_gate_work\\project-system.json"
+          ],
+          "elapsed_seconds": 1.244,
+          "error_details": [],
+          "errors": 0,
+          "failed": 0,
+          "failures": [],
+          "id": "project-system",
+          "label": "Project system unit tests",
+          "not_run": 0,
+          "not_run_details": [],
+          "ok": true,
+          "output_tail": "......................\n----------------------------------------------------------------------\nRan 22 tests in 1.116s\n\nOK\n",
+          "passed": 22,
+          "returncode": 0,
+          "runner": "unittest",
+          "stdout_tail": "",
+          "tests": 22
+        }
+      ],
+      "summary": {
+        "failed_or_error": 0,
+        "not_run": 0,
+        "passed": 22,
+        "suites": 1,
+        "syntax_failures": 0,
+        "syntax_files": 0,
+        "tests": 22,
+        "tool_failures": 0,
+        "tools": 0
+      },
+      "syntax": {
+        "elapsed_seconds": 0.0,
+        "failed": 0,
+        "failures": [],
+        "files": 0,
+        "id": "python-syntax",
+        "label": "Production Python syntax check",
+        "ok": true,
+        "reason": "suite-specific run",
+        "runner": "compile",
+        "skipped": true
+      },
+      "tool_commands_enabled": false,
+      "tools": []
+    },
+    "rust": [
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "xace-runtime-core",
+          "--offline",
+          "--quiet",
+          "--lib"
+        ],
+        "exit_code": 0,
+        "log": "tmp\\xp007-verification\\rust-0.log"
+      },
+      {
+        "command": [
+          "cargo",
+          "test",
+          "-p",
+          "xace-core",
+          "-p",
+          "xace-runtime-core",
+          "-p",
+          "xace-reference-mechanic",
+          "--offline",
+          "--quiet",
+          "--test",
+          "test_world_contract",
+          "--test",
+          "test_world_contract_v3",
+          "--test",
+          "test_session_contract",
+          "--test",
+          "test_geometry_v1",
+          "--test",
+          "proof"
+        ],
+        "exit_code": 0,
+        "log": "tmp\\xp007-verification\\rust-1.log"
+      }
+    ],
+    "rust_pass_counts": {
+      "runtime_library": 703,
+      "targeted_world_session_geometry_reference": 48
+    },
+    "native_build": {
+      "command": [
+        "cargo",
+        "build",
+        "-p",
+        "xace-runtime-core",
+        "--bin",
+        "xace_runtime",
+        "--offline",
+        "--quiet"
+      ],
+      "exit_code": 0
+    },
+    "native_package_proof": {
+      "schema": "xace.xp007.package_proof.v1",
+      "ok": true,
+      "deterministic_archive_sha256": "588ab0bd8b0a66511ace767c2c549a134de428205ee13ac6fa6ec6a987f33a0f",
+      "gameplay_hash": "4b2224674a8157cd0eef23192796280712f536dcd5d5e30dedf2346dd5e4226d",
+      "package_content_hash": "e7dbbfad51e3a8a06e3dd887a5861344ffd1a669e740105bb30343ba00196ce7",
+      "runtime_sha256": "3e8ee37bcd9f8733cee6b5b3bdd35e8afcb4e959c83d92764e4dcb11d14e35f8",
+      "baseline_runtime_exit": 0,
+      "relocation_hashes_equal": true,
+      "relocated_runtime_exit": 0,
+      "runtime_log": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp007-proof\\runtime.log",
+      "schedule": {
+        "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+        "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+        "groups": [
+          {
+            "component_access": {
+              "MovementSystem": {
+                "reads": [
+                  1,
+                  5
+                ],
+                "writes": [
+                  1
+                ]
+              }
+            },
+            "depends_on": {
+              "MovementSystem": []
+            },
+            "execution_index": 0,
+            "group_id": "Simulation_group_0",
+            "parallel": false,
+            "phase": "Simulation",
+            "serialization_constraints": [],
+            "systems": [
+              "MovementSystem"
+            ]
+          }
+        ],
+        "hash_log": [
+          {
+            "tick": 0,
+            "world_hash": "fce77ae5e3f70f2f0507c32a4db506a8575c712ec29f032e778b2a97880de916"
+          },
+          {
+            "tick": 1,
+            "world_hash": "ee1af0680ff74d72c6a35ff8100762e60479bf5fe12bfc2f6ce77131728654ee"
+          },
+          {
+            "tick": 2,
+            "world_hash": "d565299430cbf9ca49f6ac67a61bb52691830cdd7f4998ad23056710340f236b"
+          },
+          {
+            "tick": 3,
+            "world_hash": "3b9156d069d5948c2b473b17ac4ddfafea7c5004667a3313afa5a786e1a87ced"
+          }
+        ],
+        "latest_world_hash": "3b9156d069d5948c2b473b17ac4ddfafea7c5004667a3313afa5a786e1a87ced",
+        "mismatched_ticks": [],
+        "ok": true,
+        "parallel_group_execution_policy": "deterministic_sequential",
+        "parallel_group_worker_threads": false,
+        "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+        "plan_source": "persisted_sgc",
+        "plan_version": 1,
+        "scheduled_system_ids": [
+          "MovementSystem"
+        ],
+        "schema": "xace.runtime.schedule_snapshot_report.v1",
+        "schema_version": "0.1.0",
+        "snapshot_count": 4,
+        "snapshots": [
+          {
+            "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "groups": [
+              {
+                "component_access": {
+                  "MovementSystem": {
+                    "reads": [
+                      1,
+                      5
+                    ],
+                    "writes": [
+                      1
+                    ]
+                  }
+                },
+                "depends_on": {
+                  "MovementSystem": []
+                },
+                "execution_index": 0,
+                "group_id": "Simulation_group_0",
+                "parallel": false,
+                "phase": "Simulation",
+                "serialization_constraints": [],
+                "systems": [
+                  "MovementSystem"
+                ]
+              }
+            ],
+            "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+            "plan_version": 1,
+            "scheduled_system_ids": [
+              "MovementSystem"
+            ],
+            "schema": "xace.runtime.schedule_snapshot.v1",
+            "schema_version": "0.1.0",
+            "source": "persisted_sgc",
+            "system_access": {
+              "MovementSystem": {
+                "reads": [
+                  1,
+                  5
+                ],
+                "writes": [
+                  1
+                ]
+              }
+            },
+            "system_dependencies": {
+              "MovementSystem": []
+            },
+            "tick": 0
+          },
+          {
+            "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "groups": [
+              {
+                "component_access": {
+                  "MovementSystem": {
+                    "reads": [
+                      1,
+                      5
+                    ],
+                    "writes": [
+                      1
+                    ]
+                  }
+                },
+                "depends_on": {
+                  "MovementSystem": []
+                },
+                "execution_index": 0,
+                "group_id": "Simulation_group_0",
+                "parallel": false,
+                "phase": "Simulation",
+                "serialization_constraints": [],
+                "systems": [
+                  "MovementSystem"
+                ]
+              }
+            ],
+            "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+            "plan_version": 1,
+            "scheduled_system_ids": [
+              "MovementSystem"
+            ],
+            "schema": "xace.runtime.schedule_snapshot.v1",
+            "schema_version": "0.1.0",
+            "source": "persisted_sgc",
+            "system_access": {
+              "MovementSystem": {
+                "reads": [
+                  1,
+                  5
+                ],
+                "writes": [
+                  1
+                ]
+              }
+            },
+            "system_dependencies": {
+              "MovementSystem": []
+            },
+            "tick": 1
+          },
+          {
+            "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "groups": [
+              {
+                "component_access": {
+                  "MovementSystem": {
+                    "reads": [
+                      1,
+                      5
+                    ],
+                    "writes": [
+                      1
+                    ]
+                  }
+                },
+                "depends_on": {
+                  "MovementSystem": []
+                },
+                "execution_index": 0,
+                "group_id": "Simulation_group_0",
+                "parallel": false,
+                "phase": "Simulation",
+                "serialization_constraints": [],
+                "systems": [
+                  "MovementSystem"
+                ]
+              }
+            ],
+            "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+            "plan_version": 1,
+            "scheduled_system_ids": [
+              "MovementSystem"
+            ],
+            "schema": "xace.runtime.schedule_snapshot.v1",
+            "schema_version": "0.1.0",
+            "source": "persisted_sgc",
+            "system_access": {
+              "MovementSystem": {
+                "reads": [
+                  1,
+                  5
+                ],
+                "writes": [
+                  1
+                ]
+              }
+            },
+            "system_dependencies": {
+              "MovementSystem": []
+            },
+            "tick": 2
+          },
+          {
+            "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+            "groups": [
+              {
+                "component_access": {
+                  "MovementSystem": {
+                    "reads": [
+                      1,
+                      5
+                    ],
+                    "writes": [
+                      1
+                    ]
+                  }
+                },
+                "depends_on": {
+                  "MovementSystem": []
+                },
+                "execution_index": 0,
+                "group_id": "Simulation_group_0",
+                "parallel": false,
+                "phase": "Simulation",
+                "serialization_constraints": [],
+                "systems": [
+                  "MovementSystem"
+                ]
+              }
+            ],
+            "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+            "plan_version": 1,
+            "scheduled_system_ids": [
+              "MovementSystem"
+            ],
+            "schema": "xace.runtime.schedule_snapshot.v1",
+            "schema_version": "0.1.0",
+            "source": "persisted_sgc",
+            "system_access": {
+              "MovementSystem": {
+                "reads": [
+                  1,
+                  5
+                ],
+                "writes": [
+                  1
+                ]
+              }
+            },
+            "system_dependencies": {
+              "MovementSystem": []
+            },
+            "tick": 3
+          }
+        ],
+        "system_access": {
+          "MovementSystem": {
+            "reads": [
+              1,
+              5
+            ],
+            "writes": [
+              1
+            ]
+          }
+        },
+        "system_dependencies": {
+          "MovementSystem": []
+        },
+        "tick_count": 4,
+        "world_seed": 42
+      },
+      "scope": "native headless package; no Player/native engine/provider/remote-session claim"
+    },
+    "source_inventory": {
+      "findings": [
+        {
+          "path": "AGENTS.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "XACE_Strategic_Roadmap_2026-2028.pdf",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/AGENT_PRIVACY_SUPPORT.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/AGENT_SETUP_UX.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_APP_SERVER_SURFACE.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_COMPATIBILITY_RESILIENCE.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_DOCKER_BACKEND.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_INTEGRATION_HANDOFF.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/adr/ADR-0023-CODEX-RUNTIME-DISTRIBUTION.md",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag029-host.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag029-isolation.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-completion.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-review.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "docs/evidence/codex-ag030-setup.json",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/builder_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/native_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/ag029_container/xace_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_backend_setup.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_capability_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_certification_preflight.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_completion_evidence.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_container_live_check.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_container_preflight.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_host_backend_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_integration_completion.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_isolation_probe.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_runtime.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_schema_check.py",
+          "message": "path exists but is not classified in source inventory"
+        },
+        {
+          "path": "tools/codex_setup_acceptance.py",
+          "message": "path exists but is not classified in source inventory"
+        }
+      ],
+      "unchanged_from": "tmp/world-extensibility-inventory.json",
+      "unchanged": true
+    }
+  },
+  "scope_limits": [
+    "Same Windows host relocation, not clean-machine certification",
+    "No graphical Player, remote session, or new geometry backend certification",
+    "Host executor registration is trusted configuration; archive claims cannot add executable support",
+    "Compiled-world hot reload requires future XP-018 staged activation"
+  ]
+}

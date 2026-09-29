@@ -149,19 +149,34 @@ class AgentProposalIngressGate:
         clock: Any = time.time,
         token_factory: Any | None = None,
     ) -> None:
+        self._diagnostic = {"state": "not_observed", "error_code": None}
         self.session_store = session_store
         self.clock = clock
         self.token_factory = token_factory or (
             lambda: "apt-" + secrets.token_urlsafe(24)
         )
 
-    def ingest(
+    def diagnostic_status(self):
+        return dict(self._diagnostic)
+
+    def ingest(self, *args, **kwargs):
+        try:
+            result = self._ingest(*args, **kwargs)
+        except Exception:
+            self._diagnostic = {"state": "rejected", "error_code": "validation_rejected"}
+            raise
+        self._diagnostic = {"state": ("no_op" if result.code == "NO_OP" else "preview_created") if result.accepted else "rejected",
+                            "error_code": result.code}
+        return result
+
+    def _ingest(
         self,
         proposal: AgentProposalEnvelope | Mapping[str, Any],
         *,
         current_cgs: Mapping[str, Any],
         current_cgs_hash: str = "",
         xace_session_id: str = "",
+        provider_id: str = "",
         mode: str = "AGENT",
         session: Any | None = None,
     ) -> AgentProposalIngressResult:
@@ -191,6 +206,14 @@ class AgentProposalIngressGate:
                 message=(
                     "Agent proposal session_id does not match the active XACE "
                     "session."
+                ),
+            )
+        if provider_id and parsed_proposal.provider_id != provider_id:
+            return self._recorded_rejection(
+                parsed_proposal,
+                code="PROVIDER_MISMATCH",
+                message=(
+                    "Agent proposal provider_id does not match the active XACE provider."
                 ),
             )
         if parsed_proposal.base_cgs_hash != resolved_hash:

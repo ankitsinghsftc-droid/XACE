@@ -20,8 +20,18 @@ import type { BuilderClient, PromptProviderStatus } from '../api/builder_client'
 import type { ConsoleSM, ConsoleState } from '../state/console_state_machine';
 import type { CGSStore }       from '../state/cgs_store';
 import type { UIStore }        from '../state/ui_store';
-import { makePilProcess }      from '../api/message_types';
+import { makeAgentTurn, makePilProcess } from '../api/message_types';
 import { ModelSelector }       from './model_selector';
+import { agentEventStore }     from '../state/agent_event_store';
+import { agentModeStore, type AgentModeUiState } from '../state/agent_mode_store';
+import { billingCostLabel } from '../types/billing';
+
+const AGENT_ALLOWED_TOOLS = [
+  'xace.read_cgs', 'xace.retrieve_context', 'xace.search_project',
+  'xace.get_diagnostics', 'xace.runtime_status', 'xace.runtime_snapshot',
+  'xace.submit_proposal',
+] as const;
+
 
 const STYLES = `
 .xb-prompt-area {
@@ -238,6 +248,7 @@ export class PromptInput {
   private _statusEl!: HTMLElement;
   private _consoleState!: ConsoleState;
   private _providerNotice = '';
+  private _agentMode: AgentModeUiState = agentModeStore.state;
   private _providerStatus: PromptProviderStatus = {
     checked: false,
     ready: false,
@@ -295,6 +306,7 @@ export class PromptInput {
     this._textarea = document.createElement('textarea');
     this._textarea.className   = 'xb-p-textarea';
     this._textarea.placeholder = 'Make the zombie faster and add a stamina system…';
+    this._textarea.placeholder = this._promptPlaceholder();
     this._textarea.rows        = 1;
     this._textarea.setAttribute('spellcheck', 'false');
 
@@ -361,7 +373,7 @@ export class PromptInput {
     // Cost pill
     this._costEl = document.createElement('div');
     this._costEl.className   = 'xb-cost-pill';
-    this._costEl.innerHTML   = `<div class="xb-cost-dot"></div><span id="xb-cost-val">$0.00</span>`;
+    this._costEl.innerHTML   = `<div class="xb-cost-dot"></div><span id="xb-cost-val">Billing unavailable</span>`;
     tools.appendChild(this._costEl);
 
     // Model selector (rightmost tool)
@@ -388,6 +400,10 @@ export class PromptInput {
 
     const { consoleSM, client, cgsStore, uiStore } = this._deps;
     if (!['Idle', 'DiagnosticView', 'BlockedView', 'ErrorView'].includes(consoleSM.stateName)) return;
+    if (this._isAgentMode()) {
+      this._submitAgent(prompt);
+      return;
+    }
     if (!this._providerStatus.ready) {
       this._providerNotice = this._providerSetupMessage();
       this._renderStatus(consoleSM.state);
@@ -413,11 +429,114 @@ export class PromptInput {
 
   // ── Reactive wiring ────────────────────────────────────────────────────
 
+
+  private _submitAgent(prompt: string): void {
+    const { client, cgsStore } = this._deps;
+    const agent = this._agentMode.agent;
+    if (!agent?.ready) {
+      this._providerNotice = this._providerSetupMessage();
+      this._renderStatus(this._consoleState);
+      window.dispatchEvent(new CustomEvent('xace:open-model-settings'));
+      return;
+    }
+    if (agentEventStore.state.status?.running) {
+      this._providerNotice = 'Codex is already running for this Builder session.';
+      this._renderStatus(this._consoleState);
+      return;
+    }
+    client.send(makeAgentTurn(
+      agent.primary_adapter || 'codex_app_server',
+      prompt,
+      cgsStore.hash,
+      client.sessionId,
+      {
+        allowed_tools: AGENT_ALLOWED_TOOLS,
+        metadata: { entry_point: 'builder_agent_prompt', tool_transport: 'mcp' },
+      },
+    ));
+    this._textarea.value = '';
+    this._textarea.style.height = 'auto';
+  }
+
+  private _isAgentMode(): boolean {
+    return this._agentMode.aiMode === 'agent' && Boolean(this._agentMode.agent?.active);
+  }
+
+  private _agentReady(): boolean {
+    return this._isAgentMode() && Boolean(this._agentMode.agent?.ready);
+  }
+
+  private _submissionReady(): boolean {
+    return this._isAgentMode() ? this._agentReady() : this._providerStatus.ready;
+  }
+
+  private _promptPlaceholder(): string {
+    return this._isAgentMode()
+      ? 'Ask Codex to inspect the project or prepare an XACE proposal?'
+      : 'Make the zombie faster and add a stamina system?';
+  }
+
+  private _syncSubmitAvailability(): void {
+    const state = this._consoleState ?? this._deps.consoleSM.state;
+    const processing = state.name === 'Processing' || state.name === 'ApplyingMutation';
+    const agentRunning = this._isAgentMode() && Boolean(agentEventStore.state.status?.running);
+    const blocked = !this._submissionReady();
+    this._aiIcon.classList.toggle('spinning', processing || agentRunning);
+    const box = this._el.querySelector<HTMLElement>('.xb-prompt-box');
+    box?.classList.toggle('disabled', processing || agentRunning);
+    box?.classList.toggle('provider-blocked', blocked && !processing && !agentRunning);
+    this._sendBtn.disabled = processing || agentRunning || blocked;
+    this._textarea.disabled = processing || agentRunning;
+    this._sendBtn.title = blocked ? this._providerSetupMessage() : this._isAgentMode() ? 'Run Codex Agent (Enter)' : 'Submit (Enter)';
+    this._textarea.placeholder = this._promptPlaceholder();
+  }
+
+  private _renderAgentStatus(state: ConsoleState): void {
+    const active = new Set<string>(['agent']);
+    const status = agentEventStore.state.status;
+    let message = 'Codex is ready. Account and rate limits are managed by the provider; XACE still approves any mutation preview.';
+    if (!this._agentReady()) {
+      active.add('failed');
+      message = this._providerNotice || this._agentMode.agent?.message || 'Agent Mode needs a usable Codex App Server account.';
+    } else if (state.name === 'PreviewPending') {
+      active.add('proposed');
+      active.add('safe');
+      message = 'Codex produced an XACE preview. Provider completion is not approval; review the XACE mutation before applying it.';
+    } else if (status?.running) {
+      active.add('validating');
+      message = status.message || 'Codex Agent Mode is running through the XACE tool bridge.';
+    } else if (status?.state === 'error') {
+      active.add('failed');
+      message = status.message || 'Codex could not finish that agent turn.';
+    }
+    this._statusEl.innerHTML = '';
+    for (const id of ['agent', 'proposed', 'validating', 'safe', 'applied', 'failed']) {
+      const chip = document.createElement('span');
+      chip.className = `xb-p-status-chip ${id}${active.has(id) ? ' active' : ''}`;
+      chip.textContent = id;
+      this._statusEl.appendChild(chip);
+    }
+    const text = document.createElement('span');
+    text.className = 'xb-p-status-text';
+    text.title = message;
+    text.textContent = message;
+    this._statusEl.appendChild(text);
+    if (!this._agentReady()) {
+      const button = document.createElement('button');
+      button.className = 'xb-p-provider-btn';
+      button.type = 'button';
+      button.textContent = 'Agent Settings';
+      button.addEventListener('click', () => window.dispatchEvent(new CustomEvent('xace:open-model-settings')));
+      this._statusEl.appendChild(button);
+    }
+  }
+
   private _wireReactive(): void {
     const { consoleSM, uiStore } = this._deps;
 
     this._consoleState = consoleSM.state;
     this._renderStatus(consoleSM.state);
+    this._syncSubmitAvailability();
     this._unsubs.push(
       consoleSM.subscribe(state => {
         this._consoleState = state;
@@ -433,6 +552,7 @@ export class PromptInput {
         if (state.name === 'Idle' && state.prefillPrompt) {
           this._prefill(state.prefillPrompt, true);
         }
+        this._syncSubmitAvailability();
       }),
     );
 
@@ -456,11 +576,42 @@ export class PromptInput {
         box?.classList.toggle('provider-blocked', !status.ready && !processing);
         this._sendBtn.disabled = processing || !status.ready;
         this._sendBtn.title = status.ready ? 'Submit (Enter)' : this._providerSetupMessage();
+        this._syncSubmitAvailability();
+      }),
+    );
+
+    this._unsubs.push(
+      agentModeStore.subscribe(state => {
+        this._agentMode = state;
+        this._providerNotice = '';
+        this._renderBillingPill();
+        const consoleState = this._consoleState ?? consoleSM.state;
+        this._renderStatus(consoleState);
+        this._syncSubmitAvailability();
+      }),
+      agentEventStore.subscribe(() => {
+        const consoleState = this._consoleState ?? consoleSM.state;
+        this._renderStatus(consoleState);
+        this._syncSubmitAvailability();
       }),
     );
   }
 
+  private _renderBillingPill(): void {
+    const billing = this._agentMode.billing;
+    const value = this._costEl?.querySelector<HTMLElement>('#xb-cost-val');
+    if (!value) return;
+    value.textContent = billingCostLabel(billing);
+    this._costEl.title = billing.detail;
+    this._costEl.dataset.costState = billing.cost_state;
+  }
+
   private _renderStatus(state: ConsoleState): void {
+    if (this._isAgentMode()) {
+      this._renderAgentStatus(state);
+      return;
+    }
+
     const active = new Set<string>();
     let message = 'Ready. Type a change, then review it before it is saved.';
     const providerBlocked = !this._providerStatus.ready;
@@ -518,6 +669,10 @@ export class PromptInput {
   }
 
   private _providerSetupMessage(): string {
+    if (this._isAgentMode()) {
+      return this._agentMode.agent?.message || 'Codex Agent Mode needs a usable provider account.';
+    }
+
     const status = this._providerStatus;
     if (!status.checked) return 'Checking provider setup...';
     const stateMessages: Record<string, string> = {

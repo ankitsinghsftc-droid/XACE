@@ -98,7 +98,7 @@ class WSMessageRouter:
                 await self._handle_pil_process(session_id, message, send_fn, cgs_state)
 
             elif msg_type == "pil_answer":
-                await self._handle_pil_answer(session_id, message, send_fn)
+                await self._handle_pil_answer(session_id, message, send_fn, cgs_state)
 
             elif msg_type == "pil_apply":
                 await self._handle_pil_apply(session_id, message, send_fn, persist, cgs_state)
@@ -212,7 +212,9 @@ class WSMessageRouter:
         mode     = message.get("mode", "COLLABORATIVE")
 
         classifier = classify_prompt(str(prompt))
-        if not classifier.may_continue_to_pil:
+        if not classifier.may_continue_to_pil and not (
+            hasattr(self._sm, "matches_gameplay_package") and self._sm.matches_gameplay_package(str(prompt))
+        ):
             self._sm.clear_pending(session_id)
             if classifier.category_id == "clarification_required":
                 result = self._sm.start_prompt_clarification(
@@ -244,9 +246,16 @@ class WSMessageRouter:
         session_id: str,
         message:    dict,
         send_fn:    SendFn,
+        cgs_state: dict | None = None,
     ) -> None:
         clar_id = message.get("clarification_id", "")
         answer  = message.get("answer", "")
+
+        session = self._sm._sessions.get(session_id)
+        if session is not None and getattr(session, "pending_gameplay_authoring", None) is not None:
+            result = self._sm.answer_gameplay_package(session_id, clar_id, answer, cgs_state or {})
+            await send_fn({"type": "pil_result", "result": result})
+            return
 
         response = self._sm.submit_prompt_clarification_answer(
             session_id, clar_id, answer
@@ -280,7 +289,7 @@ class WSMessageRouter:
         session = self._sm._sessions.get(session_id)
         project_path = str(getattr(session, "project_path", "") or "")
         project_id = str(message.get("project_id") or "")
-        if project_path and "project_path" not in metadata:
+        if project_path:
             metadata = {**metadata, "project_path": project_path}
         context_capsule_path = str(message.get("context_capsule_path") or "")
         await self._agent_event_stream.start_turn(

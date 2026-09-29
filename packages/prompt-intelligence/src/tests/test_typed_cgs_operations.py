@@ -332,6 +332,7 @@ class TestTypedCgsOperations(unittest.TestCase):
         self.assertEqual(
             {kind.value for kind in OPERATION_REGISTRY},
             {
+                "install_gameplay_package",
                 "declare_component",
                 "add_component",
                 "add_system",

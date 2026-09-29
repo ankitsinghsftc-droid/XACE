@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Mapping
 
 from .operation_model import (
+    InstallGameplayPackageOperation,
     MAX_OPERATIONS_PER_BATCH,
     TYPED_OPERATION_BATCH_SCHEMA,
     AddAssetOperation,
@@ -64,6 +65,16 @@ def _definition(
 
 
 OPERATION_REGISTRY: dict[OperationKind, OperationDefinition] = {
+    OperationKind.INSTALL_GAMEPLAY_PACKAGE: _definition(
+        OperationKind.INSTALL_GAMEPLAY_PACKAGE,
+        {"package_id", "package_hash", "mode_id", "actor_ids", "capability_targets", "template_id", "configuration_id"}, set(),
+        lambda raw: InstallGameplayPackageOperation(
+            operation_id=_string(raw, "operation_id"), explanation=_string(raw, "explanation"),
+            package_id=_string(raw, "package_id"), package_hash=_string(raw, "package_hash"),
+            mode_id=_string(raw, "mode_id"), actor_ids=tuple(_string_list(raw, "actor_ids")),
+            capability_targets=tuple(copy.deepcopy(_list(raw, "capability_targets"))),
+            template_id=_string(raw, "template_id"), configuration_id=_string(raw, "configuration_id")),
+    ),
     OperationKind.DECLARE_COMPONENT: _definition(
         OperationKind.DECLARE_COMPONENT,
         {"component_type_id", "component_name", "version", "fields"},
@@ -373,6 +384,8 @@ def compile_typed_operation_batch(
     default_updates: list[tuple[str, str, int, str, Any]] = []
 
     for operation in batch.operations:
+        if isinstance(operation, InstallGameplayPackageOperation):
+            raise TypedOperationError("Catalog operations require host-bound GDE materialization")
         if isinstance(operation, DeclareComponentOperation):
             component_schemas.append(copy.deepcopy(operation.component_schema_record()))
         elif isinstance(operation, AddComponentOperation):
@@ -452,7 +465,12 @@ def normalized_typed_operation_batch(
             "kind": operation.kind.value,
             "explanation": operation.explanation,
         }
-        if isinstance(operation, DeclareComponentOperation):
+        if isinstance(operation, InstallGameplayPackageOperation):
+            record.update({name: copy.deepcopy(getattr(operation, name)) for name in
+                ("package_id", "package_hash", "mode_id", "template_id", "configuration_id")})
+            record["actor_ids"] = list(operation.actor_ids)
+            record["capability_targets"] = copy.deepcopy(list(operation.capability_targets))
+        elif isinstance(operation, DeclareComponentOperation):
             record.update({
                 "component_type_id": operation.component_type_id,
                 "component_name": operation.component_name,
@@ -706,6 +724,13 @@ def _operation_json_schema(definition: OperationDefinition) -> dict[str, Any]:
                     r"(?!.*(?:^|[\\/])\.\.(?:[\\/]|$))[^\r\n]*$"
                 ),
             },
+        },
+        OperationKind.INSTALL_GAMEPLAY_PACKAGE: {
+            "package_id": _identifier_schema(), "package_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "mode_id": _identifier_schema(), "actor_ids": {"type": "array", "items": _identifier_schema()},
+            "template_id": {"type": "string"}, "configuration_id": _identifier_schema(),
+            "capability_targets": {"type": "array", "items": _strict_object_schema({
+                "capability_id": _identifier_schema(), "object_ids": {"type": "array", "items": _identifier_schema()}})},
         },
         OperationKind.SET_DEFAULTS: {
             "mode_id": _identifier_schema(),

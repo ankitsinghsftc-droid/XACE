@@ -178,6 +178,7 @@ impl ParallelExecutor {
                     snapshot_recovery_possible: true,
                 })?;
 
+            ctx.ensure_geometry_valid()?;
             all_events.extend(ctx.emitted_events);
         }
 
@@ -261,6 +262,7 @@ impl ParallelExecutor {
                     snapshot_recovery_possible: true,
                 })?;
 
+            ctx.ensure_geometry_valid()?;
             results.insert(system_id.clone(), ctx.emitted_events);
         }
 

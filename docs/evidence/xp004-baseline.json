@@ -1,0 +1,255 @@
+{
+  "schema": "xace.xp004.baseline.v1",
+  "date": "2026-09-24",
+  "task": "XP-004",
+  "acceptance": "satisfied for declared authoritative geometry query layer",
+  "recommendation": "READY FOR XP-005",
+  "xp005_started": false,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "task_files": [
+    "MASTER_PLAN.md",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+    "docs/XP004_COMPLETION.md",
+    "docs/adr/XP-004-authoritative-geometry.md",
+    "docs/evidence/xp004-baseline.json",
+    "docs/source_inventory.json",
+    "packages/core/src/contracts/interfaces.rs",
+    "packages/core/src/geometry.rs",
+    "packages/core/src/lib.rs",
+    "packages/runtime-core/src/geometry.rs",
+    "packages/runtime-core/src/lib.rs",
+    "packages/runtime-core/src/phase_orchestrator/parallel_executor.rs",
+    "packages/runtime-core/src/phase_orchestrator/phase_orchestrator.rs",
+    "packages/runtime-core/src/phase_orchestrator/system_context.rs",
+    "packages/runtime-core/src/query_engine/query_engine.rs",
+    "packages/runtime-core/tests/test_geometry_v1.rs"
+  ],
+  "source_sha256": {
+    "MASTER_PLAN.md": "c60e3cdb112a5c53df52d74fcb2d6c8a08b4f5895011bdf1d58e08ffef61024d",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "b1b889b39217b52aba4eb93aa337c1fff7e7a0869007caa9219c5a69695835b3",
+    "docs/XP004_COMPLETION.md": "1e4c7ae8b6e79eb5373389a455a5231f2b147c863d8f7a67dfb860358367abb8",
+    "docs/adr/XP-004-authoritative-geometry.md": "c6180196dcb86b6b6075cf8a909ef7c6154cb21067e1de15b2d709683a7f1f52",
+    "docs/source_inventory.json": "3b19fbaf2f804440ff274cc176d701a87b6e9fb64608a688bac31ebcc8e12c2e",
+    "packages/core/src/contracts/interfaces.rs": "5acd42fdb58e927acd7c258c843736f5289395473b8ea3ccc640ab11b9a6d730",
+    "packages/core/src/geometry.rs": "252781a8037bacf12eb2f2ee121fddd8ca1bace6cd5aef70dd446c922bc7ba11",
+    "packages/core/src/lib.rs": "e175587ed5303e88e32936c40beae3362edbc4d85dd2c83ef69a3f47836989d9",
+    "packages/runtime-core/src/geometry.rs": "97be31a69a4acc9bc8771508f5c29e34432454985750146d99b13ed4246bf3d3",
+    "packages/runtime-core/src/lib.rs": "28b9f82deb8e60258753335ad03e1c4046dae7f99ad20f6e6a494c776e966150",
+    "packages/runtime-core/src/phase_orchestrator/parallel_executor.rs": "9ea7631e2e5ada40ec3e33bcaac3b5e080f90c1e08b8d89318567fcc18ca9919",
+    "packages/runtime-core/src/phase_orchestrator/phase_orchestrator.rs": "8f132beb46f674028abe14e302d0925591397e8c98190f688ff886d061a48526",
+    "packages/runtime-core/src/phase_orchestrator/system_context.rs": "c07ad6441ab32060b4a69993f6648c1560d1405bbd88bbf8f936e36ffa96b024",
+    "packages/runtime-core/src/query_engine/query_engine.rs": "2c05a94374216a426b2237afa223ca0279cdc64c55191b8c4125fb6d13c6ab18",
+    "packages/runtime-core/tests/test_geometry_v1.rs": "bc2c4270f7dac71c9f738fe4d4c47a43b65be55b2fb64d84713465da380ad8a6"
+  },
+  "verification": {
+    "rust_command": "cargo test -p xace-core -p xace-runtime-core -p xace-network-core -p xace-engine-adapter -p xace-system-graph-compiler --offline --quiet",
+    "rust_passed": 1924,
+    "rust_failed": 0,
+    "rust_ignored": 0,
+    "rust_result_groups": 34,
+    "geometry_command": "cargo test -p xace-runtime-core --test test_geometry_v1 --offline --quiet -- --nocapture",
+    "geometry_passed": 18,
+    "geometry_count_overlaps_rust_total": true,
+    "independent_axis_gap_speed_cases": 5766,
+    "replay_hashes": [
+      "d3c2db0121a6e3692c1e768e3d2df813dd7e5c110d699517dd1f788bb9b93d47",
+      "692f8b3aa48883532dee45d64fe140f006fb03aeb19035de435c996690c0e2b0",
+      "95de87f15e5f0fab1f5cde8aa2fad32981ee2053075abc088b51ca04d4e4dfe6"
+    ],
+    "inventory_command": "python tools/source_inventory_check.py --json",
+    "inventory_exit_code": 1,
+    "inventory_issues_unchanged_since_xp003": true,
+    "inventory_issues": [
+      {
+        "path": "AGENTS.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "XACE_Strategic_Roadmap_2026-2028.pdf",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/AGENT_PRIVACY_SUPPORT.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/AGENT_SETUP_UX.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/CODEX_APP_SERVER_SURFACE.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/CODEX_COMPATIBILITY_RESILIENCE.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/CODEX_DOCKER_BACKEND.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/CODEX_INTEGRATION_HANDOFF.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/adr/ADR-0023-CODEX-RUNTIME-DISTRIBUTION.md",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/evidence/codex-ag029-host.json",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/evidence/codex-ag029-isolation.json",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/evidence/codex-ag030-completion.json",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/evidence/codex-ag030-review.json",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "docs/evidence/codex-ag030-setup.json",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/ag029_container/builder_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/ag029_container/native_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/ag029_container/probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/ag029_container/xace_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_backend_setup.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_capability_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_certification_preflight.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_completion_evidence.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_container_live_check.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_container_preflight.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_host_backend_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_integration_completion.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_isolation_probe.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_runtime.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_schema_check.py",
+        "message": "path exists but is not classified in source inventory"
+      },
+      {
+        "path": "tools/codex_setup_acceptance.py",
+        "message": "path exists but is not classified in source inventory"
+      }
+    ],
+    "scoped_diff_check": "passed",
+    "python_and_ui": "not rerun; no changes in these layers"
+  },
+  "log_sha256": {
+    "tmp/xp004-rust-final.log": "5cbf92dcd562bdc27337806e19509c63ab2a03fde85c990a1c0792794469185b",
+    "tmp/xp004-geometry-final.log": "901019bdc8e867153bea90bba4150cf2a3f41ea81e665052ba812d5509bc2146"
+  },
+  "preexisting_file_diff_counts": [
+    {
+      "path": "MASTER_PLAN.md",
+      "added": 16,
+      "removed": 0
+    },
+    {
+      "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+      "added": 2,
+      "removed": 2
+    },
+    {
+      "path": "docs/source_inventory.json",
+      "added": 4,
+      "removed": 1
+    },
+    {
+      "path": "packages/core/src/contracts/interfaces.rs",
+      "added": 16,
+      "removed": 0
+    },
+    {
+      "path": "packages/core/src/lib.rs",
+      "added": 2,
+      "removed": 0
+    },
+    {
+      "path": "packages/runtime-core/src/lib.rs",
+      "added": 2,
+      "removed": 0
+    },
+    {
+      "path": "packages/runtime-core/src/phase_orchestrator/parallel_executor.rs",
+      "added": 2,
+      "removed": 0
+    },
+    {
+      "path": "packages/runtime-core/src/phase_orchestrator/phase_orchestrator.rs",
+      "added": 53,
+      "removed": 0
+    },
+    {
+      "path": "packages/runtime-core/src/phase_orchestrator/system_context.rs",
+      "added": 22,
+      "removed": 0
+    },
+    {
+      "path": "packages/runtime-core/src/query_engine/query_engine.rs",
+      "added": 14,
+      "removed": 0
+    }
+  ],
+  "limits": [
+    "Windows x64 only; no other OS certification",
+    "No native engine, provider, networking or Player launch certification",
+    "No maximum-size throughput benchmark; linear view rebuilds and tick checkpoint copies",
+    "Package verification and activation of world identity bindings belongs to XP-007",
+    "Sampled geometry queries; no relative two-body motion or movement response solver",
+    "Prior XP-002 legacy migration limits retained"
+  ]
+}

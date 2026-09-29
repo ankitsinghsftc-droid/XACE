@@ -1,0 +1,105 @@
+{
+  "schema": "xace.world_extensibility_correction.v1",
+  "status": "passed",
+  "verdict": "SAFE TO START XP-007",
+  "python_gate": "tmp/world-extensibility-python.json",
+  "final_checks": [
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "packages/builder-workspace/server/tests",
+        "-p",
+        "test_world*.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "tmp\\world-extensibility\\final-0.log"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "packages/builder-workspace/server/tests",
+        "-p",
+        "test_gameplay_package_authoring.py",
+        "-v"
+      ],
+      "exit_code": 0,
+      "log": "tmp\\world-extensibility\\final-1.log"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "xace-core",
+        "-p",
+        "xace-runtime-core",
+        "-p",
+        "xace-reference-mechanic",
+        "--offline",
+        "--quiet",
+        "--test",
+        "test_world_contract",
+        "--test",
+        "test_world_contract_v3",
+        "--test",
+        "test_session_contract",
+        "--test",
+        "test_geometry_v1",
+        "--test",
+        "proof"
+      ],
+      "exit_code": 0,
+      "log": "tmp\\world-extensibility\\final-2.log"
+    }
+  ],
+  "library_regressions": {
+    "core": 541,
+    "runtime": 701,
+    "failed": 0
+  },
+  "production_scope_sha256": {
+    "MASTER_PLAN.md": "fd9b5062d85b0a0c62d70612204358d038a86e7cd184b5e9c83f063d512f5322",
+    "docs/WORLD_EXTENSIBILITY_COMPLETION.md": "9232ef9d01e69f7d054d820bcfc5f194d4fa4e36073713a10816678eb7ba0951",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "beb632aa13f3f6ddb67b95c06e107724df986e0e3c63613afbefd62f6ad5a085",
+    "docs/adr/World-Contract-v3-extensibility.md": "b5d1c3210d3fd2285b8889ec3a485d1c9ff4906afb0368108f68dad7a5e7329d",
+    "docs/source_inventory.json": "047e900fa903665dd5c2bce4ab8ad6a771a84b49c7df84a271d0ef830ba9146e",
+    "examples/reference-mechanic/tests/proof.rs": "cbc46eab643b08c83b44fa16cb4252f5ea4d5dfe6362d826510c1ec207d99f3e",
+    "packages/builder-workspace/server/session_manager.py": "38f945edc4ddf377e541ca94a93ab079222c50ce570dc0b96cb7a84781e32050",
+    "packages/builder-workspace/server/tests/test_world_extensibility.py": "31fc4682264733fde94cc99483e130a4b09770fe2d96667a4bbfac0bb33b8ae5",
+    "packages/core/src/contracts/interfaces.rs": "c461d6114c2ef6d2e70ef9b30406bafbb98fd9b78539eec9b447d4bcf2634e02",
+    "packages/core/src/wire/session_contract.rs": "7679789b3df2127cefa2247e7d7594db56cc9e7131bae0cd4f78b3d2efe33e6a",
+    "packages/core/src/world/mod.rs": "86cb0a25acf6111afd453761163337db57a8c76c7036160cd2632c13677ec2d5",
+    "packages/core/src/world/profiles.json": "85b0f5e3ab1f5fa469c39b5c6659bc6d7c3c2553d35ae0bbc93027403e9b0ebe",
+    "packages/core/src/world/v3.rs": "ba0580ce90a8d53244d2b8a11130fde120e877dc36c04d02d491c157d4b7f2d7",
+    "packages/core/tests/fixtures/world_contract_v3/manifest.json": "7088934707f1c5d94b5f96c168ee821307919edf83e6ffef55b4d0290158fd20",
+    "packages/core/tests/fixtures/world_contract_v3/migrated_reference.world.json": "bf83e5e89d715214d2072cdf7cd2b2bb3ceddcb8ccfc4eb77bba74c1b63b78a9",
+    "packages/core/tests/fixtures/world_contract_v3/source.cgs.json": "ed3e263850d5532311b62721d70b64e3c54d3ec814303327b1cf0fa933c7477b",
+    "packages/core/tests/fixtures/world_contract_v3/world.canonical.json": "a36fb164b3a69f5d0a16b88ebdb3da3294034ab8821f162e905e142314641942",
+    "packages/core/tests/test_world_contract_v3.rs": "40b633e4bc0b0174aa0b132e88ce7ce172aa9f1eded3fc9bad7bce46fc44e282",
+    "packages/gde/src/domain_dsl/typed_operations/gameplay_catalog.py": "7363ac7965850a2733ad84faccdba63f0847cec6ee74468c8c9c75b02a76531c",
+    "packages/prompt-intelligence/src/typed_operations/package_authoring.py": "69cd9b66cd35d9cc64ee060003ff3cbd73ae6f8dc2a627dc7f483978903f45e0",
+    "packages/runtime-core/src/geometry.rs": "71b33da7fe80dd5f96e5c09a5a21802a8d80cf4b22ce90ed0ad7ebde36228c07",
+    "packages/runtime-core/src/phase_orchestrator/system_context.rs": "2b881e362be1fbc199f1af42c6b0c9e3dc3e7588095a5c6a6534a22b37ddf3d8",
+    "packages/runtime-core/src/query_engine/query_engine.rs": "2dd6d30a0894f8e062aa4f904299db5d6a90daf773d850c2e8677c6a4c055d4c",
+    "packages/runtime-core/tests/test_geometry_v1.rs": "b5dcf8448f4ab90ec58e81e9f9702b60087169b76ba216e6a7a6cf02836a17a4",
+    "packages/schema-factory/src/entity_blueprint/blueprint_compiler.py": "ff4eaab9d1d498fc505b2f859c4d9f2111a580b89ca5453b5921ceecef0bf956",
+    "packages/schema-factory/src/portable_compilation.py": "9c949fc64d8128ffafe5f9666eb6bd25f14aeb346bc4526a7fccca7e162ff774",
+    "packages/schema-factory/src/world_contract.py": "58a37c43d8edbde757fe02daca62271ac841f3b5295e1fd1f6c379e27ca04b2a",
+    "packages/schema-factory/src/world_contract_v3.py": "a18ad1ccc1b2cf0c90f10fcf1e906fb580fb4be33b78304091ff09652cfd21e4",
+    "tools/world_extensibility_proof.py": "415bb636edb69f0ce84e83fc1ca9f8e882a7b64685ec53b81a384aac5a0660f1"
+  },
+  "limits": [
+    "AABB is the implemented authoritative geometry backend",
+    "No new native host or asset importer certification",
+    "World metadata is immutable; live state remains in components"
+  ]
+}

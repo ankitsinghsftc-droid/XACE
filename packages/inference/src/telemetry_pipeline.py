@@ -137,6 +137,10 @@ class InferenceTelemetryEvent:
     cached:             bool               = False
     timestamp:          float              = field(default_factory=time.time)
     provider_kind:      str                = "cloud"   # "cloud" | "local" | "deterministic" | "cache"
+    billing_source:     str                = "api_byok"
+    cost_state:         str                = "estimated"
+    token_tracking:     str                = "xace_tracked"
+    cost_label:         str                = "XACE-estimated API cost"
     attempt_count:      int                = 0
     retry_count:        int                = 0
     timeout_seconds:    float              = 0.0
@@ -204,6 +208,9 @@ class SessionTelemetrySummary:
     calls_by_provider:  dict[str, int]   = field(default_factory=dict)
     calls_by_outcome:   dict[str, int]   = field(default_factory=dict)
     calls_by_provider_kind: dict[str, int] = field(default_factory=dict)  # cloud|local|deterministic|cache
+    calls_by_billing_source: dict[str, int] = field(default_factory=dict)
+    calls_by_cost_state: dict[str, int] = field(default_factory=dict)
+    calls_by_token_tracking: dict[str, int] = field(default_factory=dict)
     calls_by_failure_category: dict[str, int] = field(default_factory=dict)
 
     def absorb(self, event: InferenceTelemetryEvent) -> None:
@@ -233,6 +240,12 @@ class SessionTelemetrySummary:
             self.calls_by_outcome.get(event.outcome, 0) + 1
         self.calls_by_provider_kind[event.provider_kind] = \
             self.calls_by_provider_kind.get(event.provider_kind, 0) + 1
+        self.calls_by_billing_source[event.billing_source] = \
+            self.calls_by_billing_source.get(event.billing_source, 0) + 1
+        self.calls_by_cost_state[event.cost_state] = \
+            self.calls_by_cost_state.get(event.cost_state, 0) + 1
+        self.calls_by_token_tracking[event.token_tracking] = \
+            self.calls_by_token_tracking.get(event.token_tracking, 0) + 1
         if event.failure_category:
             self.calls_by_failure_category[event.failure_category] = \
                 self.calls_by_failure_category.get(event.failure_category, 0) + 1

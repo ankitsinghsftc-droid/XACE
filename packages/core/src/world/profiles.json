@@ -1,0 +1,12 @@
+{
+  "schema": "xace.world_profile_registry.v1",
+  "profiles": {
+    "aabb_v1": {
+      "id": "world.aabb.v1",
+      "numeric_profile": "fixed64_y_up_neg_z_v1",
+      "query_version": 1,
+      "coordinate_limit_raw": 8192000000,
+      "max_bodies": 4096
+    }
+  }
+}

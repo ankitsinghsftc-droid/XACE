@@ -90,6 +90,13 @@ import type { UIStore }        from '../state/ui_store';
 import type { SessionTelemetry, ComplexityTier } from '../types/pil';
 import { formatCost, formatTokens } from '../types/pil';
 import { emptyTelemetry } from '../types/pil';
+import { agentModeStore } from '../state/agent_mode_store';
+import {
+  UNKNOWN_BILLING,
+  billingCostLabel,
+  billingRateLimitLabel,
+  billingUsageLabel,
+} from '../types/billing';
 
 const STYLES = `
 .xb-tele { flex: 1; overflow-y: auto; padding: 8px 9px; display: flex; flex-direction: column; gap: 8px; }
@@ -149,6 +156,7 @@ export class InferenceTelemetryPanel {
   private readonly _chart:  CostChart;
   private _el!:             HTMLElement;
   private _tele:            SessionTelemetry = emptyTelemetry();
+  private _billing = UNKNOWN_BILLING;
   private readonly _unsubs: Array<() => void> = [];
 
   constructor(deps: TelemetryPanelDeps) {
@@ -169,6 +177,10 @@ export class InferenceTelemetryPanel {
           this._tele = state.telemetry;
           this._render();
         }
+      }),
+      agentModeStore.subscribe(state => {
+        this._billing = state.billing;
+        this._render();
       }),
     );
 
@@ -200,8 +212,16 @@ export class InferenceTelemetryPanel {
         <span class="xb-tele-val">${formatTokens(t.total_input_tokens)}</span>
       </div>
       <div class="xb-tele-row">
-        <span class="xb-tele-lbl">Est. cost</span>
-        <span class="xb-tele-val" style="color:var(--grn)">${formatCost(t.total_cost_cents)}</span>
+        <span class="xb-tele-lbl">Billing</span>
+        <span class="xb-tele-val" style="color:var(--grn)">${billingCostLabel(this._billing, t.total_cost_cents)}</span>
+      </div>
+      <div class="xb-tele-row">
+        <span class="xb-tele-lbl">Usage source</span>
+        <span class="xb-tele-val">${billingUsageLabel(this._billing)}</span>
+      </div>
+      <div class="xb-tele-row">
+        <span class="xb-tele-lbl">Limits</span>
+        <span class="xb-tele-val">${billingRateLimitLabel(this._billing)}</span>
       </div>
       <div class="xb-tele-row">
         <span class="xb-tele-lbl">Cache hit</span>
@@ -221,16 +241,22 @@ export class InferenceTelemetryPanel {
     `;
     this._el.appendChild(totals);
 
-    // Cost chart
-    const chartWrap = document.createElement('div');
-    chartWrap.className = 'xb-tele-card';
-    const chartLbl = document.createElement('div');
-    chartLbl.style.cssText = 'font-size:8.5px;color:var(--txt3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em';
-    chartLbl.textContent   = 'Cost per mutation';
-    chartWrap.appendChild(chartLbl);
-    this._chart.mount(chartWrap);
-    this._chart.update(t.calls);
-    this._el.appendChild(chartWrap);
+    if (this._billing.cost_state === 'estimated') {
+      const chartWrap = document.createElement('div');
+      chartWrap.className = 'xb-tele-card';
+      const chartLbl = document.createElement('div');
+      chartLbl.style.cssText = 'font-size:8.5px;color:var(--txt3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.08em';
+      chartLbl.textContent = 'XACE-estimated cost per mutation';
+      chartWrap.appendChild(chartLbl);
+      this._chart.mount(chartWrap);
+      this._chart.update(t.calls);
+      this._el.appendChild(chartWrap);
+    } else {
+      const billingNote = document.createElement('div');
+      billingNote.className = 'xb-tele-card xb-tele-empty';
+      billingNote.textContent = this._billing.detail;
+      this._el.appendChild(billingNote);
+    }
 
     // Per-call breakdown (last 8)
     const callCard = document.createElement('div');
@@ -254,7 +280,7 @@ export class InferenceTelemetryPanel {
         row.innerHTML = `
           <span class="xb-tele-call-lbl">${call.pass}</span>
           <span class="xb-tele-call-tier" style="background:${tierStyle.bg};color:${tierStyle.color}">${call.tier}</span>
-          <span class="xb-tele-call-cost">${call.cost_cents.toFixed(2)}¢</span>
+          <span class="xb-tele-call-cost">${this._billing.cost_state === 'estimated' ? formatCost(call.cost_cents) : billingCostLabel(this._billing)}</span>
           ${call.cached ? '<span class="xb-tele-call-cache">hit</span>' : ''}
         `;
         callCard.appendChild(row);

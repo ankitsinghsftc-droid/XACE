@@ -376,6 +376,7 @@ class InferenceAdapter:
             outcome            = "success",
             cached             = False,
             provider_kind      = self._telemetry_provider_kind(descriptor.provider, cached=False),
+            **self._billing_telemetry_fields(descriptor.provider, cached=False),
             **self._retry_telemetry_fields(retry_report),
             **structured_plan.telemetry_fields(),
         ))
@@ -469,6 +470,7 @@ class InferenceAdapter:
             outcome         = outcome,
             cached          = False,
             provider_kind   = self._telemetry_provider_kind(descriptor.provider, cached=False),
+            **self._billing_telemetry_fields(descriptor.provider, cached=False),
             **retry_fields,
             **structured_plan.telemetry_fields(quarantined=(category == "schema_error")),
         ))
@@ -513,6 +515,10 @@ class InferenceAdapter:
             outcome         = "deterministic_shortcut",
             cached          = True,
             provider_kind   = "deterministic",
+            billing_source  = "unknown",
+            cost_state      = "unknown",
+            token_tracking  = "unknown",
+            cost_label      = "No provider call",
         ))
         return InferenceResponse(
             text               = "__TIER_S_DETERMINISTIC__",
@@ -544,6 +550,10 @@ class InferenceAdapter:
             outcome         = "cache_hit",
             cached          = True,
             provider_kind   = "cache",
+            billing_source  = "unknown",
+            cost_state      = "unknown",
+            token_tracking  = "unknown",
+            cost_label      = "No provider call",
         ))
         return InferenceResponse(
             text               = text,
@@ -586,6 +596,30 @@ class InferenceAdapter:
         if provider == "local":
             return "local"
         return "cloud"
+
+
+    @staticmethod
+    def _billing_telemetry_fields(provider: str, *, cached: bool) -> dict[str, str]:
+        if cached or provider in {"response_cache", "deterministic"}:
+            return {
+                "billing_source": "unknown",
+                "cost_state": "unknown",
+                "token_tracking": "unknown",
+                "cost_label": "No provider call",
+            }
+        if provider == "local":
+            return {
+                "billing_source": "local_runtime",
+                "cost_state": "local_resource",
+                "token_tracking": "local_observed",
+                "cost_label": "Local compute; monetary cost not estimated",
+            }
+        return {
+            "billing_source": "api_byok",
+            "cost_state": "estimated",
+            "token_tracking": "xace_tracked",
+            "cost_label": "XACE-estimated API cost",
+        }
 
     @property
     def is_healthy(self) -> bool:

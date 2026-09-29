@@ -1,6 +1,6 @@
 {
   "schema": "xace.production_path_rules.v1",
-  "updated": "2026-06-18",
+  "updated": "2026-09-17",
   "production_globs": [
     "packages/**/*.py",
     "packages/**/*.rs",
@@ -26,6 +26,8 @@
     "tools/phase15_integration_check.py",
     "tools/sgc_cli_integration.py",
     "tools/sgc_cli_smoke.py",
+    "tools/agent_provider_conformance.py",
+    "packages/builder-workspace/server/agent_host/mock_agent.py",
     "target*",
     "node_modules/**",
     "packages/**/node_modules/**",

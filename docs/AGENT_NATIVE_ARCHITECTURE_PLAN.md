@@ -1,6 +1,6 @@
 # XACE Agent-Native Architecture Plan
 
-Status: pre-implementation architecture report
+Status: living architecture; AG-029 backend decision incorporated 2026-09-22
 Research snapshot: 2026-08-31
 Directive honored: do not implement the feature yet; audit, verify, design, and produce the roadmap first.
 Amendments incorporated: 2026-08-31 approval refinements.
@@ -22,9 +22,29 @@ Recommended mode split:
 - API / BYOK Mode: keep the current provider API path through `InferenceAdapter`; improve capability discovery and billing clarity, but do not force an agent runtime.
 - Local Agent Mode: architecturally reserved as a later local XACE agent loop over local models, using the same tool and proposal contracts as provider agents. It is not required for Codex Agent Mode completion.
 
-Do not build the first iteration around a plain CLI command wrapper. Codex App Server is the better first-class integration point because it exposes product-grade surfaces for auth, model discovery, threads, resume/fork, streamed events, and approvals. XACE should also investigate a XACE-managed, pinned Codex runtime as the preferred eventual public-product distribution model, while keeping externally installed Codex detection useful for development and fallback. Bundling must not be implemented until redistribution, packaging, auth-storage, update, and compatibility implications are verified.
+Do not build the integration around a plain CLI command wrapper. Codex App Server is the first-class interface because it exposes product-grade surfaces for auth, model discovery, threads, resume/fork, streamed events, and approvals. AG-023 selects XACE-managed acquisition of the official stable `openai-codex` package and its pinned runtime as the preferred eventual product path, while keeping compatible externally installed Codex useful for development and fallback. Raw binary bundling or redistribution is not approved.
 
 The current implementation window is production-grade Codex Agent Mode. Claude adapter interfaces should remain reserved, but Claude execution is deferred; the goal is to remove API-first dependence for users through the cleanest currently supported subscription-backed product integration path, which is Codex App Server.
+
+## AG-029 execution-backend refinement (2026-09-22)
+
+User-approved decision: Docker Desktop / WSL 2 is the first supported Windows
+Codex execution backend. `AgentExecutionBackend` owns health and isolated client
+creation; `AgentAdapter` retains provider auth/lifecycle/sessions/events.
+The private Docker/stdio transport, image pin and path mapping are lower-level
+implementation details, not Agent protocol or core XACE APIs. MCP remains the
+preferred provider-neutral tool contract. Native Windows isolation can be added
+as a later backend without changing Builder/proposal/GDE/runtime contracts.
+
+Normal Builder startup/setup/status/auth now use the same isolated adapter.
+Local builds verify the official pinned archive and base image; automatic
+bundling/redistribution and silent runtime updates remain disabled. No global
+CLI fallback is silently selected when Docker is unavailable. API/BYOK remains
+the default and unchanged. Native Windows and Local/Claude execution are
+non-blocking deferred work. See [backend decision and requirements](CODEX_DOCKER_BACKEND.md)
+and [real-account certification](CODEX_REAL_ACCOUNT_CERTIFICATION.md).
+AG-030 still owns final integration acceptance, including initial operator
+provisioning UX and upstream experimental support limitations.
 
 ## 2. Current-State Audit
 
@@ -161,7 +181,7 @@ Codex SDK is useful if XACE wants a Python or TypeScript control layer over loca
 
 Preferred tool model: XACE should expose its own MCP/tool bridge to Codex through App Server-supported MCP configuration where supported. AgentAdapter owns provider lifecycle, auth, session, event, cancellation, and capability mapping. XACE's tool contract owns project context retrieval, validation, proposal submission, and permission policy. Direct provider-specific tool wiring remains a fallback only when MCP is not supported or not sufficient.
 
-Distribution model: XACE should investigate shipping a XACE-managed, pinned Codex runtime for public builds so users do not permanently need to install/update a global CLI separately. This remains a research and packaging task until legal redistribution, binary provenance, auth storage, update cadence, compatibility checks, and rollback behavior are verified.
+Distribution model: XACE will prefer managed acquisition of an exact certified stable `openai-codex` package in an isolated XACE Agent environment. OpenAI documents that this SDK includes and automatically uses a pinned Codex CLI runtime. AG-024 must verify package hashes, platform artifacts, a supported launch surface, compatibility, atomic updates, and rollback before acquisition is enabled. Raw binary bundling, repackaging, redistribution, and private package-internal scraping remain prohibited; compatible official external CLI detection remains the fallback.
 
 Important security note: Codex App Server includes a shell-command method that can run outside the sandbox with full access. XACE must not expose this to game-building agents. If command execution is ever needed, route it through XACE-owned, allowlisted runtime and validation tools.
 
@@ -719,6 +739,8 @@ Dependencies: AG-006, AG-011.
 
 Implementation summary: Add `xace.submit_proposal` as the first write-intent tool, but route it only to pending preview creation.
 
+Implementation status: Complete. `xace.submit_proposal` is a distinct `proposal_write` MCP tool that is hidden unless XACE explicitly enables it for a live session with a pending-preview target. It binds proposal session, provider, and CGS identities, delegates to `AgentProposalIngressGate`, installs only the existing pending XACE preview, and durably records both proposal and tool-call lineage. Codex App Server receives the same contract through its session-local dynamic-tool fallback; no provider-native file change, raw shell, direct GDE/SGC call, or runtime mutation is exposed.
+
 Acceptance criteria: Codex-authored changes appear as XACE diff previews; no provider-native file change mutates project state.
 
 Tests/proofs: End-to-end Codex fixture using mocked App Server events; stale hash and malformed operation rejection tests.
@@ -741,6 +763,10 @@ Tests/proofs: Frontend unit tests plus manual builder smoke.
 
 Rollback/failure path: Hide the Agent panel and continue using existing prompt preview UI.
 
+Implementation status: **Complete (2026-09-03).** The Builder now has a compact Agent tab and Agent prompt route backed by the composed Codex App Server adapter, preferred XACE MCP bridge, durable session/event store, and proposal-ingress gate. It exposes provider/auth/account and provider-managed billing state before a turn, current session/turn/cancellation state, tool and proposal audit events, proposal risk, and separate XACE approve/discard controls. A completed provider tool call is explicitly audit evidence rather than mutation permission; accepted proposals surface through the existing pending preview and can mutate only through the existing approval, GDE, SGC, and runtime path. API/BYOK remains the unchanged default, Local Agent remains reserved, and no Claude execution work was added.
+
+Verification: the 60-test Agent suite, the complete 145-test Builder server suite, lint, TypeScript typecheck, focused UI contract, and production Vite build pass. The Codex dynamic-tool fixture additionally proves that a preview is surfaced without changing the CGS.
+
 ### AG-014: Billing and Usage Boundary Hardening
 
 Objective: Make cost/account behavior explicit across Agent Mode and API/BYOK Mode.
@@ -757,6 +783,12 @@ Tests/proofs: Serialization tests and UI state tests for API key, subscription/a
 
 Rollback/failure path: Revert to current cost display for API/BYOK and hide agent cost estimates.
 
+Decision: XACE uses the provider-neutral `xace.billing_usage.v1` contract across Builder modes. API/BYOK is `api_byok + estimated + xace_tracked` and keeps the existing token/cost estimator; Codex App Server is `provider_account + provider_managed + provider_reported` and consumes provider-native `account/usage/read` plus `account/rateLimits/read` when supported; local execution is `local_runtime + local_resource + local_observed`; unavailable or inapplicable data is `unknown`. A zero numeric price is never presented as proof that local compute is free. Existing accounting exports retain their prior numeric fields for compatibility and add indexed billing-source/cost-state/token-tracking dimensions.
+
+Implementation status: **Complete (2026-09-04).** Agent provider status, provider-settings payloads, inference telemetry, accounting artifacts, the model selector, prompt cost pill, Agent panel, and telemetry panel now share explicit billing provenance. Codex account usage and rate-limit probes are optional capability reads, so older or API-key-only App Server configurations degrade to provider-managed/unknown detail without blocking Agent Mode. API/BYOK remains the unchanged default execution path and its token accounting remains active.
+
+Verification: billing contract round-trip and Codex usage fixtures pass; API-key, ChatGPT subscription/account, local, and unknown state tests pass; Builder lint/typecheck/UI contracts pass; all 147 Builder server tests pass; the production Vite build passes; and all 233 inference tests pass through the repository's pytest-style runner. No repository evidence required rejecting an amendment, and AG-015 was not started.
+
 ### AG-015: Agent Security Policy Enforcement
 
 Objective: Enforce the non-negotiable boundaries around files, shell, credentials, and mutation authority.
@@ -772,6 +804,13 @@ Acceptance criteria: Security tests demonstrate those capabilities cannot be rea
 Tests/proofs: Secret scan, permission-denial tests, simulated malicious agent fixture.
 
 Rollback/failure path: Disable Agent Mode on policy initialization failure.
+
+Decision: The provider-neutral `AgentSecurityPolicyEnforcer` is the single Builder Agent authority. It certifies exact `AgentToolSpec` values, rejects credential/privilege-bearing metadata, confines provider cwd/read roots to XACE-built context capsules, allowlists lifecycle methods, and inspects provider events before mapping. The only write-shaped Agent tool remains `xace.submit_proposal`, whose authority ends at typed pending-preview creation; GDE, SGC, runtime application, project files, credentials, and shell/process APIs stay unreachable. Codex provider-native approval, command-execution, file-change, patch, permission, and unknown client-authority requests are declined and the turn is interrupted. Provider auth remains App Server-owned, so the Agent host deliberately does not import or read `credential_store.py`.
+
+Implementation status: **Complete (2026-09-17).** Production Agent turns now replace caller-supplied context paths with an XACE-built capsule, enforce restricted read-only Codex sandbox roots, validate adapter capabilities/metadata/tool catalogs at session and turn boundaries, and validate every provider-neutral event before logging or proposal ingestion. Policy initialization failure disables Codex Agent capabilities and blocks session start. Existing API/BYOK routing and defaults are unchanged.
+
+Verification: the 70-test Agent suite passes, including permission-denial tests, capsule escape attempts, a malicious provider event fixture, a malicious provider-neutral adapter fixture, and fail-closed initialization. `tools/agent_security_check.py` passes with zero findings across 12 Agent host modules; the targeted production secret scan passes with zero findings. The aggregate Builder gate passes lint, typecheck, UI contracts, and all 155 server tests, the production Vite build passes, and the inference gate passes all 233 tests. The repository-wide source secret scan still reports 11 known intentional redaction canaries/test fixtures; none are in the AG-015 production surface. No repository evidence required rejecting an amendment.
+
 
 ### AG-016: Local Agent Runner
 
@@ -837,6 +876,12 @@ Tests/proofs: CI-friendly conformance command with fixtures and optional live-pr
 
 Rollback/failure path: Disable adapters that fail conformance.
 
+Decision: Conformance assertions are provider-neutral and scenarios are supplied by isolated provider fixtures. Nine checks are mandatory: contract surface, detection, safe capabilities, session lifecycle/resume, event ordering, MCP tool permissions, proposal ingress, cancellation, and failure recovery. Optional capabilities are reported independently and an unsupported capability is non-blocking only when the adapter does not advertise it. A production adapter that fails any required check is listed for disablement. Deterministic certification is the CI gate; installed Codex detection/auth/model discovery is available as an opt-in live smoke and becomes blocking only with `--require-live-codex`. Conformance certification establishes adapter correctness, not product launch readiness or the default mode; AG-020 owns that decision.
+
+Implementation status: **Complete (2026-09-17).** The reusable assertion engine now certifies deterministic Mock and Codex fixtures independently. Codex proves provider-native start/resume/fork/compaction, streamed event mapping, MCP permission enforcement, typed preview-only proposal ingress, interruption, and safe recovery after a rejected request. The command emits a stable JSON report with certified adapters, production adapters requiring disablement, unsupported optional capabilities with reasons, and explicitly non-blocking AG-016/AG-017/AG-018 deferrals. No Claude or Local implementation is imported or required.
+
+Verification: `python tools/agent_provider_conformance.py` reports PASS with Mock and Codex certified (2/2) and no disabled production adapter. All four focused conformance tests pass, including independent provider failure isolation and deferred-provider semantics. The 74-test Agent suite passes. The aggregate Builder gate passes lint, typecheck, UI contracts, and all 159 server tests; the production Vite build passes; the established inference gate passes all 233 tests. Existing API/BYOK defaults remain unchanged. No repository evidence required rejecting an amendment.
+
 ### AG-020: Codex Agent Mode Production Readiness Gate
 
 Objective: Decide when the currently certified Agent Mode adapters, initially Codex, can be shipped and presented as the preferred path.
@@ -845,13 +890,40 @@ Files/modules: launch-readiness docs, product claims matrix, provider settings U
 
 Dependencies: AG-013, AG-014, AG-015, AG-019.
 
-Implementation summary: Add launch gates for Codex install/auth or managed-runtime readiness, security policy pass, conformance pass, rollback behavior, billing labels, functional Agent UX, and user approval UX. Do not gate Codex shipment on Claude or Local Agent.
+Status: Complete (2026-09-17).
+
+Decision: Codex Agent Mode is the first release-certified and preferred Agent path. Release certification is distinct from per-machine readiness: the implementation may ship when its deterministic conformance, security, fallback, billing, functional UX, approval, distribution-safety, and claims checks pass, while an individual machine still needs an installed, authenticated, compatible Codex App Server before Agent Mode can run. API/BYOK remains the unchanged default and available fallback; choosing Agent Mode performs the local readiness check. Claude and Local Agent remain architecturally reserved but are not shipment dependencies.
+
+Implementation summary: tools/agent_mode_production_readiness.py is the retained AG-020 gate. It certifies Mock and Codex through the reusable AG-019 command API, checks the fail-closed security policy, exercises healthy and unavailable Codex status contracts, proves API/BYOK rollback, validates provider-managed billing labels, checks the functional AG-013 UI and approval boundary, blocks unverified runtime bundling, and validates product claims. tools/certify_launch.py runs the gate in both quick and full launch certification. Provider settings publish a typed xace.agent_mode_launch_status.v1 contract so the UI distinguishes release certification from local runtime readiness and shows production-ready, setup-required, or unavailable states.
+
+Distribution boundary: AG-023 selects managed acquisition of the official pinned Python SDK runtime, while the current executable path remains compatible external Codex detection until AG-024 implements and certifies that lifecycle. The versioned policy disables automatic acquisition and all raw-binary bundling/redistribution. Codex owns OS-keyring credentials; XACE never reads or copies the auth cache. API/BYOK remains available.
 
 Acceptance criteria: Codex Agent Mode is shippable when Codex is healthy and certified; API/BYOK remains one click away; product claims match actual supported integrations.
 
-Tests/proofs: Launch certification check and forbidden-claims check.
+Tests/proofs: python tools/agent_mode_production_readiness.py, focused Agent readiness/settings/detection tests, the Agent suite, aggregate Builder gate, production Vite build, inference gate, UI contracts, and forbidden-claims check.
 
 Rollback/failure path: Set API/BYOK as default and label Agent Mode experimental/unavailable.
+
+Verification: The AG-020 gate passes all nine required checks and records ship_codex_agent_mode, with Codex as the only certified production adapter and AG-016 through AG-018 explicitly deferred. The focused 16-test readiness/settings/detection suite, full 78-test Agent suite, aggregate Builder gate with all 163 server tests, production Vite build, 233-test inference gate, static Agent security check, UI contracts, and forbidden-claims check pass. The optional installed-runtime probe was not required or run; per-machine health remains runtime state. Broader repository governance still reports only pre-existing non-AG-020 inventory/fake-register debt and two older adapter-package TestClient imports. No repository evidence required rejecting an amendment.
+
+
+### Post-AG-020 Codex Integration Completion
+
+AG-020 is an implementation-certification gate, not proof that the entire XACE product is launch-ready. The remaining Agent sequence is intentionally limited to the Codex integration: runtime acquisition/provenance, provider-native authentication, functional setup/recovery, schema/process resilience, Agent privacy/diagnostics, and real-account proof.
+
+AG-021 through AG-025 are complete; the remaining ordered work is AG-026 through AG-030 in `docs/CODEX_PUBLIC_READINESS_ROADMAP.md`. AG-016 through AG-018 remain deferred and non-blocking. Whole-XACE packaging, signing/notarization, general platform/engine certification, deployment, and marketing launch gates are outside this AG sequence.
+
+The architecture direction is unchanged:
+
+- Codex App Server remains the first and primary production Agent integration.
+- AgentAdapter owns provider lifecycle, auth orchestration, account/model state, threads, resume/fork, compaction, streaming, events, and cancellation.
+- XACE MCP is the preferred provider-neutral tool transport.
+- XACE owns scoped retrieval, typed proposals, preview/approval, GDE/SGC validation, runtime mutation, persistence, and audit.
+- API/BYOK remains independently usable and behaviorally unchanged.
+
+AG-021 established stable initialization, schema-valid read-only lifecycle, live empty-thread proof, and honest runtime provenance. AG-022 completes native MCP: a fixed stdio proxy authenticates to a loopback XACE broker; per-thread config marks the server required; mcpServerStatus/list verifies connectivity and exact tool parity; built-in shell/exec/open-world tools are disabled; and dynamicTools is explicit development fallback only. No global Codex configuration or project credential state is changed.
+
+AG-030 is the final Codex integration completion gate. It can become green after AG-022 through AG-029 are current and passing, but it emits `codex_integration_complete`, not a whole-XACE public-launch decision.
 
 ## 10. First Implementation Task
 
@@ -913,4 +985,42 @@ The fastest safe path is:
 5. Add proposal submission into the existing preview/approval/GDE/SGC path.
 6. Certify and ship Codex Agent Mode without waiting for Claude or Local Agent.
 7. Add Claude, Local, or future providers only when concrete dependencies justify them, and only through the same contract and policy gate.
+
+
+
+## AG-024 runtime lifecycle implementation
+
+AG-024 implements ADR-0023's guided official external-install fallback. The supported public SDK launch surface for a direct App Server client remains unverified, so managed package acquisition remains disabled. See `docs/CODEX_RUNTIME_GUIDE.md` for the operator workflow and limitations.
+
+XACE selects user-confirmed provider-installed native executables through atomic local metadata, with version/digest/generated-schema evidence, exact-pin repair/rollback, revocation, and OS-locked recovery. It never copies or deletes the runtime or reads credentials. A damaged, revoked, or removed pin suppresses implicit PATH fallback; explicit development overrides remain labeled separately. This is local runtime integrity, not a publisher-signature claim or whole-platform certification. Agent permissions and API/BYOK defaults are unchanged. AG-026 owns setup UX and AG-029 owns real-account certification.
+
+
+
+## AG-025 provider-native authentication
+
+The Codex adapter now owns a lazy dedicated authentication controller implementing the optional provider-neutral authentication contract. Operator-only local endpoints handle browser/device-code challenges, correlated completion/cancel/retry, refresh, logout, account and rate-limit events, optional usage and recovery codes. No agent tool receives these controls. Auth challenges remain ephemeral and separate from sessions, proposals, diagnostics and project persistence. Tokens and provider credential files never enter XACE's control contract; Codex retains storage and refresh ownership.
+
+Identity changes/logout invalidate model connections, and cached account reads cannot erase an observed authorization failure. Account notifications are excluded from the chat event store; authentication-related turn errors are reduced to safe recovery codes. API/BYOK defaults and all compiler/mutation boundaries remain unchanged. `docs/CODEX_AUTH_LIFECYCLE.md` specifies the local API, constraints and verification. AG-026 owns the functional setup UI; AG-029 owns live real-account certification.
+
+## AG-026 functional setup boundary
+
+The Agent panel now exposes guided runtime detection/configuration, provider-native browser/device sign-in, refresh, sign-out, consent-gated update/repair/rollback/recovery, cancellation, safe diagnostics and API fallback. Local operator routes are separate from agent tools. Runtime activation retains the existing atomic verification boundary, including a before-commit cancellation check. Explicit Agent selection invalidates pre-login readiness cache; API/BYOK defaults are unchanged.
+
+See `docs/AGENT_SETUP_UX.md` for support scope and verification. Fresh installation remains provider-guided under AG-024, not automated or certified terminal-free. DOM accessibility semantics and fixture-based browser behavior are checked; live-account certification remains AG-029. No UI redesign or whole-XACE launch work is included. AG-027 through AG-030 remain.
+
+## AG-027 compatibility and recovery boundary
+
+App Server remains primary over local stdio. Admission now requires a versioned consumed-schema contract, exact executable/schema evidence, non-revoked stable candidate version, and XACE's restricted-read security fields. Additive methods/optional fields remain compatible; malformed/breaking consumed contracts fail closed. Operator pins predating this profile require explicit reverification. The current installed private alpha fails the restricted-read schema check and is NOT certified.
+
+Transport queues/frames and request writes/reads are bounded. Only initialization of an unused process can retry once; turns are never replayed. Crash/idle/stale-session/MCP/cancellation recovery closes the affected transport and requires explicit resume of the same thread. Provider capability/model discovery remains authoritative. No mutation-path change or API/BYOK default change is made.
+
+Details and negative generated evidence: `docs/CODEX_COMPATIBILITY_RESILIENCE.md`. Current official documentation's experimental/non-production-support wording is a provider-support risk for AG-030, not permission to change the core integration or weaken the security boundary. AG-029 must certify an actually compatible runtime/account configuration; fixture certification alone cannot clear this requirement.
+
+## AG-028 local diagnostics and support boundary
+
+Operator-only local endpoints project cached adapter/auth state, runtime metadata and SQLite schema health onto a fixed, versioned allowlist. Runtime, auth, compatibility, provider, MCP, persistence and validation states remain distinct. Collection does not launch/probe a provider or read credential files, prompts, project content, history or logs. These endpoints are not agent tools.
+
+Support preparation and download require separate explicit consent. Users inspect the complete JSON; export consumes the exact immutable reviewed bytes, never a newly collected snapshot. Up to four 16-KiB previews are held in memory; authorization expires after five minutes, with lazy pruning or explicit clearing/shutdown. There is no automatic upload or browser persistence. Chat history and provider-owned credentials have separate retention/deletion rules documented in `docs/AGENT_PRIVACY_SUPPORT.md`.
+
+API/BYOK defaults and agent -> tools -> typed proposal -> preview -> approval -> GDE -> SGC -> runtime remain unchanged. AG-029 real-runtime/account certification and AG-030 integration completion remain; no whole-XACE launch claim is made.
 

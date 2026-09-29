@@ -1,0 +1,12 @@
+{
+  "backend_ready": true,
+  "build_completed": true,
+  "checks_passed": true,
+  "device_flow_selected": true,
+  "image_id": "sha256:8f98e06bc7f94a8edf11ca2d4ac3c6eef4b8e574fef1fdbd33364a6c0c38304e",
+  "missing_consent_denied": true,
+  "missing_operator_header_denied": true,
+  "protected_build_started": true,
+  "provider_calls_performed": false,
+  "schema": "xace.codex_setup_acceptance.v1"
+}

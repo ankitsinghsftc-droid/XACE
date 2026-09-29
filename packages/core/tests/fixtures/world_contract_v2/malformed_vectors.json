@@ -1,0 +1,134 @@
+[
+  {
+    "name": "wrong_version",
+    "path": "/contract_version",
+    "value": 1
+  },
+  {
+    "name": "unknown_profile",
+    "path": "/numeric_profile",
+    "value": "native"
+  },
+  {
+    "name": "negative_size",
+    "path": "/size/width",
+    "value": -1
+  },
+  {
+    "name": "oversized_world",
+    "path": "/size/depth",
+    "value": 8192000001
+  },
+  {
+    "name": "float_coordinate",
+    "path": "/objects/0/position/x",
+    "value": 1.5
+  },
+  {
+    "name": "out_of_bounds",
+    "path": "/objects/0/position/x",
+    "value": 8192000001
+  },
+  {
+    "name": "negative_extent",
+    "path": "/objects/0/half_extents/x",
+    "value": -1
+  },
+  {
+    "name": "zero_extent",
+    "path": "/objects/0/half_extents/y",
+    "value": 0
+  },
+  {
+    "name": "unknown_role",
+    "path": "/objects/0/kind",
+    "value": "mesh"
+  },
+  {
+    "name": "point_with_box",
+    "path": "/objects/0/kind",
+    "value": "spawn"
+  },
+  {
+    "name": "native_object_id",
+    "path": "/objects/0/id",
+    "value": "res://floor"
+  },
+  {
+    "name": "duplicate_id",
+    "path": "/objects/1/id",
+    "value": "floor"
+  },
+  {
+    "name": "duplicate_actor",
+    "path": "/objects/1/actor_id",
+    "value": "actor_floor"
+  },
+  {
+    "name": "dangling_binding",
+    "path": "/objects/0/target_id",
+    "value": "missing"
+  },
+  {
+    "name": "empty_declaration_roles",
+    "path": "/capability_declarations/0/allowed_kinds",
+    "value": []
+  },
+  {
+    "name": "unknown_capability",
+    "path": "/objects/0/capabilities",
+    "value": [
+      "world.magic.v1"
+    ]
+  },
+  {
+    "name": "duplicate_capability",
+    "path": "/objects/0/capabilities",
+    "value": [
+      "world.solid.v1",
+      "world.solid.v1"
+    ]
+  },
+  {
+    "name": "unknown_asset_type",
+    "path": "/objects/4/asset_requirement",
+    "value": {
+      "id": "mesh_v1",
+      "asset_type": "Unknown"
+    }
+  },
+  {
+    "name": "missing_catalog",
+    "path": "/required_capabilities",
+    "value": []
+  },
+  {
+    "name": "empty_world",
+    "path": "/objects",
+    "value": []
+  },
+  {
+    "name": "solid_spawn",
+    "path": "/objects/2/capabilities",
+    "value": [
+      "world.solid.v1",
+      "world.spawn.v1"
+    ]
+  },
+  {
+    "name": "trigger_box",
+    "path": "/objects/0/capabilities",
+    "value": [
+      "world.solid.v1",
+      "world.trigger.v1"
+    ]
+  },
+  {
+    "name": "safe_zone_box",
+    "path": "/objects/0/capabilities",
+    "value": [
+      "world.safe_zone.v1",
+      "world.solid.v1"
+    ]
+  }
+]

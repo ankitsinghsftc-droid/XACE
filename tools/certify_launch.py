@@ -420,6 +420,15 @@ def build_checks(target_dir: Path, *, quick: bool = False) -> list[Check]:
             REPO_ROOT / "packages" / "builder-workspace",
         ),
         Check(
+            "Codex Agent Mode production readiness",
+            [
+                sys.executable,
+                "tools/agent_mode_production_readiness.py",
+                "--output",
+                str(target_dir / "agent-mode-production-readiness" / "report.json"),
+            ],
+        ),
+        Check(
             "tick debugger minimum gate",
             [
                 sys.executable,
@@ -1138,6 +1147,7 @@ def build_checks(target_dir: Path, *, quick: bool = False) -> list[Check]:
             "canonical vertical slice fixture gate",
             "builder TypeScript production build",
             "builder UI contract",
+            "Codex Agent Mode production readiness",
             "tick debugger minimum gate",
             "tick debugger time-travel gate",
             "tick debugger delta-retention gate",

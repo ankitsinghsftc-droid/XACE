@@ -24,6 +24,7 @@ export type RightPanelTab =
   | 'inspector'     // entity inspector
   | 'stats'         // runtime stats
   | 'debug'         // tick debugger
+  | 'agent'         // Codex Agent Mode audit and XACE approval controls
   | 'telemetry';    // inference telemetry (ARCHITECT_MODE only)
 
 // ── Center panel tab ──────────────────────────────────────────────────────────

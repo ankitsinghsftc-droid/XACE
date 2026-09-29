@@ -66,6 +66,7 @@ pub struct TickResult {
 /// One PhaseOrchestrator exists per world. It owns the tick counter
 /// and drives the complete phase sequence each tick.
 pub struct PhaseOrchestrator {
+    halted: bool,
     /// Current simulation tick. Starts at 0, increments each tick.
     current_tick: u64,
 
@@ -91,6 +92,7 @@ impl PhaseOrchestrator {
     ) -> Self {
         Self {
             current_tick: 0,
+            halted: false,
             world_seed,
             executor: ParallelExecutor::new(),
             schema_version: schema_version.into(),
@@ -190,6 +192,56 @@ impl PhaseOrchestrator {
     }
 
     fn tick_inner(
+        &mut self,
+        systems: &[(&str, Vec<String>, bool)], // (phase_name, system_ids, is_parallel)
+        registry: &SystemRegistry,
+        entity_store: &mut EntityStore,
+        table_store: &mut ComponentTableStore,
+        mutation_gate: &mut MutationGate,
+        query_engine: &mut QueryEngine,
+        event_bus: &mut EventBus,
+        mut guard: Option<&mut DeterminismGuard>,
+        rng_interceptor: Option<&RngInterceptor>,
+        cgs_hash: &str,
+    ) -> Result<TickResult, XaceError> {
+        if self.halted {
+            return Err(XaceError::FatalError {
+                message: "tick transaction halted; restore a valid snapshot before resuming".into(),
+                context: ErrorContext::new("PhaseOrchestrator", "tick_inner"),
+                snapshot_recovery_possible: true,
+            });
+        }
+        let entities = entity_store.rollback_snapshot();
+        let tables = table_store.rollback_snapshot();
+        let events = event_bus.rollback_snapshot();
+        let rng = rng_interceptor.map(RngInterceptor::rollback_snapshot);
+        let result = self.tick_transaction(
+            systems,
+            registry,
+            entity_store,
+            table_store,
+            mutation_gate,
+            query_engine,
+            event_bus,
+            guard.as_deref_mut(),
+            rng_interceptor,
+            cgs_hash,
+        );
+        if result.is_err() {
+            entity_store.restore_rollback_snapshot(entities);
+            table_store.restore_rollback_snapshot(tables);
+            event_bus.restore_rollback_snapshot(events);
+            if let (Some(interceptor), Some(snapshot)) = (rng_interceptor, rng) {
+                interceptor.restore_rollback_snapshot(snapshot);
+            }
+            mutation_gate.discard_all();
+            query_engine.invalidate_all();
+            self.halted = true;
+        }
+        result
+    }
+
+    fn tick_transaction(
         &mut self,
         systems: &[(&str, Vec<String>, bool)], // (phase_name, system_ids, is_parallel)
         registry: &SystemRegistry,
@@ -314,6 +366,7 @@ impl PhaseOrchestrator {
     /// Resets the tick counter. Used during snapshot restore.
     pub fn restore_tick(&mut self, tick: u64) {
         self.current_tick = tick;
+        self.halted = false;
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────

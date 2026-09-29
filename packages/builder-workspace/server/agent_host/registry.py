@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from .codex_adapter import CodexAppServerAdapter
+from .isolated_codex_adapter import create_codex_adapter
 from .contracts import AgentAdapter, AgentContractError, AgentProviderStatus
-from .mock_agent import MockAgentAdapter
 
 
 class AgentRegistryError(ValueError):
@@ -58,6 +57,7 @@ def create_default_registry(
     enable_mock: bool = False,
     enable_codex: bool = False,
     codex_adapter: AgentAdapter | None = None,
+    mock_adapter: AgentAdapter | None = None,
 ) -> AgentAdapterRegistry:
     """Return the production default registry.
 
@@ -68,7 +68,11 @@ def create_default_registry(
 
     adapters: list[AgentAdapter] = []
     if enable_codex:
-        adapters.append(codex_adapter or CodexAppServerAdapter())
+        adapters.append(codex_adapter or create_codex_adapter())
     if enable_mock:
-        adapters.append(MockAgentAdapter())
+        if mock_adapter is None:
+            raise AgentRegistryError(
+                "the deterministic mock must be explicitly injected outside production"
+            )
+        adapters.append(mock_adapter)
     return AgentAdapterRegistry(adapters)

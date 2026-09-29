@@ -1,0 +1,73 @@
+{
+  "schema": "xace.reference_package.v1",
+  "id": "reference.traversal",
+  "version": "1.0.0",
+  "capability_declarations": [
+    {
+      "id": "reference.wall_runnable.v1",
+      "allowed_kinds": [
+        "kinematic_box",
+        "static_box"
+      ]
+    }
+  ],
+  "component_schemas": [
+    {
+      "type_id": 10000,
+      "name": "REFERENCE_TRAVERSAL_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "schema_version": 1,
+        "chain": 0,
+        "third_used": false,
+        "grounded": false,
+        "jump_held": false,
+        "wall_entity": 0,
+        "wall_axis": 0,
+        "wall_sign": 0,
+        "mode": "airborne"
+      }
+    },
+    {
+      "type_id": 10001,
+      "name": "REFERENCE_TRAVERSAL_CONFIG_V1",
+      "source": "gcl",
+      "defaults": {
+        "schema_version": 1,
+        "surface_capability": "reference.wall_runnable.v1",
+        "run_speed": 5000000,
+        "jump_speed": 8000000,
+        "away_speed": 6000000,
+        "gravity_per_tick": 163500,
+        "side_probe": 100000,
+        "ground_probe": 1000,
+        "third_attempt": "disabled",
+        "shockwave_radius": 5000000,
+        "shockwave_impulse": 3000000
+      }
+    }
+  ],
+  "systems": [
+    {
+      "id": "reference.traversal.v1",
+      "phase": "Simulation",
+      "reads": [
+        1,
+        4,
+        5,
+        6,
+        10000,
+        10001
+      ],
+      "writes": [
+        1,
+        5,
+        10000
+      ],
+      "depends_on": [
+        "reference.recorded_input.v1"
+      ],
+      "deterministic": true
+    }
+  ]
+}

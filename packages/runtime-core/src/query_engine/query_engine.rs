@@ -78,15 +78,42 @@ impl QueryResult {
 /// live queries and a QueryCache for result caching.
 /// The PhaseOrchestrator owns both and passes references here.
 pub struct QueryEngine {
+    pub(crate) geometry_bindings: Option<crate::geometry::WorldGeometryBindings>,
     /// Cache of recent query results keyed by sorted component type sets.
     cache: QueryCache,
 }
 
 impl QueryEngine {
+    /// Install immutable compiled-world identities at load/activation, never during a tick.
+    /// Geometry itself remains in authoritative component tables and is not cached here.
+    pub fn bind_world_geometry(
+        &mut self,
+        world: &xace_core::world::WorldContract,
+        actors: &std::collections::BTreeMap<xace_core::wire::session_contract::ContractId, u64>,
+    ) -> Result<(), xace_core::errors::xace_error::XaceError> {
+        let bindings = crate::geometry::WorldGeometryBindings::new(world, actors)?;
+        self.geometry_bindings = Some(bindings);
+        Ok(())
+    }
+
+    pub fn bind_world_v3(
+        &mut self,
+        world: &xace_core::world::v3::WorldContractV3,
+        instances: &std::collections::BTreeMap<
+            (xace_core::wire::session_contract::ContractId, u32),
+            u64,
+        >,
+    ) -> Result<(), xace_core::errors::xace_error::XaceError> {
+        let bindings = crate::geometry::WorldGeometryBindings::from_v3(world, instances)?;
+        self.geometry_bindings = Some(bindings);
+        Ok(())
+    }
+
     /// Creates a new QueryEngine with an empty cache.
     pub fn new() -> Self {
         Self {
             cache: QueryCache::new(),
+            geometry_bindings: None,
         }
     }
 

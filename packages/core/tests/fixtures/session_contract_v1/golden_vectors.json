@@ -1,0 +1,4224 @@
+{
+  "schema": "xace.session_compatibility_vectors.v1",
+  "fixture_only": true,
+  "authority": {
+    "schema": "xace.session_contract.v1",
+    "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+    "epoch": {
+      "session_id": "00000000-0000-4000-8000-000000000001",
+      "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+      "ruleset_epoch": 7
+    },
+    "gameplay": {
+      "cgs": {
+        "schema_version": {
+          "major": 0,
+          "minor": 1,
+          "patch": 0
+        },
+        "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+      },
+      "sgc": {
+        "schema_version": "0.1.0",
+        "plan_version": 1,
+        "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+        "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+        "adapter_protocol_version": 1
+      },
+      "world": {
+        "artifact": {
+          "id": "fixture.world",
+          "version": "1.0.0",
+          "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+        },
+        "contract_version": 1,
+        "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+        "mode_id": "default"
+      },
+      "playable_package": {
+        "id": "fixture.playable-package",
+        "version": "1.0.0",
+        "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+      },
+      "input": {
+        "artifact": {
+          "id": "fixture.input",
+          "version": "1.0.0",
+          "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+        },
+        "packet_schema_version": 1
+      },
+      "runtime": {
+        "artifact": {
+          "id": "fixture.runtime-abi",
+          "version": "1.0.0",
+          "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+        },
+        "wire_protocol_version": 1,
+        "engine_protocol_version": 1
+      }
+    },
+    "required_capabilities": [
+      "input.timed.v1",
+      "world.aabb.v1",
+      "world.semantic_bindings.v1"
+    ]
+  },
+  "certified_adapters": [
+    {
+      "engine": "godot",
+      "adapter_version": "fixture-1.0.0",
+      "client_version": "fixture-1.0.0",
+      "platform": "windows_x64"
+    },
+    {
+      "engine": "unity",
+      "adapter_version": "fixture-2.0.0",
+      "client_version": "fixture-2.0.0",
+      "platform": "windows_x64"
+    },
+    {
+      "engine": "unreal",
+      "adapter_version": "fixture-3.0.0",
+      "client_version": "fixture-3.0.0",
+      "platform": "windows_x64"
+    }
+  ],
+  "cases": [
+    {
+      "name": "identical",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": null
+    },
+    {
+      "name": "godot_presentation_variant",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "304320f26c4d67a176e3a1f40e665615a2d71d22688633fb5c026be92d995370"
+        }
+      },
+      "expected_rejection": null
+    },
+    {
+      "name": "unity_presentation_variant",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "unity",
+            "adapter_version": "fixture-2.0.0",
+            "client_version": "fixture-2.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "8a8bfe17cf0b3b7b0271f830031275985450afee2ca953a2f9ab2fa704e2b077"
+        }
+      },
+      "expected_rejection": null
+    },
+    {
+      "name": "unreal_presentation_variant",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "unreal",
+            "adapter_version": "fixture-3.0.0",
+            "client_version": "fixture-3.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "aeb53d9e5d547f1998cde95618fcf2f26c3840125f08f591db245542dc9611d2"
+        }
+      },
+      "expected_rejection": null
+    },
+    {
+      "name": "wrong_cgs",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "3b29a359de5d25e96b0c8da7beab6d8c8316537341cb86b7cf4716003cfd53ae"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "3b29a359de5d25e96b0c8da7beab6d8c8316537341cb86b7cf4716003cfd53ae",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "3b29a359de5d25e96b0c8da7beab6d8c8316537341cb86b7cf4716003cfd53ae",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "cgs"
+    },
+    {
+      "name": "wrong_sgc",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "ec195ef527ddf9a014df4cdb0396c8a6b00acbd572a7fdbd66e43433c9411670",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "sgc_plan"
+    },
+    {
+      "name": "wrong_plan_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 2,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "sgc_plan"
+    },
+    {
+      "name": "wrong_world",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "36afddf2bdce3f0adf42eb8f882678a9cd36f94fe8d127198758486b662e81c1"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "world"
+    },
+    {
+      "name": "wrong_world_mode",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "other-mode"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "world"
+    },
+    {
+      "name": "wrong_world_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 2,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "world"
+    },
+    {
+      "name": "wrong_package",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "4686a591945a56c9f21fede5a5b83960b064c2ac8818987d805e5ac621fc0290"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "playable_package"
+    },
+    {
+      "name": "wrong_input",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "833d2f04e21b4f8ad071e0bf984823755b456c65d3e0dcbabc92b30b47f90216"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "input_contract"
+    },
+    {
+      "name": "wrong_input_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 2
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "input_contract"
+    },
+    {
+      "name": "wrong_runtime",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "9402734527683f94de925537cc556ef9fdfe141e4384c199ca6e1703f0ee37f6"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "runtime"
+    },
+    {
+      "name": "wrong_runtime_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "2.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "runtime"
+    },
+    {
+      "name": "wrong_wire_protocol",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 2,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "protocol"
+    },
+    {
+      "name": "wrong_engine_protocol",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 2
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "protocol"
+    },
+    {
+      "name": "wrong_sgc_protocol",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 2
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "protocol"
+    },
+    {
+      "name": "unlinked_plan",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "3b29a359de5d25e96b0c8da7beab6d8c8316537341cb86b7cf4716003cfd53ae",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "identity_link"
+    },
+    {
+      "name": "unlinked_world",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "3b29a359de5d25e96b0c8da7beab6d8c8316537341cb86b7cf4716003cfd53ae",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "identity_link"
+    },
+    {
+      "name": "unlinked_schema_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.2.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "identity_link"
+    },
+    {
+      "name": "zero_plan_version",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 0,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "invalid_identity"
+    },
+    {
+      "name": "native_world_path",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "res://world/wall",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "invalid_hash",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "not-a-hash"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "stale_epoch",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 6
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "ruleset_epoch"
+    },
+    {
+      "name": "future_epoch",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 8
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "ruleset_epoch"
+    },
+    {
+      "name": "wrong_session",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000003",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "session"
+    },
+    {
+      "name": "wrong_incarnation",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000004",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "authority_incarnation"
+    },
+    {
+      "name": "nil_session",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-0000-0000-000000000000",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "invalid_identity"
+    },
+    {
+      "name": "unknown_schema",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v2",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "unsupported_profile"
+    },
+    {
+      "name": "unsupported_profile",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "peer_to_peer_future_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "unsupported_profile"
+    },
+    {
+      "name": "unknown_required_capability",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1",
+            "world.unreviewed.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "unknown_required_capability"
+    },
+    {
+      "name": "missing_profile_capability",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "missing_required_capability"
+    },
+    {
+      "name": "different_required_capability",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1",
+            "world.solid.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "required_capabilities"
+    },
+    {
+      "name": "missing_host_capability",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "missing_required_capability"
+    },
+    {
+      "name": "unknown_optional_host_capability",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1",
+            "host.optional.v99"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": null
+    },
+    {
+      "name": "uncertified_adapter",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "not-certified",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "uncertified_adapter"
+    },
+    {
+      "name": "uncertified_client",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "not-certified",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "uncertified_adapter"
+    },
+    {
+      "name": "unsupported_platform",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "linux_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "platform"
+    },
+    {
+      "name": "wrong_client_protocol",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 2,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "protocol"
+    },
+    {
+      "name": "unexpected_field",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "extra": true
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_cgs",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_sgc",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_world",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_playable_package",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_input",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_runtime",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_epoch",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "missing_client",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000001",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 7
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        }
+      },
+      "expected_rejection": "malformed_contract"
+    },
+    {
+      "name": "multiple_failures_precedence",
+      "candidate": {
+        "contract": {
+          "schema": "xace.session_contract.v1",
+          "profile_id": "host_client_lockstep_4p_60hz_windows_v1",
+          "epoch": {
+            "session_id": "00000000-0000-4000-8000-000000000003",
+            "authority_incarnation": "00000000-0000-4000-8000-000000000002",
+            "ruleset_epoch": 6
+          },
+          "gameplay": {
+            "cgs": {
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              },
+              "cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc"
+            },
+            "sgc": {
+              "schema_version": "0.1.0",
+              "plan_version": 1,
+              "plan_hash": "865a4c1464056a7b153b93cd123ab4c2faa9cd96b2b921c750d93f48b83471b4",
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "adapter_protocol_version": 1
+            },
+            "world": {
+              "artifact": {
+                "id": "fixture.world",
+                "version": "1.0.0",
+                "content_hash": "b955ea2e7e8758902934c6bb8289a764efe0e7581334adfba2ad0ba475a49320"
+              },
+              "contract_version": 1,
+              "compiled_from_cgs_hash": "6f6174ea9e47e2851581094f53ddd2b2f5049390f8cf0eefc35bf54c66932abc",
+              "mode_id": "default"
+            },
+            "playable_package": {
+              "id": "fixture.playable-package",
+              "version": "1.0.0",
+              "content_hash": "d3b24eda1e110fdfa21b0edfb096785abe0c2c9c1b4d72114d406de81e6a9fbf"
+            },
+            "input": {
+              "artifact": {
+                "id": "fixture.input",
+                "version": "1.0.0",
+                "content_hash": "87afec1670b39a106034cb04ca0840197e279bd99b8408554575ce754a9bb57c"
+              },
+              "packet_schema_version": 1
+            },
+            "runtime": {
+              "artifact": {
+                "id": "fixture.runtime-abi",
+                "version": "1.0.0",
+                "content_hash": "eac57868f3fab01843a0317c372e511b92c44c5e13a83c4e29912f85fc227c6c"
+              },
+              "wire_protocol_version": 1,
+              "engine_protocol_version": 1
+            }
+          },
+          "required_capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ]
+        },
+        "client": {
+          "adapter": {
+            "engine": "godot",
+            "adapter_version": "fixture-1.0.0",
+            "client_version": "fixture-1.0.0",
+            "platform": "windows_x64"
+          },
+          "engine_protocol_version": 1,
+          "capabilities": [
+            "input.timed.v1",
+            "world.aabb.v1",
+            "world.semantic_bindings.v1"
+          ],
+          "presentation_manifest_hash": "2d9515a82605386e2f7766ba70c319da68e66fa65916db7e9d3fdda8aacdf4d3"
+        }
+      },
+      "expected_rejection": "session"
+    }
+  ]
+}

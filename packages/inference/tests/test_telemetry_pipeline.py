@@ -32,6 +32,10 @@ def _event(
     latency_ms:      float = 800.0,
     outcome:         str   = "success",
     cached:          bool  = False,
+    billing_source:  str   = "api_byok",
+    cost_state:      str   = "estimated",
+    token_tracking:  str   = "xace_tracked",
+    cost_label:      str   = "XACE-estimated API cost",
 ) -> InferenceTelemetryEvent:
     return InferenceTelemetryEvent(
         request_id         = "req_001",
@@ -48,6 +52,10 @@ def _event(
         latency_ms         = latency_ms,
         outcome            = outcome,
         cached             = cached,
+        billing_source     = billing_source,
+        cost_state         = cost_state,
+        token_tracking     = token_tracking,
+        cost_label         = cost_label,
     )
 
 
@@ -84,6 +92,10 @@ class TestInferenceTelemetryEvent:
         assert "latency_ms"      in d
         assert "outcome"         in d
         assert "cached"          in d
+        assert d["billing_source"] == "api_byok"
+        assert d["cost_state"] == "estimated"
+        assert d["token_tracking"] == "xace_tracked"
+        assert d["cost_label"] == "XACE-estimated API cost"
 
     def test_to_json_is_valid_json(self) -> None:
         import json
@@ -208,6 +220,46 @@ class TestTelemetryPipeline:
         assert summary.calls_by_tier.get(ComplexityTier.M,  0) == 1
         assert summary.calls_by_tier.get(ComplexityTier.L,  0) == 1
         assert summary.calls_by_tier.get(ComplexityTier.XL, 0) == 1
+    def test_session_summary_separates_billing_states(self) -> None:
+        pipeline, _ = _pipeline_with_memory()
+        pipeline.emit(_event(session_id="s1"))
+        pipeline.emit(_event(
+            session_id="s1",
+            provider="local",
+            billing_source="local_runtime",
+            cost_state="local_resource",
+            token_tracking="local_observed",
+            cost_label="Local compute; monetary cost not estimated",
+            cost_cents=0.0,
+        ))
+        pipeline.emit(_event(
+            session_id="s1",
+            provider="response_cache",
+            billing_source="unknown",
+            cost_state="unknown",
+            token_tracking="unknown",
+            cost_label="No provider call",
+            cached=True,
+            cost_cents=0.0,
+        ))
+
+        summary = pipeline.session_summary("s1")
+        assert summary.calls_by_billing_source == {
+            "api_byok": 1,
+            "local_runtime": 1,
+            "unknown": 1,
+        }
+        assert summary.calls_by_cost_state == {
+            "estimated": 1,
+            "local_resource": 1,
+            "unknown": 1,
+        }
+        assert summary.calls_by_token_tracking == {
+            "xace_tracked": 1,
+            "local_observed": 1,
+            "unknown": 1,
+        }
+
 
     def test_cache_hit_counted_in_summary(self) -> None:
         pipeline, _ = _pipeline_with_memory()

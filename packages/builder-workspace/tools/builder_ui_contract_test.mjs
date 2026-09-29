@@ -22,6 +22,13 @@ function assertOrder(file, first, second, label) {
     throw new Error(`${label}: expected ${JSON.stringify(first)} before ${JSON.stringify(second)} in ${file}`);
   }
 }
+function assertNotContains(file, needle, label) {
+  const text = read(file);
+  if (text.includes(needle)) {
+    throw new Error(`${label}: expected ${file} not to contain ${JSON.stringify(needle)}`);
+  }
+}
+
 
 function assertClientMessageUnion() {
   const file = 'src/api/message_types.ts';
@@ -274,6 +281,76 @@ function assertSemanticBindingUiContract() {
   assertContains(serverFile, '_sanitize_semantic_bindings', 'semantic binding server validation');
 }
 
+function assertAgentModeUiContract() {
+  const promptFile = 'src/canvas/prompt_input.ts';
+  const selectorFile = 'src/canvas/model_selector.ts';
+  const panelFile = 'src/panels/agent_mode_panel.ts';
+  const storeFile = 'src/state/agent_mode_store.ts';
+  const canvasFile = 'src/canvas/builder_canvas.ts';
+  for (const marker of ['makeAgentTurn', 'AGENT_ALLOWED_TOOLS', '_submitAgent', '_isAgentMode()', 'xace.submit_proposal', '_submissionReady']) {
+    assertContains(promptFile, marker, `Agent Mode prompt marker ${marker}`);
+  }
+  assertOrder(promptFile, 'this._isAgentMode()', 'client.send(makePilProcess(', 'Agent Mode routes before API/BYOK prompt send');
+  for (const marker of ["'/api/agent-mode'", '_selectAiMode', 'mode.reserved', 'launch_status']) {
+    assertContains(selectorFile, marker, `Agent Mode selector marker ${marker}`);
+  }
+  for (const marker of [
+    'Codex Agent Mode',
+    'billingCostLabel',
+    'Production ready',
+    'Certified; setup required',
+    'Agent tool and proposal audit',
+    'A completed provider tool call is audit evidence',
+    'XACE mutation approval',
+    'Approve preview',
+    'Discard preview',
+    'builder_agent_panel',
+  ]) {
+    assertContains(panelFile, marker, `Agent Mode panel marker ${marker}`);
+  }
+  assertContains(storeFile, 'class AgentModeStore', 'Agent Mode shared state');
+  assertContains(storeFile, 'AgentModeLaunchStatus', 'Agent Mode launch status contract');
+  assertContains(storeFile, 'xace.agent_mode_launch_status.v1', 'Agent Mode launch status schema');
+  assertContains(canvasFile, 'AgentModePanel', 'Agent Mode panel mounted in Builder canvas');
+  assertContains(canvasFile, "label: 'Agent'", 'Agent Mode tab label');
+}
+
+function assertBillingUsageUiContract() {
+  const billingFile = 'src/types/billing.ts';
+  const promptFile = 'src/canvas/prompt_input.ts';
+  const panelFile = 'src/panels/agent_mode_panel.ts';
+  const telemetryFile = 'src/telemetry/cost_chart.ts';
+  const diffFile = 'src/canvas/diff_viewer.ts';
+
+  for (const marker of [
+    'xace.billing_usage.v1',
+    "'api_byok'",
+    "'provider_account'",
+    "'local_runtime'",
+    "'unknown'",
+    "'estimated'",
+    "'provider_managed'",
+    "'local_resource'",
+    "'xace_tracked'",
+    "'provider_reported'",
+    "'local_observed'",
+  ]) {
+    assertContains(billingFile, marker, `billing UI state ${marker}`);
+  }
+  for (const marker of ['billingCostLabel', 'billingUsageLabel', 'billingRateLimitLabel']) {
+    assertContains(panelFile, marker, `Agent billing UI helper ${marker}`);
+  }
+  assertContains(promptFile, 'billingCostLabel', 'prompt billing state label');
+  assertNotContains(promptFile, '$0.00', 'prompt must not imply zero cost before usage is known');
+  assertContains(telemetryFile, "cost_state === 'estimated'", 'cost chart estimated-state gate');
+  assertContains(telemetryFile, 'XACE-estimated cost per mutation', 'API estimate provenance');
+  assertContains(diffFile, 'XACE estimate pending', 'diff cost provenance before telemetry');
+  assertNotContains(diffFile, '$0.00', 'diff cost must not imply a known zero before telemetry');
+  assertContains('../inference/src/model_router.py', 'local compute cost is not estimated', 'local route cost context');
+  assertNotContains('../inference/src/model_router.py', "loaded. Zero cost", 'local route must not imply free compute');
+  assertNotContains('../inference/src/model_descriptor.py', 'Zero cost', 'local descriptors must not imply free compute');
+}
+
 assertClientMessageUnion();
 assertBuilderClientProtocol();
 assertPromptBlocksUnreadyProviders();
@@ -283,5 +360,7 @@ assertTopBarReadinessWiring();
 assertMultiplayerLifecycleSmokeWiring();
 assertTickDebuggerContract();
 assertSemanticBindingUiContract();
+assertAgentModeUiContract();
+assertBillingUsageUiContract();
 
 console.log('builder UI contract test PASSED');

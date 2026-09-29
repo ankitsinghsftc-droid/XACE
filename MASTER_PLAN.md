@@ -5,6 +5,298 @@
 
 ---
 
+## XP-009: IN PROGRESS - 2026-09-29
+
+Implement generic Player presentation/readiness: versioned typed asset catalog,
+explicit data-only mesh/image/audio/procedural effect and camera formats, canonical
+world bindings, collision overlay, deterministic event deduplication and rollback
+cleanup. Reference shockwave only proves generic event playback. Prior XP-008 gates
+passed. No new gameplay mechanic or core noun registry is authorized or required.
+
+## XP-008: COMPLETE - 2026-09-29
+
+Exported Windows local Player verifies its admitted package and runs an owned Rust
+sidecar. Typed canonical visuals, controller-based ownership, parent transforms,
+keyboard/focus input and runtime-loss freeze replace fixed demo assumptions. Generic
+native host registration admits the reference package without core mechanic branches.
+Verified: 704 runtime library + 51 targeted Rust tests, 25 Python tests, 8 Godot
+presentation assertions, and identical 30-tick hashes at 30/144 FPS in real exported
+Player/native processes. Lifecycle/tamper/direct-launch proofs pass. Inventory has
+only the same 31 existing findings. Single pre-admitted package, local keyboard
+lockstep scope; no remote/clean-machine/rich-asset claim. Next: XP-009.
+See docs/XP008_COMPLETION.md and docs/evidence/xp008-baseline.json.
+
+## XP-007: COMPLETE - 2026-09-29
+
+Generic playable package construction, Factory/SGC/world verification, explicit
+trusted executor admission and staged installation are implemented. Native world
+startup preserves v3 semantic bindings across snapshot restore. Relocated native
+execution produced identical four-tick hashes with toolchains absent from child PATH.
+Verification: 22 project-system tests, 703 runtime library tests and 48 targeted
+Rust tests pass. Inventory retains exactly 31 prior findings. No graphical Player,
+clean-machine installer or multiplayer claim. Next: XP-008, including ordinary
+host registration of required package systems; no mechanic-specific core branches.
+See docs/XP007_COMPLETION.md and docs/evidence/xp007-baseline.json.
+
+## World extensibility correction: COMPLETE - 2026-09-28
+
+Owner authorized concrete correction before XP-007, including project-defined
+semantic nouns, schema-validated extension data, independent geometry profiles,
+compound/instance bindings and generic authoring. Preserve legacy v2 bytes.
+Gate passed: 1,135 broad Python tests; final 32 targeted Python and 48 Rust tests;
+541 core and 701 runtime library tests. Eleven data-only semantic concepts round-trip
+without core noun enums; both reference configurations retain tick hashes/events
+after explicit migration. Later tasks amended. See WORLD_EXTENSIBILITY_COMPLETION.md.
+XP-007 may now proceed; native host/package integration remains its own work.
+
+## XP-007 preflight audit: FIX REQUIRED - 2026-09-28
+
+Owner-requested audit of XP-002 through XP-006 overrides the earlier READY FOR
+XP-007 recommendation. Wall-run/jump/shockwave rules remain package-local, but the
+World Contract conflates universal binding with a closed AABB profile. XP-006
+requires actors/World Contract v2/empty-world templates even when not required by
+a package. Custom actor types and richer bindings lack an end-to-end extension
+path. Fourteen non-mutating probes and nine passing reference tests substantiate
+both the working fixture boundary and current limits. No production refactor or
+XP-007 implementation started. Apply the minimal contract/profile and authoring
+correction in docs/XP007_PREFLIGHT_ARCHITECTURE_AUDIT.md before XP-007.
+Historical completion reports certify only their declared profiles.
+
+## XP-006 complete: generic gameplay authoring - 2026-09-28
+
+Catalog-backed typed package selection now uses Builder clarification, full CGS
+preview, approval, GDE atomic mutation and real Factory/SGC compilation. Package
+capabilities, templates and configuration are data; the host separately registers
+supported system contracts. No runtime, World Contract, network or adapter gameplay
+branch was added. The reference host has replayed both approved configurations.
+Verification: 1,128 affected Python tests pass (including 10 new authoring tests),
+9 reference Rust tests pass on newly approved artifacts, and Builder TypeScript/UI
+checks pass. Source inventory retains exactly the same 31 prior omissions. Explicit
+host registration is required; no default runtime enrollment or provider/live/native
+certification is claimed. See docs/XP006_COMPLETION.md and
+docs/adr/XP-006-gameplay-authoring.md. READY FOR XP-007; XP-007 has not started.
+
+## XP-005 complete: Reference Mechanic Proof - 2026-09-25
+
+The required capability correction is implemented: World Contract v2 carries
+package-owned namespaced declarations and generic role constraints, with separate
+platform/semantic admission and an artifact-bound compatibility check. Explicit
+recompilation is required; historical v1 fixtures are preserved.
+
+The removable examples/reference-mechanic package owns all wall-run/jump/counter/
+reversal/shockwave rules in ordinary GCL state/config and an ISystem. Its real
+Factory/SGC persisted plan has one movement writer. No authoritative infrastructure,
+World Contract, network or adapter mechanic-name branch was added.
+
+Verification: broad Rust 1,934 passed; final reference 9/9 and contract 14/14 passed
+(overlapping counts); official Python 1,135 passed. Real compiler goldens, full
+recorded event/hash replay, actual impulses, landing/corner/held-edge behavior,
+rollback and normal package removal pass. No live/native/network/performance claim.
+Source inventory retains 31 prior omissions. See docs/XP005_COMPLETION.md,
+ docs/adr/XP-005-reference-mechanic.md and docs/evidence/xp005-baseline.json.
+READY FOR XP-006; XP-006 has NOT started. The earlier amendment gate is resolved.
+
+## Roadmap amendment: mechanic-agnostic core - 2026-09-24
+
+Wall-run/wall-jump/third-attempt reversal + shockwave is a removable reference proof
+fixture only. XP-005 is Reference Mechanic Proof through ordinary gameplay-system,
+package/catalog paths; XP-006 delivers generic capability/dependency-aware authoring.
+XP-017 through XP-021 now separate generic product acceptance from fixture evidence.
+No extra mechanics or XP-005 implementation were started. Documentation only.
+
+Review found XP-004 geometry/query APIs contain no mechanic-specific rules, but
+XP-003 Python/Rust validation special-cases world.wall_runnable.v1 and uses a closed
+semantic capability list inherited from XP-001 session contracts. Before XP-005,
+correct that shared capability path to generic namespaced package declarations and
+data-driven constraints, retaining validation/versioning and platform admission.
+This is an existing-contract correction, not a new mechanics task. Historical
+completion evidence is preserved; the prior READY FOR XP-005 recommendation is now
+conditional on this correction. See the binding amendment and revised tasks in
+ docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md.
+
+## XP-004 complete: authoritative geometry queries - 2026-09-24
+
+Authorized task: XP-004 only. Scheduled context now exposes bounded swept AABB,
+overlap, ground/side probes and squared-distance targeting from canonical runtime
+components. Exact rational contacts use stable World Contract IDs when bound.
+Invalid queries halt and roll back the scheduled tick, including earlier movement,
+events and RNG audit state. Mutations remain exclusively through MutationGate.
+
+Verification: 1,924 Rust tests pass, zero failures/ignored (34 result groups),
+including 18 new geometry tests, 5,766 gap-oracle cases, XP-003 golden compatibility,
+snapshot replay hashes and guarded transaction rollback. Windows x64 only; no
+performance or additional native/network certification. Source inventory retains
+31 prior omissions. Package identity activation wiring remains XP-007 work.
+See docs/XP004_COMPLETION.md, docs/adr/XP-004-authoritative-geometry.md and
+ docs/evidence/xp004-baseline.json. READY FOR XP-005; XP-005 has NOT started.
+
+## XP-003 complete: World Contract v1 compiler - 2026-09-24
+
+Authorized task: XP-003 only. Schema Factory now produces an opt-in immutable
+world artifact from CGS actor blueprints, with stable IDs/bindings, bounded fixed
+point boxes/triggers/spawns/anchors, capabilities and typed asset requirements.
+Canonical bytes/hash have a separate manifest bound to source CGS and the compiled
+schema package. Shared Rust types validate/read/hash the exact Python output.
+No frozen component, runtime authority, engine adapter or legacy CGS was changed.
+
+Verification: 1,906 selected Rust tests (including 23 malformed world vectors),
+1,130 official Python tests (338 Builder, 233 inference) and 13 final focused
+world tests pass. Real six-object golden compilation/reorder/provenance proof
+passes. Rejected GDE edits restore state and preserve CGS/world/manifest files.
+The source inventory's 31 prior omissions remain outside this task. XP-002 legacy
+migration limitations remain; XP-003 does not opt legacy projects in silently.
+See docs/XP003_COMPLETION.md, docs/adr/XP-003-world-contract.md and
+ docs/evidence/xp003-baseline.json. READY FOR XP-004; XP-004 has NOT started.
+Future package/authoring distributions must include the reused strict validator.
+No geometry execution, native reader, live networking or launch claim is added.
+
+Historical checkpoint follows.
+
+## XP-002 complete: compiler and live authority boundaries - 2026-09-24
+
+Authorized task: XP-002 only. Builder now validates candidates through the real
+Schema Factory and uses its compiled projection for SGC. External runtime inputs
+are staged and applied by an explicitly scheduled EngineInputSystem through
+MutationGate. Preview edits use isolated stores. --live-session requires persisted
+SGC ingress, rejects preview writes and blocks native physics/visibility feedback.
+
+Verification: 1,901 broad Rust tests and 7 final focused boundary tests pass;
+1,121 final official Python tests pass (329 Builder, 233 inference). Builder lint,
+typecheck, UI contracts and build pass. Real Builder/GDE/Factory/SGC/runtime proof
+retains equal repeated world reports, rejection artifact hashes and GDE rollback.
+Old default templates and exports with undeclared DCL/noncanonical fields now
+fail closed and require explicit migration; no production CGS was rewritten.
+Approval/rollback integration fixtures were migrated to declared structured UCL.
+Source inventory's 31 pre-existing omissions remain outside this task.
+See docs/XP002_COMPLETION.md, docs/adr/XP-002-authority-boundaries.md and
+docs/evidence/xp002-baseline.json. READY FOR XP-003 for the supported profile;
+XP-003 has NOT started. No native engine, networking or product launch claim.
+
+Historical checkpoint follows.
+
+## XP-001 complete: supported session identity baseline - 2026-09-23
+
+The owner approved the XP-001 through XP-022 roadmap and authorized XP-001 only.
+XP-001 now provides opt-in shared typed contracts, deterministic compatibility
+checks, provenance hooks, 50 golden vectors and the supported-profile ADR.
+Existing CGS/SGC/runtime and legacy session workflows remain unchanged. DCL's
+normal Python gate import configuration is repaired (14 tests, isolated mode).
+Verification: 1,895 selected Rust tests; 1,107 official Python tests (315 Builder,
+233 inference/API-BYOK); Builder lint/typecheck/UI/build all pass. Repository
+source-inventory omissions outside XP-001 remain a pre-existing documentation
+backlog. No Player/native/network/geometry implementation or authority wiring.
+See docs/XP001_COMPLETION.md, docs/adr/XP-001-supported-session-contract.md and
+docs/evidence/xp001-baseline.json for exact scope, commands, files and evidence.
+XP-001 acceptance is satisfied; READY FOR XP-002. XP-002 has NOT started and
+requires the user's next instruction. Historical design-only checkpoint follows.
+
+## Proposed Player / Live Session / World Contract roadmap - 2026-09-23
+
+Design-only repository audit completed at the user's request. No milestone
+implementation was started and no existing completion checkbox was changed.
+Review artifact: docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md (XP-001 through
+XP-022, all proposed). Recommended direction: exported Godot-backed Player,
+one Rust session authority using existing network-core contracts, and a minimal
+CGS-derived fixed-point world/contact layer. Freeze the roadmap before engineering.
+
+Fresh verification: 1,346 selected Rust tests passed; 545 Python gate tests
+passed, with DCL discovery failing on a missing packages import. Direct DCL and
+focused Builder authority tests passed all 45 tests. The runner defect is recorded
+for XP-001; it was not fixed during this design-only session. Existing uncommitted
+work was preserved. Historical installed-engine artifacts were not rerun; retained
+Windows-only replay and simulated network-chaos evidence have narrower scope than
+the proposed simultaneous cross-engine live session. Next engineering task after
+roadmap approval: XP-001 contract/fixture baseline, followed by XP-002 authority
+and Schema Factory integration repairs.
+
+## AG-030 complete for development/early users - 2026-09-23
+
+Product owner explicitly accepted upstream dependency risk for development/early
+users, subject to pinning, replaceability, fail-closed behavior, unchanged
+API/BYOK fallback and re-evaluation before public production. Official docs and
+actual launch/config/API surfaces are recorded in docs/CODEX_APP_SERVER_SURFACE.md.
+Acceptance is saved in docs/evidence/codex-ag030-review.json. All six final gates
+passed: implementation, full Builder regression, browser setup/support, build,
+API/BYOK regression and documentation. Source-bound evidence validated; no
+blockers. docs/evidence/codex-ag030-completion.json records
+codex_integration_complete: true / complete_for_declared_configuration.
+Zero Codex integration tasks remain in AG-022 through AG-030. This is not public
+production or whole-XACE launch approval. No production implementation or
+security checks were changed by this review.
+
+## Historical AG-030 implementation checkpoint - 2026-09-23
+
+Phase/module: Phase 14 Builder Codex integration only. AG-029 remains complete.
+AG-030 engineering implementation and all six final gates pass; product-owner
+acceptance of the upstream App Server support risk is still pending.
+
+Implemented terminal-free local runtime provisioning in Builder: official
+pinned archive download link, local path and explicit consent, verified copied
+bytes/recipe, cancellable local Docker build, OS-held build lock, atomic image
+pin, invalid-pin repair, prior selection preserved on failure. No model setup
+tool, automatic binary redistribution, raw shell or credential access added.
+
+The real protected setup endpoint passed authorization/consent/build/readiness
+checks without provider calls. UI browser consent/fallback checks pass. A fresh
+real-account run passed all AG-029 scenarios on selected image
+sha256:8f98e06bc7f94a8edf11ca2d4ac3c6eef4b8e574fef1fdbd33364a6c0c38304e;
+credential-free isolation passed on the same image. Login volume is retained.
+
+The final completion gate now validates fixed source-bound live/isolation/setup
+records and a dated, nonempty defect/risk review. All 93 Builder production
+Python/TypeScript sources are bound to the review. Missing/stale/partial/changed
+evidence, unresolved P0/P1 and unaccepted residual risk block completion.
+The draft inference command was corrected to tools/python_test_gate.py --suite
+inference: all 233 API/BYOK tests pass. Final aggregate run also passes the full
+Builder regression (including the added completion case), browser setup/support,
+production build, implementation/conformance checks and documentation gate.
+The final Agent static boundary check reports no findings; diff check passes
+with only existing line-ending notices. Canonical completion report:
+docs/evidence/codex-ag030-completion.json. It records exactly one blocker:
+risk_acceptance_pending_upstream_support. No final completion claim is made.
+
+Remaining decision: official App Server documentation still describes the
+command as experimental and unsupported for production workloads. The owner
+was asked to accept that P2 risk only for the pinned limited integration, with
+fail-closed admission, API/BYOK fallback and mandatory review before public
+launch. No acceptance has been inferred from a request to continue.
+See docs/CODEX_INTEGRATION_HANDOFF.md and docs/evidence/codex-ag030-review.json.
+Do not mark codex_integration_complete true until the actual gate passes.
+Whole-XACE launch, native Windows isolation, Local and Claude remain outside scope.
+
+## AG-029 completed checkpoint - 2026-09-22
+
+Phase/module: Phase 14 Builder Agent Mode. AG-029 complete for Windows x64,
+Docker Desktop / WSL 2, pinned official Codex 0.155.1 and the opted-in account.
+AG-030 is the only remaining Codex integration task; it is not complete.
+Local/Claude and native Windows isolation remain deferred/non-blocking.
+
+Implemented: backend-neutral execution contract; production-selected isolated
+Codex adapter shared by registry/Builder/setup/status/auth; host-only MCP relay;
+verified local image build and atomic pin; graceful missing-dependency fallback;
+functional device-code setup and regression coverage. No API/BYOK default change.
+
+Real-account certificate passes every required check: native auth/models/limits,
+MCP, streamed history, typed preview, approval denial/handoff, actual GDE and SGC
+on a disposable approved copy, rejection persistence, resume/fork, compaction,
+cancellation and explicit outage recovery. Source CGS unchanged. New selected
+local image: sha256:4acbbf9ebd8622f3785ea3d26f9cb642adae2990e3840345c3fc3a674df3c6b3.
+Credential-free synthetic isolation also passes on this image. The existing
+dedicated provider volume/login is retained, not copied or deleted.
+
+Evidence and requirements: docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md,
+docs/evidence/codex-ag029-host.json, docs/evidence/codex-ag029-isolation.json,
+docs/CODEX_DOCKER_BACKEND.md. Final verification: 304 Builder tests passed (217.455s), including the new
+strict-certificate regression; native + isolated real-browser setup passed;
+lint/typecheck, UI contracts, production build and static Agent boundary checks
+passed. git diff --check passed (only existing LF/CRLF notices). No owned
+agent-execution containers remain running; provider login volume is retained.
+
+AG-030 must still assess the upstream App Server experimental support caveat,
+aggregate integration risks/evidence and address/accept the initial operator
+local-build step against its ordinary-user setup criterion. No public bundling,
+automatic updates, every-platform or whole-XACE launch completion is claimed.
+
 ## AUDIT DECISIONS LOCKED (Reference Before Building Any File)
 
 Audit 1 - Component Architecture: UCL=10 frozen, DCL=domain packages XACE-owned, GCL=developer-owned in game project
@@ -906,10 +1198,140 @@ audit(N): description
 
 ## LAST SESSION LOG
 
-Date:
-Phase worked on:
-What was completed:
-What is in-progress:
-Blockers:
-Audit decisions relevant to current phase:
-Next session should start with:
+Date: 2026-09-21
+Phase worked on: Phase 14 - Builder Workspace, AG-029 isolation investigation
+Results: Official Windows 0.155.1 rejects restricted reads in unelevated mode; elevated mode requires root read access. A credential-free loopback model probe finds apply_patch still exposed despite disabled native feature switches. Hooks are not a complete enforcement boundary per official documentation; no hook or security relaxation installed.
+Verification: Six isolation-probe tests and five certification-preflight tests pass. No live-account certification or runtime activation. Production/API/BYOK unchanged. Details: docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md.
+Next: Decide and verify a separate OS/container isolation backend before adapting native request fields or consuming account usage. AG-029 and AG-030 remain incomplete.
+
+---
+
+Date: 2026-09-21
+Phase worked on: Phase 14 - Builder Workspace, AG-029 official-runtime preflight
+Authority: User explicitly approved isolated official runtime installation and bounded Codex/ChatGPT account tests. Do not ask for blanket permission again; credentials remain provider-owned.
+Completed: Installed official npm Codex 0.154.0 and 0.155.1 in separate tmp/ag029-runtime-* directories; generated stable schemas and diagnostic-only 0.155.1 experimental schemas. Added tools/codex_certification_preflight.py with five passing tests and docs/CODEX_REAL_ACCOUNT_CERTIFICATION.md. Four prior AG-030 draft tests and eleven compatibility/resilience tests also pass.
+Blocker: Both official stable schemas reject consumed thread/turn requests and omit restricted-read access; the 0.155.1 experimental schema also omits the read boundary. 0.155.1 additionally falls outside current admission range. No live account/model call or runtime activation occurred. Zero real configurations are certified; AG-029 and AG-030 remain incomplete.
+Next: Establish a supported native contract enforcing the existing boundary or propose an independently verified equivalent isolation design for approval if it changes the architecture. Do not relax security, widen admission without evidence, or equate fixture success with live certification. API/BYOK and VS Code remain unchanged.
+
+
+Date: 2026-09-21
+Phase worked on: Phase 14 - Builder Workspace, AG-029 preflight
+User correction: AG-029 is the active task, not AG-030. The accidentally started AG-030 draft tool, test and handoff document remain unverified and unfinished; no readiness marker was advanced.
+What was completed: Current official App Server documentation reviewed; actual XACE executable resolution and fresh no-auth schema generation performed. Evidence: tmp/ag029-preflight/evidence.json (305 documents, same executable/schema hashes as AG-027).
+Blockers: Only editor-private 0.154.0-alpha.6.2 resolves; prerelease admission and consumed-schema checks fail. Need a compatible official runtime and explicit opt-in account/model-usage consent. No live authentication, account probe or model turn ran; no runtime was installed or activated and no security check was relaxed.
+Next step: Obtain runtime direction and live-test opt-in, then continue AG-029 in disposable projects. AG-029 and AG-030 remain incomplete; API/BYOK behavior is unchanged.
+
+
+Date: 2026-09-21
+Phase worked on: Phase 14 - Builder Workspace, AG-028
+What was completed: Local allowlisted Agent diagnostics across seven failure categories; separately consented complete support preview and immutable exact-byte download; bounded expiring previews and clear controls; privacy canary/route tests and browser consent checks. Retention, deletion, incident response and support ownership documented in docs/AGENT_PRIVACY_SUPPORT.md. API/BYOK defaults and proposal approval boundaries unchanged.
+What is in-progress: Nothing in AG-028. Two Codex integration tasks remain: AG-029 and AG-030.
+Verification: All 261 Builder server tests, 13 focused support/privacy tests, lint/typecheck/UI contracts, browser support workflow, production build, static Agent boundary checks and nine internal readiness gates pass.
+Known limitations: No compatible real runtime/account configuration is certified. The previously inspected private alpha remains rejected. No live login, model turn, credential read, automatic runtime acquisition or whole-XACE launch certification was performed.
+Next session should start with: AG-029 only when requested, using explicit opt-in accounts and disposable projects. AG-016 through AG-018 remain deferred and non-blocking; broader XACE launch work stays separate.
+
+
+Date: 2026-09-20
+Phase worked on: Phase 14 - Builder Workspace, AG-027
+What was completed: Versioned App Server schema admission and generated evidence, version/deprecation/revocation policy, bounded process I/O/queues, correlated responses and stale-event rejection, bounded initialization-only retry, explicit same-thread resume, MCP health recovery and cancellation cleanup. API/BYOK defaults and proposal/approval authority remain unchanged.
+What is in-progress: Nothing in AG-027. Implementation and verification are complete; three tasks remain, AG-028 through AG-030.
+Blockers/limits: No real runtime/account configuration is certified. Generated schema from installed editor-private 0.154.0-alpha.6.2 lacks the required restricted-read access field and is rejected; no security relaxation or runtime activation occurred. AG-029 must establish a compatible real configuration. Current official App Server experimental/production-support wording requires AG-030 review.
+Verification: Twenty new focused schema/fault/recovery tests pass, as do production build, setup browser checks, nine internal readiness checks and static Agent security across 20 files. First full run caught two new fixture argument omissions and one stale AG-025 stage assertion from AG-026; all are corrected. Final Builder lint/typecheck/UI contracts and all 248 server tests pass; the final Codex-specific suite passes 94 tests.
+Next session should start with: AG-028 only when requested. AG-016 through AG-018 remain deferred; no whole-XACE launch work is included.
+
+Previous session:
+
+Date: 2026-09-20
+Phase worked on: Phase 14 - Builder Workspace, AG-026
+What was completed: Functional Agent setup/recovery UI and loopback-only runtime operator routes. Guided detection/configuration, consent-gated lifecycle actions, browser/device sign-in, sign-out, refresh, cancellation, account/limits, safe diagnostics and API fallback are wired to AG-024/025. Stable DOM preserves inputs and focus. Explicit Agent enable refreshes cached pre-login readiness.
+What is in-progress: Nothing in AG-026. Four Codex-only tasks remain, AG-027 through AG-030.
+Blockers/limits: Fresh installation is provider-guided under AG-024; no automated acquisition, publisher-signature certification, live account test or manual screen-reader certification is claimed. Real-account evidence remains AG-029.
+Verification: Full Builder lint/typecheck/UI contracts and 227 server tests pass, plus the added settings-cache regression (six settings tests). Seven focused runtime setup tests, actual headless-browser UI smoke, production build and all nine Agent readiness checks pass. See docs/AGENT_SETUP_UX.md for accessibility test scope. API/BYOK remains default and mutation governance is unchanged.
+Next session should start with: AG-027 only when requested. AG-016 through AG-018 remain deferred; whole-XACE launch work remains separate.
+
+Previous session:
+
+Date: 2026-09-20
+Phase worked on: Phase 14 - Builder Workspace, AG-025
+What was completed: Provider-native Codex authentication backend and operator controls. The adapter lazily owns a dedicated auth connection with browser/device-code login, correlated completion/cancel/retry, expiry, refresh, confirmed logout, safe identity/limits/optional usage, and actionable recovery states. Identity changes and logout close cached model connections. Local-only same-origin endpoints reject credentials and arbitrary provider methods.
+What is in-progress: Nothing in AG-025. Five Codex-only integration tasks remain, AG-026 through AG-030. AG-026 owns the functional setup/recovery UI.
+Blockers: None for the AG-025 implementation. Real-account/browser certification remains AG-029; no live login/logout or authenticated model turn was performed. Managed acquisition remains disabled under the AG-024 decision.
+Audit decisions relevant to current phase: Official OpenAI App Server documentation and locally generated schemas informed provider-native auth mapping. Codex owns credentials/storage/refresh; XACE keeps only sanitized in-memory control state and returns login challenges once. Auth notifications never enter chat persistence, and auth-related turn errors are sanitized before SQLite/JSONL history. The endpoints are not agent tools. API/BYOK defaults and proposal/approval/GDE/SGC/runtime boundaries are unchanged.
+Verification: 28 final focused auth tests pass, including credential canaries across payloads, logs/file access, SQLite and JSONL. The full Builder gate passed lint, typecheck, UI contracts and 218 server tests before the final two additional auth regression cases (included in the passing 28-test focused run). Production build, static Agent security across 18 files, all nine readiness checks including Mock/Codex conformance, forbidden claims and patch whitespace checks pass.
+Next session should start with: AG-026 only when requested - functional Agent setup and recovery UX.
+
+Previous session:
+
+Date: 2026-09-19
+Phase worked on: Phase 14 - Builder Workspace, AG-024
+What was completed: The approved guided official Codex runtime lifecycle. An operator-only CLI verifies and selects a user-owned native executable using native platform/architecture checks, stable version, SHA-256, complete generated-schema fingerprint, and explicit official-source confirmation. Atomic metadata activation, last-known-good selection, exact-pin repair/rollback, non-destructive removal, OS-locked interrupted-operation recovery, revocation policy, and fail-closed resolution are implemented.
+What is in-progress: Nothing in AG-024. Six Codex-only integration tasks remain, AG-025 through AG-030.
+Blockers: Managed SDK acquisition remains disabled because a supported public runtime executable-location interface and certified package artifact/hash matrix were not established. This is the ADR-approved guided fallback, not an automatic installer or universal platform certificate. Functional setup UI remains AG-026 and real-account certification remains AG-029.
+Audit decisions relevant to current phase: Local SHA-256 pins establish integrity, not publisher authenticity. Provenance is user-confirmed official installation; vendor_signature_verified is false. XACE never downloads, copies, updates, or deletes user-owned provider executables or reads credentials. Rollback needs the old exact artifact at its recorded path. API/BYOK defaults and the typed proposal/approval/GDE/SGC/runtime boundary remain unchanged. Whole-XACE launch work remains outside this sequence.
+Verification: All 18 final focused lifecycle tests pass. The full Builder gate passed lint, typecheck, UI contracts and 189 server tests (before three final additional lifecycle cases, which pass separately). Production build, all nine Agent readiness checks including Mock/Codex conformance, and static Agent security across 16 files pass. Read-only schema generation against the installed private development runtime produced 305 documents and passed required-method verification; it was not activated and no authenticated model turn was run.
+Next session should start with: AG-025 only when requested - provider-native Codex authentication lifecycle.
+
+Previous session:
+
+Date: 2026-09-18
+Phase worked on: Phase 14 - Builder Workspace, AG-023
+What was completed: The Codex runtime distribution, compliance, and integration decision. XACE will prefer managed acquisition of an exact certified stable `openai-codex` package and its upstream-pinned runtime, retain compatible official external Codex as fallback, and keep direct App Server JSON-RPC as the production integration. A dated ADR and fail-closed `xace.codex_distribution_policy.v1` contract record provenance, integrity, credential ownership, update SLA, rollback, revocation, and platform/launch-surface gates.
+What is in-progress: Nothing. AG-023 is complete; AG-024 has not started.
+Blockers: Seven Codex-only integration tasks remain, AG-024 through AG-030. Managed acquisition stays disabled until AG-024 verifies official artifacts, exact hashes, supported platforms, a supported pinned-runtime launch surface, atomic lifecycle operations, and recovery.
+Audit decisions relevant to current phase: Raw binary bundling, repackaging, redistribution, mirroring, and private package-internal scraping are prohibited. Codex owns OS-keyring credentials and XACE never reads or copies `auth.json`. Compatible external detection and API/BYOK remain available. Whole-XACE installer/signing/launch work is outside this task sequence.
+Verification: 24 focused tests and all 89 Agent tests pass. The Builder gate passes lint, typecheck, UI contracts, and 174 server tests; production build, 233 inference tests, static Agent security across 15 files, Mock + Codex conformance, forbidden claims, and the nine-check readiness gate pass.
+Next session should start with: AG-024 only - implement the selected managed or guided pinned Codex runtime lifecycle without changing API/BYOK defaults or taking ownership of credentials.
+
+
+Date: 2026-09-17
+Phase worked on: Phase 14 - Builder Workspace, AG-021
+What was completed: The post-AG-020 public-readiness audit, ordered AG-021 through AG-032 roadmap, and AG-021 stable protocol/runtime-provenance baseline. Stable clients no longer advertise experimental API access; unsupported thread history mode was removed; thread sandbox values were aligned to the installed generated schema; runtime provenance and public-distribution eligibility are explicit; failed probes cannot be labeled compatible; and the live smoke starts/deletes its own empty read-only thread without a model turn.
+What is in-progress: Nothing. AG-021 is complete; AG-022 native XACE MCP transport is the next task and was not started in this work unit.
+Blockers: Public release remains blocked by AG-022 through AG-032: native MCP, a verified Codex acquisition/redistribution decision, managed or officially guided runtime lifecycle, provider-native auth UX, protocol resilience, packaged XACE delivery, a declared clean-machine support matrix, real-account end-to-end certification, privacy/support operations, and the final public gate.
+Audit decisions relevant to current phase: AG-020 means integration implementation certification only. `public_product_ready` remains false. Codex App Server stays the first and primary Agent path; API/BYOK is unchanged; Local and Claude remain deferred. The installed Codex 0.151.0-alpha.7.2 comes from a private VS Code extension directory and is development fallback only. The current dynamic-tool bridge is experimental until AG-022 moves production turns to native MCP.
+Verification: 20 focused AG-021 tests, 80 Agent tests, 165 Builder server tests, Builder lint/typecheck/UI contracts, the production Vite build, 233 inference tests, Mock + Codex conformance, static Agent security, forbidden claims, default readiness, and live no-model-turn stable thread start/delete all pass.
+Next session should start with: AG-022 only - implement native XACE MCP transport for Codex while preserving the existing provider-neutral tool contract, proposal boundary, and API/BYOK behavior.
+
+Previous session:
+
+Date: 2026-09-17
+Phase worked on: Phase 14 - Builder Workspace, AG-020
+What was completed: The Codex Agent Mode production-readiness gate. Nine required checks now cover reusable AG-019 conformance, fail-closed security, healthy/unavailable provider contracts, API/BYOK rollback, provider-managed billing labels, functional Agent UX, approval UX, distribution safety, and truthful claims. Provider settings expose a typed launch-status contract that separates release certification from per-machine runtime readiness, and quick/full launch certification both run the new gate.
+What is in-progress: Nothing; the narrowed AG-001 through AG-015, AG-019, and AG-020 Codex Agent Mode implementation window is complete. AG-016 through AG-018 remain explicitly deferred and non-blocking.
+Blockers: None within AG-020. The broader repository launch gate still has pre-existing source-inventory/fake-register debt and two older adapter-package TestClient production-path findings; no remaining finding is in the AG-020 surface.
+Audit decisions relevant to current phase: Codex is release-certified and the preferred Agent path, but API/BYOK remains the unchanged default and fallback. Local installation/authentication health is runtime state rather than build-certification state. Current distribution detects externally installed Codex; managed/pinned bundling remains blocked pending redistribution, packaging, authentication-storage, update, and compatibility verification. Local and Claude are not shipment dependencies. The strict agent -> XACE tools -> typed proposal -> preview -> approval -> GDE -> SGC -> runtime boundary remains enforced.
+Verification: The AG-020 command passes all nine required checks and records ship_codex_agent_mode. The focused 16-test readiness/settings/detection suite, full 78-test Agent suite, aggregate Builder lint/typecheck/UI/server gate with all 163 server tests, production Vite build, 233-test inference gate, static Agent security check, and forbidden-claims check pass. The optional installed Codex probe was not required or run.
+Next session should start with: No further AG task is required in this implementation window. AG-016 through AG-018 remain deferred until a concrete dependency justifies them.
+
+Previous session:
+
+Date: 2026-09-17
+Phase worked on: Phase 14 - Builder Workspace, AG-019
+What was completed: A reusable provider-neutral AgentAdapter conformance suite and CI command. Nine mandatory checks cover contract shape, detection, safe capabilities, start/resume lifecycle, event ordering, MCP permissions, preview-only proposal ingress, cancellation, and recovery. Deterministic Mock and Codex fixtures certify independently; advertised optional capabilities require evidence, unsupported options carry reasons, and failing production adapters are identified for disablement.
+What is in-progress: Nothing; AG-019 is complete. AG-016 through AG-018 remain explicitly deferred and non-blocking.
+Blockers: None.
+Audit decisions relevant to current phase: Codex App Server remains the first production adapter. Conformance certification is adapter correctness evidence, while AG-020 is the separate shipment/default readiness gate. Local and Claude absence cannot fail Codex certification. The strict agent -> XACE tools -> typed proposal -> preview -> approval -> GDE -> SGC -> runtime boundary remains enforced, and API/BYOK defaults are unchanged.
+Verification: The conformance command reports PASS with Mock and Codex certified (2/2), four focused conformance tests pass, the full 74-test Agent suite passes, the aggregate Builder gate passes lint/typecheck/UI contracts and all 159 server tests, the production Vite build passes, and the established inference gate passes all 233 tests.
+Next session should start with: AG-020 only when explicitly requested; AG-016 through AG-018 remain deferred.
+
+Earlier session:
+
+Date: 2026-09-17
+Phase worked on: Phase 14 - Builder Workspace, AG-015
+What was completed: Fail-closed Builder Agent security enforcement. A provider-neutral policy now certifies exact XACE tools and adapter capabilities, rejects credentials or privilege escalation in metadata, confines Codex to XACE-built context capsules with restricted read-only roots, intercepts provider shell/file/patch/approval requests, and validates adapter events before persistence or proposal ingestion. Only typed preview submission may cross the read-only boundary.
+What is in-progress: Nothing; AG-015 is complete. AG-016 through AG-018 remain explicitly deferred.
+Blockers: None.
+Audit decisions relevant to current phase: Provider-native lifecycle/auth remains owned by the adapter, while XACE owns tool authority and mutation governance. The enforced path is agent -> XACE tools -> typed proposal -> preview -> user/XACE approval -> GDE -> SGC -> runtime. Credential-store access, raw shell/process APIs, real-project writes, direct GDE commits, and direct runtime mutation are unavailable in normal Builder Agent Mode. API/BYOK remains the unchanged default.
+Verification: The 70-test Agent suite, static Agent security check, targeted production secret scan, full Builder gate (lint, typecheck, UI contract, 155 server tests), production Vite build, and all 233 inference tests pass. The broad source scan's 11 findings are known intentional redaction canaries/test fixtures outside the AG-015 production surface.
+Next session should start with: AG-019 only when explicitly requested; AG-016 through AG-018 remain deferred.
+
+Earlier session (continued):
+
+Date: 2026-09-04
+Phase worked on: Phase 14 - Builder Workspace, AG-014
+What was completed: Billing and usage boundary hardening across Agent Mode and API/BYOK. The provider-neutral xace.billing_usage.v1 contract distinguishes XACE-estimated API/BYOK cost, provider-managed Codex account usage, local compute/resource cost, and unknown state. Codex maps optional App Server account usage and rate-limit reads; inference telemetry/accounting exports preserve explicit provenance; Builder cost surfaces no longer imply that zero-price local execution is free.
+What is in-progress: Nothing; AG-014 is complete. AG-015 has not started.
+Blockers: None.
+Audit decisions relevant to current phase: API/BYOK remains the default and retains XACE token/cost estimation. Codex Agent Mode shows provider-managed account usage without manufacturing per-turn dollar estimates. Local descriptors state that provider API price may be zero while hardware, electricity, hosting, and operator cost remain unestimated. Unknown capability data degrades explicitly rather than blocking the mode.
+Verification: Full Builder gate passed (lint, typecheck, UI contract, 147 server tests); production Vite build passed; repository inference gate passed all 233 tests. Focused billing serialization and API-key/subscription/local/unknown state tests pass.
+Next session should start with: AG-015 only when explicitly requested.

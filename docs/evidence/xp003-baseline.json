@@ -1,0 +1,255 @@
+{
+  "schema": "xace.xp003.baseline.v1",
+  "date": "2026-09-24",
+  "task": "XP-003",
+  "acceptance": "satisfied for World Contract v1 declared profile",
+  "recommendation": "READY FOR XP-004",
+  "xp004_started": false,
+  "task_files": [
+    "MASTER_PLAN.md",
+    "docs/source_inventory.json",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+    "packages/core/src/lib.rs",
+    "packages/core/src/world/mod.rs",
+    "packages/core/tests/test_world_contract.rs",
+    "packages/core/tests/fixtures/world_contract_v1/source.cgs.json",
+    "packages/core/tests/fixtures/world_contract_v1/world.canonical.json",
+    "packages/core/tests/fixtures/world_contract_v1/manifest.json",
+    "packages/core/tests/fixtures/world_contract_v1/malformed_vectors.json",
+    "packages/schema-factory/src/schema_factory.py",
+    "packages/schema-factory/src/compiled_schema_package.py",
+    "packages/schema-factory/src/portable_compilation.py",
+    "packages/schema-factory/src/world_contract.py",
+    "packages/builder-workspace/server/tests/test_world_contract.py",
+    "tools/xp003_world_proof.py",
+    "docs/adr/XP-003-world-contract.md",
+    "docs/XP003_COMPLETION.md",
+    "docs/evidence/xp003-baseline.json"
+  ],
+  "source_sha256": {
+    "MASTER_PLAN.md": "81b5bf73c0161353d255600e7269bd90aebadde6244fdef9433c4d8d29cf165a",
+    "docs/source_inventory.json": "d84870c483ba42be730873d0d1b0e7af1fbd7e14ec9f93e3b08309a52c4980a4",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "6f8db1d87cc9faacf7981b03cc1d41f35e4204593863982f206475a190fb24c7",
+    "packages/core/src/lib.rs": "9c71045ecd36044ce1c1f9a587ff44dedb53af91e8718874420080f32e416c17",
+    "packages/core/src/world/mod.rs": "108fa07dcad0ea724967dbfadb43788b3c6d58e8412639dc4ea3a8dde86e881b",
+    "packages/core/tests/test_world_contract.rs": "782976dba2b017108d5010a44eb5e6fc922d1996321b1945214405ffbca61c3c",
+    "packages/core/tests/fixtures/world_contract_v1/source.cgs.json": "f4715ac0453e891dd8c1f07e5edc32dd77bc3a1f33debc49306a177977eeb0fa",
+    "packages/core/tests/fixtures/world_contract_v1/world.canonical.json": "d156f869a9d3884e2dd717ba89a59553688a44801e526ce2800087a5941fe66b",
+    "packages/core/tests/fixtures/world_contract_v1/manifest.json": "613d55dd0df5f9ff2c001a53863563a71d03964cebb616ff2ad65e8227674763",
+    "packages/core/tests/fixtures/world_contract_v1/malformed_vectors.json": "d3ff17d59d46ff4fe1009c421c3f1db895d4ab41418f969df661f0e5043e6aaf",
+    "packages/schema-factory/src/schema_factory.py": "66297c22b0f47475f80e228d4757fcef2ce200dcb4a4be147431891ae2049988",
+    "packages/schema-factory/src/compiled_schema_package.py": "f0a35fed65da6d95c211ede5538dd9204f03db9703e783a53c3473b4dd90f43c",
+    "packages/schema-factory/src/portable_compilation.py": "a80dd5e4ff10538c21e8c4e8e47cb17683e0bf2c3a163a708346656a48beda6a",
+    "packages/schema-factory/src/world_contract.py": "306a7bd3f9f5877d19694569a7b53bf08ee2dc5bd418a0d53637d2a6cd6d5b10",
+    "packages/builder-workspace/server/tests/test_world_contract.py": "a31f6522f2d48fa22456501d2874d9fd7aa1f960e645dcad69fe45b7f8b518eb",
+    "tools/xp003_world_proof.py": "afd8dc960cfbedccd65aa93e5600d3fb1021ca99fd7e5b6bfcd23d61fdbf6fb0",
+    "docs/adr/XP-003-world-contract.md": "324f0872f206ff3af269d81195a9b963a47a1890365a2876ba2247c2ff175356",
+    "docs/XP003_COMPLETION.md": "e6cda71a93ea68c680769b30369581aa99ab83e195c1955d9ac685be3ebeac6f",
+    "tools/cgs_schema_validate.py": "8f66bec79ccccea0999f86b175aaf2bb1ffda64dfb278af48b6c0995f27fe5a5"
+  },
+  "working_tree": "pre-existing dirty; no commit created",
+  "diff_from_pre_task_working_tree": {
+    "MASTER_PLAN.md": {
+      "added": 22,
+      "deleted": 0,
+      "new": false
+    },
+    "docs/source_inventory.json": {
+      "added": 5,
+      "deleted": 1,
+      "new": false
+    },
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": {
+      "added": 6,
+      "deleted": 6,
+      "new": false
+    },
+    "packages/core/src/lib.rs": {
+      "added": 2,
+      "deleted": 0,
+      "new": false
+    },
+    "packages/core/src/world/mod.rs": {
+      "added": 253,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/core/tests/test_world_contract.rs": {
+      "added": 74,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/core/tests/fixtures/world_contract_v1/source.cgs.json": {
+      "added": 417,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/core/tests/fixtures/world_contract_v1/world.canonical.json": {
+      "added": 1,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/core/tests/fixtures/world_contract_v1/manifest.json": {
+      "added": 1,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/core/tests/fixtures/world_contract_v1/malformed_vectors.json": {
+      "added": 134,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/schema-factory/src/schema_factory.py": {
+      "added": 10,
+      "deleted": 0,
+      "new": false
+    },
+    "packages/schema-factory/src/compiled_schema_package.py": {
+      "added": 2,
+      "deleted": 0,
+      "new": false
+    },
+    "packages/schema-factory/src/portable_compilation.py": {
+      "added": 1,
+      "deleted": 1,
+      "new": false
+    },
+    "packages/schema-factory/src/world_contract.py": {
+      "added": 199,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/builder-workspace/server/tests/test_world_contract.py": {
+      "added": 148,
+      "deleted": 0,
+      "new": true
+    },
+    "tools/xp003_world_proof.py": {
+      "added": 86,
+      "deleted": 0,
+      "new": true
+    },
+    "docs/adr/XP-003-world-contract.md": {
+      "added": 91,
+      "deleted": 0,
+      "new": true
+    },
+    "docs/XP003_COMPLETION.md": {
+      "added": 112,
+      "deleted": 0,
+      "new": true
+    }
+  },
+  "rust": {
+    "passed": 1906,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 33,
+    "world_tests": 4,
+    "malformed_reader_vectors": 23
+  },
+  "python": {
+    "official_passed": 1130,
+    "suites": [
+      {
+        "id": "schema-factory",
+        "passed": 127,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "gde",
+        "passed": 200,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "project-system",
+        "passed": 11,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "asset-registry",
+        "passed": 207,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "dcl",
+        "passed": 14,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "inference",
+        "passed": 233,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "builder-server",
+        "passed": 338,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      }
+    ],
+    "final_focused_world_tests": 13,
+    "malformed_source_cases": 18,
+    "note": "official broad gate included initial 9 world tests; opt-in validation tightening and four extra tests were subsequently verified by final 13-test run; counts overlap"
+  },
+  "world_proof": {
+    "schema": "xace.xp003.world_proof.v1",
+    "ok": true,
+    "objects": 6,
+    "identity": {
+      "schema": "xace.world_manifest.v1",
+      "schema_package": {
+        "cgs_hash": "0f52fa24d3d1c2cf6f832ab450249b8487d9edaba713de521b08375cb641adb5",
+        "schema_version": "0.1.0"
+      },
+      "world": {
+        "artifact": {
+          "content_hash": "d156f869a9d3884e2dd717ba89a59553688a44801e526ce2800087a5941fe66b",
+          "id": "arena_v1",
+          "version": "1.0.0"
+        },
+        "compiled_from_cgs_hash": "0f52fa24d3d1c2cf6f832ab450249b8487d9edaba713de521b08375cb641adb5",
+        "contract_version": 1,
+        "mode_id": "mode_arena"
+      }
+    },
+    "reordered_source_identical_world_bytes": true,
+    "scope": "offline real Factory compilation; Rust reader tested separately; no geometry execution, native engine or live session"
+  },
+  "logs_sha256": {
+    "tmp/xp003-rust.log": "befa664154a6c33c91758b35f5cd3fe57bb455b310c62cb5b91123fec7876104",
+    "tmp/xp003-python.json": "e6c768665bdd5ec2c06ca80de66936252f1d526de30b3178482709ee5cace56f",
+    "tmp/xp003-world-python-final.log": "f1aa843641aa3eeaaff99e2f75787fff862a08d2c4db6c51af9841d6b13e7fc3",
+    "tmp/xp003-proof/summary.json": "3f7b64f58c771face6c6761e3158b453b73358d9d1280adffd61ce2a021cd88f"
+  },
+  "unchanged_builder_apply_source_sha256": "18249f97151d2acef9186689079ac1d5794b2f1d0505df6cd35daec30f71734c",
+  "inventory_preexisting_omissions": 31,
+  "limitations": [
+    "No geometry queries, native reader integration, live session or playable package implementation.",
+    "Package provenance refers to CompiledSchemaPackage; XP-007 must later pin WorldIdentity in playable manifests.",
+    "World Contract is opt-in; XP-002 legacy template migration requirements remain.",
+    "The authoring compiler distribution must include the existing strict CGS validator.",
+    "XP-001/002 and AG-030 evidence retained as historical; not refreshed.",
+    "Evidence excludes its own recursive source hash and diff."
+  ]
+}

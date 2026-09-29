@@ -15,6 +15,7 @@ from enum import Enum
 from typing import Any, Protocol, TypeAlias, TypeVar
 
 
+BILLING_USAGE_SCHEMA = "xace.billing_usage.v1"
 AGENT_CONTRACT_SCHEMA = "xace.agent_host.v1"
 
 JsonValue: TypeAlias = (
@@ -50,6 +51,27 @@ class AgentAuthState(str, Enum):
     API_KEY = "api_key"
     MISSING = "missing"
     EXPIRED = "expired"
+    UNKNOWN = "unknown"
+
+
+class AgentBillingSource(str, Enum):
+    API_BYOK = "api_byok"
+    PROVIDER_ACCOUNT = "provider_account"
+    LOCAL_RUNTIME = "local_runtime"
+    UNKNOWN = "unknown"
+
+
+class AgentCostState(str, Enum):
+    ESTIMATED = "estimated"
+    PROVIDER_MANAGED = "provider_managed"
+    LOCAL_RESOURCE = "local_resource"
+    UNKNOWN = "unknown"
+
+
+class AgentTokenTrackingState(str, Enum):
+    XACE_TRACKED = "xace_tracked"
+    PROVIDER_REPORTED = "provider_reported"
+    LOCAL_OBSERVED = "local_observed"
     UNKNOWN = "unknown"
 
 
@@ -415,6 +437,101 @@ class AgentCapabilities:
 
 
 @dataclass(frozen=True)
+class AgentBillingUsage:
+    """Explicit cost/usage semantics; zero never silently means free."""
+
+    source: AgentBillingSource = AgentBillingSource.UNKNOWN
+    cost_state: AgentCostState = AgentCostState.UNKNOWN
+    token_tracking: AgentTokenTrackingState = AgentTokenTrackingState.UNKNOWN
+    label: str = "Cost unavailable"
+    detail: str = "No reliable billing or usage source is available."
+    currency: str | None = None
+    estimated_cost_cents: float | None = None
+    usage_summary: Mapping[str, Any] = field(default_factory=dict)
+    rate_limits: Mapping[str, Any] = field(default_factory=dict)
+    schema: str = BILLING_USAGE_SCHEMA
+
+    def __post_init__(self) -> None:
+        if self.schema != BILLING_USAGE_SCHEMA:
+            raise AgentContractError(
+                f"schema must equal {BILLING_USAGE_SCHEMA!r}"
+            )
+        object.__setattr__(
+            self,
+            "source",
+            _enum(AgentBillingSource, self.source, "billing source"),
+        )
+        object.__setattr__(
+            self,
+            "cost_state",
+            _enum(AgentCostState, self.cost_state, "cost state"),
+        )
+        object.__setattr__(
+            self,
+            "token_tracking",
+            _enum(
+                AgentTokenTrackingState,
+                self.token_tracking,
+                "token tracking",
+            ),
+        )
+        _require_nonempty(self.label, "billing label")
+        _require_nonempty(self.detail, "billing detail")
+        if self.currency is not None:
+            _require_nonempty(self.currency, "billing currency")
+        if self.estimated_cost_cents is not None:
+            if (
+                isinstance(self.estimated_cost_cents, bool)
+                or not isinstance(self.estimated_cost_cents, (int, float))
+                or not math.isfinite(float(self.estimated_cost_cents))
+                or self.estimated_cost_cents < 0
+            ):
+                raise AgentContractError(
+                    "estimated_cost_cents must be a finite non-negative number"
+                )
+        object.__setattr__(
+            self,
+            "usage_summary",
+            _json_object(self.usage_summary, "billing usage_summary"),
+        )
+        object.__setattr__(
+            self,
+            "rate_limits",
+            _json_object(self.rate_limits, "billing rate_limits"),
+        )
+
+    def to_dict(self) -> dict[str, JsonValue]:
+        return {
+            "schema": self.schema,
+            "source": self.source.value,
+            "cost_state": self.cost_state.value,
+            "token_tracking": self.token_tracking.value,
+            "label": self.label,
+            "detail": self.detail,
+            "currency": self.currency,
+            "estimated_cost_cents": self.estimated_cost_cents,
+            "usage_summary": dict(self.usage_summary),
+            "rate_limits": dict(self.rate_limits),
+        }
+
+    @classmethod
+    def from_dict(cls, value: Mapping[str, Any]) -> "AgentBillingUsage":
+        estimate = value.get("estimated_cost_cents")
+        return cls(
+            source=str(value.get("source", AgentBillingSource.UNKNOWN.value)),
+            cost_state=str(value.get("cost_state", AgentCostState.UNKNOWN.value)),
+            token_tracking=str(value.get("token_tracking", AgentTokenTrackingState.UNKNOWN.value)),
+            label=str(value.get("label") or "Cost unavailable"),
+            detail=str(value.get("detail") or "No reliable billing or usage source is available."),
+            currency=value.get("currency"),
+            estimated_cost_cents=None if estimate is None else float(estimate),
+            usage_summary=_json_object(value.get("usage_summary", {}), "billing usage_summary"),
+            rate_limits=_json_object(value.get("rate_limits", {}), "billing rate_limits"),
+            schema=str(value.get("schema", BILLING_USAGE_SCHEMA)),
+        )
+
+
+@dataclass(frozen=True)
 class AgentProviderStatus:
     provider_id: str
     display_name: str
@@ -427,6 +544,7 @@ class AgentProviderStatus:
     min_supported_version: str | None = None
     account_label: str | None = None
     capabilities: AgentCapabilities = field(default_factory=AgentCapabilities)
+    billing: AgentBillingUsage = field(default_factory=AgentBillingUsage)
     warnings: tuple[str, ...] = ()
     last_checked_at: str = ""
     metadata: Mapping[str, Any] = field(default_factory=dict)
@@ -457,6 +575,12 @@ class AgentProviderStatus:
                 "capabilities",
                 AgentCapabilities.from_dict(self.capabilities),
             )
+        if not isinstance(self.billing, AgentBillingUsage):
+            object.__setattr__(
+                self,
+                "billing",
+                AgentBillingUsage.from_dict(self.billing),
+            )
         object.__setattr__(self, "warnings", _str_tuple(self.warnings, "warnings"))
         object.__setattr__(self, "metadata", _json_object(self.metadata, "metadata"))
 
@@ -474,6 +598,7 @@ class AgentProviderStatus:
             "min_supported_version": self.min_supported_version,
             "account_label": self.account_label,
             "capabilities": self.capabilities.to_dict(),
+            "billing": self.billing.to_dict(),
             "warnings": list(self.warnings),
             "last_checked_at": self.last_checked_at,
             "metadata": dict(self.metadata),
@@ -501,6 +626,7 @@ class AgentProviderStatus:
             min_supported_version=value.get("min_supported_version"),
             account_label=value.get("account_label"),
             capabilities=AgentCapabilities.from_dict(value.get("capabilities", {})),
+            billing=AgentBillingUsage.from_dict(value.get("billing", {})),
             warnings=_str_tuple(value.get("warnings", ()), "warnings"),
             last_checked_at=str(value.get("last_checked_at", "")),
             metadata=_json_object(value.get("metadata", {}), "metadata"),

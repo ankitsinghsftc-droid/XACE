@@ -1,0 +1,51 @@
+{
+  "ag029_evidence_status": "validated",
+  "blockers": [],
+  "certified_runtime_account_configurations": [
+    {
+      "account_scope": "AG-029 opted-in ChatGPT account; entitlement remains provider-authoritative",
+      "backend": "docker_desktop_wsl2",
+      "codex_version": "0.155.1",
+      "image_id": "sha256:8f98e06bc7f94a8edf11ca2d4ac3c6eef4b8e574fef1fdbd33364a6c0c38304e",
+      "platform": "windows_x64"
+    }
+  ],
+  "checks": [
+    {
+      "check_id": "agent_implementation",
+      "status": "pass"
+    },
+    {
+      "check_id": "builder_regression",
+      "status": "pass"
+    },
+    {
+      "check_id": "setup_support_browser",
+      "status": "pass"
+    },
+    {
+      "check_id": "builder_build",
+      "status": "pass"
+    },
+    {
+      "check_id": "api_byok_regression",
+      "status": "pass"
+    },
+    {
+      "check_id": "handoff_documentation",
+      "status": "pass"
+    }
+  ],
+  "claude_local_required": false,
+  "codex_integration_complete": true,
+  "decision": "complete_for_declared_configuration",
+  "default_and_fallback": "API_BYOK",
+  "defect_review": "reviewed",
+  "engineering_checks_passed": true,
+  "generated_at": "2026-09-23T04:43:49.323212+00:00",
+  "handoff": "docs/CODEX_INTEGRATION_HANDOFF.md",
+  "provider_calls_performed": false,
+  "schema": "xace.codex_integration_completion.v1",
+  "scope": "codex_integration_only",
+  "whole_xace_launch_readiness": "outside_scope"
+}

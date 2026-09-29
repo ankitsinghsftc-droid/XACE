@@ -156,6 +156,8 @@ pub struct HandshakeAck {
     pub initial_entities: Vec<EntityState>,
     #[serde(default)]
     pub runtime_capabilities: Vec<String>,
+    #[serde(default)]
+    pub world_bindings: BTreeMap<String, String>,
 }
 
 impl HandshakeAck {
@@ -175,6 +177,7 @@ impl HandshakeAck {
             cgs_hash: cgs_hash.into(),
             schema_version: schema_version.into(),
             initial_entities,
+            world_bindings: BTreeMap::new(),
             runtime_capabilities: vec![
                 "full_snapshot".to_string(),
                 "input_packet_v1".to_string(),
@@ -196,6 +199,7 @@ impl HandshakeAck {
             cgs_hash: String::new(),
             schema_version: String::new(),
             initial_entities: Vec::new(),
+            world_bindings: BTreeMap::new(),
             runtime_capabilities: Vec::new(),
         }
     }
@@ -1031,4 +1035,27 @@ mod tests {
             Some(EngineMessageType::AdapterSideEffectRollback)
         );
     }
+}
+
+/// Presentation-only projection of an authoritative emitted event. The occurrence
+/// index disambiguates multiple same-named events without assuming EventBus IDs
+/// have already been assigned on the emitted-event copy.
+pub fn presentation_events(events: &[xace_core::events::event_struct::Event]) -> Vec<GameEvent> {
+    events.iter().enumerate().map(|(index, event)| {
+        let event_type = match &event.event_type {
+            xace_core::events::event_type::EventType::Domain(name) => name.clone(),
+            other => serde_json::to_string(other).expect("event type serialization"),
+        };
+        GameEvent {
+            event_type,
+            entity_id: event.source_entity_id,
+            data: BTreeMap::from([
+                ("schema".into(), serde_json::json!("xace.presentation_event.v1")),
+                ("occurrence_id".into(), serde_json::json!(format!("{}:{}", event.creation_tick, index))),
+                ("tick".into(), serde_json::json!(event.creation_tick)),
+                ("target_entity_id".into(), serde_json::json!(event.target_entity_id.to_string())),
+                ("payload".into(), serde_json::json!(event.payload)),
+            ]),
+        }
+    }).collect()
 }

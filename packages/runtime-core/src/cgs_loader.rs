@@ -1775,7 +1775,14 @@ fn evaluate_cgs_derived_compatibility(
             .collect::<Vec<_>>();
         if !system_ids.is_empty() {
             scheduled_system_ids.extend(system_ids.iter().cloned());
-            plan.push((phase.to_string(), system_ids, false));
+            // Explicit development schedules still honor the declared ingress boundary.
+            // Never synthesize a missing system or alter a persisted plan.
+            if phase == "Input" && system_ids.first().is_some_and(|id| id == "EngineInputSystem") {
+                plan.push((phase.to_string(), vec![system_ids[0].clone()], false));
+                if system_ids.len() > 1 { plan.push((phase.to_string(), system_ids[1..].to_vec(), false)); }
+            } else {
+                plan.push((phase.to_string(), system_ids, false));
+            }
         }
     }
 
@@ -3340,7 +3347,8 @@ fn builtin_component_names() -> Vec<(u32, &'static str)> {
 fn is_builtin_runtime_system(system_id: &str) -> bool {
     matches!(
         system_id,
-        "InputSystem"
+        "EngineInputSystem"
+            | "InputSystem"
             | "MovementIntentSystem"
             | "PlatformerMotionSystem"
             | "MovementSystem"

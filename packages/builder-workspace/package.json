@@ -9,6 +9,7 @@
     "lint":      "tsc -p tsconfig.json --noEmit --noUnusedLocals --noUnusedParameters",
     "preview":   "vite preview",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:agent-setup": "node tools/agent_setup_browser_test.mjs",
     "test:ui":   "node tools/builder_ui_contract_test.mjs",
     "test:server": "python -m unittest discover -s server/tests -p \"test*.py\"",
     "test":      "npm run lint && npm run typecheck && npm run test:ui && npm run test:server"

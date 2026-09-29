@@ -11,7 +11,8 @@ members = [
     "packages/save-engine",
     "packages/asset-runtime",
     "packages/cli",
-    "examples/zombie-chase"
+    "examples/zombie-chase",
+    "examples/reference-mechanic"
 ]
 
 [workspace.package]

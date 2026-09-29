@@ -48,20 +48,35 @@ use crate::snapshot_engine::{
     SnapshotSerializer, SnapshotStore,
 };
 use crate::state_printer::{print_state, PrinterOpts};
-use crate::{builtin_systems, cgs_loader, tcp_server};
+use crate::{builtin_systems, cgs_loader, input_ingress, tcp_server};
 use xace_core::events::event_struct::Event;
 use xace_core::fixed_point::{Fixed64, FIXED64_SCALE};
 use xace_core::runtime::world_snapshot::WorldSnapshot;
 
+/// A host-owned registrar. Pointer equality is only configuration equality;
+/// package admission relies on executable hashes and exact system contracts.
+#[derive(Debug, Clone, Copy)]
+pub struct HostSystemRegistrar(pub fn(&mut SystemRegistry) -> Result<()>);
+impl PartialEq for HostSystemRegistrar {
+    fn eq(&self, other: &Self) -> bool { std::ptr::fn_addr_eq(self.0, other.0) }
+}
+impl Eq for HostSystemRegistrar {}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RuntimeConfig {
+    /// Trusted native host composition; never populated from package data.
+    pub register_host_systems: Option<HostSystemRegistrar>,
     pub world_seed: u64,
     pub execution_plan_version: u32,
     pub sgc_plan_policy: cgs_loader::SgcPlanPolicy,
     pub sgc_plan_path: Option<PathBuf>,
+    pub world_path: Option<PathBuf>,
+    pub world_manifest_path: Option<PathBuf>,
     pub determinism_guard_mode: GuardMode,
     pub bridge: EngineBridgeConfig,
     pub apply_engine_input_components: bool,
+    /// Blocks legacy control writes against a live session authority.
+    pub live_session: bool,
     pub input_sync: RuntimeInputSyncConfig,
     pub rollback: RollbackConfig,
     pub timeline_retention: DeltaTimelineRetentionConfig,
@@ -71,13 +86,17 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
+            register_host_systems: None,
             world_seed: 42,
             execution_plan_version: 1,
             sgc_plan_policy: cgs_loader::SgcPlanPolicy::RequirePersisted,
             sgc_plan_path: None,
+            world_path: None,
+            world_manifest_path: None,
             determinism_guard_mode: GuardMode::Strict,
             bridge: EngineBridgeConfig::default(),
             apply_engine_input_components: true,
+            live_session: false,
             input_sync: RuntimeInputSyncConfig::default(),
             rollback: RollbackConfig::default(),
             timeline_retention: DeltaTimelineRetentionConfig::default(),
@@ -688,6 +707,8 @@ pub struct RuntimeOrchestrator {
     client_prediction_log: Vec<RuntimeClientPredictionReport>,
     bridges: Vec<EngineBridge>,
     engine_inputs: Vec<InputPacket>,
+    pending_input_mutations: input_ingress::PendingInput,
+    preview_tables: Option<ComponentTableStore>,
     input_synchroniser: Option<InputSynchroniser>,
     input_sync_last_trace: RuntimeInputSyncTrace,
     input_sync_wait_attempts: BTreeMap<u64, u64>,
@@ -786,7 +807,7 @@ impl RuntimeOrchestrator {
         let mut entity_store = EntityStore::new();
         let mut table_store = ComponentTableStore::new();
         let mutation_gate = MutationGate::new();
-        let query_engine = QueryEngine::new();
+        let mut query_engine = QueryEngine::new();
         let event_bus = EventBus::new();
         let feedback_buffer = FeedbackBuffer::new();
 
@@ -797,11 +818,29 @@ impl RuntimeOrchestrator {
             config.sgc_plan_policy,
             config.sgc_plan_path.as_deref(),
         )?;
+        match (&config.world_path, &config.world_manifest_path) {
+            (Some(world), Some(manifest)) => {
+                if config.sgc_plan_policy != cgs_loader::SgcPlanPolicy::RequirePersisted {
+                    anyhow::bail!("compiled world loading requires a persisted SGC plan");
+                }
+                crate::world_loader::bind_compiled_world(world, manifest, &spawn_summary, &mut query_engine)?;
+            },
+            (None,None) => (),
+            _=>anyhow::bail!("world and world manifest must be supplied together"),
+        }
         config.execution_plan_version = spawn_summary.execution_plan_version;
         let phase_plan = spawn_summary.phase_plan.clone();
         let schedule_plan = spawn_summary.schedule_plan.clone();
         let schedule_identity = schedule_plan.identity();
+        let ingress_scheduled = input_ingress::validate_schedule(&schedule_plan).map_err(anyhow::Error::msg)?;
+        if config.live_session && (!ingress_scheduled || config.sgc_plan_policy == cgs_loader::SgcPlanPolicy::DeriveFromCgs) {
+            anyhow::bail!("live session requires a persisted plan with explicit EngineInputSystem ingress");
+        }
+        let pending_input_mutations = input_ingress::PendingInput::default();
         let mut registry = builtin_systems::build_default_registry()?;
+        register_host_systems(&config, &mut registry, &schedule_plan)?;
+        registry.register(Box::new(input_ingress::EngineInputSystem(pending_input_mutations.clone())))
+            .map_err(|e| anyhow::anyhow!("register input ingress: {}", e))?;
         register_runtime_executor_systems(&mut registry, &spawn_summary.runtime_systems)?;
         validate_phase_plan(&phase_plan, &registry)?;
         let determinism_guard = build_determinism_guard(
@@ -865,6 +904,8 @@ impl RuntimeOrchestrator {
             client_prediction_log: Vec::new(),
             bridges: Vec::new(),
             engine_inputs: Vec::new(),
+            pending_input_mutations,
+            preview_tables: None,
             input_synchroniser,
             input_sync_last_trace,
             input_sync_wait_attempts: BTreeMap::new(),
@@ -921,6 +962,7 @@ impl RuntimeOrchestrator {
 
     pub fn tick(&mut self) -> Result<TickResult, XaceError> {
         self.client_prediction_pending.clear();
+        self.pending_input_mutations.lock().expect("input staging lock").clear();
         self.capture_runtime_rollback_snapshot()?;
         self.pump_engine_inbound();
         self.collect_engine_inputs_from_bridge();
@@ -1782,7 +1824,11 @@ impl RuntimeOrchestrator {
         cgs_path: &Path,
         config: RuntimeConfig,
     ) -> Result<RuntimeHotSwapCompatibilityReport> {
-        let candidate = load_hot_swap_candidate(cgs_path, config)?;
+        if self.config.world_path.is_some() || self.config.world_manifest_path.is_some()
+            || config.world_path.is_some() || config.world_manifest_path.is_some() {
+            anyhow::bail!("compiled world ruleset activation requires a staged world migration; direct reload is unavailable");
+        }
+        let candidate = load_hot_swap_candidate(cgs_path, config, self.pending_input_mutations.clone())?;
         Ok(self.classify_hot_swap_candidate(&candidate))
     }
 
@@ -1791,6 +1837,10 @@ impl RuntimeOrchestrator {
         cgs_path: &Path,
         config: RuntimeConfig,
     ) -> Result<RuntimeHotSwapReport> {
+        if self.config.world_path.is_some() || self.config.world_manifest_path.is_some()
+            || config.world_path.is_some() || config.world_manifest_path.is_some() {
+            anyhow::bail!("compiled world ruleset activation requires a staged world migration; direct reload is unavailable");
+        }
         let requested_tick = self.phase_orch.current_tick();
         let pre_snapshot = self
             .world_snapshot()
@@ -1814,7 +1864,7 @@ impl RuntimeOrchestrator {
         let preserved_entity_ids = self.entity_store.get_all_alive();
         let preserved_component_rows = pre_snapshot.component_tables_snapshot.total_row_count();
 
-        let candidate = load_hot_swap_candidate(cgs_path, config)?;
+        let candidate = load_hot_swap_candidate(cgs_path, config, self.pending_input_mutations.clone())?;
         let compatibility = self.classify_hot_swap_candidate(&candidate);
         let migration_hooks = self.resolve_hot_swap_migration_hooks(&compatibility, &candidate)?;
 
@@ -2883,7 +2933,7 @@ impl RuntimeOrchestrator {
         );
         self.rng_interceptor =
             RngInterceptor::new(self.config.world_seed, self.config.determinism_guard_mode);
-        self.query_engine = QueryEngine::new();
+        self.query_engine.invalidate_all();
         self.event_bus = EventBus::new();
         self.mutation_gate = MutationGate::new();
         self.reset_runtime_input_synchroniser();
@@ -3470,7 +3520,14 @@ impl RuntimeOrchestrator {
         let drained = self.feedback_buffer.drain_sorted();
         self.feedback_log.record_tick(tick, drained.clone());
         let attempted = drained.len();
-        let valid = self.feedback_validator.filter_valid(drained);
+        let mut valid = self.feedback_validator.filter_valid(drained);
+        if self.config.live_session {
+            // XP profile owns gameplay geometry; native physics/visibility cannot
+            // become authoritative queued actions even if the payload is valid.
+            use xace_core::wire::feedback_payload::FeedbackType;
+            valid.retain(|message| !matches!(message.feedback_type,
+                FeedbackType::PhysicsSettled | FeedbackType::VisibilityQueryResult));
+        }
         let invalid = attempted.saturating_sub(valid.len());
         let (route_report, errors) = self.feedback_router.route_all_report(valid);
         for err in &errors {
@@ -3490,6 +3547,9 @@ impl RuntimeOrchestrator {
         field_path: &str,
         value: Value,
     ) -> Result<()> {
+        if self.config.live_session {
+            anyhow::bail!("live session rejects legacy preview writes; use an isolated authoring preview and approved GDE transaction");
+        }
         if !self.entity_store.is_alive(entity_id) {
             anyhow::bail!("entity {} is not alive", entity_id);
         }
@@ -3508,15 +3568,23 @@ impl RuntimeOrchestrator {
         let mut component_json: Value = serde_json::from_str(current)
             .map_err(|err| anyhow::anyhow!("component JSON is invalid: {}", err))?;
         set_json_path(&mut component_json, field_path, value)?;
-        self.table_store
-            .update_component(
-                entity_id,
-                component_type_id,
-                serde_json::to_string(&component_json)?,
-                self.phase_orch.current_tick(),
-            )
-            .map_err(|err| anyhow::anyhow!("component update failed: {}", err))?;
+        let mut entities = EntityStore::new();
+        entities.restore_rollback_snapshot(self.entity_store.rollback_snapshot());
+        let mut tables = ComponentTableStore::new();
+        tables.restore_rollback_snapshot(self.table_store.rollback_snapshot());
+        let mut gate = MutationGate::new();
+        gate.request_modify_component(entity_id, component_type_id,
+            serde_json::to_string(&component_json)?, &entities, &tables,
+            self.phase_orch.current_tick()).map_err(|e| anyhow::anyhow!("preview validation: {}", e))?;
+        gate.apply_all(&mut entities, &mut tables, self.phase_orch.current_tick())
+            .map_err(|e| anyhow::anyhow!("preview apply: {}", e))?;
+        self.preview_tables = Some(tables);
         Ok(())
+    }
+
+    /// Read the isolated preview result. Never used by runtime/adapter synchronization.
+    pub fn preview_component_json(&self, entity_id: u64, component_type_id: u32) -> Option<&str> {
+        self.preview_tables.as_ref()?.get_component(entity_id, component_type_id)
     }
 
     fn notify_adapter_side_effect_rollback(
@@ -3623,13 +3691,14 @@ impl RuntimeOrchestrator {
 
         let mut connected_bridges = Vec::with_capacity(self.bridges.len());
         for mut bridge in std::mem::take(&mut self.bridges) {
-            let still_connected = bridge.send_tick(
+            let still_connected = bridge.send_tick_with_events(
                 result.tick,
                 &self.entity_store,
                 &self.table_store,
                 spawned.clone(),
                 destroyed.clone(),
                 playback_commands.to_vec(),
+                crate::engine_protocol::presentation_events(&result.emitted_events),
             );
             if still_connected {
                 self.engine_inputs.extend(bridge.take_input_packets());
@@ -3883,7 +3952,19 @@ impl RuntimeOrchestrator {
         inputs: Vec<xace_network_core::input::InputPacket>,
     ) -> Result<Vec<RuntimeEngineInputApplication>, XaceError> {
         let mut applications = Vec::new();
+        let scheduled = input_ingress::validate_schedule(&self.schedule_plan)
+            .map_err(|e| runtime_input_sync_error(self.phase_orch.current_tick(), e))?;
+        let mut inputs = inputs;
+        inputs.sort_by_key(|p| (p.tick, p.peer_id, p.sequence_id, p.player_id));
         for packet in inputs {
+            let rejection = if !scheduled { Some("input_ingress_not_scheduled") }
+                else if packet.validate().is_err() { Some("invalid_input_packet") }
+                else if self.config.input_sync.mode == RuntimeInputSyncMode::Direct && packet.tick != self.phase_orch.current_tick() { Some("input_tick_mismatch") }
+                else { None };
+            if let Some(reason) = rejection {
+                applications.push(RuntimeEngineInputApplication { packet, applied: false, status: reason.into() });
+                continue;
+            }
             let Some(player_id) = packet.player_id else {
                 applications.push(RuntimeEngineInputApplication {
                     packet,
@@ -3909,25 +3990,17 @@ impl RuntimeOrchestrator {
                 continue;
             }
             self.record_client_prediction_for_packet(&packet, player_id)?;
-            let input_json = runtime_input_component_json(&packet);
-            if self
-                .table_store
-                .has_component(player_id, cgs_loader::type_ids::INPUT)
-            {
-                self.table_store.update_component(
-                    player_id,
-                    cgs_loader::type_ids::INPUT,
-                    input_json,
-                    self.phase_orch.current_tick(),
-                )?;
-            } else {
-                self.table_store.add_component(
-                    player_id,
-                    cgs_loader::type_ids::INPUT,
-                    input_json,
-                    self.phase_orch.current_tick(),
-                )?;
-            }
+            let mut input: serde_json::Value = self.table_store
+                .get_component(player_id, cgs_loader::type_ids::INPUT)
+                .and_then(|raw| serde_json::from_str(raw).ok())
+                .unwrap_or_else(|| json!({}));
+            let projected: serde_json::Value = serde_json::from_str(&runtime_input_component_json(&packet))
+                .expect("input projection is JSON");
+            if let Some(fields) = input.as_object_mut() {
+                fields.extend(projected.as_object().expect("input projection object").clone());
+            } else { input = projected; }
+            self.pending_input_mutations.lock().expect("input staging lock")
+                .insert(player_id, input.to_string());
             applications.push(RuntimeEngineInputApplication {
                 packet,
                 applied: true,
@@ -3939,6 +4012,8 @@ impl RuntimeOrchestrator {
 
     fn reset_runtime_input_synchroniser(&mut self) {
         self.engine_inputs.clear();
+        self.pending_input_mutations.lock().expect("input staging lock").clear();
+        self.preview_tables = None;
         self.input_synchroniser = build_runtime_input_synchroniser(&self.config.input_sync);
         self.input_sync_wait_attempts.clear();
         self.input_sync_last_trace = RuntimeInputSyncTrace {
@@ -3957,6 +4032,9 @@ impl RuntimeOrchestrator {
         connections: Vec<tcp_server::EngineConnection>,
     ) -> Result<()> {
         for conn in connections {
+            let mut bridge_config = self.config.bridge.clone();
+            bridge_config.world_bindings = self.query_engine.geometry_bindings.as_ref()
+                .map(|bindings| bindings.object_entity_ids()).unwrap_or_default();
             let bridge = EngineBridge::handshake_with_config(
                 conn.writer()?,
                 conn.buf_reader()?,
@@ -3966,7 +4044,7 @@ impl RuntimeOrchestrator {
                 &self.entity_store,
                 &self.table_store,
                 self.feedback_buffer.clone(),
-                self.config.bridge.clone(),
+                bridge_config,
             )?;
             self.bridges.push(bridge);
         }
@@ -4406,6 +4484,7 @@ fn runtime_input_component_json(packet: &xace_network_core::input::InputPacket) 
         "crouch_pressed": crouch_pressed,
         "crouch_started": crouch_started,
         "active_actions": active_actions,
+        "actions": packet.actions,
         "sequence_id": packet.sequence_id,
         "peer_id": packet.peer_id,
         "source_tick": packet.tick,
@@ -4490,6 +4569,128 @@ mod tests {
 
     fn input_json(packet: &InputPacket) -> Value {
         serde_json::from_str(&runtime_input_component_json(packet)).unwrap()
+    }
+
+    #[test]
+    fn xp002_input_is_staged_then_committed_only_by_scheduled_gate() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        let id = runtime.spawn_summary.spawned_actors[0].entity_ids[0];
+        let before = runtime.world_snapshot().unwrap().world_hash;
+        let packet = queued_input(1, 0, 1, id);
+        let report = runtime.apply_pending_engine_inputs_from(vec![packet.clone()]).unwrap();
+        assert!(report[0].applied);
+        assert!(!runtime.table_store.has_component(id, cgs_loader::type_ids::INPUT));
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        runtime.engine_inputs.push(packet);
+        let tick = runtime.tick().unwrap();
+        assert!(runtime.table_store.has_component(id, cgs_loader::type_ids::INPUT));
+        assert_eq!(tick.state_delta.added_components.len(), 1);
+        assert_eq!(tick.mutations_applied, 1);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_missing_ingress_rejects_without_creating_component() {
+        let path = write_temp_cgs(legacy_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        let id = runtime.spawn_summary.spawned_actors[0].entity_ids[0];
+        let before = runtime.world_snapshot().unwrap().world_hash;
+        let report = runtime.apply_pending_engine_inputs_from(vec![queued_input(1, 0, 1, id)]).unwrap();
+        assert!(!report[0].applied);
+        assert_eq!(report[0].status, "input_ingress_not_scheduled");
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        assert!(!runtime.table_store.has_component(id, cgs_loader::type_ids::INPUT));
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_invalid_input_and_wrong_tick_leave_state_unchanged() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        let id = runtime.spawn_summary.spawned_actors[0].entity_ids[0];
+        let before = runtime.world_snapshot().unwrap().world_hash;
+        let mut invalid = queued_input(1, 0, 1, id);
+        invalid.actions[0].value = f32::NAN;
+        let report = runtime.apply_pending_engine_inputs_from(vec![invalid, queued_input(1, 99, 2, id)]).unwrap();
+        assert!(report.iter().all(|r| !r.applied));
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        assert!(runtime.pending_input_mutations.lock().unwrap().is_empty());
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_preview_isolated_and_live_session_write_rejected() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        let id = runtime.spawn_summary.spawned_actors[0].entity_ids[0];
+        let before = runtime.world_snapshot().unwrap().world_hash;
+        runtime.set_preview_component_field(id, 1, "position_x", json!(123)).unwrap();
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        let preview: Value = serde_json::from_str(runtime.preview_component_json(id, 1).unwrap()).unwrap();
+        assert_eq!(preview["position_x"], 123);
+        runtime.config.live_session = true;
+        assert!(runtime.set_preview_component_field(id, 1, "position_x", json!(999)).is_err());
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        assert!(runtime.mutation_gate.is_empty());
+        println!("XP002 preview before={} after={}", before, runtime.world_snapshot().unwrap().world_hash);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_native_physics_feedback_cannot_change_live_world() {
+        use xace_core::wire::feedback_payload::{FeedbackMessage, FeedbackType, PhysicsSettledFeedback};
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut runtime = initialise_dev(&path);
+        runtime.config.live_session = true;
+        let id = runtime.spawn_summary.spawned_actors[0].entity_ids[0];
+        let before = runtime.world_snapshot().unwrap().world_hash;
+        runtime.feedback_buffer.append(FeedbackMessage::from_typed_payload(
+            FeedbackType::PhysicsSettled, id, 0, &PhysicsSettledFeedback {
+                entity_id: id, generated_frame: 0,
+                final_position_json: r#"{"x":999,"y":0,"z":0}"#.into(),
+                final_rotation_json: r#"{"x":0,"y":0,"z":0,"w":1}"#.into(),
+            }).unwrap()).unwrap();
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        let report = runtime.process_engine_feedback_at_tick_start();
+        assert_eq!(report.invalid, 1);
+        assert_eq!(report.handled, 0);
+        assert_eq!(runtime.world_snapshot().unwrap().world_hash, before);
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_invalid_ingress_schedule_and_live_derived_plan_reject() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let runtime = initialise_dev(&path);
+        for variant in 0..4 {
+            let mut plan = runtime.schedule_plan.clone();
+            let group = plan.groups.iter_mut().find(|g| g.systems.iter().any(|s| s == input_ingress::SYSTEM_ID)).unwrap();
+            match variant {
+                0 => group.parallel = true,
+                1 => group.phase = "Simulation".into(),
+                2 => group.systems.push("InjectedSystem".into()),
+                _ => plan.system_access.get_mut(input_ingress::SYSTEM_ID).unwrap().writes.clear(),
+            }
+            assert!(input_ingress::validate_schedule(&plan).is_err());
+        }
+        let mut config = dev_config();
+        config.live_session = true;
+        assert!(RuntimeOrchestrator::initialise_with_config(&path, config).is_err());
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn xp002_reordered_packets_produce_identical_tick_hashes() {
+        let path = write_temp_cgs(valid_cgs_with_semantic_bindings());
+        let mut a = initialise_dev(&path);
+        let mut b = initialise_dev(&path);
+        let id = a.spawn_summary.spawned_actors[0].entity_ids[0];
+        let packets = vec![queued_input(2, 0, 1, id), queued_input(1, 0, 1, id)];
+        a.engine_inputs = packets.clone();
+        b.engine_inputs = packets.into_iter().rev().collect();
+        assert_eq!(a.tick().unwrap().world_hash, b.tick().unwrap().world_hash);
+        let _ = std::fs::remove_file(path);
     }
 
     fn dev_config() -> RuntimeConfig {
@@ -6345,6 +6546,15 @@ mod tests {
     }
 
     #[test]
+    fn input_projection_preserves_arbitrary_action_values_and_metadata() {
+        let mut action = InputAction::axis("project.docking_thrust.v1", 0.25);
+        action.metadata.insert("project.port.v1".into(), "socket_b".into());
+        let packet = InputPacket::with_actions(1, 0, 1, vec![action.clone()]);
+        let value = input_json(&packet);
+        assert_eq!(value["actions"], serde_json::to_value(vec![action]).unwrap());
+    }
+
+    #[test]
     fn runtime_input_component_accepts_semantic_button_actions() {
         let packet = InputPacket::with_actions(
             7,
@@ -6442,6 +6652,24 @@ mod tests {
     }
 
     fn valid_cgs_with_semantic_bindings() -> String {
+        with_input_ingress(legacy_cgs_with_semantic_bindings())
+    }
+
+    fn with_input_ingress(raw: String) -> String {
+        let mut cgs: Value = serde_json::from_str(&raw).unwrap();
+        cgs["global_systems"].as_array_mut().unwrap().push(json!({
+            "id": "EngineInputSystem", "phase": "Input", "reads": [], "writes": [6],
+            "depends_on": [], "deterministic": true
+        }));
+        for system in cgs["global_systems"].as_array_mut().unwrap() {
+            if system["phase"] == "Input" && system["id"] != "EngineInputSystem" {
+                system["depends_on"].as_array_mut().unwrap().push(json!("EngineInputSystem"));
+            }
+        }
+        cgs.to_string()
+    }
+
+    fn legacy_cgs_with_semantic_bindings() -> String {
         r#"
         {
           "metadata": {"name": "Runtime Semantic Binding Test", "version": "0.1.0", "schema_version": "0.1.0", "cgs_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
@@ -6619,7 +6847,11 @@ mod tests {
         )
     }
 
-    fn cgs_with_prediction_movement_runtime_systems(
+    fn cgs_with_prediction_movement_runtime_systems(hash: &str, speed: i64, acceleration: i64) -> String {
+        with_input_ingress(legacy_cgs_with_prediction_movement_runtime_systems(hash, speed, acceleration))
+    }
+
+    fn legacy_cgs_with_prediction_movement_runtime_systems(
         cgs_hash: &str,
         velocity_x_microunits: i64,
         bounds_max_x_microunits: i64,
@@ -7483,6 +7715,7 @@ struct RuntimeHotSwapSystemSignature {
 fn load_hot_swap_candidate(
     cgs_path: &Path,
     mut config: RuntimeConfig,
+    pending_input_mutations: input_ingress::PendingInput,
 ) -> Result<RuntimeHotSwapCandidate> {
     let mut scratch_entity_store = EntityStore::new();
     let mut scratch_table_store = ComponentTableStore::new();
@@ -7497,7 +7730,14 @@ fn load_hot_swap_candidate(
     let phase_plan = summary.phase_plan.clone();
     let schedule_plan = summary.schedule_plan.clone();
     let identity = schedule_plan.identity();
+    let ingress_scheduled = input_ingress::validate_schedule(&schedule_plan).map_err(anyhow::Error::msg)?;
+    if config.live_session && (!ingress_scheduled || config.sgc_plan_policy == cgs_loader::SgcPlanPolicy::DeriveFromCgs) {
+        anyhow::bail!("live session requires a persisted plan with explicit EngineInputSystem ingress");
+    }
     let mut registry = builtin_systems::build_default_registry()?;
+    register_host_systems(&config, &mut registry, &schedule_plan)?;
+    registry.register(Box::new(input_ingress::EngineInputSystem(pending_input_mutations)))
+        .map_err(|e| anyhow::anyhow!("register input ingress: {}", e))?;
     register_runtime_executor_systems(&mut registry, &summary.runtime_systems)?;
     validate_phase_plan(&phase_plan, &registry)?;
 
@@ -7668,6 +7908,27 @@ fn apply_hot_swap_component_table_additions(
     Ok(added)
 }
 
+fn register_host_systems(
+    config: &RuntimeConfig,
+    registry: &mut SystemRegistry,
+    plan: &cgs_loader::RuntimeSchedulePlan,
+) -> Result<()> {
+    let before: BTreeSet<String> = registry.all_system_ids().into_iter().map(str::to_owned).collect();
+    if let Some(register) = config.register_host_systems { (register.0)(registry)?; }
+    for id in registry.all_system_ids() {
+        if before.contains(id) { continue; }
+        if let Some(access) = plan.system_access.get(id) {
+            let system = registry.get(id).expect("registered system");
+            let mut reads = system.declared_reads().to_vec(); reads.sort_unstable(); reads.dedup();
+            let mut writes = system.declared_writes().to_vec(); writes.sort_unstable(); writes.dedup();
+            if reads != access.reads || writes != access.writes {
+                anyhow::bail!("host system '{}' access contract differs from persisted SGC plan", id);
+            }
+        }
+    }
+    Ok(())
+}
+
 fn register_runtime_executor_systems(
     registry: &mut SystemRegistry,
     systems: &[cgs_loader::CgsSystem],
@@ -7737,4 +7998,37 @@ fn build_determinism_guard(
         .collect::<Vec<_>>();
     guard.register_systems(&system_ids);
     guard
+}
+
+#[cfg(test)]
+mod packaged_world_tests {
+    use super::*;
+    fn paths() -> (PathBuf,RuntimeConfig) {
+        let root=Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/playable_package_v1");
+        let config=RuntimeConfig { sgc_plan_path:Some(root.join("execution_plan.json")),world_path:Some(root.join("world.json")),
+            world_manifest_path:Some(root.join("world.manifest.json")),..RuntimeConfig::default() };
+        (root.join("game.cgs.json"),config)
+    }
+    #[test]
+    fn packaged_world_bindings_survive_exact_snapshot_restore() {
+        let (cgs,config)=paths();let mut runtime=RuntimeOrchestrator::initialise_with_config(&cgs,config).unwrap();
+        let ship=runtime.spawn_summary.spawned_actors.iter().find(|a|a.actor_id=="spaceship").unwrap().entity_ids[1];
+        let objects=runtime.query_engine.geometry_bindings.as_ref().unwrap().semantic_objects(ship);
+        assert_eq!(objects.len(),2);
+        let before=runtime.world_snapshot().unwrap();let expected=runtime.tick().unwrap().world_hash;
+        runtime.restore_world_snapshot(&before).unwrap();
+        assert_eq!(runtime.query_engine.geometry_bindings.as_ref().unwrap().semantic_objects(ship),objects);
+        assert_eq!(runtime.tick().unwrap().world_hash,expected);
+    }
+    #[test]
+    fn incomplete_world_artifact_pair_and_direct_reload_fail_without_activation() {
+        let (cgs,config)=paths();let mut bad=config.clone();bad.world_manifest_path=None;
+        assert!(RuntimeOrchestrator::initialise_with_config(&cgs,bad).is_err());
+        let mut derived=config.clone();derived.sgc_plan_policy=cgs_loader::SgcPlanPolicy::DeriveFromCgs;derived.sgc_plan_path=None;
+        assert!(RuntimeOrchestrator::initialise_with_config(&cgs,derived).is_err());
+        let mut runtime=RuntimeOrchestrator::initialise_with_config(&cgs,config.clone()).unwrap();
+        let before=runtime.world_snapshot().unwrap();
+        assert!(runtime.hot_swap_cgs_at_tick_boundary(&cgs,config).is_err());
+        assert_eq!(serde_json::to_value(before).unwrap(),serde_json::to_value(runtime.world_snapshot().unwrap()).unwrap());
+    }
 }

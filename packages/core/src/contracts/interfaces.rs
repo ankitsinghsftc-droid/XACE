@@ -106,6 +106,50 @@ pub trait ISystem: Send + Sync {
 /// This is the primary enforcement boundary for access control —
 /// attempting to access an undeclared component returns an error.
 pub trait ISystemContext {
+    /// Immutable schema-validated semantic objects; runtime state stays in components.
+    fn world_objects_v3(
+        &self,
+        _entity_id: EntityID,
+    ) -> Result<Vec<crate::world::v3::SemanticObject>, XaceError> {
+        Err(XaceError::ValidationFailure {
+            message: "semantic world v3 unavailable".into(),
+            context: crate::errors::xace_error::ErrorContext::new(
+                "ISystemContext",
+                "world_objects_v3",
+            ),
+            rule_violated: "WorldBindings".into(),
+            failed_path: "world_objects_v3".into(),
+        })
+    }
+    /// Immutable package-declared world semantics. No gameplay interpretation in core.
+    fn world_capabilities_v1(&self, _entity_id: EntityID) -> Result<Vec<String>, XaceError> {
+        Err(XaceError::ValidationFailure {
+            message: "world semantic bindings unavailable".into(),
+            context: crate::errors::xace_error::ErrorContext::new(
+                "ISystemContext",
+                "world_capabilities_v1",
+            ),
+            rule_violated: "WorldBindings".into(),
+            failed_path: "world_capabilities_v1".into(),
+        })
+    }
+
+    /// Versioned authoritative geometry reads. Implementations without support fail closed.
+    fn geometry_query_v1(
+        &mut self,
+        _query: &crate::geometry::GeometryQueryV1,
+    ) -> Result<crate::geometry::GeometryResultV1, XaceError> {
+        Err(XaceError::ValidationFailure {
+            message: "geometry query v1 is unsupported by this context".into(),
+            context: crate::errors::xace_error::ErrorContext::new(
+                "ISystemContext",
+                "geometry_query_v1",
+            ),
+            rule_violated: "XP-004".into(),
+            failed_path: "geometry_query_v1".into(),
+        })
+    }
+
     /// Reads a component for the given entity.
     /// Returns error if component_type_id was not declared in reads.
     /// Returns None if the entity does not have this component.

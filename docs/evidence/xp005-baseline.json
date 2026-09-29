@@ -1,0 +1,429 @@
+{
+  "schema": "xace.xp005.baseline.v1",
+  "date": "2026-09-25",
+  "task": "XP-005",
+  "acceptance": "Reference Mechanic Proof and generic capability prerequisite satisfied",
+  "recommendation": "READY FOR XP-006",
+  "xp006_started": false,
+  "platform": "Windows-10-10.0.26200-SP0",
+  "task_files": [
+    "Cargo.lock",
+    "Cargo.toml",
+    "MASTER_PLAN.md",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+    "docs/XP005_COMPLETION.md",
+    "docs/adr/XP-005-reference-mechanic.md",
+    "docs/evidence/xp005-baseline.json",
+    "docs/source_inventory.json",
+    "examples/reference-mechanic/Cargo.toml",
+    "examples/reference-mechanic/README.md",
+    "examples/reference-mechanic/catalog.json",
+    "examples/reference-mechanic/fixtures/execution_plan.json",
+    "examples/reference-mechanic/fixtures/game.cgs.json",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/execution_plan.json",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/game.cgs.json",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/world.json",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/world.manifest.json",
+    "examples/reference-mechanic/fixtures/world.json",
+    "examples/reference-mechanic/fixtures/world.manifest.json",
+    "examples/reference-mechanic/src/lib.rs",
+    "examples/reference-mechanic/tests/proof.rs",
+    "packages/builder-workspace/server/tests/test_world_contract.py",
+    "packages/core/src/contracts/interfaces.rs",
+    "packages/core/src/wire/session_contract.rs",
+    "packages/core/src/world/mod.rs",
+    "packages/core/tests/fixtures/session_contract_v2/authority.canonical.json",
+    "packages/core/tests/fixtures/session_contract_v2/game.cgs.json",
+    "packages/core/tests/fixtures/session_contract_v2/golden_vectors.json",
+    "packages/core/tests/fixtures/session_contract_v2/persisted_plan.json",
+    "packages/core/tests/fixtures/world_contract_v2/malformed_vectors.json",
+    "packages/core/tests/fixtures/world_contract_v2/manifest.json",
+    "packages/core/tests/fixtures/world_contract_v2/source.cgs.json",
+    "packages/core/tests/fixtures/world_contract_v2/world.canonical.json",
+    "packages/core/tests/test_session_contract.rs",
+    "packages/core/tests/test_world_contract.rs",
+    "packages/runtime-core/src/geometry.rs",
+    "packages/runtime-core/src/phase_orchestrator/system_context.rs",
+    "packages/runtime-core/tests/test_geometry_v1.rs",
+    "packages/schema-factory/src/world_contract.py",
+    "tools/xp003_world_proof.py",
+    "tools/xp005_reference_proof.py"
+  ],
+  "source_sha256": {
+    "Cargo.lock": "ca16e960fcdd11c343d6c5c319930d9661be61a7bb17b3716bddd706bc9390b3",
+    "Cargo.toml": "549dac1994642235bda5a6f8e64498ea1006d67529e76da3837ff3a425cd24d6",
+    "MASTER_PLAN.md": "52740bc2db412eba3f6723c959cc870be19af7a09b2b936666dd96d68cf1f269",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "d3035d77a33693afcf649837c3aee962bc62c99670c0880d4d8e99161d958292",
+    "docs/XP005_COMPLETION.md": "adf55dba326a78f503a333d8b2630d9417ef754c0d73ef53daea0dba7994c1f0",
+    "docs/adr/XP-005-reference-mechanic.md": "c2e808688f73d745eaf74e596882bcdb646a1f412537e77d4f186f6322857532",
+    "docs/source_inventory.json": "0470d8b7e16308e033e497ab40e36bb9d0773b08a10a5ac22eb046ae54d72369",
+    "examples/reference-mechanic/Cargo.toml": "4be2a0ffa4bd4d001f8641a55c1063f97fe5426a77d21b301d280218801c46f9",
+    "examples/reference-mechanic/README.md": "56483effff74335fe0c5cbb5ca588e2e27454c202b880e84e329205a4523a4d5",
+    "examples/reference-mechanic/catalog.json": "84b25cc4066cb7a2802c4666480afbbcbc9fc820bb4d9ca0a86e9714de741a53",
+    "examples/reference-mechanic/fixtures/execution_plan.json": "151503214f057096488fa19782a13187c969cc6bb37374df4d532544207a9b8d",
+    "examples/reference-mechanic/fixtures/game.cgs.json": "2a30c5b807a5bdffb579c59f6ca14c77ddb35e7f9b8183f9c74b065385552d9c",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/execution_plan.json": "e1e390c7bca562764eee241fc660f0d4445fd2941148a09fbd62c44d0fde5282",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/game.cgs.json": "aa895e9c02e75b11991d7fc08418cb1994df23db776b5b533255926b153d153f",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/world.json": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+    "examples/reference-mechanic/fixtures/reversal_shockwave/world.manifest.json": "2ff727150730b43090bbcb6ebf3743550947dd00b2183dbc7806f647d2c03565",
+    "examples/reference-mechanic/fixtures/world.json": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+    "examples/reference-mechanic/fixtures/world.manifest.json": "27e3c0e7f0dc975141fc11fa03a62117b018d0094f66300a359063c9ed8ff1e5",
+    "examples/reference-mechanic/src/lib.rs": "64ab59610bf2ec3d7123df320ff5800c553df2a4bef2161010d87f6665c08214",
+    "examples/reference-mechanic/tests/proof.rs": "c616fd06d23b23493c47b7132c844a6c0c7fd129bba8bc7426243427411a1149",
+    "packages/builder-workspace/server/tests/test_world_contract.py": "da5c23994ab856639b20f221cb8c173d609bfca0cb5cda5b37899c01505264d0",
+    "packages/core/src/contracts/interfaces.rs": "212a9e61855ea8aa760d6a09079b1726e51da8427e9f4dc0baea66b220d52148",
+    "packages/core/src/wire/session_contract.rs": "e41f02ac80b3608d8e9aab2e1f645a18559bd7ce470b1d09df463eabca7b8e99",
+    "packages/core/src/world/mod.rs": "5727b8d6a2cca312faa6f519e4f87db82af8e86f136b06e3e94e1662cbde8bb8",
+    "packages/core/tests/fixtures/session_contract_v2/authority.canonical.json": "0ba7b6f2c90b135b4c09355dd07a27b4f7d26e7bf8a39af05162911cc7a81efe",
+    "packages/core/tests/fixtures/session_contract_v2/game.cgs.json": "8c6fef7b97473cbfee71c340e57b6da9e3f4019b0f57c82a24e14b79b0410364",
+    "packages/core/tests/fixtures/session_contract_v2/golden_vectors.json": "43de723f6beaa695b1dde42fc13a493c18ad118f8332eb4ee1163d5d9b1fb0aa",
+    "packages/core/tests/fixtures/session_contract_v2/persisted_plan.json": "654b7bb7f9585dc4fe07281c6e2e33573f6c970aa3b9a7b706af9fc33629d353",
+    "packages/core/tests/fixtures/world_contract_v2/malformed_vectors.json": "efdb4ca53b16d9b8598bc376750645d928398460260c96f96e2245a3d935fa2a",
+    "packages/core/tests/fixtures/world_contract_v2/manifest.json": "8ad726b770d2637f4324b8a5eaf5015f5be3bd01f1f7e499a41dd8a46a783a36",
+    "packages/core/tests/fixtures/world_contract_v2/source.cgs.json": "2a96f0063f78434a64662f0441b85374e2c27183ced8feeb69d68b6bfc9b7de5",
+    "packages/core/tests/fixtures/world_contract_v2/world.canonical.json": "4b3a52754cec5c6e3cd95174c044b7be02dd1313b3213707e77ef5c5a9538c83",
+    "packages/core/tests/test_session_contract.rs": "655bf62f1b17de2b818c1dbf16a7edd235743c9eefe2ace140962a2817c50884",
+    "packages/core/tests/test_world_contract.rs": "3d824bb1100319e8986703558f94c628070e5252df7aaff367436a242a7bc381",
+    "packages/runtime-core/src/geometry.rs": "dc3cd7a938b09144edc30e759bee548e02b0630f4da79a0eb9c037c6b5364e86",
+    "packages/runtime-core/src/phase_orchestrator/system_context.rs": "43ba0c05967b0f78329c2c0493079faa3c6945ba8fdffc64320a29608cfb27fd",
+    "packages/runtime-core/tests/test_geometry_v1.rs": "35bdf16efdb16aee7bf780a444467fe901e4cefb8d9b21e543948b8d50b2a83e",
+    "packages/schema-factory/src/world_contract.py": "4efb00068f626c1e5dbb0ba02f8c4bca48da81a6367d3f5d9b358abfc11982f1",
+    "tools/xp003_world_proof.py": "c0aaa217335045aa77d67cfadf87e72602ed9f579a5798925cbb5d3fffaa423b",
+    "tools/xp005_reference_proof.py": "3b93a169ff907645a8c10c23de91941ab9b2ca933c7f2f651933f00d06ad4a1a"
+  },
+  "verification": {
+    "rust": {
+      "tmp/xp005-rust.log": {
+        "passed": 1934,
+        "failed": 0,
+        "ignored": 0,
+        "result_groups": 37
+      },
+      "tmp/xp005-contracts-final.log": {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0,
+        "result_groups": 2
+      },
+      "tmp/xp005-reference-final.log": {
+        "passed": 9,
+        "failed": 0,
+        "ignored": 0,
+        "result_groups": 3
+      }
+    },
+    "overlapping_counts_not_summed": true,
+    "python": {
+      "passed": 1135,
+      "failed": 0,
+      "suites": {
+        "schema-factory": 127,
+        "gde": 200,
+        "project-system": 11,
+        "asset-registry": 207,
+        "dcl": 14,
+        "inference": 233,
+        "builder-server": 343
+      }
+    },
+    "compiled_policy_artifacts": {
+      "schema": "xace.xp005.reference_compilation.v1",
+      "ok": true,
+      "variants": {
+        "disabled": {
+          "schema": "xace.xp005.reference_compilation.v1",
+          "ok": true,
+          "cgs_hash": "a0d6d026a46ee1996c6cebfee5c1a4e187c22f6bdadd7d8735e7f66e101b8968",
+          "plan_hash": "6b37998444aa24a64b335665b838b40648347d24046df4956e29aaf2a6fa83ce",
+          "files": {
+            "game.cgs.json": "2a30c5b807a5bdffb579c59f6ca14c77ddb35e7f9b8183f9c74b065385552d9c",
+            "execution_plan.json": "151503214f057096488fa19782a13187c969cc6bb37374df4d532544207a9b8d",
+            "world.json": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+            "world.manifest.json": "27e3c0e7f0dc975141fc11fa03a62117b018d0094f66300a359063c9ed8ff1e5"
+          },
+          "scope": "real Factory/SGC fixture compilation; Rust package replay tested separately"
+        },
+        "reversal_shockwave": {
+          "schema": "xace.xp005.reference_compilation.v1",
+          "ok": true,
+          "cgs_hash": "00a94bb715416c99f049ced2eeed1a194006b861576b4f8c044f44e71f6862d8",
+          "plan_hash": "12a6d66fe196833291b32b44bc2087494f2a2f5ab76c9ecfb297f1a204edc75d",
+          "files": {
+            "game.cgs.json": "aa895e9c02e75b11991d7fc08418cb1994df23db776b5b533255926b153d153f",
+            "execution_plan.json": "e1e390c7bca562764eee241fc660f0d4445fd2941148a09fbd62c44d0fde5282",
+            "world.json": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+            "world.manifest.json": "2ff727150730b43090bbcb6ebf3743550947dd00b2183dbc7806f647d2c03565"
+          },
+          "scope": "real Factory/SGC fixture compilation; Rust package replay tested separately"
+        }
+      }
+    },
+    "replay_full_events_and_hashes": {
+      "Disabled": [
+        [
+          "d864c9e88bc4fdf74cb6698f38e53c8dffbb14f6926ec19b61e5567a8eb2ff6d",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 0,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.wall_jump.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "1"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "3811cb5982bd11cd58cf8d38b84259bdfb19e4a270b0603279c307b12cb999cb",
+          []
+        ],
+        [
+          "ab72d8e7cb0210521f86e1e56de63dcb5f4dd8649675bf3bf2d4036a0dcee099",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 2,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.wall_jump.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "ef3c1e5990c4d3ac34198a27287bf91f8a6d62f8fe7facc4dbaaa0588a38844c",
+          []
+        ],
+        [
+          "a488c6eb1fbb38c45c6db41b65cebf439e7e88371cd807315bbe4acdf06a5c60",
+          []
+        ],
+        [
+          "59f4772cd9350b9132aa9fcd902c6d0bcf419c7e23f7b3017e47af52d48f7b0a",
+          []
+        ],
+        [
+          "75bb4c34d7ccf42554b84823090d49e6112565d3f001246a38e2121067aa3008",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 6,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.jump_denied.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "80bf869f748222dc586bad4b80ba88c537055ec5e5724936d5da1cdc91feb444",
+          []
+        ],
+        [
+          "a40caeeb77d464bffe65b4ee5dc5023a05a8710f5b1fa71883399f13fbe47e99",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 8,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.jump_denied.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "296a9f344a142c42471201ff4a07807045c6e7a3ec26138d0d658013fb10073b",
+          []
+        ]
+      ],
+      "ReversalShockwave": [
+        [
+          "2d60903430df07f66d89d61e9acb0ceab31e15d28c7106c7f2be47b3c7fedd88",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 0,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.wall_jump.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "1"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "c413c70ea03192f2ecff94294a598b355e5dbbe6df29d0a7cd9d6162a9aa5028",
+          []
+        ],
+        [
+          "22f872ae55bf593edac6601a451afe70dd05a7c554cab13d6100f9223fd2e7e8",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 2,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.wall_jump.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "ce57e6c91bb732834a8bb51ccf99bb2bc67be8cb35913903fa0e42eac110d0c9",
+          []
+        ],
+        [
+          "757e72e0e5d139f66a8db66a439f6d45a78cb2f3515f0f8a5dc2dc8f45ad38d9",
+          []
+        ],
+        [
+          "f9770c3b9ef0ae0925a32264ab9ee3fef22d48289a2417d32b1172929b6a5f40",
+          []
+        ],
+        [
+          "22fc72940bdab6152b91107f0a3787c11ab0d4aa945080718694801b5d45a92a",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 6,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.third_attempt.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            },
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 6,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.shockwave.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            },
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 6,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.shockwave_hit.v1"
+              },
+              "is_consumed": false,
+              "payload": {},
+              "source_entity_id": 3,
+              "target_entity_id": 4
+            }
+          ]
+        ],
+        [
+          "898fdf63a88e3ef3aaf93726e705875565c3cc999e853ee6abb070168786f6d8",
+          []
+        ],
+        [
+          "a5e6539cb6a33cc0fec232bfa6e0f607a6884447376fc044feef7a84d2ce8515",
+          [
+            {
+              "creation_phase": "Simulation",
+              "creation_tick": 8,
+              "event_id": 0,
+              "event_type": {
+                "Domain": "reference.jump_denied.v1"
+              },
+              "is_consumed": false,
+              "payload": {
+                "chain": "2"
+              },
+              "source_entity_id": 3,
+              "target_entity_id": 0
+            }
+          ]
+        ],
+        [
+          "eeed5917cfc427133cf396ea3a44c17b64b0d717b0de422b3db2b9d472e88ccf",
+          []
+        ]
+      ]
+    },
+    "source_inventory_prior_issues_unchanged": 31,
+    "historical_world_v1_files_byte_identical": [
+      "packages/core/tests/fixtures/world_contract_v1/source.cgs.json",
+      "packages/core/tests/fixtures/world_contract_v1/world.canonical.json",
+      "packages/core/tests/fixtures/world_contract_v1/manifest.json",
+      "packages/core/tests/fixtures/world_contract_v1/malformed_vectors.json"
+    ],
+    "mechanic_names_absent_from_changed_core_capability_and_geometry_implementation": true,
+    "scoped_diff_check": "passed"
+  },
+  "log_sha256": {
+    "tmp/xp005-rust.log": "f9ec393949126f74438c5c48e232f69e8d5fbaf928ca687b4ab401e364230b9b",
+    "tmp/xp005-contracts-final.log": "96d019a6facd8a8738f52d3fc93e34ad8a0e879cb486d0ba7d058f45ae589e9a",
+    "tmp/xp005-reference-final.log": "97ba290195b12760c22ecfe6f04068bc6246ad313b959783d3365e1b9d310e70",
+    "tmp/xp005-python.json": "726df3cbf01d4c031cca9bd2d41c720797a8e0e370cbfaf15c2f6fe8bf21b7b5",
+    "tmp/xp005-compile-verified.json": "912f188ca746c0527617489f671111f5f7303fa9313eb9eec3292f0c83d4d239",
+    "tmp/xp005-world-final.json": "47c16f6f85e8360ab772205c713d0dd2e033f5872c85187799b5d5b6c582ba3b"
+  },
+  "compatibility": {
+    "world_contract": 2,
+    "world_manifest_container": 1,
+    "semantic_declarations": "namespaced package-owned IDs with data-driven role constraints",
+    "session_contract_schema": 1,
+    "new_optional_session_field": "semantic_capabilities",
+    "legacy_worlds": "explicit recompile required; original fixture bytes retained",
+    "semantic_admission": "compare_session_with_world verifies digest, mode, version and used semantic set; metadata-only comparison remains metadata-only"
+  },
+  "limits": [
+    "Local Windows x64 offline proof only",
+    "Explicit ordinary example ISystem registration; no default-runtime dynamic package discovery",
+    "No new additional mechanic or gameplay-specific core/network/adapter branch",
+    "No native-engine or multiplayer or provider certification",
+    "Both policies compiled independently; future tick-N activation is not implemented",
+    "No maximum-size throughput certification; geometry uses sampled canonical state",
+    "Prior XP-002 legacy migration restrictions retained"
+  ]
+}

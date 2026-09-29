@@ -61,6 +61,7 @@ BUILTIN_SYSTEM_CONTRACTS: dict[str, tuple[str, tuple[int, ...], tuple[int, ...]]
 }
 
 _OPERATION_KEYS: dict[str, tuple[set[str], set[str]]] = {
+    "install_gameplay_package": ({"operation_id", "kind", "explanation", "package_id", "package_hash", "mode_id", "actor_ids", "capability_targets", "template_id", "configuration_id"}, set()),
     "declare_component": (
         {"operation_id", "kind", "explanation", "component_type_id", "component_name", "version", "fields"},
         {"source"},
@@ -115,6 +116,33 @@ class TypedOperationExecutionResult:
 
 class TypedOperationExecutor:
     """Validate and apply all operations to one isolated CGS copy."""
+
+    def __init__(self, gameplay_catalog=None):
+        self.gameplay_catalog = gameplay_catalog
+
+    def _apply_install_gameplay_package(self, cgs, op):
+        from .gameplay_catalog import CatalogError
+        if self.gameplay_catalog is None:
+            raise TypedOperationExecutionError("No gameplay authoring catalog registered by host")
+        for key in ("package_id", "mode_id", "configuration_id"):
+            _identifier(op.get(key), key)
+        if not isinstance(op.get("package_hash"), str) or not re.fullmatch(r"[0-9a-f]{64}", op["package_hash"]):
+            raise TypedOperationExecutionError("invalid package_hash")
+        if op.get("template_id"):
+            _identifier(op["template_id"], "template_id")
+        elif op.get("template_id") != "":
+            raise TypedOperationExecutionError("template_id must be a string")
+        _identifier_list(op.get("actor_ids"), "actor_ids")
+        for target in _list(op.get("capability_targets"), "capability_targets"):
+            _exact_keys(_mapping(target, "capability target"), {"capability_id", "object_ids"}, set(), "capability target")
+            _identifier(target["capability_id"], "capability_id")
+            _identifier_list(target["object_ids"], "object_ids")
+        try:
+            proposed = self.gameplay_catalog.apply(cgs, op)
+        except (CatalogError, KeyError, TypeError, ValueError) as exc:
+            raise TypedOperationExecutionError(str(exc)) from exc
+        cgs.clear()
+        cgs.update(proposed)
 
     def execute(
         self,

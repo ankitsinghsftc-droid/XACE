@@ -1,4 +1,4 @@
-"""Read-only, provider-neutral MCP bridge for XACE Agent Mode.
+"""Provider-neutral MCP bridge for XACE Agent Mode.
 
 The bridge owns the MCP-shaped tool protocol and delegates every invocation to
 ``XaceToolSurface``.  It deliberately exposes no resources, prompts, shell,
@@ -25,6 +25,8 @@ from .tool_surface import (
     AGENT_TOOL_CALL_RESULT_SCHEMA,
     AGENT_TOOL_SURFACE_SCHEMA,
     READ_ONLY_XACE_TOOL_NAMES,
+    XACE_TOOL_NAMES,
+    PROPOSAL_XACE_TOOL_NAMES,
     XaceToolCallRequest,
     XaceToolCallResult,
     XaceToolSurface,
@@ -65,18 +67,21 @@ class XaceMcpToolContext:
         tools = tuple(str(item or "").strip() for item in self.allowed_tools)
         if not tools:
             tools = READ_ONLY_XACE_TOOL_NAMES
-        unsupported = sorted(set(tools).difference(READ_ONLY_XACE_TOOL_NAMES))
+        unsupported = sorted(set(tools).difference(XACE_TOOL_NAMES))
         if unsupported:
             raise XaceMcpBridgeError(
-                "XACE MCP context may only allow read-only XACE tools: "
+                "XACE MCP context may only allow XACE contract tools: "
                 + ", ".join(unsupported)
             )
         object.__setattr__(self, "allowed_tools", tuple(sorted(set(tools))))
 
 
 class XaceMcpToolBridge:
-    """Serve XACE's stable read-only tool contract over MCP or a safe fallback."""
+    """Serve XACE tools over native MCP or an explicit development fallback.
 
+    A session may opt into the one preview-only proposal action; it is not a project-write capability.
+
+    """
     def __init__(
         self,
         surface: XaceToolSurface,
@@ -98,7 +103,7 @@ class XaceMcpToolBridge:
     def tool_names(self) -> tuple[str, ...]:
         return tuple(
             tool_name
-            for tool_name in READ_ONLY_XACE_TOOL_NAMES
+            for tool_name in self.surface.tool_names
             if tool_name in self.context.allowed_tools
         )
 
@@ -109,8 +114,10 @@ class XaceMcpToolBridge:
             "schema": AGENT_MCP_BRIDGE_SCHEMA,
             "server_name": self.server_name,
             "preferred_transport": ToolTransport.MCP.value,
-            "codex_fallback_transport": "app_server_dynamic_tools",
-            "read_only": True,
+            "codex_transport": "native_mcp_stdio",
+            "codex_fallback_transport": "app_server_dynamic_tools_explicit_only",
+            "read_only": all(spec.read_only for spec in self._tool_specs()),
+            "proposal_preview_only": bool(set(self.tool_names).intersection(PROPOSAL_XACE_TOOL_NAMES)),
             "tools": list(self.tool_names),
             "resources": False,
             "prompts": False,
@@ -140,10 +147,7 @@ class XaceMcpToolBridge:
             {
                 "type": "namespace",
                 "name": self.server_name,
-                "description": (
-                    "Read-only XACE Builder project context. Use these tools instead "
-                    "of shell, filesystem, credential, project-write, or runtime-write tools."
-                ),
+                "description": "XACE Builder context plus preview-only typed proposal submission; no files, shell, GDE, or runtime mutation.",
                 "tools": tools,
             }
         ]
@@ -258,7 +262,7 @@ def _mcp_tool_descriptor(spec: AgentToolSpec) -> dict[str, JsonValue]:
         "description": spec.description,
         "inputSchema": dict(spec.input_schema),
         "annotations": {
-            "readOnlyHint": True,
+            "readOnlyHint": spec.read_only,
             "destructiveHint": False,
             "openWorldHint": False,
         },
@@ -266,6 +270,7 @@ def _mcp_tool_descriptor(spec: AgentToolSpec) -> dict[str, JsonValue]:
             "xace_schema": AGENT_TOOL_SURFACE_SCHEMA,
             "permission": spec.permission.value,
             "transport": ToolTransport.MCP.value,
+            "proposal_preview_only": not spec.read_only,
         },
     }
 
@@ -280,7 +285,7 @@ def _mcp_tool_result(result: XaceToolCallResult) -> dict[str, JsonValue]:
             "xace_schema": AGENT_TOOL_CALL_RESULT_SCHEMA,
             "call_id": result.call_id,
             "status": result.status,
-            "read_only": True,
+            "read_only": result.read_only,
         },
     }
 
@@ -302,12 +307,13 @@ def _codex_dynamic_error(message: str) -> dict[str, JsonValue]:
 
 
 def _jsonrpc_result(request_id: Any, result: Mapping[str, Any]) -> dict[str, JsonValue]:
-    return _json_object({"id": request_id, "result": dict(result)})
+    return _json_object({"jsonrpc": "2.0", "id": request_id, "result": dict(result)})
 
 
 def _jsonrpc_error(request_id: Any, code: int, message: str) -> dict[str, JsonValue]:
     return _json_object(
         {
+            "jsonrpc": "2.0",
             "id": request_id,
             "error": {"code": code, "message": redact_text(message)},
         }

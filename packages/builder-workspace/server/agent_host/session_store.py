@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import contextlib
 from collections.abc import Iterable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass, field
@@ -276,6 +277,7 @@ class AgentSessionStore:
         self.audit_path = (
             self.store_dir / AGENT_SESSION_AUDIT_FILENAME if audit_jsonl else None
         )
+        self._last_operation_failed = False
         self._initialize()
 
     def upsert_session(self, session: AgentStoredSession | AgentSessionHandle) -> None:
@@ -700,6 +702,21 @@ class AgentSessionStore:
             ).fetchall()
         return tuple(_mutation_from_row(row) for row in rows)
 
+    def diagnostic_status(self) -> dict[str, Any]:
+        """Read schema metadata only; never chat/events/proposals."""
+        result = {"state": "unavailable", "error_code": "store_unavailable",
+                  "last_operation_failed": self._last_operation_failed}
+        try:
+            with contextlib.closing(sqlite3.connect(self.db_path.as_uri() + "?mode=ro", uri=True, timeout=0.2)) as conn:
+                row = conn.execute("SELECT value FROM store_meta WHERE key = 'schema_version'").fetchone()
+            if row and str(row[0]) == str(SCHEMA_VERSION):
+                result.update(state="ready", error_code=None)
+            else:
+                result.update(state="schema_mismatch", error_code="store_schema_mismatch")
+        except (OSError, sqlite3.Error, ValueError):
+            pass
+        return result
+
     def export_session(self, xace_session_id: str) -> dict[str, JsonValue]:
         session = self.get_session(xace_session_id)
         if session is None:
@@ -755,7 +772,9 @@ class AgentSessionStore:
             conn.execute("PRAGMA journal_mode = WAL")
             yield conn
             conn.commit()
+            self._last_operation_failed = False
         except sqlite3.DatabaseError as exc:
+            self._last_operation_failed = True
             if conn is not None:
                 try:
                     conn.rollback()

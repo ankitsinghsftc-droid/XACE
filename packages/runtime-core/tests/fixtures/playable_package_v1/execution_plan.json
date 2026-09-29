@@ -1,0 +1,79 @@
+{
+  "schema_version": "0.1.0",
+  "plan_version": 1,
+  "created_tick": 0,
+  "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+  "phases": {
+    "2": {
+      "phase": "Simulation",
+      "groups": [
+        {
+          "group_id": "Simulation_group_0",
+          "phase": "Simulation",
+          "parallel": false,
+          "systems": [
+            "MovementSystem"
+          ],
+          "serialization_constraints": [],
+          "execution_index": 0
+        }
+      ],
+      "total_system_count": 1
+    }
+  },
+  "all_system_ids": [
+    "MovementSystem"
+  ],
+  "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+  "adapter_protocol_version": 1,
+  "migration_status": "current",
+  "component_access_sets": {
+    "schema": "xace.sgc.component_access_sets.v1",
+    "by_system": {
+      "MovementSystem": {
+        "reads": [
+          1,
+          5
+        ],
+        "writes": [
+          1
+        ]
+      }
+    },
+    "all_reads": [
+      1,
+      5
+    ],
+    "all_writes": [
+      1
+    ],
+    "component_ids": [
+      1,
+      5
+    ]
+  },
+  "system_metadata": {
+    "schema": "xace.sgc.system_metadata.v1",
+    "systems": {
+      "MovementSystem": {
+        "display_name": "MovementSystem",
+        "phase": "Simulation",
+        "depends_on": [],
+        "deterministic": true,
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "description": ""
+      }
+    }
+  },
+  "proof_bundle": {
+    "schema": "xace.sgc.proof_ref.v1",
+    "path": ".xace/proof/sgc/4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+    "compiled_from_cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+    "plan_hash": "f60ba82f39f7a9f975a615c2af398d26d3fa4084e154e8eb1d74bee0d282444e",
+    "input_hash": "879cd9d36a3aea9ecf44c023723519b156e73516165c29cb701ae538302afa64",
+    "validation_hash": "245c1264f934427fc76ee0c021bac610ba123261097d1e99ff491c54b28efc52"
+  }
+}

@@ -1,0 +1,492 @@
+{
+  "metadata": {
+    "name": "ReferenceMechanicProof",
+    "version": "0.1.0",
+    "schema_version": "0.1.0",
+    "cgs_hash": "a0d6d026a46ee1996c6cebfee5c1a4e187c22f6bdadd7d8735e7f66e101b8968"
+  },
+  "component_schemas": [
+    {
+      "type_id": 10000,
+      "name": "REFERENCE_TRAVERSAL_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "schema_version": 1,
+        "chain": 0,
+        "third_used": false,
+        "grounded": false,
+        "jump_held": false,
+        "wall_entity": 0,
+        "wall_axis": 0,
+        "wall_sign": 0,
+        "mode": "airborne"
+      }
+    },
+    {
+      "type_id": 10001,
+      "name": "REFERENCE_TRAVERSAL_CONFIG_V1",
+      "source": "gcl",
+      "defaults": {
+        "schema_version": 1,
+        "surface_capability": "reference.wall_runnable.v1",
+        "run_speed": 5000000,
+        "jump_speed": 8000000,
+        "away_speed": 6000000,
+        "gravity_per_tick": 163500,
+        "side_probe": 100000,
+        "ground_probe": 1000,
+        "third_attempt": "disabled",
+        "shockwave_radius": 5000000,
+        "shockwave_impulse": 3000000
+      }
+    }
+  ],
+  "global_systems": [
+    {
+      "id": "reference.recorded_input.v1",
+      "phase": "Input",
+      "reads": [
+        6,
+        10000
+      ],
+      "writes": [
+        6
+      ],
+      "depends_on": [],
+      "deterministic": true
+    }
+  ],
+  "assets": [],
+  "modes": [
+    {
+      "id": "reference",
+      "is_default": true,
+      "schema_version": "0.1.0",
+      "actors": [
+        {
+          "id": "floor",
+          "actor_type": "WORLD_OBJECT",
+          "control_type": "NONE",
+          "spawn_count": 1,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1000000
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 4,
+              "name": "COMP_COLLIDER_V1",
+              "defaults": {
+                "shape": "BOX",
+                "size": {
+                  "x": 20000000,
+                  "y": 1000000,
+                  "z": 20000000
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "is_trigger": false
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "wall",
+          "actor_type": "WORLD_OBJECT",
+          "control_type": "NONE",
+          "spawn_count": 1,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": -750000,
+                  "y": 5000000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1000000
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 4,
+              "name": "COMP_COLLIDER_V1",
+              "defaults": {
+                "shape": "BOX",
+                "size": {
+                  "x": 1000000,
+                  "y": 10000000,
+                  "z": 20000000
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "is_trigger": false
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "wall"
+              }
+            }
+          ]
+        },
+        {
+          "id": "player",
+          "actor_type": "PLAYER",
+          "control_type": "HUMAN",
+          "spawn_count": 1,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": 3000000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1000000
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 4,
+              "name": "COMP_COLLIDER_V1",
+              "defaults": {
+                "shape": "BOX",
+                "size": {
+                  "x": 500000,
+                  "y": 1000000,
+                  "z": 500000
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "is_trigger": false
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "player"
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "linear": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "angular": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "max_linear_speed": 20000000,
+                "max_angular_speed": 0
+              }
+            },
+            {
+              "type_id": 6,
+              "name": "COMP_INPUT_V1",
+              "defaults": {
+                "controller_id": 1,
+                "control_type": "HUMAN",
+                "input_profile_id": "reference.input.v1"
+              }
+            },
+            {
+              "type_id": 10000,
+              "name": "REFERENCE_TRAVERSAL_STATE_V1",
+              "defaults": {
+                "schema_version": 1,
+                "chain": 0,
+                "third_used": false,
+                "grounded": false,
+                "jump_held": false,
+                "wall_entity": 0,
+                "wall_axis": 0,
+                "wall_sign": 0,
+                "mode": "airborne"
+              }
+            },
+            {
+              "type_id": 10001,
+              "name": "REFERENCE_TRAVERSAL_CONFIG_V1",
+              "defaults": {
+                "schema_version": 1,
+                "surface_capability": "reference.wall_runnable.v1",
+                "run_speed": 5000000,
+                "jump_speed": 8000000,
+                "away_speed": 6000000,
+                "gravity_per_tick": 163500,
+                "side_probe": 100000,
+                "ground_probe": 1000,
+                "third_attempt": "disabled",
+                "shockwave_radius": 5000000,
+                "shockwave_impulse": 3000000
+              }
+            }
+          ]
+        },
+        {
+          "id": "target",
+          "actor_type": "PLAYER",
+          "control_type": "HUMAN",
+          "spawn_count": 1,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 2000000,
+                  "y": 3000000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1000000
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 4,
+              "name": "COMP_COLLIDER_V1",
+              "defaults": {
+                "shape": "BOX",
+                "size": {
+                  "x": 500000,
+                  "y": 1000000,
+                  "z": 500000
+                },
+                "offset": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "is_trigger": false
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "target"
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "linear": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "angular": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "max_linear_speed": 20000000,
+                "max_angular_speed": 0
+              }
+            },
+            {
+              "type_id": 6,
+              "name": "COMP_INPUT_V1",
+              "defaults": {
+                "controller_id": 2,
+                "control_type": "HUMAN",
+                "input_profile_id": "reference.input.v1"
+              }
+            },
+            {
+              "type_id": 10000,
+              "name": "REFERENCE_TRAVERSAL_STATE_V1",
+              "defaults": {
+                "schema_version": 1,
+                "chain": 0,
+                "third_used": false,
+                "grounded": false,
+                "jump_held": false,
+                "wall_entity": 0,
+                "wall_axis": 0,
+                "wall_sign": 0,
+                "mode": "airborne"
+              }
+            },
+            {
+              "type_id": 10001,
+              "name": "REFERENCE_TRAVERSAL_CONFIG_V1",
+              "defaults": {
+                "schema_version": 1,
+                "surface_capability": "reference.wall_runnable.v1",
+                "run_speed": 5000000,
+                "jump_speed": 8000000,
+                "away_speed": 6000000,
+                "gravity_per_tick": 163500,
+                "side_probe": 100000,
+                "ground_probe": 1000,
+                "third_attempt": "disabled",
+                "shockwave_radius": 5000000,
+                "shockwave_impulse": 3000000
+              }
+            }
+          ]
+        }
+      ],
+      "systems": [
+        {
+          "id": "reference.traversal.v1",
+          "phase": "Simulation",
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ],
+          "depends_on": [
+            "reference.recorded_input.v1"
+          ],
+          "deterministic": true
+        }
+      ],
+      "rules": [],
+      "ui": {},
+      "world": {
+        "size": {
+          "width": 100000000,
+          "height": 100000000,
+          "depth": 100000000
+        },
+        "gravity": {
+          "x": 0,
+          "y": -9810000,
+          "z": 0
+        },
+        "day_length_ticks": 0,
+        "contract": {
+          "contract_version": 2,
+          "id": "reference.arena",
+          "version": "1.0.0",
+          "numeric_profile": "fixed64_y_up_neg_z_v1",
+          "capability_declarations": [
+            {
+              "id": "reference.wall_runnable.v1",
+              "allowed_kinds": [
+                "kinematic_box",
+                "static_box"
+              ]
+            }
+          ],
+          "objects": [
+            {
+              "id": "floor",
+              "actor_id": "floor",
+              "kind": "static_box",
+              "capabilities": []
+            },
+            {
+              "id": "wall",
+              "actor_id": "wall",
+              "kind": "static_box",
+              "capabilities": [
+                "reference.wall_runnable.v1"
+              ]
+            },
+            {
+              "id": "player",
+              "actor_id": "player",
+              "kind": "kinematic_box",
+              "capabilities": []
+            },
+            {
+              "id": "target",
+              "actor_id": "target",
+              "kind": "kinematic_box",
+              "capabilities": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

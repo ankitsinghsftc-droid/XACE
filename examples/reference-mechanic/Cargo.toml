@@ -1,0 +1,17 @@
+[package]
+name = "xace-reference-mechanic"
+version = "0.1.0"
+edition.workspace = true
+publish = false
+
+[dependencies]
+xace-core = { path = "../../packages/core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+
+xace-runtime-core = { path = "../../packages/runtime-core" }
+anyhow = { workspace = true }
+
+[[bin]]
+name = "xace_reference_host"
+path = "src/bin/host.rs"

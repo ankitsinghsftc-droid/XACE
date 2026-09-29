@@ -1,0 +1,204 @@
+{
+  "schema": "xace.xp001.baseline.v1",
+  "date": "2026-09-23",
+  "head": "aaa15fc22207aa188009f9f29006032a2db62c47",
+  "task": "XP-001",
+  "acceptance": "satisfied",
+  "recommendation": "READY FOR XP-002",
+  "xp002_started": false,
+  "working_tree": "pre-existing dirty; no commit created",
+  "task_files": [
+    "Cargo.lock",
+    "MASTER_PLAN.md",
+    "docs/source_inventory.json",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+    "packages/core/Cargo.toml",
+    "packages/core/src/wire/mod.rs",
+    "packages/core/src/wire/session_contract.rs",
+    "packages/core/tests/test_session_contract.rs",
+    "packages/core/tests/fixtures/session_contract_v1/authority.canonical.json",
+    "packages/core/tests/fixtures/session_contract_v1/game.cgs.json",
+    "packages/core/tests/fixtures/session_contract_v1/golden_vectors.json",
+    "packages/core/tests/fixtures/session_contract_v1/persisted_plan.json",
+    "packages/runtime-core/tests/test_session_contract_versions.rs",
+    "tools/python_test_gate.py",
+    "docs/adr/XP-001-supported-session-contract.md",
+    "docs/XP001_COMPLETION.md",
+    "docs/evidence/xp001-baseline.json"
+  ],
+  "source_sha256": {
+    "Cargo.lock": "c527bd601ad1966164d746fb87384f82e0a972303bea4dd0073aef44500ad306",
+    "MASTER_PLAN.md": "f2c0716a381ee9c4aca6bbbb0f0d49f93b15e17d0064fc7c49e8a7391cbde2f1",
+    "adapters/godot/xace_godot_main.gd": "a8ba51abfb4a363ac6403a8f77c2af36afad8027510c3b4a18ff525949067f80",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "59a3435c6e90ed9ddd255987b443ca838d6c6c0f618dbe88f8cbae4b00611956",
+    "docs/XP001_COMPLETION.md": "2b28965d94a07b9af3b81ccc27157c223fe75439d0043040bda4e0213c20daf8",
+    "docs/adr/XP-001-supported-session-contract.md": "134f09c6bae664cd56e3c7357fc864a931efa8eb637a82cd50cbf4573691b3e6",
+    "docs/source_inventory.json": "55750c10ea7bd410d33f7a9acadbca30106666893121e70b5ce60db3bb7a8664",
+    "packages/builder-workspace/server/session_manager.py": "b450c44d22ea37354ca0e1fbc626877687f3e377877f8082d083bbf57235de1f",
+    "packages/builder-workspace/server/ws_message_router.py": "678486bf18e70457fc7dfbfafaecf3aa9a95c68bdd9b153da022f0844819879a",
+    "packages/core/Cargo.toml": "6d847f4a2b956b747857d49b962b6270a7379e5a4a18abf1d71174d9927072fa",
+    "packages/core/src/fixed_point.rs": "9d2600cac5e35bf1cc1add078ae3c3697616fc27cf113d8e2a0b46b651b25b69",
+    "packages/core/src/wire/mod.rs": "6458e940f1cbb1d949ee0d125df4c50cc75b327b6863c8f560305803b6a7d4af",
+    "packages/core/src/wire/session_contract.rs": "af7e1c0977025fd93a216376927732c57e7db3d013e9f8329550f4aa98639c42",
+    "packages/core/tests/fixtures/session_contract_v1/authority.canonical.json": "0ba7b6f2c90b135b4c09355dd07a27b4f7d26e7bf8a39af05162911cc7a81efe",
+    "packages/core/tests/fixtures/session_contract_v1/game.cgs.json": "8c6fef7b97473cbfee71c340e57b6da9e3f4019b0f57c82a24e14b79b0410364",
+    "packages/core/tests/fixtures/session_contract_v1/golden_vectors.json": "4d81b613b78e081312bb9336107db7daa496f8a1c453907a1314666f50065eb8",
+    "packages/core/tests/fixtures/session_contract_v1/persisted_plan.json": "654b7bb7f9585dc4fe07281c6e2e33573f6c970aa3b9a7b706af9fc33629d353",
+    "packages/core/tests/test_session_contract.rs": "071d4de1424f4d012677a082bb1f041315e1725cb17eab71d248ee319aa13c2d",
+    "packages/dcl/gameplay_primitives.py": "eeb8c5983cc9725eec84f935ce85010f7f4abf8b9d19add0dbbf7523bb7eff11",
+    "packages/network-core/src/input/malicious_input_gate.rs": "d2178135fa7bf58c42aad261e79e2d5adffe50d16ff9a63eba20c76877387125",
+    "packages/network-core/src/session/session_compatibility.rs": "65652a28731957df2fe18d93a1ea5cd6759defdaa79abcbc84d69e975d8c5b78",
+    "packages/network-core/src/session/session_manager.rs": "1fb0340ced7dc4ce4c8838a2857ed6a069dfac7fd383ad45437b2532a86ce8e4",
+    "packages/runtime-core/src/bin/xace_runtime.rs": "82f80e4d75a89206391e3c8f2374265069d6e68836315297019c0781e95a6b7b",
+    "packages/runtime-core/src/builtin_systems.rs": "474cba8f77fd4647b748cca7bd2a96ca712878b5e582828faa24fc400d969a75",
+    "packages/runtime-core/src/engine_bridge.rs": "3e76dccc897974398c45c53895b63e030648a7c14bfaef11efe3a84afc1a7fd0",
+    "packages/runtime-core/src/engine_protocol.rs": "d2d0bfd83eda46724fc0072a1eb00c4f010f330c2c26a6f5163a8f9a95f1cd93",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "912b1fa4bed436e80044c64c70f146369a71e0c41931c0f9a45c5d9ab8eca505",
+    "packages/runtime-core/tests/test_session_contract_versions.rs": "4eb12f3a253f0e5bf43cfaa37c116d11443c25173801e2c708c4ce5eb488c8e9",
+    "packages/schema-factory/src/schema_factory.py": "51d3da41b546efef37414d8d065eec92b2e403e7ae4053a462abc54c6c5d19a5",
+    "tools/cross_engine_core_hash_compare.py": "2ab33eb214e9d91ca925aeb5fb36e7b7009e5831913aec0155f9c01ad87236b8",
+    "tools/python_test_gate.py": "4440d435d62fb2a3065934b04696014b45104ea48f415e84fe9c3553c790816b"
+  },
+  "previous_audit_sources_unchanged": true,
+  "test_results": {
+    "rust": {
+      "command": "cargo test -p xace-core -p xace-runtime-core -p xace-network-core -p xace-engine-adapter -p xace-system-graph-compiler --offline --quiet",
+      "exit_code": 0,
+      "passed": 1895,
+      "failed": 0,
+      "ignored": 0,
+      "test_binaries": 32,
+      "log": "tmp\\xp001-rust.log"
+    },
+    "final_contract_rerun": {
+      "command": "cargo test -p xace-core --test test_session_contract --offline --quiet",
+      "passed": 6,
+      "golden_vectors": 50,
+      "accepted": 5,
+      "rejected": 45
+    },
+    "python_summary": {
+      "failed_or_error": 0,
+      "not_run": 0,
+      "passed": 1107,
+      "suites": 7,
+      "syntax_failures": 0,
+      "syntax_files": 0,
+      "tests": 1107,
+      "tool_failures": 0,
+      "tools": 0
+    },
+    "dcl_isolated_passed": 14,
+    "builder": [
+      {
+        "command": "npm run lint",
+        "cwd": "packages\\builder-workspace",
+        "exit_code": 0,
+        "log": "tmp\\xp001-builder-lint.log"
+      },
+      {
+        "command": "npm run typecheck",
+        "cwd": "packages\\builder-workspace",
+        "exit_code": 0,
+        "log": "tmp\\xp001-builder-typecheck.log"
+      },
+      {
+        "command": "npm run test:ui",
+        "cwd": "packages\\builder-workspace",
+        "exit_code": 0,
+        "log": "tmp\\xp001-builder-test-ui.log"
+      },
+      {
+        "command": "npm run build",
+        "cwd": "packages\\builder-workspace",
+        "exit_code": 0,
+        "log": "tmp\\xp001-builder-build.log"
+      }
+    ],
+    "inventory": {
+      "exit_code": 1,
+      "pre_existing_omissions": 31,
+      "xp001_omissions": 0
+    }
+  },
+  "verification_sequence": "Full regressions; certified presentation-version fixture strengthening; final focused 6-test rerun; documentation/module declaration ordering only thereafter. No authority source changed.",
+  "verification_artifact_sha256": {
+    "tmp/xp001-builder-build.log": "2c3d8ed4e1da1567fa7d3bbe430d9f7db35afb9cad2504a0be20ed710a2ec3ba",
+    "tmp/xp001-builder-lint.log": "72ed516b4d02e8c1c1a6bcca0fea934f9e20112f25f23bd429fe69937adb2204",
+    "tmp/xp001-builder-report.json": "ae49af463e208457726816c666e6345d26c4078628b3bddd524110143d16a57b",
+    "tmp/xp001-builder-test-ui.log": "0730babe012cc178b8f7ef809097673f861f52f4d5ce4f382faa2219a99bd4f2",
+    "tmp/xp001-builder-typecheck.log": "0e1b44a214a70961d6b25aad20c20f509d54001c6e5475c322f2075a04b67c6d",
+    "tmp/xp001-contract-final.log": "c3a88c621c4dea421103027332de3009958d0a4ea0955b924bea60d59002dd44",
+    "tmp/xp001-dcl-isolated.json": "ea050f4bfc51e1ce6be3a810bc662667f488561ee1eb851260da05e7359ef9df",
+    "tmp/xp001-python-report.json": "7e2fb25c2e558d5e5a270edc44c0f8c2b0dddce233e5c02da8c6dd4877e06ef2",
+    "tmp/xp001-rust-report.json": "cb5f4f3f28150f0487ef9e4d78fbc2ca0765c7909ac8849cd6f1fe5739c8b77f",
+    "tmp/xp001-rust.log": "edd747e06c69bfbb1cf8c6d8052b70e4d8660eade8d519591157dc791564fb31",
+    "tmp/xp001-source-inventory.log": "5521e8322e30081af34166b6858964e9ad08affd2555d49ddeaf26c3473ae448"
+  },
+  "evidence_index": [
+    {
+      "status": "present",
+      "path": ".xace/proof/sgc-runtime/20260724T031517Z/summary.json",
+      "sha256": "176fd2f456b26ff0c7a22660907f61838d4bbde53171d112bca804ad1f2ddb60",
+      "scope": "historical real SGC/runtime, two ticks; not new live-session certification",
+      "certifies_current_source": false
+    },
+    {
+      "status": "present",
+      "path": ".xace/proof/cgs-e2e/20260723T101645Z/summary.json",
+      "sha256": "2200830324361587ff6092981d6f2af04f6979991d223db7690a323fe8177314",
+      "scope": "historical three-tick adapter snapshot/rollback proof",
+      "certifies_current_source": false
+    },
+    {
+      "status": "present",
+      "path": ".xace/proof/replay-cross-platform/20260724T071240Z/summary.json",
+      "sha256": "a16173b77a03ba1a4a7f2f3ee461e88c832896dbb5b586cb44824906e8e5be06",
+      "scope": "historical Windows-only replay, six ticks and zero recorded inputs",
+      "certifies_current_source": false
+    },
+    {
+      "status": "present",
+      "path": ".xace/proof/network-chaos/x10-043-full-20260814-60hz/network_chaos_report.json",
+      "sha256": "2bc7145254d5845f873d727a4a6e036f683ca9341b8506b1c49cdf7436b1e4a1",
+      "scope": "historical simulated packet chaos; not sockets/relay or human playability",
+      "certifies_current_source": false
+    },
+    {
+      "status": "historical-only",
+      "path": "target-codex-task64-godot-vertical-slice",
+      "claim_reference": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+      "scope": "historical completion discussed in audit; retained proof directory absent; not re-certified"
+    },
+    {
+      "status": "historical-only",
+      "path": "target-codex-task65-unity-vertical-slice",
+      "claim_reference": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+      "scope": "historical completion discussed in audit; retained proof directory absent; not re-certified"
+    },
+    {
+      "status": "historical-only",
+      "path": "target-codex-task66-unreal-vertical-slice",
+      "claim_reference": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+      "scope": "historical completion discussed in audit; retained proof directory absent; not re-certified"
+    },
+    {
+      "status": "historical-only",
+      "path": "target-codex-task67-cross-engine-core-hash",
+      "claim_reference": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+      "scope": "historical completion discussed in audit; retained proof directory absent; not re-certified"
+    },
+    {
+      "status": "missing",
+      "scope": "XP proof ladder A-H: no new exported Player, compiled World Contract, invite, mixed/three-engine live session, live mutation, epoch replay/debug or live fault-matrix evidence"
+    }
+  ],
+  "topology_evidence_alias": {
+    "historical_chaos_label": "host_client_authoritative_lockstep_v1",
+    "canonical_launch_label": "host_client_lockstep_v1",
+    "scope": "evidence index only; not a wire alias"
+  },
+  "fixture_scope": "CGS/plan copied from retained proof; future world/package/input/runtime hashes are explicit identity-only fixtures, not loadable/certified artifacts",
+  "raw_scoped_tracked_diff_stat": " Cargo.lock                    |   1 +\n MASTER_PLAN.md                | 267 ++++++++++++++++++++++++++++++++++++++++--\n docs/source_inventory.json    |  15 ++-\n packages/core/Cargo.toml      |   2 +-\n packages/core/src/wire/mod.rs |   1 +\n tools/python_test_gate.py     |   2 +\n 6 files changed, 279 insertions(+), 9 deletions(-)\n",
+  "diff_stat_caveat": "Includes pre-existing changes in MASTER_PLAN.md and docs/source_inventory.json; excludes untracked additions; task_files is the exact XP-001 scope."
+}

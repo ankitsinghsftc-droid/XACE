@@ -19,6 +19,10 @@ from typing import Any
 
 from secret_redaction import redact_exception, redact_text, redact_value
 
+from .context_capsule import (
+    ContextCapsuleBuildResult,
+    ContextCapsuleRequest,
+)
 from .contracts import (
     AgentAdapter,
     AgentContractError,
@@ -33,6 +37,11 @@ from .contracts import (
 )
 from .proposal_ingress import AgentProposalIngressError, AgentProposalIngressGate
 from .registry import AgentAdapterRegistry, AgentRegistryError, create_default_registry
+from .security_policy import (
+    AgentSecurityPolicyEnforcer,
+    AgentSecurityPolicyError,
+)
+from .tool_surface import default_xace_tool_specs, proposal_xace_tool_spec
 from .session_store import AgentSessionStore, AgentSessionStoreError, AgentStoredSession
 
 
@@ -54,6 +63,7 @@ AGENT_STATUS_UNAVAILABLE = "unavailable"
 
 SendFn = Callable[[dict[str, JsonValue]], Awaitable[None]]
 
+ContextCapsuleFactory = Callable[[ContextCapsuleRequest], ContextCapsuleBuildResult]
 
 class AgentEventStreamError(RuntimeError):
     """Raised when the Agent Event Stream cannot fail closed safely."""
@@ -118,6 +128,8 @@ class AgentEventStreamManager:
         session_store: AgentSessionStore | None = None,
         proposal_ingress: AgentProposalIngressGate | None = None,
         clock: Callable[[], float] = time.time,
+        context_capsule_factory: ContextCapsuleFactory | None = None,
+        security_policy: AgentSecurityPolicyEnforcer | None = None,
         iso_clock: Callable[[], str] = utc_now_iso,
     ) -> None:
         self.registry = registry or create_default_registry()
@@ -128,6 +140,10 @@ class AgentEventStreamManager:
         self.clock = clock
         self.iso_clock = iso_clock
         self._active: dict[str, _ActiveAgentTurn] = {}
+        self.context_capsule_factory = context_capsule_factory
+        self.security_policy = security_policy or AgentSecurityPolicyEnforcer(
+            tool_specs=default_xace_tool_specs() + (proposal_xace_tool_spec(),)
+        )
         self._last_tasks: dict[str, asyncio.Task[Any]] = {}
         self._last_status: dict[str, dict[str, JsonValue]] = {}
 
@@ -230,6 +246,41 @@ class AgentEventStreamManager:
             )
 
         try:
+            capabilities = await adapter.list_capabilities()
+            self.security_policy.validate_capabilities(capabilities)
+            resolved_tools = self.security_policy.validate_enabled_tools(
+                tuple(allowed_tools or ())
+            )
+            resolved_metadata = _json_object(metadata or {}, "agent turn metadata")
+            self.security_policy.validate_metadata(resolved_metadata)
+            resolved_capsule_path = context_capsule_path
+            if self.context_capsule_factory is not None:
+                if not isinstance(current_cgs, Mapping):
+                    raise AgentSecurityPolicyError(
+                        "an XACE-built context capsule requires the current CGS"
+                    )
+                capsule = self.context_capsule_factory(
+                    ContextCapsuleRequest(
+                        xace_session_id=session_id,
+                        user_prompt=user_prompt,
+                        cgs=current_cgs,
+                        cgs_hash=cgs_hash,
+                        project_manifest={
+                            "project_id": project_id,
+                            "project_name": str(resolved_metadata.get("project_name") or ""),
+                        },
+                        adapter_context={
+                            "provider_id": provider_id,
+                            "tool_transport": "mcp",
+                        },
+                    )
+                )
+                resolved_capsule_path = str(capsule.capsule_dir)
+                resolved_metadata = {
+                    **resolved_metadata,
+                    "context_capsule_dir": str(capsule.capsule_dir),
+                    "context_capsule_id": capsule.capsule_id,
+                }
             handle = await self._handle_for_turn(
                 adapter=adapter,
                 session_id=session_id,
@@ -237,16 +288,16 @@ class AgentEventStreamManager:
                 user_prompt=user_prompt,
                 cgs_hash=cgs_hash,
                 project_id=project_id,
-                context_capsule_path=context_capsule_path,
-                allowed_tools=tuple(allowed_tools or ()),
-                metadata=metadata or {},
+                context_capsule_path=resolved_capsule_path,
+                allowed_tools=resolved_tools,
+                metadata=resolved_metadata,
             )
             request = AgentTurnRequest(
                 handle=handle,
                 user_prompt=redact_text(user_prompt),
                 base_cgs_hash=cgs_hash,
-                allowed_tools=tuple(allowed_tools or ()),
-                metadata=_json_object(metadata or {}, "agent turn metadata"),
+                allowed_tools=resolved_tools,
+                metadata=resolved_metadata,
             )
         except Exception as exc:
             return await self._send_command_status(
@@ -428,7 +479,23 @@ class AgentEventStreamManager:
             else None
         )
         if stored is not None and stored.provider_id == provider_id:
-            handle = await adapter.resume_session(stored.to_handle())
+            stored_handle = stored.to_handle()
+            resume_handle = AgentSessionHandle(
+                xace_session_id=stored_handle.xace_session_id,
+                provider_id=stored_handle.provider_id,
+                provider_session_id=stored_handle.provider_session_id,
+                base_cgs_hash=stored_handle.base_cgs_hash,
+                latest_cgs_hash=cgs_hash,
+                created_at=stored_handle.created_at,
+                metadata={
+                    **dict(stored_handle.metadata),
+                    **dict(metadata),
+                    "project_id": project_id,
+                    "context_capsule_path": context_capsule_path,
+                    "allowed_tools": list(allowed_tools),
+                },
+            )
+            handle = await adapter.resume_session(resume_handle)
         else:
             handle = await adapter.start_session(
                 AgentStartRequest(
@@ -451,6 +518,28 @@ class AgentEventStreamManager:
         final_message = "Agent turn completed."
         try:
             async for event in active.adapter.run_turn(active.request):
+                try:
+                    self.security_policy.validate_agent_event(
+                        event,
+                        session_id=active.session_id,
+                        provider_id=active.provider_id,
+                        enabled_tools=active.request.allowed_tools or None,
+                    )
+                except AgentSecurityPolicyError as exc:
+                    final_state = AGENT_STATUS_ERROR
+                    final_code = "AGENT_SECURITY_POLICY_DENIED"
+                    final_message = f"Agent event denied by security policy: {redact_exception(exc)}"
+                    with contextlib.suppress(Exception):
+                        await active.adapter.cancel_turn(active.handle)
+                    await self._emit_event(
+                        active,
+                        _synthetic_event(
+                            active,
+                            event_type=AgentEventType.ERROR,
+                            message=final_message,
+                        ),
+                    )
+                    break
                 await self._emit_event(active, event)
                 if event.event_type is AgentEventType.TURN_CANCELLED:
                     final_state = AGENT_STATUS_CANCELLED
@@ -527,6 +616,11 @@ class AgentEventStreamManager:
         active: _ActiveAgentTurn,
         event: AgentEvent,
     ) -> None:
+        if event.event_type is AgentEventType.TOOL_CALL:
+            ingress = _dynamic_tool_preview_ingress(event)
+            if ingress is not None and active.xace_session is not None:
+                await self._send_pending_agent_preview(active, ingress)
+            return
         if event.event_type is not AgentEventType.PROPOSAL:
             return
         if active.current_cgs is None or active.xace_session is None:
@@ -541,6 +635,7 @@ class AgentEventStreamManager:
                 current_cgs=active.current_cgs,
                 current_cgs_hash=active.request.base_cgs_hash,
                 xace_session_id=active.session_id,
+                provider_id=active.provider_id,
                 mode=active.mode,
                 session=active.xace_session,
             )
@@ -552,19 +647,27 @@ class AgentEventStreamManager:
             raise AgentEventStreamError(
                 f"agent proposal rejected: {result.code} {result.message}"
             )
-        pending_result = getattr(active.xace_session, "pending_prompt_result", None)
-        if result.preview_created and isinstance(pending_result, Mapping):
-            await active.send_fn(
-                _json_object(
-                    {
-                        "type": "pil_result",
-                        "result": copy.deepcopy(dict(pending_result)),
-                        "agent_proposal_ingress": result.to_dict(),
-                    },
-                    "agent proposal pil result",
-                )
-            )
+        if result.preview_created:
+            await self._send_pending_agent_preview(active, result.to_dict())
 
+    async def _send_pending_agent_preview(
+        self,
+        active: _ActiveAgentTurn,
+        ingress: Mapping[str, Any],
+    ) -> None:
+        pending_result = getattr(active.xace_session, "pending_prompt_result", None)
+        if not isinstance(pending_result, Mapping):
+            return
+        await active.send_fn(
+            _json_object(
+                {
+                    "type": "pil_result",
+                    "result": copy.deepcopy(dict(pending_result)),
+                    "agent_proposal_ingress": dict(ingress),
+                },
+                "agent proposal pil result",
+            )
+        )
     def _status_for_active(
         self,
         active: _ActiveAgentTurn,
@@ -607,6 +710,58 @@ class AgentEventStreamManager:
             message=message,
             status=clean_status,
         )
+
+
+def _dynamic_tool_preview_ingress(event: AgentEvent) -> Mapping[str, Any] | None:
+    """Recognize only the XACE bridge's completed preview-only tool result."""
+    if event.provider_id != "codex_app_server":
+        return None
+    data = event.data if isinstance(event.data, Mapping) else {}
+    params = data.get("params") if isinstance(data.get("params"), Mapping) else {}
+    native = params.get("item") if isinstance(params.get("item"), Mapping) else {}
+    if data.get("codex_method") == "item/completed" and native.get("type") == "mcpToolCall":
+        if native.get("server") != "xace" or native.get("tool") != "xace.submit_proposal" or native.get("status") != "completed":
+            return None
+        envelope = native.get("result")
+        if not isinstance(envelope, Mapping) or native.get("error") or envelope.get("isError"):
+            return None
+        result = envelope.get("structuredContent")
+        if not isinstance(result, Mapping):
+            content = envelope.get("content")
+            if not isinstance(content, list) or len(content) != 1 or not isinstance(content[0], Mapping):
+                return None
+            if content[0].get("type") != "text":
+                return None
+            try:
+                result = json.loads(content[0].get("text", ""))
+            except (TypeError, ValueError):
+                return None
+        return _completed_preview_ingress(result)
+    response = params.get("xace_tool_response") if isinstance(params, Mapping) else None
+    items = response.get("contentItems") if isinstance(response, Mapping) else None
+    if not isinstance(items, list) or not items:
+        return None
+    item = items[0] if isinstance(items[0], Mapping) else {}
+    text = item.get("text") if isinstance(item, Mapping) else None
+    if not isinstance(text, str):
+        return None
+    try:
+        result = json.loads(text)
+    except (TypeError, ValueError):
+        return None
+    return _completed_preview_ingress(result)
+
+
+def _completed_preview_ingress(result: Any) -> Mapping[str, Any] | None:
+    if not isinstance(result, Mapping) or result.get("tool_name") != "xace.submit_proposal":
+        return None
+    if result.get("status") != "completed" or result.get("read_only") is not False:
+        return None
+    result_data = result.get("data") if isinstance(result.get("data"), Mapping) else {}
+    ingress = result_data.get("proposal_ingress") if isinstance(result_data, Mapping) else None
+    if not isinstance(ingress, Mapping) or not ingress.get("accepted") or ingress.get("status") != "preview_created":
+        return None
+    return _json_object(dict(ingress), "dynamic agent proposal ingress")
 
 
 def agent_event_message(

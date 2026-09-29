@@ -344,57 +344,11 @@ def _inventory_component_batch() -> dict[str, Any]:
 
 
 def _pickup_actor() -> dict[str, Any]:
+    # This scenario proves adding a world actor, not executing pickup mechanics.
     return {
-        "id": "actor_prompt_pickup",
-        "actor_type": "Item",
-        "control_type": "WorldObject",
+        "id": "actor_prompt_pickup", "actor_type": "PICKUP", "control_type": "NONE",
         "components": [
-            _component(
-                1,
-                "COMP_TRANSFORM_V1",
-                {
-                    "position_x": 2.0,
-                    "position_y": 0.0,
-                    "position_z": 1.0,
-                    "rotation_y": 0.0,
-                },
-            ),
-            _component(
-                2,
-                "COMP_IDENTITY_V1",
-                {
-                    "name": "Prompt Pickup",
-                    "mesh_id": "prompt_pickup_mesh",
-                    "mesh_id_path": "",
-                },
-            ),
-            _component(
-                205,
-                "COMP_ITEM_V1",
-                {
-                    "item_id": "prompt_pickup",
-                    "display_name": "Prompt Pickup",
-                    "quantity": 1,
-                    "slot_type": "generic",
-                    "weight": 1.0,
-                    "is_pickable": True,
-                    "owner_entity_id": 0,
-                    "inventory_slot_id": "",
-                    "is_equipped": False,
-                    "is_in_world": True,
-                },
-            ),
-            _component(
-                260,
-                "COMP_INTERACTION_V1",
-                {
-                    "is_interactable": True,
-                    "interaction_type": "PickUp",
-                    "prompt_text": "Pick up Prompt Pickup",
-                    "range": 2.0,
-                    "interaction_count": 0,
-                    "max_interactions": 0,
-                },
-            ),
+            _component(1, "COMP_TRANSFORM_V1", {"position": {"x": 2, "y": 0, "z": 1}}),
+            _component(2, "COMP_IDENTITY_V1", {"entity_name": "Prompt Pickup"}),
         ],
     }

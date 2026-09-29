@@ -1,0 +1,16 @@
+{
+  "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62",
+  "declared_system_ids": [
+    "MovementSystem"
+  ],
+  "default_system_injected": false,
+  "legacy_dropped_system_ids": [],
+  "ok": true,
+  "runtime_rule": "CGS-derived plans must fail before tick zero when any declared system cannot be executed; no system may be silently filtered or replaced.",
+  "scheduled_system_ids": [
+    "MovementSystem"
+  ],
+  "schema": "xace.runtime.plan_compatibility.v1",
+  "source": "cgs-derived",
+  "unsupported_systems": []
+}

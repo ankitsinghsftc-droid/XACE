@@ -41,6 +41,7 @@ use xace_core::fixed_point::Fixed64;
 /// Enforces declared read/write contracts. All mutations are deferred
 /// to the MutationGate. Events are buffered for phase-end dispatch.
 pub struct SystemContext<'a> {
+    geometry_failure: Option<String>,
     /// The system ID — used for access control error messages.
     system_id: &'a str,
 
@@ -82,6 +83,13 @@ pub struct SystemContext<'a> {
 }
 
 impl<'a> SystemContext<'a> {
+    pub(crate) fn ensure_geometry_valid(&self) -> Result<(), XaceError> {
+        match &self.geometry_failure {
+            Some(message) => Err(crate::geometry::invalid(message.clone())),
+            None => Ok(()),
+        }
+    }
+
     /// Creates a new SystemContext for one system's execute() call.
     pub fn new(
         system_id: &'a str,
@@ -108,6 +116,7 @@ impl<'a> SystemContext<'a> {
             rng_interceptor: None,
             determinism_guard: None,
             deterministic_rng: None,
+            geometry_failure: None,
         }
     }
 
@@ -137,6 +146,37 @@ impl<'a> SystemContext<'a> {
 }
 
 impl<'a> ISystemContext for SystemContext<'a> {
+    fn world_objects_v3(
+        &self,
+        entity_id: EntityID,
+    ) -> Result<Vec<xace_core::world::v3::SemanticObject>, XaceError> {
+        self._query_engine
+            .geometry_bindings
+            .as_ref()
+            .map(|b| b.semantic_objects(entity_id))
+            .ok_or_else(|| crate::geometry::invalid("semantic world v3 unavailable"))
+    }
+    fn world_capabilities_v1(&self, entity_id: EntityID) -> Result<Vec<String>, XaceError> {
+        self._query_engine
+            .geometry_bindings
+            .as_ref()
+            .map(|b| b.capabilities(entity_id))
+            .ok_or_else(|| crate::geometry::invalid("world semantic bindings unavailable"))
+    }
+
+    fn geometry_query_v1(
+        &mut self,
+        query: &xace_core::geometry::GeometryQueryV1,
+    ) -> Result<xace_core::geometry::GeometryResultV1, XaceError> {
+        self.ensure_geometry_valid()?;
+        let result =
+            crate::geometry::query(self, query, self._query_engine.geometry_bindings.as_ref());
+        if let Err(error) = &result {
+            self.geometry_failure = Some(error.message().to_string());
+        }
+        result
+    }
+
     fn get_component(
         &self,
         entity_id: EntityID,

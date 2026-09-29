@@ -34,6 +34,7 @@ from dataclasses import dataclass, field
 from typing import Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from .world_contract import CompiledWorld
     from .entity_blueprint.blueprint_registry import BlueprintRegistry
     from .component_registry.component_definition_registry import (
         ComponentDefinitionRegistry,
@@ -96,6 +97,7 @@ class CompiledSchemaPackage:
     default_mode_id:      str | None
     all_mode_ids:         tuple[str, ...]
     game_name:            str                  = ""
+    world_contract: "CompiledWorld | None" = None
 
     # ── Validity ──────────────────────────────────────────────────────────────
 

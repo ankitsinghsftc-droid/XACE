@@ -583,7 +583,7 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="xace-prompt-save-rollback-") as tmp:
             root = Path(tmp)
             persist = SaveFailsAfterWritePersistence(root)
-            persist.save(make_template("blank_3d", "Prompt Pipeline Test"))
+            persist.save(_declared_prompt_cgs())
             cgs_state = persist.load()
             sm, router, sent = asyncio.run(_new_router(root, _fake_sgc_wiring_test_only_script(root)))
             session = sm._sessions["session-1"]
@@ -611,7 +611,7 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="xace-prompt-snapshot-rollback-") as tmp:
             root = Path(tmp)
             persist = SnapshotFailsAfterWritePersistence(root)
-            persist.save(make_template("blank_3d", "Prompt Pipeline Test"))
+            persist.save(_declared_prompt_cgs())
             cgs_state = persist.load()
             sm, router, sent = asyncio.run(_new_router(root, _fake_sgc_wiring_test_only_script(root)))
             scenario = supported_prompt_pipeline_scenarios()[1]
@@ -630,7 +630,7 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="xace-prompt-proof-rollback-") as tmp:
             root = Path(tmp)
             persist = ProofFailsAfterWritePersistence(root)
-            persist.save(make_template("blank_3d", "Prompt Pipeline Test"))
+            persist.save(_declared_prompt_cgs())
             cgs_state = persist.load()
             sm, router, sent = asyncio.run(_new_router(root, _fake_sgc_wiring_test_only_script(root)))
             scenario = supported_prompt_pipeline_scenarios()[1]
@@ -789,8 +789,26 @@ class PromptPipelineContractScenarioTests(unittest.TestCase):
                 _restore_env("XACE_PROVIDER_SETTINGS_PATH", previous_provider_env)
 
 
-def _new_project(root: Path) -> CGSPersistence:
+def _declared_prompt_cgs():
+    # XP-002: exercise approval/rollback with valid canonical structured UCL.
+    # Legacy template DCL/flat-field migration is a separate compatibility issue.
     cgs = make_template("blank_3d", "Prompt Pipeline Test")
+    actor = cgs["modes"][0]["actors"][0]
+    actor["components"] = [
+        {"type_id": 1, "name": "COMP_TRANSFORM_V1", "defaults": {"position": {"x": 0, "y": 0, "z": 0}}},
+        {"type_id": 2, "name": "COMP_IDENTITY_V1", "defaults": {"entity_name": "Player"}},
+        {"type_id": 5, "name": "COMP_VELOCITY_V1", "defaults": {"max_linear_speed": 5.0, "max_angular_speed": 360.0}},
+        {"type_id": 6, "name": "COMP_INPUT_V1", "defaults": {"controller_id": 0}},
+    ]
+    for system in cgs["global_systems"]:
+        if system["id"] == "SaveSystem": system["reads"] = [1]
+    from project_templates import stable_cgs_hash
+    cgs["metadata"]["cgs_hash"] = stable_cgs_hash(cgs)
+    return cgs
+
+
+def _new_project(root: Path) -> CGSPersistence:
+    cgs = _declared_prompt_cgs()
     persist = CGSPersistence(root)
     persist.save(cgs)
     return persist

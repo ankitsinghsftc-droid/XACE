@@ -1,0 +1,6 @@
+# Operator-only certification dependency layer; not public distribution.
+ARG PROBE_IMAGE
+FROM ${PROBE_IMAGE}
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends libsecret-tools
+USER 10001:10001

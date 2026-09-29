@@ -178,6 +178,7 @@ class BuilderSession:
     pending_clar_id:  str | None         = None
     pending_prompt_clarification: dict | None = None
     prompt_clarification_log: list[dict] = field(default_factory=list)
+    pending_gameplay_authoring: dict | None = None
     pending_prompt_preview: dict | None = None
     pending_prompt_result: dict | None = None
     prompt_preview_approval_log: list[dict] = field(default_factory=list)
@@ -262,7 +263,9 @@ class SessionManager:
         model_name:     str = "",
         ollama_url:     str = "http://localhost:11434",
         api_key:        str = "",
+        gameplay_catalog: Any = None,
     ) -> None:
+        self._gameplay_catalog = gameplay_catalog
         self._sessions:       dict[str, BuilderSession] = {}
         self._sgc_bin:        str = sgc_bin_path
         self._sgc_args:       list[str] = list(sgc_args or [])
@@ -310,6 +313,8 @@ class SessionManager:
             sgc_bin_path   = self._sgc_bin,
         )
         gde = self._create_gde(mode, session_id)
+        if gde is not None and self._gameplay_catalog is not None:
+            gde._typed_executor.gameplay_catalog = self._gameplay_catalog
 
         session = BuilderSession(
             session_id   = session_id,
@@ -341,6 +346,11 @@ class SessionManager:
 
     # ── PIL execution ─────────────────────────────────────────────────────────
 
+    def matches_gameplay_package(self, prompt: str) -> bool:
+        return self._gameplay_catalog is not None and any(
+            prompt.strip().casefold() == alias.strip().casefold()
+            for package in self._gameplay_catalog.descriptors() for alias in package["aliases"])
+
     async def run_pil(
         self,
         session_id: str,
@@ -356,11 +366,28 @@ class SessionManager:
 
         session.touch()
         session.current_mode = mode
+        session.pending_gameplay_authoring = None
         session.pending_prompt_clarification = None
         session.pending_clar_id = None
         session.pending_prompt_preview = None
         session.pending_prompt_result = None
-        result_dict = _deterministic_simple_edit_result(prompt, cgs)
+        result_dict = None
+        if self._gameplay_catalog is not None:
+            from typed_operations.package_authoring import discover_packages
+            default_mode = next((m["id"] for m in cgs.get("modes", []) if m.get("is_default")), "")
+            result_dict = discover_packages(prompt, self._gameplay_catalog.descriptors(), cgs, default_mode)
+            if result_dict is not None:
+                if "package_id" not in result_dict:
+                    return _blocked("The request matches multiple catalog packages; select one explicitly.")
+                session.pending_txn = None
+                session.pending_gameplay_authoring = {"requirements": result_dict,
+                    "base_hash": cgs.get("metadata", {}).get("cgs_hash"),
+                    "selection": {"package_id": result_dict["package_id"], "package_hash": result_dict["package_hash"],
+                        "mode_id": default_mode, "actor_ids": [], "capability_targets": [], "template_id": ""},
+                    "step": "strategy", "index": 0}
+                return self._gameplay_question(session)
+        if result_dict is None:
+            result_dict = _deterministic_simple_edit_result(prompt, cgs)
         if result_dict is not None:
             readiness = _deterministic_simple_edit_readiness()
         else:
@@ -444,6 +471,120 @@ class SessionManager:
             session.pending_prompt_result = None
 
         return result_dict
+
+    def _gameplay_question(self, session):
+        active = session.pending_gameplay_authoring
+        requirements = active["requirements"]
+        step = active["step"]
+        question_type = "CHOICE"
+        if step == "strategy":
+            existing_action = "Mark selected objects" if requirements.get("requires_actors", True) or requirements["compatible_objects"] else "Use package"
+            options = [existing_action] + ["Create " + t for t in requirements["templates"]]
+            prompt = "Use existing targets, or create the package's template?"
+        elif step == "actors":
+            options = sorted(a for a, missing in requirements["actor_dependencies"].items() if not missing)
+            question_type = "SCOPE_SELECT"
+            prompt = "Which actors should use this gameplay package?"
+        elif step == "capabilities":
+            cap = sorted(requirements["compatible_objects"])[active["index"]]
+            options = requirements["compatible_objects"][cap]
+            question_type = "SCOPE_SELECT"
+            prompt = "Which objects should provide " + cap + "?"
+        else:
+            options = requirements["configurations"]
+            prompt = "Which package configuration should be used?"
+        if not options:
+            session.pending_gameplay_authoring = None
+            return _blocked("No compatible selection is available. Resolve the reported package dependencies first.", requirements)
+        clar_id = "catalog-" + _hash_json({"base": active["base_hash"], "selection": active["selection"], "step": step, "index": active["index"]})[:24]
+        active["clarification_id"] = clar_id
+        active["options"] = options
+        return {"kind": "clarification", "turn_index": 0, "intent_category": "GameplayPackage", "confidence": 1.0,
+            "mode_profile_warnings": [], "reason": requirements["message"],
+            "clarification_session_id": clar_id, "clarification_schema": "xace.gameplay_authoring_selection.v1",
+            "requirements": copy.deepcopy(requirements),
+            "questions": [{"question_id": clar_id, "question_type": question_type,
+                "prompt": prompt, "options": options, "parameter_key": step, "hint": "Changes are staged for review before applying."}]}
+
+    def answer_gameplay_package(self, session_id, clarification_id, answer, cgs):
+        session = self._sessions.get(session_id)
+        active = session.pending_gameplay_authoring if session else None
+        if active is None or active.get("clarification_id") != clarification_id:
+            return _blocked("This catalog selection is no longer active.")
+        if active["base_hash"] != cgs.get("metadata", {}).get("cgs_hash"):
+            self.clear_pending(session_id)
+            return _blocked("The project changed; request a fresh package proposal.")
+        if not isinstance(answer, str):
+            return _blocked("Invalid catalog selection.")
+        step = active["step"]
+        selected = answer.split(",") if step in {"actors", "capabilities"} else [answer]
+        if not selected or len(set(selected)) != len(selected) or not set(selected) <= set(active["options"]):
+            return _blocked("Select only the offered catalog options.")
+        selection = active["selection"]
+        if step == "strategy":
+            if answer in {"Mark selected objects", "Use package"}:
+                active["step"] = "actors" if active["requirements"].get("requires_actors", True) else ("capabilities" if active["requirements"]["compatible_objects"] else "configuration")
+            else:
+                selection["template_id"] = answer[len("Create "):]
+                active["step"] = "configuration"
+        elif step == "actors":
+            selection["actor_ids"] = sorted(selected)
+            active["step"] = "capabilities" if active["requirements"]["compatible_objects"] else "configuration"
+        elif step == "capabilities":
+            capabilities = sorted(active["requirements"]["compatible_objects"])
+            selection["capability_targets"].append({"capability_id": capabilities[active["index"]], "object_ids": sorted(selected)})
+            active["index"] += 1
+            if active["index"] == len(capabilities):
+                active["step"] = "configuration"
+        else:
+            selection["configuration_id"] = answer
+            return self.stage_gameplay_package(session_id, cgs, **selection)
+        return self._gameplay_question(session)
+
+    def stage_gameplay_package(self, session_id: str, cgs: dict, *, package_id: str,
+                               package_hash: str, mode_id: str, configuration_id: str,
+                               actor_ids=(), capability_targets=(), template_id="") -> dict:
+        """Host API for the requirements selection; uses the normal approval/apply path."""
+        session = self._sessions.get(session_id)
+        if session is None or self._gameplay_catalog is None:
+            return _err("Session or registered gameplay catalog unavailable.")
+        self.clear_pending(session_id)
+        try:
+            from typed_operations.package_authoring import package_proposal
+            from src.domain_dsl.typed_operations.typed_operation_executor import TypedOperationExecutor
+            package = self._gameplay_catalog.resolve(package_id, package_hash)
+            package["package_hash"] = package_hash
+            result = package_proposal(package=package, cgs=cgs, mode_id=mode_id,
+                configuration_id=configuration_id, actor_ids=actor_ids,
+                capability_targets=capability_targets, template_id=template_id)
+            txn = result["transaction"]
+            candidate = TypedOperationExecutor(self._gameplay_catalog).execute(txn["typed_operation_batch"], cgs).proposed_cgs
+            from importlib import import_module
+            validator = import_module("schema-factory.src.portable_compilation")
+            # Hash the candidate before compiling its world and SGC input.
+            from tools.cgs_schema_validate import compute_cgs_hash
+            candidate["metadata"]["cgs_hash"] = compute_cgs_hash(candidate)
+            validator.compile_portable_cgs(candidate)
+            compiled = self.compile_sgc_plan(candidate)
+            if not compiled.ok:
+                return _err("Package proposal compilation failed: " + str(compiled))
+            _stamp_pending_transaction_authority(txn, cgs, cgs["metadata"]["cgs_hash"])
+            reason = _pending_transaction_block_reason(txn)
+            if reason:
+                return _err(reason)
+            # Show the materialized world/system/config changes alongside the typed selection.
+            result["package_diff"] = {"before": copy.deepcopy(cgs), "after": candidate}
+            preview = _build_prompt_diff_preview(session=session, prompt=package["aliases"][0],
+                cgs=cgs, submitted_hash=cgs["metadata"]["cgs_hash"], mode=session.current_mode,
+                result=result, readiness={"ok": True, "provider": "registered_catalog"})
+            session.pending_txn = txn
+            session.pending_prompt_preview = preview
+            result["preview"] = preview
+            result["approval_required"] = True
+            session.pending_prompt_result = copy.deepcopy(result)
+            return result
+        except Exception as exc:
+            return _err("Package proposal rejected: " + str(exc))
 
     def validate_prompt_preview_approval(
         self,
@@ -652,6 +793,7 @@ class SessionManager:
         if session_id in self._sessions:
             session = self._sessions[session_id]
             session.pending_txn = None
+            session.pending_gameplay_authoring = None
             session.pending_prompt_clarification = None
             session.pending_clar_id = None
             session.pending_prompt_preview = None
@@ -687,12 +829,22 @@ class SessionManager:
 
         # ── Path A: GDE available ─────────────────────────────────────────────
         if session.gde is not None:
-            return _apply_via_gde(
-                session.gde,
-                txn_dict,
-                current_cgs,
-                session_id,
-            )
+            result = _apply_via_gde(session.gde, txn_dict, current_cgs, session_id)
+            if result.success:
+                try:
+                    from importlib import import_module
+                    import_module("schema-factory.src.portable_compilation").compile_portable_cgs(result.new_cgs)
+                except Exception as exc:
+                    # Value-only edits also require Layer 3 validation before persistence.
+                    # Restore the GDE candidate; the caller has not persisted or activated it.
+                    try:
+                        session.gde.load_cgs(copy.deepcopy(current_cgs), session_id=session_id)
+                    except Exception as restore_exc:
+                        # A failed candidate must never remain available for another commit.
+                        session.gde = None
+                        return GDEApplyResult(error=f"Schema Factory validation failed: {exc}; GDE disabled after restore failure: {restore_exc}")
+                    return GDEApplyResult(error=f"Schema Factory validation failed: {exc}")
+            return result
 
         return GDEApplyResult(
             error=(
@@ -725,8 +877,21 @@ class SessionManager:
 
         import subprocess, json as _json
 
-        # Build the system definitions list that SGC expects
-        systems = _extract_systems_for_sgc(cgs)
+        # The SGC consumes only the validated Factory projection (Layer 3 -> 4).
+        # Import by package name so it cannot collide with GDE's existing src package.
+        try:
+            from importlib import import_module
+            factory = import_module("schema-factory.src.portable_compilation")
+            compiled = factory.compile_portable_cgs(cgs)
+            systems = compiled.to_sgc_input()
+        except Exception as exc:
+            return SGCCompileResult(status="failed", error={
+                "schema": "xace.sgc.builder_error.v1",
+                "code": "SCHEMA_FACTORY_VALIDATION_FAILED",
+                "category": "schema_factory",
+                "message": str(exc)[:2000],
+                "action": "Correct the world/component declarations and compile through Schema Factory; no direct extraction fallback is allowed.",
+            })
         if not systems:
             return SGCCompileResult(status="skipped", error={
                 "schema": "xace.sgc.builder_error.v1",
@@ -740,9 +905,9 @@ class SessionManager:
         metadata = cgs.get("metadata", {}) if isinstance(cgs.get("metadata"), dict) else {}
         payload_obj = {
             "schema": "xace.sgc.cli.input.v1",
-            "schema_version": str(metadata.get("schema_version") or metadata.get("version") or "0.1.0"),
+            "schema_version": compiled.schema_version,
             "plan_version": int(metadata.get("execution_plan_version") or 1),
-            "cgs_hash": str(metadata.get("cgs_hash") or ""),
+            "cgs_hash": compiled.cgs_hash,
             "systems": systems,
         }
         payload = _json.dumps(payload_obj, sort_keys=True)
@@ -860,6 +1025,10 @@ class SessionManager:
         self._model_name = selection.model
         self._ollama_url = selection.base_url or self._ollama_url
         return payload
+
+    def configure_ai_mode(self, *, mode: str, enabled: bool | None = None) -> dict:
+        """Persist the selected prompt path without altering API/BYOK provider settings."""
+        return self._provider_store.configure_ai_mode(mode=mode, enabled=enabled, make_active=True)
 
     def test_provider_config(self, payload: dict[str, Any] | None = None) -> dict:
         """Runs a real provider health check: key, model, and test call."""
@@ -1223,19 +1392,6 @@ def _apply_via_gde(
 
 # ── SGC helpers ───────────────────────────────────────────────────────────────
 
-def _extract_systems_for_sgc(cgs: dict) -> list[dict]:
-    """Extracts all system definitions from the CGS for SGC input."""
-    systems = list(cgs.get("global_systems", []))
-    seen: set[str] = {s.get("id", "") for s in systems}
-    for mode in cgs.get("modes", []):
-        for sys in mode.get("systems", []):
-            sid = sys.get("id", "")
-            if sid and sid not in seen:
-                systems.append(sys)
-                seen.add(sid)
-    return systems
-
-
 def _parse_sgc_error(stderr: str, exit_code: int) -> dict[str, Any]:
     import json as _json
 
@@ -1509,6 +1665,27 @@ def _build_prompt_diff_preview(
             "source": str(result.get("cost_source") or "pil_result_or_streaming_updates_when_available"),
         },
     }
+    package_diff = result.get("package_diff")
+    if isinstance(package_diff, dict):
+        before, after = package_diff["before"], package_diff["after"]
+        # Render materialized changes through the existing generic CGS diff rows.
+        rows = []
+        for key in ("component_schemas", "global_systems", "assets"):
+            if before.get(key) != after.get(key):
+                rows.append({"path": key, "old_value": before.get(key), "new_value": after.get(key)})
+        prior_modes = {m["id"]: m for m in before.get("modes", [])}
+        for updated in after.get("modes", []):
+            prior = prior_modes.get(updated["id"], {})
+            for key in ("actors", "world", "systems"):
+                if prior.get(key) != updated.get(key):
+                    rows.append({"path": "modes." + updated["id"] + "." + key,
+                        "old_value": prior.get(key), "new_value": updated.get(key)})
+        preview_core["cgs_diff"]["operations"] = [dict(row, index=index, op="SET", preview_value=row["new_value"])
+            for index, row in enumerate(rows)]
+        preview_core["cgs_diff"]["operation_count"] = len(rows)
+        preview_core["package_diff"] = copy.deepcopy(package_diff)
+        preview_core["system_diff"]["package_systems"] = [
+            copy.deepcopy(system) for mode_record in after.get("modes", []) for system in mode_record.get("systems", [])]
     approval_token = _new_prompt_preview_token(session, preview_core)
     preview_core["approval_token"] = approval_token
     preview_core["approval_token_hash"] = hashlib.sha256(approval_token.encode("utf-8")).hexdigest()

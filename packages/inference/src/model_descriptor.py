@@ -469,7 +469,7 @@ GOOGLE_GEMINI_3_FLASH = ModelDescriptor(
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LOCAL DEVELOPMENT
-# Zero cost. Requires Ollama running at localhost:11434.
+# No provider API price; local compute costs are not estimated. Requires Ollama at localhost:11434.
 # Use local_provider.py which wraps Ollama's OpenAI-compatible endpoint.
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -489,7 +489,8 @@ LOCAL_LLAMA3_70B = ModelDescriptor(
         ModelCapability.GENERATION, ModelCapability.CRITIQUE, ModelCapability.STREAMING,
     }),
     notes                    = (
-        "Local dev via Ollama (localhost:11434). Zero cost. No code_gen. "
+        "Local dev via Ollama (localhost:11434). No provider API price; "
+        "hardware, electricity, and hosting costs are not estimated. No code_gen. "
         "Replace model_id with whatever model you have pulled (ollama pull ...)."
     ),
 )

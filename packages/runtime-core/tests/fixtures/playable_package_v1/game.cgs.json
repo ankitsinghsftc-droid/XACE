@@ -1,0 +1,955 @@
+{
+  "metadata": {
+    "name": "ReferenceMechanicProof",
+    "version": "0.1.0",
+    "schema_version": "0.1.0",
+    "cgs_hash": "4bcb379ef3686257b6c476920ff0308378b8a77fb293aebe7be23607e8129f62"
+  },
+  "component_schemas": [],
+  "global_systems": [],
+  "assets": [
+    {
+      "id": "volume_asset",
+      "asset_type": "project.volumetric_asset.v1",
+      "status": "PLACEHOLDER"
+    }
+  ],
+  "modes": [
+    {
+      "id": "reference",
+      "is_default": true,
+      "schema_version": "0.1.0",
+      "actors": [
+        {
+          "id": "spaceship",
+          "actor_type": {
+            "Custom": "project.spaceship.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            },
+            {
+              "type_id": 5,
+              "name": "COMP_VELOCITY_V1",
+              "defaults": {
+                "linear": {
+                  "x": 1000000,
+                  "y": 0,
+                  "z": 0
+                },
+                "angular": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "max_linear_speed": 20000000,
+                "max_angular_speed": 0
+              }
+            }
+          ]
+        },
+        {
+          "id": "meteor",
+          "actor_type": {
+            "Custom": "project.meteor.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "burning_effect",
+          "actor_type": {
+            "Custom": "project.burning_effect.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "docking_port",
+          "actor_type": {
+            "Custom": "project.docking_port.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "vacuum_zone",
+          "actor_type": {
+            "Custom": "project.vacuum_zone.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "gravity_field",
+          "actor_type": {
+            "Custom": "project.gravity_field.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "territory",
+          "actor_type": {
+            "Custom": "project.territory.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "resource_node",
+          "actor_type": {
+            "Custom": "project.resource_node.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "formation_slot",
+          "actor_type": {
+            "Custom": "project.formation_slot.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "haunted_region",
+          "actor_type": {
+            "Custom": "project.haunted_region.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        },
+        {
+          "id": "sound_occluder",
+          "actor_type": {
+            "Custom": "project.sound_occluder.v1"
+          },
+          "control_type": "NONE",
+          "spawn_count": 2,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": -500000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 1000000,
+                  "z": 0,
+                  "w": 0
+                },
+                "scale": {
+                  "x": 2000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "floor"
+              }
+            }
+          ]
+        }
+      ],
+      "systems": [
+        {
+          "id": "MovementSystem",
+          "phase": "Simulation",
+          "reads": [
+            1,
+            5
+          ],
+          "writes": [
+            1
+          ],
+          "depends_on": [],
+          "deterministic": true
+        }
+      ],
+      "rules": [],
+      "ui": {},
+      "world": {
+        "size": {
+          "width": 100000000,
+          "height": 100000000,
+          "depth": 100000000
+        },
+        "gravity": {
+          "x": 0,
+          "y": -9810000,
+          "z": 0
+        },
+        "day_length_ticks": 0,
+        "contract": {
+          "contract_version": 3,
+          "id": "project.world",
+          "version": "1.0.0",
+          "schemas": [
+            {
+              "id": "project.spaceship.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.meteor.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.burning_effect.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.docking_port.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.vacuum_zone.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.gravity_field.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.territory.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.resource_node.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.formation_slot.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.haunted_region.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.sound_occluder.v1",
+              "definition": {
+                "type": "object",
+                "fields": {
+                  "strength": {
+                    "type": "integer"
+                  },
+                  "labels": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "id": "project.volumetric_asset.v1",
+              "definition": {
+                "type": "object",
+                "fields": {}
+              }
+            }
+          ],
+          "capability_declarations": [
+            {
+              "id": "project.observable.v1",
+              "allowed_types": []
+            }
+          ],
+          "geometry_profiles": [],
+          "objects": [
+            {
+              "id": "spaceship",
+              "actor_id": "spaceship",
+              "instance_index": 1,
+              "semantic_type": "project.spaceship.v1",
+              "properties": {
+                "strength": 0,
+                "labels": [
+                  "spaceship"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {
+                "project.docks_at.v1": [
+                  "docking_port"
+                ]
+              },
+              "asset_bindings": {
+                "project.hull_effect.v1": {
+                  "id": "volume_asset",
+                  "asset_type": "project.volumetric_asset.v1",
+                  "status": "PLACEHOLDER"
+                },
+                "project.engine_effect.v1": {
+                  "id": "volume_asset",
+                  "asset_type": "project.volumetric_asset.v1",
+                  "status": "PLACEHOLDER"
+                }
+              },
+              "geometry_profile": null
+            },
+            {
+              "id": "meteor",
+              "actor_id": "meteor",
+              "instance_index": 1,
+              "semantic_type": "project.meteor.v1",
+              "properties": {
+                "strength": 1,
+                "labels": [
+                  "meteor"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "burning_effect",
+              "actor_id": "burning_effect",
+              "instance_index": 1,
+              "semantic_type": "project.burning_effect.v1",
+              "properties": {
+                "strength": 2,
+                "labels": [
+                  "burning_effect"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "docking_port",
+              "actor_id": "docking_port",
+              "instance_index": 1,
+              "semantic_type": "project.docking_port.v1",
+              "properties": {
+                "strength": 3,
+                "labels": [
+                  "docking_port"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "vacuum_zone",
+              "actor_id": "vacuum_zone",
+              "instance_index": 1,
+              "semantic_type": "project.vacuum_zone.v1",
+              "properties": {
+                "strength": 4,
+                "labels": [
+                  "vacuum_zone"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "gravity_field",
+              "actor_id": "gravity_field",
+              "instance_index": 1,
+              "semantic_type": "project.gravity_field.v1",
+              "properties": {
+                "strength": 5,
+                "labels": [
+                  "gravity_field"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "territory",
+              "actor_id": "territory",
+              "instance_index": 1,
+              "semantic_type": "project.territory.v1",
+              "properties": {
+                "strength": 6,
+                "labels": [
+                  "territory"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "resource_node",
+              "actor_id": "resource_node",
+              "instance_index": 1,
+              "semantic_type": "project.resource_node.v1",
+              "properties": {
+                "strength": 7,
+                "labels": [
+                  "resource_node"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "formation_slot",
+              "actor_id": "formation_slot",
+              "instance_index": 1,
+              "semantic_type": "project.formation_slot.v1",
+              "properties": {
+                "strength": 8,
+                "labels": [
+                  "formation_slot"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "haunted_region",
+              "actor_id": "haunted_region",
+              "instance_index": 1,
+              "semantic_type": "project.haunted_region.v1",
+              "properties": {
+                "strength": 9,
+                "labels": [
+                  "haunted_region"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "sound_occluder",
+              "actor_id": "sound_occluder",
+              "instance_index": 1,
+              "semantic_type": "project.sound_occluder.v1",
+              "properties": {
+                "strength": 10,
+                "labels": [
+                  "sound_occluder"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            },
+            {
+              "id": "ship_socket",
+              "actor_id": "spaceship",
+              "instance_index": 1,
+              "semantic_type": "project.spaceship.v1",
+              "properties": {
+                "strength": 0,
+                "labels": [
+                  "spaceship"
+                ]
+              },
+              "capabilities": [
+                "project.observable.v1"
+              ],
+              "relationships": {},
+              "asset_bindings": {},
+              "geometry_profile": null
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

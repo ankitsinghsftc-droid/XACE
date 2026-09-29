@@ -166,11 +166,15 @@ class CodexLifecycleTests(unittest.TestCase):
         self.assertEqual(handle["metadata"]["context_capsule_cwd"], expected_cwd)
         self.assertEqual(client.notifications_sent, [("initialized", {})])
 
+        initialize_params = _request_params(client, "initialize")
+        self.assertNotIn("capabilities", initialize_params)
+
         thread_params = _request_params(client, "thread/start")
         self.assertEqual(thread_params["cwd"], expected_cwd)
         self.assertEqual(thread_params["approvalPolicy"], "never")
-        self.assertEqual(thread_params["sandbox"], "readOnly")
-        self.assertEqual(thread_params["historyMode"], "paginated")
+        self.assertEqual(thread_params["sandbox"], "read-only")
+        self.assertNotIn("historyMode", thread_params)
+        self.assertEqual(thread_params["serviceName"], "xace_builder")
         self.assertEqual(thread_params["model"], "gpt-5.6-terra")
         self.assertNotIn("thread/shellCommand", _request_methods(client))
         self.assertNotIn("fs/writeFile", _request_methods(client))
@@ -230,7 +234,11 @@ class CodexLifecycleTests(unittest.TestCase):
         turn_params = _request_params(client, "turn/start")
         self.assertEqual(turn_params["threadId"], "codex-thread-stream")
         self.assertEqual(turn_params["approvalPolicy"], "never")
-        self.assertEqual(turn_params["sandboxPolicy"], {"type": "readOnly"})
+        self.assertEqual(turn_params["sandboxPolicy"]["type"], "readOnly")
+        self.assertEqual(
+            turn_params["sandboxPolicy"]["access"],
+            {"type": "restricted", "includePlatformDefaults": False, "readableRoots": []},
+        )
         self.assertEqual(turn_params["input"], [{"type": "text", "text": "Use safe XACE tools only."}])
         self.assertTrue(client.closed)
         self.assertNotIn("thread/shellCommand", _request_methods(client))
@@ -282,6 +290,75 @@ class CodexLifecycleTests(unittest.TestCase):
         self.assertEqual(_request_params(client, "turn/interrupt")["turnId"], "codex-turn-cancel")
         self.assertIn("thread/backgroundTerminals/clean", _request_methods(client))
         self.assertTrue(client.closed)
+    def test_malicious_command_event_is_interrupted_before_forwarding(self) -> None:
+        async def scenario() -> tuple[list[AgentEventType], list[dict[str, Any]], FakeCodexClient]:
+            client = FakeCodexClient(
+                thread_id="codex-thread-malicious",
+                turn_id="codex-turn-malicious",
+                notifications=[
+                    {
+                        "method": "item/started",
+                        "params": {
+                            "item": {
+                                "id": "command-1",
+                                "type": "commandExecution",
+                                "command": "write the real project",
+                            }
+                        },
+                    },
+                    {
+                        "method": "turn/completed",
+                        "params": {
+                            "turn": {
+                                "id": "codex-turn-malicious",
+                                "status": "completed",
+                            }
+                        },
+                    },
+                ],
+            )
+            adapter = _adapter(FakeClientFactory(client))
+            handle = await adapter.start_session(
+                AgentStartRequest(
+                    xace_session_id="session-malicious",
+                    user_prompt="Start.",
+                    base_cgs_hash=CGS_HASH,
+                )
+            )
+            events = [
+                event
+                async for event in adapter.run_turn(
+                    AgentTurnRequest(
+                        handle=handle,
+                        user_prompt="Attempt a forbidden command.",
+                        base_cgs_hash=CGS_HASH,
+                    )
+                )
+            ]
+            return (
+                [event.event_type for event in events],
+                [dict(event.data) for event in events],
+                client,
+            )
+
+        event_types, event_data, client = asyncio.run(scenario())
+
+        self.assertEqual(event_types, [AgentEventType.ERROR])
+        self.assertEqual(
+            event_data[0]["security_code"],
+            "AGENT_PROVIDER_CAPABILITY_DENIED",
+        )
+        self.assertTrue(event_data[0]["denied"])
+        self.assertEqual(
+            _request_params(client, "turn/interrupt")["turnId"],
+            "codex-turn-malicious",
+        )
+        self.assertNotIn(
+            "turn_completed",
+            [event_type.value for event_type in event_types],
+        )
+        self.assertTrue(client.closed)
+
 
     def test_fork_and_compact_retain_xace_state_references(self) -> None:
         async def scenario() -> tuple[dict[str, Any], dict[str, Any], FakeCodexClient]:

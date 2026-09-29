@@ -45,8 +45,48 @@ class AgentModeSettingsTests(unittest.TestCase):
             self.assertEqual(agent["schema"], "xace.ai_mode_status.v1")
             self.assertEqual(agent["primary_adapter"], PRIMARY_AGENT_ADAPTER)
             self.assertEqual(agent["tool_transport_preference"], "mcp")
-            self.assertEqual(agent["certified_adapters"], [])
-            self.assertFalse(agent["distribution"]["bundling_allowed"])
+            self.assertEqual(agent["certified_adapters"], [PRIMARY_AGENT_ADAPTER])
+            self.assertEqual(agent["feature_stage"], "ag_028_privacy_support_complete")
+            self.assertTrue(agent["launch_status"]["release_certified"])
+            self.assertTrue(agent["launch_status"]["implementation_shippable"])
+            self.assertTrue(agent["launch_status"]["fallback_active"])
+            self.assertFalse(agent["launch_status"]["requires_claude_or_local"])
+            distribution = agent["distribution"]
+            self.assertEqual(
+                distribution["preferred_runtime_source"],
+                "official_pinned_python_sdk_runtime",
+            )
+            self.assertFalse(distribution["redistribution"]["bundling_allowed"])
+            self.assertFalse(
+                distribution["redistribution"]["automatic_acquisition_enabled"]
+            )
+            self.assertEqual(distribution["authentication"]["owner"], "codex_provider")
+            self.assertEqual(payload["billing"]["source"], "local_runtime")
+            self.assertEqual(payload["billing"]["cost_state"], "local_resource")
+            self.assertNotIn("free", payload["billing"]["detail"].lower())
+            self.assertEqual(modes[AI_MODE_AGENT]["billing"]["cost_state"], "unknown")
+            self.assertEqual(
+                modes[AI_MODE_LOCAL_AGENT]["billing"]["cost_state"],
+                "local_resource",
+            )
+
+    def test_hosted_api_key_mode_is_xace_estimated_and_token_tracked(self):
+        with tempfile.TemporaryDirectory(prefix="xace-agent-mode-api-billing-") as tmp:
+            store = _store(Path(tmp))
+
+            payload = store.configure(
+                provider="openai",
+                model="gpt-5.4",
+                api_key="test-only-secret",
+            )
+
+            self.assertEqual(payload["ai_mode"], AI_MODE_API_BYOK)
+            self.assertEqual(payload["billing"]["schema"], "xace.billing_usage.v1")
+            self.assertEqual(payload["billing"]["source"], "api_byok")
+            self.assertEqual(payload["billing"]["cost_state"], "estimated")
+            self.assertEqual(payload["billing"]["token_tracking"], "xace_tracked")
+            self.assertEqual(payload["billing"]["currency"], "USD")
+            self.assertIn("provider invoice", payload["billing"]["detail"].lower())
 
     def test_agent_mode_can_be_enabled_for_tests_without_provider_side_effects(self):
         with tempfile.TemporaryDirectory(prefix="xace-agent-mode-enable-") as tmp:
@@ -65,6 +105,9 @@ class AgentModeSettingsTests(unittest.TestCase):
             self.assertTrue(payload["agent_mode"]["active"])
             self.assertFalse(payload["agent_mode"]["ready"])
             self.assertFalse(payload["agent_mode"]["available"])
+            self.assertEqual(payload["billing"]["source"], "unknown")
+            self.assertEqual(payload["billing"]["cost_state"], "unknown")
+            self.assertEqual(payload["billing"]["token_tracking"], "unknown")
 
     def test_disabled_requested_agent_mode_falls_back_to_api_byok_effective_mode(self):
         with tempfile.TemporaryDirectory(prefix="xace-agent-mode-disabled-") as tmp:
@@ -76,6 +119,20 @@ class AgentModeSettingsTests(unittest.TestCase):
             self.assertEqual(payload["ai_mode"], AI_MODE_API_BYOK)
             self.assertFalse(payload["agent_mode"]["active"])
             self.assertEqual(store.active_ai_mode(), AI_MODE_API_BYOK)
+
+    def test_explicit_agent_selection_refreshes_pre_login_cache(self):
+        from unittest.mock import Mock
+        with tempfile.TemporaryDirectory(prefix="xace-agent-setup-cache-") as tmp:
+            reader = Mock(side_effect=_missing_codex_status)
+            store = ProviderSettingsStore(
+                Path(tmp) / "settings.json",
+                credential_store=UnsafeFileCredentialBackend(Path(tmp) / "credentials.json"),
+                agent_status_reader=reader,
+            )
+            store.configure_ai_mode(mode=AI_MODE_AGENT, enabled=True)
+            previous = reader.call_count
+            store.configure_ai_mode(mode=AI_MODE_AGENT, enabled=True)
+            self.assertGreater(reader.call_count, previous)
 
     def test_invalid_ai_mode_is_rejected_when_configured(self):
         with tempfile.TemporaryDirectory(prefix="xace-agent-mode-invalid-") as tmp:

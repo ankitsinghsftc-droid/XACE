@@ -35,6 +35,7 @@ import { EntityInspector }    from '../preview/entity_inspector';
 import { RuntimeStats }       from '../preview/runtime_stats';
 import { TickDebugger }       from '../preview/tick_debugger';
 import { InferenceTelemetryPanel } from '../telemetry/inference_telemetry_panel';
+import { AgentModePanel }    from '../panels/agent_mode_panel';
 
 // Asset panel
 import { AssetStatusPanel }   from '../panels/asset_status_panel';
@@ -256,12 +257,13 @@ export class BuilderCanvas {
     this._rightTabContent = tabContent;
 
     // Define tabs + their components
-    type RightTab = 'preview' | 'inspector' | 'stats' | 'debug' | 'telemetry';
+    type RightTab = 'preview' | 'inspector' | 'stats' | 'debug' | 'agent' | 'telemetry';
     const tabDefs: Array<{ id: RightTab; label: string; architectOnly?: boolean }> = [
       { id: 'preview',    label: 'Preview' },
       { id: 'inspector',  label: 'Inspector' },
       { id: 'stats',      label: 'Stats' },
       { id: 'debug',      label: 'Debug' },
+      { id: 'agent',      label: 'Agent' },
       { id: 'telemetry',  label: 'Telemetry', architectOnly: true },
     ];
 
@@ -310,6 +312,9 @@ export class BuilderCanvas {
     // Mount debugger
     const debugger_ = new TickDebugger({ cgsStore: this._deps.cgsStore, uiStore: this._deps.uiStore, client: this._deps.client });
     debugger_.mount(panels['debug']!);
+
+    const agentPanel = new AgentModePanel({ client: this._deps.client, consoleSM: this._deps.consoleSM });
+    agentPanel.mount(panels['agent']!);
 
     // Mount telemetry (Architect only)
     this._telemetryPanel = new InferenceTelemetryPanel({ consoleSM: this._deps.consoleSM, uiStore: this._deps.uiStore });

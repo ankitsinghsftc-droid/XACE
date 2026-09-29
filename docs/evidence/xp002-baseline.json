@@ -1,0 +1,266 @@
+{
+  "schema": "xace.xp002.baseline.v1",
+  "date": "2026-09-24",
+  "task": "XP-002",
+  "acceptance": "satisfied for declared supported profile",
+  "recommendation": "READY FOR XP-003",
+  "xp003_started": false,
+  "working_tree": "pre-existing dirty; no commit created",
+  "task_files": [
+    "MASTER_PLAN.md",
+    "docs/source_inventory.json",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+    "packages/schema-factory/src/schema_factory.py",
+    "packages/schema-factory/src/portable_compilation.py",
+    "packages/builder-workspace/server/session_manager.py",
+    "packages/builder-workspace/server/tests/test_factory_authority.py",
+    "packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py",
+    "packages/builder-workspace/server/tests/fixtures/prompt_pipeline_contract.py",
+    "packages/runtime-core/src/input_ingress.rs",
+    "packages/runtime-core/src/lib.rs",
+    "packages/runtime-core/src/cgs_loader.rs",
+    "packages/runtime-core/src/runtime_orchestrator.rs",
+    "packages/runtime-core/src/bin/xace_runtime.rs",
+    "tools/xp002_authority_proof.py",
+    "docs/adr/XP-002-authority-boundaries.md",
+    "docs/XP002_COMPLETION.md",
+    "docs/evidence/xp002-baseline.json"
+  ],
+  "source_sha256": {
+    "MASTER_PLAN.md": "b885e130d71b4b3315879ecffb2b1289c0feef700bdcf5a53dc4f30748ff88b5",
+    "docs/source_inventory.json": "73a095d1672e8f2be88d17ff75420d9923a19db2759eead0802719e6a4f72069",
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": "1e75cfefcfa93629bad0fcfd2d5e78abd842b2a9734f6151a779847f693a9eba",
+    "packages/schema-factory/src/schema_factory.py": "f2cc614b0913a3a8cc14c7fa58931aaa3952f698dd03f98d2eb258bacbe70f74",
+    "packages/schema-factory/src/portable_compilation.py": "404a3013f34a63d41bf2b3d2bc3a925625f88c09c5853412d1d60073a51e46df",
+    "packages/builder-workspace/server/session_manager.py": "18249f97151d2acef9186689079ac1d5794b2f1d0505df6cd35daec30f71734c",
+    "packages/builder-workspace/server/tests/test_factory_authority.py": "b508db2d85e0bf9bb6dd5ecd3d2e3c100926d501feb3d16b9c5e330c4eeb8614",
+    "packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py": "0825ff06463e5ca4c39cd97f9c332c105f45bedb6290f866a21ea80c442fcec2",
+    "packages/builder-workspace/server/tests/fixtures/prompt_pipeline_contract.py": "ca6b2f023a32ec902280242462bcfb7f9634e797a978ca48529f2687114f3701",
+    "packages/runtime-core/src/input_ingress.rs": "e91b756c5d72e9593b2a21e970eff2e4e79a0aecfdbb4fa39a7fb743966e8f11",
+    "packages/runtime-core/src/lib.rs": "1564c27909144e84becfc8a5f9893ba050be1375937b55cad25430c4841b2c13",
+    "packages/runtime-core/src/cgs_loader.rs": "8231044c5fd10acb3d6a669b1a7a70899401f82ee59e27f75203c1ce15157b97",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "464a3f7ef4d89ec4823bf52aeacc72487b17c93c77726e5ee8f014541189d94d",
+    "packages/runtime-core/src/bin/xace_runtime.rs": "62fa9778ec02fe3b33900c503cccbe3661365b514c1df6380bb03566c19385d5",
+    "tools/xp002_authority_proof.py": "4153b9aff0b97f694df9332638459b4b4a2d984f99bd636f061b51085b2a69cc",
+    "docs/adr/XP-002-authority-boundaries.md": "bee7a95d839f576f338b03fd099c211e2c62ba1df279e7ea8798d8df837d7a58",
+    "docs/XP002_COMPLETION.md": "e0748c104ab176723ab60ebfdffa518602019054ff598a39634763bff92adcc9"
+  },
+  "diff_from_pre_task_working_tree": {
+    "MASTER_PLAN.md": {
+      "added": 22,
+      "deleted": 0,
+      "new": false
+    },
+    "docs/source_inventory.json": {
+      "added": 5,
+      "deleted": 1,
+      "new": false
+    },
+    "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md": {
+      "added": 6,
+      "deleted": 5,
+      "new": false
+    },
+    "packages/schema-factory/src/schema_factory.py": {
+      "added": 0,
+      "deleted": 1,
+      "new": false
+    },
+    "packages/schema-factory/src/portable_compilation.py": {
+      "added": 190,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/builder-workspace/server/session_manager.py": {
+      "added": 33,
+      "deleted": 23,
+      "new": false
+    },
+    "packages/builder-workspace/server/tests/test_factory_authority.py": {
+      "added": 119,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/builder-workspace/server/tests/test_prompt_pipeline_e2e.py": {
+      "added": 22,
+      "deleted": 4,
+      "new": false
+    },
+    "packages/builder-workspace/server/tests/fixtures/prompt_pipeline_contract.py": {
+      "added": 4,
+      "deleted": 50,
+      "new": false
+    },
+    "packages/runtime-core/src/input_ingress.rs": {
+      "added": 60,
+      "deleted": 0,
+      "new": true
+    },
+    "packages/runtime-core/src/lib.rs": {
+      "added": 2,
+      "deleted": 0,
+      "new": false
+    },
+    "packages/runtime-core/src/cgs_loader.rs": {
+      "added": 10,
+      "deleted": 2,
+      "new": false
+    },
+    "packages/runtime-core/src/runtime_orchestrator.rs": {
+      "added": 213,
+      "deleted": 31,
+      "new": false
+    },
+    "packages/runtime-core/src/bin/xace_runtime.rs": {
+      "added": 6,
+      "deleted": 1,
+      "new": false
+    },
+    "tools/xp002_authority_proof.py": {
+      "added": 99,
+      "deleted": 0,
+      "new": true
+    },
+    "docs/adr/XP-002-authority-boundaries.md": {
+      "added": 61,
+      "deleted": 0,
+      "new": true
+    },
+    "docs/XP002_COMPLETION.md": {
+      "added": 119,
+      "deleted": 0,
+      "new": true
+    }
+  },
+  "adjacent_sources_unchanged_sha256": {
+    "packages/builder-workspace/server/ws_message_router.py": "678486bf18e70457fc7dfbfafaecf3aa9a95c68bdd9b153da022f0844819879a",
+    "packages/schema-factory/src/compiled_schema_package.py": "98ccb9c3a1d9ce797f1faf40ad0e94a912fd4545c042b55d8122b150841243f7",
+    "packages/runtime-core/src/builtin_systems.rs": "474cba8f77fd4647b748cca7bd2a96ca712878b5e582828faa24fc400d969a75",
+    "packages/dcl/gameplay_primitives.py": "eeb8c5983cc9725eec84f935ce85010f7f4abf8b9d19add0dbbf7523bb7eff11"
+  },
+  "rust": {
+    "broad_passed": 1901,
+    "failed": 0,
+    "ignored": 0,
+    "result_groups": 32,
+    "final_focused_passed": 7,
+    "note": "focused run contains one extra test added after broad run; counts overlap"
+  },
+  "python": {
+    "passed": 1121,
+    "suites": [
+      {
+        "id": "schema-factory",
+        "passed": 127,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "gde",
+        "passed": 200,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "project-system",
+        "passed": 11,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "asset-registry",
+        "passed": 207,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "dcl",
+        "passed": 14,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "inference",
+        "passed": 233,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      },
+      {
+        "id": "builder-server",
+        "passed": 329,
+        "failed": 0,
+        "errors": 0,
+        "not_run": 0,
+        "ok": true
+      }
+    ]
+  },
+  "builder_ui": {
+    "lint": "passed",
+    "typecheck": "passed",
+    "test:ui": "passed",
+    "build": "passed"
+  },
+  "real_chain": {
+    "schema": "xace.xp002.authority_proof.v1",
+    "ok": true,
+    "cgs_hash": "6842c07cf1fddce9abd95437b376dce05b79b69e040e365c4ce81010fc6f9111",
+    "plan_hash": "27543e8195fb1d81f06b060433e4d9da339b8eb7abc123500e08f7834781dd35",
+    "disk_sha256_before_rejected_compile": "a025988843fea727b39c33c8cd5189724b38f1f043f6ae3a6d27af58d03916d6",
+    "disk_sha256_after_rejected_compile": "a025988843fea727b39c33c8cd5189724b38f1f043f6ae3a6d27af58d03916d6",
+    "all_project_artifacts_unchanged_on_rejection": true,
+    "repeated_runtime_reports_identical": true,
+    "ticks": 3,
+    "rejected_gde_edit_restored_previous_state": true,
+    "rejected_edit_reason": "Schema Factory validation failed: SchemaFactory [portable_projection]: 1 error(s):\n  [1] component 5.max_linear_speed requires int",
+    "rejected_code": "SCHEMA_FACTORY_VALIDATION_FAILED",
+    "runtime_binary_sha256": "fe267b47b42ea4aa06b8d82e697f6fa5ae709c980cad3579259ca9ea869f47cb",
+    "sgc_binary_sha256": "55bba72e587a75aede410eefabfd6c91b3ee04cc31c1fc5996a9275ef7f35553",
+    "scope": "real offline compiler/runtime chain; control/input/preview injection invariants tested separately in Rust and Builder regressions; not live networking"
+  },
+  "preview_world_hash_before": "c170b4a7e027ce5d0f2f0223cadb0c7a560372fb3d6e17d7dd031089260785af",
+  "preview_world_hash_after": "c170b4a7e027ce5d0f2f0223cadb0c7a560372fb3d6e17d7dd031089260785af",
+  "runtime_hash_log": [
+    {
+      "tick": 0,
+      "world_hash": "6024faba102dce9909c39076bdc93beb8c3035d373433d31728b697520cfd495"
+    },
+    {
+      "tick": 1,
+      "world_hash": "2e664854fc983f89f971e58c4a74394b09a6a8abd6f82179b0f3e0bbe33734f3"
+    },
+    {
+      "tick": 2,
+      "world_hash": "9c52fd48f1c740bb92b8e365fda2ab7efcb996d49af126e04cedc17640d3fafc"
+    }
+  ],
+  "logs_sha256": {
+    "tmp/xp002-rust.log": "d9bff32adc3ea1ca7728e226cc9d2a24b4653b49f64047006f5d15073e3f0283",
+    "tmp/xp002-runtime-final.log": "3da7bbc698fbc25ee32cb4f5f750dafccb74bc9c989426243b365400a2f889dc",
+    "tmp/xp002-python-final.json": "cd8ce00cd856ab62f17e09b06df2e6d8ae389fce2ba4d718cd2bfd31cd8c6f6f",
+    "tmp/xp002-proof/first.schedule.json": "f38ad74f4d1cb8a76e979906e76b53365c84d952748ae1db8c6e4b99d81c4084",
+    "tmp/xp002-proof/second.schedule.json": "f38ad74f4d1cb8a76e979906e76b53365c84d952748ae1db8c6e4b99d81c4084",
+    "tmp/xp002-catalog.json": "f6e5694de64a9acce752eecbfae5f69c2df00c6c04212acea14dedc88ba6bd06",
+    "tmp/xp002-prompt-final.log": "8677f7d0fcda33a2d48aeae6ba152e0be082de43eaea33af6421627b2d37205b"
+  },
+  "inventory_preexisting_omissions": 31,
+  "limitations": [
+    "Legacy default templates/noncanonical exports require explicit migration; intentionally rejected before commit.",
+    "No Player, live multiplayer, provider turn, native editor, geometry compiler or whole-product certification.",
+    "AG-030 and XP-001 evidence remains historical; not refreshed.",
+    "Manifest excludes its own recursive hash and diff.",
+    "After broad gates, exact original diagnostic/comment text was restored from the pre-task backup; focused Python tests and rebuilt-binary real-chain proof reran successfully."
+  ]
+}

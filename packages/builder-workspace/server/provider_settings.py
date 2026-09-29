@@ -46,12 +46,16 @@ UNRESOLVED_MODEL = "unresolved"
 PROVIDER_HEALTH_PROOF_SCHEMA = "xace.provider_health_proof.v1"
 PROVIDER_UX_STATE_SCHEMA = "xace.provider_ux_state.v1"
 AI_MODE_STATUS_SCHEMA = "xace.ai_mode_status.v1"
+BILLING_USAGE_SCHEMA = "xace.billing_usage.v1"
 AI_MODE_API_BYOK = "api_byok"
 AI_MODE_AGENT = "agent"
 AI_MODE_LOCAL_AGENT = "local_agent"
 DEFAULT_AI_MODE = AI_MODE_API_BYOK
 AI_MODE_IDS = (AI_MODE_API_BYOK, AI_MODE_AGENT, AI_MODE_LOCAL_AGENT)
 PRIMARY_AGENT_ADAPTER = "codex_app_server"
+AGENT_MODE_LAUNCH_STATUS_SCHEMA = "xace.agent_mode_launch_status.v1"
+AGENT_MODE_FEATURE_STAGE = "ag_028_privacy_support_complete"
+CERTIFIED_AGENT_ADAPTERS = (PRIMARY_AGENT_ADAPTER,)
 STORAGE_NOTE = (
     "API keys are stored in the operating system credential vault. "
     "The JSON settings file stores provider/model metadata, key fingerprints, "
@@ -256,8 +260,8 @@ AI_MODE_DEFINITIONS: dict[str, AiModeDefinition] = {
     ),
     AI_MODE_AGENT: AiModeDefinition(
         id=AI_MODE_AGENT,
-        label="Agent Mode",
-        description="Use a provider-native agent runtime when a certified adapter is wired.",
+        label="Codex Agent Mode",
+        description="Preferred provider-native path through the certified Codex App Server adapter.",
     ),
     AI_MODE_LOCAL_AGENT: AiModeDefinition(
         id=AI_MODE_LOCAL_AGENT,
@@ -293,6 +297,12 @@ class ProviderSettingsStore:
         self._agent_status_cache_epoch = 0.0
         self._state = self._load()
 
+    def set_agent_status_reader(self, reader: Callable[[], Any]) -> None:
+        """Share Agent backend availability without changing API/BYOK settings."""
+        self._agent_status_reader = reader
+        self._agent_status_cache = None
+        self._agent_status_cache_epoch = 0.0
+
     def active_selection(self) -> ProviderSelection:
         provider = _clean_provider_id(str(self._state.get("active_provider") or "auto"))
         if provider not in PROVIDER_DEFINITIONS:
@@ -325,6 +335,9 @@ class ProviderSettingsStore:
                 entry["enabled"] = bool(enabled)
             entry["updated_at_epoch"] = int(time.time())
             modes[mode] = entry
+        if mode == AI_MODE_AGENT:
+            # Explicit setup completion must not reuse a pre-login status.
+            self._agent_status_cache = None
         if make_active:
             self._state["ai_mode"] = mode
         self._state["version"] = SETTINGS_VERSION
@@ -356,6 +369,7 @@ class ProviderSettingsStore:
                 "message": str(readiness.get("message") or "Use the existing provider API path."),
                 "action": str(readiness.get("action") or ""),
                 "reserved": False,
+                "billing": _api_billing_status(self.active_selection().provider),
             },
             agent_status,
             local_status,
@@ -363,13 +377,27 @@ class ProviderSettingsStore:
 
     def agent_mode_status(self, *, refresh: bool = False) -> dict[str, Any]:
         enabled = self._ai_mode_enabled(AI_MODE_AGENT)
-        active = self.active_ai_mode() == AI_MODE_AGENT
+        active_mode = self.active_ai_mode()
+        active = active_mode == AI_MODE_AGENT
+        certified = PRIMARY_AGENT_ADAPTER in CERTIFIED_AGENT_ADAPTERS
         adapter_status = (
             self._codex_agent_status(refresh=refresh)
             if enabled
             else _codex_agent_status_placeholder()
         )
-        resolution = _resolve_agent_mode_status(enabled=enabled, adapter_status=adapter_status)
+        resolution = _resolve_agent_mode_status(
+            enabled=enabled,
+            certified=certified,
+            adapter_status=adapter_status,
+        )
+        raw_billing = adapter_status.get("billing")
+        billing = (
+            _json_clone(raw_billing)
+            if isinstance(raw_billing, dict)
+            else _unknown_billing_status(
+                "The selected agent adapter did not report billing or usage state."
+            )
+        )
         available_adapters = [PRIMARY_AGENT_ADAPTER] if bool(adapter_status.get("available")) else []
         return {
             "schema": AI_MODE_STATUS_SCHEMA,
@@ -387,24 +415,32 @@ class ProviderSettingsStore:
             "reserved": False,
             "primary_adapter": PRIMARY_AGENT_ADAPTER,
             "selected_adapter": PRIMARY_AGENT_ADAPTER,
-            "certified_adapters": [],
+            "certified_adapters": list(CERTIFIED_AGENT_ADAPTERS),
             "available_adapters": available_adapters,
             "adapters": [adapter_status],
             "primary_adapter_status": adapter_status,
             "completion_scope": "codex_agent_mode",
-            "feature_stage": "ag_011_codex_mcp_tool_bridge",
+            "billing": billing,
+            "feature_stage": AGENT_MODE_FEATURE_STAGE,
+            "launch_status": _agent_mode_launch_status(
+                enabled=enabled,
+                active=active,
+                fallback_active=active_mode == AI_MODE_API_BYOK,
+                certified=certified,
+                resolution=resolution,
+            ),
             "tool_transport_preference": "mcp",
-            "distribution": {
-                "preferred_eventual": "xace_managed_pinned_codex_runtime",
-                "external_detection": "development_fallback",
-                "bundling_allowed": False,
-                "verification_required": [
-                    "redistribution",
-                    "packaging",
-                    "auth_storage",
-                    "updates",
-                    "compatibility",
-                ],
+            "distribution": _codex_distribution_policy_payload(),
+            "authentication": {
+                "schema": "xace.agent_auth_status.v1",
+                "status_endpoint": "/api/agent-auth",
+                "control_endpoint": "/api/agent-auth/{start|cancel|refresh|logout}",
+                "operator_header": "X-XACE-Agent-Auth: 1",
+                "flows": ["browser", "device_code"],
+                "flow_support": "provider_checked_on_request",
+                "credential_owner": "codex_provider",
+                "logout_requires_confirmation": True,
+                "setup_ui_owner": "AG-026",
             },
         }
 
@@ -420,9 +456,13 @@ class ProviderSettingsStore:
             if self._agent_status_reader is not None:
                 raw_status = self._agent_status_reader()
             else:
-                from agent_host.codex_adapter import CodexAppServerAdapter  # noqa: PLC0415
+                from agent_host.isolated_codex_adapter import create_codex_adapter  # noqa: PLC0415
 
-                raw_status = CodexAppServerAdapter().detect_sync()
+                adapter = create_codex_adapter()
+                try:
+                    raw_status = adapter.detect_sync()
+                finally:
+                    adapter.close()
             status = raw_status.to_dict() if hasattr(raw_status, "to_dict") else dict(raw_status)
             status = _json_clone(redact_value(status))
         except Exception as exc:
@@ -450,6 +490,7 @@ class ProviderSettingsStore:
             "action": "continue_api_byok",
             "reserved": True,
             "adapters": [],
+            "billing": _local_billing_status(),
         }
 
     def _ai_mode_enabled(self, mode: str) -> bool:
@@ -645,6 +686,11 @@ class ProviderSettingsStore:
             (item for item in provider_payloads if item["id"] == active.provider),
             provider_payloads[0],
         )
+        active_billing = (
+            agent_mode.get("billing")
+            if self.active_ai_mode() == AI_MODE_AGENT
+            else active_option.get("billing")
+        )
         return {
             "ok": True,
             "provider": active.provider,
@@ -665,6 +711,9 @@ class ProviderSettingsStore:
             "ai_modes": self.ai_mode_options(provider_readiness=readiness, agent_status=agent_mode),
             "agent_mode": agent_mode,
             "status_message": str(readiness.get("message") or active_option.get("message") or ""),
+            "billing": active_billing or _unknown_billing_status(
+                "The active mode did not report billing or usage state."
+            ),
         }
 
     def active_readiness(self, *, refresh_models: bool = False) -> dict[str, Any]:
@@ -1091,6 +1140,7 @@ class ProviderSettingsStore:
             "last_test_at_epoch": int(last_test.get("tested_at_epoch") or 0),
             "config_hash": config_hash,
             "proof_status": "ready" if (hosted_ready if definition.kind == "hosted" else healthy) else "not_ready",
+            "billing": _api_billing_status(provider),
         }
 
     def _record_test(self, provider: str, result: dict[str, Any]) -> None:
@@ -1178,10 +1228,77 @@ class ProviderSettingsStore:
         entry.pop("secret", None)
 
 
+def _billing_status(
+    *,
+    source: str,
+    cost_state: str,
+    token_tracking: str,
+    label: str,
+    detail: str,
+    currency: str | None = None,
+    estimated_cost_cents: float | None = None,
+    usage_summary: dict[str, Any] | None = None,
+    rate_limits: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return {
+        "schema": BILLING_USAGE_SCHEMA,
+        "source": source,
+        "cost_state": cost_state,
+        "token_tracking": token_tracking,
+        "label": label,
+        "detail": detail,
+        "currency": currency,
+        "estimated_cost_cents": estimated_cost_cents,
+        "usage_summary": _json_clone(usage_summary or {}),
+        "rate_limits": _json_clone(rate_limits or {}),
+    }
+
+
+def _api_billing_status(provider: str) -> dict[str, Any]:
+    definition = _definition(provider)
+    if definition.kind == "local":
+        return _local_billing_status()
+    return _billing_status(
+        source="api_byok",
+        cost_state="estimated",
+        token_tracking="xace_tracked",
+        label="XACE-estimated API usage",
+        detail=(
+            "XACE tracks request tokens and estimates USD cost from model pricing. "
+            "The provider invoice remains authoritative."
+        ),
+        currency="USD",
+    )
+
+
+def _local_billing_status() -> dict[str, Any]:
+    return _billing_status(
+        source="local_runtime",
+        cost_state="local_resource",
+        token_tracking="local_observed",
+        label="Local compute",
+        detail=(
+            "No provider API price is charged. Hardware, electricity, hosting, "
+            "and operator costs are not estimated by XACE."
+        ),
+    )
+
+
+def _unknown_billing_status(detail: str) -> dict[str, Any]:
+    return _billing_status(
+        source="unknown",
+        cost_state="unknown",
+        token_tracking="unknown",
+        label="Billing unavailable",
+        detail=detail,
+    )
+
+
 def _resolve_agent_mode_status(
     *,
     enabled: bool,
     adapter_status: dict[str, Any],
+    certified: bool,
 ) -> dict[str, Any]:
     if not enabled:
         return {
@@ -1192,6 +1309,14 @@ def _resolve_agent_mode_status(
             "action": "continue_api_byok",
         }
 
+    if not certified:
+        return {
+            "available": False,
+            "ready": False,
+            "code": "AGENT_ADAPTER_NOT_CERTIFIED",
+            "message": "Codex Agent Mode is not release-certified in this build; API/BYOK remains available.",
+            "action": "continue_api_byok",
+        }
     installed = bool(adapter_status.get("installed"))
     metadata = adapter_status.get("metadata") or {}
     metadata = metadata if isinstance(metadata, dict) else {}
@@ -1231,6 +1356,21 @@ def _resolve_agent_mode_status(
     lifecycle_ready = bool(metadata.get("session_lifecycle_implemented"))
     turns_ready = bool(metadata.get("turn_execution_implemented"))
     bridge_ready = bool(metadata.get("mcp_tool_bridge_implemented"))
+    proposal_ready = bool(metadata.get("proposal_submission_implemented"))
+    if lifecycle_ready and turns_ready and bridge_ready and proposal_ready:
+        return {
+            "available": True,
+            "ready": True,
+            "code": "CODEX_AGENT_MODE_READY",
+            "message": (
+                "Codex App Server is ready for Agent Mode. ChatGPT/Codex manages account auth "
+                "and limits; XACE MCP tools may read context or submit preview-only proposals that "
+                "still require XACE approval."
+                + suffix
+                + model_text
+            ),
+            "action": "run_agent",
+        }
     if lifecycle_ready and turns_ready and bridge_ready:
         return {
             "available": True,
@@ -1272,7 +1412,51 @@ def _resolve_agent_mode_status(
     }
 
 
+def _agent_mode_launch_status(
+    *,
+    enabled: bool,
+    active: bool,
+    fallback_active: bool,
+    certified: bool,
+    resolution: dict[str, Any],
+) -> dict[str, Any]:
+    runtime_ready = certified and bool(resolution.get("ready"))
+    code = str(resolution.get("code") or "")
+    if runtime_ready:
+        status = "production_ready"
+    elif not enabled:
+        status = "disabled"
+    elif code in {"CODEX_NOT_INSTALLED", "CODEX_AUTH_REQUIRED"}:
+        status = "setup_required"
+    else:
+        status = "unavailable"
+    return {
+        "schema": AGENT_MODE_LAUNCH_STATUS_SCHEMA,
+        "status": status,
+        "primary_adapter": PRIMARY_AGENT_ADAPTER,
+        "release_certified": certified,
+        "implementation_shippable": certified,
+        "release_scope": "integration_implementation_only",
+        "public_distribution_ready": False,
+        "public_readiness_roadmap": "docs/CODEX_PUBLIC_READINESS_ROADMAP.md",
+        "runtime_ready": runtime_ready,
+        "preferred_path": certified,
+        "active": active,
+        "fallback_mode": AI_MODE_API_BYOK,
+        "fallback_active": fallback_active,
+        "fallback_available": True,
+        "requires_claude_or_local": False,
+        "certification_gate": "tools/agent_mode_production_readiness.py",
+    }
+
+def _codex_distribution_policy_payload() -> dict[str, Any]:
+    from agent_host.codex_distribution import codex_distribution_policy  # noqa: PLC0415
+
+    return codex_distribution_policy()
+
+
 def _codex_agent_status_placeholder() -> dict[str, Any]:
+
     return {
         "schema": "xace.agent_host.v1",
         "provider_id": PRIMARY_AGENT_ADAPTER,

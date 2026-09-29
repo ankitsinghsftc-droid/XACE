@@ -44,6 +44,37 @@ def accounting_event_from_telemetry(
     call_label = str(raw.get("call_label") or "")
     provider = str(raw.get("provider") or "")
     retry_report = raw.get("retry_report") if isinstance(raw.get("retry_report"), dict) else {}
+    provider_kind = str(
+        raw.get("provider_kind") or _provider_kind(provider, bool(raw.get("cached")))
+    )
+    default_billing_source = (
+        "local_runtime"
+        if provider_kind == "local"
+        else "api_byok"
+        if provider_kind == "cloud"
+        else "unknown"
+    )
+    default_cost_state = (
+        "local_resource"
+        if provider_kind == "local"
+        else "estimated"
+        if provider_kind == "cloud"
+        else "unknown"
+    )
+    default_token_tracking = (
+        "local_observed"
+        if provider_kind == "local"
+        else "xace_tracked"
+        if provider_kind == "cloud"
+        else "unknown"
+    )
+    default_cost_label = (
+        "Local compute; monetary cost not estimated"
+        if provider_kind == "local"
+        else "XACE-estimated API cost"
+        if provider_kind == "cloud"
+        else "No provider call"
+    )
 
     row = {
         "schema": ACCOUNTING_EVENT_SCHEMA,
@@ -71,7 +102,11 @@ def accounting_event_from_telemetry(
         "latency_ms": round(latency_ms, 3),
         "outcome": str(raw.get("outcome") or ""),
         "cached": bool(raw.get("cached")),
-        "provider_kind": str(raw.get("provider_kind") or _provider_kind(provider, bool(raw.get("cached")))),
+        "provider_kind": provider_kind,
+        "billing_source": str(raw.get("billing_source") or default_billing_source),
+        "cost_state": str(raw.get("cost_state") or default_cost_state),
+        "token_tracking": str(raw.get("token_tracking") or default_token_tracking),
+        "cost_label": str(raw.get("cost_label") or default_cost_label),
         "attempt_count": _int(raw.get("attempt_count", 0)),
         "retry_count": _int(raw.get("retry_count", 0)),
         "timeout_seconds": round(_float(raw.get("timeout_seconds", 0.0)), 6),
@@ -140,6 +175,9 @@ def accounting_summary(
         "by_outcome": _counts(rows, "outcome"),
         "by_provider_kind": _counts(rows, "provider_kind"),
         "notes": list(notes or []),
+        "by_billing_source": _counts(rows, "billing_source"),
+        "by_cost_state": _counts(rows, "cost_state"),
+        "by_token_tracking": _counts(rows, "token_tracking"),
     }
     return redact_value(summary)
 

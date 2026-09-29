@@ -1,4 +1,5 @@
 import asyncio
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -8,6 +9,11 @@ from types import SimpleNamespace
 SERVER_DIR = Path(__file__).resolve().parents[1]
 if str(SERVER_DIR) not in sys.path:
     sys.path.insert(0, str(SERVER_DIR))
+from agent_host.contracts import (  # noqa: E402
+    AgentEvent,
+    AgentEventType,
+    AgentTurnRequest,
+)
 
 from agent_host.event_stream import AgentEventStreamManager  # noqa: E402
 from agent_host.mock_agent import MockAgentAdapter  # noqa: E402
@@ -49,6 +55,59 @@ def _cgs() -> dict:
         "semantic_events": [],
         "assets": [],
     }
+
+
+class DynamicProposalAdapter(MockAgentAdapter):
+    provider_id = "codex_app_server"
+
+    def __init__(self, xace_session) -> None:
+        super().__init__()
+        self._xace_session = xace_session
+
+    async def run_turn(self, request: AgentTurnRequest):
+        self._xace_session.pending_prompt_result = {
+            "kind": "mutation",
+            "source": "agent_proposal",
+            "approval_required": True,
+            "preview": {"preview_id": "preview-dynamic-1"},
+        }
+        result = {
+            "tool_name": "xace.submit_proposal",
+            "status": "completed",
+            "read_only": False,
+            "data": {
+                "proposal_ingress": {
+                    "status": "preview_created",
+                    "accepted": True,
+                    "code": "AGENT_PROPOSAL_PREVIEW_CREATED",
+                },
+                "preview_only": True,
+                "project_mutated": False,
+            },
+        }
+        yield AgentEvent(
+            event_id="codex-dynamic-tool-1",
+            event_type=AgentEventType.TOOL_CALL,
+            session_id=request.handle.xace_session_id,
+            provider_id=self.provider_id,
+            sequence=1,
+            message="Codex called an XACE proposal tool.",
+            data={
+                "params": {
+                    "xace_tool_response": {
+                        "contentItems": [{"type": "inputText", "text": json.dumps(result)}]
+                    }
+                }
+            },
+        )
+        yield AgentEvent(
+            event_id="codex-dynamic-complete-1",
+            event_type=AgentEventType.TURN_COMPLETED,
+            session_id=request.handle.xace_session_id,
+            provider_id=self.provider_id,
+            sequence=2,
+            message="Codex turn completed.",
+        )
 
 
 async def _send(messages: list[dict], message: dict) -> None:
@@ -98,6 +157,40 @@ class AgentWsEventStreamTests(unittest.TestCase):
             result["preview"]["cgs_diff"]["operations"][0]["kind"],
             "declare_component",
         )
+
+    def test_codex_dynamic_proposal_tool_surfaces_preview_without_mutating_cgs(self) -> None:
+        async def scenario() -> tuple[list[dict], dict, str]:
+            messages: list[dict] = []
+            sessions = FakeSessionManager()
+            adapter = DynamicProposalAdapter(sessions._sessions["session-1"])
+            manager = AgentEventStreamManager(AgentAdapterRegistry([adapter]))
+            router = WSMessageRouter(sessions, agent_event_stream=manager)
+            cgs = _cgs()
+            before = json.dumps(cgs, sort_keys=True)
+            await router.route(
+                "session-1",
+                {
+                    "type": "agent_turn",
+                    "provider_id": "codex_app_server",
+                    "prompt": "Prepare a typed XACE proposal.",
+                    "cgs_hash": CGS_HASH,
+                    "allowed_tools": ["xace.submit_proposal"],
+                },
+                lambda message: _send(messages, message),
+                persist=None,
+                cgs_state=cgs,
+            )
+            await manager.wait_for_turn("session-1")
+            return messages, cgs, before
+
+        messages, cgs, before = asyncio.run(scenario())
+        previews = [message for message in messages if message["type"] == "pil_result"]
+        self.assertEqual(len(previews), 1, messages)
+        self.assertTrue(previews[0]["result"]["approval_required"])
+        self.assertEqual(previews[0]["result"]["preview"]["preview_id"], "preview-dynamic-1")
+        self.assertEqual(previews[0]["agent_proposal_ingress"]["status"], "preview_created")
+        self.assertEqual(before, json.dumps(cgs, sort_keys=True))
+
 
     def test_router_agent_status_reports_unavailable_when_no_adapter_is_registered(self) -> None:
         async def scenario() -> list[dict]:

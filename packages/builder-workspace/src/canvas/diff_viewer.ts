@@ -354,7 +354,7 @@ export class InferenceCostIndicator {
   mount(container: HTMLElement): void {
     this.el = document.createElement('div');
     this.el.style.cssText = 'display:flex;align-items:center;gap:5px;font-size:9.5px;color:var(--txt2);font-family:var(--font-mono);padding:3px 0';
-    this.el.innerHTML = '<div style="width:5px;height:5px;border-radius:50%;background:var(--vlt)"></div><span id="xb-cost-tok">0 tok</span> - <span id="xb-cost-money">$0.00</span>';
+    this.el.innerHTML = '<div style="width:5px;height:5px;border-radius:50%;background:var(--vlt)"></div><span id="xb-cost-tok">0 tok</span> - <span id="xb-cost-money">XACE estimate pending</span>';
     container.appendChild(this.el);
   }
 
@@ -362,7 +362,7 @@ export class InferenceCostIndicator {
     const tokenEl = document.getElementById('xb-cost-tok');
     const costEl = document.getElementById('xb-cost-money');
     if (tokenEl) tokenEl.textContent = `${formatTokens(tokens)} tok`;
-    if (costEl) costEl.textContent = formatCost(costCents);
+    if (costEl) costEl.textContent = `${formatCost(costCents)} est.`;
   }
 
   unmount(): void {

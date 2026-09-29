@@ -46,6 +46,7 @@ with the full list, so the designer sees every problem in one shot.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from typing import Any, Protocol, runtime_checkable
 
@@ -133,7 +134,8 @@ def _validate_actor_definition(
         errors.append(f"[{bp_id}] Missing required field 'actor_type'.")
 
     actor_type = defn.get("actor_type", "")
-    if actor_type and actor_type not in _VALID_ACTOR_TYPES:
+    if actor_type and (not isinstance(actor_type, str) or (actor_type not in _VALID_ACTOR_TYPES and
+            re.fullmatch(r"[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)+\.v[1-9][0-9]*", actor_type) is None)):
         errors.append(
             f"[{bp_id}] Unknown actor_type '{actor_type}'. "
             f"Valid types: {sorted(_VALID_ACTOR_TYPES)}"

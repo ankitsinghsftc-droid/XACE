@@ -34,6 +34,8 @@ from .contracts import (
     normalize_json_value,
     utc_now_iso,
 )
+from .proposal_ingress import AgentProposalIngressError, AgentProposalIngressGate
+from .security_policy import AgentSecurityPolicyEnforcer, AgentSecurityPolicyError
 from .session_store import AgentSessionStore, AgentSessionStoreError, AgentToolCallRecord
 
 
@@ -46,6 +48,7 @@ TOOL_SEARCH_PROJECT = "xace.search_project"
 TOOL_GET_DIAGNOSTICS = "xace.get_diagnostics"
 TOOL_RUNTIME_STATUS = "xace.runtime_status"
 TOOL_RUNTIME_SNAPSHOT = "xace.runtime_snapshot"
+TOOL_SUBMIT_PROPOSAL = "xace.submit_proposal"
 
 READ_ONLY_XACE_TOOL_NAMES = (
     TOOL_READ_CGS,
@@ -55,6 +58,9 @@ READ_ONLY_XACE_TOOL_NAMES = (
     TOOL_RUNTIME_STATUS,
     TOOL_RUNTIME_SNAPSHOT,
 )
+PROPOSAL_XACE_TOOL_NAMES = (TOOL_SUBMIT_PROPOSAL,)
+XACE_TOOL_NAMES = READ_ONLY_XACE_TOOL_NAMES + PROPOSAL_XACE_TOOL_NAMES
+
 
 DENIED_XACE_TOOL_NAMES = (
     "xace.apply_operations",
@@ -206,27 +212,58 @@ class XaceToolCallResult:
 
 
 class XaceToolSurface:
-    """Executes allowlisted read-only XACE tools and logs every call."""
+    """Execute XACE tools without granting direct Builder mutation authority.
+
+    Read-only tools are always available. Proposal submission is an explicit
+    session capability which can only ask the existing ingress gate to create
+    a pending XACE preview. It never calls GDE, SGC, runtime, shell, or
+    project-file APIs.
+    """
 
     def __init__(
         self,
         source: ContextRetrievalSource,
         *,
         session_store: AgentSessionStore | None = None,
+        proposal_ingress: AgentProposalIngressGate | None = None,
+        proposal_session: Any | None = None,
+        proposal_mode: str = "AGENT",
         runtime_control: RuntimeReadOnlyControl | None = None,
+        security_policy: AgentSecurityPolicyEnforcer | None = None,
     ) -> None:
         self.source = source
         self.session_store = session_store
         self.runtime_control = runtime_control
         self._context_retriever = AgentContextRetriever()
         self._sequence = 0
+        self.proposal_ingress = proposal_ingress
+        self.proposal_session = proposal_session
+        self.proposal_mode = str(proposal_mode or "AGENT")
+        self.security_policy = security_policy or AgentSecurityPolicyEnforcer(
+            tool_specs=self.tool_specs()
+        )
+        self.security_policy.register_tool_specs(self.tool_specs())
 
     @property
     def tool_names(self) -> tuple[str, ...]:
-        return READ_ONLY_XACE_TOOL_NAMES
+        return (
+            READ_ONLY_XACE_TOOL_NAMES + PROPOSAL_XACE_TOOL_NAMES
+            if self.proposal_submission_enabled
+            else READ_ONLY_XACE_TOOL_NAMES
+        )
+
+    @property
+    def proposal_submission_enabled(self) -> bool:
+        """Whether this surface has the XACE-owned preview target required to submit."""
+
+        return self.proposal_ingress is not None and self.proposal_session is not None
 
     def tool_specs(self) -> tuple[AgentToolSpec, ...]:
-        return default_xace_tool_specs()
+        return (
+            default_xace_tool_specs() + (proposal_xace_tool_spec(),)
+            if self.proposal_submission_enabled
+            else default_xace_tool_specs()
+        )
 
     def catalog(self) -> dict[str, JsonValue]:
         return {
@@ -234,7 +271,9 @@ class XaceToolSurface:
             "transport_preference": ToolTransport.MCP.value,
             "tools": [tool.to_dict() for tool in self.tool_specs()],
             "denied_tools": list(DENIED_XACE_TOOL_NAMES),
-            "read_only": True,
+            "read_only": not self.proposal_submission_enabled,
+            "proposal_preview_only": self.proposal_submission_enabled,
+            "security_policy": self.security_policy.policy.to_dict(),
         }
 
     def execute(
@@ -244,22 +283,17 @@ class XaceToolSurface:
         allowed_tools: Sequence[str] | None = None,
     ) -> XaceToolCallResult:
         call_id = self._next_call_id(request)
-        if request.tool_name not in READ_ONLY_XACE_TOOL_NAMES:
-            return self._log_result(
-                XaceToolCallResult(
-                    request=request,
-                    status="denied",
-                    reason=f"tool {request.tool_name!r} is not allowlisted for Builder Agent Mode",
-                    data=_surface_payload(source=self.source, value={}),
-                    call_id=call_id,
-                )
+        try:
+            self.security_policy.require_tool(
+                request.tool_name,
+                enabled_tools=allowed_tools,
             )
-        if allowed_tools is not None and request.tool_name not in set(allowed_tools):
+        except AgentSecurityPolicyError as exc:
             return self._log_result(
                 XaceToolCallResult(
                     request=request,
                     status="denied",
-                    reason=f"tool {request.tool_name!r} is not enabled for this Builder Agent Mode session",
+                    reason=redact_text(exc),
                     data=_surface_payload(source=self.source, value={}),
                     call_id=call_id,
                 )
@@ -276,7 +310,9 @@ class XaceToolSurface:
             )
 
         try:
-            if request.tool_name == TOOL_READ_CGS:
+            if request.tool_name == TOOL_SUBMIT_PROPOSAL:
+                result = self._submit_proposal(request)
+            elif request.tool_name == TOOL_READ_CGS:
                 result = self._read_cgs(request)
             elif request.tool_name == TOOL_RETRIEVE_CONTEXT:
                 result = self._retrieve_context(request)
@@ -305,6 +341,61 @@ class XaceToolSurface:
             )
         return self._log_result(_with_call_id(result, call_id))
 
+    def _submit_proposal(self, request: XaceToolCallRequest) -> XaceToolCallResult:
+        if not self.proposal_submission_enabled or self.proposal_ingress is None:
+            return XaceToolCallResult(
+                request=request,
+                status="unavailable",
+                reason="proposal submission is not enabled for this XACE session",
+                permission=AgentToolPermission.PROPOSAL_WRITE,
+                read_only=False,
+                data=_surface_payload(source=self.source, value={}, read_only=False),
+            )
+        proposal = request.arguments.get("proposal")
+        if not isinstance(proposal, Mapping):
+            return XaceToolCallResult(
+                request=request,
+                status="denied",
+                reason="xace.submit_proposal requires a proposal object",
+                permission=AgentToolPermission.PROPOSAL_WRITE,
+                read_only=False,
+                data=_surface_payload(source=self.source, value={}, read_only=False),
+            )
+        try:
+            ingress = self.proposal_ingress.ingest(
+                proposal,
+                current_cgs=self.source.cgs,
+                current_cgs_hash=self.source.cgs_hash,
+                xace_session_id=request.xace_session_id,
+                provider_id=request.provider_id,
+                mode=self.proposal_mode,
+                session=self.proposal_session,
+            )
+        except AgentProposalIngressError as exc:
+            return XaceToolCallResult(
+                request=request,
+                status="error",
+                reason=f"proposal ingress failed safely: {redact_exception(exc)}",
+                permission=AgentToolPermission.PROPOSAL_WRITE,
+                read_only=False,
+                data=_surface_payload(source=self.source, value={}, read_only=False),
+            )
+        return XaceToolCallResult(
+            request=request,
+            status="completed" if ingress.accepted else "denied",
+            reason="" if ingress.accepted else ingress.message,
+            permission=AgentToolPermission.PROPOSAL_WRITE,
+            read_only=False,
+            data=_surface_payload(
+                source=self.source,
+                value={
+                    "proposal_ingress": ingress.to_dict(),
+                    "preview_only": True,
+                    "project_mutated": False,
+                },
+                read_only=False,
+            ),
+        )
     def _read_cgs(self, request: XaceToolCallRequest) -> XaceToolCallResult:
         scope = str(request.arguments.get("scope") or "summary")
         if scope not in CGS_FRAGMENT_SCOPES:
@@ -532,6 +623,54 @@ class XaceToolSurface:
         return logged
 
 
+def proposal_xace_tool_spec() -> AgentToolSpec:
+    """Return the session-gated preview-only proposal tool contract."""
+
+    return AgentToolSpec(
+        name=TOOL_SUBMIT_PROPOSAL,
+        description="Submit a typed AgentProposalEnvelope to XACE for preview only; it never applies a project change.",
+        permission=AgentToolPermission.PROPOSAL_WRITE,
+        transport=ToolTransport.MCP,
+        read_only=False,
+        input_schema={
+            "type": "object",
+            "additionalProperties": False,
+            "required": ["proposal"],
+            "properties": {
+                "proposal": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "proposal_id",
+                        "session_id",
+                        "provider_id",
+                        "base_cgs_hash",
+                        "intent",
+                        "summary",
+                        "proposal_kind",
+                    ],
+                    "properties": {
+                        "proposal_id": {"type": "string"},
+                        "session_id": {"type": "string"},
+                        "provider_id": {"type": "string"},
+                        "base_cgs_hash": {"type": "string", "minLength": 64, "maxLength": 64},
+                        "intent": {"type": "string", "minLength": 1},
+                        "summary": {"type": "string", "minLength": 1},
+                        "operations": {"type": "array", "items": {"type": "object"}},
+                        "required_assets": {"type": "array", "items": {"type": "object"}},
+                        "validation_claims": {"type": "array", "items": {"type": "object"}},
+                        "risk_level": {"enum": ["low", "medium", "high"]},
+                        "proposal_kind": {"enum": ["no_op", "mutation"]},
+                        "requires_structural_regeneration": {"type": "boolean"},
+                        "metadata": {"type": "object"},
+                        "schema": {"type": "string"},
+                    },
+                },
+            },
+        },
+    )
+
+
 def default_xace_tool_specs() -> tuple[AgentToolSpec, ...]:
     """Return the stable read-only XACE tool catalog for Agent Mode."""
 
@@ -640,12 +779,13 @@ def _surface_payload(
     *,
     source: ContextRetrievalSource,
     value: Mapping[str, Any],
+    read_only: bool = True,
 ) -> dict[str, JsonValue]:
     return _json_object(
         {
             "schema": AGENT_TOOL_CALL_RESULT_SCHEMA,
             "source_cgs_hash": source.cgs_hash,
-            "read_only": True,
+            "read_only": read_only,
             **dict(value),
         },
         "tool result payload",

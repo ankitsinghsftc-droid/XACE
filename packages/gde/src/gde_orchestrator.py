@@ -160,6 +160,7 @@ class GDEOrchestrator:
         self,
         mode:       str        = AssistanceMode.COLLABORATIVE,
         session_id: str | None = None,
+        gameplay_catalog=None,
     ) -> None:
         self._mode_name  = mode
         self._mode       = get_profile(mode)
@@ -175,7 +176,7 @@ class GDEOrchestrator:
         self._q_engine       = QuestionEngine()
         self._q_sessions     = QuestionSessionManager()
         self._executor       = TransactionExecutor()
-        self._typed_executor = TypedOperationExecutor()
+        self._typed_executor = TypedOperationExecutor(gameplay_catalog)
         self._validator      = ConsistencyValidator()
 
     # ── Initialisation ────────────────────────────────────────────────────────
