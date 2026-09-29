@@ -65,3 +65,8 @@ adapters/unreal/DerivedDataCache/
 adapters/unreal/Intermediate/
 adapters/unreal/Saved/
 adapters/unreal/.vs/
+
+#new ones
+*.tgz
+*.exe
+tmp/
