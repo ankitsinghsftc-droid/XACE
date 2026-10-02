@@ -58,6 +58,7 @@ export class EngineViewport {
   private resizeObserver: ResizeObserver | null = null;
   private actors: PreviewActor[] = [];
   private running = true;
+  private playerBusy = false;
   private liveEngine = false;
   private tick = 0;
   private fps = 60;
@@ -98,7 +99,10 @@ export class EngineViewport {
       <div class="xb-vp-head">
         <span class="xb-vp-title">Engine Viewport</span>
         <div class="xb-vp-ctrls">
-          <button class="xb-vp-btn on" data-action="play">PLAY</button>
+          <button class="xb-vp-btn" data-action="play">PLAY</button>
+          <button class="xb-vp-btn" data-player-stop>END / LEAVE</button>
+          <button class="xb-vp-btn" data-player-invite>INVITE</button>
+          <button class="xb-vp-btn" data-player-join>JOIN</button>
           <button class="xb-vp-btn" data-action="pause">PAUSE</button>
           <button class="xb-vp-btn" data-action="step">STEP</button>
           <button class="xb-vp-btn" data-action="reset">RESET</button>
@@ -108,6 +112,8 @@ export class EngineViewport {
       <div class="xb-vp-canvas-wrap"><canvas class="xb-vp-canvas"></canvas></div>
       <div class="xb-vp-overlay">
         <div class="xb-vp-stat"><span class="xb-vp-dot"></span><span data-role="tick">Tick 0</span></div>
+        <input data-session-code aria-label="Game invite code" placeholder="Paste an invite code to join" maxlength="4096" style="width:100%;box-sizing:border-box" />
+        <div class="xb-vp-stat" data-role="player-status" aria-live="polite">Play opens your game in XACE Player.</div>
         <div class="xb-vp-stat" data-role="fps">FPS 60</div>
         <div class="xb-vp-stat" data-role="hash">Hash -</div>
       </div>
@@ -116,6 +122,9 @@ export class EngineViewport {
   }
 
   private wire(): void {
+    this.root?.querySelector('[data-player-invite]')?.addEventListener('click', () => { void this.launchPlayer('invite'); });
+    this.root?.querySelector('[data-player-join]')?.addEventListener('click', () => { void this.launchPlayer('join'); });
+    this.root?.querySelector('[data-player-stop]')?.addEventListener('click', () => { void this.launchPlayer('stop'); });
     this.root?.querySelectorAll<HTMLButtonElement>('[data-action]').forEach((button) => {
       button.addEventListener('click', () => {
         const action = button.dataset['action'] as 'play' | 'pause' | 'step' | 'reset';
@@ -164,7 +173,7 @@ export class EngineViewport {
   }
 
   private handleControl(action: 'play' | 'pause' | 'step' | 'reset'): void {
-    if (action === 'play') this.running = true;
+    if (action === 'play') { void this.launchPlayer('play'); return; }
     if (action === 'pause') this.running = false;
     if (action === 'reset') {
       this.tick = 0;
@@ -180,6 +189,41 @@ export class EngineViewport {
     this.root?.querySelector(`[data-action="${active}"]`)?.classList.add('on');
     this.renderOverlay();
     this.draw();
+  }
+
+  private async launchPlayer(action: 'play' | 'stop' | 'invite' | 'join'): Promise<void> {
+    if (this.playerBusy) return;
+    this.playerBusy = true;
+    const button = this.root?.querySelector<HTMLButtonElement>('[data-action="play"]');
+    const status = this.root?.querySelector<HTMLElement>('[data-role="player-status"]');
+    if (button) button.disabled = true;
+    if (status) status.textContent = action === 'play' ? 'Checking your game and preparing Player?' : 'Closing game?';
+    try {
+      const headers: Record<string, string> = { 'x-xace-agent-auth': '1' };
+      const admission = await fetch('/api/player', { headers });
+      const connection = await admission.json();
+      if (!admission.ok) throw new Error(connection.message || 'Cannot connect to Player. Retry.');
+      headers['content-type'] = 'application/json';
+      headers['x-xace-player-capability'] = connection.capability;
+      if (status) status.textContent = action === 'play' ? 'Starting your game?' : 'Closing game?';
+      const input = this.root?.querySelector<HTMLInputElement>('[data-session-code]');
+      const body = { cgs_hash: this.deps.cgsStore.state.hash, ...(action === 'join' ? { code: input?.value.trim() || '' } : {}) };
+      if (status && action === 'join') status.textContent = 'Getting and verifying the game, then joining...';
+      const response = await fetch(`/api/player/${action}`, {
+        method: 'POST', headers, body: JSON.stringify(body),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.message || 'Player could not start. Retry.');
+      if (status) status.textContent = result.state === 'playing' ? 'Your game is open in XACE Player.' : 'Game closed. Press Play to start again.';
+      if (action === 'invite' && input) { input.value = result.code; input.select(); if (status) status.textContent = result.message + ' Copy the selected code.'; }
+      if (button) button.textContent = 'PLAY';
+    } catch (error) {
+      if (status) status.textContent = error instanceof Error ? error.message : 'Player could not start. Retry.';
+      if (button) button.textContent = 'RETRY PLAY';
+    } finally {
+      this.playerBusy = false;
+      if (button) button.disabled = false;
+    }
   }
 
   private loop(now: number): void {

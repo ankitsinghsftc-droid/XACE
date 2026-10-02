@@ -77,6 +77,9 @@ impl InputBuffer {
         }
     }
 
+    /// Fence all buffered input and sequence history from a disconnected generation.
+    pub fn forget_peer(&mut self, peer_id: PeerId) { self.peers.remove(&peer_id); }
+
     pub fn insert(&mut self, packet: InputPacket) -> Result<(), NetworkError> {
         self.insert_with_outcome(packet).map(|_| ())
     }
@@ -366,5 +369,21 @@ mod tests {
                 to_tick: 4,
             }]
         );
+    }
+}
+
+#[cfg(test)]
+mod generation_tests {
+    use super::*;
+    #[test]
+    fn fenced_generation_drops_future_packets_and_sequence_without_affecting_other_peer() {
+        let mut buffer = InputBuffer::new();
+        buffer.insert(InputPacket::unsigned(1, 8, 50)).unwrap();
+        buffer.insert(InputPacket::unsigned(2, 8, 70)).unwrap();
+        buffer.forget_peer(1);
+        assert!(!buffer.has_input(1, 8));
+        assert!(buffer.has_input(2, 8));
+        buffer.insert(InputPacket::unsigned(1, 9, 1)).unwrap();
+        assert!(buffer.insert(InputPacket::unsigned(2, 9, 1)).is_err());
     }
 }

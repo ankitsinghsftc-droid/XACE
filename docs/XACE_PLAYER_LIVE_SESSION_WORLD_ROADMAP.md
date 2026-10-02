@@ -9,12 +9,23 @@ historical profile evidence; it is not a universal extensibility certification.
 The correction is implemented and verified; see `docs/WORLD_EXTENSIBILITY_COMPLETION.md`.
 XP-007 is complete for its Windows native headless package profile; see `docs/XP007_COMPLETION.md`.
 
-Implementation checkpoint (2026-09-29): roadmap approved by the owner. XP-001
-through XP-008 are complete for their declared profiles. XP-009 through XP-022 have
-not started. See `docs/XP008_COMPLETION.md` and `docs/adr/XP-008-local-player.md`.
-XP-002 legacy schema/input-plan migration requirements still apply. No Player or
-live cross-engine support claim is added; original audit and later-task text below
-remain historical context.
+Implementation checkpoint (2026-10-02): XP-001 through XP-009 are complete for their
+declared profiles. XP-010 implementation and same-host verification are finished;
+clean-machine acceptance remains pending by owner instruction. See
+`docs/XP010_COMPLETION.md`. XP-011 is implemented and locally verified; see
+`docs/XP011_COMPLETION.md` and `docs/evidence/xp011-baseline.json`. XP-012
+is implemented and locally verified for two independently controlled players;
+see `docs/XP012_COMPLETION.md` and `docs/evidence/xp012-baseline.json`.
+XP-013 is implemented and locally verified for full-baseline synchronization, late
+join, reconnect and recovery; see `docs/XP013_COMPLETION.md` and
+`docs/evidence/xp013-baseline.json`. XP-014 is implemented and same-host verified for Play/Invite/Join; two-machine
+acceptance remains pending by owner instruction. See `docs/XP014_COMPLETION.md`
+and `docs/evidence/xp014-baseline.json`. XP-015 is implemented and locally verified with an actual TLS relay; public
+deployment and two-network acceptance remain pending by owner instruction. See
+`docs/XP015_COMPLETION.md` and `docs/evidence/xp015-baseline.json`. XP-016 through
+XP-022 have not started. XP-002 legacy schema/input-plan
+migration requirements still apply. No remote live cross-engine
+or clean-machine certification is implied; original audit text remains historical.
 
 ## Binding amendment: extensible semantic worlds (2026-09-28)
 
@@ -430,6 +441,9 @@ Completed 2026-09-29 for the Windows local keyboard/pre-admitted package profile
 
 **XP-009 — Complete Player semantic presentation and world readiness**
 
+Status: complete for the declared local Player formats; see `XP009_COMPLETION.md`.
+Generic event bindings and world object identities remain independent of game nouns.
+
 - Purpose: make actions understandable without confusing assets with gameplay.
 - XP-008 handoff: preserve generic typed transforms, ownership and arbitrary input actions. Replace presentation placeholders through declared supported bindings; do not infer rendering or behavior from game nouns.
 - Reuse: semantic playback, typed assets, binding-status reports and rollback cleanup in all adapters.
@@ -442,6 +456,9 @@ Completed 2026-09-29 for the Windows local keyboard/pre-admitted package profile
 ### Phase 3 — Player distribution and Play UX
 
 **XP-010 — Package Player and wire Builder Play**
+
+Status: implemented; clean-machine acceptance pending by owner instruction (2026-09-30).
+Same-host lifecycle and Builder Play proofs pass. See `XP010_COMPLETION.md`.
 
 - Purpose: remove repository/toolchain knowledge from first play.
 - Reuse: Builder runtime-control/viewport UI and launcher process lifecycle patterns; Godot export tooling.
@@ -475,6 +492,9 @@ Completed 2026-09-29 for the Windows local keyboard/pre-admitted package profile
 
 **XP-013 — Implement baseline, late join, reconnect and resync**
 
+Status: implemented for the local Windows full-projection profile (2026-10-01).
+See `docs/XP013_COMPLETION.md` for verified scenarios and latency limits.
+
 - Purpose: turn lifecycle objects into actual synchronized clients.
 - Reuse: session lifecycle, `LateJoinHandler`, snapshots, delta sequencing, resync and rollback utilities.
 - Implementation: baseline IDs with tick/epoch, client projection digest, gap recovery, bounded catch-up buffers and reconnect generation; newly joined peers become required-input members only after acknowledgement. Start with full snapshots; introduce deltas only after baseline correctness.
@@ -487,6 +507,7 @@ Completed 2026-09-29 for the Windows local keyboard/pre-admitted package profile
 
 **XP-014 — Deliver Play → Invite → Join on a reachable session**
 
+- Status (2026-10-02): implemented; final exported two-Player same-host proof passes. Two-machine acceptance remains pending by owner instruction. See `docs/XP014_COMPLETION.md` and `docs/XP014_TWO_MACHINE_TEST.md`.
 - Purpose: provide the creator/friend workflow over the integrated session stack.
 - Reuse: packaged Player, runtime session controller, Builder project/prompt UI and package verifier.
 - Implementation: expiring scoped invite, one-time redemption/reconnect policy, human-readable join progress, verified package acquisition from the host/session service, readiness view, leave/end actions and bounded asset download/cache handling.
@@ -497,6 +518,7 @@ Completed 2026-09-29 for the Windows local keyboard/pre-admitted package profile
 
 **XP-015 — Add the bounded Internet invitation transport**
 
+- Status (2026-10-02): implemented and locally TLS-verified; public deployment and two-network acceptance pending by owner instruction (no hosting available). See `docs/XP015_COMPLETION.md` and `docs/XP015_DEPLOYMENT_AND_TWO_NETWORK_TEST.md`.
 - Purpose: make the remote friend flow work without manual port forwarding.
 - Reuse: identical session messages and lifecycle; introduce only a transport relay interface.
 - Implementation: encrypted authenticated relay connection with short-lived session capabilities, bounded sessions/bandwidth/queues, reachability health and cancellation. Authority remains on the creator host; do not expose Builder or add matchmaking/social accounts.

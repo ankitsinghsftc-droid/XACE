@@ -172,6 +172,10 @@ impl MaliciousInputGate {
         })
     }
 
+    /// Reset sequence history only when the authority fences a connection generation.
+    /// Rate windows survive reconnect so reconnecting cannot bypass flood limits.
+    pub fn reset_peer_sequence(&mut self, peer_id: PeerId) { self.cheat_guard.reset_peer(peer_id); }
+
     pub fn submit_authorized(
         &mut self,
         packet: InputPacket,
@@ -233,6 +237,16 @@ impl MaliciousInputGate {
                 Err(error)
             }
         }
+    }
+
+    /// Count a packet rejected by the caller before synchroniser insertion (for
+    /// example, one targeting a tick that has already been released).
+    pub fn check_rejected_packet_rate(
+        &mut self,
+        packet: &InputPacket,
+        ingress_tick: Tick,
+    ) -> Result<(), NetworkError> {
+        self.check_rate_limit(packet, ingress_tick)
     }
 
     pub fn stats(&self) -> MaliciousInputGateStats {

@@ -1,6 +1,7 @@
 extends "res://adapter/xace_entity_manager.gd"
 
 var presentation: Node
+var restoring := false
 
 # Typed canonical components, never a flattened bag or a noun-based visual rule.
 func _apply_component_visuals(entity_id: int) -> void:
@@ -67,12 +68,14 @@ func apply_playback_commands(_commands: Array) -> void:
 
 func apply_tick_snapshot(snapshot: Dictionary) -> void:
 	super.apply_tick_snapshot(snapshot)
-	if presentation != null:
+	if presentation != null and not restoring:
 		presentation.apply_snapshot(snapshot)
 
 func rollback_side_effects(message: Dictionary) -> void:
 	if presentation != null:
 		presentation.rollback(int(message.get("restore_tick",0)))
+	restoring = true
 	super.rollback_side_effects(message)
+	restoring = false
 	if presentation != null:
 		presentation.restore_static()

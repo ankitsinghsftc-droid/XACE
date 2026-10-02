@@ -15,6 +15,12 @@ signal stats_changed(stats: Dictionary)
 @export var engine_version := "4.x"
 @export var adapter_version := "0.1.0"
 @export var cgs_hash := ""
+var session_offer_json := ""
+var session_credential := ""
+var session_peer_id := 0
+var _projection_stamp: Dictionary = {}
+var _projection_stamp_json := ""
+var _projection_recovering := false
 @export var capabilities: Array[String] = [
 	"length_prefixed_json",
 	"tick_snapshot_v1",
@@ -164,6 +170,10 @@ func _send_handshake() -> void:
 		cgs_hash,
 		capabilities
 	)
+	if not session_offer_json.is_empty():
+		hello["session_offer_json"] = session_offer_json
+		hello["session_credential"] = session_credential
+		hello["session_peer_id"] = session_peer_id
 	_handshake_sent = true
 	_write_message(hello)
 
@@ -195,10 +205,20 @@ func _read_available() -> void:
 
 func _handle_message(message: Dictionary) -> void:
 	var kind: String = _protocol_script.classify_message(message)
+	if not session_offer_json.is_empty():
+		if kind == "input_tick_request":
+			if _projection_recovering or int(message.get("tick", -1)) != int(_projection_stamp.get("next_tick", -2)):
+				return
+		elif kind in ["handshake_ack", "tick_snapshot", "session_baseline"] and bool(message.get("accepted", true)):
+			if not _verify_projection(message, kind == "handshake_ack"):
+				return
 	if kind == _protocol_script.MSG_HANDSHAKE_ACK:
 		if bool(message.get("accepted", false)):
 			_handshake_complete = true
 			handshake_accepted.emit(message)
+			if message.has("sync"):
+				session_credential = str(message.get("reconnect_credential", ""))
+				_ack_projection()
 		else:
 			var reason: String = str(message.get("reject_reason", "handshake rejected"))
 			handshake_rejected.emit(reason)
@@ -209,7 +229,66 @@ func _handle_message(message: Dictionary) -> void:
 		_fail("%s: %s" % [str(message.get("code", "runtime_error")), str(message.get("message", ""))])
 	else:
 		message_received.emit(message)
+		if message.has("sync"):
+			_ack_projection()
 
+
+func _verify_projection(message: Dictionary, initial: bool) -> bool:
+	var parsed_stamp: Variant = JSON.parse_string(str(message.get("sync_json", "")))
+	if not parsed_stamp is Dictionary:
+		return false
+	var stamp: Dictionary = parsed_stamp
+	var offer: Dictionary = JSON.parse_string(session_offer_json)
+	var epoch: Dictionary = offer.get("contract", {}).get("epoch", {})
+	for key in ["session_id", "authority_incarnation", "ruleset_epoch"]:
+		if str(stamp.get(key, "")) != str(epoch.get(key, "")):
+			_fail("Projection session identity mismatch")
+			disconnect_from_runtime("Invalid baseline")
+			return false
+	var generation := int(stamp.get("connection_generation", 0))
+	var previous_generation := int(_projection_stamp.get("connection_generation", 0))
+	if initial:
+		if generation <= previous_generation:
+			return false
+	elif generation != previous_generation:
+		return false
+	var sequence := int(stamp.get("sequence", 0))
+	var previous_sequence := int(_projection_stamp.get("sequence", 0))
+	if not initial and sequence <= previous_sequence:
+		return false
+	var recovery := str(message.get("msg_type", "")) == "session_baseline"
+	if _projection_recovering and not recovery and not initial:
+		return false
+	if not initial and not recovery and (sequence != previous_sequence + 1 or int(stamp.get("next_tick", -1)) != int(_projection_stamp.get("next_tick", -1)) + 1):
+		_request_projection_recovery()
+		return false
+	var raw := str(message.get("projection_json", ""))
+	var projection: Variant = JSON.parse_string(raw)
+	if stamp.get("schema", "") != "xace.session_projection.v1" or raw.sha256_text() != str(stamp.get("projection_digest", "")) or not projection is Array or int(stamp.get("next_tick", -1)) < 0 or str(stamp.get("baseline_id", "")).is_empty():
+		if initial:
+			_fail("Invalid initial projection")
+			disconnect_from_runtime("Invalid baseline")
+		else:
+			_request_projection_recovery()
+		return false
+	if not initial and int(stamp.next_tick) < int(_projection_stamp.next_tick):
+		return false
+	message["sync"] = stamp
+	message["initial_entities" if initial else "entities"] = projection
+	_projection_stamp = stamp.duplicate(true)
+	_projection_stamp_json = str(message.sync_json)
+	_projection_recovering = false
+	return true
+
+func _ack_projection() -> void:
+	if _connected:
+		_write_message({"msg_type":"baseline_ack", "stamp_json":_projection_stamp_json})
+
+func _request_projection_recovery() -> void:
+	if _projection_recovering:
+		return
+	_projection_recovering = true
+	_write_message({"msg_type":"resync_request", "connection_generation":int(_projection_stamp.get("connection_generation", 0))})
 
 func _flush_send_queue() -> void:
 	if _send_queue.is_empty() or not _handshake_complete:

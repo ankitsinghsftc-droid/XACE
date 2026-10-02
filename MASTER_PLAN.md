@@ -5,13 +5,103 @@
 
 ---
 
-## XP-009: IN PROGRESS - 2026-09-29
+## XP-015: IMPLEMENTED - LOCAL TLS VERIFIED - INTERNET GATE PENDING - 2026-10-02
 
-Implement generic Player presentation/readiness: versioned typed asset catalog,
-explicit data-only mesh/image/audio/procedural effect and camera formats, canonical
-world bindings, collision overlay, deterministic event deduplication and rollback
-cleanup. Reference shockwave only proves generic event playback. Prior XP-008 gates
-passed. No new gameplay mechanic or core noun registry is authorized or required.
+Configured Player invitations now use an operator-provisioned TLS 1.3 relay with
+single-use grants, scoped leases, fixed package/game routes and bounded resources.
+Exported Players share one creator authority; transient tunnel loss recovers through
+verified baseline generation 2. Relay outage fences remote membership, preserves
+local host play and reports interruption without silent plaintext fallback.
+7 launcher and 2 relay unit tests pass, alongside exported relay/resource proofs,
+Player UI and XP-014/XP-010 regressions. No core gameplay/world changes were needed.
+Public deployment and two-network acceptance remain pending by explicit owner
+instruction (no hosting available). XP-014 two-machine and XP-010 clean-machine
+gates are also pending. XP-016 is next, not started. See docs/XP015_COMPLETION.md,
+docs/XP015_DEPLOYMENT_AND_TWO_NETWORK_TEST.md and docs/evidence/xp015-baseline.json.
+Earlier checkpoints below are historical.
+
+## XP-014: IMPLEMENTED - SAME-HOST VERIFIED - TWO-MACHINE GATE PENDING - 2026-10-02
+
+Native Play/Invite/Join now shares one authority through expiring single-use private
+session invitations, bounded verified data acquisition and trusted installed Players.
+Builder and Player expose progress, readiness and leave/end. Controllers come from
+CGS; no mechanic-specific session concepts were added. Final exported two-Player,
+refusal/cancellation/readiness and native lifecycle proofs pass. Journals survive end.
+6 launcher, 705 runtime and 7 network tests pass, plus Builder/Godot UI checks.
+Two-machine acceptance is pending by explicit owner instruction (no second machine);
+XP-010 clean-machine acceptance is also still pending. XP-015 is next, not started.
+See docs/XP014_COMPLETION.md and docs/evidence/xp014-baseline.json.
+Earlier checkpoints below are historical, not current task recommendations.
+
+## XP-013: IMPLEMENTED - LOCAL SYNCHRONIZATION PROFILE VERIFIED - 2026-10-01
+
+Versioned full projections now carry tick/epoch, digest, baseline ID and connection
+generation. Required-input membership follows exact current-baseline acknowledgement.
+Late join, bounded full replacement, gap recovery, timeout fencing and rotated-token
+reconnect preserve canonical player identity without adding gameplay concepts.
+705 runtime, 7 network and 8 session-contract tests pass, as do the real two-client
+XP-013 proofs, 13 admission regressions, 6 input regressions, client stale/gap checks
+and a five-tick staged Godot run. See docs/XP013_COMPLETION.md and
+docs/evidence/xp013-baseline.json. XP-014 is next; remote/cross-engine certification
+and XP-010 clean-machine acceptance remain pending. Earlier sections are historical.
+
+## XP-012: IMPLEMENTED - LOCAL TWO-PLAYER PROFILE VERIFIED - 2026-10-01
+
+The live bridge admits up to four separately granted controllers and binds each
+socket to its canonical player entity. Generic targeted actions require entity
+authority. Existing malicious-input, cheat, rate and lockstep modules now guard
+the authoritative Input phase; accepted values use a 1/1024 quantization grid.
+A typed numbered tick request drives Player input, including empty idle packets.
+Incremental bounded reads survive fragmented frames; handshakes have a 1.5-second
+deadline, and an unresponsive required peer is disconnected and logged after
+five seconds. Live presentation feedback cannot enter authoritative feedback.
+Two-peer real-socket ownership, replay/future/rate, arrival-order, fragmentation,
+idle, incomplete-handshake and timeout proofs pass. The Godot Player ran five
+requested-input ticks; 704 runtime and 6 network library tests, plus all twelve
+XP-011 socket regressions, pass. XP-013 baseline/reconnect and XP-017 actual
+cross-engine play remain pending. XP-010 clean-machine acceptance remains
+pending by owner instruction. See docs/XP012_COMPLETION.md and
+docs/evidence/xp012-baseline.json.
+
+## XP-011: IMPLEMENTED - LOCAL PROFILE VERIFIED - 2026-10-01
+
+The real bridge now requires the typed gameplay/session identity and one-use local
+player grant for live play. It creates fresh session/incarnation UUIDs, derives exact
+CGS/SGC/world/package/input/runtime identities from verified loaded artifacts,
+negotiates presentation separately, and records session start, admissions/rejections,
+validated inputs and departure durably. Rejected sockets gain no player ownership or
+required-input membership. Twelve real socket cases and an exported Godot Player
+30-tick run pass; 704 runtime-core, 8 shared-contract and 6 network-core tests pass.
+Unity-shaped wire/presentation negotiation is verified; running Unity play remains
+XP-017. XP-010 clean-machine acceptance remains pending by owner instruction.
+XP-012 current status is above. See docs/XP011_COMPLETION.md and
+docs/evidence/xp011-baseline.json.
+
+## XP-010: IMPLEMENTED - CLEAN-MACHINE GATE PENDING - 2026-09-30
+
+Pinned Windows distribution, native verified install/broker and generic Builder
+Play/Stop/progress/retry are implemented. Verified: 2 native tests, 366 broad Builder
+backend tests, final 6 route/service tests, real-browser UI, native lifecycle and
+no-argument desktop launch. First install to ready measured 10.641 seconds; package
+ZIP 39,546,841 bytes. Port collision, denied install/retry, stale repair, repeat Play,
+failed launch rollback and crash/EOF authority cleanup pass. Builder discovers the
+verified per-user installation and rejects stale saved-project packages.
+Owner explicitly requested clean-machine acceptance remain pending (no clean PC/VM).
+Same-host restricted PATH is not that certification. XP-011 status is above.
+See docs/XP010_COMPLETION.md and docs/evidence/xp010-baseline.json.
+
+## XP-009: COMPLETE - 2026-09-29
+
+Generic typed Player presentation catalog, data-only mesh/PNG/WAV/ring/camera
+formats, canonical world binding readiness, collision overlays and reported
+fallbacks are implemented. Native emitted-event projection remains mechanic-agnostic.
+Verified: 704 runtime library + 35 targeted Rust tests, 35 Python tests, 27 Godot
+assertions, six exported Player/native scenarios. Two cosmetic variants preserve
+all 30 authoritative hashes. Duplicate/restore/expiration, missing assets, binding
+mismatch and tamper proofs pass. Same 31 prior inventory findings. Scope remains
+local pre-admitted Windows package and explicit formats; no universal format or
+remote-session claim. Next: XP-010 (not started).
+See docs/XP009_COMPLETION.md and docs/evidence/xp009-baseline.json.
 
 ## XP-008: COMPLETE - 2026-09-29
 

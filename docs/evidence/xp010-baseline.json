@@ -1,0 +1,79 @@
+{
+  "schema": "xace.xp010.launch_proof.v1",
+  "same_host_only": true,
+  "clean_machine_certified": false,
+  "development_tools_absent_from_child_path": true,
+  "results": {
+    "capability_rejected": true,
+    "port_collision_recovered": true,
+    "repeated_play_reused": true,
+    "startup_ms": 3650,
+    "stop_tree_clean": true,
+    "eof_tree_clean": true,
+    "broker_crash_tree_clean": true,
+    "player_crash_tree_clean": true,
+    "failed_launch_preserved_active": true,
+    "stale_install_repaired": true,
+    "denied_install_rejected": true,
+    "denied_install_retry_recovered": true,
+    "builder_saved_project_and_owned_launch": true,
+    "unowned_process_retained": true
+  },
+  "date": "2026-09-30",
+  "status": "implemented_clean_machine_pending",
+  "clean_machine_disposition": "Owner confirmed no clean PC/VM is available and requested this test remain pending.",
+  "release": {
+    "schema": "xace.player.distribution_trust.v1",
+    "manifest_sha256": "1f90a926b18e105f4656474715be8118953a0c4275e66344464e9eb69fc11328",
+    "broker_sha256": "677846120c91172ae3302bf33492cbac8ed11576155bc54a69273e61629a7292",
+    "godot_version": "4.6.3.stable.official.7d41c59c4",
+    "template_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "bytes": 120834356,
+    "zip_bytes": 39546841,
+    "directory": "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp010-delivery\\release"
+  },
+  "standalone": {
+    "ok": true,
+    "no_arguments": true,
+    "no_development_tools_in_path": true,
+    "native_window_launch": true,
+    "startup_after_verification_ms": 2644,
+    "first_install_to_ready_ms": 10641,
+    "owned_tree_stopped": true,
+    "builder_auto_discovery_real_launch": true
+  },
+  "hardware": {
+    "gpu": [
+      {
+        "Name": "Intel(R) UHD Graphics",
+        "DriverVersion": "32.0.101.7080"
+      },
+      {
+        "Name": "NVIDIA GeForce RTX 4050 Laptop GPU",
+        "DriverVersion": "32.0.15.7705"
+      }
+    ],
+    "cpu": {
+      "Name": "12th Gen Intel(R) Core(TM) i7-12650HX"
+    },
+    "memory": 16890322944,
+    "os": {
+      "Caption": "Microsoft Windows 11 Home Single Language",
+      "Version": "10.0.26200",
+      "OSArchitecture": "64-bit"
+    }
+  },
+  "tests": {
+    "native_unit_tests": 2,
+    "builder_backend_regression_tests": 366,
+    "final_player_route_service_tests": 6,
+    "real_browser_player_flow": "passed",
+    "typescript_lint": "passed",
+    "builder_ui_contract": "passed"
+  },
+  "source_inventory": {
+    "findings": 31,
+    "unchanged_from_xp009": true
+  },
+  "zip_contents_verified": true
+}

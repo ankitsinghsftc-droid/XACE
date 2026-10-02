@@ -66,12 +66,12 @@ func apply_handshake_ack(ack: Dictionary) -> void:
 	if not bool(ack.get("accepted", false)):
 		return
 	var snapshot: Dictionary = {
-		"tick": 0,
+		"tick": int(ack.get("sync", {}).get("next_tick", 0)),
 		"entities": ack.get("initial_entities", []),
 		"spawned_ids": [],
 		"destroyed_ids": [],
 	}
-	apply_tick_snapshot(snapshot)
+	_restore_full_tick_snapshot(snapshot)
 
 
 func apply_tick_snapshot(snapshot: Dictionary) -> void:
@@ -87,6 +87,10 @@ func apply_tick_snapshot(snapshot: Dictionary) -> void:
 			if entity_id > 0:
 				seen[entity_id] = true
 				upsert_legacy_entity(entity)
+	if snapshot.has("sync"):
+		for entity_id in _nodes.keys():
+			if not seen.has(int(entity_id)):
+				destroy_entity(int(entity_id))
 	apply_playback_commands(snapshot.get("playback_commands", []))
 
 

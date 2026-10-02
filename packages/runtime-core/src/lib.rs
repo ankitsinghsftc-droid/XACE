@@ -28,6 +28,8 @@ pub mod control_protocol;
 pub mod control_server;
 pub mod engine_bridge;
 pub mod engine_protocol;
+pub mod live_session;
+pub mod session_projection;
 pub mod tcp_server;
 
 mod input_ingress;

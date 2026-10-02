@@ -261,6 +261,16 @@ def create_app(
     app.state.cgs_state = cgs_state
     app.state.recovery_report = recovery_report
     app.state.demo_runtime_process = None
+    from player_launch import PlayerLaunchService
+    from player_launch_routes import player_router
+    player_launch = PlayerLaunchService(persist.load)
+    app.state.player_launch = player_launch
+    app.include_router(player_router(player_launch, dev_mode=dev_mode))
+
+    @app.on_event("shutdown")
+    async def close_player_launch():
+        await asyncio.to_thread(player_launch.close)
+
 
     # ── Static file serving ───────────────────────────────────────────────────
     dist_path = Path(static_dir)

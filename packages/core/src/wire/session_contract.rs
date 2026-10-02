@@ -250,6 +250,7 @@ pub enum CompatibilityRejection {
 
 /// Supported platform/protocol vocabulary only; package semantics never enter this list.
 pub const KNOWN_CAPABILITIES: &[&str] = &[
+    "session.projection.v1",
     "input.timed.v1",
     "world.aabb.v1",
     "world.semantic_bindings.v1",

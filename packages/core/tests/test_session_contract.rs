@@ -124,7 +124,9 @@ fn provenance_roundtrip_preserves_all_correlations_and_rejects_nil_activation() 
 
 #[test]
 fn capability_vocabulary_reserves_semantics_without_engine_paths() {
-    assert_eq!(KNOWN_CAPABILITIES, REQUIRED_PROFILE_CAPABILITIES);
+    assert!(REQUIRED_PROFILE_CAPABILITIES.iter().all(|c| KNOWN_CAPABILITIES.contains(c)));
+    assert!(KNOWN_CAPABILITIES.contains(&"session.projection.v1"));
+    assert!(!REQUIRED_PROFILE_CAPABILITIES.contains(&"session.projection.v1"));
     for semantic in ["fixture.wall_runnable.v1", "custom.anything.v42"] {
         assert!(xace_core::world::valid_semantic_capability(semantic));
         assert!(!KNOWN_CAPABILITIES.contains(&semantic));

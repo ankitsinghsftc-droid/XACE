@@ -3901,6 +3901,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "xace-player-launcher"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "uuid",
+ "xace-session-relay",
+]
+
+[[package]]
 name = "xace-reference-mechanic"
 version = "0.1.0"
 dependencies = [
@@ -3925,6 +3937,7 @@ dependencies = [
  "sha2 0.10.9",
  "thiserror 1.0.69",
  "tokio",
+ "uuid",
  "xace-core",
  "xace-engine-feedback",
  "xace-network-core",
@@ -3940,6 +3953,19 @@ dependencies = [
  "thiserror 1.0.69",
  "xace-core",
  "xace-runtime-core",
+]
+
+[[package]]
+name = "xace-session-relay"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "rustls 0.23.40",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-rustls 0.26.4",
+ "uuid",
 ]
 
 [[package]]

@@ -1,0 +1,220 @@
+{
+  "schema": "xace.xp015.evidence.v1",
+  "date": "2026-10-02",
+  "status": "implemented_local_tls_verified_public_deployment_and_two_network_pending",
+  "git_head": "0225c8bf690f19971c2eaf98708eb5075f21223d",
+  "source_sha256": {
+    "Cargo.toml": "bccb8cfe4dd61623b0d463b0ca7e11f4284144e17cf919c866081d168b5185ce",
+    "Cargo.lock": "b88137e5bbf3cdf1e142253dee7eff8774ea1f58cb5ab0d9acb3f4b2f0bfa551",
+    "packages/player-launcher/Cargo.toml": "a97b282e01e4034ea34983fb152e848609fc0b57b08b5741862611bf18f8964f",
+    "packages/player-launcher/src/main.rs": "b9e6fc5ef173bed9ec7b12f33371c744b15043dd7341dbebb4b156da7d418a75",
+    "packages/player-launcher/src/session.rs": "1c960c2eeff01efd32b58e907cbc66a8c92bc8f9897afc7f0284d21323a71881",
+    "apps/xace-player/player.gd": "60d6c58f784a4defea916d2fe02727f2d8c877d44a3e407bd4d91a8a4d308fad",
+    "apps/xace-player/tests/session_ui_test.gd": "7a2e628b286251999a5f200f5b4a732963484fae3afda0d51eabb772bc52cdff",
+    "tools/xp015_relay_proof.py": "f3ae8a90bede09eab78ceb0bccb3b684c483fec003da202d3d554b0a380bda66",
+    "packages/session-relay/Cargo.toml": "78aaf93779cc5a06ede40bd502a6c42b8481087cc5be29ec62a327ee75a8f2f5",
+    "packages/session-relay/examples/transport_probe.rs": "3cda619c0d8e790abf3a03923bb567dc12881c6bcdade4e7d7ab00b30a01d6cc",
+    "packages/session-relay/src/client.rs": "9fa79c54104af859cd9c542e98773282dfb04388647bbfeb529475035a6aeef2",
+    "packages/session-relay/src/lib.rs": "a6ac8956beee93f325f6a6b7f88e4db9f7948090e9e514f898af864965765cf7",
+    "packages/session-relay/src/main.rs": "41fa0f6a8172288650926089e38d50603f06403256df70fedaba660798856635",
+    "packages/session-relay/src/server.rs": "0c9e2be21b4605d895b0ee93ec029a84f101c32125a758fdc7efc86fc1c295ee"
+  },
+  "artifacts": {
+    "tmp/xp015-release-final/distribution.json": {
+      "sha256": "ae8222acf28a478a1f03bbe8c4cd010cbb23593acc641d8ff7183261ef97d6c1",
+      "bytes": 3384
+    },
+    "tmp/xp015-release-final/XACE Play.exe": {
+      "sha256": "0e291bbd7ec97aa4a3e1ea853ed79ec9a260b4680ffd0398abb7d2c1922523ce",
+      "bytes": 6075904
+    },
+    "tmp/xp015-release-final/xace-player.pck": {
+      "sha256": "f5eb6a646f6d7ae773e30d4be72e43b130e0c8c4e02077dc7ac0de2c9b2372d5",
+      "bytes": 273928
+    },
+    "tmp/xp015-release-final/xace-player.exe": {
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "bytes": 104659456
+    },
+    "tmp/xp015-release-final/package/runtime/xace_runtime.exe": {
+      "sha256": "969a7aa3a8837dc1131ee7109bed7776d2b5f801cb320fba16f1a6dd96c59db0",
+      "bytes": 12231168
+    },
+    "tmp/xp015-release-final.zip": {
+      "sha256": "1a7903dc3389e2b9775d4def1e680482252378e10041dc5a33427104b29ab03c",
+      "bytes": 41581133
+    },
+    "target/debug/xace-session-relay.exe": {
+      "sha256": "caec52301be9e03ae9c5a11771ab297c90e64a2befb9c36e4baa0545dcc49979",
+      "bytes": 4649472
+    }
+  },
+  "unit_tests": {
+    "player_launcher": 7,
+    "session_relay": 2,
+    "failures": 0,
+    "command": "cargo test -p xace-session-relay -p xace-player-launcher --offline --quiet"
+  },
+  "player_ui_test": "passed including relay-loss message",
+  "relay_proof": {
+    "schema": "xace.xp015.proof.v1",
+    "ok": true,
+    "same_machine_only": true,
+    "public_deployment": "pending_owner_has_no_hosting",
+    "two_network_acceptance": "pending",
+    "results": {
+      "protocol": {
+        "tls13_verified": true,
+        "untrusted_certificate_refused": true,
+        "host_auth_required": true,
+        "expired_invite_refused": true,
+        "invite_replay_refused": true,
+        "channel_replay_refused": true,
+        "control_and_arbitrary_target_refused": true,
+        "guest_cannot_poll_host": true,
+        "bytes_preserved": true,
+        "end_closes_tunnels": true,
+        "session_bound_16": true
+      },
+      "limits": {
+        "frame_size_enforced": true,
+        "expired_capability_refused": true,
+        "two_connections_per_lease": true,
+        "traffic_limit_closes_tunnel": true,
+        "forwarded_before_limit": 8388608,
+        "traffic_test_seconds": 0.063,
+        "abandoned_host_expires": true
+      },
+      "native_certificate_refusals": {
+        "wrong_hostname": true,
+        "wrong_ca": true,
+        "no_player_started": true
+      },
+      "players": {
+        "one_authority": true,
+        "distinct_players": [
+          3,
+          4
+        ],
+        "package_acquired_through_tls": true,
+        "gameplay_through_tls": true,
+        "replay_keeps_existing_player": true,
+        "tools_absent_from_player_path": true
+      },
+      "reconnect": {
+        "same_players_and_authority": true,
+        "verified_generation": 2,
+        "tls_capture_bytes": 65536,
+        "application_plaintext_absent": true
+      },
+      "outage": {
+        "remote_membership_fenced": true,
+        "host_preserved": true,
+        "no_second_authority": true,
+        "visible_health_failure": true,
+        "no_silent_private_fallback": true
+      },
+      "cleanup": {
+        "players_stopped": true,
+        "cache_removed": true,
+        "journal_preserved": true
+      }
+    }
+  },
+  "private_regression": {
+    "schema": "xace.xp014.proof.v1",
+    "ok": true,
+    "same_machine_only": true,
+    "two_machine_acceptance": "pending_owner_has_no_second_machine",
+    "results": {
+      "refusals": {
+        "expired_invite": true,
+        "tampered_file": true,
+        "executable_download": true,
+        "path_escape": true,
+        "failed_acquisition_leaves_no_player_or_cache": true
+      },
+      "play_invite_join": {
+        "one_authority": true,
+        "distinct_players": [
+          3,
+          4
+        ],
+        "same_session": true,
+        "readiness": [
+          {
+            "player": 1,
+            "state": "Playing"
+          },
+          {
+            "player": 2,
+            "state": "Playing"
+          }
+        ],
+        "package_missing_acquired": true,
+        "invite_replay_refused_without_closing_player": true,
+        "recipient_developer_tools_removed_from_PATH": true
+      },
+      "leave_end": {
+        "friend_membership_released": true,
+        "cache_released": true,
+        "host_runtime_and_player_stopped": true,
+        "invite_service_closed": true,
+        "authoritative_journal_preserved": true
+      },
+      "preparation_failures": {
+        "close_cancels_download": true,
+        "cancelled_cache_removed": true,
+        "readiness_failure_refused": true,
+        "failed_player_never_required": true,
+        "host_kept_playing": true
+      }
+    }
+  },
+  "launch_regression": {
+    "schema": "xace.xp010.launch_proof.v1",
+    "same_host_only": true,
+    "clean_machine_certified": false,
+    "development_tools_absent_from_child_path": true,
+    "results": {
+      "capability_rejected": true,
+      "port_collision_recovered": true,
+      "repeated_play_reused": true,
+      "startup_ms": 422,
+      "stop_tree_clean": true,
+      "eof_tree_clean": true,
+      "broker_crash_tree_clean": true,
+      "player_crash_tree_clean": true,
+      "failed_launch_preserved_active": true,
+      "stale_install_repaired": true,
+      "denied_install_rejected": true,
+      "denied_install_retry_recovered": true,
+      "builder_saved_project_and_owned_launch": true,
+      "unowned_process_retained": true
+    }
+  },
+  "bounds": {
+    "sessions": 16,
+    "connections": 128,
+    "invite_seconds": 600,
+    "session_seconds": 7200,
+    "lease_connections": 2,
+    "pending_pairings": 8,
+    "control_frame_bytes": 8192,
+    "forward_buffer_bytes_per_direction": 16384,
+    "payload_bytes_per_second": 8388608,
+    "payload_bytes_per_session": 2147483648
+  },
+  "pending": {
+    "public_deployment": "Owner has no hosting/server; explicitly left pending.",
+    "two_network_acceptance": "Explicitly pending; loopback TLS is not Internet acceptance.",
+    "xp014_two_machine": "Still pending by owner instruction.",
+    "xp010_clean_machine": "Still pending by owner instruction."
+  },
+  "limitations": [
+    "Trusted relay terminates TLS; no encryption against the operator.",
+    "Endpoint, CA and host credential require operator provisioning.",
+    "In-memory relay state; service restart requires a new hosted session.",
+    "No cross-engine, high-latency catch-up or public capacity certification."
+  ]
+}

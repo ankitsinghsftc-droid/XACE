@@ -10,6 +10,7 @@ const MSG_HANDSHAKE := "handshake"
 const MSG_HANDSHAKE_ACK := "handshake_ack"
 const MSG_TICK_SNAPSHOT := "tick_snapshot"
 const MSG_INPUT_PACKET := "input_packet"
+const MSG_INPUT_TICK_REQUEST := "input_tick_request"
 const MSG_FEEDBACK_PAYLOAD := "feedback_payload"
 const MSG_PLAYBACK_COMMANDS := "playback_commands"
 const MSG_ADAPTER_SIDE_EFFECT_ROLLBACK := "adapter_side_effect_rollback"
@@ -46,15 +47,19 @@ static func build_input_action(
 		value: float,
 		secondary_value: float = 0.0,
 		kind: String = "custom",
-		phase: String = "performed"
+		phase: String = "performed",
+		target_entity: int = 0
 ) -> Dictionary:
-	return {
+	var result := {
 		"action": _portable_text(action, 64),
 		"value": clampf(value, -1.0, 1.0),
 		"secondary_value": clampf(secondary_value, -1.0, 1.0),
 		"kind": _portable_text(kind, 32),
 		"phase": _portable_text(phase, 32),
 	}
+	if target_entity > 0:
+		result["target_entity"] = target_entity
+	return result
 
 
 static func build_input_packet(
@@ -229,6 +234,12 @@ static func _validate_legacy_message(message: Dictionary) -> String:
 			if bool(message.get("accepted", false)) and str(message.get("session_id", "")).is_empty():
 				return "accepted handshake_ack missing session_id"
 			return ""
+		MSG_INPUT_TICK_REQUEST:
+			if int(message.get("protocol_version", 0)) != PROTOCOL_VERSION or int(message.get("tick", -1)) < 0:
+				return "input_tick_request has invalid version or tick"
+			return ""
+		"session_baseline":
+			return "" if message.get("sync", {}) is Dictionary else "invalid session baseline"
 		MSG_TICK_SNAPSHOT:
 			if int(message.get("tick", -1)) < 0:
 				return "tick_snapshot has invalid tick"
@@ -307,7 +318,8 @@ static func _normalise_actions(actions: Array) -> Array:
 			float(action.get("value", 0.0)),
 			float(action.get("secondary_value", 0.0)),
 			str(action.get("kind", "custom")),
-			str(action.get("phase", "performed"))
+			str(action.get("phase", "performed")),
+			int(action.get("target_entity", 0))
 		))
 	normalised.sort_custom(func(left, right): return str(left.get("action", "")) < str(right.get("action", "")))
 	return normalised

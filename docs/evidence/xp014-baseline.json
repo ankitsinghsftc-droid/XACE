@@ -1,0 +1,160 @@
+{
+  "schema": "xace.xp014.evidence.v1",
+  "date": "2026-10-02",
+  "status": "implemented_same_host_verified_two_machine_pending",
+  "git_head": "0225c8bf690f19971c2eaf98708eb5075f21223d",
+  "source_sha256": {
+    "packages/player-launcher/src/session.rs": "50d88c461763d202240cf17c7e6dd4087460980623d5e650e9010df3602f21cd",
+    "packages/player-launcher/src/main.rs": "a5fa8121b348b4847ae8e5a0f6b99cf1aa92082d21cc8caf1d53ef3718860f94",
+    "packages/player-launcher/src/distribution.rs": "96a4d1b2e9acad9e4eff81659d29fde5f041370e970e713c6a9e48575623f595",
+    "packages/runtime-core/src/runtime_cli.rs": "ed4e1c949bc78ee66df59a72ad93c2b97b8a31248e61aa0821f26b8ff56c69cf",
+    "apps/xace-player/player.gd": "09de780d8f8a7184ba22048681ce7f6c5c8d92684be4e3790a0d0e2845f5ae13",
+    "apps/xace-player/tests/session_ui_test.gd": "6217a57bb16b5b5f5f4907899d8904db55e2540d65fce039bef75877da54826c",
+    "tools/xp014_session_proof.py": "6fdd49af9a88d6af409b9d80572dbdad50a31d0cdb8e63351b3bf73ae3f09068",
+    "tools/xp010_player_distribution.py": "5fb29fdd018029b1538f0ba9c374c0c22f52de22fd26e63e41da436dbac52db6",
+    "packages/builder-workspace/server/player_launch.py": "a7c5823a5760c9ef710bcc6ceaf224c186d01d8d36d5f967bc73cdd2659eafd6",
+    "packages/builder-workspace/server/player_launch_routes.py": "ddff7ff23ffafe717012259b48da926d6274d90a6b50cc26dbab59ebd78bb6ea",
+    "packages/builder-workspace/server/tests/test_player_launch.py": "6faffea3d37f4d4766841b54f61f82c47d391e13d7ddbf2b7fe8bd74836b3d12",
+    "packages/builder-workspace/src/preview/engine_viewport.ts": "3de46fabd8feeff01c6c836b2955035d89a5b5d999553a56dc28a4d05893d7a7",
+    "packages/builder-workspace/tools/player_launch_browser_fixture.ts": "f4570508fdf2b936a1ba0ecd2a4001f5a530eba83f30516022d711d18b5a3600",
+    "packages/builder-workspace/tools/player_launch_browser_test.mjs": "173da64eeb0a8faaee6b2f37cf14641631faee3e6d3a76346f5f016163fae8be"
+  },
+  "artifacts": {
+    "tmp\\xp014-release-final2\\distribution.json": {
+      "sha256": "5bdf9b05c6d0ee4dd8c14e312c2ba689a561fe37a570bfa1a675e126f2e1d6bc",
+      "bytes": 3384
+    },
+    "tmp\\xp014-release-final2\\XACE Play.exe": {
+      "sha256": "c2684a3ceac520cb2ccb8d1eaeccb01c88b725b8b646e8aabe3330d92c816d53",
+      "bytes": 1795584
+    },
+    "tmp\\xp014-release-final2\\xace-player.exe": {
+      "sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+      "bytes": 104659456
+    },
+    "tmp\\xp014-release-final2\\xace-player.pck": {
+      "sha256": "deb48872515558076c107af7e8dbe2fae736c405f7841f1a71df73767813b152",
+      "bytes": 273496
+    },
+    "tmp\\xp014-release-final2\\package\\runtime\\xace_runtime.exe": {
+      "sha256": "969a7aa3a8837dc1131ee7109bed7776d2b5f801cb320fba16f1a6dd96c59db0",
+      "bytes": 12231168
+    },
+    "tmp\\xp014-release-final2.zip": {
+      "sha256": "ab9b6b6d0a3a0036f573a7a97bdd06580f24a1f8719831bf830c98508607f43f",
+      "bytes": 40119552
+    }
+  },
+  "tests": {
+    "launcher": 6,
+    "runtime_core": 705,
+    "network_core": 7,
+    "builder_launch": 7,
+    "typescript_check": "passed",
+    "browser_session_controls": "passed",
+    "godot_session_controls": "passed"
+  },
+  "session_proof": {
+    "schema": "xace.xp014.proof.v1",
+    "ok": true,
+    "same_machine_only": true,
+    "two_machine_acceptance": "pending_owner_has_no_second_machine",
+    "results": {
+      "refusals": {
+        "expired_invite": true,
+        "tampered_file": true,
+        "executable_download": true,
+        "path_escape": true,
+        "failed_acquisition_leaves_no_player_or_cache": true
+      },
+      "play_invite_join": {
+        "one_authority": true,
+        "distinct_players": [
+          3,
+          4
+        ],
+        "same_session": true,
+        "readiness": [
+          {
+            "player": 1,
+            "state": "Playing"
+          },
+          {
+            "player": 2,
+            "state": "Playing"
+          }
+        ],
+        "package_missing_acquired": true,
+        "invite_replay_refused_without_closing_player": true,
+        "recipient_developer_tools_removed_from_PATH": true
+      },
+      "leave_end": {
+        "friend_membership_released": true,
+        "cache_released": true,
+        "host_runtime_and_player_stopped": true,
+        "invite_service_closed": true,
+        "authoritative_journal_preserved": true
+      },
+      "preparation_failures": {
+        "close_cancels_download": true,
+        "cancelled_cache_removed": true,
+        "readiness_failure_refused": true,
+        "failed_player_never_required": true,
+        "host_kept_playing": true
+      }
+    }
+  },
+  "launch_regression": {
+    "schema": "xace.xp010.launch_proof.v1",
+    "same_host_only": true,
+    "clean_machine_certified": false,
+    "development_tools_absent_from_child_path": true,
+    "results": {
+      "capability_rejected": true,
+      "port_collision_recovered": true,
+      "repeated_play_reused": true,
+      "startup_ms": 819,
+      "stop_tree_clean": true,
+      "eof_tree_clean": true,
+      "broker_crash_tree_clean": true,
+      "player_crash_tree_clean": true,
+      "failed_launch_preserved_active": true,
+      "stale_install_repaired": true,
+      "denied_install_rejected": true,
+      "denied_install_retry_recovered": true,
+      "builder_saved_project_and_owned_launch": true,
+      "unowned_process_retained": true
+    }
+  },
+  "xp013_regression": {
+    "late_join": {
+      "initial_next_tick": 1,
+      "activated_next_tick": 2,
+      "projection_digest": "8c02a9324a7ad424efe48daa610b4b204a4de5d468f0707c32122f39041f5d5c",
+      "unready_peer_did_not_block": true,
+      "bad_digest_ack_rejected": true
+    },
+    "reconnect": {
+      "player_id": 4,
+      "generation": 2,
+      "next_tick": 4,
+      "spent_token_rejected": true,
+      "stale_generation_ack_rejected": true
+    },
+    "recovery": {
+      "next_tick": 6,
+      "restored_digest": "a9a234cb89a503dacefc015ca277739ee7f95781a26c6e1dc486ecbae00d50e3",
+      "matches_authority": true,
+      "catch_up_baselines_retained": 1
+    },
+    "dropped_baseline": {
+      "fenced_after_timeout": true,
+      "other_player_completed_tick": 6
+    }
+  },
+  "pending": {
+    "two_machine": "Owner has no second machine; explicitly left pending.",
+    "clean_machine_xp010": "Owner has no clean PC/VM; explicitly left pending.",
+    "internet_relay": "XP-015 not started."
+  }
+}

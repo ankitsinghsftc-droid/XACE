@@ -1,0 +1,133 @@
+{
+  "schema": "xace.xp011.evidence.v1",
+  "date": "2026-10-01",
+  "profile": "local Windows exported Godot Player and native authority",
+  "socket_matrix": {
+    "schema": "xace.xp011.session_proof.v1",
+    "ok": true,
+    "scenarios": {
+      "godot": {
+        "accepted": true,
+        "reason": "",
+        "records": [
+          "start",
+          "membership",
+          "input",
+          "membership"
+        ]
+      },
+      "unity_visual_variant": {
+        "accepted": true,
+        "reason": "",
+        "records": [
+          "start",
+          "membership",
+          "input",
+          "membership"
+        ]
+      },
+      "wrong_grant": {
+        "accepted": false,
+        "reason": "invalid or spent grant",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "missing_offer": {
+        "accepted": false,
+        "reason": "live session offer missing",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "adapter_claim_mismatch": {
+        "accepted": false,
+        "reason": "adapter claim differs from handshake",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_cgs": {
+        "accepted": false,
+        "reason": "compatibility rejected: Cgs",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_plan": {
+        "accepted": false,
+        "reason": "compatibility rejected: SgcPlan",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_world": {
+        "accepted": false,
+        "reason": "compatibility rejected: World",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_input": {
+        "accepted": false,
+        "reason": "compatibility rejected: InputContract",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_runtime": {
+        "accepted": false,
+        "reason": "compatibility rejected: Runtime",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_epoch": {
+        "accepted": false,
+        "reason": "compatibility rejected: RulesetEpoch",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_incarnation": {
+        "accepted": false,
+        "reason": "compatibility rejected: AuthorityIncarnation",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      }
+    }
+  },
+  "player": {
+    "errors": [],
+    "ticks": 30,
+    "inputs": 30,
+    "session_records": {
+      "start": 1,
+      "admitted": 1,
+      "input": 30,
+      "disconnected": 1
+    },
+    "ticket_removed": true
+  },
+  "tests": {
+    "runtime_core_lib": 704,
+    "core_contract_vectors": 8,
+    "network_core_lib": 6
+  },
+  "limitations": [
+    "Unity-shaped socket offer tested; running Unity adapter remains XP-017",
+    "multiplayer pacing and reconnect remain XP-012/XP-013",
+    "XP-010 clean-machine acceptance pending by owner instruction"
+  ]
+}

@@ -1,0 +1,279 @@
+{
+  "schema": "xace.xp013.evidence.v1",
+  "date": "2026-10-01",
+  "status": "implemented_local_windows_profile_verified",
+  "git_head": "0225c8bf690f19971c2eaf98708eb5075f21223d",
+  "source_sha256": {
+    "packages/core/src/wire/session_contract.rs": "293b8d6fe064882334fa98dfb36def83b70a2194fac0531ec2bbe3f2eccf07bf",
+    "packages/core/tests/test_session_contract.rs": "af7cd69c3bb7704fd1ff32ea360ebcc39c615c46690d5df2061a215bf2841a6f",
+    "packages/network-core/src/input/input_buffer.rs": "ed987414867b0babac21d4ce5df48634459d291f561519b9b35ab50a9267de84",
+    "packages/network-core/src/input/input_synchroniser.rs": "43c5a2ee560244afe4bfe2c206c5987cbc6e39bdc5254e6c8f1777840f16efb4",
+    "packages/network-core/src/input/malicious_input_gate.rs": "c98bc56665e528173d00f3ff659a8bbcf9ec71b53ad761f99b6efbc51ed6380b",
+    "packages/runtime-core/src/session_projection.rs": "cce1e24c7b1494c703e57ae8ad0703829a3711599fc7dc4ae66348e2dc7bd706",
+    "packages/runtime-core/src/live_session.rs": "b9aefd4e38b7582b11d1f1a2324055def797f21d542d2101d9e25b51c7c5d1a6",
+    "packages/runtime-core/src/engine_bridge.rs": "dd4945b1de09b29a5c7cfff0df11c13f094fe0711124f1f1f9e81393aa575a16",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "167897ac8360d4d58e12a236923eac03baa55acd17ad5ec25720e549cb0267af",
+    "packages/runtime-core/src/runtime_cli.rs": "a8d4df86e423cc55afd8bd21928d49494077d66a86b9752f5ea6466588a82f67",
+    "packages/runtime-core/src/lib.rs": "4c00d672472750d3f59884d1e666219816a003e6eaf678115a92224bab719d9e",
+    "adapters/godot/xace_transport.gd": "c2ee496c94f23d50afa8502e68f4cb9550c3d8600ab3d008ae8ec3698301f384",
+    "adapters/godot/xace_protocol.gd": "a83d6cf9591cddf67a7f11095e017edee6764efe2043af58cb333407fa206e1f",
+    "adapters/godot/xace_adapter.gd": "368262f3881251a72f647a8e768f292d0a0e780ac6e411ce6351393930c100b0",
+    "adapters/godot/xace_entity_manager.gd": "5475981227e3922425099832db1ba2a03aa013201836c7c6d1a0002c86284f33",
+    "apps/xace-player/player.gd": "84583b30e539592dcdd7db258f790ecc5dca075d42d65361d469c1bcaeea8b26",
+    "tools/xp011_session_proof.py": "961c3be62bd88e562bcac93873b5b02d2c71f3a0dd42c41b6b948a5c96538df6",
+    "tools/xp012_socket_proof.py": "09a43f8d787862fe970cd62122628aebc47985eae37634bd0bdda4e72ffdd769",
+    "tools/xp013_socket_proof.py": "a46ca88da4b6c91b4860680752f9b914fe5b99f9a91ebac8b8df6b7895b2b08b",
+    "tools/xp013_projection_proof.gd": "b9a81d9c4e73315d2e2240cf4d8e70eb6d97a2026165f2664aa336ce58eca7c3"
+  },
+  "package": {
+    "path": "tmp\\xp013-stage-certified\\player\\package",
+    "manifest_sha256": "64bf6272f746eb121cd6ca889aec89a69a7fd1b8c92ba12cf87d3cf752c045bd",
+    "runtime_sha256": "42fe10cdfbc2bc6c0c0b322efedc7508b2cc8797dc82a12a72f10166b80a15e5"
+  },
+  "tests": {
+    "runtime_library": 705,
+    "network_library": 7,
+    "shared_session_contract": 8,
+    "failures": 0,
+    "commands": [
+      "cargo test -p xace-network-core -p xace-runtime-core --lib --quiet",
+      "cargo test -p xace-core --test test_session_contract --quiet"
+    ]
+  },
+  "socket_proof": {
+    "late_join": {
+      "initial_next_tick": 1,
+      "activated_next_tick": 2,
+      "projection_digest": "8c02a9324a7ad424efe48daa610b4b204a4de5d468f0707c32122f39041f5d5c",
+      "unready_peer_did_not_block": true,
+      "bad_digest_ack_rejected": true
+    },
+    "reconnect": {
+      "player_id": 4,
+      "generation": 2,
+      "next_tick": 4,
+      "spent_token_rejected": true,
+      "stale_generation_ack_rejected": true
+    },
+    "recovery": {
+      "next_tick": 6,
+      "restored_digest": "a9a234cb89a503dacefc015ca277739ee7f95781a26c6e1dc486ecbae00d50e3",
+      "matches_authority": true,
+      "catch_up_baselines_retained": 1
+    },
+    "dropped_baseline": {
+      "fenced_after_timeout": true,
+      "other_player_completed_tick": 6
+    }
+  },
+  "xp011_regression": {
+    "schema": "xace.xp011.session_proof.v1",
+    "ok": true,
+    "scenarios": {
+      "godot": {
+        "accepted": true,
+        "reason": "",
+        "records": [
+          "start",
+          "membership",
+          "baseline_verified",
+          "input",
+          "input_validation",
+          "membership"
+        ]
+      },
+      "unity_visual_variant": {
+        "accepted": true,
+        "reason": "",
+        "records": [
+          "start",
+          "membership",
+          "baseline_verified",
+          "input",
+          "input_validation",
+          "membership"
+        ]
+      },
+      "wrong_grant": {
+        "accepted": false,
+        "reason": "invalid or spent grant",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "missing_projection_capability": {
+        "accepted": false,
+        "reason": "compatibility rejected: MissingRequiredCapability",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "missing_offer": {
+        "accepted": false,
+        "reason": "live session offer missing",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "adapter_claim_mismatch": {
+        "accepted": false,
+        "reason": "adapter claim differs from handshake",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_cgs": {
+        "accepted": false,
+        "reason": "compatibility rejected: Cgs",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_plan": {
+        "accepted": false,
+        "reason": "compatibility rejected: SgcPlan",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_world": {
+        "accepted": false,
+        "reason": "compatibility rejected: World",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_input": {
+        "accepted": false,
+        "reason": "compatibility rejected: InputContract",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_runtime": {
+        "accepted": false,
+        "reason": "compatibility rejected: Runtime",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_epoch": {
+        "accepted": false,
+        "reason": "compatibility rejected: RulesetEpoch",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      },
+      "stale_incarnation": {
+        "accepted": false,
+        "reason": "compatibility rejected: AuthorityIncarnation",
+        "records": [
+          "start",
+          "admission_rejected"
+        ]
+      }
+    }
+  },
+  "xp012_regression": {
+    "schema": "xace.xp012.socket_proof.v1",
+    "ok": true,
+    "results": {
+      "order_12": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "188d3075f31496fb9dac2a842e139accb98d6d265cf8db00372a70980e76bb69",
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "input_records": 7,
+        "rejected_inputs": 3,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "order_21": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "188d3075f31496fb9dac2a842e139accb98d6d265cf8db00372a70980e76bb69",
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "input_records": 7,
+        "rejected_inputs": 3,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "idle": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "014ceeaa3bcb311b56c346ef80434de24385048dc89ae6d5ba3a524b375c49a5",
+        "first_tick_digest": "ddf270af2cadfcff670cab6a1345deda2e0525bd18a57a8147e64bf43fde3a85",
+        "input_records": 6,
+        "rejected_inputs": 2,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "rate_stress": {
+        "players": [
+          3,
+          4
+        ],
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "rate_rejected": 10,
+        "ticks": [
+          0
+        ]
+      },
+      "slow_handshake": {
+        "slow_rejected": true,
+        "subsequent_valid_admitted": true
+      },
+      "input_timeout": {
+        "logged_disconnect": true,
+        "elapsed_seconds": 5.0
+      }
+    }
+  },
+  "godot_projection_proof": {
+    "script": "tools/xp013_projection_proof.gd",
+    "passed": true,
+    "checks": [
+      "stale_generation",
+      "stale_baseline",
+      "sequence_gap",
+      "corrupted_projection",
+      "verified_full_recovery"
+    ]
+  },
+  "godot_player": {
+    "version": "4.6.3.stable",
+    "ticks": 5,
+    "inputs": 5,
+    "errors": [],
+    "report_sha256": "71ec938b153a6fcc6659568d6e6431337c11f8a4e18efc8a8313ac5d946a11c1"
+  },
+  "limits": [
+    "Local Windows transport/profile only; no remote/cross-engine certification.",
+    "Full entity/component projection digest is not the complete authoritative WorldSnapshot hash.",
+    "One retained full baseline; clients unable to catch current tick remain fenced. No live delta compression.",
+    "Lost rotated credential before acknowledgement fails closed; broader redemption policy is XP-014.",
+    "XP-010 clean-machine test remains pending by explicit owner instruction."
+  ]
+}

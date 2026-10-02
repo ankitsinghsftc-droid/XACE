@@ -29,13 +29,16 @@ func prepare(root: String, manifest: Dictionary, admission: Dictionary) -> Strin
 			return "Required geometry profile is unavailable."
 	offset = _vector(catalog.get("camera_offset",[12,10,14]))
 	overlay_enabled = bool(catalog.get("collision_overlay",false))
+	var admitted_paths: Dictionary = {}
+	for file in manifest.get("files",[]):
+		admitted_paths[str(file.path)] = true
 	var staged: Dictionary = {}
 	var statuses: Dictionary = {}
 	for entry in catalog.get("assets",[]):
 		var id: String = str(entry.asset.id)
 		var resource: Variant = null
 		var path: String = str(entry.get("path","")) if entry.get("path") != null else ""
-		if entry.asset.get("status","") == "Linked" and not path.is_empty() and FileAccess.file_exists(root.path_join(path)):
+		if entry.asset.get("status","") == "Linked" and admitted_paths.has(path) and not path.is_empty() and FileAccess.file_exists(root.path_join(path)):
 			var data := FileAccess.get_file_as_bytes(root.path_join(path))
 			if data.size() <= 16777216:
 				resource = _decode(str(entry.format),data)
@@ -163,6 +166,12 @@ func _remove(node: Node) -> void:
 
 func _apply_static() -> void:
 	for node in static_nodes:
+		if is_instance_valid(node) and node.get_parent() != null:
+			var owner_node := node.get_parent()
+			owner_node.remove_meta("xace_presentation_visual")
+			var canonical := owner_node.get_node_or_null("CanonicalVisual")
+			if canonical != null:
+				canonical.visible = bool(node.get_meta("canonical_was_visible",true))
 		_remove(node)
 	static_nodes.clear()
 	for binding in catalog.get("objects",[]):
@@ -190,6 +199,7 @@ func _apply_static() -> void:
 		node.set_meta("xace_presentation_visual",true)
 		var canonical := node.get_node_or_null("CanonicalVisual")
 		if canonical != null:
+			visual.set_meta("canonical_was_visible",canonical.visible)
 			canonical.visible = false
 	refresh_overlays()
 

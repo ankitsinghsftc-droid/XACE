@@ -1,4 +1,4 @@
-# AG-029 real-account certification
+                        # AG-029 real-account certification
 
 Status (2026-09-22): **Complete for the declared Windows x64 / Docker Desktop WSL 2 / Codex 0.155.1 configuration and opted-in ChatGPT account.** AG-030 remains unfinished.
 

@@ -172,6 +172,13 @@ func _on_handshake_accepted(ack: Dictionary) -> void:
 
 
 func _on_message_received(message: Dictionary) -> void:
+	if str(message.get("msg_type", "")) == "session_baseline":
+		if entity_manager != null:
+			entity_manager.rollback_side_effects({"restore_tick":int(message.sync.next_tick), "restored_snapshot":{"tick":int(message.sync.next_tick), "entities":message.entities}})
+		_last_runtime_tick = int(message.sync.next_tick) - 1
+		return
+	if str(message.get("msg_type", "")) == "input_tick_request":
+		return
 	if delta_applicator != null and delta_applicator.has_method("apply_message"):
 		delta_applicator.call("apply_message", message, entity_manager)
 	elif entity_manager != null:

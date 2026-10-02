@@ -33,6 +33,14 @@ class PlayerPreparationTests(unittest.TestCase):
             self.assertTrue((root/"player/adapter/xace_adapter.gd").is_file())
             self.assertFalse((root/"player/adapter/xace_godot_main.gd").exists())
 
+    def test_invalid_presentation_rejects_before_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            blob=pp.build_package(self.cgs,self.plan,self.runtime,self.support,package_id="space.test",version="1.0.0",presentation_files={"presentation/player/settings.json":json.dumps(self.settings()).encode(),"presentation/player/presentation.json":b"{}"})
+            installed,_=pp.install_archive(blob,root/"install",self.support)
+            with self.assertRaises(pp.PackageError):prepare_player(installed,self.support,root/"player")
+            self.assertFalse((root/"player").exists())
+
     def test_tamper_rejects_before_receipt_or_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);installed=self.prepare(root,self.settings());(installed/"world.json").write_bytes(b"{}")

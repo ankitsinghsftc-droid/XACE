@@ -283,6 +283,11 @@ impl InputSynchroniser {
         self.required_peers.remove(&peer_id);
     }
 
+    pub fn forget_peer(&mut self, peer_id: PeerId) {
+        self.required_peers.remove(&peer_id);
+        self.buffer.forget_peer(peer_id);
+    }
+
     pub fn fixed_delay_ticks(&self) -> u32 {
         self.config.fixed_delay_ticks
     }

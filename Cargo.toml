@@ -11,6 +11,8 @@ members = [
     "packages/save-engine",
     "packages/asset-runtime",
     "packages/cli",
+    "packages/player-launcher",
+    "packages/session-relay",
     "examples/zombie-chase",
     "examples/reference-mechanic"
 ]

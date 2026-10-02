@@ -26,6 +26,7 @@ pub enum EngineMessageType {
     Handshake,
     HandshakeAck,
     TickSnapshot,
+    InputTickRequest,
     InputPacket,
     FeedbackPayload,
     PlaybackCommands,
@@ -40,6 +41,7 @@ impl EngineMessageType {
             Self::Handshake => "handshake",
             Self::HandshakeAck => "handshake_ack",
             Self::TickSnapshot => "tick_snapshot",
+            Self::InputTickRequest => "input_tick_request",
             Self::InputPacket => "input_packet",
             Self::FeedbackPayload => "feedback_payload",
             Self::PlaybackCommands => "playback_commands",
@@ -54,6 +56,7 @@ impl EngineMessageType {
             "handshake" => Some(Self::Handshake),
             "handshake_ack" => Some(Self::HandshakeAck),
             "tick_snapshot" => Some(Self::TickSnapshot),
+            "input_tick_request" => Some(Self::InputTickRequest),
             "input_packet" => Some(Self::InputPacket),
             "feedback_payload" => Some(Self::FeedbackPayload),
             "playback_commands" => Some(Self::PlaybackCommands),
@@ -85,6 +88,14 @@ pub struct Handshake {
     pub cgs_hash: String,
     #[serde(default)]
     pub capabilities: Vec<String>,
+    #[serde(default)]
+    pub session_offer: Option<xace_core::wire::session_contract::SessionOffer>,
+    #[serde(default)]
+    pub session_offer_json: String,
+    #[serde(default)]
+    pub session_credential: String,
+    #[serde(default)]
+    pub session_peer_id: u64,
 }
 
 impl Handshake {
@@ -97,6 +108,10 @@ impl Handshake {
             adapter_version: "0.1.0".to_string(),
             cgs_hash: cgs_hash.to_string(),
             capabilities: Vec::new(),
+            session_offer: None,
+            session_offer_json: String::new(),
+            session_credential: String::new(),
+            session_peer_id: 0,
         }
     }
 
@@ -158,6 +173,14 @@ pub struct HandshakeAck {
     pub runtime_capabilities: Vec<String>,
     #[serde(default)]
     pub world_bindings: BTreeMap<String, String>,
+    #[serde(default)]
+    pub authority_incarnation: String,
+    #[serde(default)]
+    pub ruleset_epoch: u64,
+    #[serde(default)]
+    pub assigned_peer_id: u64,
+    #[serde(default)]
+    pub assigned_player_id: u64,
 }
 
 impl HandshakeAck {
@@ -178,6 +201,10 @@ impl HandshakeAck {
             schema_version: schema_version.into(),
             initial_entities,
             world_bindings: BTreeMap::new(),
+            authority_incarnation: String::new(),
+            ruleset_epoch: 0,
+            assigned_peer_id: 0,
+            assigned_player_id: 0,
             runtime_capabilities: vec![
                 "full_snapshot".to_string(),
                 "input_packet_v1".to_string(),
@@ -200,6 +227,10 @@ impl HandshakeAck {
             schema_version: String::new(),
             initial_entities: Vec::new(),
             world_bindings: BTreeMap::new(),
+            authority_incarnation: String::new(),
+            ruleset_epoch: 0,
+            assigned_peer_id: 0,
+            assigned_player_id: 0,
             runtime_capabilities: Vec::new(),
         }
     }
@@ -276,6 +307,24 @@ impl ErrorMessage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct InputTickRequest {
+    pub msg_type: String,
+    pub protocol_version: u32,
+    pub tick: u64,
+}
+
+impl InputTickRequest {
+    pub fn new(tick: u64) -> Self {
+        Self {
+            msg_type: EngineMessageType::InputTickRequest.as_str().to_string(),
+            protocol_version: PROTOCOL_VERSION,
+            tick,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct InputPacket {
     pub msg_type: String,
     #[serde(default = "default_peer_id")]
@@ -331,6 +380,8 @@ pub struct InputAction {
     pub kind: String,
     #[serde(default)]
     pub phase: String,
+    #[serde(default)]
+    pub target_entity: Option<u64>,
 }
 
 impl InputAction {
@@ -350,6 +401,12 @@ impl InputAction {
         }
         validate_portable_field("action.kind", &self.kind, 32, false)?;
         validate_portable_field("action.phase", &self.phase, 32, false)?;
+        if self.target_entity == Some(0) {
+            return Err(ProtocolError::InvalidField {
+                field: "action.target_entity",
+                reason: "entity id 0 is reserved".to_string(),
+            });
+        }
         Ok(())
     }
 }
@@ -761,7 +818,7 @@ fn convert_input_action(
         kind,
         phase,
         secondary_value: action.secondary_value,
-        target_entity: None,
+        target_entity: action.target_entity,
         metadata: BTreeMap::new(),
     };
     converted.validate()?;

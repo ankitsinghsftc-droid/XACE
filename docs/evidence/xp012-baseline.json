@@ -1,0 +1,115 @@
+{
+  "schema": "xace.xp012.evidence.v1",
+  "date": "2026-10-01",
+  "status": "local_windows_live_bridge_verified",
+  "git_head": "0225c8bf690f19971c2eaf98708eb5075f21223d",
+  "source_sha256": {
+    "packages/runtime-core/src/live_session.rs": "143544ef8fa38e684fb5088cc11b806c2ae277c3b4cf7786cdb3d732950e78fa",
+    "packages/runtime-core/src/engine_bridge.rs": "b689aa9730e8b2c259d5e32c24efba700386f6bbb2fa5edef7bae54b9299de15",
+    "packages/runtime-core/src/engine_protocol.rs": "40443f6f37bcfbf9e45c0550fbaee7557d6dc335f1298b472675915276570344",
+    "packages/runtime-core/src/runtime_orchestrator.rs": "b46d9d872862ff2d9929bf7fbd49e6e923420c195d2457a3b9207fa90604cb89",
+    "packages/runtime-core/src/runtime_cli.rs": "0b7f4747b4103e8dce53df256bfc3c5f0a076664c2476d25d6f2cac4afb78567",
+    "packages/network-core/src/input/malicious_input_gate.rs": "846924dc894ce1b5fd88ccb0ca16846220e0e8507b950f2cbcfd6ac8ff2a5600",
+    "adapters/godot/xace_protocol.gd": "fe8f029765cc9de9d22a917c7bd56a01129ce486db9837ef19ce5df334d2712c",
+    "adapters/godot/xace_adapter.gd": "83ffc64e556f5210e270f9fdbb92e64f0e2e321639aee9611303e3c85eedb07d",
+    "apps/xace-player/player.gd": "fb9fd846c04240e84e9c77c57b5c11abf6de2aeca9c7e88c17d29cef843913c7",
+    "tools/xp012_socket_proof.py": "3c451cc45b48de733776d3b9dd5d690b395bf4c64b7d92f7b5d6b010e098aaac"
+  },
+  "package_manifest_sha256": "2d76d4de9207e3214ff2662a01dd50cefa2bb0a979f1cc2e8905e7dfc589b5e4",
+  "runtime_sha256": "14978a9d854684db2f29f09c58e224cc0175a2d572373a312aca699744e1ece1",
+  "socket_proof": {
+    "schema": "xace.xp012.socket_proof.v1",
+    "ok": true,
+    "results": {
+      "order_12": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "188d3075f31496fb9dac2a842e139accb98d6d265cf8db00372a70980e76bb69",
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "input_records": 7,
+        "rejected_inputs": 3,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "order_21": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "188d3075f31496fb9dac2a842e139accb98d6d265cf8db00372a70980e76bb69",
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "input_records": 7,
+        "rejected_inputs": 3,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "idle": {
+        "players": [
+          3,
+          4
+        ],
+        "state_digest": "014ceeaa3bcb311b56c346ef80434de24385048dc89ae6d5ba3a524b375c49a5",
+        "first_tick_digest": "ddf270af2cadfcff670cab6a1345deda2e0525bd18a57a8147e64bf43fde3a85",
+        "input_records": 6,
+        "rejected_inputs": 2,
+        "ticks": [
+          0,
+          1
+        ]
+      },
+      "rate_stress": {
+        "players": [
+          3,
+          4
+        ],
+        "first_tick_digest": "08025af39954d6a1fddc926cb9cc79654f0ebe94d54108b81445b535f05b0a2a",
+        "rate_rejected": 10,
+        "ticks": [
+          0
+        ]
+      },
+      "slow_handshake": {
+        "slow_rejected": true,
+        "subsequent_valid_admitted": true
+      },
+      "input_timeout": {
+        "logged_disconnect": true,
+        "elapsed_seconds": 5.0
+      }
+    }
+  },
+  "godot_player": {
+    "ticks": 5,
+    "input_ticks": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "errors": []
+  },
+  "regressions": {
+    "network_core_library": 6,
+    "runtime_core_library": 704,
+    "xp011_socket_scenarios": 12
+  },
+  "commands": [
+    "cargo test -p xace-network-core -p xace-runtime-core --lib --quiet",
+    "python tools/xp012_socket_proof.py --package tmp/xp012-stage-certified/player/package --out tmp/xp012-proof-certified",
+    "python tools/xp011_session_proof.py --package tmp/xp012-stage-certified/player/package --out tmp/xp012-xp011-certified",
+    "Godot 4.6.3 headless Player --proof-ticks=5"
+  ],
+  "limitations": [
+    "local Windows profile only",
+    "XP-013 late join/reconnect/baseline pending",
+    "XP-017 running cross-engine play pending",
+    "XP-010 clean-machine launch pending by owner instruction"
+  ]
+}

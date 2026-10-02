@@ -54,6 +54,9 @@ struct Cli {
     #[arg(long, default_value_t = 7777)]
     port: u16,
 
+    #[arg(long, default_value = "127.0.0.1")]
+    engine_bind: std::net::IpAddr,
+
     #[arg(long, default_value_t = 1)]
     engine_clients: usize,
 
@@ -94,9 +97,18 @@ struct Cli {
     #[arg(long)]
     live_session: bool,
 
+    #[arg(long, requires = "live_session")]
+    package_manifest: Option<PathBuf>,
+    #[arg(long, requires = "live_session")]
+    session_ticket_out: Option<PathBuf>,
+    #[arg(long, requires = "live_session")]
+    session_log: Option<PathBuf>,
+    #[arg(long = "session-controller-id", value_delimiter = ',', num_args = 1..)]
+    session_controller_ids: Vec<u64>,
+
     /// Wait for each timed local input packet; rendering never advances simulation.
-    #[arg(long)]
-    input_lockstep_peer: Option<u64>,
+    #[arg(long, value_delimiter = ',', num_args = 1..)]
+    input_lockstep_peer: Vec<u64>,
 
     #[arg(long)]
     quiet: bool,
@@ -136,11 +148,15 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
 
     let mut config = RuntimeConfig::default();
     config.register_host_systems = register.map(crate::runtime_orchestrator::HostSystemRegistrar);
-    if let Some(peer) = cli.input_lockstep_peer {
-        config.input_sync = crate::runtime_orchestrator::RuntimeInputSyncConfig::lockstep([peer]);
+    if !cli.input_lockstep_peer.is_empty() {
+        config.input_sync = crate::runtime_orchestrator::RuntimeInputSyncConfig::lockstep(cli.input_lockstep_peer.iter().copied());
     }
     config.bridge.tick_rate = cli.tick_rate;
     config.live_session = cli.live_session;
+    config.session_manifest_path = cli.package_manifest.clone();
+    config.session_ticket_path = cli.session_ticket_out.clone();
+    config.session_log_path = cli.session_log.clone();
+    config.session_controller_ids = if cli.session_controller_ids.is_empty() { vec![1] } else { cli.session_controller_ids.clone() };
     config.world_seed = cli.world_seed;
     if cli.derive_cgs_plan {
         config.sgc_plan_policy = cgs_loader::SgcPlanPolicy::DeriveFromCgs;
@@ -185,6 +201,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     let mut paused = cli.start_paused;
     let mut step_budget = 0_u64;
     let mut shutdown_requested = false;
+    let mut input_wait_started: Option<Instant> = None;
 
     loop {
         accept_live_engine_connections(&engine_rx, &mut runtime)?;
@@ -205,11 +222,9 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
             break;
         }
         if paused && step_budget == 0 {
+            runtime.pump_engine_inbound()?;
             std::thread::sleep(Duration::from_millis(8));
             continue;
-        }
-        if step_budget > 0 {
-            step_budget -= 1;
         }
 
         let result = match runtime.tick() {
@@ -217,11 +232,21 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
             Err(xace_core::errors::xace_error::XaceError::RecoverableError { ref context, .. })
                 if context.operation == "input_synchroniser_wait" => {
                     if engine_requested && !runtime.engine_connected() { break; }
+                    let waiting_since = input_wait_started.get_or_insert_with(Instant::now);
+                    if cli.live_session && waiting_since.elapsed() >= Duration::from_secs(5) {
+                        let expired = runtime.timeout_missing_live_peers()?;
+                        if expired > 0 {
+                            log::warn!("Timed out {} input peer(s) after 5 seconds", expired);
+                        }
+                        input_wait_started = None;
+                    }
                     std::thread::sleep(Duration::from_millis(1));
                     continue;
                 }
             Err(err) => anyhow::bail!("tick {} failed: {:?}", tick_count, err),
         };
+        if step_budget > 0 { step_budget -= 1; }
+        input_wait_started = None;
         total_changes = total_changes.saturating_add(result.state_delta.change_count() as u64);
         if let Some(summary) = runtime.last_tick_result() {
             total_engine_inputs =
@@ -250,7 +275,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     if let Some(path) = &cli.schedule_snapshot_out {
         write_schedule_snapshot_report(path, &runtime, tick_count)?;
     }
-    runtime.disconnect_engine("runtime_shutdown");
+    runtime.disconnect_engine("runtime_shutdown")?;
     print_done(
         &runtime,
         start,
@@ -326,19 +351,23 @@ fn start_live_engine_acceptor(
     }
 
     let port = cli.port;
-    let (tx, rx) = mpsc::channel();
-    let server = TcpEngineServer::bind(TcpServerConfig::localhost(port))?;
+    let (tx, rx) = mpsc::sync_channel(8);
+    anyhow::ensure!(matches!(cli.engine_bind, std::net::IpAddr::V4(ip) if ip.is_loopback() || ip.is_private() || ip.is_link_local()), "live engine bind must use a private IPv4 address");
+    let mut config = TcpServerConfig::localhost(port);
+    config.bind_addr.set_ip(cli.engine_bind);
+    let server = TcpEngineServer::bind(config)?;
     if !cli.quiet {
         println!(
-            "[ready] accepting live engine clients on 127.0.0.1:{}",
-            port
+            "[ready] accepting live engine clients on {}:{}",
+            cli.engine_bind, port
         );
     }
     let handle = std::thread::spawn(move || loop {
         match server.accept_timeout(Duration::from_millis(100)) {
             Ok(Some(connection)) => {
-                if tx.send(connection).is_err() {
-                    break;
+                match tx.try_send(connection) {
+                    Ok(()) | Err(mpsc::TrySendError::Full(_)) => {},
+                    Err(mpsc::TrySendError::Disconnected(_)) => break,
                 }
             }
             Ok(None) => {}
@@ -360,8 +389,10 @@ fn accept_live_engine_connections(
     };
     let mut accepted = 0_usize;
     while let Ok(connection) = engine_rx.try_recv() {
-        runtime.accept_engine_connection(connection)?;
-        accepted = accepted.saturating_add(1);
+        match runtime.accept_engine_connection(connection) {
+            Ok(()) => accepted = accepted.saturating_add(1),
+            Err(err) => log::warn!("Rejected engine connection: {}", err),
+        }
     }
     Ok(accepted)
 }
@@ -485,7 +516,7 @@ fn apply_control_command(
             "queued one deterministic tick".to_string()
         }
         RuntimeControlAction::Reset => {
-            runtime.disconnect_engine("runtime_control_reset");
+            runtime.disconnect_engine("runtime_control_reset")?;
             *runtime = RuntimeOrchestrator::initialise_with_config(cgs_path, config)?;
             *paused = true;
             *step_budget = 0;

@@ -13,8 +13,10 @@ use xace_engine_feedback::feedback_buffer::FeedbackBuffer;
 use xace_engine_feedback::feedback_log::FeedbackLog;
 use xace_engine_feedback::feedback_router::{FeedbackRouter, RouteBatchReport};
 use xace_engine_feedback::feedback_validator::FeedbackValidator;
+use xace_network_core::authority::AuthorityResolver;
 use xace_network_core::input::{
     InputPacket, InputSynchroniser, InputSynchroniserConfig, LockstepDecision,
+    MaliciousInputGate, MaliciousInputGateConfig,
 };
 use xace_network_core::prediction::{
     ClientPredictor, PredictedState, PredictionBuffer, PredictionConfig, PredictionInput,
@@ -34,6 +36,7 @@ use crate::engine_bridge::{
     build_entity_states, EngineBridge, EngineBridgeConfig, EngineBridgeStats,
 };
 use crate::engine_protocol::{AdapterSideEffectRollback, EnginePlaybackCommand, TickSnapshot};
+use crate::live_session::LiveSessionController;
 use crate::entity_store::entity_store::EntityStore;
 use crate::event_bus::event_bus::EventBus;
 use crate::fixed_json::{fixed_field as fixed_json_field, IntegerEncoding};
@@ -77,6 +80,10 @@ pub struct RuntimeConfig {
     pub apply_engine_input_components: bool,
     /// Blocks legacy control writes against a live session authority.
     pub live_session: bool,
+    pub session_manifest_path: Option<PathBuf>,
+    pub session_ticket_path: Option<PathBuf>,
+    pub session_log_path: Option<PathBuf>,
+    pub session_controller_ids: Vec<u64>,
     pub input_sync: RuntimeInputSyncConfig,
     pub rollback: RollbackConfig,
     pub timeline_retention: DeltaTimelineRetentionConfig,
@@ -97,6 +104,10 @@ impl Default for RuntimeConfig {
             bridge: EngineBridgeConfig::default(),
             apply_engine_input_components: true,
             live_session: false,
+            session_manifest_path: None,
+            session_ticket_path: None,
+            session_log_path: None,
+            session_controller_ids: vec![1],
             input_sync: RuntimeInputSyncConfig::default(),
             rollback: RollbackConfig::default(),
             timeline_retention: DeltaTimelineRetentionConfig::default(),
@@ -706,10 +717,13 @@ pub struct RuntimeOrchestrator {
     client_prediction_pending: Vec<RuntimeClientPredictionEntry>,
     client_prediction_log: Vec<RuntimeClientPredictionReport>,
     bridges: Vec<EngineBridge>,
+    live_session_controller: Option<LiveSessionController>,
     engine_inputs: Vec<InputPacket>,
     pending_input_mutations: input_ingress::PendingInput,
     preview_tables: Option<ComponentTableStore>,
     input_synchroniser: Option<InputSynchroniser>,
+    live_input_gate: MaliciousInputGate,
+    live_input_authority: AuthorityResolver,
     input_sync_last_trace: RuntimeInputSyncTrace,
     input_sync_wait_attempts: BTreeMap<u64, u64>,
     last_engine_adapter_sequence: u64,
@@ -858,6 +872,14 @@ impl RuntimeOrchestrator {
         );
         let feedback_log_schema_version = spawn_summary.schema_version.clone();
         let feedback_log_execution_plan_version = config.execution_plan_version;
+        if config.live_session {
+            if config.input_sync.mode != RuntimeInputSyncMode::Lockstep ||
+                config.input_sync.required_peers != (1..=config.session_controller_ids.len() as u64).collect() {
+                anyhow::bail!("live session requires declared lockstep grant peers");
+            }
+            // Required input membership begins only after verified socket admission.
+            config.input_sync.required_peers.clear();
+        }
         let input_synchroniser = build_runtime_input_synchroniser(&config.input_sync);
         let input_sync_last_trace = RuntimeInputSyncTrace {
             mode: runtime_input_sync_mode_id(&config.input_sync.mode).to_string(),
@@ -874,6 +896,19 @@ impl RuntimeOrchestrator {
         .map_err(|err| anyhow::anyhow!("invalid runtime timeline retention config: {}", err))?;
         let (client_predictor, client_reconciler, client_prediction_buffer) =
             build_runtime_client_prediction_components(&config)?;
+
+        let live_session_controller = if config.live_session {
+            Some(LiveSessionController::create(
+                config.session_manifest_path.as_deref().ok_or_else(|| anyhow::anyhow!("live session requires package manifest"))?,
+                cgs_path,
+                config.sgc_plan_path.as_deref().ok_or_else(|| anyhow::anyhow!("live session requires persisted plan path"))?,
+                config.world_path.as_deref().ok_or_else(|| anyhow::anyhow!("live session requires compiled world"))?,
+                &spawn_summary,
+                config.session_ticket_path.as_deref().ok_or_else(|| anyhow::anyhow!("live session requires ticket output path"))?,
+                config.session_log_path.as_deref().ok_or_else(|| anyhow::anyhow!("live session requires log path"))?,
+                &config.session_controller_ids,
+            )?)
+        } else { None };
 
         Ok(Self {
             config,
@@ -903,10 +938,18 @@ impl RuntimeOrchestrator {
             client_prediction_pending: Vec::new(),
             client_prediction_log: Vec::new(),
             bridges: Vec::new(),
+            live_session_controller,
             engine_inputs: Vec::new(),
             pending_input_mutations,
             preview_tables: None,
             input_synchroniser,
+            live_input_gate: {
+                let mut policy = MaliciousInputGateConfig::default();
+                policy.cheat_guard.require_player_id = true;
+                policy.cheat_guard.allow_predicted_input = false;
+                MaliciousInputGate::new(policy)
+            },
+            live_input_authority: AuthorityResolver::new(),
             input_sync_last_trace,
             input_sync_wait_attempts: BTreeMap::new(),
             last_engine_adapter_sequence: 0,
@@ -957,6 +1000,7 @@ impl RuntimeOrchestrator {
         &mut self,
         connection: tcp_server::EngineConnection,
     ) -> Result<()> {
+        self.pump_engine_inbound()?;
         self.handshake_engine_connections(vec![connection])
     }
 
@@ -964,14 +1008,21 @@ impl RuntimeOrchestrator {
         self.client_prediction_pending.clear();
         self.pending_input_mutations.lock().expect("input staging lock").clear();
         self.capture_runtime_rollback_snapshot()?;
-        self.pump_engine_inbound();
+        self.pump_engine_inbound().map_err(|err| runtime_session_record_error(
+            "receive_disconnect",self.phase_orch.current_tick(),err))?;
+        if self.config.live_session && self.config.input_sync.required_peers.is_empty() {
+            let tick = self.phase_orch.current_tick();
+            return Err(runtime_lockstep_wait_error(tick, tick, &[], 0));
+        }
         self.collect_engine_inputs_from_bridge();
-        let feedback_report = self.process_engine_feedback_at_tick_start();
         let input_report = if self.config.apply_engine_input_components {
             self.synchronise_and_apply_engine_inputs()?
         } else {
             self.drain_without_applying_engine_inputs()
         };
+        // Lockstep may retry this tick many times. Drain feedback exactly once,
+        // after required input is ready and before the scheduled phases execute.
+        let feedback_report = self.process_engine_feedback_at_tick_start();
         let input_applications = input_report.applications;
         let applied_inputs = input_applications
             .iter()
@@ -1019,7 +1070,8 @@ impl RuntimeOrchestrator {
             self.build_replay_trace(&result, &schedule_snapshot, &input_applications);
         self.record_released_inputs_for_rollback(result.tick, &input_applications);
         self.capture_delta_compressed_timeline_snapshot(result.tick)?;
-        self.send_tick_to_engine(&result, &playback_commands);
+        self.send_tick_to_engine(&result, &playback_commands).map_err(|err|
+            runtime_session_record_error("send_disconnect",result.tick,err))?;
         self.last_tick_result = Some(RuntimeTickSummary {
             tick: result.tick,
             mutations_applied: result.mutations_applied,
@@ -1528,11 +1580,14 @@ impl RuntimeOrchestrator {
         print_state(tick, delta, &self.entity_store, &self.table_store, opts);
     }
 
-    pub fn disconnect_engine(&mut self, reason: &str) {
+    pub fn disconnect_engine(&mut self, reason: &str) -> Result<()> {
+        let peers: Vec<u64>=self.bridges.iter().filter_map(EngineBridge::admitted_peer_id).collect();
+        for peer_id in peers { self.remove_live_peer(peer_id,reason)?; }
         for bridge in &mut self.bridges {
             bridge.disconnect(reason);
         }
         self.bridges.clear();
+        Ok(())
     }
 
     pub fn engine_connected(&self) -> bool {
@@ -3496,10 +3551,58 @@ impl RuntimeOrchestrator {
         Ok(report)
     }
 
-    fn pump_engine_inbound(&mut self) {
+    pub fn pump_engine_inbound(&mut self) -> Result<()> {
         for bridge in &mut self.bridges {
             bridge.pump_inbound();
+            let ready = bridge.synchronize_projection(self.phase_orch.current_tick(),
+                &self.entity_store, &self.table_store)?;
+            if let Some(peer_id) = bridge.admitted_peer_id() {
+                if ready {
+                    if self.config.input_sync.required_peers.insert(peer_id) {
+                        if let Some(controller) = self.live_session_controller.as_mut() { controller.mark_ready(peer_id)?; }
+                        if let Some(sync) = self.input_synchroniser.as_mut() { sync.add_required_peer(peer_id); }
+                    }
+                } else if self.config.input_sync.required_peers.remove(&peer_id) {
+                    if let Some(sync) = self.input_synchroniser.as_mut() { sync.forget_peer(peer_id); }
+                    self.engine_inputs.retain(|p| p.peer_id != peer_id);
+                }
+            }
         }
+        let disconnected: Vec<u64>=self.bridges.iter().filter(|b|!b.is_connected())
+            .filter_map(EngineBridge::admitted_peer_id).collect();
+        self.bridges.retain(EngineBridge::is_connected);
+        for peer_id in disconnected {
+            self.remove_live_peer(peer_id,"transport_closed")?;
+        }
+        Ok(())
+    }
+
+    pub fn timeout_missing_live_peers(&mut self) -> Result<usize> {
+        let missing = self.input_sync_last_trace.missing_peers.clone();
+        let mut count = 0;
+        for peer_id in missing {
+            if let Some(bridge) = self.bridges.iter_mut()
+                .find(|bridge| bridge.admitted_peer_id() == Some(peer_id)) {
+                bridge.disconnect("input_timeout");
+                self.remove_live_peer(peer_id, "input_timeout")?;
+                count += 1;
+            }
+        }
+        self.bridges.retain(EngineBridge::is_connected);
+        Ok(count)
+    }
+
+    fn remove_live_peer(&mut self, peer_id: u64, reason: &str) -> Result<()> {
+        if let Some(controller)=self.live_session_controller.as_mut() {
+            controller.disconnect(peer_id,reason)?;
+            self.live_input_gate.reset_peer_sequence(peer_id);
+            self.engine_inputs.retain(|p| p.peer_id != peer_id);
+            self.config.input_sync.required_peers.remove(&peer_id);
+            if let Some(sync)=self.input_synchroniser.as_mut() {
+                sync.forget_peer(peer_id);
+            }
+        }
+        Ok(())
     }
 
     fn collect_engine_inputs_from_bridge(&mut self) {
@@ -3672,9 +3775,9 @@ impl RuntimeOrchestrator {
         &mut self,
         result: &TickResult,
         playback_commands: &[EnginePlaybackCommand],
-    ) {
+    ) -> Result<()> {
         if self.bridges.is_empty() {
-            return;
+            return Ok(());
         }
         let spawned = result
             .state_delta
@@ -3690,6 +3793,7 @@ impl RuntimeOrchestrator {
             .collect::<Vec<_>>();
 
         let mut connected_bridges = Vec::with_capacity(self.bridges.len());
+        let mut disconnected = Vec::new();
         for mut bridge in std::mem::take(&mut self.bridges) {
             let still_connected = bridge.send_tick_with_events(
                 result.tick,
@@ -3704,10 +3808,13 @@ impl RuntimeOrchestrator {
                 self.engine_inputs.extend(bridge.take_input_packets());
                 connected_bridges.push(bridge);
             } else {
+                if let Some(peer_id)=bridge.admitted_peer_id() { disconnected.push(peer_id); }
                 log::warn!("Engine disconnected; continuing with remaining adapters");
             }
         }
         self.bridges = connected_bridges;
+        for peer_id in disconnected { self.remove_live_peer(peer_id,"snapshot_delivery_failed")?; }
+        Ok(())
     }
 
     fn playback_commands_for_events(&self, events: &[Event]) -> Vec<EnginePlaybackCommand> {
@@ -3785,25 +3892,60 @@ impl RuntimeOrchestrator {
             let sync = self.input_synchroniser.as_mut().ok_or_else(|| {
                 runtime_input_sync_error(sim_tick, "lockstep input synchroniser is not initialised")
             })?;
-            for packet in drained {
+            for mut packet in drained {
+                if self.config.live_session { quantize_live_input(&mut packet); }
                 if sync
                     .last_released_tick()
                     .is_some_and(|released| packet.tick <= released)
                 {
+                    let reason = if self.config.live_session {
+                        self.live_input_gate.check_rejected_packet_rate(&packet, sim_tick)
+                            .err().map(|err| err.to_string())
+                            .unwrap_or_else(|| "late_after_release".to_string())
+                    } else { "late_after_release".to_string() };
+                    if let Some(controller)=self.live_session_controller.as_ref() {
+                        controller.record_input_validation(&packet,"rejected",&reason)
+                            .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))?;
+                    }
                     late_applications.push(RuntimeEngineInputApplication {
                         packet,
                         applied: false,
-                        status: "late_after_release".to_string(),
+                        status: reason,
                     });
                     continue;
                 }
-                match sync.submit(packet.clone()) {
-                    Ok(()) => {}
-                    Err(err) => submission_applications.push(RuntimeEngineInputApplication {
+                let submitted = if self.config.live_session {
+                    let owner = packet.player_id.ok_or_else(|| {
+                        runtime_input_sync_error(sim_tick, "live input requires player identity")
+                    });
+                    match owner.and_then(|player_id| {
+                        self.live_input_authority
+                            .require_authority(player_id, packet.peer_id)
+                            .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))
+                    }) {
+                        Ok(()) => self.live_input_gate
+                            .submit_authorized(packet.clone(), &self.live_input_authority, sync, sim_tick, sim_tick)
+                            .map(|_| ())
+                            .map_err(|err| err.to_string()),
+                        Err(err) => Err(format!("{:?}", err)),
+                    }
+                } else {
+                    sync.submit(packet.clone()).map_err(|err| err.to_string())
+                };
+                if let Some(controller)=self.live_session_controller.as_ref() {
+                    let (decision, reason)=match &submitted {
+                        Ok(()) => ("accepted", ""),
+                        Err(err) => ("rejected", err.as_str()),
+                    };
+                    controller.record_input_validation(&packet, decision, reason)
+                        .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))?;
+                }
+                if let Err(err) = submitted {
+                    submission_applications.push(RuntimeEngineInputApplication {
                         packet,
                         applied: false,
                         status: format!("sync_submit_rejected:{}", err),
-                    }),
+                    });
                 }
             }
         }
@@ -4035,7 +4177,7 @@ impl RuntimeOrchestrator {
             let mut bridge_config = self.config.bridge.clone();
             bridge_config.world_bindings = self.query_engine.geometry_bindings.as_ref()
                 .map(|bindings| bindings.object_entity_ids()).unwrap_or_default();
-            let bridge = EngineBridge::handshake_with_config(
+            let bridge = EngineBridge::handshake_with_session(
                 conn.writer()?,
                 conn.buf_reader()?,
                 self.session_id(),
@@ -4045,7 +4187,16 @@ impl RuntimeOrchestrator {
                 &self.table_store,
                 self.feedback_buffer.clone(),
                 bridge_config,
+                self.live_session_controller.as_mut(),
+                self.phase_orch.current_tick(),
             )?;
+            if let Some(peer_id)=bridge.admitted_peer_id() {
+                if let Some(player_id)=bridge.admitted_player_id() {
+                    self.live_input_authority.assign_at(player_id, peer_id, self.phase_orch.current_tick())?;
+                }
+                // A transport admission is not yet a required-input member.
+                // synchronize_projection promotes it after a verified current baseline.
+            }
             self.bridges.push(bridge);
         }
         Ok(())
@@ -4307,6 +4458,14 @@ fn runtime_rollback_validation_error(
     }
 }
 
+fn runtime_session_record_error(operation: &'static str, tick: u64, err: anyhow::Error) -> XaceError {
+    XaceError::FatalError {
+        message: format!("live session record failure: {}",err),
+        context: xace_core::errors::xace_error::ErrorContext::new("LiveSession",operation).with_tick(tick),
+        snapshot_recovery_possible: false,
+    }
+}
+
 fn runtime_rollback_fatal_error(
     operation: &'static str,
     tick: u64,
@@ -4379,6 +4538,17 @@ fn adapter_side_effect_rollback_id(
 fn deterministic_timestamp_ms(tick: u64, tick_rate: u32) -> u64 {
     let rate = u64::from(tick_rate.max(1));
     tick.saturating_mul(1000) / rate
+}
+
+// Live input uses a fixed 1/1024 unit grid before the synchroniser and gameplay
+// projection. The accepted packet is therefore the exact replay input.
+fn quantize_live_input(packet: &mut InputPacket) {
+    for action in &mut packet.actions {
+        action.value = ((action.value * 1024.0).round() / 1024.0).clamp(-1.0, 1.0);
+        action.secondary_value = ((action.secondary_value * 1024.0).round() / 1024.0).clamp(-1.0, 1.0);
+        if action.value == 0.0 { action.value = 0.0; }
+        if action.secondary_value == 0.0 { action.secondary_value = 0.0; }
+    }
 }
 
 fn runtime_input_component_json(packet: &xace_network_core::input::InputPacket) -> String {
