@@ -65,6 +65,8 @@ ADAPTER_SCRIPT_NAMES = (
     "xace_input_collector.gd",
     "xace_protocol.gd",
     "xace_transport.gd",
+    "xace_canonical_entities.gd",
+    "xace_native_contract.gd",
 )
 
 

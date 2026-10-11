@@ -1,9 +1,32 @@
+# Recovery status ? 2026-10-12
+
+This is a reconstructed historical plan. Current verification and outstanding recovery work are tracked in [AGENT_PROGRESS.md](AGENT_PROGRESS.md). Historical passing claims below are not fresh verification. Original XP-022 sealed evidence is missing.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
 ---
+
+## XP-016: IMPLEMENTED - UNITY INSTALLED-HOST GATE PENDING - 2026-10-02
+
+Work is isolated on branch xp-016, based on clean-main-candidate 39ed07b.
+Local main and safety/pre-clean-main-20261002 remain at d3ef383; GitHub main
+and its dated archive remain at aaa15fc. No XP-016 changes have been pushed.
+Generic native world/session readers, authority-requested input and canonical
+coordinate/geometry presentation are implemented; Godot and Player share a reader.
+Installed Godot 4.6.3 and Unreal 5.7.4 pass 15 transcript cases, native geometry
+and input fencing, plus real eight-tick authority/reconnect proofs at generation 2.
+Unreal Development/Shipping builds pass. Unity 6000.4.9f1 sources compile, but
+its editor has no active license (exit 198); installed-host acceptance is pending.
+Exported Player input/lifecycle and selected presentation regressions pass.
+The full older XP-009 missing-cosmetic standalone case fails unchanged authority
+package admission before launch; it is recorded, not silently marked passing.
+13 Rust contract, 35 project, 7 launch and 14 engine-routing tests pass, along with
+reversible installation/handoff and real two-client synchronization regressions.
+See docs/XP016_COMPLETION.md and docs/evidence/xp016-baseline.json.
+XP-017 has not started. Earlier pending environment gates remain pending.
 
 ## XP-015: IMPLEMENTED - LOCAL TLS VERIFIED - INTERNET GATE PENDING - 2026-10-02
 

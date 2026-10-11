@@ -361,6 +361,8 @@ def _write_adapter_repo(repo: Path) -> None:
     (godot / "xace_transport.gd").write_text('extends Node\n@export var adapter_version := "0.1.0"\n', encoding="utf-8")
     (godot / "xace_delta_applicator.gd").write_text("extends Node\n", encoding="utf-8")
     (godot / "xace_input_collector.gd").write_text("extends Node\n", encoding="utf-8")
+    (godot / "xace_canonical_entities.gd").write_text("extends Node3D\n", encoding="utf-8")
+    (godot / "xace_native_contract.gd").write_text("extends RefCounted\n", encoding="utf-8")
     for target in ("unity", "unreal"):
         (repo / "adapters" / target).mkdir(parents=True, exist_ok=True)
 

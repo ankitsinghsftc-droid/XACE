@@ -1,0 +1,795 @@
+[
+  {
+    "line": 7012,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": null,
+        "after_sha256": "92100b8534f06ca7fb57b3adac3da412b69bded6c6837fe41e7cf772f2915739"
+      }
+    ],
+    "historical_output_line": 7015
+  },
+  {
+    "line": 7019,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "f5f1cb1c15244b60cc8fbc2c8b8e24df327e0657b00dda9d17f62f5705bffdf8",
+        "after_sha256": "f166a32505fd358ff1b7da896483b0d9d24d4efddb43fb00c9375334364b0051"
+      },
+      {
+        "path": "adapters/unity/XaceInputCollector.cs",
+        "before_sha256": "d30929baa54e3f5149e955cfe649cb0307c57739e77e82022f7332db03c6411a",
+        "after_sha256": "49afa2c7b07be20ccd8767ce3f06ca259bf8fd1733d1434f9ddd3e83c703308d"
+      },
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "92100b8534f06ca7fb57b3adac3da412b69bded6c6837fe41e7cf772f2915739",
+        "after_sha256": "9221faeff8b24a104a67c27a3773eca4df366baf2e04f66577ce280371b50447"
+      }
+    ],
+    "historical_output_line": 7022
+  },
+  {
+    "line": 7033,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceDeltaApplicator.cs",
+        "before_sha256": "fe4d205710ca9500a6be38d78b000e386604988272d6281ef74464e769d94e16",
+        "after_sha256": "35714b82b25c7edacd981da299d49d44866273961f7ae2de068a1ab4a970cf7f"
+      },
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "9221faeff8b24a104a67c27a3773eca4df366baf2e04f66577ce280371b50447",
+        "after_sha256": "7aff172846ea6d59201842745ab5fd71d96e65876c348c1482da2db7eb0fdf09"
+      }
+    ],
+    "historical_output_line": 7036
+  },
+  {
+    "line": 7047,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceNativeContract.h",
+        "before_sha256": null,
+        "after_sha256": "f88a3a0d4c372598e8a836529f4c436c062131f78e5abb7ce15d7484662b0642"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": null,
+        "after_sha256": "776296d760a55c973c260d36c49119ad05251a57098ad2b4b6e9a4c969003ceb"
+      }
+    ],
+    "historical_output_line": 7050
+  },
+  {
+    "line": 7054,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceTransport.h",
+        "before_sha256": "5caaf767292722c0307431d1675bf8f22b1bb9aa7acf5a8e813cd64301907fd5",
+        "after_sha256": "307f6758a71fb6d870459ff5fd117caa9ba233cf46bb024c45503dbcbf99fdd1"
+      },
+      {
+        "path": "adapters/unreal/XaceTransport.cpp",
+        "before_sha256": "5af699485d567abc56bf7d0fbedfb688f8fab975980e4d9147bfe4a3b04c3f01",
+        "after_sha256": "6290176b9ed65d46a1b51a952f8b072d13a578cf74d3f9f69bdacf64b62413c5"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.h",
+        "before_sha256": "af49072bea510f3669b3cecc3383a8acd6c9c247a883b80ec191e058ed3bda9e",
+        "after_sha256": "69323aa9599dec457ea2869d4dc0035f02b12e128f9ce3725acd8adf15dbf549"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.cpp",
+        "before_sha256": "d9e05b0221f0f9e53b1bddd30ddc189d21daf7feba3d19f17041ebb7ce07d569",
+        "after_sha256": "04eb4a55eb9d25286efb906e54831a52793a456606c13d9394c188df7244b44c"
+      }
+    ],
+    "historical_output_line": 7057
+  },
+  {
+    "line": 7068,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceTransport.cpp",
+        "before_sha256": "6290176b9ed65d46a1b51a952f8b072d13a578cf74d3f9f69bdacf64b62413c5",
+        "after_sha256": "0542abc1f1f858f59d7fe8383464eed431962499e0c926364c624504ce110e86"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.cpp",
+        "before_sha256": "04eb4a55eb9d25286efb906e54831a52793a456606c13d9394c188df7244b44c",
+        "after_sha256": "547fd9c6ca96cf8eda5b0467b08c0605b7aa2e1137043aab8864caad4ed1ae82"
+      },
+      {
+        "path": "adapters/unreal/XaceDeltaApplicator.h",
+        "before_sha256": "e0b26056e78b1273dde7d37c021ffec4ae218424eed2ab6dc37892ca980a7d6b",
+        "after_sha256": "df3786a08a517e5800b5f9eb9b64597e8cd00738ab960f13f27392f4e78e80db"
+      },
+      {
+        "path": "adapters/unreal/XaceDeltaApplicator.cpp",
+        "before_sha256": "7a1373eb13a3cea995ff5beec843906156cdf9999cd0589abf40b74961d05c25",
+        "after_sha256": "4d04d679d4af6fa86f0176aeeb47f880391f29e79a984f04e00616b65eb40f42"
+      },
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "7aff172846ea6d59201842745ab5fd71d96e65876c348c1482da2db7eb0fdf09",
+        "after_sha256": "e9b1d511a6974cc0e9e3af150c31882ca4e095b9245bc918d8101b80ba463f82"
+      }
+    ],
+    "historical_output_line": 7071
+  },
+  {
+    "line": 7089,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": null,
+        "after_sha256": "27504395799d65bea0515084f2468cab97704f19f528c3cd9410027bbf21663f"
+      }
+    ],
+    "historical_output_line": 7092
+  },
+  {
+    "line": 7096,
+    "status": "excluded-original-failed-call"
+  },
+  {
+    "line": 7102,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_transport.gd",
+        "before_sha256": "c2ee496c94f23d50afa8502e68f4cb9550c3d8600ab3d008ae8ec3698301f384",
+        "after_sha256": "16cb08ed69f61e24d16f9f02e9c7e73973d6c2e34c5a8b991ce4cfc2a046748d"
+      },
+      {
+        "path": "apps/xace-player/player.gd",
+        "before_sha256": "60d6c58f784a4defea916d2fe02727f2d8c877d44a3e407bd4d91a8a4d308fad",
+        "after_sha256": "a2e5c63d22c914b23ef2d0c5cb6ce623da7cc91efb5adc72f309c415ba01b40a"
+      },
+      {
+        "path": "tools/xp008_player_build.py",
+        "before_sha256": "8d44c76185bcb51cd083bb76ad9a210349986ffa6afa5ae952fd52a7fa090cb7",
+        "after_sha256": "d629f9bd0daa2693711788c959b921db57af88e8d1f4ac54c1cf21dc0d464832"
+      },
+      {
+        "path": "adapters/unreal/XaceDeltaApplicator.cpp",
+        "before_sha256": "4d04d679d4af6fa86f0176aeeb47f880391f29e79a984f04e00616b65eb40f42",
+        "after_sha256": "e66d8dae52155be4b8de7f8dddb5b801e057cc15e696db2b754b65afc71935ff"
+      },
+      {
+        "reviewed_shell_edit": "shared Godot canonical mirror and Player wrapper"
+      }
+    ],
+    "historical_output_line": 7106
+  },
+  {
+    "line": 7117,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_adapter.gd",
+        "before_sha256": "368262f3881251a72f647a8e768f292d0a0e780ac6e411ce6351393930c100b0",
+        "after_sha256": "bc70e46050a4733b7cc107a2175e47d5b16208ba1eddba81a10415125bd7075e"
+      },
+      {
+        "path": "adapters/godot/xace_input_collector.gd",
+        "before_sha256": "3bf30eb2f3adffdb17e4d64af71cd03fd23fa5c54b79ebb22849d3f946a59a14",
+        "after_sha256": "775b30ce8be67345f1a33339a8c81f373570c442f36049aabd66be87593c5201"
+      },
+      {
+        "path": "adapters/godot/xace_godot_main.gd",
+        "before_sha256": "0d9bb7855bc5b2193cb30bdbd48377c79dcb8b5ee1c27b23064f072a3b45204a",
+        "after_sha256": "09a3c557194ef8ffca96138044eb58a4ad7c21f301117f54dab51dfa4e9aa47f"
+      },
+      {
+        "path": "tools/unity_vertical_slice_certification.py",
+        "before_sha256": "198360e18ccaab18a033dadcd21c3f7cb1259584481dde5fcfe16b69d2cb295a",
+        "after_sha256": "34e38dfab83531dbb8a69131560b13091670a820308cc471bd022c95f75d99e0"
+      },
+      {
+        "path": "tools/unreal_vertical_slice_certification.py",
+        "before_sha256": "af3d92296c2468eba9de657b1c524fa6e6e4d1336c5a79b9957a819645f4b899",
+        "after_sha256": "6913a404346b6ef6658880b404e4b9ba2b011acdde87ebef219f3c4457961dd5"
+      }
+    ],
+    "historical_output_line": 7120
+  },
+  {
+    "line": 7139,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "e9b1d511a6974cc0e9e3af150c31882ca4e095b9245bc918d8101b80ba463f82",
+        "after_sha256": "5822beaae598a608085c1f52ad82c688255988a478e51e1cbf5b0dc07dd7ea83"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "776296d760a55c973c260d36c49119ad05251a57098ad2b4b6e9a4c969003ceb",
+        "after_sha256": "61b86828349a8038b1e0c41f81833fd1394ebc3b7d0971255e9c0308d0e7fa12"
+      },
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "27504395799d65bea0515084f2468cab97704f19f528c3cd9410027bbf21663f",
+        "after_sha256": "a2a6c9179b4192d3e5b2435bae4d2ef7280ed13eeccd07c860d814d69b975b31"
+      },
+      {
+        "path": "tools/godot_vertical_slice_certification.py",
+        "before_sha256": "32399b25a6775d8a157dbcc7d91321c55e473637270c8115bb109eccb85b057b",
+        "after_sha256": "4ddd4a90c9db6a3a1132df730cdbd143ec575690ef4a5cc5edfa8cda07809995"
+      },
+      {
+        "path": "packages/project-system/adapter_package_versioning.py",
+        "before_sha256": "65ab56e10b68fb711202431a98e41b5b7c9b8549f5a899b603a8c1155697161d",
+        "after_sha256": "9bd77061530086895d620a1212c0da99b146ae85736b0816ed910560697f2f4f"
+      },
+      {
+        "path": "packages/project-system/adapter_package_handoff_preflight.py",
+        "before_sha256": "4689ce22fa98861e73eb693b9641758ad14923a4a2184659e9b27cd0bcd31596",
+        "after_sha256": "c584d7777a35a0763973778846670c5112aae8c859accdd847ba75d752c065fe"
+      }
+    ],
+    "historical_output_line": 7142
+  },
+  {
+    "line": 7146,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": null,
+        "after_sha256": "31ba613875c65d080f791d95efee0aa725f4a6df7ac2541ee0e2c7f5d5a5348b"
+      },
+      {
+        "path": "adapters/godot/tests/native_contract_proof.gd",
+        "before_sha256": null,
+        "after_sha256": "4e0d48176597e7123ac877c92ffadad4fcf7d70d57105caf7845619befd7adb9"
+      }
+    ],
+    "historical_output_line": 7149
+  },
+  {
+    "line": 7153,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/Editor/XaceNativeContractProof.cs",
+        "before_sha256": null,
+        "after_sha256": "36b4a162b8b3811657af1ea6e51f04c501f8a1d3815c5aef1247d6865c437b8b"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.h",
+        "before_sha256": null,
+        "after_sha256": "6fa540dfb84603bd3a816085157e79e437c408a0ba587c7971142bde4dcac5b2"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.cpp",
+        "before_sha256": null,
+        "after_sha256": "33c7fd6eb60e52f0b8904833e998f1c7b9198589c4e17ade61d20a2fe6e719c5"
+      }
+    ],
+    "historical_output_line": 7157
+  },
+  {
+    "line": 7171,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/tests/native_contract_proof.gd",
+        "before_sha256": "4e0d48176597e7123ac877c92ffadad4fcf7d70d57105caf7845619befd7adb9",
+        "after_sha256": "1c4b803048ff79d98fd45d7a8893b9fd750e9c5f7667864833eef46752662f50"
+      }
+    ],
+    "historical_output_line": 7175
+  },
+  {
+    "line": 7179,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "31ba613875c65d080f791d95efee0aa725f4a6df7ac2541ee0e2c7f5d5a5348b",
+        "after_sha256": "c2b62236d6f4b3041b8b6ffe46bc538f9acb937c51cd120c3c877b6c091020cd"
+      }
+    ],
+    "historical_output_line": 7184
+  },
+  {
+    "line": 7219,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceInputCollector.h",
+        "before_sha256": "69323aa9599dec457ea2869d4dc0035f02b12e128f9ce3725acd8adf15dbf549",
+        "after_sha256": "722d052bf01419b73ad29ce9836db48c95df55ca2e0f8b1a9a15da7bcb3f859b"
+      },
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "c2b62236d6f4b3041b8b6ffe46bc538f9acb937c51cd120c3c877b6c091020cd",
+        "after_sha256": "ca678fe1940e37dfdf8a4d3080d501f0ec0a8ecc3a0ba514cec6e4d59046d28c"
+      }
+    ],
+    "historical_output_line": 7222
+  },
+  {
+    "line": 7234,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/core/tests/test_native_world_fixture.rs",
+        "before_sha256": null,
+        "after_sha256": "b33ca5a3436e1213d24448ea49476dec8bf2af86df312e38850546f127c316cc"
+      },
+      {
+        "path": "tools/adapter_package_handoff_preflight_check.py",
+        "before_sha256": "80b1b291ccc6434479d98745788299b679148e1636bab1e3a4695eae234a561d",
+        "after_sha256": "44e5a0bb9767a632d6080f6777ea387f25e0fd25a69420c6e1d12cacae5259c3"
+      },
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "27a52a3d1e74d6d0ac14cc089339ced15d7bc75005cc15275afbe38c0d8ef1dd",
+        "after_sha256": "1ed25db3b6d008bff04437941af69b52c13f86a4756f2b2d6cf5676ee746d6bf"
+      }
+    ],
+    "historical_output_line": 7237
+  },
+  {
+    "line": 7261,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "f166a32505fd358ff1b7da896483b0d9d24d4efddb43fb00c9375334364b0051",
+        "after_sha256": "6bdf5635a06ab37a6cd591730a47cfd69f6a34da29dbb4a90d2a21262cf3461f"
+      }
+    ],
+    "historical_output_line": 7266
+  },
+  {
+    "line": 7277,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "ca678fe1940e37dfdf8a4d3080d501f0ec0a8ecc3a0ba514cec6e4d59046d28c",
+        "after_sha256": "a05516874a517a9cfbc146a2fabd1351e0bec13fb0422745f1cc8ffdc8265238"
+      }
+    ],
+    "historical_output_line": 7281
+  },
+  {
+    "line": 7314,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "61b86828349a8038b1e0c41f81833fd1394ebc3b7d0971255e9c0308d0e7fa12",
+        "after_sha256": "94ce65853d7877141afa98b7f86933738de0e854afc2ed43c3a096843199a597"
+      },
+      {
+        "path": "tools/unreal_vertical_slice_certification.py",
+        "before_sha256": "6913a404346b6ef6658880b404e4b9ba2b011acdde87ebef219f3c4457961dd5",
+        "after_sha256": "375330d26b7ac281ba8a23a015ce2e6a9d4e9f5f8789475d78d04ed4348e0fd4"
+      },
+      {
+        "path": "packages/project-system/tests/test_playable_package.py",
+        "before_sha256": "34660b2c72909734dc453b26c68a361ff963c8323de6e2e9f6fddc095e527859",
+        "after_sha256": "c8c68fc5118df12bde7f2236cc5029ff2d553c881f27f77475896cf6e83ce1c2"
+      }
+    ],
+    "historical_output_line": 7318
+  },
+  {
+    "line": 7336,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/builder_server.py",
+        "before_sha256": "1cace0a43cd7bed6a8d9a98585bc7871a6ef108cb490d5e0e872f8f5cddf0ae0",
+        "after_sha256": "9835582f2e0abfc170c3d235722577007288c073ace121dde66a3a306358f901"
+      }
+    ],
+    "historical_output_line": 7339
+  },
+  {
+    "line": 7361,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "5822beaae598a608085c1f52ad82c688255988a478e51e1cbf5b0dc07dd7ea83",
+        "after_sha256": "935125715f69041c50bd4184575cc9485bfd59a25d758fd63fc84341e12ed30d"
+      },
+      {
+        "path": "adapters/unity/XaceDeltaApplicator.cs",
+        "before_sha256": "35714b82b25c7edacd981da299d49d44866273961f7ae2de068a1ab4a970cf7f",
+        "after_sha256": "8f39eb5668e7ebcf5014f0f4a1f134dcc26732e56c57d880c2743952b22ed2f0"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.h",
+        "before_sha256": "f88a3a0d4c372598e8a836529f4c436c062131f78e5abb7ce15d7484662b0642",
+        "after_sha256": "b56ebce19c5c860d2348c8845ea387dc05588b832750c7e6262125a9349157dc"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "94ce65853d7877141afa98b7f86933738de0e854afc2ed43c3a096843199a597",
+        "after_sha256": "1436b0505ce69e725e49661139274c394921e317c010dde0dafc866394a43cfe"
+      },
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "a2a6c9179b4192d3e5b2435bae4d2ef7280ed13eeccd07c860d814d69b975b31",
+        "after_sha256": "9a6111353de94e9c94c89de39373b1eb2e8cbb3badf217c439ee7794d51de80e"
+      },
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "a05516874a517a9cfbc146a2fabd1351e0bec13fb0422745f1cc8ffdc8265238",
+        "after_sha256": "8482195669f5a63e853e7026337608bd808739e65611ea0f108cff4eb912c469"
+      }
+    ],
+    "historical_output_line": 7365
+  },
+  {
+    "line": 7391,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.cpp",
+        "before_sha256": "33c7fd6eb60e52f0b8904833e998f1c7b9198589c4e17ade61d20a2fe6e719c5",
+        "after_sha256": "94941d833bafb8abf8172205cf9b99f4a94445667246e46dba8caeaf4a88c4e1"
+      },
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "6bdf5635a06ab37a6cd591730a47cfd69f6a34da29dbb4a90d2a21262cf3461f",
+        "after_sha256": "b36c1723eadc541280ae3d6621b03d9dd6f80a96a63b3f937c0e216f9ba9daba"
+      }
+    ],
+    "historical_output_line": 7394
+  },
+  {
+    "line": 7409,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_adapter.gd",
+        "before_sha256": "bc70e46050a4733b7cc107a2175e47d5b16208ba1eddba81a10415125bd7075e",
+        "after_sha256": "27072a6739f0852df102384aa57eae9f9949a695d61ace26c5a2821dc7b092ea"
+      },
+      {
+        "path": "adapters/godot/xace_godot_main.gd",
+        "before_sha256": "09a3c557194ef8ffca96138044eb58a4ad7c21f301117f54dab51dfa4e9aa47f",
+        "after_sha256": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3"
+      }
+    ],
+    "historical_output_line": 7412
+  },
+  {
+    "line": 7433,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/tests/native_live_proof.gd",
+        "before_sha256": null,
+        "after_sha256": "b9af6e9247628f97003c0ef826e22ba099e9e77b61f34636a104dd6cd9dab89b"
+      },
+      {
+        "path": "adapters/unreal/XaceTransport.cpp",
+        "before_sha256": "0542abc1f1f858f59d7fe8383464eed431962499e0c926364c624504ce110e86",
+        "after_sha256": "02ed246fc9a3672a7595d0456f45f7981df7aa2f8c58b0a1d706f8b5720732fd"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.cpp",
+        "before_sha256": "94941d833bafb8abf8172205cf9b99f4a94445667246e46dba8caeaf4a88c4e1",
+        "after_sha256": "2f422ba089e9708df25cc7219e30b459d40c69a6067f6cedd5727a7ee7a5ab14"
+      },
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "b36c1723eadc541280ae3d6621b03d9dd6f80a96a63b3f937c0e216f9ba9daba",
+        "after_sha256": "7c1a1ae78f91226c5c7c99ffbd61e2debc08339a80230e2d633c950493105b7c"
+      }
+    ],
+    "historical_output_line": 7436
+  },
+  {
+    "line": 7442,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "8482195669f5a63e853e7026337608bd808739e65611ea0f108cff4eb912c469",
+        "after_sha256": "db5eadc6ec832ef807d08666df4ce3ec0029d9c7126a8f4253b88837dbb6871c"
+      }
+    ],
+    "historical_output_line": 7445
+  },
+  {
+    "line": 7452,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "9a6111353de94e9c94c89de39373b1eb2e8cbb3badf217c439ee7794d51de80e",
+        "after_sha256": "df4125ab7b07c6703f543eb9a23e809baefcbf64f6e17ef6da45ba26278ef3bd"
+      }
+    ],
+    "historical_output_line": 7456
+  },
+  {
+    "line": 7473,
+    "status": "excluded-original-failed-call"
+  },
+  {
+    "line": 7479,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "935125715f69041c50bd4184575cc9485bfd59a25d758fd63fc84341e12ed30d",
+        "after_sha256": "5c6bb0b596b433ca41ccb79455e314b5c6e19eb3f03545b8932a1502b19516a5"
+      },
+      {
+        "path": "adapters/unity/XaceDeltaApplicator.cs",
+        "before_sha256": "8f39eb5668e7ebcf5014f0f4a1f134dcc26732e56c57d880c2743952b22ed2f0",
+        "after_sha256": "4443e36c83204a1bd921629361372ee310c7d767820c1b157fadc7ff5275b9ea"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "1436b0505ce69e725e49661139274c394921e317c010dde0dafc866394a43cfe",
+        "after_sha256": "62d4299998c0443028e12cc547e7d41c983af655cf9a9f4b42a6e690c42db064"
+      },
+      {
+        "path": "adapters/unreal/XaceDeltaApplicator.h",
+        "before_sha256": "df3786a08a517e5800b5f9eb9b64597e8cd00738ab960f13f27392f4e78e80db",
+        "after_sha256": "84f7b8d7263120b22bdd81f968d0fdde05dd17728deaabeae6c80e4e98597081"
+      },
+      {
+        "path": "adapters/unreal/XaceDeltaApplicator.cpp",
+        "before_sha256": "e66d8dae52155be4b8de7f8dddb5b801e057cc15e696db2b754b65afc71935ff",
+        "after_sha256": "41cd1beac2befc7156b25075a0430a562d69cf2345919390bd5247a087b10a70"
+      },
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "df4125ab7b07c6703f543eb9a23e809baefcbf64f6e17ef6da45ba26278ef3bd",
+        "after_sha256": "a5b41bbd5aee31675941ae4469ce9582bf031fb7ec1917a83e138cefbeefe289"
+      },
+      {
+        "path": "adapters/godot/xace_canonical_entities.gd",
+        "before_sha256": "e7907b60208cf9a670fb703d9aaedf8abdb2a28f894c8e9cc4775331be057116",
+        "after_sha256": "4971ac48afaab06652a42220a9bda0299c95b046d31dd2aadda90851fdd84a5f"
+      }
+    ],
+    "historical_output_line": 7482
+  },
+  {
+    "line": 7486,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "db5eadc6ec832ef807d08666df4ce3ec0029d9c7126a8f4253b88837dbb6871c",
+        "after_sha256": "6d746137d10b91e2ed406ba63a7d5e2c114f3e9096d1317937c37cbc3c2f6d90"
+      },
+      {
+        "path": "packages/core/tests/test_native_world_fixture.rs",
+        "before_sha256": "b33ca5a3436e1213d24448ea49476dec8bf2af86df312e38850546f127c316cc",
+        "after_sha256": "8eaa6d80481712903b1bd46b070e22da0a76f138f1a0ccb4fd17e76076946724"
+      },
+      {
+        "path": "adapters/godot/tests/native_contract_proof.gd",
+        "before_sha256": "1c4b803048ff79d98fd45d7a8893b9fd750e9c5f7667864833eef46752662f50",
+        "after_sha256": "e4f11ce88cd2fa5c4a4755e0e8f44324c1304dcfa2300611bcefe534efd06ba4"
+      },
+      {
+        "path": "adapters/unity/Editor/XaceNativeContractProof.cs",
+        "before_sha256": "36b4a162b8b3811657af1ea6e51f04c501f8a1d3815c5aef1247d6865c437b8b",
+        "after_sha256": "bb85cddcde533e018c765c80fb067ad35ccc4fa534499af07b4182338be9e7ae"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.cpp",
+        "before_sha256": "2f422ba089e9708df25cc7219e30b459d40c69a6067f6cedd5727a7ee7a5ab14",
+        "after_sha256": "ec1b8fe510732e75a05ca9ba5ddfe8233dce3d3416803d6a9b21a490b5b4eca2"
+      }
+    ],
+    "historical_output_line": 7489
+  },
+  {
+    "line": 7560,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "a5b41bbd5aee31675941ae4469ce9582bf031fb7ec1917a83e138cefbeefe289",
+        "after_sha256": "63378c2262a484f91dfd4d4cc1eb8b75197b65b8470777394e169cada185f1f9"
+      },
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "5c6bb0b596b433ca41ccb79455e314b5c6e19eb3f03545b8932a1502b19516a5",
+        "after_sha256": "83ee2beae8ac27f07ea2f88a65b6a25bfacb3575c5ab057de100083142327238"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "62d4299998c0443028e12cc547e7d41c983af655cf9a9f4b42a6e690c42db064",
+        "after_sha256": "52d4d574f4529440d1f2572dfbd50792d0e67eed3506b8ae8906e6531f29f285"
+      },
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "6d746137d10b91e2ed406ba63a7d5e2c114f3e9096d1317937c37cbc3c2f6d90",
+        "after_sha256": "e2b69a8921a396a290a0894467763f37d17ade46baeaf0b3e92684aaa2f7a50f"
+      }
+    ],
+    "historical_output_line": 7564
+  },
+  {
+    "line": 7640,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "apps/xace-player/player.gd",
+        "before_sha256": "a2e5c63d22c914b23ef2d0c5cb6ce623da7cc91efb5adc72f309c415ba01b40a",
+        "after_sha256": "546ede5685ae7eb5b72c2ee9d58cba9412d6765b2c3e16cf90afa4b1f0cc192e"
+      },
+      {
+        "path": "adapters/godot/xace_canonical_entities.gd",
+        "before_sha256": "4971ac48afaab06652a42220a9bda0299c95b046d31dd2aadda90851fdd84a5f",
+        "after_sha256": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56"
+      },
+      {
+        "path": "adapters/unity/XaceDeltaApplicator.cs",
+        "before_sha256": "4443e36c83204a1bd921629361372ee310c7d767820c1b157fadc7ff5275b9ea",
+        "after_sha256": "c70d779b69565441242f31201b405cf1011abfdbbf5b1927916f5698ee7b446b"
+      },
+      {
+        "path": "adapters/godot/tests/native_contract_proof.gd",
+        "before_sha256": "e4f11ce88cd2fa5c4a4755e0e8f44324c1304dcfa2300611bcefe534efd06ba4",
+        "after_sha256": "dfb0e06a3a4e499fa9b54953e153474139f05b66f08956fb8fd672e084ca13e8"
+      }
+    ],
+    "historical_output_line": 7644
+  },
+  {
+    "line": 7673,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "apps/xace-player/player.gd",
+        "before_sha256": "546ede5685ae7eb5b72c2ee9d58cba9412d6765b2c3e16cf90afa4b1f0cc192e",
+        "after_sha256": "a2e5c63d22c914b23ef2d0c5cb6ce623da7cc91efb5adc72f309c415ba01b40a"
+      },
+      {
+        "path": "tools/xp008_player_proof.py",
+        "before_sha256": "2a384e52ff1235ee28b8e874ad4bac7b7416cb6846bffcc7f61e15e70b18fbcc",
+        "after_sha256": "8036fe42c266d15595675124b4d8316713565187352f03d31b54a4e4316fb442"
+      },
+      {
+        "path": "tools/xp009_player_proof.py",
+        "before_sha256": "987802e1db0b84b38f6d8e58a683db03943576f91a23e19836e9d81dfbd4aeae",
+        "after_sha256": "3f98b327310c6823899e86b29116eb9295f7f60999c18055f4444b8e840fb86d"
+      },
+      {
+        "path": "adapters/godot/tests/native_contract_proof.gd",
+        "before_sha256": "dfb0e06a3a4e499fa9b54953e153474139f05b66f08956fb8fd672e084ca13e8",
+        "after_sha256": "3d516576af346e3023d48cd477d7d88bcb52a17f9eca22780515bbc33bd43336"
+      }
+    ],
+    "historical_output_line": 7677
+  },
+  {
+    "line": 7722,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/godot/xace_input_collector.gd",
+        "before_sha256": "775b30ce8be67345f1a33339a8c81f373570c442f36049aabd66be87593c5201",
+        "after_sha256": "018556b795d8fb0a1ef2e1770bce3f92194ae8641baaf73fe1e560ab67c3fa0b"
+      },
+      {
+        "path": "adapters/godot/xace_adapter.gd",
+        "before_sha256": "27072a6739f0852df102384aa57eae9f9949a695d61ace26c5a2821dc7b092ea",
+        "after_sha256": "545c48bd838f83eeb5e9c9638be1121585e6af57588c2cfe0a566d9c7c17e7fa"
+      },
+      {
+        "path": "adapters/unity/XaceInputCollector.cs",
+        "before_sha256": "49afa2c7b07be20ccd8767ce3f06ca259bf8fd1733d1434f9ddd3e83c703308d",
+        "after_sha256": "5ba27179f15fbbcecd3408c1d83b6f8fd639393ce0e8058b1644df05d218cad5"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.h",
+        "before_sha256": "722d052bf01419b73ad29ce9836db48c95df55ca2e0f8b1a9a15da7bcb3f859b",
+        "after_sha256": "6bd6175c77e5c44b3175f7dbe35ee8e255cfcaaa362dd44b19ba194eb3740e7f"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.cpp",
+        "before_sha256": "547fd9c6ca96cf8eda5b0467b08c0605b7aa2e1137043aab8864caad4ed1ae82",
+        "after_sha256": "6036c225c5fa4baca19f609469ebf415165622bb2930be6a8eda88df2ab68522"
+      }
+    ],
+    "historical_output_line": 7726
+  },
+  {
+    "line": 7737,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "adapters/unity/XaceInputCollector.cs",
+        "before_sha256": "5ba27179f15fbbcecd3408c1d83b6f8fd639393ce0e8058b1644df05d218cad5",
+        "after_sha256": "f89283d830cdf988ea28b6d7a7b01c85aaa1679eddde922bfd11015a57c90dd2"
+      },
+      {
+        "path": "adapters/unreal/XaceInputCollector.cpp",
+        "before_sha256": "6036c225c5fa4baca19f609469ebf415165622bb2930be6a8eda88df2ab68522",
+        "after_sha256": "d0fd611920b702b9f74fa7f2746d83f52501f4e2aec8a8c3ac75140a1121cf59"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "52d4d574f4529440d1f2572dfbd50792d0e67eed3506b8ae8906e6531f29f285",
+        "after_sha256": "c084dbbdd73ffc8c7a0f0a5d465e9e739eeb2b31938c688f51492efdcc28b6ef"
+      },
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "63378c2262a484f91dfd4d4cc1eb8b75197b65b8470777394e169cada185f1f9",
+        "after_sha256": "992a14d3522ee0d52e8783cb0ec6ae964562ad58226d07c804d2f76934d51054"
+      }
+    ],
+    "historical_output_line": 7740
+  },
+  {
+    "line": 7753,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp008_player_proof.py",
+        "before_sha256": "8036fe42c266d15595675124b4d8316713565187352f03d31b54a4e4316fb442",
+        "after_sha256": "bf8f32c0eeb945adf754392ce8e24321cc8e8fb1cc3e5f750714bf5ba364dba1"
+      },
+      {
+        "path": "tools/xp009_player_proof.py",
+        "before_sha256": "3f98b327310c6823899e86b29116eb9295f7f60999c18055f4444b8e840fb86d",
+        "after_sha256": "118a0633fa22e88beda2d8ed4169a29973f02bb6279c8db159ff2430a231e8fb"
+      }
+    ],
+    "historical_output_line": 7756
+  },
+  {
+    "line": 7816,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "docs/adr/XP-016-native-world-session-readers.md",
+        "before_sha256": null,
+        "after_sha256": "14e22a57adfc6541772dd57a646a35ccc53f70cf01a727b801ba63ada957915a"
+      },
+      {
+        "path": "docs/XP016_COMPLETION.md",
+        "before_sha256": null,
+        "after_sha256": "e4a420205bcaf9d7ab1ef9a8465571aa1731e7bfd57056a47c11b8376ffe2609"
+      }
+    ],
+    "historical_output_line": 7819
+  },
+  {
+    "line": 7830,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "1ed25db3b6d008bff04437941af69b52c13f86a4756f2b2d6cf5676ee746d6bf",
+        "after_sha256": "86db1075360bc386539f38ba26a511b7c6587414377b8908e641462b5d270271"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "550880732aa87ab678112b3b85fd42d67d9fdb53e8116745f52ff09f26c7798e",
+        "after_sha256": "fd02fc8f11c1a9c28e5134d48d3f9497b0fbde770536626a0277aeca50c4add6"
+      }
+    ],
+    "historical_output_line": 7834
+  }
+]

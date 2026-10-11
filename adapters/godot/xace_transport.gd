@@ -18,6 +18,20 @@ signal stats_changed(stats: Dictionary)
 var session_offer_json := ""
 var session_credential := ""
 var session_peer_id := 0
+var native_contract: RefCounted
+
+func configure_live_session(ticket: Dictionary, world_json: String) -> bool:
+	if _connected:
+		return false
+	var candidate: RefCounted = load(_script_base_dir().path_join("xace_native_contract.gd")).new()
+	if not candidate.configure(ticket, world_json):
+		_fail(str(candidate.error))
+		return false
+	native_contract = candidate
+	session_offer_json = JSON.stringify(candidate.offer)
+	session_credential = str(candidate.credential)
+	session_peer_id = int(candidate.peer_id)
+	return true
 var _projection_stamp: Dictionary = {}
 var _projection_stamp_json := ""
 var _projection_recovering := false
@@ -129,10 +143,19 @@ func send_message(message: Dictionary) -> bool:
 
 
 func send_input_packet(packet: Dictionary) -> bool:
+	if native_contract != null:
+		if not _handshake_complete or not native_contract.can_send(packet):
+			return false
+		var success := send_message(packet)
+		if success:
+			native_contract.sent = true
+		return success
 	return send_message(packet)
 
 
 func send_feedback_payload(tick: int, feedback_messages: Array) -> bool:
+	if not session_offer_json.is_empty():
+		return false
 	if feedback_messages.is_empty():
 		return true
 	return send_message(_protocol_script.build_feedback_payload(tick, feedback_messages))
@@ -209,6 +232,8 @@ func _handle_message(message: Dictionary) -> void:
 		if kind == "input_tick_request":
 			if _projection_recovering or int(message.get("tick", -1)) != int(_projection_stamp.get("next_tick", -2)):
 				return
+			if native_contract != null and not native_contract.request(int(message.get("tick", -1))):
+				return
 		elif kind in ["handshake_ack", "tick_snapshot", "session_baseline"] and bool(message.get("accepted", true)):
 			if not _verify_projection(message, kind == "handshake_ack"):
 				return
@@ -234,6 +259,21 @@ func _handle_message(message: Dictionary) -> void:
 
 
 func _verify_projection(message: Dictionary, initial: bool) -> bool:
+	if native_contract != null:
+		var result: String = native_contract.verify(message)
+		if result == "reject":
+			_fail(str(native_contract.error))
+			disconnect_from_runtime("Invalid live projection")
+			return false
+		if result == "recover":
+			_request_projection_recovery()
+			return false
+		if result == "drop":
+			return false
+		_projection_stamp = message.sync.duplicate(true)
+		_projection_stamp_json = str(message.sync_json)
+		_projection_recovering = false
+		return true
 	var parsed_stamp: Variant = JSON.parse_string(str(message.get("sync_json", "")))
 	if not parsed_stamp is Dictionary:
 		return false
@@ -318,6 +358,8 @@ func _write_message(message: Dictionary) -> bool:
 
 
 func _reset_connection_state(clear_queue: bool) -> void:
+	if native_contract != null:
+		native_contract.fence()
 	_connected = false
 	_handshake_sent = false
 	_handshake_complete = false

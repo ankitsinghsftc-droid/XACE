@@ -1,0 +1,20 @@
+{
+  "status": "source-reconstructed-unverified",
+  "base": "39ed07b8cd390619a479a3364dc903ee077a6d38",
+  "source_transcript": "2026/09/28/rollout-2026-09-28T10-35-35-01a0cc96-15ad-7002-a160-b9fd814bf872_01a0e667-76c2-7e30-96b3-0a4304fe4131.jsonl",
+  "patch_range": [
+    7012,
+    7830
+  ],
+  "excluded_failed_calls": [
+    7096,
+    7473
+  ],
+  "reviewed_shell_edit": 7102,
+  "generated_fixture_sha256": "efab9cd98b0c81524f2a305b53938b682d5d109b9c4d15344ba8ee6ea44b41c8",
+  "missing": [
+    "Original docs/evidence/xp016-baseline.json and raw XP016 reports",
+    "Final shell update at transcript line7873 to historical evidence JSON; not fabricated"
+  ],
+  "note": "Fixture regenerated from recovered deterministic generator. No original seal recreated; fresh verification pending."
+}

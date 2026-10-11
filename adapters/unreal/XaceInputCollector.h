@@ -8,6 +8,16 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceInputPacketBuilt, const FXaceInputPacket&, Packet);
 
+USTRUCT(BlueprintType)
+struct FXaceLiveInputBinding
+{
+	GENERATED_BODY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FString Action;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FString Kind = TEXT("axis_1d");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey Positive;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey Negative;
+};
+
 UCLASS(ClassGroup=(XACE), meta=(BlueprintSpawnableComponent))
 class UXaceInputCollectorComponent : public UActorComponent
 {
@@ -17,6 +27,7 @@ public:
 	UXaceInputCollectorComponent();
 
 	UPROPERTY(BlueprintAssignable) FXaceInputPacketBuilt OnInputPacketBuilt;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") TArray<FXaceLiveInputBinding> LiveBindings;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Identity") int64 PeerId = 1;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Identity") int64 PlayerId = 1;
@@ -52,6 +63,7 @@ private:
 	bool bTransportSubscribed = false;
 	int64 LatestRuntimeTick = 0;
 	int64 LastSentTick = 0;
+	TMap<FString,float> LivePrevious;
 	float TickInterval = 1.0f / 60.0f;
 	float TickAccumulator = 0.0f;
 	int32 FramesAccumulated = 0;
@@ -74,6 +86,7 @@ private:
 	UFUNCTION() void OnRuntimeTickSnapshot(const FXaceTickSnapshot& Snapshot);
 	UFUNCTION() void OnRuntimeHandshake(const FXaceHandshakeAck& Ack);
 	void SampleFrame();
+	void OnSessionInputTick(int64 Tick);
 	void FlushTick();
 	void ResetAccumulated();
 	void AddAxis2D(TArray<FXaceInputAction>& Actions, const FString& Name, float X, float Y, bool bIncludeIdle) const;

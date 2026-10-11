@@ -3985,6 +3985,7 @@ def _unreal_build_cs_text() -> str:
         "    public XACEAdapter(ReadOnlyTargetRules Target) : base(Target)",
         "    {",
         "        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;",
+        '        AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");',
         "",
         "        PublicDependencyModuleNames.AddRange(new string[]",
         "        {",

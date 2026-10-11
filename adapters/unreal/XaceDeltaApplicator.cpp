@@ -4,6 +4,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Components/AudioComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
 #include "Dom/JsonValue.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
@@ -251,6 +253,28 @@ void UXaceDeltaApplicatorComponent::ApplyEntityList(int64 Tick, const TArray<FXa
 		}
 	}
 
+	if(Transport!=nullptr && Transport->Session.Enabled())
+	{
+		for(const auto& Entity:Entities)
+		{
+			AActor* Actor=GetEntityActor(Entity.EntityId);if(!Actor)continue;
+			if(const auto Raw=Entity.Components.Find(1))
+			{
+				int64 Parent=0;XaceCanonical::Integer(XaceCanonical::Parse(*Raw),TEXT("parent_entity_id"),Parent);
+				if(Parent==0)Actor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+				else Actor->AttachToActor(GetEntityActor(Parent),FAttachmentTransformRules::KeepRelativeTransform);
+			}
+		}
+		const auto& World=Transport->Session.World;
+		for(const auto& Pair:EntityActors){if(auto Marker=Pair.Value->FindComponentByClass<UXaceEntityMarkerComponent>())Marker->WorldObjects.Reset();}
+		for(const auto& Value:World->GetArrayField(TEXT("objects")))
+		{
+			const auto Object=Value->AsObject();const FString Id=Object->GetStringField(TEXT("id"));
+			AActor* Actor=GetEntityActor(Transport->Session.Bindings[Id]);if(!Actor)continue;
+			auto Marker=Actor->FindComponentByClass<UXaceEntityMarkerComponent>();Marker->WorldObjects.Add(Id,XaceCanonical::Json(Object));
+			if(Marker->WorldObjects.Num()==1){Marker->CanonicalObjectId=Id;Marker->WorldSemanticsJson=XaceCanonical::Json(Object);}
+		}
+	}
 	OnSnapshotApplied.Broadcast(Tick, EntityActors.Num());
 }
 
@@ -522,6 +546,10 @@ void UXaceDeltaApplicatorComponent::ApplyComponents(AActor* Actor, UXaceEntityMa
 	{
 		return;
 	}
+	if(Transport!=nullptr && Transport->Session.Enabled())
+	{
+		ApplyCanonical(Actor,Components);return;
+	}
 
 	if (const FString* TransformJson = Components.Find(TransformComponentType))
 	{
@@ -544,6 +572,39 @@ void UXaceDeltaApplicatorComponent::ApplyComponents(AActor* Actor, UXaceEntityMa
 			Text += Max > 0.0f ? FString::Printf(TEXT(" %.0f/%.0f"), Current, Max) : FString::Printf(TEXT(" %.0f"), Current);
 		}
 		Label->SetText(FText::FromString(Text));
+	}
+}
+
+void UXaceDeltaApplicatorComponent::ApplyCanonical(AActor* Actor,const TMap<int32,FString>& Components)
+{
+	if(Actor->GetRootComponent()==nullptr)
+	{
+		auto Root=NewObject<USceneComponent>(Actor,TEXT("CanonicalRoot"));Actor->SetRootComponent(Root);Root->RegisterComponent();Actor->AddInstanceComponent(Root);
+	}
+	if(const auto Raw=Components.Find(1))
+	{
+		const auto Data=XaceCanonical::Parse(*Raw);FVector Position,Scale;FQuat Rotation;
+		XaceCanonical::Vector(GetObject(Data,TEXT("position")),Position);XaceCanonical::Vector(GetObject(Data,TEXT("scale")),Scale,true);XaceCanonical::Rotation(GetObject(Data,TEXT("rotation")),Rotation);
+		Actor->GetRootComponent()->SetRelativeLocationAndRotation(Position,Rotation);Actor->SetActorScale3D(Scale);
+	}
+	TArray<UPrimitiveComponent*> Primitives;Actor->GetComponents(Primitives);
+	UStaticMeshComponent* Visual=nullptr;
+	for(auto Primitive:Primitives)
+	{
+		Primitive->SetSimulatePhysics(false);Primitive->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		if(Primitive->GetFName()==TEXT("CanonicalVisual"))Visual=Cast<UStaticMeshComponent>(Primitive);
+		else if(Primitive->GetFName()==TEXT("XaceDebugCapsule"))Primitive->SetVisibility(false);
+	}
+	if(!Visual)
+	{
+		Visual=NewObject<UStaticMeshComponent>(Actor,TEXT("CanonicalVisual"));Visual->SetStaticMesh(LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Cube.Cube")));Visual->SetupAttachment(Actor->GetRootComponent());Visual->SetCollisionEnabled(ECollisionEnabled::NoCollision);Visual->RegisterComponent();Actor->AddInstanceComponent(Visual);
+	}
+	Visual->SetVisibility(false);
+	if(const auto Raw=Components.Find(4))
+	{
+		const auto Collider=XaceCanonical::Parse(*Raw);FVector Size,Offset;bool Trigger;
+		if(GetString(Collider,TEXT("shape"),TEXT(""))!=TEXT("BOX") || !XaceCanonical::Vector(GetObject(Collider,TEXT("size")),Size,true)||!XaceCanonical::Vector(GetObject(Collider,TEXT("offset")),Offset)||!Collider->TryGetBoolField(TEXT("is_trigger"),Trigger))return;
+		Visual->SetRelativeScale3D(Size);Visual->SetRelativeLocation(Offset);Visual->SetVisibility(!Trigger);
 	}
 }
 

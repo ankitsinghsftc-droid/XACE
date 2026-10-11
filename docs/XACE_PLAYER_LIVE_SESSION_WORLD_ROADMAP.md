@@ -22,7 +22,11 @@ join, reconnect and recovery; see `docs/XP013_COMPLETION.md` and
 acceptance remains pending by owner instruction. See `docs/XP014_COMPLETION.md`
 and `docs/evidence/xp014-baseline.json`. XP-015 is implemented and locally verified with an actual TLS relay; public
 deployment and two-network acceptance remain pending by owner instruction. See
-`docs/XP015_COMPLETION.md` and `docs/evidence/xp015-baseline.json`. XP-016 through
+`docs/XP015_COMPLETION.md` and `docs/evidence/xp015-baseline.json`. XP-016 is
+implemented with installed Godot/Unreal and exported Player evidence; Unity
+installed-host acceptance remains pending its license. The older standalone
+missing-cosmetic startup regression is retained as an open limitation. See
+`docs/XP016_COMPLETION.md` and `docs/evidence/xp016-baseline.json`. XP-017 through
 XP-022 have not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.

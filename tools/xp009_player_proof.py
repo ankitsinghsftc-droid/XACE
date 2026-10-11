@@ -111,7 +111,7 @@ func _finish_proof() -> void:
     super._finish_proof()
 """
 
-def run(out,godot,template):
+def run(out,godot,template,selected_scenarios=None):
     import os,subprocess,shutil
     out=Path(out).resolve();results={};hashes=[];identities=[]
     env=dict(os.environ);env["PATH"]=str(Path(env.get("SystemRoot","C:/Windows"))/"System32")
@@ -123,7 +123,7 @@ def run(out,godot,template):
         try:export_player(player,dist/"xace-proof.exe",godot,template)
         finally:scene.write_text(original)
         identities.append(json.loads((player/"admission.json").read_text())["gameplay_hash"])
-        scenarios=["normal","missing","binding_mismatch","tamper","geometry_missing"] if variant==0 else ["normal"]
+        scenarios=(selected_scenarios or ["normal","missing","binding_mismatch","tamper","geometry_missing"]) if variant==0 else ["normal"]
         for scenario in scenarios:
             package=dist/"package";modified=base/(scenario+"-package")
             if scenario in ["missing","tamper","geometry_missing"]:
@@ -144,7 +144,9 @@ def run(out,godot,template):
                 assert data["errors"]==[],data["errors"]
                 assert data["before_cleanup"]["applied_effects"]>=3,data["before_cleanup"]
                 for key in ["duplicate_suppressed","restore_clean","replay_once","expired_clean","restore_state_preserved"]:assert data[key],key
-                if scenario=="normal":hashes.append(json.loads(schedule.read_text())["hash_log"])
+                if scenario=="normal":
+                    assert len(data["projection_digests"])==30
+                    hashes.append(data["projection_digests"])
                 else:assert any(r["status"]=="fallback" for r in data["presentation"]["records"])
             else:
                 assert data["errors"] and not data["inputs"],data
@@ -152,7 +154,7 @@ def run(out,godot,template):
             assert "SCRIPT ERROR" not in proc.stdout+proc.stderr,proc.stderr
             results[str(variant)+"-"+scenario]={"errors":data["errors"],"ticks":len(data["ticks"]),"presentation":data.get("before_cleanup",{}),"owned_runtime_stopped":True,"checks":{key:data[key] for key in ["duplicate_suppressed","restore_clean","restore_state_preserved","replay_once","expired_clean"] if key in data}}
     assert hashes[0]==hashes[1] and identities[0]==identities[1]
-    result={"schema":"xace.xp009.presentation_proof.v1","ok":True,"cosmetic_variants_same_gameplay_hash":True,"cosmetic_variants_same_30_tick_hashes":True,"scenarios":results,"scope":"Exported Windows Player and native reference host on this machine; automated keyboard input. Local presentation restore tested; remote session restore remains later work."}
+    result={"schema":"xace.xp009.presentation_proof.v1","ok":True,"full_suite":selected_scenarios is None,"selected_scenarios":selected_scenarios,"cosmetic_variants_same_gameplay_hash":True,"cosmetic_variants_same_30_tick_projection_digests":True,"scenarios":results,"scope":"Exported Windows Player and native reference host on this machine; automated keyboard input. Verified full projection digests, not a world-hash replay. Local presentation restore tested; remote session restore remains later work."}
     (out/"proof.json").write_text(json.dumps(result,indent=2),encoding="utf8")
     return result
 
@@ -160,4 +162,7 @@ if __name__=="__main__":
     import argparse
     from tools.godot_vertical_slice_certification import find_godot
     parser=argparse.ArgumentParser();parser.add_argument("--out",default=str(ROOT/"tmp/xp009-final"));parser.add_argument("--template",required=True);parser.add_argument("--godot",default="")
-    args=parser.parse_args();print(json.dumps(run(args.out,find_godot(args.godot),args.template),indent=2))
+    parser.add_argument("--scenario",action="append",choices=["normal","missing","binding_mismatch","tamper","geometry_missing"],help="Explicit subset; report does not claim the full suite passed")
+    args=parser.parse_args()
+    if args.scenario and "normal" not in args.scenario:parser.error("Selected scenarios must include normal for cosmetic determinism comparison")
+    print(json.dumps(run(args.out,find_godot(args.godot),args.template,args.scenario),indent=2))

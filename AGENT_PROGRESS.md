@@ -14,7 +14,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | Milestone | Recovery | Fresh verification |
 |---|---|---|
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
-| XP-016 | In progress: ordered patch/execution catalog extracted | Not run |
+| XP-016 | Source patches replayed; generated fixture reconstructed; original evidence JSON missing | Not run |
 | XP-017 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
@@ -29,3 +29,9 @@ XP-016 historical Unity installed-host acceptance was blocked by license exit 19
 ## Next work
 
 Reconstruct XP-016 successful patches plus reviewed shell edits; record omissions, recover its generated fixture safely, checkpoint before tests. Then proceed in order through XP-022 and NEC-009. Preserve fresh reports under `docs/recovery/evidence/` or the persistent recovery evidence directory.
+
+## Checkpoints
+
+- `9147783`: protected independent XP-015 workspace.
+- Next checkpoint: XP-016 source reconstruction, explicitly unverified. Exact patch ledger: `docs/recovery/xp016-reconstruction-ledger.json`.
+- Excluded failed calls 7096 and 7473. Replayed reviewed shell edit 7102. Historical evidence-generation commands were not run.

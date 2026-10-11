@@ -49,6 +49,8 @@ EXPECTED_CGS_FILE_SHA = "b6c7824642ab1deddee958f70f44e9363345d0cca9ab58dc5485b10
 EXPECTED_FIXTURE_VERSION = "0.1.0"
 REQUIRED_FEATURES = tuple(canonical_vertical_slice_check.REQUIRED_FEATURES)
 ADAPTER_SOURCE_NAMES = (
+    "XaceNativeContract.h",
+    "XaceNativeContract.cpp",
     "XaceTransport.h",
     "XaceTransport.cpp",
     "XaceInputCollector.h",
@@ -618,6 +620,7 @@ def unreal_generated_plugin_texts() -> dict[str, str]:
                 "    public XACEAdapter(ReadOnlyTargetRules Target) : base(Target)",
                 "    {",
                 "        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;",
+                '        AddEngineThirdPartyPrivateStaticDependencies(Target, "OpenSSL");',
                 "",
                 "        PublicDependencyModuleNames.AddRange(new string[]",
                 "        {",

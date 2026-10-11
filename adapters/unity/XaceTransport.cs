@@ -68,6 +68,13 @@ namespace Xace.Adapter.Unity
         public event Action<XaceTickSnapshot> OnTickSnapshot;
         public event Action<XaceAdapterSideEffectRollback> OnAdapterSideEffectRollback;
         public event Action<string> OnProtocolError;
+        public event Action<ulong> OnSessionInputTick;
+        public XaceSessionState Session { get; private set; } = new XaceSessionState();
+        public void ConfigureLiveSession(string ticketJson, string worldJson)
+        {
+            if (connected) throw new InvalidOperationException("Disconnect before changing session");
+            var candidate=new XaceSessionState();candidate.Configure(ticketJson,worldJson);Session=candidate;
+        }
 
         private readonly ConcurrentQueue<string> outboundJson = new ConcurrentQueue<string>();
         private readonly ConcurrentQueue<XaceRuntimeMessage> inboundMessages = new ConcurrentQueue<XaceRuntimeMessage>();
@@ -184,6 +191,7 @@ namespace Xace.Adapter.Unity
 
         public void Disconnect(string reason = "disconnect")
         {
+            Session.Fence();
             connected = false;
             handshakeComplete = false;
             ClearOutboundQueue();
@@ -197,18 +205,22 @@ namespace Xace.Adapter.Unity
         {
             if (packet == null)
                 return false;
+            if (Session.Enabled && (!handshakeComplete || !Session.CanSend((long)packet.tick, (long)packet.peer_id, (long)packet.player_id))) return false;
             packet.msg_type = XaceProtocolNames.InputPacket;
             if (packet.peer_id <= 0)
                 packet.peer_id = 1;
             if (packet.sequence_id == 0)
                 packet.sequence_id = NextSequenceId();
-            return SendJson(XaceJson.Serialize(packet.ToDictionary()));
+            var sent = SendJson(XaceJson.Serialize(packet.ToDictionary()));
+            if (sent && Session.Enabled) Session.Sent();
+            return sent;
         }
 
         public bool SendDictionary(IDictionary<string, object> message)
         {
             if (message == null)
                 return false;
+            if (Session.Enabled && message.TryGetValue("msg_type", out var kind) && (string)kind == "feedback_payload") return false;
             return SendJson(XaceJson.Serialize(message));
         }
 
@@ -216,6 +228,7 @@ namespace Xace.Adapter.Unity
         {
             if (message == null)
                 return false;
+            if (Session.Enabled && message.TryGetValue("msg_type", out var kind) && (string)kind == "feedback_payload") return false;
             return SendJsonImmediately(XaceJson.Serialize(message));
         }
 
@@ -275,6 +288,12 @@ namespace Xace.Adapter.Unity
                 ["cgs_hash"] = PortableText(cgsHash, 128, ""),
                 ["capabilities"] = NormaliseCapabilities(capabilities)
             };
+            if (Session.Enabled)
+            {
+                hello["session_offer_json"] = Session.OfferJson;
+                hello["session_credential"] = Session.Credential;
+                hello["session_peer_id"] = Session.PeerId;
+            }
             WriteFrame(XaceJson.Serialize(hello));
             stats.framesSent++;
         }
@@ -379,6 +398,42 @@ namespace Xace.Adapter.Unity
 
         private void DispatchInbound(XaceRuntimeMessage message)
         {
+            if (Session.Enabled)
+            {
+                try
+                {
+                    if (message.MessageType == "input_tick_request")
+                    {
+                        var tick = XaceCanonical.Integer(XaceCanonical.Get(message.Data,"tick"),0);
+                        if (handshakeComplete && Session.Request(tick)) OnSessionInputTick?.Invoke((ulong)tick);
+                        return;
+                    }
+                    if ((message.MessageType == "handshake_ack" && message.GetBool("accepted",false)) || message.MessageType == "tick_snapshot" || message.MessageType == "session_baseline")
+                    {
+                        string result = Session.Verify(message.Data);
+                        if(result == "drop")return;
+                        if(result == "recover")
+                        {
+                            SendDictionaryImmediately(new Dictionary<string,object>{{"msg_type","resync_request"},{"connection_generation",Session.Generation}});
+                            return;
+                        }
+                        if(message.MessageType == "session_baseline")
+                        {
+                            message.Data["tick"]=Session.NextTick;
+                            DispatchAdapterSideEffectRollback(new XaceAdapterSideEffectRollback { restore_tick=(ulong)Session.NextTick, restored_snapshot=XaceTickSnapshot.FromMessage(message), clear_feedback_queue=true, reset_asset_bindings=true });
+                        }
+                        else DispatchVerifiedInbound(message);
+                        SendDictionaryImmediately(new Dictionary<string,object>{{"msg_type","baseline_ack"},{"stamp_json",message.Data["sync_json"]}});
+                        return;
+                    }
+                }
+                catch(Exception ex) { Fail("Live projection rejected: "+ex.Message); Disconnect("Invalid live projection"); return; }
+            }
+            DispatchVerifiedInbound(message);
+        }
+
+        private void DispatchVerifiedInbound(XaceRuntimeMessage message)
+        {
             var type = message.MessageType;
             switch (type)
             {
@@ -441,6 +496,7 @@ namespace Xace.Adapter.Unity
                 catch (Exception ex)
                 {
                     Fail("tick snapshot listener failed: " + ex.Message);
+                    if(Session.Enabled)throw;
                 }
             }
         }
@@ -460,6 +516,7 @@ namespace Xace.Adapter.Unity
                 catch (Exception ex)
                 {
                     Fail("adapter rollback listener failed: " + ex.Message);
+                    if(Session.Enabled)throw;
                 }
             }
         }

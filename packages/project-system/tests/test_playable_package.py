@@ -100,7 +100,7 @@ class PlayablePackageTests(unittest.TestCase):
         with patch.object(pp,"MAX_TOTAL_BYTES",1),self.assertRaises(pp.PackageError):pp.read_archive(self.blob)
 
     def test_install_relocation_and_interruption_preserve_previous_activation(self):
-        with tempfile.TemporaryDirectory(dir=ROOT/"tmp") as tmp:
+        with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);destination,manifest=pp.install_archive(self.blob,root,self.support)
             self.assertEqual(pp.verify_files(pp.read_installed(destination),self.support),manifest)
             before=(root/"active.json").read_bytes()
@@ -118,7 +118,7 @@ class PlayablePackageTests(unittest.TestCase):
     def test_import_never_executes_payload(self):
         with patch("subprocess.Popen",side_effect=AssertionError("payload executed")):
             pp.verify_archive(self.blob,self.support)
-            with tempfile.TemporaryDirectory(dir=ROOT/"tmp") as tmp:pp.install_archive(self.blob,tmp,self.support)
+            with tempfile.TemporaryDirectory() as tmp:pp.install_archive(self.blob,tmp,self.support)
 
     def test_legacy_reference_package_uses_same_generic_verifier(self):
         cgs=fixture();plan=(ROOT/"examples/reference-mechanic/fixtures/execution_plan.json").read_bytes()

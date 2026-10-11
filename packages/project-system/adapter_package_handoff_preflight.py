@@ -58,18 +58,23 @@ CHECK_ORDER = (
 
 TARGET_REQUIRED_FILES: dict[str, tuple[str, ...]] = {
     "godot": (
+        "xace_canonical_entities.gd",
+        "xace_native_contract.gd",
         "xace_protocol.gd",
         "xace_transport.gd",
         "xace_delta_applicator.gd",
         "xace_input_collector.gd",
     ),
     "unity": (
+        "XaceNativeContract.cs",
         "XACE.Adapter.Unity.asmdef",
         "XaceTransport.cs",
         "XaceDeltaApplicator.cs",
         "XaceInputCollector.cs",
     ),
     "unreal": (
+        "XaceNativeContract.h",
+        "XaceNativeContract.cpp",
         "XaceTransport.h",
         "XaceTransport.cpp",
         "XaceDeltaApplicator.h",

@@ -16,6 +16,9 @@ class UXaceEntityMarkerComponent : public UActorComponent
 public:
 	UPROPERTY(BlueprintReadOnly, Category="XACE|Entity") int64 EntityId = 0;
 	UPROPERTY(BlueprintReadOnly, Category="XACE|Entity") FString ActorId;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|World") FString CanonicalObjectId;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|World") FString WorldSemanticsJson;
+	UPROPERTY(BlueprintReadOnly, Category="XACE|World") TMap<FString,FString> WorldObjects;
 	UPROPERTY(BlueprintReadOnly, Category="XACE|Entity") int32 ControllerId = 0;
 	UPROPERTY(BlueprintReadOnly, Category="XACE|Playback") TArray<FXacePlaybackCommand> RecentPlaybackCommands;
 
@@ -100,6 +103,7 @@ private:
 	void DestroyEntity(int64 EntityId);
 	AActor* SpawnActorForEntity(const FXaceEntityState& State);
 	void ApplyComponents(AActor* Actor, UXaceEntityMarkerComponent* Marker, const TMap<int32, FString>& Components);
+	void ApplyCanonical(AActor* Actor, const TMap<int32,FString>& Components);
 	void CollectFeedback();
 	void FlushFeedback();
 	void EnqueueFeedback(const FString& FeedbackType, int64 EntityId, const TSharedRef<FJsonObject>& Payload);

@@ -30,6 +30,7 @@ void UXaceInputCollectorComponent::TickComponent(float DeltaTime, ELevelTick Tic
 	}
 
 	SampleFrame();
+	if(Transport->Session.Enabled())return;
 	FramesAccumulated++;
 	TickAccumulator += DeltaTime;
 	while (TickAccumulator >= TickInterval)
@@ -61,6 +62,7 @@ void UXaceInputCollectorComponent::OnRuntimeTickSnapshot(const FXaceTickSnapshot
 
 void UXaceInputCollectorComponent::OnRuntimeHandshake(const FXaceHandshakeAck& Ack)
 {
+	LivePrevious.Reset();
 	if (Ack.TickRate > 0)
 	{
 		TickInterval = 1.0f / float(Ack.TickRate);
@@ -90,6 +92,7 @@ void UXaceInputCollectorComponent::SampleFrame()
 
 void UXaceInputCollectorComponent::FlushTick()
 {
+	if(Transport!=nullptr && Transport->Session.Enabled())return;
 	if (Transport == nullptr)
 	{
 		ResetAccumulated();
@@ -127,6 +130,21 @@ void UXaceInputCollectorComponent::FlushTick()
 		OnInputPacketBuilt.Broadcast(Packet);
 	}
 	ResetAccumulated();
+}
+
+void UXaceInputCollectorComponent::OnSessionInputTick(int64 Tick)
+{
+	FXaceInputPacket Packet;Packet.Tick=Tick;Packet.PeerId=Transport->Session.PeerId;Packet.PlayerId=Transport->Session.PlayerId;Packet.SequenceId=Transport->NextSequenceId();Packet.DeviceId=TEXT("unreal");Packet.bPredicted=false;
+	APlayerController* Controller=GetWorld()!=nullptr ? GetWorld()->GetFirstPlayerController() : nullptr;
+	for(const auto& Binding:LiveBindings)
+	{
+		if(Binding.Action.IsEmpty() || (Binding.Kind!=TEXT("axis_1d") && Binding.Kind!=TEXT("button")))return;
+		FXaceInputAction Action;Action.Action=Binding.Action;Action.Kind=Binding.Kind;
+		Action.Value=Controller!=nullptr && Controller->IsLocalController() ? (SafeKey(Controller,Binding.Positive)?1.0f:0.0f)-(SafeKey(Controller,Binding.Negative)?1.0f:0.0f) : 0.0f;
+		Action.Phase=Action.Value==0 ? TEXT("cancelled") : Binding.Kind==TEXT("button") ? (LivePrevious.FindRef(Binding.Action)==0 ? TEXT("started") : TEXT("performed")) : TEXT("changed");Packet.Actions.Add(Action);
+	}
+	Packet.Actions.Sort([](const FXaceInputAction& A,const FXaceInputAction& B){return A.Action<B.Action;});
+	if(Transport->SendInputPacket(Packet)){for(const auto& Action:Packet.Actions)LivePrevious.Add(Action.Action,Action.Value);OnInputPacketBuilt.Broadcast(Packet);}
 }
 
 void UXaceInputCollectorComponent::ResetAccumulated()
@@ -200,6 +218,7 @@ void UXaceInputCollectorComponent::SubscribeTransport()
 	}
 	Transport->OnTickSnapshot.AddDynamic(this, &UXaceInputCollectorComponent::OnRuntimeTickSnapshot);
 	Transport->OnHandshakeAccepted.AddDynamic(this, &UXaceInputCollectorComponent::OnRuntimeHandshake);
+	Transport->OnSessionInputTick.AddUObject(this, &UXaceInputCollectorComponent::OnSessionInputTick);
 	bTransportSubscribed = true;
 }
 
@@ -211,5 +230,6 @@ void UXaceInputCollectorComponent::UnsubscribeTransport()
 	}
 	Transport->OnTickSnapshot.RemoveDynamic(this, &UXaceInputCollectorComponent::OnRuntimeTickSnapshot);
 	Transport->OnHandshakeAccepted.RemoveDynamic(this, &UXaceInputCollectorComponent::OnRuntimeHandshake);
+	Transport->OnSessionInputTick.RemoveAll(this);
 	bTransportSubscribed = false;
 }

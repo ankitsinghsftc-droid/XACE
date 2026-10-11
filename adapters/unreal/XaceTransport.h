@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "Containers/Queue.h"
 #include "Dom/JsonObject.h"
+#include "XaceNativeContract.h"
 #include "XaceTransport.generated.h"
 
 USTRUCT(BlueprintType)
@@ -139,6 +140,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceAdapterSideEffectRollbackReceiv
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FXaceProtocolError, const FString&, Message);
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FXaceJsonMessageReceived, const TSharedPtr<FJsonObject>&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FXaceSessionInputTick, int64);
 
 UCLASS(ClassGroup=(XACE), meta=(BlueprintSpawnableComponent))
 class UXaceTransportComponent : public UActorComponent
@@ -156,6 +158,9 @@ public:
 	UPROPERTY(BlueprintAssignable) FXaceProtocolError OnProtocolError;
 
 	FXaceJsonMessageReceived OnJsonMessage;
+	FXaceSessionInputTick OnSessionInputTick;
+	FXaceNativeSession Session;
+	UFUNCTION(BlueprintCallable, Category="XACE|Session") bool ConfigureLiveSession(const FString& TicketJson, const FString& WorldJson);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Connection") FString Host = TEXT("127.0.0.1");
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Connection") int32 Port = 7777;

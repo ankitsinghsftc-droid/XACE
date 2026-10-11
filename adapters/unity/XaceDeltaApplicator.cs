@@ -225,6 +225,27 @@ namespace Xace.Adapter.Unity
                     seen.Add(entity.id);
                     UpsertEntity(entity);
                 }
+
+                if (transport != null && transport.Session.Enabled)
+                {
+                    foreach(var entity in entities)
+                    {
+                        var go=GetEntity(entity.id);
+                        if(go==null || !entity.components.TryGetValue(TransformComponent,out var raw))continue;
+                        long parent=XaceCanonical.Integer(XaceCanonical.Get(XaceCanonical.Parse(raw),"parent_entity_id"),0);
+                        go.transform.SetParent(parent==0 ? sceneRoot : GetEntity((ulong)parent).transform,false);
+                    }
+                    foreach(var go in entityMap.Values){var binding=go.GetComponent<XaceCanonicalObject>();if(binding!=null)binding.WorldObjects.Clear();}
+                    foreach(var value in (List<object>)XaceCanonical.Get(transport.Session.World.Data,"objects"))
+                    {
+                        var obj=XaceCanonical.Object(value); string key=XaceCanonical.Text(obj,"id");
+                        var go=GetEntity((ulong)transport.Session.World.Bindings[key]);
+                        if(go==null)continue;
+                        var binding=go.GetComponent<XaceCanonicalObject>() ?? go.AddComponent<XaceCanonicalObject>();
+                        binding.WorldObjects[key]=obj;
+                        if(binding.WorldObjects.Count==1){binding.ObjectId=key; binding.Semantics=obj;}
+                    }
+                }
             }
 
             if (removeMissing)
@@ -612,7 +633,7 @@ namespace Xace.Adapter.Unity
                 go = Instantiate(prefab, sceneRoot);
             else if (fallbackPrefab != null)
                 go = Instantiate(fallbackPrefab, sceneRoot);
-            else if (createDebugCapsules)
+            else if (createDebugCapsules && (transport == null || !transport.Session.Enabled))
                 go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
             else
                 go = new GameObject();
@@ -628,12 +649,23 @@ namespace Xace.Adapter.Unity
             if (!entityMap.TryGetValue(entityId, out var go))
                 return;
             if (go != null)
+            {
+                if (transport != null && transport.Session.Enabled)
+                    foreach (var child in entityMap.Values)
+                        if (child != null && child != go && child.transform.parent == go.transform)
+                            child.transform.SetParent(transform, false);
                 Destroy(go);
+            }
             entityMap.Remove(entityId);
         }
 
         private void ApplyComponents(GameObject go, XaceEntityMarker marker, SortedDictionary<uint, string> components)
         {
+            if (transport != null && transport.Session.Enabled)
+            {
+                ApplyCanonical(go,components);
+                return;
+            }
             if (components == null)
                 return;
 
@@ -689,6 +721,35 @@ namespace Xace.Adapter.Unity
                     GetNumber(data, "scale_x", transform.localScale.x),
                     GetNumber(data, "scale_y", transform.localScale.y),
                     GetNumber(data, "scale_z", transform.localScale.z));
+        }
+
+        private static void ApplyCanonical(GameObject go, SortedDictionary<uint,string> components)
+        {
+            foreach(var collider in go.GetComponentsInChildren<Collider>(true))collider.enabled=false;
+            foreach(var body in go.GetComponentsInChildren<Rigidbody>(true))body.isKinematic=true;
+            if(components.TryGetValue(TransformComponent,out var raw))
+            {
+                var data=XaceCanonical.Parse(raw);
+                go.transform.localPosition=XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(data,"position")));
+                go.transform.localScale=XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(data,"scale")),true);
+                go.transform.localRotation=XaceCanonical.Rotation(XaceCanonical.Object(XaceCanonical.Get(data,"rotation")));
+            }
+            var visual=go.transform.Find("CanonicalVisual");
+            if(visual==null)
+            {
+                var cube=GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.name="CanonicalVisual";cube.transform.SetParent(go.transform,false);
+                cube.GetComponent<Collider>().enabled=false;visual=cube.transform;
+            }
+            visual.gameObject.SetActive(false);
+            if(components.TryGetValue(4,out var colliderJson))
+            {
+                var collider=XaceCanonical.Parse(colliderJson);
+                if(XaceCanonical.Text(collider,"shape")!="BOX")return;
+                visual.localScale=XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(collider,"size")),true);
+                visual.localPosition=XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(collider,"offset")));
+                visual.gameObject.SetActive(!(bool)XaceCanonical.Get(collider,"is_trigger"));
+            }
         }
 
         private void EnsureSceneRoot()

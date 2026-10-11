@@ -47,6 +47,7 @@ EXPECTED_CGS_HASH = "a5856b8c95068a27ce47885c32c7d3e2729c4ff988a47f2dee840bfd13f
 EXPECTED_FIXTURE_VERSION = "0.1.0"
 REQUIRED_FEATURES = tuple(canonical_vertical_slice_check.REQUIRED_FEATURES)
 RUNTIME_SCRIPT_NAMES = (
+    "XaceNativeContract.cs",
     "XaceTransport.cs",
     "XaceInputCollector.cs",
     "XaceDeltaApplicator.cs",

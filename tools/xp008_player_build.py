@@ -41,7 +41,7 @@ def prepare_player(package_root,support,out):
         if source.is_file() and source.suffix in {".gd",".tscn",".godot"}:
             shutil.copy2(source,out/source.name)
     (out/"adapter").mkdir(exist_ok=True)
-    for name in ("xace_adapter.gd","xace_entity_manager.gd","xace_transport.gd","xace_protocol.gd"):
+    for name in ("xace_adapter.gd","xace_entity_manager.gd","xace_transport.gd","xace_protocol.gd","xace_canonical_entities.gd","xace_native_contract.gd"):
         source=ROOT/"adapters/godot"/name
         shutil.copy2(source,out/"adapter"/name)
     for name,payload in files.items():

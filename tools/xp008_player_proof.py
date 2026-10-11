@@ -27,6 +27,12 @@ def stage(out):
 
 PROOF_SCRIPT = r'''extends "res://player.gd"
 var failure_state: Dictionary = {}
+func _on_tick(tick: int) -> void:
+    if active:
+        if not report.has("projection_digests"):
+            report["projection_digests"] = []
+        report.projection_digests.append(str(transport.native_contract.stamp.projection_digest))
+    super._on_tick(tick)
 func _send_input(tick: int) -> void:
     var scenario: String = str(options.get("--scenario","normal"))
     if scenario == "runtime_loss" and tick == 6:
@@ -49,7 +55,13 @@ func _send_input(tick: int) -> void:
 func _fail(message: String) -> void:
     if entities != null and controlled > 0:
         failure_state = entities.component_snapshot(controlled)
+    # Production report mode quits synchronously. Keep only this proof alive
+    # long enough to assert that authoritative state stays frozen afterwards.
+    var report_path: Variant = options.get("--report")
+    options.erase("--report")
     super._fail(message)
+    if report_path != null:
+        options["--report"] = report_path
     await get_tree().create_timer(0.15).timeout
     report["frozen_after_failure"] = entities == null or controlled == 0 or failure_state == entities.component_snapshot(controlled)
     _write_report()
@@ -107,8 +119,10 @@ def run(out,godot,template):
         if scenario=="focus":
             assert all(action["value"]==0 for row in data["inputs"] if row["tick"] in [2,3] for action in row["actions"])
         outcomes[name]={"exit_code":proc.returncode,"ticks":len(data["ticks"]),"errors":data["errors"],"owned_process_stopped":True,"unowned_process_retained":True}
-    a=json.loads((out/"normal-30-schedule.json").read_text());b=json.loads((out/"normal-144-schedule.json").read_text())
-    assert a["hash_log"]==b["hash_log"]
+    # A live authority is deliberately still running until Player closes it;
+    # its exit-only schedule file is not a reliable live-session proof source.
+    a=json.loads((out/"normal-30.json").read_text());b=json.loads((out/"normal-144.json").read_text())
+    assert len(a["projection_digests"])==30 and a["projection_digests"]==b["projection_digests"]
     assert json.loads((out/"normal-30.json").read_text())["inputs"]==json.loads((out/"normal-144.json").read_text())["inputs"]
     with tempfile.TemporaryDirectory(prefix="tamper-",dir=out) as tmp:
         damaged=Path(tmp)/"package";shutil.copytree(dist/"package",damaged)
@@ -121,7 +135,7 @@ def run(out,godot,template):
     subprocess.run([str(dist/"xace-player.exe"),"--headless","--","--proof-ticks=4","--report="+str(direct_report)],cwd=out,env=env,timeout=15,check=True)
     direct=json.loads(direct_report.read_text());assert direct["errors"]==[] and len(direct["ticks"])==4
     assert not process_alive(direct["owned_runtime_pid"])
-    result={"schema":"xace.xp008.player_proof.v1","ok":True,"world_contract_version":3,"render_fps_hashes_equal":True,"recorded_inputs_equal":True,"tick_count":30,"hash_log":a["hash_log"],"scenarios":outcomes,"direct_launch_without_package_argument":True,"tampered_world_rejected_before_launch":True,"input_method":"Godot InputEventKey through Input.parse_input_event and the production physical-key collector; automated, not manual user play","scope":"exported Windows Player plus native host, same machine; no remote session or clean-machine certification"}
+    result={"schema":"xace.xp008.player_proof.v1","ok":True,"world_contract_version":3,"render_fps_projection_digests_equal":True,"recorded_inputs_equal":True,"tick_count":30,"projection_digests":a["projection_digests"],"scenarios":outcomes,"direct_launch_without_package_argument":True,"tampered_world_rejected_before_launch":True,"input_method":"Godot InputEventKey through Input.parse_input_event and the production physical-key collector; automated, not manual user play","scope":"exported Windows Player plus native host, same machine; verified full projection digests, not a world-hash replay or clean-machine certification"}
     (out/"proof.json").write_text(json.dumps(result,indent=2),encoding="utf8")
     return result
 

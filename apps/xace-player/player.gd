@@ -117,9 +117,9 @@ func _ready() -> void:
 	transport.port = port
 	transport.host = str(options.get("--session-host","127.0.0.1"))
 	transport.cgs_hash = str(manifest.gameplay.cgs_hash)
-	transport.session_offer_json = str(session_ticket.get("offer_json",""))
-	transport.session_credential = str(session_ticket.get("credential",""))
-	transport.session_peer_id = int(session_ticket.get("peer_id",0))
+	if not transport.configure_live_session(session_ticket, FileAccess.get_file_as_string(package_root.path_join("world.json"))):
+		_fail("Game world/session contract is unsupported or differs from the admitted package.")
+		return
 	transport.reconnect_enabled = true
 	transport.reconnect_delay_sec = 0.15
 	add_child(transport)

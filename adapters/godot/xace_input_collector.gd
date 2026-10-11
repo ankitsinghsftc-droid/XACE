@@ -4,6 +4,24 @@ class_name XaceInputCollector
 signal actions_collected(tick: int, actions: Array)
 
 @export var enabled := true
+@export var live_bindings: Array[Dictionary] = []
+var live_previous: Dictionary = {}
+
+func collect_live_actions(_tick: int) -> Array:
+	var actions: Array = []
+	for binding in live_bindings:
+		var value := 0.0
+		if enabled and DisplayServer.window_is_focused():
+			value = float(Input.is_physical_key_pressed(int(binding.get("positive",0)))) - float(Input.is_physical_key_pressed(int(binding.get("negative",0))))
+		var kind := str(binding.get("kind", "axis_1d"))
+		var name := str(binding.action)
+		var phase := "cancelled" if value == 0 else "changed"
+		if kind == "button" and value != 0:
+			phase = "started" if float(live_previous.get(name, 0)) == 0 else "performed"
+		actions.append({"action":name,"kind":kind,"value":value,"secondary_value":0.0,"phase":phase})
+		live_previous[name] = value
+	actions.sort_custom(func(a,b): return str(a.action) < str(b.action))
+	return actions
 @export var emit_idle_movement := false
 @export var include_pointer := true
 @export var action_profile_id := "default_player"

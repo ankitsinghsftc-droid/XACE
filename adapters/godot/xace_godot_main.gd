@@ -40,10 +40,21 @@ func _build_xace_nodes() -> void:
 	transport.host = str(config.get("host", default_host))
 	transport.port = int(config.get("port", default_port))
 	transport.cgs_hash = str(config.get("cgs_hash", default_cgs_hash))
+	if config.has("ticket"):
+		var ticket: Variant = JSON.parse_string(FileAccess.get_file_as_string(str(config.ticket)))
+		if not ticket is Dictionary or not transport.configure_live_session(ticket, FileAccess.get_file_as_string(str(config.get("world", "")))):
+			push_error("Invalid native world/session configuration")
+			get_tree().quit(1)
+			return
+		_entity_manager_script = load(_script_base_dir().path_join("xace_canonical_entities.gd"))
+		transport.reconnect_enabled = true
 	add_child(transport)
 
 	var entity_manager: Node = _entity_manager_script.new()
 	entity_manager.name = "XaceEntityManager"
+	if transport.native_contract != null:
+		entity_manager.create_visual_nodes = false
+		entity_manager.interpolate_transforms = false
 	add_child(entity_manager)
 	_entity_manager = entity_manager
 
@@ -51,6 +62,12 @@ func _build_xace_nodes() -> void:
 	input_collector.name = "XaceInputCollector"
 	input_collector.movement_action = ""
 	input_collector.emit_idle_movement = true
+	if config.has("bindings"):
+		var controls: Variant = JSON.parse_string(FileAccess.get_file_as_string(str(config.bindings)))
+		if not controls is Dictionary or controls.get("schema") != "xace.player.controls.v1" or not controls.get("bindings") is Array:
+			get_tree().quit(1)
+			return
+		input_collector.live_bindings.assign(controls.bindings)
 	add_child(input_collector)
 
 	var delta_applicator: Node = _delta_applicator_script.new()
@@ -78,6 +95,16 @@ func _build_xace_nodes() -> void:
 
 
 func _build_world() -> void:
+	if _runtime_config_from_args().has("ticket"):
+		var camera := Camera3D.new()
+		camera.position = camera_follow_offset
+		camera.current = true
+		add_child(camera)
+		_camera = camera
+		var light := DirectionalLight3D.new()
+		light.rotation_degrees = Vector3(-48,-30,0)
+		add_child(light)
+		return
 	var floor := MeshInstance3D.new()
 	floor.name = "HorrorFloor"
 	var plane := PlaneMesh.new()
@@ -110,14 +137,18 @@ func _update_camera_follow(delta: float) -> void:
 		return
 	if not _entity_manager.has_method("get_entity_node"):
 		return
+	var live: bool = _adapter != null and _adapter.transport.native_contract != null
+	if live:
+		camera_target_entity_id = int(_adapter.transport.native_contract.player_id)
 	var target_node_value: Variant = _entity_manager.call("get_entity_node", camera_target_entity_id)
 	if target_node_value == null or not (target_node_value is Node3D):
 		return
 	var target_node: Node3D = target_node_value as Node3D
 	var target_position: Vector3 = target_node.global_position
 	var desired: Vector3 = target_position + camera_follow_offset
-	desired.x = clampf(desired.x, camera_bounds_min.x + camera_follow_offset.x, camera_bounds_max.x + camera_follow_offset.x)
-	desired.z = clampf(desired.z, camera_bounds_min.y + camera_follow_offset.z, camera_bounds_max.y + camera_follow_offset.z)
+	if not live:
+		desired.x = clampf(desired.x, camera_bounds_min.x + camera_follow_offset.x, camera_bounds_max.x + camera_follow_offset.x)
+		desired.z = clampf(desired.z, camera_bounds_min.y + camera_follow_offset.z, camera_bounds_max.y + camera_follow_offset.z)
 	var alpha: float = clampf(delta * camera_follow_lerp_speed, 0.0, 1.0)
 	_camera.global_position = _camera.global_position.lerp(desired, alpha)
 	_camera.look_at(target_position, Vector3.UP)
@@ -194,6 +225,12 @@ func _runtime_config_from_args() -> Dictionary:
 			config["port"] = int(arg.substr("--xace-port=".length()))
 		elif arg.begins_with("--xace-cgs-hash="):
 			config["cgs_hash"] = arg.substr("--xace-cgs-hash=".length())
+		elif arg.begins_with("--xace-session-ticket="):
+			config["ticket"] = arg.substr("--xace-session-ticket=".length())
+		elif arg.begins_with("--xace-world="):
+			config["world"] = arg.substr("--xace-world=".length())
+		elif arg.begins_with("--xace-bindings="):
+			config["bindings"] = arg.substr("--xace-bindings=".length())
 	return config
 
 

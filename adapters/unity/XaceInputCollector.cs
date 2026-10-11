@@ -6,9 +6,8 @@
 //   { msg_type, peer_id, tick, player_id, sequence_id, actions, timestamp_ms,
 //     device_id, predicted }
 //
-// Input is sampled every Unity frame and flushed once per XACE tick. The tick
-// stamp is derived from the latest runtime snapshot plus one, preserving the
-// "no untimed input" replay invariant.
+// Live sessions sample generic bindings only for an authority input request.
+// The legacy standalone transport retains its frame accumulator.
 
 using System;
 using System.Collections.Generic;
@@ -16,12 +15,22 @@ using UnityEngine;
 
 namespace Xace.Adapter.Unity
 {
+    [Serializable]
+    public sealed class XaceLiveInputBinding
+    {
+        public string action;
+        public string kind = "axis_1d";
+        public KeyCode positive;
+        public KeyCode negative;
+    }
     [RequireComponent(typeof(XaceTransport))]
     public sealed class XaceInputCollector : MonoBehaviour
     {
         [Header("Identity")]
         [SerializeField] private ulong peerId = 1;
         [SerializeField] private ulong playerId = 1;
+        public XaceLiveInputBinding[] liveBindings = new XaceLiveInputBinding[0];
+        private readonly Dictionary<string,float> livePrevious = new Dictionary<string,float>(StringComparer.Ordinal);
         [SerializeField] private string deviceId = "unity";
 
         [Header("Ticking")]
@@ -64,6 +73,7 @@ namespace Xace.Adapter.Unity
             {
                 transport.OnTickSnapshot += OnTickSnapshot;
                 transport.OnHandshakeAccepted += OnHandshakeAccepted;
+                transport.OnSessionInputTick += OnSessionInputTick;
             }
         }
 
@@ -73,6 +83,7 @@ namespace Xace.Adapter.Unity
             {
                 transport.OnTickSnapshot -= OnTickSnapshot;
                 transport.OnHandshakeAccepted -= OnHandshakeAccepted;
+                transport.OnSessionInputTick -= OnSessionInputTick;
             }
         }
 
@@ -80,6 +91,7 @@ namespace Xace.Adapter.Unity
         {
             if (!EnsureTransport() || !transport.IsConnected)
                 return;
+            if (transport.Session.Enabled) return;
 
             SampleFrame();
             framesAccumulated++;
@@ -96,14 +108,38 @@ namespace Xace.Adapter.Unity
         {
             if (!EnsureTransport())
                 return;
+            if (transport.Session.Enabled) return;
             FlushTick();
         }
 
         private void OnHandshakeAccepted(XaceHandshakeAck ack)
         {
+            livePrevious.Clear();
             if (ack.tick_rate > 0)
                 tickInterval = 1f / ack.tick_rate;
         }
+
+        private void OnSessionInputTick(ulong tick)
+        {
+            var actions=new List<XaceInputAction>();
+            foreach(var binding in liveBindings)
+            {
+                if(string.IsNullOrEmpty(binding.action) || (binding.kind!="axis_1d" && binding.kind!="button")) throw new FormatException("Invalid live input binding");
+                float value=Application.isFocused ? (SafeKey(binding.positive)?1:0)-(SafeKey(binding.negative)?1:0) : 0;
+                livePrevious.TryGetValue(binding.action,out var previous);
+                actions.Add(new XaceInputAction{action=binding.action,kind=binding.kind,value=value,phase=value==0?"cancelled":binding.kind=="button"?(previous==0?"started":"performed"):"changed"});
+            }
+            actions.Sort((a,b)=>string.CompareOrdinal(a.action,b.action));
+            var packet=new XaceInputPacket{tick=tick,peer_id=(ulong)transport.Session.PeerId,player_id=(ulong)transport.Session.PlayerId,
+                sequence_id=transport.NextSequenceId(),actions=actions.ToArray(),device_id="unity",predicted=false};
+            if(transport.SendInputPacket(packet))
+            {
+                foreach(var action in actions)livePrevious[action.action]=action.value;
+                OnInputPacketBuilt?.Invoke(packet);
+            }
+        }
+
+        private static bool SafeKey(KeyCode key) => key!=KeyCode.None && Input.GetKey(key);
 
         private void OnTickSnapshot(XaceTickSnapshot snapshot)
         {

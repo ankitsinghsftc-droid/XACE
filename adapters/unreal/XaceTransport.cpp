@@ -183,6 +183,7 @@ bool UXaceTransportComponent::ConnectToRuntime()
 
 void UXaceTransportComponent::DisconnectFromRuntime(const FString& Reason)
 {
+	Session.Fence();
 	CloseSocket();
 	if (!Reason.IsEmpty())
 	{
@@ -193,16 +194,21 @@ void UXaceTransportComponent::DisconnectFromRuntime(const FString& Reason)
 
 bool UXaceTransportComponent::SendInputPacket(const FXaceInputPacket& Packet)
 {
+	if (Session.Enabled() && (!bHandshakeComplete || !Session.CanSend(Packet.Tick,Packet.PeerId,Packet.PlayerId))) return false;
 	FXaceInputPacket Copy = Packet;
 	if (Copy.SequenceId == 0)
 	{
 		Copy.SequenceId = NextSequenceId();
 	}
-	return SendJsonObject(Copy.ToJson());
+	const bool Sent=SendJsonObject(Copy.ToJson());
+	if(Sent && Session.Enabled())Session.Sent();
+	return Sent;
 }
 
 bool UXaceTransportComponent::SendJsonObject(const TSharedRef<FJsonObject>& Message)
 {
+	if(Session.Enabled() && !IsConnected())return false;
+	if(Session.Enabled() && JsonString(Message,TEXT("msg_type"))==TEXT("feedback_payload"))return false;
 	const FString Json = JsonToString(Message);
 	if (Json.IsEmpty())
 	{
@@ -215,6 +221,7 @@ bool UXaceTransportComponent::SendJsonObject(const TSharedRef<FJsonObject>& Mess
 
 bool UXaceTransportComponent::SendFeedbackPayload(int64 Tick, const TArray<TSharedPtr<FJsonObject>>& Messages)
 {
+	if (Session.Enabled()) return false;
 	TSharedRef<FJsonObject> Batch = MakeShared<FJsonObject>();
 	Batch->SetStringField(TEXT("msg_type"), TEXT("feedback_payload"));
 	Batch->SetNumberField(TEXT("tick"), Tick);
@@ -302,6 +309,12 @@ void UXaceTransportComponent::SendHandshake()
 		}
 	}
 	Hello->SetArrayField(TEXT("capabilities"), CapabilityValues);
+	if(Session.Enabled())
+	{
+		Hello->SetStringField(TEXT("session_offer_json"),Session.OfferJson);
+		Hello->SetStringField(TEXT("session_credential"),Session.Credential);
+		Hello->SetNumberField(TEXT("session_peer_id"),Session.PeerId);
+	}
 	WriteFrame(JsonToString(Hello));
 	Stats.FramesSent++;
 }
@@ -315,6 +328,32 @@ void UXaceTransportComponent::DispatchMessage(const TSharedPtr<FJsonObject>& Mes
 	}
 
 	const FString MsgType = JsonString(Message, TEXT("msg_type"));
+	if(Session.Enabled())
+	{
+		if(MsgType==TEXT("input_tick_request"))
+		{
+			int64 Tick;
+			if(bHandshakeComplete && XaceCanonical::Integer(Message,TEXT("tick"),Tick) && Session.Request(Tick))OnSessionInputTick.Broadcast(Tick);
+			return;
+		}
+		if((MsgType==TEXT("handshake_ack") && Message->GetBoolField(TEXT("accepted"))) || MsgType==TEXT("tick_snapshot") || MsgType==TEXT("session_baseline"))
+		{
+			const FString Result=Session.Verify(Message);
+			if(Result==TEXT("drop"))return;
+			if(Result==TEXT("reject")){Fail(Session.Error);DisconnectFromRuntime(TEXT("Invalid live projection"));return;}
+			if(Result==TEXT("recover"))
+			{
+				auto Request=MakeShared<FJsonObject>();Request->SetStringField(TEXT("msg_type"),TEXT("resync_request"));Request->SetNumberField(TEXT("connection_generation"),Session.Generation);SendJsonObject(Request);return;
+			}
+			if(MsgType==TEXT("session_baseline"))
+			{
+				Message->SetNumberField(TEXT("tick"),Session.NextTick);
+				FXaceAdapterSideEffectRollback Restore;Restore.RestoreTick=Session.NextTick;Restore.RestoredSnapshot=ParseTickSnapshot(Message);OnAdapterSideEffectRollback.Broadcast(Restore);
+				OnJsonMessage.Broadcast(Message);
+				auto Ack=MakeShared<FJsonObject>();Ack->SetStringField(TEXT("msg_type"),TEXT("baseline_ack"));Ack->SetStringField(TEXT("stamp_json"),JsonString(Message,TEXT("sync_json")));SendJsonObject(Ack);return;
+			}
+		}
+	}
 	if (MsgType == TEXT("handshake_ack"))
 	{
 		DispatchHandshakeAck(Message);
@@ -344,6 +383,16 @@ void UXaceTransportComponent::DispatchMessage(const TSharedPtr<FJsonObject>& Mes
 	{
 		OnJsonMessage.Broadcast(Message);
 	}
+	if(Session.Enabled() && Message->HasField(TEXT("sync_json")))
+	{
+		auto Ack=MakeShared<FJsonObject>();Ack->SetStringField(TEXT("msg_type"),TEXT("baseline_ack"));Ack->SetStringField(TEXT("stamp_json"),JsonString(Message,TEXT("sync_json")));SendJsonObject(Ack);
+	}
+}
+
+bool UXaceTransportComponent::ConfigureLiveSession(const FString& TicketJson,const FString& WorldJson)
+{
+	if(bConnected)return false;
+	return Session.Configure(TicketJson,WorldJson);
 }
 
 void UXaceTransportComponent::DispatchHandshakeAck(const TSharedPtr<FJsonObject>& Message)

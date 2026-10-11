@@ -39,6 +39,8 @@ var _transport_script: Script
 func _ready() -> void:
 	_load_adapter_scripts()
 	transport = _resolve_or_create_transport()
+	if transport.native_contract != null:
+		_entity_manager_script = load(_script_base_dir().path_join("xace_canonical_entities.gd"))
 	entity_manager = _resolve_or_create_entity_manager()
 	input_collector = _resolve_optional(input_collector_path)
 	delta_applicator = _resolve_optional(delta_applicator_path)
@@ -53,6 +55,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if transport == null or not transport.is_handshake_complete():
+		return
+	if not str(transport.session_offer_json).is_empty():
 		return
 	_send_collected_input()
 
@@ -169,6 +173,12 @@ func _on_handshake_accepted(ack: Dictionary) -> void:
 	_runtime_cgs_hash = str(ack.get("cgs_hash", ""))
 	if entity_manager != null:
 		entity_manager.apply_handshake_ack(ack)
+	if transport.native_contract != null:
+		peer_id = int(transport.native_contract.peer_id)
+		player_id = int(transport.native_contract.player_id)
+		if input_collector != null:
+			input_collector.live_previous.clear()
+		_apply_canonical_hierarchy()
 
 
 func _on_message_received(message: Dictionary) -> void:
@@ -176,13 +186,18 @@ func _on_message_received(message: Dictionary) -> void:
 		if entity_manager != null:
 			entity_manager.rollback_side_effects({"restore_tick":int(message.sync.next_tick), "restored_snapshot":{"tick":int(message.sync.next_tick), "entities":message.entities}})
 		_last_runtime_tick = int(message.sync.next_tick) - 1
+		_apply_canonical_hierarchy()
 		return
 	if str(message.get("msg_type", "")) == "input_tick_request":
+		if transport.native_contract != null and input_collector != null:
+			var actions: Array = input_collector.collect_live_actions(int(message.tick))
+			send_input_actions(actions, int(message.tick), false)
 		return
 	if delta_applicator != null and delta_applicator.has_method("apply_message"):
 		delta_applicator.call("apply_message", message, entity_manager)
 	elif entity_manager != null:
 		entity_manager.apply_message(message)
+	_apply_canonical_hierarchy()
 
 	var tick: int = _extract_tick(message)
 	if tick >= 0:
@@ -198,6 +213,10 @@ func _on_protocol_error(message: String) -> void:
 
 
 func _flush_feedback() -> void:
+	if transport != null and not str(transport.session_offer_json).is_empty():
+		if delta_applicator != null and delta_applicator.has_method("drain_feedback"):
+			delta_applicator.drain_feedback()
+		return
 	if transport == null or delta_applicator == null:
 		return
 	if not transport.has_method("send_feedback_payload") or not delta_applicator.has_method("drain_feedback"):
@@ -211,6 +230,15 @@ func _flush_feedback() -> void:
 	var sent: bool = bool(transport.call("send_feedback_payload", _last_runtime_tick, feedback_value))
 	if sent:
 		_feedback_payloads_sent += 1
+
+func _apply_canonical_hierarchy() -> void:
+	if transport.native_contract == null or entity_manager == null or not entity_manager.has_method("sync_hierarchy"):
+		return
+	var issue: String = entity_manager.sync_hierarchy()
+	if not issue.is_empty():
+		transport.disconnect_from_runtime(issue)
+		return
+	entity_manager.bind_semantics(transport.native_contract)
 
 
 func _extract_tick(message: Dictionary) -> int:
