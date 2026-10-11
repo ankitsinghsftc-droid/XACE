@@ -9,7 +9,7 @@ This is a reconstructed historical plan. Current verification and outstanding re
 
 ---
 
-## XP-016: IMPLEMENTED - UNITY INSTALLED-HOST GATE PENDING - 2026-10-02
+## XP-016: IMPLEMENTED - NATIVE HOST CONTRACT GATE VERIFIED - 2026-10-02
 
 Work is isolated on branch xp-016, based on clean-main-candidate 39ed07b.
 Local main and safety/pre-clean-main-20261002 remain at d3ef383; GitHub main
@@ -18,8 +18,10 @@ Generic native world/session readers, authority-requested input and canonical
 coordinate/geometry presentation are implemented; Godot and Player share a reader.
 Installed Godot 4.6.3 and Unreal 5.7.4 pass 15 transcript cases, native geometry
 and input fencing, plus real eight-tick authority/reconnect proofs at generation 2.
-Unreal Development/Shipping builds pass. Unity 6000.4.9f1 sources compile, but
-its editor has no active license (exit 198); installed-host acceptance is pending.
+Unreal Development/Shipping builds pass. Unity Personal is now active, and the
+installed Unity 6000.4.9f1 editor passes all 15 contract cases, native geometry
+and input fencing after fixing a missing applicator in the proof scene setup.
+The license gate is closed; the retained evidence records the successful retry.
 Exported Player input/lifecycle and selected presentation regressions pass.
 The full older XP-009 missing-cosmetic standalone case fails unchanged authority
 package admission before launch; it is recorded, not silently marked passing.

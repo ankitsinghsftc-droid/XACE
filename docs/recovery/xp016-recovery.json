@@ -4,7 +4,7 @@
   "source_transcript": "2026/09/28/rollout-2026-09-28T10-35-35-01a0cc96-15ad-7002-a160-b9fd814bf872_01a0e667-76c2-7e30-96b3-0a4304fe4131.jsonl",
   "patch_range": [
     7012,
-    7830
+    7936
   ],
   "excluded_failed_calls": [
     7096,
@@ -16,5 +16,7 @@
     "Original docs/evidence/xp016-baseline.json and raw XP016 reports",
     "Final shell update at transcript line7873 to historical evidence JSON; not fabricated"
   ],
-  "note": "Fixture regenerated from recovered deterministic generator. No original seal recreated; fresh verification pending."
+  "note": "Fixture regenerated from recovered deterministic generator. No original seal recreated; fresh verification pending.",
+  "later_continuation": "Original Unity proof fix at 7926; documentation/source shell edits at7936 recovered. XP017 begins at7950.",
+  "inventory": "43 reconstructed historical paths plus missing original evidence JSON reconcile historical count44."
 }

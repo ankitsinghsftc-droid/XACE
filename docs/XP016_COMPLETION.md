@@ -3,8 +3,10 @@
 # XP-016 implementation checkpoint
 
 XP-016's native world/session implementation is present on isolated branch
-`xp-016`, based on `clean-main-candidate` at `39ed07b`. **All-host acceptance is
-pending**, because the installed Unity editor has no active license. No XP-016
+`xp-016`, based on `clean-main-candidate` at `39ed07b`. **The installed-host
+marker/transcript gate passes in Unity, Godot and Unreal.** Unity Personal is now
+active; its proof was rerun successfully after creating the required applicator
+component before dispatching the handshake. No XP-016
 changes have been pushed, and neither local nor GitHub `main` has been moved.
 
 The [architecture decision](adr/XP-016-native-world-session-readers.md) explains
@@ -36,9 +38,11 @@ World Contract v3 reader. This is not an additional gameplay mechanic.
 Godot 4.6.3 and Unreal 5.7.4 pass 15 shared transcript cases, canonical native
 geometry and input fencing. Both real authority sessions pass eight ticks,
 same-owner reconnect at generation 2 and clean authority shutdown. Unreal's
-plugin builds Development and Shipping. Unity 6000.4.9f1 sources/editor proof
-compile against installed assemblies; editor execution fails with license exit
-198, so its native assertions remain unexecuted.
+plugin builds Development and Shipping. Unity 6000.4.9f1 now executes the same
+15 cases successfully in the installed editor, including reflected coordinates,
+normal/extent interpretation, semantic aliases and input fencing. Earlier license
+exit 198 is resolved. Unity real socket/mixed-engine sessions remain XP-017; this
+result certifies the installed-host marker/transcript gate.
 
 The exported Windows Player passes 30/144-FPS input and projection equivalence,
 focus release, runtime loss/state freezing, close, direct launch, tampered-world
@@ -65,7 +69,7 @@ engine paths; use equivalent installed toolchains when relocating it.
 ```powershell
 python tools/xp016_native_proof.py --generate --engine godot --out target/xp016/final-godot
 python tools/xp016_native_proof.py --engine unity-compile --out target/xp016/final-unity
-# After license activation:
+# Installed-editor acceptance:
 python tools/xp016_native_proof.py --engine unity --out target/xp016/licensed-unity
 python tools/xp016_native_proof.py --engine unreal --out target/xp016/final-readers
 python tools/xp016_native_proof.py --live --engine unreal --out target/xp016/final-readers

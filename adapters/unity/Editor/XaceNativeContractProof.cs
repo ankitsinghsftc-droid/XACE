@@ -33,10 +33,11 @@ namespace Xace.Adapter.Unity.Editor
                 }
                 var gameObject=new GameObject("XACE Native Contract Proof");
                 var transport=gameObject.AddComponent<XaceTransport>();transport.ConfigureLiveSession(ticket,world);
+                var applicator=gameObject.AddComponent<XaceDeltaApplicator>();
+                applicator.BindTransportNow();
                 var dispatch=typeof(XaceTransport).GetMethod("DispatchInbound",BindingFlags.Instance|BindingFlags.NonPublic);
                 var baseline=XaceCanonical.Object(fixture["baseline"]);
                 dispatch.Invoke(transport,new object[]{new XaceRuntimeMessage(XaceJsonSerialize(baseline),baseline)});
-                var applicator=gameObject.GetComponent<XaceDeltaApplicator>();
                 var marker=applicator.GetEntity(42);var solid=applicator.GetEntity(77).transform.Find("CanonicalVisual");
                 var position=marker.transform.position;var normal=marker.transform.rotation*new Vector3(0,0,-1);
                 bool geometry=Vector3.Distance(position,new Vector3(6,2,-3))<0.0001f && Vector3.Distance(normal,new Vector3(1,0,0))<0.0001f && solid.localScale==new Vector3(2,4,6) && marker.GetComponent<XaceCanonicalObject>().ObjectId=="marker";

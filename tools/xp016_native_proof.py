@@ -65,7 +65,7 @@ def run(command, cwd, log, timeout=900):
     if result.returncode:raise RuntimeError(f"Host failed ({result.returncode}): {log}")
 
 def live(engine,package,out):
-    if engine not in {'godot','unreal'}:raise ValueError('Live host proof currently requires Godot or Unreal; Unity editor license is pending')
+    if engine not in {'godot','unreal'}:raise ValueError('Live socket proof currently supports Godot or Unreal; use --engine unity for its installed-editor contract proof')
     def free_port():
         with socket.socket() as sock:sock.bind(('127.0.0.1',0));return sock.getsockname()[1]
     port,control=free_port(),free_port();directory=out/(engine+'-live');directory.mkdir(parents=True,exist_ok=True)
@@ -115,7 +115,7 @@ def main():
         rsp=out/'unity-compile.rsp'
         rsp.write_text('/noconfig\n/nostdlib+\n/unsafe+\n/target:library\n/out:"'+str(out/'unity-compile.dll')+'"\n'+'\n'.join('/reference:"'+str(p)+'"' for p in refs)+'\n'+'\n'.join('"'+str(p)+'"' for p in (ROOT/'adapters/unity').rglob('*.cs'))+'\n',encoding='utf8')
         run([str(data/'NetCoreRuntime/dotnet.exe'),str(data/'DotNetSdkRoslyn/csc.dll'),'@'+str(rsp)],ROOT,out/'unity-compile.log',90)
-        report.write_text(encoded({'ok':True,'engine':'unity','compilation_only':True,'native_host_verification':'pending_license'}))
+        report.write_text(encoded({'ok':True,'engine':'unity','compilation_only':True,'native_host_verification':'not_run_in_compile_mode'}))
     elif a.engine=='unity':
         import unity_vertical_slice_certification as old
         project=out/'target-codex-task65-unity-vertical-slice';old.stage_unity_project(unity_project_dir=project,fixture_root=old.FIXTURE_ROOT,adapter_root=ROOT/'adapters/unity',validation_path=out/'legacy-unity.json',screenshot_path=out/'legacy-unity.png',unity_version='6000.4.9f1')

@@ -24,7 +24,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 
 Original XP-022 sealed artifacts remain missing. Reconstructed historical docs are not fresh verification and must never be presented as an original seal.
 Historical NEC-009 passed 337 tests before later edits; 338 passing tests and final closeout are unverified.
-XP-016 historical Unity installed-host acceptance was blocked by license exit 198; missing-cosmetic startup regression also remained open.
+XP-016 initially had a Unity license blocker; original continuation at transcript lines7926?7939 fixed the proof setup and passed Unity. This continuation is now recovered. Missing-cosmetic startup regression remained open.
 
 ## Next work
 
@@ -35,3 +35,5 @@ Reconstruct XP-016 successful patches plus reviewed shell edits; record omission
 - `9147783`: protected independent XP-015 workspace.
 - Next checkpoint: XP-016 source reconstruction, explicitly unverified. Exact patch ledger: `docs/recovery/xp016-reconstruction-ledger.json`.
 - Excluded failed calls 7096 and 7473. Replayed reviewed shell edit 7102. Historical evidence-generation commands were not run.
+
+- `c2f7e81`: first XP-016 source checkpoint (earlier closeout). Later continuation recovered through line7936, before XP-017 starts at7950. Fresh Unity rerun pending; Unreal build in progress.

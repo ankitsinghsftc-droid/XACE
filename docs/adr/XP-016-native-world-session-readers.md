@@ -1,6 +1,6 @@
 # XP-016: native World Contract and session readers
 
-Status: implemented; installed Unity host acceptance pending its license.
+Status: implemented; installed Unity, Godot and Unreal marker/transcript gates pass.
 
 Unity, Godot, Unreal and Player consume the same authoritative full-projection
 session profile and World Contract v3. This extends presentation adapters, not
@@ -84,10 +84,11 @@ normal, dimensions, semantic aliases and input fencing assertions. Their live
 proofs connect to a real authority, advance eight ticks, reconnect at generation
 2 and retain the assigned player. Unreal builds Development and Shipping.
 
-Unity sources and the editor proof compile against installed Unity assemblies.
-The actual editor exits 198 with no active license. Compilation does not count
-as installed-host acceptance. Activate the license, then execute the retained
-Unity proof before claiming XP-016's all-host gate or XP-017 mixed-engine play.
+Unity Personal activation resolved the earlier license exit 198. The installed
+Unity 6000.4.9f1 editor now passes all 15 transcript cases plus geometry and input
+fencing. Its proof explicitly creates and binds the scene applicator before
+dispatching the verified handshake. This is actual installed-host evidence;
+Unity real socket and mixed-engine certification remain XP-017.
 
 Player exported regressions compare full authoritative projection digests, not
 exit-only schedule files or a replay world-hash proof. Test-only failure reporting

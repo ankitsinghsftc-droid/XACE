@@ -791,5 +791,28 @@
       }
     ],
     "historical_output_line": 7834
+  },
+  {
+    "line": 7873,
+    "status": "replayed-source-only",
+    "omitted": "missing historical evidence JSON update"
+  },
+  {
+    "line": 7926,
+    "status": "replayed-original-successful-unity-proof-fix",
+    "changes": [
+      {
+        "path": "adapters/unity/Editor/XaceNativeContractProof.cs",
+        "before_sha256": "bb85cddcde533e018c765c80fb067ad35ccc4fa534499af07b4182338be9e7ae",
+        "after_sha256": "76b0f3f2dabfa372a428aea5d10d9e38e6be74c671fab18e7feb749606767d84"
+      }
+    ],
+    "historical_output_line": 7930
+  },
+  {
+    "line": 7936,
+    "status": "replayed-reviewed-source-and-documentation-only",
+    "omitted": "missing historical evidence JSON update",
+    "historical_output_line": 7939
   }
 ]
