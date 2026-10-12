@@ -5,11 +5,11 @@ from tools.xp019_activation_proof import prepare
 from tools.xp017_mixed_session_proof import ROOT,scenario,load,write
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--stage',action='store_true');parser.add_argument('--out',type=Path,default=ROOT/'target/xp020/proof');args=parser.parse_args()
-    artifacts=ROOT/'target/xp020/artifacts'
+    parser=argparse.ArgumentParser();parser.add_argument('--stage',action='store_true');parser.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp020/proof');parser.add_argument('--artifacts',type=Path,default=ROOT/'recovery-evidence/xp020/artifacts');parser.add_argument('--unreal-project',type=Path,default=ROOT/'recovery-evidence/xp019/native/target-codex-task66-unreal-vertical-slice/XaceTask66.uproject');args=parser.parse_args()
+    artifacts=args.artifacts.resolve()
     if args.stage:prepare(artifacts)
     out=args.out.resolve();out.mkdir(parents=True,exist_ok=False)
-    matrix=scenario(out/'live',['unity','godot','unreal','player'],artifacts/'build',{'parent':artifacts/'parent','candidate':artifacts/'candidate','native':ROOT/'target/xp019/native','record_replay':True})
+    matrix=scenario(out/'live',['unity','godot','unreal','player'],artifacts/'build',args.unreal_project.resolve(),{'parent':artifacts/'parent','candidate':artifacts/'candidate','record_replay':True})
     bundle=load(out/'live/replay.json');assert sum(len(t['inputs']) for t in bundle['bundle']['ticks'])>0
     reports={}
     for name,end in [('before',7),('at',8),('after',39),('repeat',39),('rewind',7)]:

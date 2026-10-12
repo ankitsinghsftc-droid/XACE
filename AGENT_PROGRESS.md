@@ -100,3 +100,5 @@ Fresh historical local gates pass: 842 runtime +21 reference/fault tests, produc
 ## XP-020 reconstruction
 
 XP019 gate checkpoint `1f825e8`; recurring native timeout remains open. XP020 source replayed through9478, including historical rustfmt after9421. Original retained evidence generator was not executed. Fresh replay and regression gates pending. All checkpoints NOT backed up off-device.
+
+XP020 source checkpoint `9775bce` (unverified). Recovery-only replay harness adds explicit persistent artifacts and native project paths. No runtime semantics changed. NOT backed up off-device.
