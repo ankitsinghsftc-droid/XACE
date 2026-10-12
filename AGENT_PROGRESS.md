@@ -111,3 +111,5 @@ XP020 source checkpoint `9775bce` (unverified). Recovery-only replay harness add
 ## XP-021 reconstruction
 
 XP020 gate checkpoint `46d22f7`. XP021 successful historical source patches replayed through9691. Historical evidence generation was not executed. Fresh runtime, reference, debugger, authoring, Builder build and browser walkthrough gates pending. NOT backed up off-device.
+
+XP021 source checkpoint `4ea57e2` (unverified). Recovery walkthrough explicitly selects the fresh XP020 archived host/recording and independent current host; no original repository binary is executed. Output remains persistent. NOT backed up off-device.

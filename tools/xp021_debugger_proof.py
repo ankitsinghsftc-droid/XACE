@@ -8,12 +8,11 @@ from runtime_control_client import RuntimeControlClient,RuntimeControlConfig
 
 def port():
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));return sock.getsockname()[1]
-def serve(out,web,control):
+def serve(out,web,control,host,current):
     import uvicorn
     from fastapi import FastAPI
     from fastapi.responses import FileResponse
-    app=FastAPI();host=ROOT/'target/xp020/artifacts/parent/runtime/xace_runtime.exe'
-    current=Path('C:/Users/ankit/Downloads/XACE-clean-main-candidate-standalone/target/debug/xace_reference_host.exe')
+    app=FastAPI()
     install_debugger_routes(app,ReplayDebugger(out/'replays',(host,current),RuntimeControlClient(RuntimeControlConfig(port=control)),'proof-creator'))
     @app.get('/')
     def index():return FileResponse(out/'index.html')
@@ -21,22 +20,21 @@ def serve(out,web,control):
     def script():return FileResponse(out/'fixture.js',media_type='text/javascript')
     uvicorn.run(app,host='127.0.0.1',port=web,log_level='warning')
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'target/xp021/walkthrough');p.add_argument('--serve',action='store_true');p.add_argument('--web',type=int);p.add_argument('--control',type=int);a=p.parse_args();out=a.out.resolve()
-    if a.serve:return serve(out,a.web,a.control)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp021/walkthrough');p.add_argument('--serve',action='store_true');p.add_argument('--web',type=int);p.add_argument('--control',type=int);p.add_argument('--recording',type=Path,required=True);p.add_argument('--package',type=Path,required=True);p.add_argument('--current-host',type=Path,required=True);a=p.parse_args();out=a.out.resolve();package=a.package.resolve();host=a.current_host.resolve()
+    if a.serve:return serve(out,a.web,a.control,package/'runtime/xace_runtime.exe',host)
     out.mkdir(parents=True,exist_ok=False);(out/'replays').mkdir()
-    raw=(ROOT/'target/xp020/certified/live/replay.json').read_bytes();identity=hashlib.sha256(raw).hexdigest();(out/'replays'/f'{identity}.json').write_bytes(raw)
+    raw=a.recording.resolve().read_bytes();identity=hashlib.sha256(raw).hexdigest();(out/'replays'/f'{identity}.json').write_bytes(raw)
     workspace=ROOT/'packages/builder-workspace'
     subprocess.run(['node','--input-type=module','-e',"import {build} from 'esbuild'; await build({entryPoints:['tools/replay_debugger_browser_fixture.ts'],bundle:true,format:'esm',target:'chrome120',outfile:process.argv[1]});",str(out/'fixture.js')],cwd=workspace,check=True)
     (out/'index.html').write_text('<!doctype html><html><head><style>body{font:15px system-ui;background:#141820;color:#eee;padding:24px}button,input,select{padding:7px;margin:5px}pre{white-space:pre-wrap;max-height:300px;overflow:auto}label{display:block}</style></head><body><script type="module" src="/fixture.js"></script></body></html>')
-    web,control,engine=port(),port(),port();package=ROOT/'target/xp020/artifacts/parent'
-    host=Path('C:/Users/ankit/Downloads/XACE-clean-main-candidate-standalone/target/debug/xace_reference_host.exe')
+    web,control,engine=port(),port(),port()
     command=[str(host),'--no-wait','--live-engine-accept','--port',str(engine),'--control-port',str(control),'--ruleset-root',str(out),'--quiet']
     for flag,name in [('cgs','game.cgs.json'),('sgc-plan','execution_plan.json'),('world','world.json'),('world-manifest','world.manifest.json')]:command+=['--'+flag,str(package/name)]
     processes=[];logs=[]
     def start(cmd,name):
         log=(out/name).open('w');logs.append(log);process=subprocess.Popen(cmd,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW);processes.append(process);return process
     try:
-        start(command,'authority.log');start([sys.executable,'-m','tools.xp021_debugger_proof','--serve','--out',str(out),'--web',str(web),'--control',str(control)],'server.log')
+        start(command,'authority.log');start([sys.executable,'-m','tools.xp021_debugger_proof','--serve','--out',str(out),'--web',str(web),'--control',str(control),'--recording',str(a.recording.resolve()),'--package',str(package),'--current-host',str(host)],'server.log')
         import urllib.request
         for _ in range(100):
             try:urllib.request.urlopen(f'http://127.0.0.1:{web}/api/debugger/recordings',timeout=1);break
