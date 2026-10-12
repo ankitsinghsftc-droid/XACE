@@ -1,0 +1,26 @@
+{
+  "late_join": {
+    "initial_next_tick": 1,
+    "activated_next_tick": 2,
+    "projection_digest": "8c02a9324a7ad424efe48daa610b4b204a4de5d468f0707c32122f39041f5d5c",
+    "unready_peer_did_not_block": true,
+    "bad_digest_ack_rejected": true
+  },
+  "reconnect": {
+    "player_id": 4,
+    "generation": 2,
+    "next_tick": 4,
+    "spent_token_rejected": true,
+    "stale_generation_ack_rejected": true
+  },
+  "recovery": {
+    "next_tick": 6,
+    "restored_digest": "a9a234cb89a503dacefc015ca277739ee7f95781a26c6e1dc486ecbae00d50e3",
+    "matches_authority": true,
+    "catch_up_baselines_retained": 1
+  },
+  "dropped_baseline": {
+    "fenced_after_timeout": true,
+    "other_player_completed_tick": 6
+  }
+}

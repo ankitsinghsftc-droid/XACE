@@ -1,0 +1,23 @@
+{
+  "bound_objects": 4,
+  "engine": "godot",
+  "errors": [],
+  "generation": 2,
+  "ok": true,
+  "owners": [
+    3
+  ],
+  "schema": "xace.native_live_proof.v1",
+  "ticks": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "authority_clean_exit": true,
+  "journal_rows": 23
+}

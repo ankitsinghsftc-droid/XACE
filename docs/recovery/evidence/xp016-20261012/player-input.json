@@ -1,0 +1,83 @@
+{
+  "schema": "xace.xp008.player_proof.v1",
+  "ok": true,
+  "world_contract_version": 3,
+  "render_fps_projection_digests_equal": true,
+  "recorded_inputs_equal": true,
+  "tick_count": 30,
+  "projection_digests": [
+    "cd5b95945259af3d6bea207ce4a001c05e2d9bf4e56ca002d3c1057a8e2f844e",
+    "6b87255bf9a21ced4c588176aea687b34b1c2901cfceb7279541426165b5fb18",
+    "b4f915f0f0505f9b2ae41281b9d89b653abf8f912667daede281620edae4379a",
+    "251b338333ae0e37e0c6e96296598c4455283902f0e6bbf88b79f89d592be842",
+    "49785f198163415f25dc99703deff9018b0473e1ef76e026afd2f3b71bfc111b",
+    "6423bd9384988d50798fc6d3579de03008b30945f92f7bbbf2efcc391755401f",
+    "a3307abc0b9df56b3f4316a0e9067a862ecdefcb2fab6d9768ee65fabf9088fd",
+    "e2bfd109ef07554fa6be8d0626fae212edb92dd722b8f3a40b60e41194bea30f",
+    "acef7f639182f8a57417974121f8cc5abd0127f801df264609e550b08480a462",
+    "14daf1b953e100ebdea30062ff4ea651c747877beb222dfec7c9b8894dfceca6",
+    "16667f0d69be073df930d63158e9bcc652c2346fd35d163edc39021cef646c3c",
+    "2c24a738e0c8ca2d5d8343c9f01ae6506359807abb34120b18743c910c4987ad",
+    "57243c6c9722411e7d03dad6cdbfa18a5f795b940913a4fac918eb416fa4b10e",
+    "0b41e5caa697a2515fe3252065cb9cc552ccf199a0f15c0bcfaf3be8c3cee714",
+    "fdb1d736fde082a5c6faee1475e00533eb7b1c9e012b4ed120f3069b6a63b6d8",
+    "1cf99735eca4ac20c865b5689cf1f06c71fd00a0ef87054bacf450be62fb6a9f",
+    "3715100f0f2710523015e7b22c150fe61a7393a4fde95abfd0a2452a4dce36a6",
+    "470b84dbdb10ef993b62a23eceeb065f70817f0a09dc77ef03c138bd54d61868",
+    "6fa5021c4fc2cd7e4dbad8df423f3c4303641a583c6b524c7a2829f8df3ca575",
+    "c77d6424363b6a18e3583454ed918137a5f9db96aca4b98c54f409e880c88283",
+    "10eb1d32f3fe4edebe6c87d3d277f1bcbba79db1d857cb26a9263fc08f023371",
+    "cabf84235bdb770fe4392c803572bc899b5707f864ed51a7521b7e86b13d9d60",
+    "4c6897046290ad67bc32964690d2b7cb3b08a3bada2e760e7f3ba68bff3f804d",
+    "572773db244727587275bb86692369b3b6b3c32cbbe02b1c68f046bcbd45066a",
+    "ebabc7e8258a2fcd10dc98812698c286127841855e780084e2e11218ad3788eb",
+    "abcaf18fc2f53546ba8fc9f049f715406be18392fb4658b58591aacdc4abb8c6",
+    "e9e314311edb8e2964dbd70fdd2f8e0fde6734731aed3a56265926d43ffba23d",
+    "7196519bf28a928ce7a46210f05c1cd9aa8e73d52a0121745478f7cf301ebf0c",
+    "b0eb2c268cef4919a1b37ce83927e18e8b0aef44ad9ddfa4e285d85a41e1dcb6",
+    "12a75923ee502e75b44d49e8ef9ce828e2bfd6c5b6fe9e961d4edc7a3cececd4"
+  ],
+  "scenarios": {
+    "normal-30": {
+      "exit_code": 0,
+      "ticks": 30,
+      "errors": [],
+      "owned_process_stopped": true,
+      "unowned_process_retained": true
+    },
+    "normal-144": {
+      "exit_code": 0,
+      "ticks": 30,
+      "errors": [],
+      "owned_process_stopped": true,
+      "unowned_process_retained": true
+    },
+    "focus-60": {
+      "exit_code": 0,
+      "ticks": 30,
+      "errors": [],
+      "owned_process_stopped": true,
+      "unowned_process_retained": true
+    },
+    "runtime_loss-60": {
+      "exit_code": 0,
+      "ticks": 6,
+      "errors": [
+        "Game runtime stopped. Gameplay is frozen."
+      ],
+      "owned_process_stopped": true,
+      "unowned_process_retained": true
+    },
+    "close-60": {
+      "exit_code": 0,
+      "ticks": 6,
+      "errors": [],
+      "owned_process_stopped": true,
+      "unowned_process_retained": true
+    }
+  },
+  "direct_launch_without_package_argument": true,
+  "tampered_world_rejected_before_launch": true,
+  "input_method": "Godot InputEventKey through Input.parse_input_event and the production physical-key collector; automated, not manual user play",
+  "scope": "exported Windows Player plus native host, same machine; verified full projection digests, not a world-hash replay or clean-machine certification"
+}

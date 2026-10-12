@@ -1,0 +1,685 @@
+{
+  "artifacts": {
+    "artifact_dir": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff",
+    "output": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff.json"
+  },
+  "blocked_matrix": [
+    {
+      "blocking_categories": [
+        "target_engine",
+        "adapter_version",
+        "assets",
+        "bindings"
+      ],
+      "category": "target_engine",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "unsupported target name",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "target_engine",
+          "adapter_version",
+          "assets",
+          "bindings"
+        ],
+        "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+        "checks": [
+          {
+            "issue_codes": [
+              "TARGET_ENGINE_UNSUPPORTED"
+            ],
+            "name": "target_engine",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "TARGET_ENGINE_UNAVAILABLE"
+            ],
+            "name": "adapter_version",
+            "ok": false
+          },
+          {
+            "issue_codes": [
+              "TARGET_ENGINE_UNAVAILABLE"
+            ],
+            "name": "assets",
+            "ok": false
+          },
+          {
+            "issue_codes": [
+              "TARGET_ENGINE_UNAVAILABLE"
+            ],
+            "name": "bindings",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 4,
+        "checks_total": 8,
+        "ok": false,
+        "target": "dreamcast"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_target_engine",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_target_engine\\.xace\\adapter_package_handoff_preflight\\dreamcast\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json",
+      "target": "dreamcast"
+    },
+    {
+      "blocking_categories": [
+        "cgs",
+        "sgc_plan",
+        "runtime_compatibility"
+      ],
+      "category": "cgs",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "metadata.cgs_hash set to stale zero digest",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "cgs",
+          "sgc_plan",
+          "runtime_compatibility"
+        ],
+        "cgs_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "CGS_SCHEMA_INVALID"
+            ],
+            "name": "cgs",
+            "ok": false
+          },
+          {
+            "issue_codes": [
+              "SGC_PLAN_MISSING"
+            ],
+            "name": "sgc_plan",
+            "ok": false
+          },
+          {
+            "issue_codes": [
+              "RUNTIME_COMPATIBILITY_PROOF_MISSING"
+            ],
+            "name": "runtime_compatibility",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "bindings",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 5,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_cgs",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_cgs\\.xace\\adapter_package_handoff_preflight\\godot\\0000000000000000000000000000000000000000000000000000000000000000.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "sgc_plan"
+      ],
+      "category": "sgc_plan",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "persisted SGC plan removed",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "sgc_plan"
+        ],
+        "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "SGC_PLAN_MISSING"
+            ],
+            "name": "sgc_plan",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "bindings",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 7,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_sgc_plan",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_sgc_plan\\.xace\\adapter_package_handoff_preflight\\godot\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "runtime_compatibility"
+      ],
+      "category": "runtime_compatibility",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "runtime compatibility proof marked not ok with unsupported system",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "runtime_compatibility"
+        ],
+        "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "RUNTIME_COMPATIBILITY_FAILED",
+              "RUNTIME_UNSUPPORTED_SYSTEMS",
+              "RUNTIME_LEGACY_SYSTEMS_DROPPED"
+            ],
+            "name": "runtime_compatibility",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "bindings",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 7,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_runtime_compatibility",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_runtime_compatibility\\.xace\\adapter_package_handoff_preflight\\godot\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "adapter_version"
+      ],
+      "category": "adapter_version",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "Godot adapter version marker changed to 9.9.9",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "adapter_version"
+        ],
+        "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "ADAPTER_VERSION_MARKER_MISSING"
+            ],
+            "name": "adapter_version",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "bindings",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 7,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_adapter_version",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_adapter_version\\.xace\\adapter_package_handoff_preflight\\godot\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "assets",
+        "bindings"
+      ],
+      "category": "assets",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "linked asset SHA-256 changed away from file bytes",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "assets",
+          "bindings"
+        ],
+        "cgs_hash": "39cd8cba687c21b7cb8d2f24a94e9fc62fea88cc4b4b00ba8c15a9a231f6f3b1",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "ASSET_HASH_MISMATCH",
+              "ASSET_HASH_MISMATCH"
+            ],
+            "name": "assets",
+            "ok": false
+          },
+          {
+            "issue_codes": [
+              "ASSET_HASH_MISMATCH"
+            ],
+            "name": "bindings",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 6,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_assets",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_assets\\.xace\\adapter_package_handoff_preflight\\godot\\39cd8cba687c21b7cb8d2f24a94e9fc62fea88cc4b4b00ba8c15a9a231f6f3b1.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "bindings"
+      ],
+      "category": "bindings",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "semantic binding target list excludes godot",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "bindings"
+        ],
+        "cgs_hash": "77c720b6b6a75b07e2888d01c95ea30bd9406f3d672fa7491fb6068221fe0659",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "ENGINE_NOT_TARGETED"
+            ],
+            "name": "bindings",
+            "ok": false
+          },
+          {
+            "issue_codes": [],
+            "name": "secrets",
+            "ok": true
+          }
+        ],
+        "checks_passed": 7,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_bindings",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_bindings\\.xace\\adapter_package_handoff_preflight\\godot\\77c720b6b6a75b07e2888d01c95ea30bd9406f3d672fa7491fb6068221fe0659.json",
+      "target": "godot"
+    },
+    {
+      "blocking_categories": [
+        "secrets"
+      ],
+      "category": "secrets",
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "matched_expected_category": true,
+      "mutation": "credential-looking text file added under asset root",
+      "ok": true,
+      "preflight": {
+        "blocked": true,
+        "blocking_categories": [
+          "secrets"
+        ],
+        "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+        "checks": [
+          {
+            "issue_codes": [],
+            "name": "target_engine",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "cgs",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "sgc_plan",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "runtime_compatibility",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "adapter_version",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "assets",
+            "ok": true
+          },
+          {
+            "issue_codes": [],
+            "name": "bindings",
+            "ok": true
+          },
+          {
+            "issue_codes": [
+              "SECRET_PATTERN_FOUND"
+            ],
+            "name": "secrets",
+            "ok": false
+          }
+        ],
+        "checks_passed": 7,
+        "checks_total": 8,
+        "ok": false,
+        "target": "godot"
+      },
+      "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_secrets",
+      "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\blocked_secrets\\.xace\\adapter_package_handoff_preflight\\godot\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json",
+      "target": "godot"
+    }
+  ],
+  "checks": [
+    {
+      "detail": "valid_report_ok=True required_categories=['target_engine', 'cgs', 'sgc_plan', 'runtime_compatibility', 'adapter_version', 'assets', 'bindings', 'secrets']",
+      "name": "valid_project_all_categories_pass",
+      "ok": true
+    },
+    {
+      "detail": "blocked_cases=8 categories=['target_engine', 'cgs', 'sgc_plan', 'runtime_compatibility', 'adapter_version', 'assets', 'bindings', 'secrets']",
+      "name": "blocked_matrix_covers_required_categories",
+      "ok": true
+    },
+    {
+      "detail": "Builder endpoint returns failed preflight and does not create handoff directory",
+      "name": "endpoint_blocks_before_copy",
+      "ok": true
+    },
+    {
+      "detail": "valid and blocked preflight reports are retained under .xace/adapter_package_handoff_preflight",
+      "name": "retained_reports_written",
+      "ok": true
+    }
+  ],
+  "checks_passed": 4,
+  "checks_total": 4,
+  "endpoint_result": {
+    "blocking_categories": [
+      "assets",
+      "bindings"
+    ],
+    "detail": "Builder endpoint returns failed preflight and does not create handoff directory",
+    "handoff_dir_exists": false,
+    "ok": true,
+    "preflight_report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\endpoint_blocked_project\\.xace\\adapter_package_handoff_preflight\\godot\\39cd8cba687c21b7cb8d2f24a94e9fc62fea88cc4b4b00ba8c15a9a231f6f3b1.json",
+    "status_code": 200
+  },
+  "generated_at_utc": "2026-10-11T19:45:47Z",
+  "ok": true,
+  "required_categories": [
+    "target_engine",
+    "cgs",
+    "sgc_plan",
+    "runtime_compatibility",
+    "adapter_version",
+    "assets",
+    "bindings",
+    "secrets"
+  ],
+  "schema": "xace.adapter_package_handoff_preflight_check_report.v1",
+  "task": "X10-061",
+  "valid_project": {
+    "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+    "preflight": {
+      "blocked": false,
+      "blocking_categories": [],
+      "cgs_hash": "0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae",
+      "checks": [
+        {
+          "issue_codes": [],
+          "name": "target_engine",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "cgs",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "sgc_plan",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "runtime_compatibility",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "adapter_version",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "assets",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "bindings",
+          "ok": true
+        },
+        {
+          "issue_codes": [],
+          "name": "secrets",
+          "ok": true
+        }
+      ],
+      "checks_passed": 8,
+      "checks_total": 8,
+      "ok": true,
+      "target": "godot"
+    },
+    "project": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\valid_project",
+    "report_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff\\valid_project\\.xace\\adapter_package_handoff_preflight\\godot\\0d8959e3be2f6c13fb7b6457fc39eafe5c5bd997f27fa5ff96b7925661f2b8ae.json"
+  },
+  "x10_061_complete": true
+}

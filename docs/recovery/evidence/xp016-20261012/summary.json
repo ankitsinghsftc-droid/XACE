@@ -1,0 +1,99 @@
+{
+  "schema": "xace.recovery.milestone.v1",
+  "milestone": "XP-016",
+  "date": "2026-10-12",
+  "source_checkpoint": "6dc9f7d",
+  "status": "source_reconstructed_and_freshly_verified_within_historical_scope",
+  "original_evidence_recovered": false,
+  "fresh_evidence": true,
+  "scope": {
+    "native_contract_cases_per_engine": 15,
+    "engines": [
+      "Unity 6000.4.9f1",
+      "Godot 4.6.3",
+      "Unreal 5.7.4"
+    ],
+    "rust_contract_tests": 13,
+    "project_system_tests": 35,
+    "player_launch_tests": 7,
+    "engine_router_tests": 14,
+    "godot_and_unreal_reconnect_generation": 2,
+    "player_presentation_full_suite": false
+  },
+  "limitations": [
+    "Original XP016 evidence JSON and XP022 sealed artifacts not located.",
+    "Missing-cosmetic presentation regression excluded exactly as historical XP016 subset; no full XP009 pass claimed.",
+    "Same-machine verification only; external release gates remain open.",
+    "No byte-identical final source archive available; reconstruction uses successful records and exact-context patches."
+  ],
+  "preservation": {
+    "initial_files": 2707,
+    "additional_files": 813,
+    "additional_copy_errors": 0,
+    "original_owning_git_files_rechecked": 36,
+    "changed_original_owning_git_files": 0,
+    "off_device_backup": false
+  },
+  "artifacts": [
+    {
+      "file": "godot-contract.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\godot\\godot.json",
+      "sha256": "c69de0571eaf184daed9f832e47f61d9661d40cb1940407f8f1557fde4e79847"
+    },
+    {
+      "file": "unity-contract.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\unity-final\\unity.json",
+      "sha256": "318b31ec531320bd4b27d2c286990b969a41336172bc64852d819171e181b361"
+    },
+    {
+      "file": "unreal-contract.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\unreal-installed\\unreal.json",
+      "sha256": "ef09cf887f5575f79e7afb7d35177c49c35030c20e51628f8440e25d97c243d4"
+    },
+    {
+      "file": "godot-live.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\godot-live-final\\godot-live\\proof.json",
+      "sha256": "93939a51f4d9829174a7567b43ed80d72fe423da0c430da5f25675949ee0fe81"
+    },
+    {
+      "file": "unreal-live.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\unreal-installed\\unreal-live\\proof.json",
+      "sha256": "625b22a914816bf8dd1f3d85cd2a6b01d7d383b929fc1492316d31c77cbde24f"
+    },
+    {
+      "file": "player-input.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\player-input\\proof.json",
+      "sha256": "ca27e068eb5794c399fb56e582e25b39426dace663db75f2f3b323f6fe06958b"
+    },
+    {
+      "file": "player-presentation-subset.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\player-presentation\\proof.json",
+      "sha256": "07e231131ec56fd9366a1747a00f96c3747f69e4ebb12f41904b7a3b291e7db5"
+    },
+    {
+      "file": "session-regression.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp016\\session-regression\\proof.json",
+      "sha256": "7151c55922e9a4042ae36e43bbf02c8efecbc521206296e29cbd3079d78d972a"
+    },
+    {
+      "file": "project-system.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\project-system-with-compiler.json",
+      "sha256": "4d8f35783ed1cab6bc72142c7593c699cc2b4a6fd767efd4ce28b28cd47e2073"
+    },
+    {
+      "file": "reversibility.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\reversibility.json",
+      "sha256": "c2628d666931c26444c78acd352bc5c448a64679cf0fcdd3fb5139f7653aae37"
+    },
+    {
+      "file": "handoff.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\handoff.json",
+      "sha256": "38eac5d8b7b5a8a2995c7b647e21d3094b3f4b64ad899f2b895e4a924366d1f8"
+    },
+    {
+      "file": "original-git-preservation.json",
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\original-git-preservation-check-v2.json",
+      "sha256": "b5cbe76d0e640f6b865dea5deab5b3d5c76fd98384d010fee51eae65677d0b5b"
+    }
+  ]
+}

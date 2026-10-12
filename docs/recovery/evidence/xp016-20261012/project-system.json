@@ -1,0 +1,77 @@
+{
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "tools/python_test_gate.py",
+    "--output",
+    "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\project-system-with-compiler.json",
+    "--suite",
+    "project-system"
+  ],
+  "elapsed_seconds": 2.921,
+  "isolation": {
+    "credential_store_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\python_gate_work\\isolated_settings\\unsafe_credentials.json",
+    "settings_path": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\python_gate_work\\isolated_settings\\provider_settings.json",
+    "work_dir": "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\python_gate_work"
+  },
+  "ok": true,
+  "repo_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace",
+  "schema": "xace.python_test_gate.v1",
+  "selected_suites": [
+    "project-system"
+  ],
+  "started_at_utc": "2026-10-11T19:45:45.594566+00:00",
+  "suites": [
+    {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\tools\\python_test_gate.py",
+        "--_child-suite",
+        "--suite",
+        "project-system",
+        "--output",
+        "C:\\Users\\ankit\\XACE-Recovery\\evidence\\20261012\\xp016\\python_gate_work\\project-system.json"
+      ],
+      "elapsed_seconds": 2.809,
+      "error_details": [],
+      "errors": 0,
+      "failed": 0,
+      "failures": [],
+      "id": "project-system",
+      "label": "Project system unit tests",
+      "not_run": 0,
+      "not_run_details": [],
+      "ok": true,
+      "output_tail": "...................................\n----------------------------------------------------------------------\nRan 35 tests in 2.646s\n\nOK\n",
+      "passed": 35,
+      "returncode": 0,
+      "runner": "unittest",
+      "stdout_tail": "",
+      "tests": 35
+    }
+  ],
+  "summary": {
+    "failed_or_error": 0,
+    "not_run": 0,
+    "passed": 35,
+    "suites": 1,
+    "syntax_failures": 0,
+    "syntax_files": 0,
+    "tests": 35,
+    "tool_failures": 0,
+    "tools": 0
+  },
+  "syntax": {
+    "elapsed_seconds": 0.0,
+    "failed": 0,
+    "failures": [],
+    "files": 0,
+    "id": "python-syntax",
+    "label": "Production Python syntax check",
+    "ok": true,
+    "reason": "suite-specific run",
+    "runner": "compile",
+    "skipped": true
+  },
+  "tool_commands_enabled": false,
+  "tools": []
+}
