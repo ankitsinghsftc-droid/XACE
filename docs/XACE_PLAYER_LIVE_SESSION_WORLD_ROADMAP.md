@@ -9,7 +9,7 @@ historical profile evidence; it is not a universal extensibility certification.
 The correction is implemented and verified; see `docs/WORLD_EXTENSIBILITY_COMPLETION.md`.
 XP-007 is complete for its Windows native headless package profile; see `docs/XP007_COMPLETION.md`.
 
-Implementation checkpoint (2026-10-02): XP-001 through XP-009 are complete for their
+Implementation checkpoint (2026-10-03): XP-001 through XP-009 are complete for their
 declared profiles. XP-010 implementation and same-host verification are finished;
 clean-machine acceptance remains pending by owner instruction. See
 `docs/XP010_COMPLETION.md`. XP-011 is implemented and locally verified; see
@@ -26,8 +26,11 @@ deployment and two-network acceptance remain pending by owner instruction. See
 implemented with installed Unity/Godot/Unreal contract proofs and exported Player
 evidence; Unity passed after license activation and proof scene setup correction. The older standalone
 missing-cosmetic startup regression is retained as an open limitation. See
-`docs/XP016_COMPLETION.md` and `docs/evidence/xp016-baseline.json`. XP-017 through
-XP-022 have not started. XP-002 legacy schema/input-plan
+`docs/XP016_COMPLETION.md` and `docs/evidence/xp016-baseline.json`. XP-017 is
+locally certified with actual Player+Godot, Unity+Godot+Unreal and all-four sessions,
+applied client digests, owned inputs, shared events, refusal and disconnect proofs.
+See `docs/XP017_COMPLETION.md` and `docs/evidence/xp017-baseline.json`.
+XP-018 through XP-022 have not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 

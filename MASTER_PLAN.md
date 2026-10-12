@@ -9,6 +9,25 @@ This is a reconstructed historical plan. Current verification and outstanding re
 
 ---
 
+## XP-017: COMPLETE FOR LOCAL MIXED-ENGINE PROFILE - 2026-10-03
+
+Continuing in target/xp016-work, based on clean-main-candidate 39ed07b.
+Generic proof clients and a four-controller reference package now exercise
+Player+Godot, Unity+Godot+Unreal and the four-client combination under one authority.
+All three combinations pass 40 authoritative ticks, with distinct owned players,
+matching applied projections/events and recorded inputs verified against the host.
+Each rejects a mismatched world and survives one client departing after tick 19.
+The reference package proves a shared event changes another owner's state at tick 7.
+Unity's JSON object reader now accepts whitespace after commas, uncovered by the
+pretty-printed proof configuration. The exported Player proof sends recorded
+input outside assertions, since release builds omit assertions.
+Rendered Player recordings, host hashes, applied client digests and source/build
+fingerprints are retained. Unity's 15-case contract regression also passes.
+See docs/XP017_COMPLETION.md and docs/evidence/xp017-baseline.json.
+XP-018 is next. Earlier clean-machine/two-machine/Internet gates remain pending;
+this same-computer certification makes no remote-network or latency claim.
+Protected main/safety refs remain untouched; no changes have been pushed.
+
 ## XP-016: IMPLEMENTED - NATIVE HOST CONTRACT GATE VERIFIED - 2026-10-02
 
 Work is isolated on branch xp-016, based on clean-main-candidate 39ed07b.

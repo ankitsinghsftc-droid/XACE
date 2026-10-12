@@ -124,7 +124,7 @@ def main():
         run([str(exe),'-batchmode','-nographics','-quit','-projectPath',str(project),'-executeMethod','Xace.Adapter.Unity.Editor.XaceNativeContractProof.Run','-logFile',str(out/'unity-editor.log'),'-xaceFixture',str(FIXTURE),'-xaceReport',str(report)],ROOT,out/'unity.log')
     else:
         import unreal_vertical_slice_certification as old
-        old.ADAPTER_SOURCE_NAMES+=('XaceNativeContractProofCommandlet.h','XaceNativeContractProofCommandlet.cpp')
+        old.ADAPTER_SOURCE_NAMES+=('XaceNativeContractProofCommandlet.h','XaceNativeContractProofCommandlet.cpp','XaceMixedSessionProof.h')
         project=out/'target-codex-task66-unreal-vertical-slice';stage=old.stage_unreal_project(unreal_project_dir=project,fixture_root=old.FIXTURE_ROOT,adapter_root=ROOT/'adapters/unreal',validation_path=out/'legacy-unreal.json',screenshot_path=out/'legacy-unreal.png',engine_association='5.7')
         exe=Path('C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/UnrealEditor-Cmd.exe')
         build=old.build_unreal_plugin(unreal_editor=exe,plugin_root=stage['plugin_root'],package_dir=out/'unreal-package',command_path=out/'unreal-build-command.json',stdout_path=out/'unreal-build.log',stderr_path=out/'unreal-build-errors.log',timeout_seconds=1800)

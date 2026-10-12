@@ -1126,7 +1126,9 @@ namespace Xace.Adapter.Unity
                 if (Peek('}')) { index++; return obj; }
                 while (index < json.Length)
                 {
+                    SkipWhitespace();
                     var key = ParseString();
+                    if (key == null) return null;
                     SkipWhitespace();
                     if (!Peek(':')) return null;
                     index++;

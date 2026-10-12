@@ -1,0 +1,177 @@
+[
+  {
+    "line": 7984,
+    "status": "replayed-source-only",
+    "historical_output_line": 7987,
+    "changes": [
+      {
+        "path": "adapters/unity/Editor/XaceMixedSessionProof.cs",
+        "before_sha256": null,
+        "after_sha256": "3a59e3dc61226c0b9abdff0f1e565d14e887d9befa8f8724d27bb74463747263"
+      },
+      {
+        "path": "adapters/godot/tests/mixed_session_proof.gd",
+        "before_sha256": null,
+        "after_sha256": "9efd7e700d36e72dcbc22c3e09f4e5c98f82f1b7606846d02f87953232137136"
+      }
+    ]
+  },
+  {
+    "line": 7991,
+    "status": "replayed-source-only",
+    "historical_output_line": 7994,
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceMixedSessionProof.h",
+        "before_sha256": null,
+        "after_sha256": "a4e6b0463169a28192ff03063c7e409e07333925a6f6f51690c29c92f462cbb3"
+      },
+      {
+        "path": "adapters/unreal/XaceNativeContractProofCommandlet.cpp",
+        "before_sha256": "ec1b8fe510732e75a05ca9ba5ddfe8233dce3d3416803d6a9b21a490b5b4eca2",
+        "after_sha256": "65b54b1a5e064c02f1fe57177380110360b4950361633d8002d7a1dd5ac07b80"
+      },
+      {
+        "path": "tools/xp016_native_proof.py",
+        "before_sha256": "d0f77afebe387e98a6401676e9cf76b3a910c51228feda59917a601a579e00cc",
+        "after_sha256": "622f7f54e13995af2796f6274509f2fb8e6ece8da05a498fd085ad3d573049df"
+      }
+    ]
+  },
+  {
+    "line": 7998,
+    "status": "replayed-source-only",
+    "historical_output_line": 8001,
+    "changes": [
+      {
+        "path": "tools/xp017_player_proof.gd",
+        "before_sha256": null,
+        "after_sha256": "c209db5248ebd1ef9561cd92d2d25fc82f541c1489a0d1cad400fb314dbb4b4b"
+      },
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": null,
+        "after_sha256": "49f4317b7aa46df25837e7567f9d09611a0f329fbed52869302e4bb3b9bd3b9b"
+      }
+    ]
+  },
+  {
+    "line": 8015,
+    "status": "replayed-source-only",
+    "historical_output_line": 8019,
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceMixedSessionProof.h",
+        "before_sha256": "a4e6b0463169a28192ff03063c7e409e07333925a6f6f51690c29c92f462cbb3",
+        "after_sha256": "4a59a73b9fda37585831f3ddd72479825cf68d253f8573842e0c2edfb869df22"
+      }
+    ]
+  },
+  {
+    "line": 8072,
+    "status": "replayed-source-only",
+    "historical_output_line": 8075,
+    "changes": [
+      {
+        "path": "tools/xp017_player_proof.gd",
+        "before_sha256": "c209db5248ebd1ef9561cd92d2d25fc82f541c1489a0d1cad400fb314dbb4b4b",
+        "after_sha256": "fa2f6416ec5679dd3c5522c23c8c11d242e4803133b1a5d4bcc761cee01d6e62"
+      },
+      {
+        "path": "adapters/godot/tests/mixed_session_proof.gd",
+        "before_sha256": "9efd7e700d36e72dcbc22c3e09f4e5c98f82f1b7606846d02f87953232137136",
+        "after_sha256": "c722ff4b70bcf015cd451829e3b383caf78ccc58f80fd9df9d8f3d5c62be48af"
+      }
+    ]
+  },
+  {
+    "line": 8146,
+    "status": "replayed-source-only",
+    "historical_output_line": 8149,
+    "changes": [
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "7c1a1ae78f91226c5c7c99ffbd61e2debc08339a80230e2d633c950493105b7c",
+        "after_sha256": "645b5d02a3db1aef42957378a5fbb7805a5fccb7792693b41e5e917b6cdbee45"
+      },
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "49f4317b7aa46df25837e7567f9d09611a0f329fbed52869302e4bb3b9bd3b9b",
+        "after_sha256": "05f4d606d13580636480d98df001b2fa5ca245088adc36990e703b8a209f4153"
+      }
+    ]
+  },
+  {
+    "line": 8156,
+    "status": "replayed-source-only",
+    "historical_output_line": 8160,
+    "changes": [
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "05f4d606d13580636480d98df001b2fa5ca245088adc36990e703b8a209f4153",
+        "after_sha256": "76e6fd2b0f90b8724cc7898d47ac85a2b2a79b67189e3f9b24983b6f3040927e"
+      }
+    ]
+  },
+  {
+    "line": 8173,
+    "status": "replayed-source-only",
+    "historical_output_line": 8176,
+    "changes": [
+      {
+        "path": "tools/xp017_player_proof.gd",
+        "before_sha256": "fa2f6416ec5679dd3c5522c23c8c11d242e4803133b1a5d4bcc761cee01d6e62",
+        "after_sha256": "67d772a29e98714ec86daa42f2ddf7796844d294f4140a9e089041a7da465b5e"
+      },
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "76e6fd2b0f90b8724cc7898d47ac85a2b2a79b67189e3f9b24983b6f3040927e",
+        "after_sha256": "6e47416c2c9cd43a06cfab4799a2157f272df268dba956637cb08d1dc54dfffe"
+      }
+    ]
+  },
+  {
+    "line": 8182,
+    "status": "replayed-source-only",
+    "historical_output_line": 8186,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "2c578ce9189f8da23ff7dc0c3150ed3add1f736c6aa6579da75742962224142a",
+        "after_sha256": "5f51b2e1eed9120f037b39c51faf1c6da7075649c122ac5dd1dbc105c149c53d"
+      }
+    ]
+  },
+  {
+    "line": 8226,
+    "status": "historical-evidence-generator-preserved-as-patch-only",
+    "reason": "Original generated evidence inputs absent; never regenerate old evidence or place unique scripts under target."
+  },
+  {
+    "line": 8232,
+    "status": "historical-evidence-generator-preserved-as-patch-only",
+    "reason": "Original generated evidence inputs absent; never regenerate old evidence or place unique scripts under target."
+  },
+  {
+    "line": 8238,
+    "status": "replayed-source-only",
+    "historical_output_line": 8242,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "5f51b2e1eed9120f037b39c51faf1c6da7075649c122ac5dd1dbc105c149c53d",
+        "after_sha256": "88c39c7db1226742999b96431101619a31c12946a13e1f65f91190c596f5de1c"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "655a5918ceb3317d02f754462e8abac06f49d50f1fe9573da0d9ff8261b75c62",
+        "after_sha256": "5c0c644a2384535bdcc2575c51bcb6941fbf16ff1ea7500efa9848519e5ba490"
+      },
+      {
+        "path": "docs/XP017_COMPLETION.md",
+        "before_sha256": null,
+        "after_sha256": "033f6a1bae626afd4a7c01010922c6c3d7d806145061494d9b83a063489dfd38"
+      }
+    ]
+  }
+]

@@ -9,6 +9,7 @@
 #include "Misc/EngineVersion.h"
 #include "XaceInputCollector.h"
 #include "HAL/PlatformProcess.h"
+#include "XaceMixedSessionProof.h"
 
 namespace
 {
@@ -47,6 +48,7 @@ UXaceNativeContractProofCommandlet::UXaceNativeContractProofCommandlet()
 {IsClient=false;IsServer=false;IsEditor=true;LogToConsole=true;}
 int32 UXaceNativeContractProofCommandlet::Main(const FString& Params)
 {
+    if(Params.Contains(TEXT("XaceMixed=")))return MixedSessionProof(Params);
     if(FParse::Param(*Params,TEXT("XaceLive")))return LiveProof(Params);
     FString FixturePath,ReportPath,Raw;
     FParse::Value(*Params,TEXT("XaceFixture="),FixturePath);FParse::Value(*Params,TEXT("XaceReport="),ReportPath);

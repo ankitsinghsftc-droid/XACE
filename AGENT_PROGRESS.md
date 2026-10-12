@@ -15,7 +15,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 |---|---|---|
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
 | XP-016 | Reconstructed through original continuation line7936; original evidence JSON missing | Fresh native, live, unit and selected Player gates pass; scope limits below |
-| XP-017 through XP-022 | Pending | Not run |
+| XP-017 | Source reconstructed from historical records through line8238 | Pending fresh mixed-engine acceptance |
+| XP-018 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -54,3 +55,9 @@ Source checkpoint `6dc9f7d` includes the original successful Unity continuation.
 Next: reconstruct XP-017 from original transcript line7950 onward, identify its actual final continuation, and checkpoint before verification. XP-018 through XP-022 and NEC-001 through NEC-009 remain pending. NEC-010 is prohibited until recovered implementation and NEC-009 are verified.
 
 - `8625fd5`: XP-016 fresh verification checkpoint. Small unit-test logs are committed in the following checkpoint; raw build and native logs remain in persistent recovery evidence.
+
+## XP-017 recovery in progress
+
+Original transcript range7950-8252; source patches replayed with original execution records. Original retained evidence generator stays preserved as patch text, not executed against missing historical results. Original baseline JSON/video evidence remains missing.
+
+**OFF-DEVICE BACKUP: NONE. All recovery checkpoints, including this milestone, exist only on the internal SSD.**
