@@ -147,6 +147,39 @@ namespace Xace.Adapter.Unity
         private string cgsHash;
         private long sequence, requestedTick = -1;
         private bool sent;
+        private Dictionary<string,object> pendingContract;
+        private string pendingActivation;
+        private long activationTick;
+        public long RulesetEpoch => XaceCanonical.Integer(XaceCanonical.Get(epoch,"ruleset_epoch"));
+        public string ActiveCgsHash => cgsHash;
+        public void PrepareRuleset(Dictionary<string,object> message)
+        {
+            var next=XaceCanonical.Parse(XaceCanonical.Text(message,"contract_json"));
+            var current=XaceCanonical.Object(XaceCanonical.Get(XaceCanonical.Parse(OfferJson),"contract"));
+            var nextEpoch=XaceCanonical.Object(XaceCanonical.Get(next,"epoch"));
+            foreach(var key in new[]{"schema","profile_id","required_capabilities","semantic_capabilities"})
+                if(XaceJson.Serialize(XaceCanonical.Get(next,key))!=XaceJson.Serialize(XaceCanonical.Get(current,key)))throw new FormatException("Incompatible ruleset contract");
+            foreach(var key in new[]{"session_id","authority_incarnation"})
+                if(XaceCanonical.Text(nextEpoch,key)!=XaceCanonical.Text(epoch,key))throw new FormatException("Wrong activation authority");
+            if(XaceCanonical.Integer(XaceCanonical.Get(nextEpoch,"ruleset_epoch"))!=RulesetEpoch+1)throw new FormatException("Wrong activation epoch");
+            var game=XaceCanonical.Object(XaceCanonical.Get(next,"gameplay"));var old=XaceCanonical.Object(XaceCanonical.Get(current,"gameplay"));
+            var world=XaceCanonical.Object(XaceCanonical.Get(game,"world"));
+            if(XaceJson.Serialize(XaceCanonical.Get(game,"runtime"))!=XaceJson.Serialize(XaceCanonical.Get(old,"runtime")) || XaceJson.Serialize(XaceCanonical.Get(world,"artifact"))!=XaceJson.Serialize(XaceCanonical.Get(XaceCanonical.Object(XaceCanonical.Get(old,"world")),"artifact")))throw new FormatException("Unsupported runtime/world migration");
+            var hash=XaceCanonical.Text(XaceCanonical.Object(XaceCanonical.Get(game,"cgs")),"cgs_hash");
+            if(hash.Length!=64 || XaceCanonical.Text(world,"compiled_from_cgs_hash")!=hash || XaceCanonical.Text(XaceCanonical.Object(XaceCanonical.Get(game,"sgc")),"compiled_from_cgs_hash")!=hash)throw new FormatException("Unbound candidate artifacts");
+            var id=XaceCanonical.Text(message,"activation_id");var tick=XaceCanonical.Integer(XaceCanonical.Get(message,"activation_tick"));
+            if(id.Length!=64 || tick<NextTick || (pendingActivation!=null && pendingActivation!=id))throw new FormatException("Invalid activation preparation");
+            pendingContract=next;pendingActivation=id;activationTick=tick;
+        }
+        public void CommitRuleset(string id)
+        {
+            if(id!=pendingActivation || pendingContract==null || NextTick!=activationTick)throw new FormatException("Unprepared activation");
+            var offer=XaceCanonical.Parse(OfferJson);offer["contract"]=pendingContract;OfferJson=XaceJson.Serialize(offer);
+            epoch=XaceCanonical.Object(XaceCanonical.Get(pendingContract,"epoch"));
+            cgsHash=XaceCanonical.Text(XaceCanonical.Object(XaceCanonical.Get(XaceCanonical.Object(XaceCanonical.Get(pendingContract,"gameplay")),"cgs")),"cgs_hash");
+            Recovering=true;requestedTick=-1;sent=false;pendingContract=null;pendingActivation=null;
+        }
+        public void AbortRuleset(string id) { if(pendingActivation!=id)throw new FormatException("Unknown activation abort");pendingContract=null;pendingActivation=null; }
         public void Configure(string ticketJson, string worldJson)
         {
             var ticket=XaceCanonical.Parse(ticketJson);

@@ -211,7 +211,8 @@ namespace Xace.Adapter.Unity
                 packet.peer_id = 1;
             if (packet.sequence_id == 0)
                 packet.sequence_id = NextSequenceId();
-            var sent = SendJson(XaceJson.Serialize(packet.ToDictionary()));
+            var data=packet.ToDictionary();if(Session.Enabled)data["ruleset_epoch"]=Session.RulesetEpoch;
+            var sent = SendJson(XaceJson.Serialize(data));
             if (sent && Session.Enabled) Session.Sent();
             return sent;
         }
@@ -402,6 +403,12 @@ namespace Xace.Adapter.Unity
             {
                 try
                 {
+                    if(message.MessageType=="ruleset_prepare") {
+                        Session.PrepareRuleset(message.Data);
+                        SendDictionaryImmediately(new Dictionary<string,object>{{"msg_type","ruleset_ready"},{"activation_id",message.GetString("activation_id","")}});return;
+                    }
+                    if(message.MessageType=="ruleset_commit") {Session.CommitRuleset(message.GetString("activation_id",""));cgsHash=Session.ActiveCgsHash;return;}
+                    if(message.MessageType=="ruleset_abort") {Session.AbortRuleset(message.GetString("activation_id",""));return;}
                     if (message.MessageType == "input_tick_request")
                     {
                         var tick = XaceCanonical.Integer(XaceCanonical.Get(message.Data,"tick"),0);

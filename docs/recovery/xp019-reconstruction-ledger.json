@@ -1,0 +1,553 @@
+[
+  {
+    "line": 8630,
+    "historical_output_line": 8634,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "9dd4885b87dbd1dc994a6dd35aa1cfaea42e4c051e51813bd3809c64ee213d72",
+        "after_sha256": "cfab8ed6e7d02e05ec5990be90d43772375fbdaab973e2da84c2b80e8ede58ba"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": null,
+        "after_sha256": "040d50d728633397914efb4b02b3d06825f08f5b5ea5c2b00db6bbeaa7772c92"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8638,
+    "historical_output_line": 8641,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "040d50d728633397914efb4b02b3d06825f08f5b5ea5c2b00db6bbeaa7772c92",
+        "after_sha256": "a03757a4b69387fa962f6c26fe271816c217b3f8537bcd7424d69837b01a6c5a"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8646,
+    "historical_output_line": 8649,
+    "changes": [],
+    "status": "replayed-source-only",
+    "reviewed_shell_edit": "Extract migrate_isolated exactly as historical successful shell edit."
+  },
+  {
+    "line": 8653,
+    "historical_output_line": 8657,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "a03757a4b69387fa962f6c26fe271816c217b3f8537bcd7424d69837b01a6c5a",
+        "after_sha256": "86421b5a0add56c4bc2f40fe1dbc521151e5b7cd803932ba45c9c49fe69f6d27"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8665,
+    "historical_output_line": 8669,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/engine_bridge.rs",
+        "before_sha256": "dd4945b1de09b29a5c7cfff0df11c13f094fe0711124f1f1f9e81393aa575a16",
+        "after_sha256": "66edccfa3d2eadf896458b892d9b75e042e10e00b1f8649a4deb1cc86e7a6dcd"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8673,
+    "historical_output_line": 8678,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/engine_bridge.rs",
+        "before_sha256": "66edccfa3d2eadf896458b892d9b75e042e10e00b1f8649a4deb1cc86e7a6dcd",
+        "after_sha256": "3345addd88e8d5bdc11c2506bcadf01a90bdd95e790dff2bb87349a9a20b7f26"
+      },
+      {
+        "path": "packages/runtime-core/src/engine_bridge.rs",
+        "before_sha256": "3345addd88e8d5bdc11c2506bcadf01a90bdd95e790dff2bb87349a9a20b7f26",
+        "after_sha256": "6312cbcf7ebc24c20be6b2d58bec5c0cbf3125f7b699cadde02f2bee740f29ff"
+      },
+      {
+        "path": "packages/runtime-core/src/live_session.rs",
+        "before_sha256": "9585836ee17afbe1df3ef29534a06f8bb898375600f6fdaa329bfaa499403d8a",
+        "after_sha256": "42ccdd7c2dde6d488524e8daf218373cb27b6d29e738aa7c24ed341d4ca3ffe0"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8691,
+    "historical_output_line": 8696,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/engine_bridge.rs",
+        "before_sha256": "6312cbcf7ebc24c20be6b2d58bec5c0cbf3125f7b699cadde02f2bee740f29ff",
+        "after_sha256": "c3d3e435c7d0367f9b5a5f3f4ff729b099de4fd68edcc5fad42b28cdaa0140c5"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_candidate.rs",
+        "before_sha256": "fbe2a0bfdc6aeb48898a889fa75c89dfb2ebad7868ed76d7f056dcfda69e8e49",
+        "after_sha256": "33e9f61bf314ba6e64231b825e7ebcc72cb5c1eb2b599e3a639d93d045c66963"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "cfab8ed6e7d02e05ec5990be90d43772375fbdaab973e2da84c2b80e8ede58ba",
+        "after_sha256": "aa203aee91345d918e25f20b5e18b059bef29c7e00ed864113baf42b2e45a45c"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "86421b5a0add56c4bc2f40fe1dbc521151e5b7cd803932ba45c9c49fe69f6d27",
+        "after_sha256": "a5b41e2e2d1ad13750bf9d381e22abbc6cc17dfd15bbb86275837ed0ecfaef90"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8707,
+    "historical_output_line": 8710,
+    "changes": [
+      {
+        "path": "examples/reference-mechanic/tests/candidate.rs",
+        "before_sha256": "1c2c18ea579665376ddedbcb111825dcca4be3214eac6e79f85581b08242f5bc",
+        "after_sha256": "3b1f6b4ddc360428dc012c8650f853afc3e5f69bbb225413b9dc01f31dae5ee9"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8726,
+    "historical_output_line": 8732,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/control_protocol.rs",
+        "before_sha256": "b496b10ae523262e4b2cfcf1e768cf2266330ca5cc277f2a9304da6d3665ce24",
+        "after_sha256": "f2c3c85c26a7f39b3cd8b3d87e026ccc25ed14c0dce1c7751b46e57479b45d60"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "aa203aee91345d918e25f20b5e18b059bef29c7e00ed864113baf42b2e45a45c",
+        "after_sha256": "59b2eb72afde1399fa3d4517e4c721299b64037ff6fa1c511c9d554e17c394f7"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "ed4e1c949bc78ee66df59a72ad93c2b97b8a31248e61aa0821f26b8ff56c69cf",
+        "after_sha256": "f290cfbfdf0bc6a035b2b12f8b8f2cf86a91e6f0db74e0bc0b1d70925534155f"
+      },
+      {
+        "path": "examples/reference-mechanic/src/bin/host.rs",
+        "before_sha256": "6463c47cce18f8749226d87679079ae91b17574fc0d485c6cfdfdfc89a598984",
+        "after_sha256": "72b1c85f630179ff27322d26bce5bbd337e56f6464a459aaf643864c10827bcb"
+      }
+    ],
+    "status": "replayed-source-only",
+    "reviewed_shell_edit": "Optional ruleset fields in ack/test constructors after first successful patch.",
+    "excluded_patch": "8726-2.patch"
+  },
+  {
+    "line": 8745,
+    "historical_output_line": 8749,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "59b2eb72afde1399fa3d4517e4c721299b64037ff6fa1c511c9d554e17c394f7",
+        "after_sha256": "f252b7e39487fd93eb896ab3c6065dc93d0c3c7b3916472525b48acfaa89661a"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "f290cfbfdf0bc6a035b2b12f8b8f2cf86a91e6f0db74e0bc0b1d70925534155f",
+        "after_sha256": "95060254fc8aea22de6c03a683d9026b15fbd25a05380411ae1042cae02d335a"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "a5b41e2e2d1ad13750bf9d381e22abbc6cc17dfd15bbb86275837ed0ecfaef90",
+        "after_sha256": "46d982c8f0d960788725216e90f9e0049d2298540052a515fff11abbe2eccc44"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8760,
+    "historical_output_line": 8763,
+    "changes": [
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "992a14d3522ee0d52e8783cb0ec6ae964562ad58226d07c804d2f76934d51054",
+        "after_sha256": "02b06ae041a1cde95a52f5f15a5e30de34b99873dd5392cffa261f7ac5ff2a20"
+      },
+      {
+        "path": "adapters/godot/xace_transport.gd",
+        "before_sha256": "16cb08ed69f61e24d16f9f02e9c7e73973d6c2e34c5a8b991ce4cfc2a046748d",
+        "after_sha256": "abc56d2c35158180e1eb592eecef28062da40f0033d74204e96bbaf13469d08c"
+      },
+      {
+        "path": "adapters/unity/XaceNativeContract.cs",
+        "before_sha256": "83ee2beae8ac27f07ea2f88a65b6a25bfacb3575c5ab057de100083142327238",
+        "after_sha256": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028"
+      },
+      {
+        "path": "adapters/unity/XaceTransport.cs",
+        "before_sha256": "645b5d02a3db1aef42957378a5fbb7805a5fccb7792693b41e5e917b6cdbee45",
+        "after_sha256": "5d24be49709508db0e99bcb5578434ba12c334ab9d5a1bc512e7b85acf91e370"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8767,
+    "historical_output_line": 8771,
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceNativeContract.h",
+        "before_sha256": "b56ebce19c5c860d2348c8845ea387dc05588b832750c7e6262125a9349157dc",
+        "after_sha256": "5c0f2f69723d4826fb5cf12504d8dda1ed7676a2c0d422050f32763651fcb688"
+      },
+      {
+        "path": "adapters/unreal/XaceTransport.cpp",
+        "before_sha256": "02ed246fc9a3672a7595d0456f45f7981df7aa2f8c58b0a1d706f8b5720732fd",
+        "after_sha256": "d8e4cd85e512e47ab99bf9239a80e2c40a653444615350348097c2b4b22146a5"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8775,
+    "historical_output_line": 8778,
+    "changes": [
+      {
+        "path": "adapters/unreal/XaceNativeContract.cpp",
+        "before_sha256": "c084dbbdd73ffc8c7a0f0a5d465e9e739eeb2b31938c688f51492efdcc28b6ef",
+        "after_sha256": "1cb4ee682cf72aa053ff581e2e09aee8964370414f8b5674d2a95c8a87cf5fa8"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8794,
+    "historical_output_line": 8798,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "f252b7e39487fd93eb896ab3c6065dc93d0c3c7b3916472525b48acfaa89661a",
+        "after_sha256": "bfd402e40d64cefbd6d7c749c1c85d638cffd819a070aea26f01f4d03d5a4f4a"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "46d982c8f0d960788725216e90f9e0049d2298540052a515fff11abbe2eccc44",
+        "after_sha256": "04ef1f2964b2fbfffd789501c5ad2c0274a87b25000b26b0196553e91cade7b2"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "95060254fc8aea22de6c03a683d9026b15fbd25a05380411ae1042cae02d335a",
+        "after_sha256": "977b0deef01a6fcee073a7997a025e2f2000482e2048dfc16c31c7f52f8129f1"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8809,
+    "historical_output_line": 8811,
+    "changes": [
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "ff46b79f18ab27d81669d025af49996bd7a4a04a4ada89887ba06530c835ae2a",
+        "after_sha256": "9131a8006e12fe0ac991ba8ed1e37a7e0bcea1b07a822222a5393fc8594a745b"
+      },
+      {
+        "path": "tools/xp019_activation_proof.py",
+        "before_sha256": null,
+        "after_sha256": "5a639dee41567eb079238d8e1de4312fe5326caf3ad134d8a478e1e214f7d5bd"
+      }
+    ],
+    "status": "replayed-source-only",
+    "recovery_adjustment": "Preserve explicit persistent Unreal project argument and launch path from XP017 recovery."
+  },
+  {
+    "line": 8865,
+    "historical_output_line": 8869,
+    "changes": [
+      {
+        "path": "tools/xp019_activation_proof.py",
+        "before_sha256": "5a639dee41567eb079238d8e1de4312fe5326caf3ad134d8a478e1e214f7d5bd",
+        "after_sha256": "6fea7aec08ee3d7fc8bda3f2359bcbf05efd6882c4f2340ed80ee6bc421b6c21"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8929,
+    "historical_output_line": 8932,
+    "changes": [
+      {
+        "path": "adapters/godot/xace_protocol.gd",
+        "before_sha256": "a83d6cf9591cddf67a7f11095e017edee6764efe2043af58cb333407fa206e1f",
+        "after_sha256": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_candidate.rs",
+        "before_sha256": "33e9f61bf314ba6e64231b825e7ebcc72cb5c1eb2b599e3a639d93d045c66963",
+        "after_sha256": "f2eb6851daf8f8b1dd29482afd4a80e2f9fd64d4d565ec3b64f471aa96c1b7f8"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "04ef1f2964b2fbfffd789501c5ad2c0274a87b25000b26b0196553e91cade7b2",
+        "after_sha256": "ba3994a6436232bc28c4db925e2df7f75feeb7a186c1353933d5fb6beac950de"
+      },
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "9131a8006e12fe0ac991ba8ed1e37a7e0bcea1b07a822222a5393fc8594a745b",
+        "after_sha256": "ee95e968448a07a7f02f7bd6162233cdc0da097165a2b3f5ef7966422a1b2342"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 8936,
+    "historical_output_line": 8939,
+    "changes": [],
+    "status": "excluded-original-unexecuted-approval-limit"
+  },
+  {
+    "line": 8982,
+    "historical_output_line": 8986,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/live_session.rs",
+        "before_sha256": "42ccdd7c2dde6d488524e8daf218373cb27b6d29e738aa7c24ed341d4ca3ffe0",
+        "after_sha256": "22375aeb753e6b0570497fc53925587a5c5abe4782d355bdc55d7325c31d5f4e"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9000,
+    "historical_output_line": 9003,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "0d3e7beaa72e1e0fe6c46b6ab80aef7ddf3ecdb7cbadf29589d7f814dc935dbc",
+        "after_sha256": "e81ff0cd1fa60ef4c518be778dad3faf138bcfd67aa38e621f6e5904343dbb1b"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9005,
+    "historical_output_line": 9007,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9021,
+    "historical_output_line": 9024,
+    "changes": [
+      {
+        "path": "packages/runtime-core/Cargo.toml",
+        "before_sha256": "3abb69be5de554cfdad6ee389ed4835847de029079940255e443358ac58bd5ed",
+        "after_sha256": "4784971ea50c248284ef9c03a3d0789ff4d11840230fa662156fa59b7b7e17f2"
+      },
+      {
+        "path": "examples/reference-mechanic/Cargo.toml",
+        "before_sha256": "10be854e8009190867ffcdf4ee969942f411f2144e20385c42639d3b6e1272e9",
+        "after_sha256": "b8c120a45794cdae167bd07a2a3665494c18d72a5ca11106ac83cd4178125d1a"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "bfd402e40d64cefbd6d7c749c1c85d638cffd819a070aea26f01f4d03d5a4f4a",
+        "after_sha256": "9575b425b759e44fd1e289e67b1a70b0979f5a63af1709a567dc9fd01420deb9"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "ba3994a6436232bc28c4db925e2df7f75feeb7a186c1353933d5fb6beac950de",
+        "after_sha256": "58c616a7fc8d250f4354013788b2a82c49d328a5a9c596d5df123662262040f5"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9050,
+    "historical_output_line": 9053,
+    "changes": [
+      {
+        "path": "adapters/godot/xace_native_contract.gd",
+        "before_sha256": "02b06ae041a1cde95a52f5f15a5e30de34b99873dd5392cffa261f7ac5ff2a20",
+        "after_sha256": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185"
+      },
+      {
+        "path": "adapters/godot/xace_transport.gd",
+        "before_sha256": "abc56d2c35158180e1eb592eecef28062da40f0033d74204e96bbaf13469d08c",
+        "after_sha256": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9060,
+    "historical_output_line": 9063,
+    "changes": [
+      {
+        "path": "examples/reference-mechanic/tests/candidate.rs",
+        "before_sha256": "3b1f6b4ddc360428dc012c8650f853afc3e5f69bbb225413b9dc01f31dae5ee9",
+        "after_sha256": "e13ba9a4e82c4980fa3d3d74b0a2d6905d7e13c9157e1e6d9b8884957acd9cc3"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9072,
+    "historical_output_line": 9075,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "58c616a7fc8d250f4354013788b2a82c49d328a5a9c596d5df123662262040f5",
+        "after_sha256": "75f02f6beaefae24817b05756533b73ac420f0996ecae56ce4e0e8040b670890"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9082,
+    "historical_output_line": 9086,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/live_session.rs",
+        "before_sha256": "22375aeb753e6b0570497fc53925587a5c5abe4782d355bdc55d7325c31d5f4e",
+        "after_sha256": "9182f22d1d29941a18f1bcfac4f72c5aa445e409ba73ffff9c1f8e6779576de1"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "75f02f6beaefae24817b05756533b73ac420f0996ecae56ce4e0e8040b670890",
+        "after_sha256": "d9b6e2512828eefbdfa3477bd3ed87373a4323b2dcda7974864ad1f8980f3838"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9100,
+    "historical_output_line": 9103,
+    "changes": [
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "ee95e968448a07a7f02f7bd6162233cdc0da097165a2b3f5ef7966422a1b2342",
+        "after_sha256": "df23d83127940484527e7b1fa45f698c01e9bbaf39c70186b35c52c8b408e5fe"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9138,
+    "historical_output_line": 9140,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9165,
+    "historical_output_line": 9169,
+    "changes": [
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "df23d83127940484527e7b1fa45f698c01e9bbaf39c70186b35c52c8b408e5fe",
+        "after_sha256": "16a110629dacd9e625b57f2d5a25bd5ccd158ab3461db41b749d1deb32448851"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9173,
+    "historical_output_line": 9175,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9211,
+    "historical_output_line": 9215,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "9575b425b759e44fd1e289e67b1a70b0979f5a63af1709a567dc9fd01420deb9",
+        "after_sha256": "c6530fdd2991fa574a69f8e10aa6e285390cee58b7ec19ce576ca8e7cb9c7db9"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "d9b6e2512828eefbdfa3477bd3ed87373a4323b2dcda7974864ad1f8980f3838",
+        "after_sha256": "9901cd9faaadbfb594717d34287a1aeae923a4609b9aa7c985db74a6fd1cf76e"
+      },
+      {
+        "path": "examples/reference-mechanic/tests/candidate.rs",
+        "before_sha256": "e13ba9a4e82c4980fa3d3d74b0a2d6905d7e13c9157e1e6d9b8884957acd9cc3",
+        "after_sha256": "ff93a1316bfe4f9ab4534a6cfb8e46ae7eac39c9a5090aa373b483cc8b0ba03a"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9221,
+    "historical_output_line": 9224,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9226,
+    "historical_output_line": 9229,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "c6530fdd2991fa574a69f8e10aa6e285390cee58b7ec19ce576ca8e7cb9c7db9",
+        "after_sha256": "77dd7f41ae540c8b944dc68234289d7d880b71dcbbd2c72f721be60384771a4d"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9233,
+    "historical_output_line": 9236,
+    "changes": [
+      {
+        "path": "docs/XP019_COMPLETION.md",
+        "before_sha256": null,
+        "after_sha256": "b72b721edcac260330274f71664a6f4e26e4a15a986768d1acd0fd1e8fd17a4e"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9250,
+    "historical_output_line": 9253,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9278,
+    "historical_output_line": 9282,
+    "changes": [
+      {
+        "path": "docs/XP019_COMPLETION.md",
+        "before_sha256": "b72b721edcac260330274f71664a6f4e26e4a15a986768d1acd0fd1e8fd17a4e",
+        "after_sha256": "aef572987e355d91f5f2a4eaba4b75115fe3bbbfa2b7abbaf4b5f70f2a7093e5"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9288,
+    "historical_output_line": 9292,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "e81ff0cd1fa60ef4c518be778dad3faf138bcfd67aa38e621f6e5904343dbb1b",
+        "after_sha256": "448e27e6d082cbf94be937b3e1cbe846e6cbd70974ebbdd390dae309af291ad8"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "30b02b1da3725a9b1967ccf35d32ebeb0d74f99aec3b312fee32387fbf2169b3",
+        "after_sha256": "de5dff6093f0d2749a39fae185027e114740c576ff29536c1387a23bae062ff7"
+      }
+    ],
+    "status": "replayed-source-only"
+  }
+]

@@ -240,6 +240,10 @@ static func _validate_legacy_message(message: Dictionary) -> String:
 			return ""
 		"session_baseline":
 			return "" if message.get("sync", {}) is Dictionary else "invalid session baseline"
+		"ruleset_prepare", "ruleset_commit", "ruleset_abort":
+			if int(message.get("protocol_version", 0)) != PROTOCOL_VERSION or str(message.get("activation_id", "")).length() != 64:
+				return "invalid ruleset transition envelope"
+			return ""
 		MSG_TICK_SNAPSHOT:
 			if int(message.get("tick", -1)) < 0:
 				return "tick_snapshot has invalid tick"

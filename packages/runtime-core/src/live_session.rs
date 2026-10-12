@@ -85,6 +85,19 @@ fn digest(bytes: &[u8]) -> String {
 fn file_hash(path: &Path) -> Result<String> {
     Ok(digest(&fs::read(path)?))
 }
+fn ascii_json_digest(value: &Value) -> Result<String> {
+    let mut canonical = String::new();
+    for ch in serde_json::to_string(value)?.chars() {
+        if ch.is_ascii() && ch != '\u{7f}' {
+            canonical.push(ch);
+        } else {
+            for unit in ch.encode_utf16(&mut [0; 2]) {
+                canonical.push_str(&format!("\\u{:04x}", unit));
+            }
+        }
+    }
+    Ok(digest(canonical.as_bytes()))
+}
 fn field<'a>(value: &'a Value, keys: &[&str]) -> Result<&'a Value> {
     keys.iter().try_fold(value, |v, k| {
         v.get(*k)
@@ -110,6 +123,73 @@ fn adapter(engine: &str) -> AdapterIdentity {
     .unwrap()
 }
 impl LiveSessionController {
+    pub(crate) fn current_contract(&self) -> &SessionContract { &self.contract }
+    pub(crate) fn next_ruleset_contract(&self, summary:&SpawnSummary, directory:&Path, parent_manifest:&Path)->Result<SessionContract> {
+        let package: Value = serde_json::from_slice(&fs::read(directory.join("playable.manifest.json"))?)?;
+        let parent: Value = serde_json::from_slice(&fs::read(parent_manifest)?)?;
+        for key in ["schema", "package_id", "version", "presentation_variants"] {
+            if field(&package, &[key])? != field(&parent, &[key])? {
+                bail!("activation changes unsupported package field: {}", key);
+            }
+        }
+        if package["schema"] != "xace.playable_package.v1"
+            || package["gameplay"]["cgs_hash"] != summary.cgs_hash
+            || package["gameplay"]["plan_hash"] != summary.execution_plan_hash
+            || package["gameplay"]["schema_version"] != summary.schema_version
+            || package["gameplay"]["compiled_schema_hash"] != file_hash(&directory.join("compiled_schema.json"))? {
+            bail!("activation package does not identify compiled candidate");
+        }
+        let mut before = parent["gameplay"].clone();
+        let mut after = package["gameplay"].clone();
+        for key in ["cgs_hash", "plan_hash", "schema_version", "compiled_schema_hash", "world"] {
+            before.as_object_mut().context("parent gameplay missing")?.remove(key);
+            after.as_object_mut().context("candidate gameplay missing")?.remove(key);
+        }
+        if before != after { bail!("activation changes unsupported gameplay profile"); }
+        let entries = |manifest: &Value| -> Result<BTreeMap<String, Value>> {
+            let mut result = BTreeMap::new();
+            for entry in manifest["files"].as_array().context("package files missing")? {
+                let path = string(field(entry, &["path"])?)?.to_owned();
+                if result.insert(path, entry.clone()).is_some() { bail!("duplicate package file"); }
+            }
+            Ok(result)
+        };
+        let previous = entries(&parent)?;
+        let current = entries(&package)?;
+        if previous.keys().ne(current.keys()) { bail!("activation changes package file set"); }
+        for (path, entry) in &current {
+            if ["game.cgs.json", "execution_plan.json", "world.json", "world.manifest.json", "compiled_schema.json"].contains(&path.as_str()) {
+                let bytes = fs::read(directory.join(path))?;
+                if entry["sha256"] != digest(&bytes) || entry["size"].as_u64() != Some(bytes.len() as u64) {
+                    bail!("activation package file mismatch: {}", path);
+                }
+            } else if previous.get(path) != Some(entry) { bail!("activation changes runtime or presentation"); }
+        }
+        let mut unhashed = package.clone();
+        unhashed.as_object_mut().context("package object missing")?.remove("package_content_hash");
+        if package["gameplay_hash"] != ascii_json_digest(&package["gameplay"])?
+            || package["package_content_hash"] != ascii_json_digest(&unhashed)? {
+            bail!("activation package identity mismatch");
+        }
+        let mut value=serde_json::to_value(&self.contract)?;
+        value["epoch"]["ruleset_epoch"]=json!(self.contract.epoch.ruleset_epoch.checked_add(1).context("epoch exhausted")?);
+        value["gameplay"]["cgs"]=json!({"schema_version":cgs_version(&summary.schema_version)?,"cgs_hash":summary.cgs_hash});
+        let plan:Value=serde_json::from_slice(&fs::read(directory.join("execution_plan.json"))?)?;
+        value["gameplay"]["sgc"]=json!({"schema_version":summary.schema_version,"plan_version":summary.execution_plan_version,"plan_hash":summary.execution_plan_hash,"compiled_from_cgs_hash":summary.cgs_hash,"adapter_protocol_version":plan["adapter_protocol_version"]});
+        let manifest:Value=serde_json::from_slice(&fs::read(directory.join("world.manifest.json"))?)?;
+        if package["gameplay"]["world"] != manifest["world"] { bail!("activation package world mismatch"); }
+        value["gameplay"]["world"]=manifest["world"].clone();
+        value["gameplay"]["input"]["artifact"]["content_hash"]=plan["proof_bundle"]["input_hash"].clone();
+        value["gameplay"]["playable_package"]["content_hash"]=package["gameplay_hash"].clone();
+        let contract:SessionContract=serde_json::from_value(value)?;
+        contract.validate().map_err(|e|anyhow::anyhow!("invalid activation contract: {:?}",e))?;
+        Ok(contract)
+    }
+    pub(crate) fn install_ruleset_contract(&mut self,contract:SessionContract)->Result<()> {
+        self.members.require_compatibility_profile(Self::profile(&contract,1))?;
+        self.log.append(&json!({"schema":"xace.session_record.v1","kind":"ruleset_committed","epoch":contract.epoch,"gameplay":contract.gameplay}))?;
+        self.contract=contract;Ok(())
+    }
     pub(crate) fn candidate_identity(&self) -> Value {
         json!({"epoch":self.contract.epoch,"gameplay":self.contract.gameplay})
     }

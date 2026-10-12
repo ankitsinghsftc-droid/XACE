@@ -1,6 +1,7 @@
 //! Runtime orchestrator for the standalone bridge runtime.
 
 pub mod ruleset_candidate;
+pub mod ruleset_activation;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -69,6 +70,10 @@ impl Eq for HostSystemRegistrar {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RuntimeConfig {
+    /// Host-owned configuration migration registration; never supplied by package JSON.
+    pub candidate_configuration_components: BTreeSet<u32>,
+    /// Trusted launcher-selected storage boundary. Control messages contain only digests.
+    pub ruleset_root: Option<PathBuf>,
     /// Trusted native host composition; never populated from package data.
     pub register_host_systems: Option<HostSystemRegistrar>,
     pub world_seed: u64,
@@ -95,6 +100,8 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
+            candidate_configuration_components: BTreeSet::new(),
+            ruleset_root: None,
             register_host_systems: None,
             world_seed: 42,
             execution_plan_version: 1,
@@ -737,6 +744,12 @@ pub struct RuntimeOrchestrator {
     last_playback_commands: Vec<EnginePlaybackCommand>,
     replay_golden_log: Option<GoldenLog>,
     migration_hooks: Vec<RuntimeComponentMigrationHook>,
+    pending_activation: Option<ruleset_activation::PendingActivation>,
+    completed_activation: Option<(String, String, u64, String)>,
+    #[cfg(feature = "activation-fault-injection")]
+    activation_fault: Option<ruleset_activation::ActivationFault>,
+    activation_failure: Option<String>,
+    activation_sync_peers: BTreeSet<u64>,
     migration_log: Vec<RuntimeHotSwapMigrationReport>,
     adapter_side_effect_rollback_log: Vec<RuntimeAdapterSideEffectRollbackReport>,
 }
@@ -966,6 +979,12 @@ impl RuntimeOrchestrator {
             last_playback_commands: Vec::new(),
             replay_golden_log: None,
             migration_hooks: Vec::new(),
+            pending_activation: None,
+            completed_activation: None,
+            #[cfg(feature = "activation-fault-injection")]
+            activation_fault: None,
+            activation_failure: None,
+            activation_sync_peers: BTreeSet::new(),
             migration_log: Vec::new(),
             adapter_side_effect_rollback_log: Vec::new(),
         })
@@ -1002,16 +1021,34 @@ impl RuntimeOrchestrator {
         &mut self,
         connection: tcp_server::EngineConnection,
     ) -> Result<()> {
+        if self.pending_activation.is_some() || self.activation_failure.is_some() {
+            anyhow::bail!("ruleset transition fences new admission; retry with the current epoch after publication");
+        }
         self.pump_engine_inbound()?;
         self.handshake_engine_connections(vec![connection])
     }
 
     pub fn tick(&mut self) -> Result<TickResult, XaceError> {
+        if let Some(reason)=&self.activation_failure {
+            return Err(runtime_session_record_error("ruleset_session_ended",self.phase_orch.current_tick(),anyhow::anyhow!("{}",reason)));
+        }
         self.client_prediction_pending.clear();
         self.pending_input_mutations.lock().expect("input staging lock").clear();
         self.capture_runtime_rollback_snapshot()?;
         self.pump_engine_inbound().map_err(|err| runtime_session_record_error(
             "receive_disconnect",self.phase_orch.current_tick(),err))?;
+        self.process_ruleset_activation().map_err(|err|runtime_session_record_error("ruleset_activation",self.phase_orch.current_tick(),err))?;
+        if !self.activation_sync_peers.is_subset(&self.config.input_sync.required_peers) {
+            let connected=self.bridges.iter().filter(|b|b.is_connected()).filter_map(|b|b.admitted_peer_id()).collect::<BTreeSet<_>>();
+            if !self.activation_sync_peers.is_subset(&connected) {
+                self.activation_failure=Some("client lost during committed epoch synchronization".into());
+                let _=self.disconnect_engine("committed_epoch_sync_failed_session_ended");
+                return Err(runtime_session_record_error("ruleset_sync",self.phase_orch.current_tick(),anyhow::anyhow!("committed epoch client lost")));
+            }
+            let tick=self.phase_orch.current_tick();
+            return Err(runtime_lockstep_wait_error(tick,tick,&self.activation_sync_peers.iter().copied().collect::<Vec<_>>(),0));
+        }
+        self.activation_sync_peers.clear();
         if self.config.live_session && self.config.input_sync.required_peers.is_empty() {
             let tick = self.phase_orch.current_tick();
             return Err(runtime_lockstep_wait_error(tick, tick, &[], 0));
@@ -2901,6 +2938,12 @@ impl RuntimeOrchestrator {
     }
 
     pub fn restore_world_snapshot(&mut self, snapshot: &WorldSnapshot) -> Result<(), XaceError> {
+        if self.activation_failure.is_some() || self.completed_activation.as_ref().is_some_and(|(_,_,tick,_)|
+            snapshot.tick < *tick || snapshot.cgs_hash != self.spawn_summary.cgs_hash) {
+            return Err(runtime_rollback_validation_error("restore_world_snapshot",snapshot.tick,
+                "snapshot restore cannot cross a committed ruleset epoch; epoch-aware replay is required",
+                "snapshot.ruleset_epoch"));
+        }
         if snapshot.world_hash.is_empty() {
             return Err(XaceError::FatalError {
                 message: format!(

@@ -9,7 +9,7 @@ historical profile evidence; it is not a universal extensibility certification.
 The correction is implemented and verified; see `docs/WORLD_EXTENSIBILITY_COMPLETION.md`.
 XP-007 is complete for its Windows native headless package profile; see `docs/XP007_COMPLETION.md`.
 
-Implementation checkpoint (2026-10-03): XP-001 through XP-009 are complete for their
+Implementation checkpoint (2026-10-04): XP-001 through XP-009 are complete for their
 declared profiles. XP-010 implementation and same-host verification are finished;
 clean-machine acceptance remains pending by owner instruction. See
 `docs/XP010_COMPLETION.md`. XP-011 is implemented and locally verified; see
@@ -35,7 +35,10 @@ approved authoring, preserved-state behavior, stale/invalid candidate rejection
 and session-controller journal isolation are verified. Unsupported structural,
 world and state-transforming migration remains fail-closed. See
 `docs/XP018_COMPLETION.md` and `docs/evidence/xp018-baseline.json`.
-XP-019 through XP-022 have not started. XP-002 legacy schema/input-plan
+XP-019 is locally certified for durable registered-configuration activation at N,
+with actual mixed-host epochs, join fencing, fault tests and fail-stop restart
+recovery. See `docs/XP019_COMPLETION.md` and `docs/evidence/xp019-baseline.json`.
+XP-020 through XP-022 have not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 

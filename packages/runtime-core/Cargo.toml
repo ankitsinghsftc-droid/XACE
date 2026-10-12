@@ -3,6 +3,10 @@ name = "xace-runtime-core"
 version.workspace = true
 edition.workspace = true
 
+[features]
+# Explicitly opt-in for deterministic activation failure tests; absent in shipped hosts.
+activation-fault-injection = []
+
 [dependencies]
 xace-core   = { path = "../core" }
 xace-network-core = { path = "../network-core" }

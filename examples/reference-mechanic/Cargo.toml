@@ -4,6 +4,9 @@ version = "0.1.0"
 edition.workspace = true
 publish = false
 
+[features]
+activation-fault-injection = ["xace-runtime-core/activation-fault-injection"]
+
 [dependencies]
 xace-core = { path = "../../packages/core" }
 serde = { workspace = true }

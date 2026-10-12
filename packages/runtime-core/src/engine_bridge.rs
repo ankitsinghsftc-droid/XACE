@@ -77,9 +77,36 @@ pub struct EngineBridge {
     projection_refresh: bool,
     projection_sent: Instant,
     projection_sequence: u64,
+    activation: Option<(String, bool)>,
 }
 
 impl EngineBridge {
+    pub(crate) fn activation_peer(&self) -> Option<(u64,u64)> {
+        self.admission.as_ref().filter(|_|self.connected && self.projection_ready)
+            .map(|a|(a.peer_id,a.generation))
+    }
+    pub(crate) fn prepare_ruleset(&mut self,id:&str,tick:u64,contract:&xace_core::wire::session_contract::SessionContract)->Result<()> {
+        anyhow::ensure!(self.activation_peer().is_some(),"peer is not ready for preparation");
+        write_message(&mut self.writer,&serde_json::json!({"msg_type":"ruleset_prepare","protocol_version":1,"activation_id":id,"activation_tick":tick,"contract_json":serde_json::to_string(contract)?}))?;
+        self.activation=Some((id.into(),false));Ok(())
+    }
+    pub(crate) fn ruleset_ready(&self,id:&str)->bool {
+        self.connected && self.activation.as_ref().is_some_and(|(pending,ready)|pending==id && *ready)
+    }
+    pub(crate) fn abort_ruleset(&mut self,id:&str) {
+        let _=write_message(&mut self.writer,&serde_json::json!({"msg_type":"ruleset_abort","protocol_version":1,"activation_id":id}));
+        self.activation=None;
+    }
+    pub(crate) fn commit_ruleset(&mut self,id:&str,contract:&xace_core::wire::session_contract::SessionContract)->Result<()> {
+        anyhow::ensure!(self.ruleset_ready(id),"unready peer at commit");
+        write_message(&mut self.writer,&serde_json::json!({"msg_type":"ruleset_commit","protocol_version":1,"activation_id":id}))?;
+        self.admission.as_mut().ok_or_else(||anyhow::anyhow!("missing admission"))?.contract=contract.clone();
+        self.cgs_hash=String::from(contract.gameplay.cgs.cgs_hash.clone());
+        self.schema_ver=contract.gameplay.cgs.schema_version.to_string();
+        self.inbound_inputs.clear();self.last_requested_tick=None;
+        self.projection_ready=false;self.projection_ack=false;self.projection_refresh=true;
+        self.projection_sent=Instant::now();self.activation=None;Ok(())
+    }
     pub fn handshake(
         writer: TcpStream,
         reader: BufReader<TcpStream>,
@@ -164,6 +191,7 @@ impl EngineBridge {
             projection_refresh: false,
             projection_sent: Instant::now(),
             projection_sequence: 0,
+            activation: None,
             stats: EngineBridgeStats {
                 snapshots_sent: 0,
                 bytes_sent: 0,
@@ -607,6 +635,20 @@ impl EngineBridge {
             let raw = self.inbound_frame_bytes[4..len + 4].to_vec();
             self.inbound_frame_bytes.drain(..len + 4);
             if let Ok(value) = serde_json::from_slice::<serde_json::Value>(&raw) {
+                if value["msg_type"] == "ruleset_ready" {
+                    if let Some((id, ready)) = self.activation.as_mut() {
+                        if value["activation_id"].as_str() == Some(id.as_str()) { *ready = true; }
+                    }
+                    continue;
+                }
+                if value["msg_type"] == "input_packet" {
+                    if let Some(admission) = &self.admission {
+                        let epoch = admission.contract.epoch.ruleset_epoch;
+                        if (epoch > 0 || value.get("ruleset_epoch").is_some()) && value["ruleset_epoch"].as_u64() != Some(epoch) {
+                            self.stats.dropped_inputs += 1; continue;
+                        }
+                    }
+                }
                 if matches!(value["msg_type"].as_str(), Some("baseline_ack" | "resync_request")) {
                     self.handle_projection_control(&raw);
                     continue;

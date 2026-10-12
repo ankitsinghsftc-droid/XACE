@@ -200,7 +200,8 @@ bool UXaceTransportComponent::SendInputPacket(const FXaceInputPacket& Packet)
 	{
 		Copy.SequenceId = NextSequenceId();
 	}
-	const bool Sent=SendJsonObject(Copy.ToJson());
+	auto Data=Copy.ToJson();if(Session.Enabled())Data->SetNumberField(TEXT("ruleset_epoch"),Session.RulesetEpoch());
+	const bool Sent=SendJsonObject(Data);
 	if(Sent && Session.Enabled())Session.Sent();
 	return Sent;
 }
@@ -330,6 +331,15 @@ void UXaceTransportComponent::DispatchMessage(const TSharedPtr<FJsonObject>& Mes
 	const FString MsgType = JsonString(Message, TEXT("msg_type"));
 	if(Session.Enabled())
 	{
+		if(MsgType==TEXT("ruleset_prepare")) {
+			if(!Session.PrepareRuleset(Message)){Fail(TEXT("Invalid ruleset preparation"));DisconnectFromRuntime(TEXT("Invalid ruleset preparation"));return;}
+			auto Ready=MakeShared<FJsonObject>();Ready->SetStringField(TEXT("msg_type"),TEXT("ruleset_ready"));Ready->SetStringField(TEXT("activation_id"),JsonString(Message,TEXT("activation_id")));SendJsonObject(Ready);return;
+		}
+		if(MsgType==TEXT("ruleset_commit")) {
+			if(!Session.CommitRuleset(JsonString(Message,TEXT("activation_id")))){Fail(TEXT("Invalid ruleset commit"));DisconnectFromRuntime(TEXT("Invalid ruleset commit"));return;}
+			CgsHash=Session.ActiveCgsHash();return;
+		}
+		if(MsgType==TEXT("ruleset_abort")) {if(!Session.AbortRuleset(JsonString(Message,TEXT("activation_id"))))DisconnectFromRuntime(TEXT("Invalid ruleset abort"));return;}
 		if(MsgType==TEXT("input_tick_request"))
 		{
 			int64 Tick;

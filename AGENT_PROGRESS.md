@@ -17,7 +17,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-016 | Reconstructed through original continuation line7936; original evidence JSON missing | Fresh native, live, unit and selected Player gates pass; scope limits below |
 | XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
 | XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
-| XP-019 through XP-022 | Pending | Not run |
+| XP-019 | Source reconstructed from successful historical records | Pending |
+| XP-020 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -80,3 +81,7 @@ XP017 verification checkpoint: `3e36d66` (NOT backed up off-device). XP018 histo
 Source `c5a81ba`; 857 runtime/reference tests (including 6 candidate cases), 10 Builder authoring tests and final approved-authoring/live-controller isolation proof pass. Fresh retained evidence: `docs/recovery/evidence/xp018-20261012/summary.json`. Original evidence remains missing. No activation claim: XP019 is next. This checkpoint and all previous checkpoints are NOT backed up off-device.
 
 XP018 verification checkpoint: `17c89ad`. A UTF-8 read error prevented the first master-plan update; corrected in the following documentation checkpoint. No test failure resulted.
+
+## XP-019 source reconstruction
+
+Successful historical patches replayed through9288. Original failed8936 excluded;8726 first two patches and intervening shell edit succeeded, third patch was rejected and excluded. The later8745 digest-only bounded control implementation was recovered. Original successful shell extraction8646 recovered. Proof launch paths preserve the XP017 recovery safety adjustment; further persistent-path harness adaptation is pending. No fresh activation claim yet. NOT backed up off-device.

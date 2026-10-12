@@ -30,6 +30,9 @@ use crate::tcp_server::{EngineConnection, TcpEngineServer, TcpServerConfig};
     about = "XACE deterministic runtime with live engine bridge"
 )]
 struct Cli {
+    /// Trusted host storage for pre-installed candidate artifacts; never a socket path.
+    #[arg(long)]
+    ruleset_root: Option<PathBuf>,
     #[arg(long)]
     cgs: PathBuf,
 
@@ -121,15 +124,18 @@ struct Cli {
 }
 
 pub fn main_with_host_systems(register: Option<fn(&mut crate::phase_orchestrator::system_registry::SystemRegistry) -> anyhow::Result<()>>) {
+    main_with_ruleset_policy(register,Vec::new());
+}
+pub fn main_with_ruleset_policy(register: Option<fn(&mut crate::phase_orchestrator::system_registry::SystemRegistry) -> anyhow::Result<()>>,configuration_components:Vec<u32>) {
     let cli = Cli::parse();
     init_logger(&cli.log);
-    if let Err(err) = run(cli, register) {
+    if let Err(err) = run(cli, register, configuration_components) {
         eprintln!("[error] {err}");
         process::exit(1);
     }
 }
 
-fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_registry::SystemRegistry) -> anyhow::Result<()>>) -> anyhow::Result<()> {
+fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_registry::SystemRegistry) -> anyhow::Result<()>>,configuration_components:Vec<u32>) -> anyhow::Result<()> {
     if cli.tick_rate == 0 {
         anyhow::bail!("--tick-rate must be greater than zero");
     }
@@ -147,6 +153,21 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     }
 
     let mut config = RuntimeConfig::default();
+    config.candidate_configuration_components=configuration_components.into_iter().collect();
+    if let Some(root)=&cli.ruleset_root {
+        std::fs::create_dir_all(root)?;
+        config.ruleset_root=Some(root.canonicalize()?);
+        let journals=root.join("activations");
+        if journals.exists() {
+            for entry in std::fs::read_dir(journals)? {
+                let path=entry?.path();
+                if path.extension().and_then(|s|s.to_str())==Some("jsonl") {
+                    let outcome=crate::runtime_orchestrator::ruleset_activation::ActivationJournal::inspect_recovery(&path)?;
+                    anyhow::ensure!(outcome==crate::runtime_orchestrator::ruleset_activation::RecoveryDisposition::ParentUnchanged,"recovered durable ruleset decision: prior session is ended; refusing to reopen its parent epoch");
+                }
+            }
+        }
+    }
     config.register_host_systems = register.map(crate::runtime_orchestrator::HostSystemRegistrar);
     if !cli.input_lockstep_peer.is_empty() {
         config.input_sync = crate::runtime_orchestrator::RuntimeInputSyncConfig::lockstep(cli.input_lockstep_peer.iter().copied());
@@ -452,6 +473,14 @@ fn apply_control_command(
     cgs_path: &std::path::Path,
     config: RuntimeConfig,
 ) -> anyhow::Result<RuntimeControlAck> {
+    if command.action == RuntimeControlAction::Ruleset {
+        let result=command.ruleset.as_ref().ok_or_else(||anyhow::anyhow!("missing typed ruleset command"))
+            .and_then(|request|runtime.control_ruleset(request));
+        return Ok(match result {
+            Ok(value)=> {let mut ack=RuntimeControlAck::accepted(command,"ruleset operation accepted",make_control_status(runtime,*paused,*step_budget));ack.ruleset=Some(value);ack},
+            Err(error)=>RuntimeControlAck::rejected(command,error.to_string(),make_control_status(runtime,*paused,*step_budget)),
+        });
+    }
     if command.action == RuntimeControlAction::ReplayRecord {
         return Ok(match runtime.record_replay_hash_log() {
             Ok(count) => RuntimeControlAck::accepted(
@@ -537,6 +566,7 @@ fn apply_control_command(
             )
         }
         RuntimeControlAction::Status => "runtime status".to_string(),
+        RuntimeControlAction::Ruleset => unreachable!("ruleset controls handled separately"),
         RuntimeControlAction::Snapshot => "runtime snapshot".to_string(),
         RuntimeControlAction::ReplayRecord | RuntimeControlAction::ReplayValidate => {
             unreachable!("replay control actions are handled before lifecycle commands")

@@ -117,3 +117,39 @@ bool FXaceNativeSession::Request(int64 Tick)
 {if(bRecovering||Tick!=NextTick||RequestedTick==Tick)return false;RequestedTick=Tick;bSent=false;return true;}
 bool FXaceNativeSession::CanSend(int64 Tick,int64 Peer,int64 Player) const
 {return !bRecovering&&!bSent&&RequestedTick==Tick&&Tick==NextTick&&Peer==PeerId&&Player==PlayerId;}
+
+int64 FXaceNativeSession::RulesetEpoch() const
+{int64 Value=0;XaceCanonical::Integer(Epoch,TEXT("ruleset_epoch"),Value);return Value;}
+bool FXaceNativeSession::PrepareRuleset(const TSharedPtr<FJsonObject>& Message)
+{
+    auto Next=XaceCanonical::Parse(Str(Message,TEXT("contract_json")));
+    auto Current=Obj(XaceCanonical::Parse(OfferJson),TEXT("contract"));
+    auto NextEpoch=Obj(Next,TEXT("epoch"));
+    if(!Next.IsValid()||!Current.IsValid()||!NextEpoch.IsValid())return false;
+    auto EqualField=[](const TSharedPtr<FJsonObject>& A,const TSharedPtr<FJsonObject>& B,const FString& Key){
+        if(!A.IsValid()||!B.IsValid())return false;
+        auto L=MakeShared<FJsonObject>();auto R=MakeShared<FJsonObject>();
+        if(A->Values.Contains(Key))L->SetField(Key,A->Values[Key]);
+        if(B->Values.Contains(Key))R->SetField(Key,B->Values[Key]);
+        return XaceCanonical::Json(L)==XaceCanonical::Json(R);
+    };
+    for(const FString& Key:{FString(TEXT("schema")),FString(TEXT("profile_id")),FString(TEXT("required_capabilities")),FString(TEXT("semantic_capabilities"))})if(!EqualField(Next,Current,Key))return false;
+    int64 NextNumber,Tick;
+    if(Str(NextEpoch,TEXT("session_id"))!=Str(Epoch,TEXT("session_id"))||Str(NextEpoch,TEXT("authority_incarnation"))!=Str(Epoch,TEXT("authority_incarnation"))||!XaceCanonical::Integer(NextEpoch,TEXT("ruleset_epoch"),NextNumber)||NextNumber!=RulesetEpoch()+1)return false;
+    auto Game=Obj(Next,TEXT("gameplay"));auto Old=Obj(Current,TEXT("gameplay"));auto WorldIdentity=Obj(Game,TEXT("world"));
+    if(!EqualField(Game,Old,TEXT("runtime"))||!EqualField(WorldIdentity,Obj(Old,TEXT("world")),TEXT("artifact")))return false;
+    const FString Hash=Str(Obj(Game,TEXT("cgs")),TEXT("cgs_hash"));
+    if(Hash.Len()!=64||Str(WorldIdentity,TEXT("compiled_from_cgs_hash"))!=Hash||Str(Obj(Game,TEXT("sgc")),TEXT("compiled_from_cgs_hash"))!=Hash)return false;
+    const FString Id=Str(Message,TEXT("activation_id"));
+    if(Id.Len()!=64||!XaceCanonical::Integer(Message,TEXT("activation_tick"),Tick)||Tick<NextTick||(!PendingActivation.IsEmpty()&&PendingActivation!=Id))return false;
+    PendingContract=Next;PendingActivation=Id;ActivationTick=Tick;return true;
+}
+bool FXaceNativeSession::CommitRuleset(const FString& Id)
+{
+    if(!PendingContract.IsValid()||PendingActivation!=Id||NextTick!=ActivationTick)return false;
+    auto Offer=XaceCanonical::Parse(OfferJson);Offer->SetObjectField(TEXT("contract"),PendingContract.ToSharedRef());OfferJson=XaceCanonical::Json(Offer);
+    Epoch=Obj(PendingContract,TEXT("epoch"));CgsHash=Str(Obj(Obj(PendingContract,TEXT("gameplay")),TEXT("cgs")),TEXT("cgs_hash"));
+    Fence();bSent=false;PendingContract.Reset();PendingActivation.Reset();return true;
+}
+bool FXaceNativeSession::AbortRuleset(const FString& Id)
+{if(PendingActivation!=Id)return false;PendingContract.Reset();PendingActivation.Reset();return true;}

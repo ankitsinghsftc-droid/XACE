@@ -14,6 +14,49 @@ var recovering := true
 var requested_tick := -1
 var sent := false
 var error := ""
+var pending_activation: Dictionary = {}
+
+func prepare_ruleset(message: Dictionary) -> bool:
+	error = "Invalid ruleset preparation"
+	var candidate: Variant = JSON.parse_string(str(message.get("contract_json", "")))
+	if not candidate is Dictionary or not exact(message.get("activation_tick")) or int(message.activation_tick) < int(stamp.get("next_tick", 0)) or str(message.get("activation_id", "")).length() != 64:
+		return false
+	candidate = protocol_integers(candidate)
+	var current: Dictionary = offer.contract
+	if candidate.get("schema") != current.schema or candidate.get("profile_id") != current.profile_id or not candidate.get("epoch") is Dictionary or not candidate.get("gameplay") is Dictionary:
+		error = "Ruleset contract schema/profile mismatch"
+		return false
+	for key in ["session_id", "authority_incarnation"]:
+		if candidate.epoch.get(key) != current.epoch.get(key):
+			error = "Ruleset session identity mismatch: " + key
+			return false
+	if not exact(candidate.epoch.get("ruleset_epoch")) or int(candidate.epoch.ruleset_epoch) != int(current.epoch.ruleset_epoch) + 1:
+		error = "Ruleset epoch mismatch"
+		return false
+	for key in ["required_capabilities", "semantic_capabilities"]:
+		if candidate.get(key) != current.get(key):
+			error = "Ruleset capabilities mismatch: " + key
+			return false
+	if candidate.gameplay.get("runtime") != current.gameplay.get("runtime") or candidate.gameplay.get("world", {}).get("artifact") != current.gameplay.world.artifact:
+		error = "Ruleset runtime/world identity mismatch"
+		return false
+	var new_hash := str(candidate.gameplay.get("cgs", {}).get("cgs_hash", ""))
+	if new_hash.length() != 64 or candidate.gameplay.get("sgc", {}).get("compiled_from_cgs_hash") != new_hash or candidate.gameplay.get("world", {}).get("compiled_from_cgs_hash") != new_hash:
+		error = "Ruleset compiled CGS binding mismatch"
+		return false
+	if not pending_activation.is_empty() and pending_activation.id != message.activation_id: return false
+	pending_activation = {"id":message.activation_id,"tick":int(message.activation_tick),"contract":protocol_integers(candidate)}
+	return true
+
+func commit_ruleset(id: String) -> bool:
+	if pending_activation.is_empty() or pending_activation.id != id or int(stamp.get("next_tick", -1)) != int(pending_activation.tick):
+		return false
+	offer.contract = pending_activation.contract
+	pending_activation = {}
+	recovering = true
+	requested_tick = -1
+	sent = false
+	return true
 
 # Session contract v1 has integer protocol metadata only. Godot's JSON parser
 # creates floats; convert exact integers before sending a typed Rust offer.

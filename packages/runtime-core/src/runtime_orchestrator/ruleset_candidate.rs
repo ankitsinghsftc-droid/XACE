@@ -11,6 +11,7 @@ const FILES: [&str; 4] = [
     "world.json",
     "world.manifest.json",
 ];
+const PACKAGE_FILES: [&str; 2] = ["compiled_schema.json", "playable.manifest.json"];
 fn hash(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
@@ -39,7 +40,7 @@ pub struct CandidateArtifacts {
 impl CandidateArtifacts {
     pub fn read(directory: &Path) -> Result<Self> {
         let mut files = BTreeMap::new();
-        for name in FILES {
+        for name in FILES.into_iter().chain(PACKAGE_FILES.into_iter().filter(|name|directory.join(name).exists())) {
             anyhow::ensure!(
                 fs::metadata(directory.join(name))?.len() <= 16 * 1024 * 1024,
                 "candidate artifact too large"
@@ -53,11 +54,9 @@ impl CandidateArtifacts {
     }
     fn materialize(&self, directory: &Path) -> Result<()> {
         anyhow::ensure!(
-            self.files
-                .keys()
-                .map(String::as_str)
-                .collect::<BTreeSet<_>>()
-                == FILES.into_iter().collect(),
+            FILES.iter().all(|name|self.files.contains_key(*name))
+                && self.files.keys().all(|name|FILES.contains(&name.as_str()) || PACKAGE_FILES.contains(&name.as_str()))
+                && (self.files.contains_key(PACKAGE_FILES[0]) == self.files.contains_key(PACKAGE_FILES[1])),
             "invalid artifact set"
         );
         fs::create_dir_all(directory)?;
@@ -148,6 +147,12 @@ pub struct CandidateStore {
     root: PathBuf,
 }
 impl CandidateStore {
+    pub(super) fn verified_candidate(&self, digest:&str, expected_proof_digest:&str)->Result<(CandidateProposal,CandidateProof,PathBuf)> {
+        let proof=self.read_proof(digest,expected_proof_digest)?;
+        let directory=self.root.join(digest);
+        let proposal=serde_json::from_slice(&std::fs::read(directory.join("proposal.json"))?)?;
+        Ok((proposal,proof,directory))
+    }
     pub fn new(root: PathBuf) -> Self {
         Self { root }
     }
@@ -275,79 +280,9 @@ impl CandidateStore {
         {
             changed_artifacts.insert("world.manifest.json".into());
         }
-        let original = live
-            .world_snapshot()
-            .map_err(|e| anyhow::anyhow!("{}", e))?;
         let mut runs = Vec::new();
         for _ in 0..2 {
-            let mut isolated = RuntimeOrchestrator::initialise_with_config(
-                &directory.join("game.cgs.json"),
-                config.clone(),
-            )?;
-            let defaults = isolated
-                .world_snapshot()
-                .map_err(|e| anyhow::anyhow!("{}", e))?;
-            anyhow::ensure!(
-                original.entity_store_snapshot == defaults.entity_store_snapshot,
-                "entity migration requires a proven hook"
-            );
-            let mut transferred = original.clone();
-            transferred.cgs_hash = defaults.cgs_hash.clone();
-            transferred.schema_version = defaults.schema_version.clone();
-            transferred.execution_plan_version = defaults.execution_plan_version;
-            transferred.world_hash = WorldHasher::compute(&transferred);
-            isolated
-                .restore_world_snapshot(&transferred)
-                .map_err(|e| anyhow::anyhow!("{}", e))?;
-            let before = isolated
-                .world_snapshot()
-                .map_err(|e| anyhow::anyhow!("{}", e))?
-                .world_hash;
-            for id in &proposal.replace_config_defaults {
-                let table = defaults
-                    .component_tables_snapshot
-                    .tables
-                    .get(id)
-                    .ok_or_else(|| anyhow::anyhow!("missing candidate configuration"))?;
-                let prior = original
-                    .component_tables_snapshot
-                    .tables
-                    .get(id)
-                    .ok_or_else(|| anyhow::anyhow!("missing parent configuration"))?;
-                anyhow::ensure!(
-                    table.rows.keys().eq(prior.rows.keys()),
-                    "configuration topology changed"
-                );
-                for (entity, value) in &table.rows {
-                    isolated
-                        .mutation_gate
-                        .request_modify_component(
-                            *entity,
-                            *id,
-                            value.clone(),
-                            &isolated.entity_store,
-                            &isolated.table_store,
-                            original.tick,
-                        )
-                        .map_err(|e| anyhow::anyhow!("{}", e))?;
-                }
-            }
-            isolated
-                .mutation_gate
-                .apply_all(
-                    &mut isolated.entity_store,
-                    &mut isolated.table_store,
-                    original.tick,
-                )
-                .map_err(|e| anyhow::anyhow!("{}", e))?;
-            let after = isolated
-                .world_snapshot()
-                .map_err(|e| anyhow::anyhow!("{}", e))?
-                .world_hash;
-            anyhow::ensure!(
-                before != after,
-                "configuration migration changed no runtime state"
-            );
+            let (mut isolated, before, after) = migrate_isolated(live, proposal, &directory)?;
             let mut hashes = Vec::new();
             let mut events = Vec::new();
             for _ in 0..ticks {
@@ -437,4 +372,78 @@ impl RuntimeOrchestrator {
             snapshot_hash: snapshot.world_hash,
         })
     }
+}
+
+pub(super) fn migrate_isolated(live: &RuntimeOrchestrator, proposal: &CandidateProposal, directory: &Path) -> Result<(RuntimeOrchestrator, String, String)> {
+    let config = isolated_config(live, directory);
+    let original = live.world_snapshot().map_err(|e| anyhow::anyhow!("{}", e))?;
+let mut isolated = RuntimeOrchestrator::initialise_with_config(
+    &directory.join("game.cgs.json"),
+    config.clone(),
+)?;
+let defaults = isolated
+    .world_snapshot()
+    .map_err(|e| anyhow::anyhow!("{}", e))?;
+anyhow::ensure!(
+    original.entity_store_snapshot == defaults.entity_store_snapshot,
+    "entity migration requires a proven hook"
+);
+let mut transferred = original.clone();
+transferred.cgs_hash = defaults.cgs_hash.clone();
+transferred.schema_version = defaults.schema_version.clone();
+transferred.execution_plan_version = defaults.execution_plan_version;
+transferred.world_hash = WorldHasher::compute(&transferred);
+isolated
+    .restore_world_snapshot(&transferred)
+    .map_err(|e| anyhow::anyhow!("{}", e))?;
+let before = isolated
+    .world_snapshot()
+    .map_err(|e| anyhow::anyhow!("{}", e))?
+    .world_hash;
+for id in &proposal.replace_config_defaults {
+    let table = defaults
+        .component_tables_snapshot
+        .tables
+        .get(id)
+        .ok_or_else(|| anyhow::anyhow!("missing candidate configuration"))?;
+    let prior = original
+        .component_tables_snapshot
+        .tables
+        .get(id)
+        .ok_or_else(|| anyhow::anyhow!("missing parent configuration"))?;
+    anyhow::ensure!(
+        table.rows.keys().eq(prior.rows.keys()),
+        "configuration topology changed"
+    );
+    for (entity, value) in &table.rows {
+        isolated
+            .mutation_gate
+            .request_modify_component(
+                *entity,
+                *id,
+                value.clone(),
+                &isolated.entity_store,
+                &isolated.table_store,
+                original.tick,
+            )
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
+    }
+}
+isolated
+    .mutation_gate
+    .apply_all(
+        &mut isolated.entity_store,
+        &mut isolated.table_store,
+        original.tick,
+    )
+    .map_err(|e| anyhow::anyhow!("{}", e))?;
+let after = isolated
+    .world_snapshot()
+    .map_err(|e| anyhow::anyhow!("{}", e))?
+    .world_hash;
+anyhow::ensure!(
+    before != after,
+    "configuration migration changed no runtime state"
+);
+Ok((isolated, before, after))
 }

@@ -23,6 +23,7 @@ pub enum RuntimeControlAction {
     Step,
     Reset,
     ReloadCgs,
+    Ruleset,
     Status,
     Snapshot,
     ReplayRecord,
@@ -38,6 +39,7 @@ impl RuntimeControlAction {
             Self::Step => "step",
             Self::Reset => "reset",
             Self::ReloadCgs => "reload_cgs",
+            Self::Ruleset => "ruleset",
             Self::Status => "status",
             Self::Snapshot => "snapshot",
             Self::ReplayRecord => "replay_record",
@@ -79,6 +81,8 @@ impl fmt::Display for RuntimeControlAction {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RuntimeControlCommand {
+    #[serde(default)]
+    pub ruleset: Option<crate::runtime_orchestrator::ruleset_activation::RulesetControl>,
     pub msg_type: String,
     pub protocol_version: u32,
     pub request_id: String,
@@ -289,6 +293,8 @@ pub struct RuntimeControlEngineConnection {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RuntimeControlAck {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ruleset: Option<serde_json::Value>,
     pub msg_type: String,
     pub protocol_version: u32,
     pub request_id: String,
@@ -307,7 +313,8 @@ impl RuntimeControlAck {
         status: RuntimeControlStatus,
     ) -> Self {
         Self {
-            msg_type: "runtime_control_ack".to_string(),
+            ruleset: None,
+              msg_type: "runtime_control_ack".to_string(),
             protocol_version: CONTROL_PROTOCOL_VERSION,
             request_id: command.request_id.clone(),
             action: command.action,
@@ -324,7 +331,8 @@ impl RuntimeControlAck {
         status: RuntimeControlStatus,
     ) -> Self {
         Self {
-            msg_type: "runtime_control_ack".to_string(),
+            ruleset: None,
+              msg_type: "runtime_control_ack".to_string(),
             protocol_version: CONTROL_PROTOCOL_VERSION,
             request_id: command.request_id.clone(),
             action: command.action,
@@ -607,6 +615,7 @@ mod tests {
     #[test]
     fn command_round_trips_through_frame() {
         let command = RuntimeControlCommand {
+            ruleset: None,
             msg_type: "runtime_control".to_string(),
             protocol_version: CONTROL_PROTOCOL_VERSION,
             request_id: "abc".to_string(),

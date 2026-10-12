@@ -146,6 +146,7 @@ func send_input_packet(packet: Dictionary) -> bool:
 	if native_contract != null:
 		if not _handshake_complete or not native_contract.can_send(packet):
 			return false
+		packet["ruleset_epoch"] = int(native_contract.offer.contract.epoch.ruleset_epoch)
 		var success := send_message(packet)
 		if success:
 			native_contract.sent = true
@@ -227,6 +228,21 @@ func _read_available() -> void:
 
 
 func _handle_message(message: Dictionary) -> void:
+	if native_contract != null and str(message.get("msg_type", "")).begins_with("ruleset_"):
+		var action := str(message.msg_type)
+		if action == "ruleset_prepare" and native_contract.prepare_ruleset(message):
+			_write_message({"msg_type":"ruleset_ready","activation_id":message.activation_id})
+		elif action == "ruleset_commit" and native_contract.commit_ruleset(str(message.get("activation_id", ""))):
+			session_offer_json = JSON.stringify(native_contract.offer)
+			cgs_hash = str(native_contract.offer.contract.gameplay.cgs.cgs_hash)
+			_projection_recovering = true
+			_send_queue.clear()
+		elif action == "ruleset_abort" and native_contract.pending_activation.get("id") == message.get("activation_id"):
+			native_contract.pending_activation = {}
+		else:
+			_fail("Invalid ruleset transition: " + native_contract.error)
+			disconnect_from_runtime("Invalid ruleset transition")
+		return
 	var kind: String = _protocol_script.classify_message(message)
 	if not session_offer_json.is_empty():
 		if kind == "input_tick_request":

@@ -13,6 +13,21 @@ Fresh recovery: XP-018 preparation acceptance passes (857 Rust, 10 Builder, end-
 
 ---
 
+## XP-019: COMPLETE FOR LOCAL CONFIGURATION ACTIVATION PROFILE - 2026-10-04
+
+Work remains isolated in target/xp016-work. Generic durable activation switches
+the preserved world at tick N after candidate/parent/readiness validation.
+Actual Player+Godot, Unity+Godot+Unreal and all-four proofs pass 40 ticks with
+old epoch through 7 and new epoch from 8, matching state/events and owned inputs.
+Join probes at 7/8/9, real restart refusal, four injected failure points and
+idempotency pass. Ordinary snapshot restore cannot cross a committed epoch.
+842 runtime and 21 reference-package tests pass; production build passes.
+Recovery after durable decision deliberately ends the prior session. Migration
+remains registered read-only configuration replacement; other hooks fail closed.
+See docs/XP019_COMPLETION.md and docs/evidence/xp019-baseline.json.
+XP-020 is next, not started. Earlier environment gates remain pending.
+Protected local main/safety refs remain at d3ef383; no commit or push.
+
 ## XP-018: IMPLEMENTED - ISOLATED CONFIGURATION CANDIDATES VERIFIED - 2026-10-03
 
 Generic digest-addressed candidates bind approval, parent epoch/snapshot and exact

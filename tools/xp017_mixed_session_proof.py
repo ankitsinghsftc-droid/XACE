@@ -75,18 +75,47 @@ def recording(controller):
             actions.append(dict(action=name,kind=kind,phase=phase,value=value,secondary_value=0))
         result.append(actions);previous=values
     return result
-def scenario(out,engines,build,unreal_project):
-    out.mkdir(parents=True,exist_ok=False);pkg=build/'exported/package';ep,cp=port(),port()
+def scenario(out,engines,build,unreal_project,activation=None):
+    out.mkdir(parents=True,exist_ok=False);pkg=activation['parent'] if activation else build/'exported/package';ep,cp=port(),port()
     ticket=out/'ticket.json';journal=out/'session.jsonl';n=len(engines)
     args=[str(pkg/'runtime/xace_runtime.exe')]
     for flag,name in [('cgs','game.cgs.json'),('sgc-plan','execution_plan.json'),('world','world.json'),('world-manifest','world.manifest.json'),('package-manifest','playable.manifest.json')]:args+=['--'+flag,str(pkg/name)]
     args+=['--session-ticket-out',str(ticket),'--session-log',str(journal),'--session-controller-id',','.join(map(str,range(1,n+1))),'--input-lockstep-peer',','.join(map(str,range(1,n+1))),'--port',str(ep),'--control-port',str(cp),'--start-paused','--no-wait','--live-engine-accept','--live-session','--quiet','--schedule-snapshot-out',str(out/'authority-schedule.json')]
+    join_boundaries=[]
+    if activation and n==2:
+        args[args.index('--session-controller-id')+1]='1,2,3,4'
+        args[args.index('--input-lockstep-peer')+1]='1,2,3,4'
+    if activation:
+        files={name:list((activation['candidate']/name).read_bytes()) for name in ['game.cgs.json','execution_plan.json','world.json','world.manifest.json','compiled_schema.json','playable.manifest.json']}
+        artifact_digest=digest(json.dumps({'files':files},sort_keys=True,separators=(',',':')).encode())
+        incoming=out/'rulesets/incoming'/artifact_digest;incoming.mkdir(parents=True)
+        for name in files:shutil.copy2(activation['candidate']/name,incoming/name)
+        args+=['--ruleset-root',str(out/'rulesets')]
     processes=[];streams=[]
     def spawn(cmd,log):
         f=log.open('w');streams.append(f);p=subprocess.Popen(cmd,stdout=f,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW);processes.append(p);return p
     authority=spawn(args,out/'authority.log')
-    def control(action):
-        with socket.create_connection(('127.0.0.1',cp),timeout=5) as s:send(s,dict(msg_type='runtime_control',protocol_version=1,request_id='xp017',action=action));r=receive(s);assert r['accepted'],r
+    def control(action,**fields):
+        with socket.create_connection(('127.0.0.1',cp),timeout=15) as s:send(s,dict(msg_type='runtime_control',protocol_version=1,request_id='mixed-proof',action=action,**fields));r=receive(s);assert r['accepted'],r;return r
+    def join_probe(tick):
+        peer=3 if tick<=8 else 4
+        grant=load(out/f'ticket.peer{peer}.json');offer=json.loads(grant['offer_json'])
+        contract=control('ruleset',ruleset={'operation':'current'})['ruleset']
+        offer['contract']=contract
+        with socket.create_connection(('127.0.0.1',ep),timeout=5) as s:
+            try:
+                send(s,dict(msg_type='handshake',protocol_version=1,engine_name='Godot',engine_version='4.6.3',adapter_version='0.1.0',cgs_hash=contract['gameplay']['cgs']['cgs_hash'],capabilities=[],session_offer_json=json.dumps(offer),session_peer_id=peer,session_credential=grant['credential']))
+                reply=receive(s)
+            except (EOFError,ConnectionResetError,ConnectionAbortedError):
+                assert tick==7
+                join_boundaries.append({'tick':tick,'admitted':False,'reason':'prepare fence'})
+                return
+            assert tick>=8 and reply['accepted'],reply.get('reject_reason')
+            assert reply['sync']['ruleset_epoch']==1 and reply['sync']['next_tick']==tick+1
+            assert digest(reply['projection_json'].encode())==reply['sync']['projection_digest']
+            assert contract['gameplay']['playable_package']['content_hash']==load(activation['candidate']/'playable.manifest.json')['gameplay_hash']
+            # No baseline acknowledgement: probe never enters required-input membership.
+            join_boundaries.append({'tick':tick,'admitted':True,'epoch':1,'verified_complete_projection':True})
     try:
         tickets=[ticket if i==1 else out/f'ticket.peer{i}.json' for i in range(1,n+1)]
         wait_for(lambda:all(p.exists() for p in tickets),15)
@@ -117,6 +146,11 @@ def scenario(out,engines,build,unreal_project):
             check_alive();return all(any(r['kind']=='input' and r['tick']==0 for r in rows(p)) for p in transcripts)
         wait_for(ready,120)
         for tick in range(40):
+            if activation and tick==2:
+                preview=control('ruleset',ruleset={'operation':'preview','artifact_digest':artifact_digest})['ruleset']
+                staged=control('ruleset',ruleset={'operation':'stage','artifact_digest':artifact_digest,'approved_proposal_digest':preview['proposal_digest']})['ruleset']
+                prepared=control('ruleset',ruleset={'operation':'prepare','candidate_digest':staged['candidate_digest'],'proof_digest':staged['proof_digest'],'activation_tick':8})['ruleset']
+                write(out/'activation.json',{'preview':preview,'staged':staged,'prepared':prepared})
             active=transcripts if tick<20 else transcripts[:-1]
             wait_for(lambda:all(any(r['kind']=='input' and r['tick']==tick for r in rows(p)) for p in active),12)
             if tick==20:
@@ -124,14 +158,20 @@ def scenario(out,engines,build,unreal_project):
                 wait_for(lambda:any(r.get('kind')=='membership' and r.get('peer_id')==n and r.get('action') in ['transport_closed','disconnected'] for r in rows(journal)),8)
             control('step')
             wait_for(lambda:all(any(r['kind']=='tick' and r['tick']==tick for r in rows(p)) for p in active),12)
+            if activation and n==2 and tick in [7,8,9]:join_probe(tick)
         for p in clients:assert p.wait(timeout=15)==0
         control('shutdown');assert authority.wait(timeout=10)==0
+        if activation:
+            restarted=subprocess.run(args,capture_output=True,text=True,timeout=20,creationflags=subprocess.CREATE_NO_WINDOW)
+            assert restarted.returncode!=0 and 'recovered durable ruleset decision' in restarted.stderr,restarted.stderr[-1500:]
+            write(out/'recovery.json',{'parent_restart_refused':True,'reason':'durable decision ends prior session','exit_code':restarted.returncode})
+            if join_boundaries:write(out/'join-boundaries.json',join_boundaries)
         logs=[rows(p) for p in transcripts];identities=[next(r for r in log if r['kind']=='ready') for log in logs]
         assert len({r['player'] for r in identities})==n
         epoch=lambda r:tuple(r['epoch'][key] for key in ['session_id','authority_incarnation','ruleset_epoch'])
         assert len({epoch(r) for r in identities})==1
         for i,log in enumerate(logs):
-            assert not any(r['kind']=='error' for r in log),log
+            assert not any(r['kind']=='error' for r in log),[r for r in log if r['kind']=='error']
             assert any(r['kind']=='done' and r['ok'] for r in log)
             for r in log:
                 if r['kind']=='input':assert r['actions']==recording(i+1)[r['tick']]
@@ -141,8 +181,13 @@ def scenario(out,engines,build,unreal_project):
             active=ticks if tick<20 else ticks[:-1]
             assert len({r[tick]['sync']['projection_digest'] for r in active})==1
             assert all(r[tick]['events']==active[0][tick]['events'] for r in active)
+            if activation:assert all(r[tick]['sync']['ruleset_epoch']==(1 if tick>=8 else 0) for r in active)
         # Package-specific assertion kept exclusively in this reference harness.
         events=[event for row in ticks[0].values() for event in row['events']]
+        if activation:
+            assert any(e['event_type']=='reference.jump_denied.v1' for e in ticks[0][7]['events'])
+            assert not any(e['event_type']=='reference.shockwave.v1' for t in range(8) for e in ticks[0][t]['events'])
+            assert any(e['event_type']=='reference.shockwave.v1' for e in ticks[0][9]['events'])
         assert any(e['event_type']=='reference.shockwave.v1' for e in events),events
         hit=next(e for e in events if e['event_type']=='reference.shockwave_hit.v1' and int(e['data']['target_entity_id'])==identities[1]['player'])
         hit_tick=int(hit['data']['tick']);target=identities[1]['player']
@@ -163,6 +208,7 @@ def scenario(out,engines,build,unreal_project):
             subprocess.run([ffmpeg,'-y','-loglevel','error','-framerate','20','-i',str(out/'frames/%04d.png'),'-c:v','libx264','-pix_fmt','yuv420p',str(out/'gameplay.mp4')],check=True,creationflags=subprocess.CREATE_NO_WINDOW)
         result=dict(schema='xace.xp017.mixed_session_proof.v1',ok=True,engines=engines,owners=[r['player'] for r in identities],versions=[r['version'] for r in identities],same_epoch=True,matching_applied_projections=True,matching_events=True,reference_shared_event=True,other_owner_velocity_changed_at=hit_tick,authority_inputs_match_recording=True,wrong_world_rejected=True,departed_engine=engines[-1],departed_after_tick=19,survivors_final_tick=39,authority_hashes=40,scope='Actual installed native hosts and exported Player; loopback, one Windows computer.')
         result['recording']='gameplay.mp4' if 'player' in engines else 'per-host applied projection/event transcripts'
+        if activation:result['activation']={'tick':8,'old_epoch_through':7,'new_epoch_from':8,'disabled_attempt_tick':7,'enabled_attempt_tick':9,'all_client_epochs_match':True}
         result['recording_timing']='One actual rendered Player frame per authority tick, encoded at 20 FPS for inspection; not a latency measurement.' if 'player' in engines else 'Authority tick indexed'
         write(out/'proof.json',result);return result
     finally:

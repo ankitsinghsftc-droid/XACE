@@ -28,11 +28,19 @@ public:
     // accept/drop/recover/reject; state commits only after complete verification.
     FString Verify(const TSharedPtr<FJsonObject>& Message);
     bool Request(int64 Tick);
+    bool PrepareRuleset(const TSharedPtr<FJsonObject>& Message);
+    bool CommitRuleset(const FString& Id);
+    bool AbortRuleset(const FString& Id);
+    int64 RulesetEpoch() const;
+    FString ActiveCgsHash() const { return CgsHash; }
     bool CanSend(int64 Tick, int64 Peer, int64 Player) const;
     void Sent() { bSent = true; }
     void Fence() { bRecovering = true; RequestedTick = -1; }
 private:
     TSharedPtr<FJsonObject> Epoch;
+    TSharedPtr<FJsonObject> PendingContract;
+    FString PendingActivation;
+    int64 ActivationTick = -1;
     FString CgsHash;
     int64 Sequence = 0, RequestedTick = -1;
     bool bSent = false;

@@ -253,3 +253,58 @@ fn arbitrary_semantic_world_changes_require_a_migration_hook() {
     );
     assert_eq!(p.parent, live.candidate_parent().unwrap());
 }
+
+#[test]
+fn activation_at_n_preserves_the_world_and_changes_only_later_behavior() {
+    use xace_runtime_core::runtime_orchestrator::ruleset_activation::{ActivationJournal,RecoveryDisposition};
+    let (mut live,p,store,dir)=setup();
+    let old_snapshot=live.world_snapshot().unwrap();
+    let proof=store.stage(&live,&p,&CandidateApproval::approve_reviewed(&p).unwrap(),&policy(),8,observe).unwrap();
+    let journal=dir.join("activation.jsonl");
+    let id=live.prepare_ruleset_activation(&store,&p.digest().unwrap(),&proof.digest().unwrap(),8,&journal,&policy()).unwrap();
+    assert_eq!(id,live.prepare_ruleset_activation(&store,&p.digest().unwrap(),&proof.digest().unwrap(),8,&journal,&policy()).unwrap());
+    let mut emitted=Vec::new();
+    for tick in 2..10 {
+        let result=live.tick().unwrap();assert_eq!(result.tick,tick);
+        let events=serde_json::to_string(&result.emitted_events).unwrap();
+        if tick<8 {assert!(!events.contains("reference.shockwave.v1"));}
+        if tick==7 {assert!(events.contains("reference.jump_denied.v1"));}
+        if tick==9 {assert!(events.contains("reference.shockwave.v1"));}
+        emitted.push(events);
+    }
+    assert_eq!(live.alive_count(),4);
+    let before=live.candidate_parent().unwrap();
+    assert_eq!(id,live.prepare_ruleset_activation(&store,&p.digest().unwrap(),&proof.digest().unwrap(),8,&journal,&policy()).unwrap());
+    assert_eq!(before,live.candidate_parent().unwrap());
+    assert!(live.restore_world_snapshot(&old_snapshot).is_err());
+    assert_eq!(before,live.candidate_parent().unwrap());
+    assert_eq!(ActivationJournal::inspect_recovery(&journal).unwrap(),RecoveryDisposition::EndSession);
+}
+
+#[cfg(feature = "activation-fault-injection")]
+#[test]
+fn activation_failures_preserve_parent_or_end_without_emitting_partial_ticks() {
+    use xace_runtime_core::runtime_orchestrator::ruleset_activation::{ActivationFault,ActivationJournal,RecoveryDisposition};
+    for fault in [ActivationFault::DuringMigration,ActivationFault::BeforeDecision,ActivationFault::AfterDecision,ActivationFault::BeforeBroadcast] {
+        let (mut live,p,store,dir)=setup();
+        let proof=store.stage(&live,&p,&CandidateApproval::approve_reviewed(&p).unwrap(),&policy(),8,observe).unwrap();
+        let journal=dir.join("fault.jsonl");
+        live.prepare_ruleset_activation(&store,&p.digest().unwrap(),&proof.digest().unwrap(),8,&journal,&policy()).unwrap();
+        for _ in 2..8 {live.tick().unwrap();}
+        let before=live.candidate_parent().unwrap();let history=live.hash_log();
+        live.inject_activation_fault(fault);
+        if matches!(fault,ActivationFault::DuringMigration|ActivationFault::BeforeDecision) {
+            assert_eq!(live.tick().unwrap().tick,8);
+            assert_eq!(live.candidate_parent().unwrap().cgs_hash,before.cgs_hash);
+            assert_eq!(ActivationJournal::inspect_recovery(&journal).unwrap(),RecoveryDisposition::ParentUnchanged);
+            assert!(!serde_json::to_string(&live.tick().unwrap().emitted_events).unwrap().contains("reference.shockwave.v1"));
+        } else {
+            assert!(live.tick().is_err());assert!(live.tick().is_err());
+            assert_eq!(history,live.hash_log());
+            assert_eq!(live.candidate_parent().unwrap().tick,8);
+            assert_eq!(ActivationJournal::inspect_recovery(&journal).unwrap(),RecoveryDisposition::EndSession);
+            if fault==ActivationFault::AfterDecision {assert_eq!(before,live.candidate_parent().unwrap());}
+            else {assert_ne!(before.cgs_hash,live.candidate_parent().unwrap().cgs_hash);}
+        }
+    }
+}
