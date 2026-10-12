@@ -6,6 +6,8 @@ Fresh recovery: XP-017 local acceptance passed on 2026-10-12, with an unresolved
 
 Fresh recovery: XP-018 preparation acceptance passes (857 Rust, 10 Builder, end-to-end isolation); evidence under `docs/recovery/evidence/xp018-20261012`. XP-019 recovery is next. No checkpoint is backed up off-device.
 
+Fresh recovery: XP019 historical local gates pass; recurring Unreal missing-input timeout remains open for final recovery acceptance. See AGENT_PROGRESS.md and fresh XP019 recovery evidence. XP020 recovery is next.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

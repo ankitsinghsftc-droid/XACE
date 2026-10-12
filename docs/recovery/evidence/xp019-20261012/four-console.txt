@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp019_activation_proof.py", line 53, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp019_activation_proof.py", line 51, in main
+    result={name:scenario(out/name,engines,build/'build',args.unreal_project.resolve(),activation) for name,engines in choices.items() if args.scenario in ['all',name]}
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp019_activation_proof.py", line 51, in <dictcomp>
+    result={name:scenario(out/name,engines,build/'build',args.unreal_project.resolve(),activation) for name,engines in choices.items() if args.scenario in ['all',name]}
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp017_mixed_session_proof.py", line 132, in scenario
+    wait_for(lambda:all(any(r['kind']=='input' and r['tick']==0 for r in rows(p)) for p in transcripts),120)
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp017_mixed_session_proof.py", line 35, in wait_for
+    raise TimeoutError('Proof condition timed out')
+TimeoutError: Proof condition timed out

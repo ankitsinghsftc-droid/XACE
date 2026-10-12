@@ -1,0 +1,85 @@
+{
+  "schema": "xace.native_contract_proof.v1",
+  "engine": "unreal",
+  "version": "5.7.4-51494982+++UE5+Release-5.7",
+  "ok": true,
+  "cases": [
+    {
+      "name": "contiguous",
+      "result": "accept",
+      "ok": true
+    },
+    {
+      "name": "sequence_gap",
+      "result": "recover",
+      "ok": true
+    },
+    {
+      "name": "late_baseline",
+      "result": "accept",
+      "ok": true
+    },
+    {
+      "name": "stale_sequence",
+      "result": "drop",
+      "ok": true
+    },
+    {
+      "name": "reconnect_generation",
+      "result": "accept",
+      "ok": true
+    },
+    {
+      "name": "stale_generation",
+      "result": "drop",
+      "ok": true
+    },
+    {
+      "name": "wrong_epoch",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "corrupt_digest",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "corrupt_update",
+      "result": "recover",
+      "ok": true
+    },
+    {
+      "name": "unsafe_integer",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "duplicate_binding",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "wrong_owner",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "null_stamp",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "duplicate_entity",
+      "result": "reject",
+      "ok": true
+    },
+    {
+      "name": "parent_cycle",
+      "result": "reject",
+      "ok": true
+    }
+  ],
+  "geometry": true,
+  "input_fence": true
+}

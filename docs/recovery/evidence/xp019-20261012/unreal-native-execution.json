@@ -1,0 +1,17 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "tools/xp016_native_proof.py",
+    "--engine",
+    "unreal",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp019\\native"
+  ],
+  "exit_code": 0,
+  "source_commit": "f9802c0",
+  "started": "2026-10-12T11:51:23.659540+00:00",
+  "ended": "2026-10-12T11:59:51.399489+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

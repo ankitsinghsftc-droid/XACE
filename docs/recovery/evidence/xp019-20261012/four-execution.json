@@ -1,0 +1,22 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-m",
+    "tools.xp019_activation_proof",
+    "--scenario",
+    "four",
+    "--build",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp019\\artifacts",
+    "--unreal-project",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp019\\native\\target-codex-task66-unreal-vertical-slice\\XaceTask66.uproject",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp019\\four-acceptance"
+  ],
+  "exit_code": 1,
+  "source_commit": "f9802c0",
+  "started": "2026-10-12T12:01:14.375401+00:00",
+  "ended": "2026-10-12T12:03:16.426712+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}
