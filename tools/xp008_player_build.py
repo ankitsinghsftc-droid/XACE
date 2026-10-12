@@ -67,5 +67,14 @@ def export_player(project,destination,godot,template):
     proc=subprocess.run(command,capture_output=True,text=True,timeout=90)
     destination.with_suffix(".export.log").write_text(proc.stdout+proc.stderr,encoding="utf8")
     if proc.returncode or "SCRIPT ERROR" in proc.stdout+proc.stderr:raise RuntimeError(proc.stdout+proc.stderr)
-    shutil.copytree(project/"package",destination.parent/"package",dirs_exist_ok=True)
+    # Godot imports assets under package/ while exporting. Generated .import
+    # sidecars are not distributable package inputs; copy only the sealed list.
+    package=project/"package"
+    manifest=json.loads((package/"playable.manifest.json").read_text())
+    for name in ["playable.manifest.json"]+[row["path"] for row in manifest["files"]]:
+        source=(package/name).resolve()
+        if not source.is_relative_to(package.resolve()):raise ValueError("Package path escaped root")
+        target=destination.parent/"package"/name
+        target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(source,target)
     return command

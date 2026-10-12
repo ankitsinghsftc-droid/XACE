@@ -43,6 +43,9 @@ def reseal(root):
 
 def run(release,out):
     release=Path(release).resolve();out=Path(out).resolve();out.mkdir(parents=True,exist_ok=True);install=out/'install';results={}
+    previous_address=os.environ.get('XACE_SESSION_ADDRESS')
+    os.environ['XACE_SESSION_ADDRESS']='127.0.0.1'
+    n=None
     sentinel=subprocess.Popen([sys.executable,'-c','import time;time.sleep(180)'],creationflags=subprocess.CREATE_NO_WINDOW)
     try:
         n=Native(release,install)
@@ -79,7 +82,11 @@ def run(release,out):
         finally:service.close()
         results['builder_saved_project_and_owned_launch']=True
         assert sentinel.poll() is None;results['unowned_process_retained']=True
-    finally:sentinel.terminate();sentinel.wait()
+    finally:
+        if n is not None and n.p.poll() is None:n.close()
+        sentinel.terminate();sentinel.wait()
+        if previous_address is None:os.environ.pop('XACE_SESSION_ADDRESS',None)
+        else:os.environ['XACE_SESSION_ADDRESS']=previous_address
     result={'schema':'xace.xp010.launch_proof.v1','same_host_only':True,'clean_machine_certified':False,'development_tools_absent_from_child_path':True,'results':results}
     (out/'proof.json').write_text(json.dumps(result,indent=2));return result
 if __name__=='__main__':

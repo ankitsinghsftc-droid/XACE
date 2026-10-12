@@ -89,6 +89,8 @@ results["wrong_grant"]=scenario("wrong_grant",credential="invalid")
 results["missing_projection_capability"]=scenario("missing_projection_capability",lambda o:o["client"]["capabilities"].remove("session.projection.v1"))
 results["missing_offer"]=scenario("missing_offer",omit_offer=True)
 results["adapter_claim_mismatch"]=scenario("adapter_claim_mismatch",engine="Unity")
+results["incompatible_client_protocol"]=scenario("incompatible_client_protocol",change(["client","engine_protocol_version"],999))
+results["incompatible_wire_protocol"]=scenario("incompatible_wire_protocol",change(["contract","gameplay","runtime","wire_protocol_version"],999))
 results["stale_cgs"]=scenario("stale_cgs",lambda o:(o["contract"]["gameplay"]["cgs"].update(cgs_hash=OTHER),
     o["contract"]["gameplay"]["sgc"].update(compiled_from_cgs_hash=OTHER),
     o["contract"]["gameplay"]["world"].update(compiled_from_cgs_hash=OTHER)))

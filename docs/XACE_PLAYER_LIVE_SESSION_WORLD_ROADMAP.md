@@ -46,7 +46,9 @@ XP-021 is locally verified for generic recording inspection and creator controls
 including actual browser event navigation, historical verification, live-copy
 capture and guest-control refusal. Operator-configured historical hosts/catalog
 and creator credentials are required. See `docs/XP021_COMPLETION.md` and
-`docs/evidence/xp021-baseline.json`. XP-022 has not started. XP-002 legacy schema/input-plan
+`docs/evidence/xp021-baseline.json`. XP-022 is in progress; its two-hour soak and
+full archive replay passed, but final certification remains open. See
+`docs/XP022_CLOSEOUT.md`. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 
@@ -625,6 +627,7 @@ See `docs/XP013_COMPLETION.md` for verified scenarios and latency limits.
 
 **XP-022 — Certify the complete program under faults and clean installation**
 
+- Status (2026-10-08): LOCAL ENGINEERING GATES PASSED; EXTERNAL RELEASE ACCEPTANCE OPEN. Final pinned runtime A-H engineering/fault checks, installed native hosts, normal unsigned packaging/lifecycle and the two-hour soak (202,271 ticks, 791 replay segments) pass. See `docs/XP022_ENGINEERING_CERTIFICATION.md` and the sealed engineering-review manifest `docs/evidence/xp022-engineering-candidate.json`. Proposed REL-01 through REL-05 release-gate separation awaits owner approval in `docs/XP022_RELEASE_GATES.md`; original public-release acceptance is not marked passed. NEC is not started.
 - Purpose: make support and public demo claims match reproducible evidence.
 - Reuse: chaos harness, proof storage, certification tools, distribution checksum/lifecycle and claim matrix.
 - Implementation: real-process fault runner, declared version/platform matrix, retained source/artifact-bound proof bundles, release signing/notices, budgets, two-hour real four-client soak with mutations/rejoins, and cold-install usability trial. Broader eight-hour commercial soak remains the existing release program.

@@ -6,6 +6,9 @@ func _ready() -> void:
 		if arg.begins_with("--config="):mixed=JSON.parse_string(FileAccess.get_file_as_string(arg.trim_prefix("--config=")))
 	super._ready()
 func record(row: Dictionary) -> void:
+	if mixed.get("compact",false):
+		if row.get("kind")=="input":return
+		row.erase("projection_json")
 	var path := str(mixed.transcript)
 	var f := FileAccess.open(path,FileAccess.READ_WRITE) if FileAccess.file_exists(path) else FileAccess.open(path,FileAccess.WRITE)
 	f.seek_end()
@@ -13,11 +16,17 @@ func record(row: Dictionary) -> void:
 func _on_handshake(ack: Dictionary) -> void:
 	super._on_handshake(ack)
 	record({"kind":"ready","peer":transport.native_contract.peer_id,"player":transport.native_contract.player_id,"epoch":ack.sync,"version":Engine.get_version_info().string})
+	if mixed.has("reconnect_ticket"):
+		var grant: Dictionary=mixed.grant.duplicate(true)
+		grant.credential=ack.reconnect_credential
+		var output:=FileAccess.open(str(mixed.reconnect_ticket),FileAccess.WRITE)
+		output.store_string(JSON.stringify(grant))
 func _send_input(tick: int) -> void:
-	if not adapter.send_input_actions(mixed.inputs[tick],tick,false):
+	var actions: Array=mixed.inputs[tick % mixed.inputs.size()]
+	if not adapter.send_input_actions(actions,tick,false):
 		_fail("Recorded input could not be sent")
 		return
-	record({"kind":"input","tick":tick,"actions":mixed.inputs[tick]})
+	record({"kind":"input","tick":tick,"actions":actions})
 func _on_runtime_message(m: Dictionary) -> void:
 	super._on_runtime_message(m)
 	if m.msg_type!="tick_snapshot":return

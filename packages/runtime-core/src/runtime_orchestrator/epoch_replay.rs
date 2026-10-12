@@ -52,8 +52,47 @@ pub struct ReplayBundle {
     pub initial_snapshot: WorldSnapshot,
     pub epochs: Vec<ReplayEpoch>,
     pub ticks: Vec<ReplayTick>,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub initial_epoch: u64,
     #[serde(skip)]
     pub(super) pending_feedback: Vec<FeedbackMessage>,
+}
+fn is_zero(value: &u64) -> bool { *value == 0 }
+
+/// Durable segments keep the live process independent of total session length.
+/// Index publication follows segment sync; an interrupted publication is refused,
+/// never silently treated as a complete recording.
+pub(super) struct ReplayArchive {
+    directory: PathBuf,
+    previous: String,
+    bytes: u64,
+    segments: u64,
+}
+const SEGMENT_TICKS: usize = 256;
+const ARCHIVE_MAX_BYTES: u64 = 32 * 1024 * 1024 * 1024;
+impl ReplayArchive {
+    fn append(&mut self, replay: &SealedReplay, end_snapshot_hash: String) -> Result<()> {
+        let bytes = serde_json::to_vec(replay)?;
+        anyhow::ensure!(bytes.len() <= 64 * 1024 * 1024, "replay segment exceeds 64 MiB");
+        anyhow::ensure!(self.bytes + bytes.len() as u64 <= ARCHIVE_MAX_BYTES, "replay archive disk quota exhausted");
+        let id = format!("{:x}", Sha256::digest(&bytes));
+        let path = self.directory.join(format!("{}.json", id));
+        let mut file = fs::OpenOptions::new().write(true).create_new(true).open(path)?;
+        file.write_all(&bytes)?; file.sync_all()?;
+        let record = json!({"schema":"xace.replay_archive_segment.v1", "sequence":self.segments,
+            "previous":self.previous,"file_sha256":id,"bytes":bytes.len(),
+            "first_tick":replay.bundle.initial_snapshot.tick,
+            "last_tick":replay.bundle.ticks.last().context("empty replay segment")?.tick,
+            "initial_epoch":replay.bundle.initial_epoch,
+            "end_snapshot_hash":end_snapshot_hash});
+        let row = json!({"digest":digest(&record)?,"record":record});
+        let mut index = fs::OpenOptions::new().create(true).append(true).open(self.directory.join("index.jsonl"))?;
+        let mut encoded = serde_json::to_vec(&row)?; encoded.push(b'\n');
+        index.write_all(&encoded)?; index.sync_all()?;
+        self.previous = row["digest"].as_str().unwrap().to_owned();
+        self.bytes += bytes.len() as u64; self.segments += 1;
+        Ok(())
+    }
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -70,6 +109,7 @@ pub struct ReplayReport {
     pub epochs: usize,
     pub first_divergence: Option<Value>,
     pub presentation_effects_emitted: u64,
+    pub end_snapshot_hash: String,
 }
 fn state(runtime: &RuntimeOrchestrator) -> Result<Value> {
     let s = runtime
@@ -102,8 +142,48 @@ impl RuntimeOrchestrator {
                 .map_err(|e| anyhow::anyhow!("{}", e))?,
             epochs: Vec::new(),
             ticks: Vec::new(),
+            initial_epoch: 0,
             pending_feedback: Vec::new(),
         });
+        if self.config.ruleset_root.is_some() {
+            let root = self.config.ruleset_root.as_ref().context("live recording requires trusted storage")?;
+            fs::create_dir_all(root)?;
+            let stamp = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH)?.as_nanos();
+            let directory = root.join(format!("recording-{}-{}", std::process::id(), stamp));
+            fs::create_dir(&directory)?;
+            self.replay_archive = Some(ReplayArchive {directory,previous:String::new(),bytes:0,segments:0});
+        }
+        Ok(())
+    }
+    pub fn replay_archive_path(&self) -> Option<&Path> {
+        self.replay_archive.as_ref().map(|a|a.directory.as_path())
+    }
+    pub fn close_epoch_archive(&mut self) -> Result<()> {
+        self.finish_epoch_archive()?;
+        if let Some(archive) = &self.replay_archive {
+            let marker = json!({"schema":"xace.replay_archive_complete.v1","segments":archive.segments,
+                "chain_head":archive.previous,"next_tick":self.phase_orch.current_tick()});
+            let mut file = fs::OpenOptions::new().write(true).create_new(true).open(archive.directory.join("complete.json"))?;
+            file.write_all(&serde_json::to_vec(&marker)?)?; file.sync_all()?;
+        }
+        Ok(())
+    }
+    pub fn finish_epoch_archive(&mut self) -> Result<()> {
+        if self.replay_archive.is_some() && self.epoch_recording.as_ref().is_some_and(|r|!r.ticks.is_empty()) {
+            let replay = self.sealed_epoch_recording()?;
+            let end_hash = self.world_snapshot().map_err(|e|anyhow::anyhow!("{}",e))?.world_hash;
+            self.replay_archive.as_mut().unwrap().append(&replay,end_hash)?;
+        }
+        Ok(())
+    }
+    pub(super) fn rotate_epoch_recording(&mut self) -> Result<()> {
+        if self.replay_archive.is_none() || !self.epoch_recording.as_ref().is_some_and(|r|r.ticks.len() >= SEGMENT_TICKS) {return Ok(());}
+        self.finish_epoch_archive()?;
+        let snapshot = self.world_snapshot().map_err(|e|anyhow::anyhow!("{}",e))?;
+        let recording = self.epoch_recording.as_mut().unwrap();
+        if let Some(epoch) = recording.epochs.last() {recording.initial_artifacts = epoch.proposal.artifacts.clone();}
+        recording.initial_epoch += recording.epochs.len() as u64;
+        recording.epochs.clear(); recording.ticks.clear(); recording.initial_snapshot = snapshot;
         Ok(())
     }
     pub fn sealed_epoch_recording(&self) -> Result<SealedReplay> {
@@ -137,7 +217,7 @@ impl RuntimeOrchestrator {
         if self
             .epoch_recording
             .as_ref()
-            .is_some_and(|r| r.ticks.is_empty())
+            .is_some_and(|r| r.ticks.is_empty() && r.epochs.is_empty())
         {
             let snapshot = self
                 .world_snapshot()
@@ -185,7 +265,7 @@ impl RuntimeOrchestrator {
         anyhow::ensure!(recording.ticks.len() < 100_000, "replay tick limit reached");
         recording.ticks.push(ReplayTick {
             tick: result.tick,
-            epoch: recording.epochs.len() as u64,
+            epoch: recording.initial_epoch + recording.epochs.len() as u64,
             inputs: applications
                 .iter()
                 .filter(|a| a.applied)
@@ -251,7 +331,7 @@ impl SealedReplay {
             self.bundle
                 .epochs
                 .iter()
-                .all(|e| e.tick > self.bundle.initial_snapshot.tick && e.tick <= last),
+                .all(|e| e.tick >= self.bundle.initial_snapshot.tick && e.tick <= last),
             "epoch outside recorded tick range"
         );
         Ok(())
@@ -301,6 +381,7 @@ impl SealedReplay {
             epochs: 0,
             first_divergence: None,
             presentation_effects_emitted: 0,
+            end_snapshot_hash: String::new(),
         };
         for expected in &self.bundle.ticks {
             if through_tick.is_some_and(|end| expected.tick > end) {
@@ -378,7 +459,7 @@ impl SealedReplay {
                 report.epochs += 1;
             }
             anyhow::ensure!(
-                expected.epoch == report.epochs as u64,
+                expected.epoch == self.bundle.initial_epoch + report.epochs as u64,
                 "missing historical epoch at tick {}",
                 expected.tick
             );
@@ -410,6 +491,7 @@ impl SealedReplay {
             }
             report.verified_ticks += 1;
         }
+        report.end_snapshot_hash = runtime.world_snapshot().map_err(|e|anyhow::anyhow!("{}",e))?.world_hash;
         Ok(report)
     }
 }

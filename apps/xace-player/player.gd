@@ -284,7 +284,9 @@ func _on_handshake(_ack: Dictionary) -> void:
 	if int(_ack.get("assigned_player_id",0)) != controlled or int(_ack.get("assigned_peer_id",0)) != int(session_ticket.get("peer_id",0)):
 		_fail("Game session assigned a different player.")
 		return
-	var expected_epoch: Dictionary = session_ticket.get("offer",{}).get("contract",{}).get("epoch",{})
+	# The validated transport contract advances at committed ruleset boundaries.
+	# The one-use admission ticket still describes the original epoch.
+	var expected_epoch: Dictionary = transport.native_contract.offer.get("contract",{}).get("epoch",{})
 	if str(_ack.get("session_id","")) != str(expected_epoch.get("session_id","")) or str(_ack.get("authority_incarnation","")) != str(expected_epoch.get("authority_incarnation","")) or int(_ack.get("ruleset_epoch",-1)) != int(expected_epoch.get("ruleset_epoch",-2)):
 		_fail("Game session identity changed during connection.")
 		return

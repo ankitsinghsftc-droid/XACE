@@ -1,6 +1,6 @@
 """XP-009 exported presentation proof. All gameplay remains in the reference package."""
 from pathlib import Path
-import json,sys,importlib,io,wave,struct,math
+import json,sys,importlib,io,wave,struct,math,os
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT),str(ROOT/"packages"),str(ROOT/"packages/project-system")]
 from tools.xp007_package_proof import compile_plan
@@ -51,7 +51,7 @@ def stage(out, variant=0):
     enable(cgs)
     rehash(cgs)
     plan,compiled=compile_plan(cgs)
-    runtime=(ROOT/"target/debug/xace_reference_host.exe").read_bytes()
+    runtime=Path(os.environ.get('XACE_PROOF_HOST',str(ROOT/"target/debug/xace_reference_host.exe"))).read_bytes()
     support=RuntimeSupport(digest(runtime),"xace.runtime_executor.v1",tuple(compiled.to_sgc_input()))
     settings={"schema":"xace.player.controls.v1","controller_id":1,"instructions":"Move: W A S D    Jump: Space","bindings":[{"action":"move_x","positive":68,"negative":65,"kind":"axis_1d"},{"action":"move_z","positive":87,"negative":83,"kind":"axis_1d"},{"action":"Jump","positive":32,"kind":"button"}]}
     base=build_package(cgs,plan,runtime,support,package_id="reference.presentation",version="1.0.0")

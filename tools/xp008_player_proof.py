@@ -1,6 +1,6 @@
 """XP-008 live Player proof setup; gameplay fixture remains package-owned."""
 from pathlib import Path
-import json,sys,importlib
+import json,sys,importlib,os
 ROOT=Path(__file__).resolve().parents[1]
 sys.path[:0]=[str(ROOT),str(ROOT/"packages"),str(ROOT/"packages/project-system")]
 from tools.xp007_package_proof import compile_plan
@@ -16,7 +16,7 @@ def stage(out):
     cgs["modes"][0]["world"]["contract"]=importlib.import_module("schema-factory.src.world_contract_v3").migrate_v2_source(cgs["modes"][0]["world"]["contract"])
     rehash(cgs)
     plan,compiled=compile_plan(cgs)
-    runtime=(ROOT/"target/debug/xace_reference_host.exe").read_bytes()
+    runtime=Path(os.environ.get('XACE_PROOF_HOST',str(ROOT/"target/debug/xace_reference_host.exe"))).read_bytes()
     support=RuntimeSupport(digest(runtime),"xace.runtime_executor.v1",tuple(compiled.to_sgc_input()))
     settings={"schema":"xace.player.controls.v1","controller_id":1,"instructions":"Move: W A S D    Jump: Space","bindings":[{"action":"move_x","positive":68,"negative":65,"kind":"axis_1d"},{"action":"move_z","positive":87,"negative":83,"kind":"axis_1d"},{"action":"Jump","positive":32,"kind":"button"}]}
     archive=build_package(cgs,plan,runtime,support,package_id="reference.player",version="1.0.0",presentation_files={"presentation/player/settings.json":json.dumps(settings).encode()})
@@ -27,13 +27,26 @@ def stage(out):
 
 PROOF_SCRIPT = r'''extends "res://player.gd"
 var failure_state: Dictionary = {}
+var input_sent_usec: Dictionary = {}
+func _process(delta: float) -> void:
+    if active:
+        if not report.has("render_frame_interval_ms"):
+            report["render_frame_interval_ms"] = []
+        report.render_frame_interval_ms.append(delta * 1000.0)
+    super._process(delta)
 func _on_tick(tick: int) -> void:
     if active:
+        if input_sent_usec.has(tick):
+            if not report.has("input_to_applied_tick_ms"):
+                report["input_to_applied_tick_ms"] = []
+            report.input_to_applied_tick_ms.append((Time.get_ticks_usec() - input_sent_usec[tick]) / 1000.0)
+            input_sent_usec.erase(tick)
         if not report.has("projection_digests"):
             report["projection_digests"] = []
         report.projection_digests.append(str(transport.native_contract.stamp.projection_digest))
     super._on_tick(tick)
 func _send_input(tick: int) -> void:
+    input_sent_usec[tick] = Time.get_ticks_usec()
     var scenario: String = str(options.get("--scenario","normal"))
     if scenario == "runtime_loss" and tick == 6:
         OS.kill(runtime_pid)

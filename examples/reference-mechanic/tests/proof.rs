@@ -217,6 +217,23 @@ fn event_names(r: &TickResult) -> Vec<String> {
         .collect()
 }
 #[test]
+fn endurance_route_stays_on_fixture_floor_past_previous_failure_tick() {
+    // XP-022's 60-frame route is deliberately closed. The old short golden
+    // recording drifted off the finite arena when repeated for a long soak.
+    for (third, direction) in [(ThirdAttempt::Disabled, 1), (ThirdAttempt::ReversalShockwave, -1)] {
+        let mut host = Host::new(third);
+        let initial_z = host.value(host.player, 1)["position"]["z"].as_i64().unwrap();
+        for tick in 0..50_040 {
+            let z = direction * if tick % 60 < 30 { 250_000 } else { -250_000 };
+            host.step(Frame { x:0, z, jump:false }).unwrap();
+            let position = host.value(host.player,1)["position"].clone();
+            assert!((position["z"].as_i64().unwrap()-initial_z).abs() <= 2_000_000, "tick {tick}: {position}");
+            assert!(position["y"].as_i64().unwrap().abs() <= 3_000_000, "tick {tick}: {position}");
+        }
+        assert_eq!(host.value(host.player,1)["position"]["z"].as_i64().unwrap(),initial_z);
+    }
+}
+#[test]
 fn two_chained_jumps_and_disabled_third_attempt_are_real_state_transitions() {
     let mut h = Host::new(ThirdAttempt::Disabled);
     let mut events = Vec::new();

@@ -130,7 +130,7 @@ def scenario(out,engines,build,unreal_project,activation=None):
             # Player's production liveness timeout remains enabled. Wait for
             # slower editor startup before admitting it to a paused proof host.
             if engine=='player' and transcripts:
-                wait_for(lambda:all(any(r['kind']=='input' and r['tick']==0 for r in rows(p)) for p in transcripts),120)
+                wait_for(lambda:all(any(r['kind']=='input' and r['tick']==0 for r in rows(p)) for p in transcripts),300)
             transcript=out/f'{engine}.jsonl';transcripts.append(transcript)
             config=out/f'{engine}-config.json';write(config,dict(schema='xace.mixed_host_proof.v1',ticket=str(tickets[i-1]),world=str(pkg/'world.json'),port=ep,cgs_hash=cgs,inputs=recording(i),stop_tick=19 if i==n else 39,transcript=str(transcript)))
             if engine=='player':
@@ -145,7 +145,7 @@ def scenario(out,engines,build,unreal_project,activation=None):
                 if p.poll() not in (None,0):raise RuntimeError('Native client failed; inspect '+str(out))
         def ready():
             check_alive();return all(any(r['kind']=='input' and r['tick']==0 for r in rows(p)) for p in transcripts)
-        wait_for(ready,120)
+        wait_for(ready,300)
         for tick in range(40):
             if activation and tick==2:
                 preview=control('ruleset',ruleset={'operation':'preview','artifact_digest':artifact_digest})['ruleset']

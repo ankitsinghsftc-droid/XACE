@@ -85,8 +85,11 @@ impl InputLog {
             previous_chain_hash,
             chain_hash: chain_hash.clone(),
         };
+        // Released lockstep packets arrive in key order. Extending the chain is
+        // constant work; only an out-of-order insert needs to rebuild its order.
+        let ordered = self.entries.keys().next_back().is_none_or(|last| *last < key);
         self.entries.insert(key.clone(), record);
-        self.chain_head = self.recompute_chain();
+        self.chain_head = if ordered { chain_hash } else { self.recompute_chain() };
         Ok(self.entries.get(&key).expect("record inserted"))
     }
 

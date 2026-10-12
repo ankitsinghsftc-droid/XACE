@@ -12,7 +12,7 @@ def prepare(out):
     out.mkdir(parents=True,exist_ok=False)
     package=stage(out/'build')
     cgs=load(package/'game.cgs.json');runtime=(ROOT/'target/debug/xace_reference_host.exe').read_bytes()
-    visuals={str(p.relative_to(package)).replace('\\','/'):p.read_bytes() for p in (package/'presentation').rglob('*') if p.is_file()}
+    visuals={str(p.relative_to(package)).replace('\\','/'):p.read_bytes() for p in (package/'presentation').rglob('*') if p.is_file() and p.suffix != '.import'}
     for name,policy in [('parent','disabled'),('candidate','reversal_shockwave')]:
         current=copy.deepcopy(cgs)
         def set_policy(value):

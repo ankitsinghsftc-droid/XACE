@@ -155,6 +155,11 @@ impl Default for MaliciousInputGate {
 }
 
 impl MaliciousInputGate {
+    pub fn prune_action_history_before(&mut self, tick: Tick) {
+        // Sequence and last-tick guards remain intact; only expired per-tick
+        // action counters are discarded after runtime release.
+        self.cheat_guard.prune_before_tick(tick);
+    }
     pub fn new(config: MaliciousInputGateConfig) -> Self {
         Self::with_config(config).expect("malicious input gate configuration must be valid")
     }

@@ -20,7 +20,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-019 | Reconstructed; source a6a70b2, harness f9802c0 | 842 runtime +21 reference; all local matrix gates pass, recurring timeout unresolved |
 | XP-020 | Reconstructed; source 9775bce, harness 0c9a4a4 | 864 Rust tests and actual four-client replay proof pass |
 | XP-021 | Reconstructed; source 4ea57e2, harness 626c8f6 | 883 tests, Builder build/UI and actual browser walkthrough pass |
-| XP-022 | Pending | Not run |
+| XP-022 | Historical source reconstructed through final seal-tool corrections | Fresh certification pending; original seal missing |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -117,3 +117,7 @@ XP021 source checkpoint `4ea57e2` (unverified). Recovery walkthrough explicitly 
 ## XP-021 fresh acceptance
 
 842 runtime +22 reference +9 debugger +10 authoring tests pass, plus Builder build/UI and actual browser walkthrough. Live authority advanced175 to1022 while inspecting; historical replay/live fork verification, guest refusal and explicit creator control pass. Fresh evidence: `docs/recovery/evidence/xp021-20261012/summary.json`. Offline dependency install failed ENOTCACHED;338 existing dependency files were copied/hash-checked read-only from original checkout after version comparison with lockfile. Source and lockfile unchanged. Fresh current host pinned at `recovery-evidence/20261012/xp021/verified-XP021-reference-host.exe`. Earlier native timeout remains unresolved. XP022 is next. NOT backed up off-device.
+
+## XP-022 reconstruction
+
+XP021 verified checkpoint `7e43b1f`. Successful XP022 patches replayed through11147, excluding unexecuted9793 and historical target evidence generator10706. Reviewed shell edits9993,10051,10196 recovered. XP021 proof path overlap reconciled to explicit recovered inputs and one pinned final host. Historical certification documents carry missing-original-evidence banners. Fresh release tests, installed-host A-H, process faults, packaging/lifecycle, replay/debugger and two-hour soak are pending. No original seal is recreated or claimed. NOT backed up off-device.

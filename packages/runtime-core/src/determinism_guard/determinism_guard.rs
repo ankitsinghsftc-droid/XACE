@@ -462,6 +462,10 @@ impl DeterminismGuard {
     }
 
     /// Returns all recorded tick hashes in ascending tick order.
+    pub fn trim_hashes_before(&mut self, tick: u64) {
+        self.state.tick_hash_log.retain(|key, _| *key >= tick);
+    }
+
     pub fn hash_log(&self) -> Vec<(u64, String)> {
         self.state
             .tick_hash_log

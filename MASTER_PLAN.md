@@ -19,6 +19,55 @@ Fresh recovery: XP021 passes883 tests, Builder build/UI and actual browser walkt
 
 ---
 
+## XP-022: LOCAL ENGINEERING GATES PASSED — EXTERNAL RELEASE ACCEPTANCE OPEN - 2026-10-08
+
+Latest final-candidate follow-up: production-binary admission/input/recovery,
+crash-before/after durable activation, rejected migration, slow consumer, partial
+package transfer, token expiry and local TLS outage tests pass. Installed-host
+A-H engineering proofs, actual browser debugger, FPS/input/presentation and normal
+unsigned packaging/lifecycle pass. Reference regressions: 23 passed; generic world
+extensions: 8 passed. Runtime/Player/adapter production source is unchanged from
+the successful soak. Generated Godot import metadata was removed from packaging
+without changing runtime or gameplay identity. See docs/XP022_ENGINEERING_CERTIFICATION.md.
+
+The source/binary/evidence baseline is sealed for engineering review by
+tools/xp022_seal_engineering.py; its manifest is
+docs/evidence/xp022-engineering-candidate.json. No Git ref, commit or push is part
+of this freeze. NEC is NOT STARTED. The proposed engineering/release separation
+in docs/XP022_RELEASE_GATES.md awaits explicit owner approval: REL-01 clean Windows,
+REL-02 two-machine LAN, REL-03 public/two-network relay, REL-04 signing and REL-05
+three first-time testers remain OPEN. The original combined public-release
+acceptance is not marked passed. Local engineering is eligible for handoff under
+that explicit amendment; external acceptance remains mandatory for release claims.
+
+Historical pre-final audit (the local gaps below are now superseded):
+
+Latest follow-up (2026-10-08): input-log quadratic hashing, redundant timeline
+reconstruction, session-log write overhead and unbounded live replay/diagnostic
+retention have been fixed. Segmented replay verification passes. The independent
+soak failed at tick 24,747 because its repeated short reference input drove an
+actor beyond the portable world bounds; p95 was 15.0235 ms and peak private memory
+51.39 MiB. Corrected endurance input uses closed, separated routes inside the
+fixture arena. A 100,080-tick reference regression passes across both rulesets.
+The replacement two-hour soak PASSED: 7,200.860 seconds, 202,271 ticks,
+12.0662 ms authority p95, two mutations and one reconnect. All 791 archived
+segments replayed successfully across 202,271 ticks. Final gate reconciliation
+did NOT support COMPLETE: full real-process Proof H, final pinned A-H and
+packaging certification, and external acceptance remain open. See
+docs/XP022_CLOSEOUT.md and docs/evidence/xp022-closeout-20261008.json.
+The verified soak checkpoint is preserved; no final release baseline is frozen.
+
+Historical initial checkpoint (superseded for retention, performance and soak):
+added source/artifact-bound real-process certification subset, four-socket memory
+preflight and streamed authority tick timing. Fresh four-native-host activation
+and replay/socket fault subsets pass. The 600-tick preflight found private memory
+growth from 2.17 MB to 46.22 MB; replay remains limited to 100,000 in-memory ticks.
+Bounded durable recording/diagnostic retention must be resolved before the two-hour
+soak. Full faults, performance, packaging and A-H acceptance remain open.
+User confirmed signing certificate and first-time testers are unavailable; mark
+pending along with previously deferred clean-machine and separate-network trials.
+See docs/XP022_STATUS.md. No commit, push or protected-ref change.
+
 ## XP-021: COMPLETE FOR CONFIGURED LOCAL WINDOWS DEBUGGER PROFILE - 2026-10-04
 
 Existing TickDebugger defaults to isolated inspection; breakpoints no longer

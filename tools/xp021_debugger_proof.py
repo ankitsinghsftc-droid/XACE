@@ -8,20 +8,20 @@ from runtime_control_client import RuntimeControlClient,RuntimeControlConfig
 
 def port():
     with socket.socket() as sock:sock.bind(('127.0.0.1',0));return sock.getsockname()[1]
-def serve(out,web,control,host,current):
+def serve(out,web,control,host):
     import uvicorn
     from fastapi import FastAPI
     from fastapi.responses import FileResponse
     app=FastAPI()
-    install_debugger_routes(app,ReplayDebugger(out/'replays',(host,current),RuntimeControlClient(RuntimeControlConfig(port=control)),'proof-creator'))
+    install_debugger_routes(app,ReplayDebugger(out/'replays',(host,),RuntimeControlClient(RuntimeControlConfig(port=control)),'proof-creator'))
     @app.get('/')
     def index():return FileResponse(out/'index.html')
     @app.get('/fixture.js')
     def script():return FileResponse(out/'fixture.js',media_type='text/javascript')
     uvicorn.run(app,host='127.0.0.1',port=web,log_level='warning')
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp021/walkthrough');p.add_argument('--serve',action='store_true');p.add_argument('--web',type=int);p.add_argument('--control',type=int);p.add_argument('--recording',type=Path,required=True);p.add_argument('--package',type=Path,required=True);p.add_argument('--current-host',type=Path,required=True);a=p.parse_args();out=a.out.resolve();package=a.package.resolve();host=a.current_host.resolve()
-    if a.serve:return serve(out,a.web,a.control,package/'runtime/xace_runtime.exe',host)
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp021/walkthrough');p.add_argument('--serve',action='store_true');p.add_argument('--web',type=int);p.add_argument('--control',type=int);p.add_argument('--recording',type=Path,default=os.environ.get('XACE_PROOF_RECORDING'));p.add_argument('--package',type=Path,default=os.environ.get('XACE_PROOF_PACKAGE'));p.add_argument('--current-host',type=Path,default=os.environ.get('XACE_PROOF_HOST'));a=p.parse_args();out=a.out.resolve();package=a.package.resolve();host=a.current_host.resolve()
+    if a.serve:return serve(out,a.web,a.control,host)
     out.mkdir(parents=True,exist_ok=False);(out/'replays').mkdir()
     raw=a.recording.resolve().read_bytes();identity=hashlib.sha256(raw).hexdigest();(out/'replays'/f'{identity}.json').write_bytes(raw)
     workspace=ROOT/'packages/builder-workspace'
@@ -48,7 +48,7 @@ def main():
         for action in ['pause','play']:
             request=urllib.request.Request(f'http://127.0.0.1:{web}/api/debugger/control',data=json.dumps({'action':action,'confirm_session_wide':True}).encode(),headers={'content-type':'application/json','x-xace-creator-token':'proof-creator'})
             assert json.load(urllib.request.urlopen(request))['accepted']
-        proof={'schema':'xace.xp021.creator_walkthrough.v1','ok':True,'walkthrough':walkthrough,'creator_pause_resume':True,'recording_id':identity,'scope':'Windows browser + actual historical host + separate running authority'}
+        proof={'schema':'xace.xp021.creator_walkthrough.v1','ok':True,'walkthrough':walkthrough,'creator_pause_resume':True,'recording_id':identity,'host_sha256':hashlib.sha256(host.read_bytes()).hexdigest(),'scope':'Windows browser + explicitly pinned host + separate running authority'}
         (out/'proof.json').write_text(json.dumps(proof,indent=2));print(json.dumps(proof,indent=2))
     finally:
         for process in reversed(processes):

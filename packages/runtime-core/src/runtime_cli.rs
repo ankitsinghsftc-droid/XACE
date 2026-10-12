@@ -1,6 +1,7 @@
 //! Standalone XACE runtime with optional live engine bridge.
 
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process;
 use std::sync::mpsc::{self, Receiver};
@@ -30,6 +31,9 @@ use crate::tcp_server::{EngineConnection, TcpEngineServer, TcpServerConfig};
     about = "XACE deterministic runtime with live engine bridge"
 )]
 struct Cli {
+    /// Optional streamed timing diagnostics. Never part of authoritative state or replay hashes.
+    #[arg(long, conflicts_with = "epoch_replay_in")]
+    tick_metrics_out: Option<PathBuf>,
     /// Trusted host storage for pre-installed candidate artifacts; never a socket path.
     #[arg(long)]
     ruleset_root: Option<PathBuf>,
@@ -237,6 +241,10 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
         max_entities: if cli.verbose { 32 } else { 12 },
     };
     let tick_dt = Duration::from_secs_f64(1.0 / f64::from(cli.tick_rate));
+    let mut tick_metrics = cli.tick_metrics_out.as_ref().map(|path| {
+        fs::OpenOptions::new().write(true).create_new(true).open(path)
+            .map(std::io::BufWriter::new)
+    }).transpose()?;
     let start = Instant::now();
     let mut next_tick_at = Instant::now();
     let mut tick_count = 0_u64;
@@ -271,6 +279,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
             continue;
         }
 
+        let tick_started = Instant::now();
         let result = match runtime.tick() {
             Ok(result) => result,
             Err(xace_core::errors::xace_error::XaceError::RecoverableError { ref context, .. })
@@ -289,6 +298,15 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
                 }
             Err(err) => anyhow::bail!("tick {} failed: {:?}", tick_count, err),
         };
+        let tick_elapsed_ns = tick_started.elapsed().as_nanos();
+        if let Some(writer) = tick_metrics.as_mut() {
+            // Includes successful runtime.tick work and bridge sends; excludes CLI pacing,
+            // paused control handling and unsuccessful input-wait attempts.
+            writeln!(writer, "{}", serde_json::json!({
+                "schema": "xace.authority_tick_metrics.v1", "tick": result.tick,
+                "elapsed_ns": tick_elapsed_ns, "world_hash": result.world_hash, "stages_ns": runtime.tick_stage_ns,
+            }))?;
+        }
         if step_budget > 0 { step_budget -= 1; }
         input_wait_started = None;
         total_changes = total_changes.saturating_add(result.state_delta.change_count() as u64);
@@ -316,10 +334,12 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
         }
     }
 
+    if let Some(writer) = tick_metrics.as_mut() { writer.flush()?; }
     if let Some(path) = &cli.schedule_snapshot_out {
         write_schedule_snapshot_report(path, &runtime, tick_count)?;
     }
     if let Some(path)=&cli.epoch_replay_out {runtime.save_epoch_recording(path)?;}
+    runtime.close_epoch_archive()?;
     runtime.disconnect_engine("runtime_shutdown")?;
     print_done(
         &runtime,

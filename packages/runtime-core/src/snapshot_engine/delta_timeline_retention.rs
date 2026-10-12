@@ -366,6 +366,11 @@ impl DeltaCompressedTimelineRetention {
     }
 
     fn prune_before(&mut self, min_tick: Tick) -> Result<(), XaceError> {
+        // No eviction means latest_snapshot is already exact. Reconstructing it
+        // through the anchor/delta chain on every append needlessly replays history.
+        if self.entries.keys().next().is_none_or(|tick| *tick >= min_tick) {
+            return Ok(());
+        }
         let Some(first_keep_tick) = self.entries.range(min_tick..).next().map(|(tick, _)| *tick)
         else {
             let removed = self.entries.len() as u64;
@@ -405,7 +410,8 @@ impl DeltaCompressedTimelineRetention {
             self.total_promoted_anchors += 1;
         }
 
-        self.refresh_latest_snapshot()
+        // Only the prefix changed; the cached latest snapshot remains valid.
+        Ok(())
     }
 
     fn refresh_latest_snapshot(&mut self) -> Result<(), XaceError> {

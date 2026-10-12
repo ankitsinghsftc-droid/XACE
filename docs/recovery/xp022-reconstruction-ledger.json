@@ -1,0 +1,733 @@
+[
+  {
+    "line": 9756,
+    "historical_output_line": 9759,
+    "changes": [
+      {
+        "path": "tools/xp022_certification.py",
+        "before_sha256": null,
+        "after_sha256": "6f103fd2588e6371febb3f826eb1dae9f59044226780246d09f2ff67354c9233"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9786,
+    "historical_output_line": 9788,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9793,
+    "historical_output_line": 9796,
+    "changes": [],
+    "status": "excluded-original-unexecuted-approval-limit"
+  },
+  {
+    "line": 9825,
+    "historical_output_line": 9828,
+    "changes": [
+      {
+        "path": "tools/xp022_certification.py",
+        "before_sha256": "6f103fd2588e6371febb3f826eb1dae9f59044226780246d09f2ff67354c9233",
+        "after_sha256": "4074f8b1c9e506e2fb16cbbd4deed12aaa419091ed2484f37bd7a83dfbaa51ae"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9841,
+    "historical_output_line": 9845,
+    "changes": [
+      {
+        "path": "tools/xp022_session_probe.py",
+        "before_sha256": null,
+        "after_sha256": "0f6814064a1f3b0e8445da5104e08e8a3105d687d062bcc661068128a101c5af"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9853,
+    "historical_output_line": 9856,
+    "changes": [
+      {
+        "path": "tools/xp022_certification.py",
+        "before_sha256": "4074f8b1c9e506e2fb16cbbd4deed12aaa419091ed2484f37bd7a83dfbaa51ae",
+        "after_sha256": "a905819897423fa637fb7e26204c9259604e0e6bc126a33fe21b5c4a774d1d31"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9878,
+    "historical_output_line": 9882,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "767124086761deb45832383d3128643e66f3e3ec750808fad83359d8af1521ac",
+        "after_sha256": "0aabfa083a724a722a6d9d22f430007e0f04f68ec40c450efd0af44eb7cc3cd1"
+      },
+      {
+        "path": "tools/xp022_session_probe.py",
+        "before_sha256": "0f6814064a1f3b0e8445da5104e08e8a3105d687d062bcc661068128a101c5af",
+        "after_sha256": "46e6838bb1338d42ba9fd5bd730b70597ff99093c40626ddcafd208ea6fd1602"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9888,
+    "historical_output_line": 9890,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 9895,
+    "historical_output_line": 9899,
+    "changes": [
+      {
+        "path": "docs/XP022_STATUS.md",
+        "before_sha256": null,
+        "after_sha256": "eca842afd4d559b28c23671f1e58047848bd01a1d222f9c951e80cb97275ccc5"
+      },
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "620764dbedf0258cfbccd718ee2e8ed2e35e8a10afdf594b8b5f926e6247ae5c",
+        "after_sha256": "6523a16da8e0a63a8a7f94bc8436763422df73b8eb4bc3457510b405368292b0"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9939,
+    "historical_output_line": 9943,
+    "changes": [
+      {
+        "path": "docs/XP022_STATUS.md",
+        "before_sha256": "eca842afd4d559b28c23671f1e58047848bd01a1d222f9c951e80cb97275ccc5",
+        "after_sha256": "08c8a998265178faf233e55796d8ef9e79417a1cd1640d12c724e5ea04c32422"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 9993,
+    "historical_output_line": 9996,
+    "changes": [],
+    "status": "replayed-source-only",
+    "reviewed_shell_edit": "from pathlib import Path\np=Path('packages/runtime-core/src/runtime_orchestrator.rs')\ns=p.read_text()\ns=s.replace('    epoch_recording: Option<epoch_replay::ReplayBundle>,','    epoch_recording: Option<epoch_replay::ReplayBundle>,\\n    pub tick_stage_ns: BTreeMap<String, u64>,')\ns=s.replace('            epoch_recording: None,','            epoch_recording: None,\\n            tick_stage_ns: BTreeMap::new(),')\ns=s.replace('    pub fn tick(&mut self) -> Result<TickResult, XaceError> {','    pub fn tick(&mut self) -> Result<TickResult, XaceError> {\\n        let mut stage_started = std::time::Instant::now();\\n        self.tick_stage_ns.clear();')\nfor anchor,name in [('        self.pump_engine_inbound().map_err','rollback'),('        self.collect_engine_inputs_from_bridge();','inbound_activation'),('        let result = self.phase_orch.tick_with_guard(','input_schedule'),('        let spawned_ids = result','simulation'),('        self.capture_delta_compressed_timeline_snapshot(result.tick)?;','replay_record'),('        self.send_tick_to_engine(&result, &playback_commands)','timeline'),('        self.last_tick_result = Some(RuntimeTickSummary {','send')]:\n    # Only tick function occurrences; these anchors are unique or use first in tick.\n    start=s.index('    pub fn tick(&mut self)')\n    pos=s.index(anchor,start)\n    insert=f'        self.tick_stage_ns.insert(\"{name}\".into(), stage_started.elapsed().as_nanos() as u64);\\n        stage_started = std::time::Instant::now();\\n'\n    s=s[:pos]+insert+s[pos:]\ns=s.replace('        self.schedule_snapshots.push(schedule_snapshot);\\n        Ok(result)','        self.schedule_snapshots.push(schedule_snapshot);\\n        self.tick_stage_ns.insert(\"finalize\".into(), stage_started.elapsed().as_nanos() as u64);\\n        Ok(result)')\np.write_text(s)\np=Path('packages/runtime-core/src/runtime_cli.rs');s=p.read_text().replace('\"elapsed_ns\": tick_elapsed_ns, \"world_hash\": result.world_hash,','\"elapsed_ns\": tick_elapsed_ns, \"world_hash\": result.world_hash, \"stages_ns\": runtime.tick_stage_ns,');p.write_text(s)"
+  },
+  {
+    "line": 10035,
+    "historical_output_line": 10038,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/live_session.rs",
+        "before_sha256": "9182f22d1d29941a18f1bcfac4f72c5aa445e409ba73ffff9c1f8e6779576de1",
+        "after_sha256": "fa333a2876eb716c9ad6db8ef4c6624731a52a98aa0f34efcdd284e6de44d364"
+      },
+      {
+        "path": "packages/runtime-core/src/snapshot_engine/delta_timeline_retention.rs",
+        "before_sha256": "1abc59aba0bbe11dd0e8634340d16ae0c88109f60aad0418df95d5bc54db8c9e",
+        "after_sha256": "3e5f4da00e88c89fbd175559982abfc0c5c28b1317d02c800c41f415f6692721"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10051,
+    "historical_output_line": 10054,
+    "changes": [],
+    "status": "replayed-source-only",
+    "reviewed_shell_edit": "from pathlib import Path\np=Path('packages/runtime-core/src/runtime_orchestrator.rs');s=p.read_text();s=s.replace('    pub tick_stage_ns: BTreeMap<String, u64>,','    pub tick_stage_ns: BTreeMap<String, u64>,\\n    replay_archive: Option<epoch_replay::ReplayArchive>,');s=s.replace('            tick_stage_ns: BTreeMap::new(),','            tick_stage_ns: BTreeMap::new(),\\n            replay_archive: None,')\ns=s.replace('        self.client_prediction_pending.clear();\\n        self.pending_input_mutations', '        self.rotate_epoch_recording().map_err(|err|runtime_session_record_error(\"replay_archive\",self.phase_orch.current_tick(),err))?;\\n        self.client_prediction_pending.clear();\\n        self.pending_input_mutations',1)\ns=s.replace('        self.schedule_snapshots.push(schedule_snapshot);','''        self.schedule_snapshots.push(schedule_snapshot);\n        if self.config.live_session {\n            let oldest = result.tick.saturating_sub(1023);\n            self.replay_traces.retain(|tick, _| *tick >= oldest);\n            self.schedule_snapshots.retain(|snapshot| snapshot.tick >= oldest);\n            self.determinism_guard.trim_hashes_before(oldest);\n            self.rng_interceptor.trim_before(oldest);\n            self.feedback_log.trim_before(oldest);\n        }''',1);p.write_text(s)\np=Path('packages/runtime-core/src/determinism_guard/determinism_guard.rs');s=p.read_text().replace('    pub fn hash_log(&self) -> Vec<(u64, String)> {','    pub fn trim_hashes_before(&mut self, tick: u64) {\\n        self.state.tick_hash_log.retain(|key, _| *key >= tick);\\n    }\\n\\n    pub fn hash_log(&self) -> Vec<(u64, String)> {',1);p.write_text(s)\np=Path('packages/runtime-core/src/determinism_guard/rng_interceptor.rs');s=p.read_text().replace('    pub fn world_seed(&self) -> u64 {','    pub fn trim_before(&self, tick: u64) {\\n        self.inner.lock().unwrap().access_log.retain(|(key, _), _| *key >= tick);\\n    }\\n\\n    pub fn world_seed(&self) -> u64 {',1);p.write_text(s)"
+  },
+  {
+    "line": 10058,
+    "historical_output_line": 10062,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "3371dc71deeff4c5f9ec3bac16fee1eb7e6e01335c3fbeb28bab612af2ea52ed",
+        "after_sha256": "41cb5e01f3cd3e6fa7314b3660962c07fbdee018a2e38ed99bbbe8390290b75c"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "b2feab787fcc6b45da04f51cc05cb2fb553d8e328dbc705a98f56bbdc9512757",
+        "after_sha256": "8a6805414ae7cc61366c5d2b5953da635ffdf27d5d3e31fe1792f5b014f64e0f"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10066,
+    "historical_output_line": 10071,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "41cb5e01f3cd3e6fa7314b3660962c07fbdee018a2e38ed99bbbe8390290b75c",
+        "after_sha256": "c158ca67eadfb7b2af560a8f0630aaa181bb00d5bd76ffedef70e6844ce29443"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10075,
+    "historical_output_line": 10078,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "c158ca67eadfb7b2af560a8f0630aaa181bb00d5bd76ffedef70e6844ce29443",
+        "after_sha256": "8a28bc4e070a0e934261f48dfd0b554a578ae69cc8114ef45eb078c775bed70e"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10083,
+    "historical_output_line": 10086,
+    "changes": [
+      {
+        "path": "tools/xp022_archive_verify.py",
+        "before_sha256": null,
+        "after_sha256": "901f00d43ec2265b4f480459e24572209631345d3ccb1c3960613098a5f12f02"
+      },
+      {
+        "path": "tools/xp022_stage_package.py",
+        "before_sha256": null,
+        "after_sha256": "cca4a0defb58d8dc96647501c21f4c3c1549dba64d037dfc12572cb7b74218b7"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10125,
+    "historical_output_line": 10130,
+    "changes": [
+      {
+        "path": "packages/network-core/src/input/input_log.rs",
+        "before_sha256": "f0e6921cab4321b03eaee2b7b35316ca377662d0a9594761008e8cc49eb5e1da",
+        "after_sha256": "347d086fa90efe234760a97aa75c3857467f1f0a71b01b158e96519814eb5c44"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "3c52be56c8ea236a8e33bcdc6067471c30155bfd326849c9610a43ac00cb99e6",
+        "after_sha256": "52b35eafc1890e5fb410443c8f3f175e4b8bcab3892bbb8d1855b47807a83c3d"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "8a28bc4e070a0e934261f48dfd0b554a578ae69cc8114ef45eb078c775bed70e",
+        "after_sha256": "529b37e188e0014e7e5e6228bf17e78d1188180ea560b4033e72b59903f13d3b"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "8a6805414ae7cc61366c5d2b5953da635ffdf27d5d3e31fe1792f5b014f64e0f",
+        "after_sha256": "697aa010d8612d53573e95e06315c3035756d6e8fd37b8864012528384e349c2"
+      },
+      {
+        "path": "tools/xp022_archive_verify.py",
+        "before_sha256": "901f00d43ec2265b4f480459e24572209631345d3ccb1c3960613098a5f12f02",
+        "after_sha256": "442a38f863d75ef0426d30da0f1647a8d604ef291d3967307dfdf8215e35450c"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10187,
+    "historical_output_line": 10192,
+    "changes": [
+      {
+        "path": "packages/network-core/src/input/malicious_input_gate.rs",
+        "before_sha256": "c98bc56665e528173d00f3ff659a8bbcf9ec71b53ad761f99b6efbc51ed6380b",
+        "after_sha256": "6ea2901d3ce62ee55e5014c2239b66e6087a928691f75f5990ffe45705bd76ff"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "52b35eafc1890e5fb410443c8f3f175e4b8bcab3892bbb8d1855b47807a83c3d",
+        "after_sha256": "0b67cb60881c83b74d2da3a7add8b4f4603c9d3361c6ac5826065375d18df223"
+      },
+      {
+        "path": "tools/xp017_player_proof.gd",
+        "before_sha256": "67d772a29e98714ec86daa42f2ddf7796844d294f4140a9e089041a7da465b5e",
+        "after_sha256": "d83c5686f31cbe51fab55f1a07a87b11fc5c245d7d055938d9e68fa7c9eb064d"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10196,
+    "historical_output_line": 10199,
+    "changes": [],
+    "status": "replayed-source-only",
+    "reviewed_shell_edit": "from pathlib import Path\np=Path('tools/xp017_player_proof.gd');p.write_text('\\n'.join('\\t'*(len(line)-len(line.lstrip(' ')))//4+line.lstrip(' ') if False else line for line in p.read_text().splitlines())+'\\n')\ns=p.read_text();s='\\n'.join(('\\t' * ((len(l)-len(l.lstrip(' ')))//4) + l.lstrip(' ')) if l.startswith('    ') else l for l in s.splitlines())+'\\n';p.write_text(s)"
+  },
+  {
+    "line": 10207,
+    "historical_output_line": 10210,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 10215,
+    "historical_output_line": 10218,
+    "changes": [
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": null,
+        "after_sha256": "5bd525a4573c6da03f6b78820e779910a7bc23d238624fd9b7d1a5d0fd2e0d3e"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10244,
+    "historical_output_line": 10247,
+    "changes": [
+      {
+        "path": "tools/xp017_player_proof.gd",
+        "before_sha256": "4d0833be2676d4dbc3e228e648ea6267e20681ca7aace5552b73cbdc5b2d270e",
+        "after_sha256": "0384cfb8fc5fd23f9e122a345a5d11a07aab44f516d8f5e422d48ebd3ed70f97"
+      },
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": "5bd525a4573c6da03f6b78820e779910a7bc23d238624fd9b7d1a5d0fd2e0d3e",
+        "after_sha256": "70c85691d8f0bfb9fda91934974d52cfecd271a94ff73c4be7082169bb7ae6cf"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10301,
+    "historical_output_line": 10304,
+    "changes": [
+      {
+        "path": "apps/xace-player/player.gd",
+        "before_sha256": "a2e5c63d22c914b23ef2d0c5cb6ce623da7cc91efb5adc72f309c415ba01b40a",
+        "after_sha256": "590bac3164e8958489bcb69c189929871d7ec782512a7597cc3ea513a18e5ddc"
+      },
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": "70c85691d8f0bfb9fda91934974d52cfecd271a94ff73c4be7082169bb7ae6cf",
+        "after_sha256": "81887717b0678867b6fb07e6cdbdef24f0ae4e07b1ea3c97313dbfb632befe29"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10350,
+    "historical_output_line": 10353,
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/live_session.rs",
+        "before_sha256": "fa333a2876eb716c9ad6db8ef4c6624731a52a98aa0f34efcdd284e6de44d364",
+        "after_sha256": "d7b199405dc140dc6fcc9ac1d9bf7ac6baddbe43438e0853f414059da7a6a18e"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "529b37e188e0014e7e5e6228bf17e78d1188180ea560b4033e72b59903f13d3b",
+        "after_sha256": "88eafb9f044889467dcd7ceeca7b9e8f4ce8b5bfd11c2c9ae5ce12025eae4c3b"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "0b67cb60881c83b74d2da3a7add8b4f4603c9d3361c6ac5826065375d18df223",
+        "after_sha256": "e16694998a2205abcc85629bd97816105e6271446c9865fcf4fd3cb8d428d140"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10357,
+    "historical_output_line": 10359,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 10471,
+    "historical_output_line": 10475,
+    "changes": [
+      {
+        "path": "tools/xp022_background_soak.py",
+        "before_sha256": null,
+        "after_sha256": "0cdeb8927842cf86874301d778122ece708e071730c3ddc102a8e616c1f8b2ac"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10527,
+    "historical_output_line": 10531,
+    "changes": [
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": "81887717b0678867b6fb07e6cdbdef24f0ae4e07b1ea3c97313dbfb632befe29",
+        "after_sha256": "24ebcfb8012cccc8a912914997fdc13f6307a4434c78c7ef65fd987740f803c8"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10549,
+    "historical_output_line": 10552,
+    "changes": [
+      {
+        "path": "examples/reference-mechanic/tests/proof.rs",
+        "before_sha256": "7cc535e88ba1699d5fe6386ee3cc54f564a275b1910fa7ebef314c9515e48642",
+        "after_sha256": "098bb04fef2f5e48d8f93d0b8d938d2c5b86bdfd344afde3dd52e45088b8c075"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10571,
+    "historical_output_line": 10574,
+    "changes": [
+      {
+        "path": "examples/reference-mechanic/tests/proof.rs",
+        "before_sha256": "098bb04fef2f5e48d8f93d0b8d938d2c5b86bdfd344afde3dd52e45088b8c075",
+        "after_sha256": "cc25ba8b0e207937fa03fa6cbaeaf488c62996c36c45cdff1ee670359110b524"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10588,
+    "historical_output_line": 10591,
+    "changes": [
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": "24ebcfb8012cccc8a912914997fdc13f6307a4434c78c7ef65fd987740f803c8",
+        "after_sha256": "14381e6bcd0d8e39100585c7131c4e7d485bcfa2772de12cbfa46ef6d938666a"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10597,
+    "historical_output_line": 10601,
+    "changes": [
+      {
+        "path": "tools/xp022_background_soak.py",
+        "before_sha256": "0cdeb8927842cf86874301d778122ece708e071730c3ddc102a8e616c1f8b2ac",
+        "after_sha256": "a39ba898bd7c56cc67161deb77357fa2d44379331855b275bf858c4b7eb654ac"
+      },
+      {
+        "path": "tools/xp022_player_soak.py",
+        "before_sha256": "14381e6bcd0d8e39100585c7131c4e7d485bcfa2772de12cbfa46ef6d938666a",
+        "after_sha256": "d5d013a3611ea102d6b9dc661a57dcf36d737202922917617e5b0348883c12e1"
+      },
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "6523a16da8e0a63a8a7f94bc8436763422df73b8eb4bc3457510b405368292b0",
+        "after_sha256": "476a090cb2ae002257a25b1dedd8ce692143274e3f0a571110404e04a2be4a84"
+      },
+      {
+        "path": "docs/XP022_STATUS.md",
+        "before_sha256": "08c8a998265178faf233e55796d8ef9e79417a1cd1640d12c724e5ea04c32422",
+        "after_sha256": "ec23784b3298c0f166edb2deef33bd02207eb685d2d377830c6ade3010dfd9ed"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10706,
+    "historical_output_line": 10709,
+    "changes": [],
+    "status": "historical-evidence-generator-preserved-not-executed"
+  },
+  {
+    "line": 10714,
+    "historical_output_line": 10717,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "476a090cb2ae002257a25b1dedd8ce692143274e3f0a571110404e04a2be4a84",
+        "after_sha256": "5b792bb412911e55d1888cbe8db8c10405be241f47a7967573e26f8df0cce294"
+      },
+      {
+        "path": "docs/XP022_STATUS.md",
+        "before_sha256": "ec23784b3298c0f166edb2deef33bd02207eb685d2d377830c6ade3010dfd9ed",
+        "after_sha256": "eb8cfbc9f4b2f91f43239120604f6cd913a6cff7f00c9ec5a75c0e2870fdc21a"
+      },
+      {
+        "path": "docs/XP022_CLOSEOUT.md",
+        "before_sha256": null,
+        "after_sha256": "ce5a0b6ca54d9505a9aa9469b0efd7b6356ef5d1f4e3c38f4475435ea980d6d6"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10723,
+    "historical_output_line": 10727,
+    "changes": [
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "c41e46d6680377d1d5fb4e6a590dc37492c533190369393914f2ae071cef1c29",
+        "after_sha256": "34bc25733e48d1ab75d63089b05f5d98c932b6c89b47d6c73b25ba496928a071"
+      },
+      {
+        "path": "docs/XP022_CLOSEOUT.md",
+        "before_sha256": "ce5a0b6ca54d9505a9aa9469b0efd7b6356ef5d1f4e3c38f4475435ea980d6d6",
+        "after_sha256": "955d3805330f8df6ee1278fc18248a9542d3115016f11e640533b7463711932b"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10776,
+    "historical_output_line": 10779,
+    "changes": [
+      {
+        "path": "tools/xp022_final_proofs.py",
+        "before_sha256": null,
+        "after_sha256": "716d6d95067c25f08850288eb1364eb518a35ff14b4bc92a8f43907e492c14bd"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10816,
+    "historical_output_line": 10821,
+    "changes": [
+      {
+        "path": "tools/xp015_relay_proof.py",
+        "before_sha256": "f3ae8a90bede09eab78ceb0bccb3b684c483fec003da202d3d554b0a380bda66",
+        "after_sha256": "a8faf70475caf205ff435f86518a32929839b3e753760aa19265e0a0d60a8af9"
+      }
+    ],
+    "status": "replayed-source-only",
+    "recovery_adjustment": "XP021 proof overlapping path edits reconciled: one pinned host, host digest, env inputs plus explicit recovery CLI; no original-repository fallback."
+  },
+  {
+    "line": 10855,
+    "historical_output_line": 10859,
+    "changes": [
+      {
+        "path": "tools/xp008_player_build.py",
+        "before_sha256": "d629f9bd0daa2693711788c959b921db57af88e8d1f4ac54c1cf21dc0d464832",
+        "after_sha256": "0b856906a21100a8dc66297aa8e9bb4495486555b615ad9bf464764566762b72"
+      },
+      {
+        "path": "tools/xp019_activation_proof.py",
+        "before_sha256": "9619073eb7cf963660ff6051750e66b5279359795102acd19bf63bb67e06a6f4",
+        "after_sha256": "0a71a6b3c2a56e4a8d59effeee05c3fb50433388d717a6634c09b72d98f60c19"
+      },
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "aae610e5c684fa3a2e2b5950b82de6969b863bca3641142577a1fd50d3a0e077",
+        "after_sha256": "43a5ceaecd96f7ee4a1370999deb47371f1b2f80e2557b52e9624adea8d41efd"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10865,
+    "historical_output_line": 10868,
+    "changes": [
+      {
+        "path": "tools/xp022_stage_package.py",
+        "before_sha256": "cca4a0defb58d8dc96647501c21f4c3c1549dba64d037dfc12572cb7b74218b7",
+        "after_sha256": "497eb210e3a38af4a92f7bf07d0daae2fa3047945a9d5455aeee1334d1f406b5"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10881,
+    "historical_output_line": 10885,
+    "changes": [
+      {
+        "path": "tools/xp022_process_faults.py",
+        "before_sha256": null,
+        "after_sha256": "ea2ea5600d5279c46b17ff55b5ee503a957006b770c49c54b4810f091514a779"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10914,
+    "historical_output_line": 10918,
+    "changes": [
+      {
+        "path": "tools/xp010_launch_proof.py",
+        "before_sha256": "acad389207706bb1a72eb4eb874c0f427271aacbb6e6fa261650fafbcb3dd302",
+        "after_sha256": "6a37572feacf4e07c2d8708880b386e2d41079e79a1d712c71610aeb3cd1104e"
+      },
+      {
+        "path": "tools/xp022_process_faults.py",
+        "before_sha256": "ea2ea5600d5279c46b17ff55b5ee503a957006b770c49c54b4810f091514a779",
+        "after_sha256": "cec23532310329e352c050a5a54376a3c0e3159b7b61a8dbf30b9180a50c5e9a"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10930,
+    "historical_output_line": 10933,
+    "changes": [
+      {
+        "path": "tools/xp022_process_faults.py",
+        "before_sha256": "cec23532310329e352c050a5a54376a3c0e3159b7b61a8dbf30b9180a50c5e9a",
+        "after_sha256": "70703761433a3379617fa0b6ac03a201efd98d66ac51ca8b97af876fefdcd793"
+      },
+      {
+        "path": "tools/xp014_session_proof.py",
+        "before_sha256": "6fdd49af9a88d6af409b9d80572dbdad50a31d0cdb8e63351b3bf73ae3f09068",
+        "after_sha256": "8a6f22270119ede4036d948d1968caa28d40d14b87f14f0fe9178d3f28c8a214"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10941,
+    "historical_output_line": 10944,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 10956,
+    "historical_output_line": 10961,
+    "changes": [
+      {
+        "path": "tools/xp022_process_faults.py",
+        "before_sha256": "70703761433a3379617fa0b6ac03a201efd98d66ac51ca8b97af876fefdcd793",
+        "after_sha256": "d5b5c4e20442becf122cced4459dbeec103f39fd8eb45670446211d53ef8e801"
+      },
+      {
+        "path": "tools/xp014_session_proof.py",
+        "before_sha256": "8a6f22270119ede4036d948d1968caa28d40d14b87f14f0fe9178d3f28c8a214",
+        "after_sha256": "8db02403f8370a395c42da0ea80ef4c1a4be4664c633334b5be565ea0d74c40c"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 10995,
+    "historical_output_line": 10999,
+    "changes": [
+      {
+        "path": "tools/xp009_player_proof.py",
+        "before_sha256": "118a0633fa22e88beda2d8ed4169a29973f02bb6279c8db159ff2430a231e8fb",
+        "after_sha256": "c26cc428ecbe311ffa1cc537121615ada16b20c75dbb2968d7607e5b51556835"
+      },
+      {
+        "path": "tools/xp022_process_faults.py",
+        "before_sha256": "d5b5c4e20442becf122cced4459dbeec103f39fd8eb45670446211d53ef8e801",
+        "after_sha256": "6ca45a1152ce5d669a431b0ef789c908916585666de4528cf110c5eab3115b40"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 11020,
+    "historical_output_line": 11024,
+    "changes": [
+      {
+        "path": "tools/xp008_player_proof.py",
+        "before_sha256": "bf8f32c0eeb945adf754392ce8e24321cc8e8fb1cc3e5f750714bf5ba364dba1",
+        "after_sha256": "d4af5ca914af2890b36a9730280ba4e93136e0f6cd6e3116698eaba50389e7f8"
+      },
+      {
+        "path": "tools/xp011_session_proof.py",
+        "before_sha256": "961c3be62bd88e562bcac93873b5b02d2c71f3a0dd42c41b6b948a5c96538df6",
+        "after_sha256": "8aa3233cfae4554000d3b8eb8ef2c8bc6683f38c6dd5abc75d1d1fa53beeeff6"
+      },
+      {
+        "path": "tools/xp022_certification.py",
+        "before_sha256": "a905819897423fa637fb7e26204c9259604e0e6bc126a33fe21b5c4a774d1d31",
+        "after_sha256": "59d25f05b03a7c557386546de45d78ddcdefb967afa7a076b41e0b326d94cded"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 11034,
+    "historical_output_line": 11037,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 11056,
+    "historical_output_line": 11060,
+    "changes": [],
+    "status": "historical-test-build-or-evidence-command-not-replayed"
+  },
+  {
+    "line": 11067,
+    "historical_output_line": 11070,
+    "changes": [
+      {
+        "path": "docs/XP022_RELEASE_GATES.md",
+        "before_sha256": null,
+        "after_sha256": "96c6302918cca0c91e24125bca3fa5c06f9fe9a8480b9a3a97adf51a9f287fd0"
+      },
+      {
+        "path": "docs/XP022_ENGINEERING_CERTIFICATION.md",
+        "before_sha256": null,
+        "after_sha256": "d900121b8e2b1e8e393f7321dca61ab91a0295d6bcf08dfca8552908527e2b9c"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 11119,
+    "historical_output_line": 11122,
+    "changes": [
+      {
+        "path": "tools/xp022_seal_engineering.py",
+        "before_sha256": null,
+        "after_sha256": "3cb8b2f0ec9b40febfddd5da77aa0b5abe877b2132924a77d0158d6790b33076"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 11126,
+    "historical_output_line": 11129,
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "5b792bb412911e55d1888cbe8db8c10405be241f47a7967573e26f8df0cce294",
+        "after_sha256": "25ee70e14e2fcfb2cfc8bd0568233fe6d506fb71a73074baabfb71573f803907"
+      },
+      {
+        "path": "docs/XP022_STATUS.md",
+        "before_sha256": "eb8cfbc9f4b2f91f43239120604f6cd913a6cff7f00c9ec5a75c0e2870fdc21a",
+        "after_sha256": "91e74a0dd5889608c6b524633b5fedfe2443134d8d18e9ce939f3e00c7d61741"
+      },
+      {
+        "path": "docs/XP022_CLOSEOUT.md",
+        "before_sha256": "955d3805330f8df6ee1278fc18248a9542d3115016f11e640533b7463711932b",
+        "after_sha256": "65814c6fa3a90997287e5ef51ab3cbc3fbd8244ab4cbcc045273d1440de1113c"
+      },
+      {
+        "path": "docs/XP022_ENGINEERING_CERTIFICATION.md",
+        "before_sha256": "d900121b8e2b1e8e393f7321dca61ab91a0295d6bcf08dfca8552908527e2b9c",
+        "after_sha256": "6771d02358cb3f089df09c7ba9e34ffd49c3d45861f90d951a09168168b98f0b"
+      },
+      {
+        "path": "docs/XP022_RELEASE_GATES.md",
+        "before_sha256": "96c6302918cca0c91e24125bca3fa5c06f9fe9a8480b9a3a97adf51a9f287fd0",
+        "after_sha256": "83c9a813566d0584ee841c6a539abd274c1f6d53703281d1c6aeeb9bb6473d9c"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "34bc25733e48d1ab75d63089b05f5d98c932b6c89b47d6c73b25ba496928a071",
+        "after_sha256": "afb2518aee9f77439f7cef00b2a046a95bbdeea4171aa46272c1b7f3b70091b3"
+      }
+    ],
+    "status": "replayed-source-only"
+  },
+  {
+    "line": 11147,
+    "historical_output_line": 11150,
+    "changes": [
+      {
+        "path": "tools/xp022_seal_engineering.py",
+        "before_sha256": "3cb8b2f0ec9b40febfddd5da77aa0b5abe877b2132924a77d0158d6790b33076",
+        "after_sha256": "f4b41d9ec6d00fbc40bee986cd459321868ad6b9dee200acd3efa532d4c493f9"
+      }
+    ],
+    "status": "replayed-source-only"
+  }
+]

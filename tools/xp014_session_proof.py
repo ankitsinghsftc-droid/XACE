@@ -42,7 +42,10 @@ class FaultProxy:
                     if self.mode=='cancel' and request['action']=='file' and not self.started.is_set():self.started.set();time.sleep(1)
                     result=rpc(self.code,request['action'],**{k:v for k,v in request.items() if k not in {'schema','token','action'}})
                     if self.mode=='readiness' and request['action']=='redeem' and result['ok']:result['result']['ticket']['controller_id']=999
-                    raw=json.dumps(result).encode();conn.sendall(struct.pack('<I',len(raw))+raw)
+                    raw=json.dumps(result).encode()
+                    if self.mode=='partial' and request['action']=='file':
+                        conn.sendall(struct.pack('<I',len(raw))+raw[:len(raw)//2]);continue
+                    conn.sendall(struct.pack('<I',len(raw))+raw)
                 except (OSError,EOFError):pass
     def close(self):self.stop.set();self.listener.close();self.thread.join(timeout=3)
 
@@ -58,6 +61,14 @@ def run(release,out):
         desc=rpc(code,'describe');assert desc['ok'],desc
         assert not rpc(code,'file',path='runtime/xace_runtime.exe',offset=0)['ok']
         assert not rpc(code,'file',path='../distribution.json',offset=0)['ok']
+        proxy=FaultProxy(code,'partial')
+        try:
+            partial=friend.request('join',code=proxy.invite)
+            assert not partial['ok'],partial
+        finally:proxy.close()
+        assert friend.request('status')['result']['state']=='stopped'
+        assert not list((out/'friend/session-cache').iterdir())
+        proof['partial_package_transfer']={'refused':True,'no_player_started':True,'cache_removed':True}
         expired=json.loads(bytes.fromhex(code[6:]));expired['expires_at']=0
         rejection=friend.request('join',code='XACE1-'+json.dumps(expired).encode().hex());assert not rejection['ok'] and 'expired' in rejection['message'],rejection
         # Modify the host's installed data after its immutable descriptor was prepared.
@@ -104,7 +115,10 @@ def run(release,out):
         # Valid bytes but an unusable presentation/controller assignment must never become ready.
         proxy=FaultProxy(second_code,'readiness')
         try:
-            refused=friend.request('join',code=proxy.invite);assert not refused['ok'] and 'controllable entity' in refused['message'],refused
+            refused=friend.request('join',code=proxy.invite)
+            # The current Player can reject the inconsistent controller at
+            # credential admission before presentation readiness is reached.
+            assert not refused['ok'] and any(reason in refused['message'] for reason in ['controllable entity','invalid or spent grant']),refused
         finally:proxy.close()
         assert friend.request('status')['result']['state']=='stopped'
         assert not list((out/'friend/session-cache').iterdir())

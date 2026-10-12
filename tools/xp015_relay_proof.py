@@ -80,7 +80,9 @@ class Relay:
         self.ctx=ssl.create_default_context(cafile=str(out/'ca.pem'));self.ctx.minimum_version=ssl.TLSVersion.TLSv1_3
         env=dict(os.environ,XACE_RELAY_OPERATOR_TOKEN=self.secret)
         self.log=(out/'relay.log').open('w')
-        self.p=subprocess.Popen([str(ROOT/'target/debug/xace-session-relay.exe'),'127.0.0.1:'+str(self.port),str(out/'cert.der'),str(out/'key.der')],env=env,stdout=self.log,stderr=self.log,creationflags=subprocess.CREATE_NO_WINDOW)
+        executable=Path(os.environ.get('XACE_PROOF_RELAY',str(ROOT/'target/debug/xace-session-relay.exe'))).resolve()
+        (out/'relay-identity.json').write_text(json.dumps({'executable':str(executable),'sha256':hashlib.sha256(executable.read_bytes()).hexdigest()}))
+        self.p=subprocess.Popen([str(executable),'127.0.0.1:'+str(self.port),str(out/'cert.der'),str(out/'key.der')],env=env,stdout=self.log,stderr=self.log,creationflags=subprocess.CREATE_NO_WINDOW)
         for _ in range(100):
             try:
                 with self.dial():break

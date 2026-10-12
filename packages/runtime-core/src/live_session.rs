@@ -44,12 +44,15 @@ impl SessionLog {
         ))))
     }
     pub fn append(&self, value: &Value) -> Result<()> {
+        // Serialize in memory first: streaming serde directly into an unbuffered
+        // File issues a filesystem write for every JSON token on the tick path.
+        let mut bytes = serde_json::to_vec(value)?;
+        bytes.push(b'\n');
         let mut file = self
             .0
             .lock()
             .map_err(|_| anyhow::anyhow!("session log poisoned"))?;
-        serde_json::to_writer(&mut *file, value)?;
-        file.write_all(b"\n")?;
+        file.write_all(&bytes)?;
         file.sync_data()?;
         Ok(())
     }
@@ -215,6 +218,30 @@ impl LiveSessionController {
             bail!("invalid package schema");
         }
         let root = manifest_path.parent().context("manifest parent missing")?;
+        // Presentation descriptors explicitly declare cosmetic fallbacks. Their
+        // own bytes must verify before they can authorize a missing resource;
+        // existing-but-tampered files and all gameplay artifacts still fail.
+        let mut optional_resources = BTreeSet::new();
+        for entry in field(&manifest, &["files"])?.as_array().context("files missing")? {
+            let relative = string(field(entry, &["path"])?)?;
+            if relative.starts_with("presentation/") && relative.ends_with("/presentation.json")
+                && Path::new(relative).components().all(|c|matches!(c,std::path::Component::Normal(_))) {
+                let bytes = fs::read(root.join(relative))?;
+                if format!("{:x}",Sha256::digest(&bytes)) != string(field(entry,&["sha256"])?)? {
+                    bail!("presentation descriptor hash mismatch");
+                }
+                let descriptor: Value = serde_json::from_slice(&bytes)?;
+                if let Some(assets) = descriptor.get("assets").and_then(Value::as_array) {
+                    for asset in assets {
+                        if asset.get("required").and_then(Value::as_bool)==Some(false) {
+                            if let Some(path)=asset.get("path").and_then(Value::as_str) {
+                                if path.starts_with("presentation/resources/") {optional_resources.insert(path.to_string());}
+                            }
+                        }
+                    }
+                }
+            }
+        }
         for entry in field(&manifest, &["files"])?
             .as_array()
             .context("files missing")?
@@ -228,6 +255,7 @@ impl LiveSessionController {
             {
                 bail!("unsafe package path");
             }
+            if !root.join(path).try_exists()? && optional_resources.contains(relative) {continue;}
             if file_hash(&root.join(path))? != string(field(entry, &["sha256"])?)? {
                 bail!("package hash mismatch: {}", relative);
             }

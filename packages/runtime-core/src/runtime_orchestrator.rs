@@ -747,6 +747,8 @@ pub struct RuntimeOrchestrator {
     migration_hooks: Vec<RuntimeComponentMigrationHook>,
     pending_activation: Option<ruleset_activation::PendingActivation>,
     epoch_recording: Option<epoch_replay::ReplayBundle>,
+    pub tick_stage_ns: BTreeMap<String, u64>,
+    replay_archive: Option<epoch_replay::ReplayArchive>,
     completed_activation: Option<(String, String, u64, String)>,
     #[cfg(feature = "activation-fault-injection")]
     activation_fault: Option<ruleset_activation::ActivationFault>,
@@ -835,6 +837,11 @@ impl RuntimeOrchestrator {
     }
 
     pub fn initialise_with_config(cgs_path: &Path, mut config: RuntimeConfig) -> Result<Self> {
+        if config.live_session {
+            // Live packets are already retained by SessionLog and epoch replay.
+            // Do not duplicate the entire session in InputSynchroniser RAM.
+            config.input_sync.synchroniser.auto_log_released_inputs = false;
+        }
         let mut entity_store = EntityStore::new();
         let mut table_store = ComponentTableStore::new();
         let mutation_gate = MutationGate::new();
@@ -983,6 +990,8 @@ impl RuntimeOrchestrator {
             migration_hooks: Vec::new(),
             pending_activation: None,
             epoch_recording: None,
+            tick_stage_ns: BTreeMap::new(),
+            replay_archive: None,
             completed_activation: None,
             #[cfg(feature = "activation-fault-injection")]
             activation_fault: None,
@@ -1032,12 +1041,17 @@ impl RuntimeOrchestrator {
     }
 
     pub fn tick(&mut self) -> Result<TickResult, XaceError> {
+        let mut stage_started = std::time::Instant::now();
+        self.tick_stage_ns.clear();
         if let Some(reason)=&self.activation_failure {
             return Err(runtime_session_record_error("ruleset_session_ended",self.phase_orch.current_tick(),anyhow::anyhow!("{}",reason)));
         }
+        self.rotate_epoch_recording().map_err(|err|runtime_session_record_error("replay_archive",self.phase_orch.current_tick(),err))?;
         self.client_prediction_pending.clear();
         self.pending_input_mutations.lock().expect("input staging lock").clear();
         self.capture_runtime_rollback_snapshot()?;
+        self.tick_stage_ns.insert("rollback".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         self.pump_engine_inbound().map_err(|err| runtime_session_record_error(
             "receive_disconnect",self.phase_orch.current_tick(),err))?;
         self.process_ruleset_activation().map_err(|err|runtime_session_record_error("ruleset_activation",self.phase_orch.current_tick(),err))?;
@@ -1056,6 +1070,8 @@ impl RuntimeOrchestrator {
             let tick = self.phase_orch.current_tick();
             return Err(runtime_lockstep_wait_error(tick, tick, &[], 0));
         }
+        self.tick_stage_ns.insert("inbound_activation".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         self.collect_engine_inputs_from_bridge();
         self.capture_replay_initial_boundary().map_err(|err|runtime_session_record_error("replay_initial",self.phase_orch.current_tick(),err))?;
         let input_report = if self.config.apply_engine_input_components {
@@ -1077,6 +1093,8 @@ impl RuntimeOrchestrator {
         self.validate_schedule_snapshot_for_tick(&schedule_snapshot)?;
         let phase_plan = schedule_snapshot.phase_plan_for_runtime();
 
+        self.tick_stage_ns.insert("input_schedule".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         let result = self.phase_orch.tick_with_guard(
             &phase_plan,
             &self.registry,
@@ -1090,6 +1108,8 @@ impl RuntimeOrchestrator {
             &self.spawn_summary.cgs_hash,
         )?;
 
+        self.tick_stage_ns.insert("simulation".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         let spawned_ids = result
             .state_delta
             .spawned_entities
@@ -1113,9 +1133,15 @@ impl RuntimeOrchestrator {
             self.build_replay_trace(&result, &schedule_snapshot, &input_applications);
         self.record_released_inputs_for_rollback(result.tick, &input_applications);
         self.record_epoch_replay_tick(&result,&input_applications,&schedule_snapshot).map_err(|err|runtime_session_record_error("replay_record",result.tick,err))?;
+        self.tick_stage_ns.insert("replay_record".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         self.capture_delta_compressed_timeline_snapshot(result.tick)?;
+        self.tick_stage_ns.insert("timeline".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         self.send_tick_to_engine(&result, &playback_commands).map_err(|err|
             runtime_session_record_error("send_disconnect",result.tick,err))?;
+        self.tick_stage_ns.insert("send".into(), stage_started.elapsed().as_nanos() as u64);
+        stage_started = std::time::Instant::now();
         self.last_tick_result = Some(RuntimeTickSummary {
             tick: result.tick,
             mutations_applied: result.mutations_applied,
@@ -1135,6 +1161,16 @@ impl RuntimeOrchestrator {
         self.last_playback_commands = playback_commands;
         self.replay_traces.insert(result.tick, replay_trace);
         self.schedule_snapshots.push(schedule_snapshot);
+        if self.config.live_session || self.replay_archive.is_some() {
+            let oldest = result.tick.saturating_sub(1023);
+            self.replay_traces.retain(|tick, _| *tick >= oldest);
+            self.schedule_snapshots.retain(|snapshot| snapshot.tick >= oldest);
+            self.determinism_guard.trim_hashes_before(oldest);
+            self.rng_interceptor.trim_before(oldest);
+            self.feedback_log.trim_before(oldest);
+            self.live_input_gate.prune_action_history_before(oldest);
+        }
+        self.tick_stage_ns.insert("finalize".into(), stage_started.elapsed().as_nanos() as u64);
         Ok(result)
     }
 

@@ -382,6 +382,10 @@ impl RngInterceptor {
     }
 
     /// Returns the world seed this interceptor was created with.
+    pub fn trim_before(&self, tick: u64) {
+        self.inner.lock().unwrap().access_log.retain(|(key, _), _| *key >= tick);
+    }
+
     pub fn world_seed(&self) -> u64 {
         self.world_seed
     }
