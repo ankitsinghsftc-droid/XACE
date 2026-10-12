@@ -17,6 +17,7 @@ def main():
     parser.add_argument('--artifacts', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--mode', choices=['sockets', 'hosts'], required=True)
+    parser.add_argument('--unreal-project', type=Path, required=True)
     args = parser.parse_args()
     artifacts = args.artifacts.resolve(); out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=False)
@@ -38,9 +39,9 @@ def main():
                                  proof_sha256=sha(out/name/'proof.json'))
     else:
         for name,engines in [('pair',['player','godot']),('four',['unity','godot','unreal','player'])]:
-            results[name] = scenario(out/name,engines,artifacts/'build',dict(
+            results[name] = scenario(out/name,engines,artifacts/'build',args.unreal_project.resolve(),dict(
                 parent=artifacts/'parent',candidate=artifacts/'candidate',
-                native=ROOT/'target/xp019/native',record_replay=True))
+                record_replay=True))
         recording = out/'four/replay.json'
         for name,tick in [('before',7),('at',8),('after',39),('repeat',39),('rewind',7)]:
             report = out/(name+'.json')

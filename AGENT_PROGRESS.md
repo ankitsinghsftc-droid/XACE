@@ -121,3 +121,5 @@ XP021 source checkpoint `4ea57e2` (unverified). Recovery walkthrough explicitly 
 ## XP-022 reconstruction
 
 XP021 verified checkpoint `7e43b1f`. Successful XP022 patches replayed through11147, excluding unexecuted9793 and historical target evidence generator10706. Reviewed shell edits9993,10051,10196 recovered. XP021 proof path overlap reconciled to explicit recovered inputs and one pinned final host. Historical certification documents carry missing-original-evidence banners. Fresh release tests, installed-host A-H, process faults, packaging/lifecycle, replay/debugger and two-hour soak are pending. No original seal is recreated or claimed. NOT backed up off-device.
+
+XP022 source checkpoint `fcc087e` is unverified and NOT backed up off-device. Fresh final-host harness now accepts the persistent Unreal project explicitly, preserving recovered scenario argument order. Fresh verification is next; original seal remains missing.
