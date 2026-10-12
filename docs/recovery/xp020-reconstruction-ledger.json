@@ -1,0 +1,158 @@
+[
+  {
+    "line": 9343,
+    "historical_output_line": 9346,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "77dd7f41ae540c8b944dc68234289d7d880b71dcbbd2c72f721be60384771a4d",
+        "after_sha256": "f175f352597ea0339993b63cd1e3b0c0868e79c1fc8a2460e2639d4e55d34ba9"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_candidate.rs",
+        "before_sha256": "f2eb6851daf8f8b1dd29482afd4a80e2f9fd64d4d565ec3b64f471aa96c1b7f8",
+        "after_sha256": "fff1a180c2c4d30714027dc106af5acc1d98c1f7de22e2b27c19146cc839e067"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "9901cd9faaadbfb594717d34287a1aeae923a4609b9aa7c985db74a6fd1cf76e",
+        "after_sha256": "1827866360627d67e688e3d36322bc18ec6105e0b38a95de1ba868bc84759313"
+      }
+    ]
+  },
+  {
+    "line": 9357,
+    "historical_output_line": 9361,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": null,
+        "after_sha256": "8dd69ca89468bf19d92c2c5920480566ff1358096e76cd86665e03171dd363ba"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator.rs",
+        "before_sha256": "f175f352597ea0339993b63cd1e3b0c0868e79c1fc8a2460e2639d4e55d34ba9",
+        "after_sha256": "5bce0afeed9245736d61eddf20d7ba3af5d03f9559d8343da5ada6a0dad8a982"
+      },
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "98605001ecc7435905a60a44e40ac2744a1e200a14cb8259dd25b05904f8ab48",
+        "after_sha256": "8e6c9b7ae382cbe7643bfef63ee9d7254994eb1f1d66dc475e67ee3173f92346"
+      }
+    ]
+  },
+  {
+    "line": 9374,
+    "historical_output_line": 9377,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "977b0deef01a6fcee073a7997a025e2f2000482e2048dfc16c31c7f52f8129f1",
+        "after_sha256": "4d5c4b5077d0e21fe77608172dd09005b1bf0b4bfdb20496711bd0fe65411bc2"
+      }
+    ]
+  },
+  {
+    "line": 9381,
+    "historical_output_line": 9384,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "8dd69ca89468bf19d92c2c5920480566ff1358096e76cd86665e03171dd363ba",
+        "after_sha256": "7f2c23c2c87a8d6e0063743274ba5accabe7dd88e3eb8cb299702b6a7afcb9f1"
+      }
+    ]
+  },
+  {
+    "line": 9389,
+    "historical_output_line": 9393,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp017_mixed_session_proof.py",
+        "before_sha256": "16a110629dacd9e625b57f2d5a25bd5ccd158ab3461db41b749d1deb32448851",
+        "after_sha256": "aae610e5c684fa3a2e2b5950b82de6969b863bca3641142577a1fd50d3a0e077"
+      },
+      {
+        "path": "tools/xp020_replay_proof.py",
+        "before_sha256": null,
+        "after_sha256": "8a0f69c54796ed7484b038b0bf3719b276b2512416927d564a995ffa7cb5731c"
+      }
+    ]
+  },
+  {
+    "line": 9397,
+    "historical_output_line": 9399,
+    "status": "historical-test-build-command-not-replayed",
+    "changes": []
+  },
+  {
+    "line": 9404,
+    "historical_output_line": 9408,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/epoch_replay.rs",
+        "before_sha256": "7f2c23c2c87a8d6e0063743274ba5accabe7dd88e3eb8cb299702b6a7afcb9f1",
+        "after_sha256": "770f652256e54f6ee4364a6eb68cbf0ad7c023aa4c0a3f0898999780edf0fdcb"
+      },
+      {
+        "path": "examples/reference-mechanic/tests/candidate.rs",
+        "before_sha256": "ff93a1316bfe4f9ab4534a6cfb8e46ae7eac39c9a5090aa373b483cc8b0ba03a",
+        "after_sha256": "eb90cde9919ac034f94dc7eb647c486267d9ef48ea2487af297fa857ffd5179d"
+      }
+    ]
+  },
+  {
+    "line": 9421,
+    "historical_output_line": 9424,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "examples/reference-mechanic/tests/candidate.rs",
+        "before_sha256": "eb90cde9919ac034f94dc7eb647c486267d9ef48ea2487af297fa857ffd5179d",
+        "after_sha256": "afc5df79b41ea30aaae2a43e18434cce2015ca1c6eb1b9a4df9c87c68e8e7a93"
+      }
+    ],
+    "historical_formatting_sha256": "3371dc71deeff4c5f9ec3bac16fee1eb7e6e01335c3fbeb28bab612af2ea52ed"
+  },
+  {
+    "line": 9462,
+    "historical_output_line": 9464,
+    "status": "historical-test-build-command-not-replayed",
+    "changes": []
+  },
+  {
+    "line": 9469,
+    "historical_output_line": 9472,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "docs/XP020_COMPLETION.md",
+        "before_sha256": null,
+        "after_sha256": "92b7efd1e99e1490ad02007fc0cc9c48e7c03d953b6dbf13be3b90e14852d925"
+      }
+    ]
+  },
+  {
+    "line": 9478,
+    "historical_output_line": 9482,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "8e6c9b7ae382cbe7643bfef63ee9d7254994eb1f1d66dc475e67ee3173f92346",
+        "after_sha256": "78a59408d583e765e22205cc270120d0c678cbbe6b1c98464aa8bfa2e640ff06"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "de5dff6093f0d2749a39fae185027e114740c576ff29536c1387a23bae062ff7",
+        "after_sha256": "2526c04426fadfdd6a35a08fbcc1eba94afb3757f294434e8eaf67e08657a0dd"
+      }
+    ]
+  }
+]

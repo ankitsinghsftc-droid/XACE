@@ -38,7 +38,11 @@ world and state-transforming migration remains fail-closed. See
 XP-019 is locally certified for durable registered-configuration activation at N,
 with actual mixed-host epochs, join fencing, fault tests and fail-stop restart
 recovery. See `docs/XP019_COMPLETION.md` and `docs/evidence/xp019-baseline.json`.
-XP-020 through XP-022 have not started. XP-002 legacy schema/input-plan
+XP-020 is certified for Windows offline configuration-epoch replay: immutable
+historical artifacts, accepted inputs, migration evidence and per-tick
+state/hash/event/schedule comparison pass with actual four-host recordings.
+See `docs/XP020_COMPLETION.md` and `docs/evidence/xp020-baseline.json`.
+XP-021 through XP-022 have not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 

@@ -91,6 +91,7 @@ def scenario(out,engines,build,unreal_project,activation=None):
         incoming=out/'rulesets/incoming'/artifact_digest;incoming.mkdir(parents=True)
         for name in files:shutil.copy2(activation['candidate']/name,incoming/name)
         args+=['--ruleset-root',str(out/'rulesets')]
+        if activation.get('record_replay'):args+=['--epoch-replay-out',str(out/'replay.json')]
     processes=[];streams=[]
     def spawn(cmd,log):
         f=log.open('w');streams.append(f);p=subprocess.Popen(cmd,stdout=f,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW);processes.append(p);return p

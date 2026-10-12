@@ -75,6 +75,7 @@ pub(super) struct PendingActivation {
     proof_digest:String,
     journal:ActivationJournal,
     contract:Option<xace_core::wire::session_contract::SessionContract>,
+    journal_path:PathBuf,
 }
 #[cfg(feature = "activation-fault-injection")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -122,7 +123,7 @@ impl RuntimeOrchestrator {
                 }
             }
         }
-        self.pending_activation=Some(PendingActivation{id:id.clone(),directory,proposal,proof_digest:proof_digest.into(),journal,contract});
+        self.pending_activation=Some(PendingActivation{id:id.clone(),directory,proposal,proof_digest:proof_digest.into(),journal,contract,journal_path:journal_path.to_owned()});
         Ok(id)
     }
     pub(super) fn process_ruleset_activation(&mut self)->Result<()> {
@@ -162,6 +163,7 @@ impl RuntimeOrchestrator {
             self.activation_sync_peers=pending.journal.request.peers.keys().copied().collect();
             let epoch=pending.contract.as_ref().map(|c|c.epoch.ruleset_epoch).unwrap_or(1);
             pending.journal.published(tick,epoch,new_hash)?;
+            self.record_replay_activation(&pending.id,&pending.proposal,&pending.journal_path)?;
             #[cfg(feature = "activation-fault-injection")]
             self.activation_fault_at(ActivationFault::BeforeBroadcast)?;
             if let Some(contract)=pending.contract.clone() {

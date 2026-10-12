@@ -33,8 +33,18 @@ struct Cli {
     /// Trusted host storage for pre-installed candidate artifacts; never a socket path.
     #[arg(long)]
     ruleset_root: Option<PathBuf>,
-    #[arg(long)]
-    cgs: PathBuf,
+    #[arg(long, required_unless_present = "epoch_replay_in")]
+    cgs: Option<PathBuf>,
+    /// Seal the completed authority recording at this trusted output path.
+    #[arg(long, conflicts_with = "epoch_replay_in")]
+    epoch_replay_out: Option<PathBuf>,
+    /// Verify an immutable historical bundle in a new offline fork.
+    #[arg(long, requires = "epoch_replay_report")]
+    epoch_replay_in: Option<PathBuf>,
+    #[arg(long, requires = "epoch_replay_in")]
+    epoch_replay_report: Option<PathBuf>,
+    #[arg(long, requires = "epoch_replay_in")]
+    epoch_replay_through_tick: Option<u64>,
 
     #[arg(long)]
     require_sgc_plan: bool,
@@ -136,6 +146,18 @@ pub fn main_with_ruleset_policy(register: Option<fn(&mut crate::phase_orchestrat
 }
 
 fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_registry::SystemRegistry) -> anyhow::Result<()>>,configuration_components:Vec<u32>) -> anyhow::Result<()> {
+    if let Some(input)=&cli.epoch_replay_in {
+        use std::io::Write;
+        let report_path=cli.epoch_replay_report.as_ref().ok_or_else(||anyhow::anyhow!("replay report missing"))?;
+        let scratch=report_path.with_extension(format!("fork-{}",uuid::Uuid::new_v4()));
+        let replay=crate::runtime_orchestrator::epoch_replay::SealedReplay::read(input)?;
+        let report=replay.verify(&scratch,register.map(crate::runtime_orchestrator::HostSystemRegistrar),&configuration_components.into_iter().collect(),cli.epoch_replay_through_tick)?;
+        let mut output=fs::OpenOptions::new().write(true).create_new(true).open(report_path)?;
+        output.write_all(&serde_json::to_vec_pretty(&report)?)?;output.sync_all()?;
+        anyhow::ensure!(report.ok,"replay diverged: {}",serde_json::to_string(&report.first_divergence)?);
+        return Ok(());
+    }
+    let cgs=cli.cgs.as_ref().ok_or_else(||anyhow::anyhow!("CGS path required"))?;
     if cli.tick_rate == 0 {
         anyhow::bail!("--tick-rate must be greater than zero");
     }
@@ -148,8 +170,8 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     if cli.derive_cgs_plan && (cli.require_sgc_plan || cli.sgc_plan.is_some()) {
         anyhow::bail!("--derive-cgs-plan cannot be combined with --require-sgc-plan or --sgc-plan");
     }
-    if !cli.cgs.exists() {
-        anyhow::bail!("CGS file does not exist: {}", cli.cgs.display());
+    if !cgs.exists() {
+        anyhow::bail!("CGS file does not exist: {}", cgs.display());
     }
 
     let mut config = RuntimeConfig::default();
@@ -187,7 +209,8 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     config.sgc_plan_path = cli.sgc_plan.clone();
     config.world_path = cli.world.clone();
     config.world_manifest_path = cli.world_manifest.clone();
-    let mut runtime = RuntimeOrchestrator::initialise_with_config(&cli.cgs, config.clone())?;
+    let mut runtime = RuntimeOrchestrator::initialise_with_config(cgs, config.clone())?;
+    if cli.epoch_replay_out.is_some(){runtime.start_epoch_recording(cgs.parent().ok_or_else(||anyhow::anyhow!("CGS parent missing"))?)?;}
     print_startup(&cli, &runtime);
     let (control_rx, _control_handle) = start_control_socket(&cli)?;
     let (engine_rx, _engine_accept_handle) = start_live_engine_acceptor(&cli)?;
@@ -233,7 +256,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
             &mut paused,
             &mut step_budget,
             &mut shutdown_requested,
-            &cli.cgs,
+            cgs,
             runtime_config,
         )?;
         if shutdown_requested {
@@ -296,6 +319,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     if let Some(path) = &cli.schedule_snapshot_out {
         write_schedule_snapshot_report(path, &runtime, tick_count)?;
     }
+    if let Some(path)=&cli.epoch_replay_out {runtime.save_epoch_recording(path)?;}
     runtime.disconnect_engine("runtime_shutdown")?;
     print_done(
         &runtime,
@@ -768,7 +792,7 @@ fn print_startup(cli: &Cli, runtime: &RuntimeOrchestrator) {
     }
     let summary = runtime.spawn_summary();
     println!("XACE Runtime");
-    println!("  cgs: {}", cli.cgs.display());
+    println!("  cgs: {}", cli.cgs.as_ref().map(|p|p.display().to_string()).unwrap_or_default());
     println!("  port: {}", cli.port);
     println!("  engine_clients: {}", cli.engine_clients);
     if cli.no_control {

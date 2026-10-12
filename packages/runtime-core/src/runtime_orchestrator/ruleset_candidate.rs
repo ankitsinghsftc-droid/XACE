@@ -52,7 +52,7 @@ impl CandidateArtifacts {
     pub fn digest(&self) -> Result<String> {
         identity(self)
     }
-    fn materialize(&self, directory: &Path) -> Result<()> {
+    pub(super) fn materialize(&self, directory: &Path) -> Result<()> {
         anyhow::ensure!(
             FILES.iter().all(|name|self.files.contains_key(*name))
                 && self.files.keys().all(|name|FILES.contains(&name.as_str()) || PACKAGE_FILES.contains(&name.as_str()))

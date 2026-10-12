@@ -15,6 +15,21 @@ Fresh recovery: XP019 historical local gates pass; recurring Unreal missing-inpu
 
 ---
 
+## XP-020: COMPLETE FOR WINDOWS OFFLINE CONFIGURATION-EPOCH REPLAY - 2026-10-04
+
+Versioned sealed bundles retain initial snapshot, historical artifacts, applied
+inputs/permitted feedback, membership release decisions and durable activation
+records. Offline forks use the historical schedule and registered migration path.
+Actual Player+Unity+Godot+Unreal recording contains 140 applied packets over 40
+ticks; before/at/after-N, repeated replay and backward seek match hashes, canonical
+state, events and schedules. 842 runtime and 22 reference-package tests pass,
+including two activations, first divergence, corrupt/missing history and live
+state isolation. No engine effects are emitted by headless offline verification.
+Windows-only evidence; three-OS and rendered replay UI are not claimed. Recorder
+seals on successful shutdown, not crash recovery. See docs/XP020_COMPLETION.md
+and docs/evidence/xp020-baseline.json. XP-021 is next, not started.
+Protected main/safety refs remain at d3ef383; no commit or push. Earlier gates remain pending.
+
 ## XP-019: COMPLETE FOR LOCAL CONFIGURATION ACTIVATION PROFILE - 2026-10-04
 
 Work remains isolated in target/xp016-work. Generic durable activation switches

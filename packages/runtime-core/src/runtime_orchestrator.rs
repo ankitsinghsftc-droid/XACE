@@ -2,6 +2,7 @@
 
 pub mod ruleset_candidate;
 pub mod ruleset_activation;
+pub mod epoch_replay;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -745,6 +746,7 @@ pub struct RuntimeOrchestrator {
     replay_golden_log: Option<GoldenLog>,
     migration_hooks: Vec<RuntimeComponentMigrationHook>,
     pending_activation: Option<ruleset_activation::PendingActivation>,
+    epoch_recording: Option<epoch_replay::ReplayBundle>,
     completed_activation: Option<(String, String, u64, String)>,
     #[cfg(feature = "activation-fault-injection")]
     activation_fault: Option<ruleset_activation::ActivationFault>,
@@ -980,6 +982,7 @@ impl RuntimeOrchestrator {
             replay_golden_log: None,
             migration_hooks: Vec::new(),
             pending_activation: None,
+            epoch_recording: None,
             completed_activation: None,
             #[cfg(feature = "activation-fault-injection")]
             activation_fault: None,
@@ -1054,6 +1057,7 @@ impl RuntimeOrchestrator {
             return Err(runtime_lockstep_wait_error(tick, tick, &[], 0));
         }
         self.collect_engine_inputs_from_bridge();
+        self.capture_replay_initial_boundary().map_err(|err|runtime_session_record_error("replay_initial",self.phase_orch.current_tick(),err))?;
         let input_report = if self.config.apply_engine_input_components {
             self.synchronise_and_apply_engine_inputs()?
         } else {
@@ -1108,6 +1112,7 @@ impl RuntimeOrchestrator {
         let replay_trace =
             self.build_replay_trace(&result, &schedule_snapshot, &input_applications);
         self.record_released_inputs_for_rollback(result.tick, &input_applications);
+        self.record_epoch_replay_tick(&result,&input_applications,&schedule_snapshot).map_err(|err|runtime_session_record_error("replay_record",result.tick,err))?;
         self.capture_delta_compressed_timeline_snapshot(result.tick)?;
         self.send_tick_to_engine(&result, &playback_commands).map_err(|err|
             runtime_session_record_error("send_disconnect",result.tick,err))?;
@@ -3677,6 +3682,7 @@ impl RuntimeOrchestrator {
                 FeedbackType::PhysicsSettled | FeedbackType::VisibilityQueryResult));
         }
         let invalid = attempted.saturating_sub(valid.len());
+        if let Some(recording)=self.epoch_recording.as_mut(){recording.pending_feedback=valid.clone();}
         let (route_report, errors) = self.feedback_router.route_all_report(valid);
         for err in &errors {
             log::warn!("Engine feedback handler error at tick {}: {}", tick, err);

@@ -40,6 +40,9 @@ fn setup() -> (
     CandidateStore,
     PathBuf,
 ) {
+    setup_recording(false)
+}
+fn setup_recording(record:bool) -> (RuntimeOrchestrator,CandidateProposal,CandidateStore,PathBuf) {
     let root = std::env::var_os("XACE_CANDIDATE_FIXTURE_ROOT")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("fixtures"));
@@ -58,6 +61,7 @@ fn setup() -> (
     };
     let mut live =
         RuntimeOrchestrator::initialise_with_config(&root.join("game.cgs.json"), config).unwrap();
+    if record {live.start_epoch_recording(&root).unwrap();}
     live.tick().unwrap();
     live.tick().unwrap();
     let proposal = CandidateProposal {
@@ -68,6 +72,47 @@ fn setup() -> (
     };
     let dir = std::env::temp_dir().join(format!("xace-xp018-{}", uuid_for_test()));
     (live, proposal, CandidateStore::new(dir.clone()), dir)
+}
+
+#[test]
+fn epoch_replay_preserves_live_history_and_refuses_corrupt_or_missing_history() {
+    use xace_runtime_core::runtime_orchestrator::epoch_replay::SealedReplay;
+    let (mut live,p,store,dir)=setup_recording(true);
+    let proof=store.stage(&live,&p,&CandidateApproval::approve_reviewed(&p).unwrap(),&policy(),8,observe).unwrap();
+    live.prepare_ruleset_activation(&store,&p.digest().unwrap(),&proof.digest().unwrap(),8,&dir.join("activation.jsonl"),&policy()).unwrap();
+    for _ in 2..10 {live.tick().unwrap();}
+    let back=CandidateProposal{schema:"xace.ruleset_candidate.v1".into(),parent:live.candidate_parent().unwrap(),artifacts:live.sealed_epoch_recording().unwrap().bundle.initial_artifacts,replace_config_defaults:policy().configuration_components};
+    let back_proof=store.stage(&live,&back,&CandidateApproval::approve_reviewed(&back).unwrap(),&policy(),2,|_|Ok(json!({}))).unwrap();
+    live.prepare_ruleset_activation(&store,&back.digest().unwrap(),&back_proof.digest().unwrap(),12,&dir.join("second-activation.jsonl"),&policy()).unwrap();
+    for _ in 10..16 {live.tick().unwrap();}
+    let before=live.candidate_parent().unwrap();let history=live.hash_log();
+    let sealed=live.sealed_epoch_recording().unwrap();
+    let registrar=Some(HostSystemRegistrar(|r|{
+        r.register(Box::new(ReferenceSystem)).map_err(|e|anyhow::anyhow!("{}",e))?;
+        r.register(Box::new(Recording)).map_err(|e|anyhow::anyhow!("{}",e))?;Ok(())
+    }));
+    for (i,end) in [7,8,15,7,15].into_iter().enumerate() {
+        let result=sealed.verify(&dir.join(format!("replay-{}",i)),registrar,&policy().configuration_components,Some(end)).unwrap();
+        assert!(result.ok,"{:?}",result.first_divergence);assert_eq!(result.verified_ticks,end+1);assert_eq!(result.presentation_effects_emitted,0);
+        assert_eq!(result.epochs,if end>=12 {2}else if end>=8 {1}else {0});
+    }
+    let mut corrupt=sealed.clone();corrupt.bundle.ticks[3].world_hash="0".repeat(64);
+    assert!(corrupt.verify(&dir.join("bad-integrity"),registrar,&policy().configuration_components,None).is_err());
+    let divergent=SealedReplay::seal(corrupt.bundle).unwrap();
+    let report=divergent.verify(&dir.join("divergence"),registrar,&policy().configuration_components,None).unwrap();
+    assert!(!report.ok);assert_eq!(report.first_divergence.unwrap()["tick"],3);
+    let mut missing=sealed.bundle.clone();missing.epochs.clear();
+    assert!(SealedReplay::seal(missing).unwrap().verify(&dir.join("missing-epoch"),registrar,&policy().configuration_components,None).is_err());
+    let mut wrong_code=sealed.bundle.clone();wrong_code.host_executable_digest="0".repeat(64);
+    assert!(SealedReplay::seal(wrong_code).unwrap().verify(&dir.join("missing-code"),registrar,&policy().configuration_components,None).is_err());
+    let mut missing_plan=serde_json::to_value(&sealed.bundle).unwrap();missing_plan["initial_artifacts"]["files"].as_object_mut().unwrap().remove("execution_plan.json");
+    assert!(SealedReplay::seal(serde_json::from_value(missing_plan).unwrap()).unwrap().verify(&dir.join("missing-plan"),registrar,&policy().configuration_components,None).is_err());
+    let mut missing_world=serde_json::to_value(&sealed.bundle).unwrap();missing_world["epochs"][0]["proposal"]["artifacts"]["files"].as_object_mut().unwrap().remove("world.json");
+    assert!(SealedReplay::seal(serde_json::from_value(missing_world).unwrap()).unwrap().verify(&dir.join("missing-world"),registrar,&policy().configuration_components,None).is_err());
+    let mut damaged_journal=sealed.bundle.clone();damaged_journal.epochs[0].journal.pop();
+    assert!(SealedReplay::seal(damaged_journal).unwrap().verify(&dir.join("torn-journal"),registrar,&policy().configuration_components,None).is_err());
+    assert!(sealed.verify(&dir.join("beyond-recording"),registrar,&policy().configuration_components,Some(999)).is_err());
+    assert_eq!(before,live.candidate_parent().unwrap());assert_eq!(history,live.hash_log());
 }
 fn uuid_for_test() -> String {
     use std::sync::atomic::{AtomicU64, Ordering};

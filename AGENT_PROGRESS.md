@@ -18,7 +18,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
 | XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
 | XP-019 | Reconstructed; source a6a70b2, harness f9802c0 | 842 runtime +21 reference; all local matrix gates pass, recurring timeout unresolved |
-| XP-020 through XP-022 | Pending | Not run |
+| XP-020 | Source reconstructed from successful historical records | Pending |
+| XP-021 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -95,3 +96,7 @@ Source/harness `f9802c0`: 842 runtime tests and 21 reference/fault tests pass; p
 ## XP-019 fresh acceptance
 
 Fresh historical local gates pass: 842 runtime +21 reference/fault tests, production host build, Unreal Development/Shipping build and 15 native cases, all three 40-tick activation combinations, admission probes, epoch8 transition, changed behavior at9 and old-parent restart refusal. Evidence: `docs/recovery/evidence/xp019-20261012/summary.json`. Four-client first attempt timed out after Unreal baseline acknowledgement without input0; unchanged retry passed. This recurring missing-input issue (also XP017) is NOT repaired and remains a final recovery acceptance audit blocker. Original evidence remains missing. Next XP020 reconstruction; NOT backed up off-device.
+
+## XP-020 reconstruction
+
+XP019 gate checkpoint `1f825e8`; recurring native timeout remains open. XP020 source replayed through9478, including historical rustfmt after9421. Original retained evidence generator was not executed. Fresh replay and regression gates pending. All checkpoints NOT backed up off-device.
