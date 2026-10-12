@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "tools/xp017_mixed_session_proof.py",
+    "--scenario",
+    "four",
+    "--build",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp017\\build",
+    "--unreal-project",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp017\\native\\target-codex-task66-unreal-vertical-slice\\XaceTask66.uproject",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp017\\four-acceptance"
+  ],
+  "exit_code": 1,
+  "source_commit": "9ed100c",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}
