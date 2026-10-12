@@ -1,0 +1,18 @@
+{
+  "schema": "xace.recovery.xp018.v1",
+  "source_commit": "c5a81ba",
+  "fresh_verification": true,
+  "original_evidence_recovered": false,
+  "off_device_backup": false,
+  "rust_tests_passed": 857,
+  "builder_tests_passed": 10,
+  "candidate_tests_passed": 6,
+  "candidate_and_live_isolation": "passed",
+  "scope": "Immutable preparation and isolated migration; no active epoch transition or connected-client proof.",
+  "source_sha256": {
+    "packages/runtime-core/src/runtime_orchestrator/ruleset_candidate.rs": "a50ed1a445ffbf8d13c8d1e6970f12f47b59d1a401d51e6cb1066c2194f1230c",
+    "examples/reference-mechanic/tests/candidate.rs": "1c2c18ea579665376ddedbcb111825dcca4be3214eac6e79f85581b08242f5bc",
+    "examples/reference-mechanic/examples/candidate_session.rs": "177b4d7094296aac5c5716dfb068c04461d20de817e7a11519dec2ebe1290fde",
+    "tools/xp018_candidate_proof.py": "f74a1c8cd3b15993fc1c87f554e6784cd65486415e073abb9e935305c7bbb231"
+  }
+}

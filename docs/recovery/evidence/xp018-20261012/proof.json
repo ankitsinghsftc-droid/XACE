@@ -1,0 +1,269 @@
+{
+  "schema": "xace.xp018.end_to_end_proof.v1",
+  "ok": true,
+  "authoring": {
+    "schema": "xace.xp006.authoring_proof.v1",
+    "ok": true,
+    "variants": {
+      "disabled": {
+        "cgs_hash": "33acf47b7416d0697f01c457f1fbd8b380674d29818d912c2b718cdb3125d3e5",
+        "world_hash": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9"
+      },
+      "reversal_shockwave": {
+        "cgs_hash": "66d8e2710aa2469b00b20b19056699b92f2b7428921f61c39b517bd1b420dd8c",
+        "world_hash": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9"
+      }
+    }
+  },
+  "candidate": {
+    "schema": "xace.ruleset_candidate_proof.v1",
+    "proposal_digest": "cb662f5a7169f3b8162aa78276b8be1b8215faa26ec8baa49b5660b25f43167e",
+    "parent": {
+      "schema": "xace.candidate_parent.v1",
+      "session": null,
+      "cgs_hash": "33acf47b7416d0697f01c457f1fbd8b380674d29818d912c2b718cdb3125d3e5",
+      "plan_hash": "f59fc1e464160038a5935739b89c5b782c5b1a90e99de08d9b1b94fad9114133",
+      "world_digest": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+      "tick": 2,
+      "snapshot_hash": "c91fcbd0422cef28c10d1ceda12aa6331ab5d754212dd8f1deb1f1566a4bfadb"
+    },
+    "artifact_digest": "77d9d4916940a0df7dbfff32e286536e3eb09baacbb15a7785dc14806b8aec2a",
+    "compatibility": "additive",
+    "changed_artifacts": [
+      "execution_plan.json",
+      "game.cgs.json",
+      "world.manifest.json"
+    ],
+    "replaced_configuration": [
+      10001
+    ],
+    "before_migration_hash": "48d92761ac5e3006bd6250e7ec810f7e7841b0a32834654a38a82ad7c3369087",
+    "after_migration_hash": "e82b3d9feb67d030e02faf74d3920a0b65db377045941627feee912877f77c84",
+    "tick_hashes": [
+      "11bb3f45f2676bce74793218793dd58bb3f0dbea7a4fd7ef52002e0dd2a4fb5d",
+      "f3934a78da428bfa3cfafa0d5489a72dbae2ab70f8732c6ebb02722c6057dfb0",
+      "07463e2ca680552cfbd169cc7242e365da7f048e197306176c84e60a2396cc69",
+      "59719c72e68c9de1f6d196a0bcea17cbf49fac2fca6147c5f9003de3cc39ab04",
+      "80aca04c79dbe3519912dce94351ea5f1af26ca7c2dad4f63d15ceba8a7ed258",
+      "801d3e4f102cacbbf8e4e2b9bd6ffa44f5444c50e8b181afac8dbb5012964942",
+      "abdebf9d6b0b11749ca61a0e58cea47a42a4e6678870a4a5cc93016fa3480a96",
+      "3164092f65f43c3931ff600966165f402d92559692ea71c7236b73155b674ffb"
+    ],
+    "tick_events": [
+      {
+        "events": [],
+        "tick": 2
+      },
+      {
+        "events": [
+          {
+            "creation_phase": "Simulation",
+            "creation_tick": 3,
+            "event_id": 0,
+            "event_type": {
+              "Domain": "reference.wall_jump.v1"
+            },
+            "is_consumed": false,
+            "payload": {
+              "chain": "2"
+            },
+            "source_entity_id": 3,
+            "target_entity_id": 0
+          }
+        ],
+        "tick": 3
+      },
+      {
+        "events": [],
+        "tick": 4
+      },
+      {
+        "events": [],
+        "tick": 5
+      },
+      {
+        "events": [],
+        "tick": 6
+      },
+      {
+        "events": [
+          {
+            "creation_phase": "Simulation",
+            "creation_tick": 7,
+            "event_id": 0,
+            "event_type": {
+              "Domain": "reference.third_attempt.v1"
+            },
+            "is_consumed": false,
+            "payload": {
+              "chain": "2"
+            },
+            "source_entity_id": 3,
+            "target_entity_id": 0
+          },
+          {
+            "creation_phase": "Simulation",
+            "creation_tick": 7,
+            "event_id": 0,
+            "event_type": {
+              "Domain": "reference.shockwave.v1"
+            },
+            "is_consumed": false,
+            "payload": {
+              "chain": "2"
+            },
+            "source_entity_id": 3,
+            "target_entity_id": 0
+          },
+          {
+            "creation_phase": "Simulation",
+            "creation_tick": 7,
+            "event_id": 0,
+            "event_type": {
+              "Domain": "reference.shockwave_hit.v1"
+            },
+            "is_consumed": false,
+            "payload": {},
+            "source_entity_id": 3,
+            "target_entity_id": 4
+          }
+        ],
+        "tick": 7
+      },
+      {
+        "events": [],
+        "tick": 8
+      },
+      {
+        "events": [
+          {
+            "creation_phase": "Simulation",
+            "creation_tick": 9,
+            "event_id": 0,
+            "event_type": {
+              "Domain": "reference.jump_denied.v1"
+            },
+            "is_consumed": false,
+            "payload": {
+              "chain": "2"
+            },
+            "source_entity_id": 3,
+            "target_entity_id": 0
+          }
+        ],
+        "tick": 9
+      }
+    ],
+    "observations": {
+      "reference_third_attempt_executed": true
+    },
+    "world_and_capabilities_unchanged": true,
+    "host_executable_digest": "ea19a4a9a51482a8d9cf5050f636e58f8b2a85814a0b994e6bf2fb3f135d889e"
+  },
+  "live_isolation": {
+    "active_journal_unchanged": true,
+    "active_snapshot_unchanged": true,
+    "ok": true,
+    "proof": {
+      "after_migration_hash": "42e2169805eecb4aa663b113d0448b98a37dc9df48d39826884c06830a0b45bf",
+      "artifact_digest": "6f4a32679d84aafb8abae5f8269e3b5b8e295f5d0493f1822a5f165bce6d22e6",
+      "before_migration_hash": "9dd83e4b333aaf70503b2fc08fc10ff66698681c8ad28042641ce69a80835285",
+      "changed_artifacts": [
+        "execution_plan.json",
+        "game.cgs.json",
+        "world.manifest.json"
+      ],
+      "compatibility": "additive",
+      "host_executable_digest": "a9be7b29f378f096b480145816009ad45f5d174c2c657475fb8ade87b9ab9982",
+      "observations": {
+        "configuration_applied_in_isolation": true
+      },
+      "parent": {
+        "cgs_hash": "65bef81217ab2e3aef65d73256fd5cb60abd31ae7d498bab64abf825f73b086b",
+        "plan_hash": "614747f063fc9e8dbf15e13b9d6ca4e42ed13b2b4f2c44d80fe79ede68a2bf7e",
+        "schema": "xace.candidate_parent.v1",
+        "session": {
+          "epoch": {
+            "authority_incarnation": "a769df33-bb2a-4c6b-bf1b-7e2cdb039d0c",
+            "ruleset_epoch": 0,
+            "session_id": "dab6f87b-a6c7-4ea0-ac08-c00eda047408"
+          },
+          "gameplay": {
+            "cgs": {
+              "cgs_hash": "65bef81217ab2e3aef65d73256fd5cb60abd31ae7d498bab64abf825f73b086b",
+              "schema_version": {
+                "major": 0,
+                "minor": 1,
+                "patch": 0
+              }
+            },
+            "input": {
+              "artifact": {
+                "content_hash": "ac42d6530484a6952ad84546473be13cf2449b8ca5807b3df184e258f46b44df",
+                "id": "xace.input_profile",
+                "version": "1.0.0"
+              },
+              "packet_schema_version": 1
+            },
+            "playable_package": {
+              "content_hash": "9575b6fd604b8734efe828aa34d1ca2828e9521965bae1ca2d0a775285b4751b",
+              "id": "reference.candidate",
+              "version": "1.0.0"
+            },
+            "runtime": {
+              "artifact": {
+                "content_hash": "76e8786cf81bc22b97a1c11243b811b6cbf9b0a8d4e72104d0f4ae235ef126a5",
+                "id": "xace.runtime_semantics",
+                "version": "xace.runtime_executor.v1"
+              },
+              "engine_protocol_version": 1,
+              "wire_protocol_version": 1
+            },
+            "sgc": {
+              "adapter_protocol_version": 1,
+              "compiled_from_cgs_hash": "65bef81217ab2e3aef65d73256fd5cb60abd31ae7d498bab64abf825f73b086b",
+              "plan_hash": "614747f063fc9e8dbf15e13b9d6ca4e42ed13b2b4f2c44d80fe79ede68a2bf7e",
+              "plan_version": 1,
+              "schema_version": "0.1.0"
+            },
+            "world": {
+              "artifact": {
+                "content_hash": "bf83e5e89d715214d2072cdf7cd2b2bb3ceddcb8ccfc4eb77bba74c1b63b78a9",
+                "id": "reference.arena",
+                "version": "1.0.0"
+              },
+              "compiled_from_cgs_hash": "65bef81217ab2e3aef65d73256fd5cb60abd31ae7d498bab64abf825f73b086b",
+              "contract_version": 3,
+              "mode_id": "reference"
+            }
+          }
+        },
+        "snapshot_hash": "385adc6705294cfc54776d8765b0c5b1f0e1be41d6c6cc9f6db4965e05d9e98b",
+        "tick": 0,
+        "world_digest": "bf83e5e89d715214d2072cdf7cd2b2bb3ceddcb8ccfc4eb77bba74c1b63b78a9"
+      },
+      "proposal_digest": "695a7ff038176d7058da71e59208b9cf9e217cc31e244aaae8a3b18837e27177",
+      "replaced_configuration": [
+        10001
+      ],
+      "schema": "xace.ruleset_candidate_proof.v1",
+      "tick_events": [
+        {
+          "events": [],
+          "tick": 0
+        },
+        {
+          "events": [],
+          "tick": 1
+        }
+      ],
+      "tick_hashes": [
+        "886389e63c0f4cbd8a61acc967bec35e729077ab8851d0e201a62c425ff0b4dd",
+        "bd022d6d81c2b9af717ff806d7a878cf45138ff116953189f4bfbec18a917ffb"
+      ],
+      "world_and_capabilities_unchanged": true
+    },
+    "schema": "xace.xp018.live_isolation.v1"
+  },
+  "scope": "isolated preparation only; no active epoch transition"
+}

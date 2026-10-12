@@ -1,0 +1,15 @@
+   Compiling xace-runtime-core v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\runtime-core)
+   Compiling xace-reference-mechanic v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\examples\reference-mechanic)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 27.58s
+     Running tests\candidate.rs (C:\Users\ankit\XACE-Recovery\build-output\cargo\debug\deps\candidate-bbec4225e8be40ef.exe)
+
+running 6 tests
+test defaults_alone_cannot_claim_changed_live_behavior ... ok
+test stale_parent_and_changed_approval_fail_closed ... ok
+test arbitrary_semantic_world_changes_require_a_migration_hook ... ok
+test state_migration_and_unregistered_configuration_are_denied ... ok
+test stale_plan_is_rejected_without_touching_live_history ... ok
+test approved_isolated_proof_preserves_live_and_is_digest_addressed ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.47s
+

@@ -16,7 +16,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
 | XP-016 | Reconstructed through original continuation line7936; original evidence JSON missing | Fresh native, live, unit and selected Player gates pass; scope limits below |
 | XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
-| XP-018 | Historical successful source reconstructed; fresh acceptance pending | Not run |
+| XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
 | XP-019 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
@@ -74,3 +74,7 @@ Initial four-client run timed out after tick12 (Unreal input13 absent, Player li
 ## XP-018 reconstruction
 
 XP017 verification checkpoint: `3e36d66` (NOT backed up off-device). XP018 historical range8253-8574 replayed in order, including original rustfmt after8402. Failed call8489 excluded. Retained-evidence generators8560/8568 preserved as raw patch input, not run against absent original results. Fresh candidate proofs and regressions pending.
+
+## XP-018 fresh acceptance - 2026-10-12
+
+Source `c5a81ba`; 857 runtime/reference tests (including 6 candidate cases), 10 Builder authoring tests and final approved-authoring/live-controller isolation proof pass. Fresh retained evidence: `docs/recovery/evidence/xp018-20261012/summary.json`. Original evidence remains missing. No activation claim: XP019 is next. This checkpoint and all previous checkpoints are NOT backed up off-device.

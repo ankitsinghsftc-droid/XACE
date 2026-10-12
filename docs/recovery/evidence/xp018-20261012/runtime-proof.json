@@ -1,0 +1,145 @@
+{
+  "schema": "xace.ruleset_candidate_proof.v1",
+  "proposal_digest": "cb662f5a7169f3b8162aa78276b8be1b8215faa26ec8baa49b5660b25f43167e",
+  "parent": {
+    "schema": "xace.candidate_parent.v1",
+    "session": null,
+    "cgs_hash": "33acf47b7416d0697f01c457f1fbd8b380674d29818d912c2b718cdb3125d3e5",
+    "plan_hash": "f59fc1e464160038a5935739b89c5b782c5b1a90e99de08d9b1b94fad9114133",
+    "world_digest": "8df2e04290bfbb9776f28629ec31f2742293aee8bbcc083ee13c51c14ee36ee9",
+    "tick": 2,
+    "snapshot_hash": "c91fcbd0422cef28c10d1ceda12aa6331ab5d754212dd8f1deb1f1566a4bfadb"
+  },
+  "artifact_digest": "77d9d4916940a0df7dbfff32e286536e3eb09baacbb15a7785dc14806b8aec2a",
+  "compatibility": "additive",
+  "changed_artifacts": [
+    "execution_plan.json",
+    "game.cgs.json",
+    "world.manifest.json"
+  ],
+  "replaced_configuration": [
+    10001
+  ],
+  "before_migration_hash": "48d92761ac5e3006bd6250e7ec810f7e7841b0a32834654a38a82ad7c3369087",
+  "after_migration_hash": "e82b3d9feb67d030e02faf74d3920a0b65db377045941627feee912877f77c84",
+  "tick_hashes": [
+    "11bb3f45f2676bce74793218793dd58bb3f0dbea7a4fd7ef52002e0dd2a4fb5d",
+    "f3934a78da428bfa3cfafa0d5489a72dbae2ab70f8732c6ebb02722c6057dfb0",
+    "07463e2ca680552cfbd169cc7242e365da7f048e197306176c84e60a2396cc69",
+    "59719c72e68c9de1f6d196a0bcea17cbf49fac2fca6147c5f9003de3cc39ab04",
+    "80aca04c79dbe3519912dce94351ea5f1af26ca7c2dad4f63d15ceba8a7ed258",
+    "801d3e4f102cacbbf8e4e2b9bd6ffa44f5444c50e8b181afac8dbb5012964942",
+    "abdebf9d6b0b11749ca61a0e58cea47a42a4e6678870a4a5cc93016fa3480a96",
+    "3164092f65f43c3931ff600966165f402d92559692ea71c7236b73155b674ffb"
+  ],
+  "tick_events": [
+    {
+      "events": [],
+      "tick": 2
+    },
+    {
+      "events": [
+        {
+          "creation_phase": "Simulation",
+          "creation_tick": 3,
+          "event_id": 0,
+          "event_type": {
+            "Domain": "reference.wall_jump.v1"
+          },
+          "is_consumed": false,
+          "payload": {
+            "chain": "2"
+          },
+          "source_entity_id": 3,
+          "target_entity_id": 0
+        }
+      ],
+      "tick": 3
+    },
+    {
+      "events": [],
+      "tick": 4
+    },
+    {
+      "events": [],
+      "tick": 5
+    },
+    {
+      "events": [],
+      "tick": 6
+    },
+    {
+      "events": [
+        {
+          "creation_phase": "Simulation",
+          "creation_tick": 7,
+          "event_id": 0,
+          "event_type": {
+            "Domain": "reference.third_attempt.v1"
+          },
+          "is_consumed": false,
+          "payload": {
+            "chain": "2"
+          },
+          "source_entity_id": 3,
+          "target_entity_id": 0
+        },
+        {
+          "creation_phase": "Simulation",
+          "creation_tick": 7,
+          "event_id": 0,
+          "event_type": {
+            "Domain": "reference.shockwave.v1"
+          },
+          "is_consumed": false,
+          "payload": {
+            "chain": "2"
+          },
+          "source_entity_id": 3,
+          "target_entity_id": 0
+        },
+        {
+          "creation_phase": "Simulation",
+          "creation_tick": 7,
+          "event_id": 0,
+          "event_type": {
+            "Domain": "reference.shockwave_hit.v1"
+          },
+          "is_consumed": false,
+          "payload": {},
+          "source_entity_id": 3,
+          "target_entity_id": 4
+        }
+      ],
+      "tick": 7
+    },
+    {
+      "events": [],
+      "tick": 8
+    },
+    {
+      "events": [
+        {
+          "creation_phase": "Simulation",
+          "creation_tick": 9,
+          "event_id": 0,
+          "event_type": {
+            "Domain": "reference.jump_denied.v1"
+          },
+          "is_consumed": false,
+          "payload": {
+            "chain": "2"
+          },
+          "source_entity_id": 3,
+          "target_entity_id": 0
+        }
+      ],
+      "tick": 9
+    }
+  ],
+  "observations": {
+    "reference_third_attempt_executed": true
+  },
+  "world_and_capabilities_unchanged": true,
+  "host_executable_digest": "ea19a4a9a51482a8d9cf5050f636e58f8b2a85814a0b994e6bf2fb3f135d889e"
+}

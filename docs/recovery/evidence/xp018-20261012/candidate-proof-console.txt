@@ -1,0 +1,4 @@
+{
+  "ok": true,
+  "proof": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp018\\candidate-proof\\proof.json"
+}
