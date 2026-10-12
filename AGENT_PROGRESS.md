@@ -28,7 +28,7 @@ XP-016 initially had a Unity license blocker; original continuation at transcrip
 
 ## Next work
 
-Reconstruct XP-016 successful patches plus reviewed shell edits; record omissions, recover its generated fixture safely, checkpoint before tests. Then proceed in order through XP-022 and NEC-009. Preserve fresh reports under `docs/recovery/evidence/` or the persistent recovery evidence directory.
+XP-016 reconstruction and fresh historical-scope verification are checkpointed at `8625fd5`. Next reconstruct XP-017, then proceed in order through XP-022 and NEC-009. Preserve fresh reports under `docs/recovery/evidence/` or the persistent recovery evidence directory.
 
 ## Checkpoints
 
@@ -52,3 +52,5 @@ Source checkpoint `6dc9f7d` includes the original successful Unity continuation.
 - Raw fresh artifacts are persistent under `C:/Users/ankit/XACE-Recovery/evidence/20261012` and this worktree's `recovery-evidence/20261012`. Never clean these folders.
 
 Next: reconstruct XP-017 from original transcript line7950 onward, identify its actual final continuation, and checkpoint before verification. XP-018 through XP-022 and NEC-001 through NEC-009 remain pending. NEC-010 is prohibited until recovered implementation and NEC-009 are verified.
+
+- `8625fd5`: XP-016 fresh verification checkpoint. Small unit-test logs are committed in the following checkpoint; raw build and native logs remain in persistent recovery evidence.
