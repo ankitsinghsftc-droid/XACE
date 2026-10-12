@@ -85,3 +85,5 @@ XP018 verification checkpoint: `17c89ad`. A UTF-8 read error prevented the first
 ## XP-019 source reconstruction
 
 Successful historical patches replayed through9288. Original failed8936 excluded;8726 first two patches and intervening shell edit succeeded, third patch was rejected and excluded. The later8745 digest-only bounded control implementation was recovered. Original successful shell extraction8646 recovered. Proof launch paths preserve the XP017 recovery safety adjustment; further persistent-path harness adaptation is pending. No fresh activation claim yet. NOT backed up off-device.
+
+XP019 source checkpoint `a6a70b2` (unverified; not backed up off-device). Recovery-only proof adaptation adds explicit persistent artifact/Unreal paths and refuses restaging existing artifact roots. Production activation semantics are unchanged.

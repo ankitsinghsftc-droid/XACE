@@ -8,7 +8,8 @@ from tools.world_extensibility_proof import rehash
 from playable_package import RuntimeSupport,build_package,digest
 
 def prepare(out):
-    out.mkdir(parents=True,exist_ok=True)
+    if out.exists():raise FileExistsError('Refusing to replace existing activation artifacts: '+str(out))
+    out.mkdir(parents=True,exist_ok=False)
     package=stage(out/'build')
     cgs=load(package/'game.cgs.json');runtime=(ROOT/'target/debug/xace_reference_host.exe').read_bytes()
     visuals={str(p.relative_to(package)).replace('\\','/'):p.read_bytes() for p in (package/'presentation').rglob('*') if p.is_file()}
@@ -36,12 +37,17 @@ def export_parent(out):
     export_player(player,out/'build/exported/xace-mixed-proof.exe',GODOT,TEMPLATE)
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--stage',action='store_true');parser.add_argument('--out',type=Path,default=ROOT/'target/xp019/run');parser.add_argument('--scenario',choices=['pair','three','four','all'],default='all');args=parser.parse_args()
-    build=ROOT/'target/xp019/artifacts'
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--stage',action='store_true')
+    parser.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp019/run')
+    parser.add_argument('--build',type=Path,default=ROOT/'recovery-evidence/xp019/artifacts')
+    parser.add_argument('--unreal-project',type=Path,default=ROOT/'recovery-evidence/xp019/native/target-codex-task66-unreal-vertical-slice/XaceTask66.uproject')
+    parser.add_argument('--scenario',choices=['pair','three','four','all'],default='all')
+    args=parser.parse_args();build=args.build.resolve()
     if args.stage:prepare(build)
-    activation={'parent':build/'parent','candidate':build/'candidate','native':ROOT/'target/xp019/native'}
+    activation={'parent':build/'parent','candidate':build/'candidate'}
     choices={'pair':['player','godot'],'three':['unity','godot','unreal'],'four':['unity','godot','unreal','player']}
     out=args.out.resolve();out.mkdir(parents=True,exist_ok=True)
-    result={name:scenario(out/name,engines,build/'build',activation) for name,engines in choices.items() if args.scenario in ['all',name]}
+    result={name:scenario(out/name,engines,build/'build',args.unreal_project.resolve(),activation) for name,engines in choices.items() if args.scenario in ['all',name]}
     write(out/'proof.json',result);print(json.dumps(result,indent=2))
 if __name__=='__main__':main()
