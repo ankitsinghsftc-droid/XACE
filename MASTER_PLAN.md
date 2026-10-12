@@ -8,6 +8,8 @@ Fresh recovery: XP-018 preparation acceptance passes (857 Rust, 10 Builder, end-
 
 Fresh recovery: XP019 historical local gates pass; recurring Unreal missing-input timeout remains open for final recovery acceptance. See AGENT_PROGRESS.md and fresh XP019 recovery evidence. XP020 recovery is next.
 
+Fresh recovery: XP020 passes864 Rust tests and new four-client epoch replay acceptance. XP021 is next; original evidence and recurring native timeout limitations remain in AGENT_PROGRESS.md.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

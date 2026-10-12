@@ -1,0 +1,129 @@
+{
+  "schema": "xace.recovery.xp020.v1",
+  "source_commit": "0c9a4a4",
+  "fresh_verification": true,
+  "original_evidence_recovered": false,
+  "off_device_backup": false,
+  "tests": {
+    "runtime": 842,
+    "reference": 22
+  },
+  "proof": {
+    "schema": "xace.xp020.proof.v1",
+    "ok": true,
+    "scope": "Windows only, local actual four-host recording; offline replay forks",
+    "live": {
+      "schema": "xace.xp017.mixed_session_proof.v1",
+      "ok": true,
+      "engines": [
+        "unity",
+        "godot",
+        "unreal",
+        "player"
+      ],
+      "owners": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "versions": [
+        "6000.4.9f1",
+        "4.6.3-stable (official)",
+        "5.7.4-51494982+++UE5+Release-5.7",
+        "4.6.3-stable (official)"
+      ],
+      "same_epoch": true,
+      "matching_applied_projections": true,
+      "matching_events": true,
+      "reference_shared_event": true,
+      "other_owner_velocity_changed_at": 9,
+      "authority_inputs_match_recording": true,
+      "wrong_world_rejected": true,
+      "departed_engine": "player",
+      "departed_after_tick": 19,
+      "survivors_final_tick": 39,
+      "authority_hashes": 40,
+      "scope": "Actual installed native hosts and exported Player; loopback, one Windows computer.",
+      "recording": "gameplay.mp4",
+      "activation": {
+        "tick": 8,
+        "old_epoch_through": 7,
+        "new_epoch_from": 8,
+        "disabled_attempt_tick": 7,
+        "enabled_attempt_tick": 9,
+        "all_client_epochs_match": true
+      },
+      "recording_timing": "One actual rendered Player frame per authority tick, encoded at 20 FPS for inspection; not a latency measurement."
+    },
+    "replays": {
+      "before": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 8,
+        "epochs": 0,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0
+      },
+      "at": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 9,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0
+      },
+      "after": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0
+      },
+      "repeat": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0
+      },
+      "rewind": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 8,
+        "epochs": 0,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0
+      }
+    },
+    "accepted_input_packets": 140
+  },
+  "retained_artifact_fingerprints": {
+    "recovery-evidence\\20261012\\xp020\\acceptance\\live\\replay.json": {
+      "bytes": 852397,
+      "sha256": "8741644fe6a6ee504de45c144fbc53a0ec97ae55ce7d6aa2e31dafbe7ba12733"
+    },
+    "recovery-evidence\\20261012\\xp020\\acceptance\\live\\session.jsonl": {
+      "bytes": 226002,
+      "sha256": "9749351c1882abd116d80c7206440bdb580449f06db021b253420d1c3276a282"
+    },
+    "recovery-evidence\\20261012\\xp020\\acceptance\\live\\authority-schedule.json": {
+      "bytes": 103557,
+      "sha256": "b8318ac10c26858d2e98ecbed010f99d0787d707c6897dab6e238a729475a865"
+    },
+    "recovery-evidence\\20261012\\xp020\\artifacts\\parent\\runtime\\xace_runtime.exe": {
+      "bytes": 13770240,
+      "sha256": "53b3b6c0e85f510238ac6442c21a684e056dff8e3b05380a1f1bbea7b4ef4cf9"
+    },
+    "recovery-evidence\\20261012\\xp020\\acceptance\\live\\rulesets\\activations\\7c79033a8ef00d6067df76f0565428e7afe35f2f072b1106a1512252a9a30a8a.jsonl": {
+      "bytes": 14280,
+      "sha256": "afb43950d3f0c06933d2b3e45484c9f83112a4dd8343a468d9ce51bca43289f8"
+    }
+  },
+  "open_issues": [
+    "XP017/XP019 intermittent Unreal missing-input timeout remains a final recovery audit blocker; this fresh four-client run passed on first attempt.",
+    "Original XP022 seal remains missing; external release gates remain open."
+  ]
+}

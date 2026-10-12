@@ -1,0 +1,8 @@
+{
+  "schema": "xace.epoch_replay_report.v1",
+  "ok": true,
+  "verified_ticks": 9,
+  "epochs": 1,
+  "first_divergence": null,
+  "presentation_effects_emitted": 0
+}

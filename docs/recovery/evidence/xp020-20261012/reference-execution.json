@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "xace-reference-mechanic",
+    "--all-targets",
+    "--features",
+    "activation-fault-injection",
+    "--offline",
+    "--quiet"
+  ],
+  "exit_code": 0,
+  "source_commit": "0c9a4a4",
+  "started": "2026-10-12T12:09:19.919226+00:00",
+  "ended": "2026-10-12T12:09:50.008765+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

@@ -1,0 +1,3 @@
+   Compiling xace-runtime-core v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\runtime-core)
+   Compiling xace-reference-mechanic v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\examples\reference-mechanic)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 14.38s

@@ -18,7 +18,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
 | XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
 | XP-019 | Reconstructed; source a6a70b2, harness f9802c0 | 842 runtime +21 reference; all local matrix gates pass, recurring timeout unresolved |
-| XP-020 | Source reconstructed from successful historical records | Pending |
+| XP-020 | Reconstructed; source 9775bce, harness 0c9a4a4 | 864 Rust tests and actual four-client replay proof pass |
 | XP-021 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
@@ -102,3 +102,7 @@ Fresh historical local gates pass: 842 runtime +21 reference/fault tests, produc
 XP019 gate checkpoint `1f825e8`; recurring native timeout remains open. XP020 source replayed through9478, including historical rustfmt after9421. Original retained evidence generator was not executed. Fresh replay and regression gates pending. All checkpoints NOT backed up off-device.
 
 XP020 source checkpoint `9775bce` (unverified). Recovery-only replay harness adds explicit persistent artifacts and native project paths. No runtime semantics changed. NOT backed up off-device.
+
+## XP-020 fresh acceptance
+
+842 runtime +22 reference tests pass. New four-client recording contains140 accepted input packets; prefixes before/at activation, full40 ticks, repeated replay and backward seek all verify without divergence or emitted presentation effects. Corruption/identity rejection and live-state isolation are included in the reference tests. Fresh evidence: `docs/recovery/evidence/xp020-20261012/summary.json`. This native run passed first attempt; earlier missing-input failures remain unresolved and do not count as fixed. Original evidence remains missing. XP021 is next. NOT backed up off-device.
