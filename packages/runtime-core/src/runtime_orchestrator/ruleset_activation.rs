@@ -10,6 +10,8 @@ use super::ruleset_candidate::{CandidateStore,CandidateProposal,CandidatePolicy,
 #[derive(Debug,Clone,Serialize,Deserialize)]
 #[serde(tag="operation",rename_all="snake_case",deny_unknown_fields)]
 pub enum RulesetControl {
+    Inspect,
+    ExportReplay,
     Current,
     Preview { artifact_digest:String },
     Stage { artifact_digest:String, approved_proposal_digest:String },
@@ -26,6 +28,23 @@ fn bounded_directory(root:&Path,name:&str)->Result<PathBuf> {
 }
 impl RuntimeOrchestrator {
     pub fn control_ruleset(&mut self,request:&RulesetControl)->Result<Value> {
+        if matches!(request,RulesetControl::ExportReplay) {
+            let root=self.config.ruleset_root.as_ref().ok_or_else(||anyhow::anyhow!("host replay storage is not configured"))?.canonicalize()?;
+            let directory=bounded_directory(&root,"replays")?;
+            let bytes=serde_json::to_vec(&self.sealed_epoch_recording()?)?;
+            anyhow::ensure!(bytes.len()<=512*1024*1024,"replay exceeds export size limit");
+            let id=format!("{:x}",Sha256::digest(&bytes));let path=directory.join(format!("{}.json",id));
+            if path.exists(){anyhow::ensure!(path.canonicalize()?.starts_with(&directory) && std::fs::read(&path)?==bytes,"replay export integrity mismatch");}
+            else {anyhow::ensure!(std::fs::read_dir(&directory)?.count()<64,"replay export storage is full");let mut file=OpenOptions::new().create_new(true).write(true).open(path)?;file.write_all(&bytes)?;file.sync_all()?;}
+            return Ok(json!({"schema":"xace.replay_export.v1","recording_id":id,"through_tick":self.phase_orch.current_tick().saturating_sub(1)}));
+        }
+        if matches!(request,RulesetControl::Inspect) {
+            return Ok(json!({"schema":"xace.ruleset_inspection.v1","tick":self.phase_orch.current_tick(),
+                "contract":self.live_session_controller.as_ref().map(|s|s.current_contract()),
+                "phase":if self.activation_failure.is_some(){"ended"}else if self.pending_activation.is_some(){"preparing"}else{"live"},
+                "activation_tick":self.pending_activation.as_ref().map(|p|p.journal.request.activation_tick),
+                "activation_id":self.pending_activation.as_ref().map(|p|&p.id),"failure":self.activation_failure}));
+        }
         let policy=CandidatePolicy{configuration_components:self.config.candidate_configuration_components.clone()};
         anyhow::ensure!(!policy.configuration_components.is_empty(),"host has no registered ruleset migration policy");
         let root=self.config.ruleset_root.as_ref().ok_or_else(||anyhow::anyhow!("host ruleset storage is not configured"))?.canonicalize()?;
@@ -42,6 +61,7 @@ impl RuntimeOrchestrator {
             Ok(CandidateProposal{schema:"xace.ruleset_candidate.v1".into(),parent:self.candidate_parent()?,artifacts,replace_config_defaults:policy.configuration_components.clone()})
         };
         match request {
+            RulesetControl::Inspect | RulesetControl::ExportReplay => unreachable!("read-only inspection handled above"),
             RulesetControl::Current => Ok(serde_json::to_value(self.live_session_controller.as_ref().ok_or_else(||anyhow::anyhow!("no live session"))?.current_contract())?),
             RulesetControl::Preview{artifact_digest}=> {
                 let proposal=make_proposal(artifact_digest)?;

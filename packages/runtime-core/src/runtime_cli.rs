@@ -210,7 +210,7 @@ fn run(cli: Cli, register: Option<fn(&mut crate::phase_orchestrator::system_regi
     config.world_path = cli.world.clone();
     config.world_manifest_path = cli.world_manifest.clone();
     let mut runtime = RuntimeOrchestrator::initialise_with_config(cgs, config.clone())?;
-    if cli.epoch_replay_out.is_some(){runtime.start_epoch_recording(cgs.parent().ok_or_else(||anyhow::anyhow!("CGS parent missing"))?)?;}
+    if cli.epoch_replay_out.is_some() || cli.ruleset_root.is_some(){runtime.start_epoch_recording(cgs.parent().ok_or_else(||anyhow::anyhow!("CGS parent missing"))?)?;}
     print_startup(&cli, &runtime);
     let (control_rx, _control_handle) = start_control_socket(&cli)?;
     let (engine_rx, _engine_accept_handle) = start_live_engine_acceptor(&cli)?;

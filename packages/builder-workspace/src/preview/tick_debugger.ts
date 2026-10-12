@@ -7,6 +7,7 @@
  */
 
 import type { BuilderClient, RuntimeStatus } from '../api/builder_client';
+import { ReplayInspector } from './replay_inspector';
 import type {
   EngineTickMessage,
   RuntimeBridgeStatus,
@@ -97,6 +98,7 @@ export class TickDebugger {
   private selectedTimelineTick: number | null = null;
   private followLiveTimeline = true;
   private breakpointPaused = false;
+  private replayInspector: ReplayInspector | null = null;
 
   constructor(deps: DebuggerDeps) { this.deps = deps; injectStyles(); }
 
@@ -104,6 +106,8 @@ export class TickDebugger {
     this.root = document.createElement('div');
     this.root.className = 'xb-dbg';
     container.appendChild(this.root);
+    this.replayInspector = new ReplayInspector(live => { if(this.root){this.root.hidden=!live;this.root.style.display=live?'':'none';} });
+    this.replayInspector.mount(container);
     this.unsubs.push(this.deps.cgsStore.select((state) => state.hash, (hash) => { this.lastHash = hash || this.lastHash; this.render(); }));
     this.unsubs.push(this.deps.client.onEngineTick((tick, _fps, worldHash, msPerTick, message) => {
       this.acceptTick({ tick, worldHash, msPerTick, deterministic: message.is_deterministic, entityCount: message.entity_count, eventCount: message.events?.length ?? 0, spawnedCount: message.spawned_ids?.length ?? 0, destroyedCount: message.destroyed_ids?.length ?? 0 }, message);
@@ -113,7 +117,7 @@ export class TickDebugger {
     this.render();
   }
 
-  unmount(): void { this.unsubs.splice(0).forEach((unsub) => unsub()); this.root?.remove(); this.root = null; }
+  unmount(): void { this.replayInspector?.unmount();this.unsubs.splice(0).forEach((unsub) => unsub()); this.root?.remove(); this.root = null; }
 
   private acceptTick(record: TickRecord, message: EngineTickMessage): void {
     this.tick = record.tick;
@@ -266,11 +270,11 @@ export class TickDebugger {
   }
   private renderEvents(): string { if (this.events.length === 0) return 'No control events yet.'; return this.events.slice(-8).map((event) => { const cls = event.level === 'error' ? 'xb-dbg-bad' : event.level === 'warn' ? 'xb-dbg-warn' : ''; return `<span class="${cls}">#${event.tick} ${escapeHtml(event.text)}</span>`; }).join('<br>'); }
 
-  private sendControl(action: RuntimeControlAction): void { if (action === 'play' || action === 'pause') this.requestedMode = action; if (action === 'play' || action === 'step') this.breakpointPaused = false; this.deps.client.send(makeRuntimeControl(action, this.deps.client.sessionId, this.tick)); this.pushEvent('info', `sent ${action}`); this.render(); }
+  private sendControl(action: RuntimeControlAction): void { if(action!=='snapshot'&&action!=='status'){this.pushEvent('warn','Use Creator session controls to explicitly change the live session.');this.render();return;}this.deps.client.send(makeRuntimeControl(action,this.deps.client.sessionId,this.tick));this.render(); }
 
   private toggleBreakpoint(id: string): void { const current = this.breakpointEngine.breakpoints().find((breakpoint) => breakpoint.id === id); const updated = this.breakpointEngine.setBreakpointEnabled(id, !current?.enabled); if (!updated) return; this.pushEvent('info', `${updated.enabled ? 'armed' : 'disabled'} breakpoint ${updated.label}`); this.render(); }
 
-  private applyBreakpointHits(hits: readonly BreakpointHit[]): void { if (hits.length === 0) return; const latest = hits[hits.length - 1]; if (!latest) return; this.breakpointPaused = true; this.requestedMode = 'pause'; this.tick = latest.tick; hits.forEach((hit) => this.pushEvent('warn', `breakpoint ${hit.label} hit at tick ${hit.tick}`)); this.deps.client.send(makeRuntimeControl('pause', this.deps.client.sessionId, latest.tick)); }
+  private applyBreakpointHits(hits: readonly BreakpointHit[]): void { if (hits.length === 0) return; const latest = hits[hits.length - 1]; if (!latest) return; this.breakpointPaused = true;this.followLiveTimeline=false;this.selectedTimelineTick=latest.tick;hits.forEach((hit)=>this.pushEvent('warn',`Inspection breakpoint ${hit.label} at tick ${hit.tick}; live game continues.`)); }
 
   private navigateTimeline(action: TimeTravelAction): void {
     const timeline = this.timelineRecords(this.runtimeStatus ?? this.deps.client.runtimeStatus);

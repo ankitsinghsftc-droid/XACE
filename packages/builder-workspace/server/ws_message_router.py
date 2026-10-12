@@ -78,9 +78,11 @@ class WSMessageRouter:
         session_manager: SessionManager,
         runtime_control: RuntimeControlClient | None = None,
         agent_event_stream: AgentEventStreamManager | None = None,
+        control_authorizer=None,
     ) -> None:
         self._sm = session_manager
         self._runtime_control = runtime_control
+        self._control_authorizer = control_authorizer
         self._agent_event_stream = agent_event_stream or AgentEventStreamManager()
 
     async def route(
@@ -1562,6 +1564,10 @@ class WSMessageRouter:
         cgs_state:  dict,
     ) -> None:
         action = str(message.get("action", ""))
+        if action not in {"status", "snapshot"} and self._control_authorizer is not None and not self._control_authorizer(message):
+            await send_fn({"type":"runtime_control_ack","action":action,"accepted":False,
+                "reason":"Only the creator can change the live session, after confirming the effect on everyone. Use an isolated replay to inspect history."})
+            return
         if action not in {
             "play",
             "pause",

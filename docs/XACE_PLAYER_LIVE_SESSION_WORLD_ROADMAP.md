@@ -42,7 +42,11 @@ XP-020 is certified for Windows offline configuration-epoch replay: immutable
 historical artifacts, accepted inputs, migration evidence and per-tick
 state/hash/event/schedule comparison pass with actual four-host recordings.
 See `docs/XP020_COMPLETION.md` and `docs/evidence/xp020-baseline.json`.
-XP-021 through XP-022 have not started. XP-002 legacy schema/input-plan
+XP-021 is locally verified for generic recording inspection and creator controls,
+including actual browser event navigation, historical verification, live-copy
+capture and guest-control refusal. Operator-configured historical hosts/catalog
+and creator credentials are required. See `docs/XP021_COMPLETION.md` and
+`docs/evidence/xp021-baseline.json`. XP-022 has not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 

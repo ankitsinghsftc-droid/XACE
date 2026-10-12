@@ -52,7 +52,7 @@ from pathlib import Path
 from typing import Any
 
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -62,6 +62,7 @@ from cgs_persistence import CGSPersistence, CGSLoadError
 from prompt_capability_matrix import load_prompt_capability_matrix
 from ws_message_router import WSMessageRouter
 from runtime_control_client import RuntimeControlClient, RuntimeControlConfig, RuntimeControlError
+from replay_debugger import ReplayDebugger, install_debugger_routes
 from agent_host.codex_adapter import CodexAppServerAdapter
 from agent_host.context_capsule import (
     AgentContextCapsuleBuilder,
@@ -250,7 +251,13 @@ def create_app(
         proposal_ingress=proposal_ingress,
         context_capsule_factory=build_agent_context_capsule,
     )
-    router        = WSMessageRouter(session_mgr, runtime_control, agent_event_stream=agent_event_stream)
+    debugger = ReplayDebugger(Path(os.environ.get("XACE_REPLAY_ROOT", str(Path(project_path)/".xace"/"replays"))),
+        tuple(Path(p) for p in os.environ.get("XACE_DEBUGGER_HOSTS", "").split(os.pathsep) if p),
+        runtime_control, os.environ.get("XACE_CREATOR_CONTROL_TOKEN", ""))
+    install_debugger_routes(app, debugger)
+    app.state.replay_debugger = debugger
+    router = WSMessageRouter(session_mgr, runtime_control, agent_event_stream=agent_event_stream,
+        control_authorizer=lambda message: debugger.authorized(str(message.get("creator_token", ""))) and message.get("confirm_session_wide") is True)
     cgs_state: dict = {}
     app.state.persist = persist
     app.state.session_manager = session_mgr
@@ -935,7 +942,7 @@ def create_app(
             return {"ok": False, "error": str(exc)}
 
     @app.post("/api/project/demo/runtime/start")
-    async def start_demo_runtime():
+    async def start_demo_runtime(request: Request):
         """
         Starts one XACE runtime for three engine adapter clients.
 
@@ -943,6 +950,10 @@ def create_app(
         responsive while users open Godot, Unity, and Unreal in any order.
         """
         nonlocal project_path
+        if not debugger.authorized(request.headers.get("x-xace-creator-token", "")):
+            raise HTTPException(403, "Only the creator can start the shared authority.")
+        if (await request.json()).get("confirm_session_wide") is not True:
+            raise HTTPException(400, "Confirm this action affects the whole session.")
         creator = ProjectCreator()
         try:
             opened = creator.open_project(project_path)
@@ -1002,8 +1013,12 @@ def create_app(
             return {"ok": False, "error": str(exc)}
 
     @app.post("/api/project/demo/runtime/stop")
-    async def stop_demo_runtime():
+    async def stop_demo_runtime(request: Request):
         """Stops the runtime listening on Builder's configured control port."""
+        if not debugger.authorized(request.headers.get("x-xace-creator-token", "")):
+            raise HTTPException(403, "Only the creator can stop the shared authority.")
+        if (await request.json()).get("confirm_session_wide") is not True:
+            raise HTTPException(400, "Confirm this action affects the whole session.")
         result = _stop_demo_runtime(runtime_control, app.state.demo_runtime_process)
         if bool(result.get("stopped")):
             app.state.demo_runtime_process = None

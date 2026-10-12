@@ -17,6 +17,22 @@ Fresh recovery: XP020 passes864 Rust tests and new four-client epoch replay acce
 
 ---
 
+## XP-021: COMPLETE FOR CONFIGURED LOCAL WINDOWS DEBUGGER PROFILE - 2026-10-04
+
+Existing TickDebugger defaults to isolated inspection; breakpoints no longer
+pause the authority. Generic event/frame/object navigation, component/contact
+state, capabilities, dependencies, epoch markers, replay verification and proof
+export are integrated. Live-copy capture and saved-file import use bounded IDs.
+Creator controls require a trusted credential and session-wide confirmation;
+legacy WebSocket mutation controls and shared demo lifecycle routes are fenced.
+842 runtime, 22 reference, 9 debugger and 10 authoring tests pass, as do Builder
+build/UI gates. Actual browser walkthrough locates frame 9/epoch 1, verifies its
+replay, exports, captures/verifies a live copy and returns to live while authority
+advances from tick 109 to 320. Guest pause is refused; creator pause/resume passes.
+See docs/XP021_COMPLETION.md and docs/evidence/xp021-baseline.json for trusted
+host/catalog/key setup and explicit trace/platform limits. XP-022 is next.
+Protected main/safety refs remain at d3ef383; no commit or push. Earlier gates remain pending.
+
 ## XP-020: COMPLETE FOR WINDOWS OFFLINE CONFIGURATION-EPOCH REPLAY - 2026-10-04
 
 Versioned sealed bundles retain initial snapshot, historical artifacts, applied

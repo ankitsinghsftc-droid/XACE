@@ -19,7 +19,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
 | XP-019 | Reconstructed; source a6a70b2, harness f9802c0 | 842 runtime +21 reference; all local matrix gates pass, recurring timeout unresolved |
 | XP-020 | Reconstructed; source 9775bce, harness 0c9a4a4 | 864 Rust tests and actual four-client replay proof pass |
-| XP-021 through XP-022 | Pending | Not run |
+| XP-021 | Historical source reconstructed | Pending |
+| XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -106,3 +107,7 @@ XP020 source checkpoint `9775bce` (unverified). Recovery-only replay harness add
 ## XP-020 fresh acceptance
 
 842 runtime +22 reference tests pass. New four-client recording contains140 accepted input packets; prefixes before/at activation, full40 ticks, repeated replay and backward seek all verify without divergence or emitted presentation effects. Corruption/identity rejection and live-state isolation are included in the reference tests. Fresh evidence: `docs/recovery/evidence/xp020-20261012/summary.json`. This native run passed first attempt; earlier missing-input failures remain unresolved and do not count as fixed. Original evidence remains missing. XP021 is next. NOT backed up off-device.
+
+## XP-021 reconstruction
+
+XP020 gate checkpoint `46d22f7`. XP021 successful historical source patches replayed through9691. Historical evidence generation was not executed. Fresh runtime, reference, debugger, authoring, Builder build and browser walkthrough gates pending. NOT backed up off-device.

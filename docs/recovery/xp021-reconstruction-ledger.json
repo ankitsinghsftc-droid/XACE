@@ -1,0 +1,228 @@
+[
+  {
+    "line": 9540,
+    "historical_output_line": 9543,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "1827866360627d67e688e3d36322bc18ec6105e0b38a95de1ba868bc84759313",
+        "after_sha256": "b600e560d0c53a555f9087aa5b83233327c62bf6865dd44883e5714e5719989c"
+      },
+      {
+        "path": "packages/builder-workspace/server/replay_debugger.py",
+        "before_sha256": null,
+        "after_sha256": "cfbfbc780a828741991632bc9dca961536040f9a553c4711a26a59412e18fbeb"
+      }
+    ]
+  },
+  {
+    "line": 9547,
+    "historical_output_line": 9550,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/builder_server.py",
+        "before_sha256": "9835582f2e0abfc170c3d235722577007288c073ace121dde66a3a306358f901",
+        "after_sha256": "940b9e62639639f4bb9db85fa9adbdd7c556e0f057f503ee24279402bb4e3386"
+      },
+      {
+        "path": "packages/builder-workspace/server/ws_message_router.py",
+        "before_sha256": "473e866092f1717a034363b4d066d04660187d8e82599debdbcbc4630f5039e1",
+        "after_sha256": "6d1e09e2e0528f690c8cb7ce7402d170c7a67e30a165b20b4015730ae5ed6a22"
+      }
+    ]
+  },
+  {
+    "line": 9554,
+    "historical_output_line": 9557,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/src/preview/replay_inspector.ts",
+        "before_sha256": null,
+        "after_sha256": "1fecfd6aea1079c75309e31183e68029ea63d998bbad594abef6c4fc910518bd"
+      },
+      {
+        "path": "packages/builder-workspace/src/preview/tick_debugger.ts",
+        "before_sha256": "2b8e8c985d3562f40b79f227df4bbc05f581c52b39bdc5ffbd9f03713efa8b9e",
+        "after_sha256": "8e89d30a7e2c230d46f7673683c47e4508453edd941043953d5b0df5684b2d52"
+      }
+    ]
+  },
+  {
+    "line": 9561,
+    "historical_output_line": 9565,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/src/preview/tick_debugger.ts",
+        "before_sha256": "8e89d30a7e2c230d46f7673683c47e4508453edd941043953d5b0df5684b2d52",
+        "after_sha256": "3eeb9d5e29c2741b88cd1cb103f56285368fe9f64cd1503bb9dfe99825218357"
+      },
+      {
+        "path": "packages/builder-workspace/src/preview/replay_inspector.ts",
+        "before_sha256": "1fecfd6aea1079c75309e31183e68029ea63d998bbad594abef6c4fc910518bd",
+        "after_sha256": "5e5f2000522eaa43e0ad3302186676fdb8f35101e71cb0b5879f3ed320873065"
+      }
+    ]
+  },
+  {
+    "line": 9571,
+    "historical_output_line": 9574,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/tests/test_replay_debugger.py",
+        "before_sha256": null,
+        "after_sha256": "60342cfcf96ed4d2c452552b6755da38d9e00902aaa04454d263f1024006ad5f"
+      },
+      {
+        "path": "packages/builder-workspace/tools/replay_debugger_browser_fixture.ts",
+        "before_sha256": null,
+        "after_sha256": "50f0efb95e8391c6081f6f321057c78205df0bab7d5529d552fbab9e43d1c6d0"
+      }
+    ]
+  },
+  {
+    "line": 9586,
+    "historical_output_line": 9590,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/replay_debugger.py",
+        "before_sha256": "cfbfbc780a828741991632bc9dca961536040f9a553c4711a26a59412e18fbeb",
+        "after_sha256": "83b52c46f52fcbab2d01c112cb704340b0cfe0939e23ebbf2ab5e86979643bd5"
+      },
+      {
+        "path": "tools/xp021_debugger_proof.py",
+        "before_sha256": null,
+        "after_sha256": "7df2c9924526dfbe81906233806f4bea273b1570a029b40566ab7a117f4d3893"
+      }
+    ]
+  },
+  {
+    "line": 9594,
+    "historical_output_line": 9598,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp021_debugger_proof.py",
+        "before_sha256": "7df2c9924526dfbe81906233806f4bea273b1570a029b40566ab7a117f4d3893",
+        "after_sha256": "f8130a776bb404b7c299b101d100ab65456c9ed11c5f6e3f2fc05a1bc6b79b4d"
+      }
+    ]
+  },
+  {
+    "line": 9620,
+    "historical_output_line": 9623,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/runtime-core/src/runtime_orchestrator/ruleset_activation.rs",
+        "before_sha256": "b600e560d0c53a555f9087aa5b83233327c62bf6865dd44883e5714e5719989c",
+        "after_sha256": "07eba4ec738015a9698881fb0ad99d8b71a9f54b03d10a5f422df114ac4a9fc1"
+      },
+      {
+        "path": "packages/runtime-core/src/runtime_cli.rs",
+        "before_sha256": "4d5c4b5077d0e21fe77608172dd09005b1bf0b4bfdb20496711bd0fe65411bc2",
+        "after_sha256": "767124086761deb45832383d3128643e66f3e3ec750808fad83359d8af1521ac"
+      },
+      {
+        "path": "packages/builder-workspace/server/replay_debugger.py",
+        "before_sha256": "83b52c46f52fcbab2d01c112cb704340b0cfe0939e23ebbf2ab5e86979643bd5",
+        "after_sha256": "b75eb12f5227cf703e2810a01cf6715a32131f59e5479dea483557a4f889af7e"
+      },
+      {
+        "path": "packages/builder-workspace/src/preview/replay_inspector.ts",
+        "before_sha256": "5e5f2000522eaa43e0ad3302186676fdb8f35101e71cb0b5879f3ed320873065",
+        "after_sha256": "d20583b249859cade1d453ca20feadfb09164cd126e3af51643bf4f1d9b9a911"
+      }
+    ]
+  },
+  {
+    "line": 9627,
+    "historical_output_line": 9631,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "tools/xp021_debugger_proof.py",
+        "before_sha256": "f8130a776bb404b7c299b101d100ab65456c9ed11c5f6e3f2fc05a1bc6b79b4d",
+        "after_sha256": "266b4647aa6ae994716b78eab9a6f9b69dbb25fa876756ce12cd33cc0c411eb1"
+      },
+      {
+        "path": "packages/builder-workspace/tools/replay_debugger_browser_fixture.ts",
+        "before_sha256": "50f0efb95e8391c6081f6f321057c78205df0bab7d5529d552fbab9e43d1c6d0",
+        "after_sha256": "3b51996aa7a9ffeccdb58200a4d5613ddcff9c1937b8472b5d2f26594cfa528a"
+      },
+      {
+        "path": "packages/builder-workspace/server/tests/test_replay_debugger.py",
+        "before_sha256": "60342cfcf96ed4d2c452552b6755da38d9e00902aaa04454d263f1024006ad5f",
+        "after_sha256": "ec4cd422646b582aad8e22e852fde7f52b7306e2673d4a991621421fc3897280"
+      }
+    ]
+  },
+  {
+    "line": 9635,
+    "historical_output_line": 9639,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/builder_server.py",
+        "before_sha256": "940b9e62639639f4bb9db85fa9adbdd7c556e0f057f503ee24279402bb4e3386",
+        "after_sha256": "51c7efca03550670cec59e30e8f6d4833eb1f2d783a65c9c07d3b694ee3e143b"
+      },
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "d6aad9815ead4556670906e08985c92dd9135b4507523c7ab6875b6d6b02ed20",
+        "after_sha256": "cdc9666ca1789b9ab07a79f85b68a7f7edd56fcc62c54e77f5e4ef7cd330cd6f"
+      }
+    ]
+  },
+  {
+    "line": 9647,
+    "historical_output_line": 9651,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "packages/builder-workspace/server/replay_debugger.py",
+        "before_sha256": "b75eb12f5227cf703e2810a01cf6715a32131f59e5479dea483557a4f889af7e",
+        "after_sha256": "e892ae17724b2ab3c31b678db4a5bdd2ce1d212568732332c4d0982dfc949058"
+      },
+      {
+        "path": "packages/builder-workspace/src/preview/replay_inspector.ts",
+        "before_sha256": "d20583b249859cade1d453ca20feadfb09164cd126e3af51643bf4f1d9b9a911",
+        "after_sha256": "9f77e4d9154fd01c305cf563ca94f170fe5f8991f66016df2f41186c7388a260"
+      }
+    ]
+  },
+  {
+    "line": 9683,
+    "historical_output_line": 9687,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "docs/XP021_COMPLETION.md",
+        "before_sha256": null,
+        "after_sha256": "fc7c734f8b3b06b5ea479d3eba97b23f5e770e942767702e6384a5cdc443d2bb"
+      }
+    ]
+  },
+  {
+    "line": 9691,
+    "historical_output_line": 9695,
+    "status": "replayed-source-only",
+    "changes": [
+      {
+        "path": "MASTER_PLAN.md",
+        "before_sha256": "cdc9666ca1789b9ab07a79f85b68a7f7edd56fcc62c54e77f5e4ef7cd330cd6f",
+        "after_sha256": "f9a94bc18d8886a4c1f041ac7895de3cca3d58fc71b07b903739ea1253a1d4b7"
+      },
+      {
+        "path": "docs/XACE_PLAYER_LIVE_SESSION_WORLD_ROADMAP.md",
+        "before_sha256": "2526c04426fadfdd6a35a08fbcc1eba94afb3757f294434e8eaf67e08657a0dd",
+        "after_sha256": "c41e46d6680377d1d5fb4e6a590dc37492c533190369393914f2ae071cef1c29"
+      }
+    ]
+  }
+]
