@@ -61,3 +61,5 @@ Next: reconstruct XP-017 from original transcript line7950 onward, identify its 
 Original transcript range7950-8252; source patches replayed with original execution records. Original retained evidence generator stays preserved as patch text, not executed against missing historical results. Original baseline JSON/video evidence remains missing.
 
 **OFF-DEVICE BACKUP: NONE. All recovery checkpoints, including this milestone, exist only on the internal SSD.**
+
+- XP-017 source checkpoint `12f4733` (unverified, no off-device backup). Recovery-only harness adjustment: configurable persistent build/Unreal project paths and refusal to restage an existing build. Original production changes remain faithful; original generated evidence is missing. Fresh acceptance is in progress.

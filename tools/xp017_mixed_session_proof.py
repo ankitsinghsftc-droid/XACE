@@ -34,6 +34,7 @@ def wait_for(predicate,seconds=90):
         time.sleep(.03)
     raise TimeoutError('Proof condition timed out')
 def stage(out):
+    if out.exists():raise FileExistsError('Refusing to replace an existing proof build: '+str(out))
     source=reference_stage(out/'reference')
     cgs=load(source/'package/game.cgs.json');mode=cgs['modes'][0]
     for controller in [3,4]:
@@ -74,7 +75,7 @@ def recording(controller):
             actions.append(dict(action=name,kind=kind,phase=phase,value=value,secondary_value=0))
         result.append(actions);previous=values
     return result
-def scenario(out,engines,build):
+def scenario(out,engines,build,unreal_project):
     out.mkdir(parents=True,exist_ok=False);pkg=build/'exported/package';ep,cp=port(),port()
     ticket=out/'ticket.json';journal=out/'session.jsonl';n=len(engines)
     args=[str(pkg/'runtime/xace_runtime.exe')]
@@ -107,7 +108,7 @@ def scenario(out,engines,build):
             if engine=='godot':cmd=[str(GODOT),'--headless','--path',str(ROOT/'adapters/godot'),'--script','res://tests/mixed_session_proof.gd','--','--config='+str(config)]
             elif engine=='player':cmd=[str(build/'exported/xace-mixed-proof.exe'),'--','--config='+str(config),'--session-ticket='+str(tickets[i-1]),'--port='+str(ep),'--package='+str(pkg)]
             elif engine=='unity':cmd=[str(UNITY),'-batchmode','-nographics','-quit','-projectPath',str(build/'target-codex-task65-unity-vertical-slice'),'-executeMethod','Xace.Adapter.Unity.Editor.XaceMixedSessionProof.Run','-xaceConfig',str(config),'-logFile',str(out/'unity-editor.log')]
-            else:cmd=[str(UNREAL),str(ROOT/'target/xp017/native/target-codex-task66-unreal-vertical-slice/XaceTask66.uproject'),'-run=XaceNativeContractProof','-XaceMixed='+str(config),'-unattended','-nullrhi','-nosplash','-abslog='+str(out/'unreal-editor.log')]
+            else:cmd=[str(UNREAL),str(unreal_project),'-run=XaceNativeContractProof','-XaceMixed='+str(config),'-unattended','-nullrhi','-nosplash','-abslog='+str(out/'unreal-editor.log')]
             clients.append(spawn(cmd,out/f'{engine}.log'))
         def check_alive():
             for p in clients:
@@ -169,9 +170,9 @@ def scenario(out,engines,build):
             if p.poll() is None:p.terminate();p.wait(timeout=10)
         for f in streams:f.close()
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'target/xp017/run');p.add_argument('--stage',action='store_true');p.add_argument('--scenario',choices=['pair','three','four','all'],default='all');a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=True);build=ROOT/'target/xp017/build'
+    p=argparse.ArgumentParser();p.add_argument('--out',type=Path,default=ROOT/'recovery-evidence/xp017/run');p.add_argument('--build',type=Path,default=ROOT/'recovery-evidence/xp017/build');p.add_argument('--unreal-project',type=Path,default=ROOT/'recovery-evidence/xp017/native/target-codex-task66-unreal-vertical-slice/XaceTask66.uproject');p.add_argument('--stage',action='store_true');p.add_argument('--scenario',choices=['pair','three','four','all'],default='all');a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=True);build=a.build.resolve()
     if a.stage:stage(build)
     choices={'pair':['player','godot'],'three':['unity','godot','unreal'],'four':['unity','godot','unreal','player']}
-    result={name:scenario(out/name,engines,build) for name,engines in choices.items() if a.scenario in ['all',name]}
+    result={name:scenario(out/name,engines,build,a.unreal_project.resolve()) for name,engines in choices.items() if a.scenario in ['all',name]}
     write(out/'proof.json',result);print(json.dumps(result,indent=2))
 if __name__=='__main__':main()
