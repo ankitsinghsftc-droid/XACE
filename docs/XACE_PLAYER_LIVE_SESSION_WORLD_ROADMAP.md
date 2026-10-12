@@ -30,7 +30,12 @@ missing-cosmetic startup regression is retained as an open limitation. See
 locally certified with actual Player+Godot, Unity+Godot+Unreal and all-four sessions,
 applied client digests, owned inputs, shared events, refusal and disconnect proofs.
 See `docs/XP017_COMPLETION.md` and `docs/evidence/xp017-baseline.json`.
-XP-018 through XP-022 have not started. XP-002 legacy schema/input-plan
+XP-018 is implemented for immutable, isolated configuration-candidate preparation;
+approved authoring, preserved-state behavior, stale/invalid candidate rejection
+and session-controller journal isolation are verified. Unsupported structural,
+world and state-transforming migration remains fail-closed. See
+`docs/XP018_COMPLETION.md` and `docs/evidence/xp018-baseline.json`.
+XP-019 through XP-022 have not started. XP-002 legacy schema/input-plan
 migration requirements still apply. No remote live cross-engine
 or clean-machine certification is implied; original audit text remains historical.
 

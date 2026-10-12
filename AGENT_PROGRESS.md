@@ -16,7 +16,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
 | XP-016 | Reconstructed through original continuation line7936; original evidence JSON missing | Fresh native, live, unit and selected Player gates pass; scope limits below |
 | XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
-| XP-018 through XP-022 | Pending | Not run |
+| XP-018 | Historical successful source reconstructed; fresh acceptance pending | Not run |
+| XP-019 through XP-022 | Pending | Not run |
 | NEC-001 through NEC-008 | Pending | Not run |
 | NEC-009 | Pending; historical final edits unverified | Not run |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
@@ -69,3 +70,7 @@ Original transcript range7950-8252; source patches replayed with original execut
 Source `12f4733`; persistent harness safety `9ed100c`. Fresh retained summary: `docs/recovery/evidence/xp017-20261012/summary.json`. Player/Godot, three-native and four-client combinations pass all 40 ticks, ownership, world rejection, applied digests/events, cross-owner effect at tick7, accepted recorded input, departure at19 and survivors through39. Unity 15-case regression and fresh Unreal native build/contract proof pass. Actual Player recordings retained (40 and20 frames).
 
 Initial four-client run timed out after tick12 (Unreal input13 absent, Player liveness failure). Unchanged retry passed. Cause remains unresolved; no reliability or remote-network claim. Both attempts retained. Original XP017 retained JSON and recordings remain missing; these are fresh evidence. Next: XP018 reconstruction. All checkpoints remain **NOT BACKED UP OFF-DEVICE**.
+
+## XP-018 reconstruction
+
+XP017 verification checkpoint: `3e36d66` (NOT backed up off-device). XP018 historical range8253-8574 replayed in order, including original rustfmt after8402. Failed call8489 excluded. Retained-evidence generators8560/8568 preserved as raw patch input, not run against absent original results. Fresh candidate proofs and regressions pending.

@@ -1,5 +1,7 @@
 //! Runtime orchestrator for the standalone bridge runtime.
 
+pub mod ruleset_candidate;
+
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 

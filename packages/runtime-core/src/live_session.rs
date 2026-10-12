@@ -110,6 +110,9 @@ fn adapter(engine: &str) -> AdapterIdentity {
     .unwrap()
 }
 impl LiveSessionController {
+    pub(crate) fn candidate_identity(&self) -> Value {
+        json!({"epoch":self.contract.epoch,"gameplay":self.contract.gameplay})
+    }
     #[allow(clippy::too_many_arguments)]
     pub fn create(
         manifest_path: &Path,

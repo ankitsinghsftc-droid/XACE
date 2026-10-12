@@ -11,6 +11,19 @@ Fresh recovery: XP-017 local acceptance passed on 2026-10-12, with an unresolved
 
 ---
 
+## XP-018: IMPLEMENTED - ISOLATED CONFIGURATION CANDIDATES VERIFIED - 2026-10-03
+
+Generic digest-addressed candidates bind approval, parent epoch/snapshot and exact
+CGS/plan/world artifacts. Isolated snapshot migration uses MutationGate and runs
+twice with matching hashes/events. The reference package proves the third-attempt
+configuration changes behavior from preserved state. Unsupported structural,
+world and state-transforming migrations fail closed; activation remains XP-019.
+Actual Builder/GDE/Factory/SGC approval and compilation proofs pass, along with
+real session-controller snapshot/journal isolation. 857 runtime/reference Rust
+tests and 10 Builder authoring tests pass. See docs/XP018_COMPLETION.md and
+docs/evidence/xp018-baseline.json. No protected refs moved; no commit or push.
+Earlier pending environment gates and missing-cosmetic limitation remain open.
+
 ## XP-017: COMPLETE FOR LOCAL MIXED-ENGINE PROFILE - 2026-10-03
 
 Continuing in target/xp016-work, based on clean-main-candidate 39ed07b.
