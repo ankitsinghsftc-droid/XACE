@@ -1,0 +1,19 @@
+[
+  {
+    "tick": 7,
+    "admitted": false,
+    "reason": "prepare fence"
+  },
+  {
+    "tick": 8,
+    "admitted": true,
+    "epoch": 1,
+    "verified_complete_projection": true
+  },
+  {
+    "tick": 9,
+    "admitted": true,
+    "epoch": 1,
+    "verified_complete_projection": true
+  }
+]

@@ -1,0 +1,17 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "-p",
+    "xace-reference-mechanic",
+    "--bin",
+    "xace_reference_host",
+    "--offline"
+  ],
+  "exit_code": 0,
+  "source_commit": "f9802c0",
+  "started": "2026-10-12T11:54:30.750093+00:00",
+  "ended": "2026-10-12T11:55:21.513139+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

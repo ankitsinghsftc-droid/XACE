@@ -1,0 +1,38 @@
+{
+  "schema": "xace.xp017.mixed_session_proof.v1",
+  "ok": true,
+  "engines": [
+    "player",
+    "godot"
+  ],
+  "owners": [
+    3,
+    4
+  ],
+  "versions": [
+    "4.6.3-stable (official)",
+    "4.6.3-stable (official)"
+  ],
+  "same_epoch": true,
+  "matching_applied_projections": true,
+  "matching_events": true,
+  "reference_shared_event": true,
+  "other_owner_velocity_changed_at": 9,
+  "authority_inputs_match_recording": true,
+  "wrong_world_rejected": true,
+  "departed_engine": "godot",
+  "departed_after_tick": 19,
+  "survivors_final_tick": 39,
+  "authority_hashes": 40,
+  "scope": "Actual installed native hosts and exported Player; loopback, one Windows computer.",
+  "recording": "gameplay.mp4",
+  "activation": {
+    "tick": 8,
+    "old_epoch_through": 7,
+    "new_epoch_from": 8,
+    "disabled_attempt_tick": 7,
+    "enabled_attempt_tick": 9,
+    "all_client_epochs_match": true
+  },
+  "recording_timing": "One actual rendered Player frame per authority tick, encoded at 20 FPS for inspection; not a latency measurement."
+}

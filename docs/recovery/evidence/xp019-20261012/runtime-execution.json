@@ -1,0 +1,18 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "xace-runtime-core",
+    "--lib",
+    "--tests",
+    "--offline",
+    "--quiet"
+  ],
+  "exit_code": 0,
+  "source_commit": "f9802c0",
+  "started": "2026-10-12T11:50:55.824009+00:00",
+  "ended": "2026-10-12T11:53:01.771817+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

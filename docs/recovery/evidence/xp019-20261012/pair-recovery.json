@@ -1,0 +1,5 @@
+{
+  "parent_restart_refused": true,
+  "reason": "durable decision ends prior session",
+  "exit_code": 1
+}
