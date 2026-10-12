@@ -1,0 +1,5 @@
+
+> @xace/builder-workspace@0.1.0 test:ui
+> node tools/builder_ui_contract_test.mjs
+
+builder UI contract test PASSED

@@ -10,6 +10,8 @@ Fresh recovery: XP019 historical local gates pass; recurring Unreal missing-inpu
 
 Fresh recovery: XP020 passes864 Rust tests and new four-client epoch replay acceptance. XP021 is next; original evidence and recurring native timeout limitations remain in AGENT_PROGRESS.md.
 
+Fresh recovery: XP021 passes883 tests, Builder build/UI and actual browser walkthrough. XP022 reconstruction is next. Original seal missing and native timeout unresolved; see AGENT_PROGRESS.md.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

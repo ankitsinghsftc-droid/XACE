@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npm.cmd",
+    "ci",
+    "--offline",
+    "--no-audit",
+    "--no-fund"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\builder-workspace",
+  "exit_code": 1,
+  "source_commit": "626c8f6",
+  "started": "2026-10-12T17:17:25.861145+00:00",
+  "ended": "2026-10-12T17:17:36.715697+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

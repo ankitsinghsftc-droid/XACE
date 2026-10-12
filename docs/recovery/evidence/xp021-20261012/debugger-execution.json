@@ -1,0 +1,21 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "packages/builder-workspace/server/tests",
+    "-p",
+    "test_replay_debugger.py",
+    "-v"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace",
+  "exit_code": 0,
+  "source_commit": "626c8f6",
+  "started": "2026-10-12T17:17:04.763798+00:00",
+  "ended": "2026-10-12T17:17:07.863679+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

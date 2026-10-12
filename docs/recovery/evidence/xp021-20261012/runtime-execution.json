@@ -1,0 +1,19 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "xace-runtime-core",
+    "--lib",
+    "--tests",
+    "--offline",
+    "--quiet"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace",
+  "exit_code": 0,
+  "source_commit": "626c8f6",
+  "started": "2026-10-12T17:12:54.732089+00:00",
+  "ended": "2026-10-12T17:15:37.835757+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "python",
+    "-B",
+    "-m",
+    "tools.xp021_debugger_proof",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp021\\walkthrough",
+    "--recording",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp020\\acceptance\\live\\replay.json",
+    "--package",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp020\\artifacts\\parent",
+    "--current-host",
+    "C:/Users/ankit/XACE-Recovery/build-output/cargo/debug/xace_reference_host.exe"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace",
+  "exit_code": 0,
+  "source_commit": "626c8f6",
+  "started": "2026-10-12T17:19:23.569561+00:00",
+  "ended": "2026-10-12T17:19:36.226966+00:00",
+  "fresh_recovery_verification": true,
+  "off_device_backup": false
+}

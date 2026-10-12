@@ -1,0 +1,14 @@
+
+> @xace/builder-workspace@0.1.0 build
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 48 modules transformed.
+rendering chunks...
+computing gzip size...
+../builder-server/dist/index.html                           7.36 kB │ gzip:  2.47 kB
+../builder-server/dist/assets/xace_terminal-BLv7Imo0.js     9.01 kB │ gzip:  3.02 kB
+../builder-server/dist/assets/index-BweKzHHR.js           117.45 kB │ gzip: 30.07 kB
+../builder-server/dist/assets/builder_canvas-B2GAK0CP.js  289.51 kB │ gzip: 73.90 kB
+✓ built in 580ms
