@@ -4,6 +4,8 @@ This is a reconstructed historical plan. Current verification and outstanding re
 
 Fresh recovery: XP-017 local acceptance passed on 2026-10-12, with an unresolved initial four-client timeout retained. See `docs/recovery/evidence/xp017-20261012/summary.json`. XP-018 recovery is next; no off-device backup exists.
 
+Fresh recovery: XP-018 preparation acceptance passes (857 Rust, 10 Builder, end-to-end isolation); evidence under `docs/recovery/evidence/xp018-20261012`. XP-019 recovery is next. No checkpoint is backed up off-device.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

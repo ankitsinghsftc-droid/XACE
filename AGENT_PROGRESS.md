@@ -78,3 +78,5 @@ XP017 verification checkpoint: `3e36d66` (NOT backed up off-device). XP018 histo
 ## XP-018 fresh acceptance - 2026-10-12
 
 Source `c5a81ba`; 857 runtime/reference tests (including 6 candidate cases), 10 Builder authoring tests and final approved-authoring/live-controller isolation proof pass. Fresh retained evidence: `docs/recovery/evidence/xp018-20261012/summary.json`. Original evidence remains missing. No activation claim: XP019 is next. This checkpoint and all previous checkpoints are NOT backed up off-device.
+
+XP018 verification checkpoint: `17c89ad`. A UTF-8 read error prevented the first master-plan update; corrected in the following documentation checkpoint. No test failure resulted.
