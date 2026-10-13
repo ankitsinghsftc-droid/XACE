@@ -1,0 +1,22 @@
+{
+  "schema": "xace.xp010.launch_proof.v1",
+  "same_host_only": true,
+  "clean_machine_certified": false,
+  "development_tools_absent_from_child_path": true,
+  "results": {
+    "capability_rejected": true,
+    "port_collision_recovered": true,
+    "repeated_play_reused": true,
+    "startup_ms": 430,
+    "stop_tree_clean": true,
+    "eof_tree_clean": true,
+    "broker_crash_tree_clean": true,
+    "player_crash_tree_clean": true,
+    "failed_launch_preserved_active": true,
+    "stale_install_repaired": true,
+    "denied_install_rejected": true,
+    "denied_install_retry_recovered": true,
+    "builder_saved_project_and_owned_launch": true,
+    "unowned_process_retained": true
+  }
+}

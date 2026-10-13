@@ -1,0 +1,131 @@
+{
+  "schema": "xace.xp022.certification.v1",
+  "certified": false,
+  "local_subset_ok": true,
+  "source_revision": "d283bf12a86d763905066898041bf8ad45d9b19d",
+  "working_tree_sha256": "f7ead5dcac57e75c9c970c0daea9ed2daee5b73280d23720389f8c6e7ad508a4",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+  "host_sha256": "7052aa2e81e8fa111aa962db5218ea150e4444189cf158b2538fdc7baacadca3",
+  "recording_sha256": "5115eb1f886bf73259ec620186e3332b2a5bc92d52a62ff4819d66f7061c168f",
+  "historical_host": false,
+  "cases": [
+    {
+      "case": "baseline",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\baseline\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\baseline\\report.json"
+      ],
+      "expected": "verified replay",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 0.3279999999795109,
+      "input_sha256": "5115eb1f886bf73259ec620186e3332b2a5bc92d52a62ff4819d66f7061c168f",
+      "output_sha256": "c04f3c709134e3cfe800f91922d83b1f8d7bf78f03817b350c570096f7317be5",
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "e1fc26916dcb1a6adf075683178af767d95d5281a5febc45268b0489c9d19306"
+      }
+    },
+    {
+      "case": "digest-corruption",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\digest-corruption\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\digest-corruption\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.03100000007543713,
+      "input_sha256": "2a5c5c62314b4967805cc66bc0381c37c2dbe79bfe2eceaa056cecafa8fd9cab",
+      "output_sha256": "21e646380551ad64359b25e8c7eef0119531bf67312a708ff666a30815f5889a",
+      "report": null
+    },
+    {
+      "case": "partial-transfer",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\partial-transfer\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\partial-transfer\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.030999999959021807,
+      "input_sha256": "729a3bd8c193aefb0e9e0af90761b66d5586f010b927e79a7d756ed08c8a15e8",
+      "output_sha256": "7916d1d9248150733597473b36f5fb3fa3dd9d8d778f6950cbb576a8824089ba",
+      "report": null
+    },
+    {
+      "case": "missing-recording",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\missing-recording\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\missing-recording\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.01600000006146729,
+      "input_sha256": null,
+      "output_sha256": "40cd09a00bdb7cc048c7eec62a3b74da8bdfbcfb95a2e5121837a44f0bab5418",
+      "report": null
+    },
+    {
+      "case": "seek-out-of-range",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\seek-out-of-range\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\replay-faults\\seek-out-of-range\\report.json",
+        "--epoch-replay-through-tick",
+        "40"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.0470000000204891,
+      "input_sha256": "5115eb1f886bf73259ec620186e3332b2a5bc92d52a62ff4819d66f7061c168f",
+      "output_sha256": "31576e761982279a65902e5b88dd1ce26f78278257c532b7bcf9bd9753b25cff",
+      "report": null
+    }
+  ],
+  "pending": {
+    "full_proof_a_h_current_source": "Replay/socket subset only; full A-H certification still required.",
+    "socket_fault_matrix": "Real socket drop/reorder/duplicate/backpressure coverage still required.",
+    "two_hour_four_client_soak": "Not run by this subset; consult the independent soak and final aggregate evidence.",
+    "performance": "Authority p95, render/latency and memory budgets not measured here.",
+    "clean_install": "User reported no clean Windows machine available.",
+    "separate_networks": "User reported no public relay/two Internet connections available.",
+    "release_signing": "User reported no signing certificate available.",
+    "three_first_time_testers": "User reported no first-time testers available."
+  },
+  "socket_package_files": null
+}

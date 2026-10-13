@@ -1,0 +1,330 @@
+{
+  "ok": true,
+  "fresh_recovery_evidence": true,
+  "fixture_sha256": "efab9cd98b0c81524f2a305b53938b682d5d109b9c4d15344ba8ee6ea44b41c8",
+  "results": {
+    "godot": {
+      "command": [
+        "C:\\Users\\ankit\\Downloads\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64_console.exe",
+        "--headless",
+        "--path",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\godot",
+        "--script",
+        "res://tests/native_contract_proof.gd",
+        "--",
+        "--fixture=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+        "--report=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\native\\godot.json"
+      ],
+      "returncode": 0,
+      "report": {
+        "cases": [
+          {
+            "name": "contiguous",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "sequence_gap",
+            "ok": true,
+            "result": "recover"
+          },
+          {
+            "name": "late_baseline",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "stale_sequence",
+            "ok": true,
+            "result": "drop"
+          },
+          {
+            "name": "reconnect_generation",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "stale_generation",
+            "ok": true,
+            "result": "drop"
+          },
+          {
+            "name": "wrong_epoch",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "corrupt_digest",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "corrupt_update",
+            "ok": true,
+            "result": "recover"
+          },
+          {
+            "name": "unsafe_integer",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "duplicate_binding",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "wrong_owner",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "null_stamp",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "duplicate_entity",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "parent_cycle",
+            "ok": true,
+            "result": "reject"
+          }
+        ],
+        "engine": "godot",
+        "geometry": true,
+        "independent_entity_lifetimes": true,
+        "input_fence": true,
+        "normal": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "ok": true,
+        "position": [
+          6.0,
+          2.0,
+          3.0
+        ],
+        "schema": "xace.native_contract_proof.v1",
+        "version": "4.6.3-stable (official)"
+      }
+    },
+    "unity": {
+      "command": [
+        "C:\\Program Files\\Unity\\Hub\\Editor\\6000.4.9f1\\Editor\\Unity.exe",
+        "-batchmode",
+        "-nographics",
+        "-quit",
+        "-projectPath",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\artifacts\\build\\target-codex-task65-unity-vertical-slice",
+        "-executeMethod",
+        "Xace.Adapter.Unity.Editor.XaceNativeContractProof.Run",
+        "-logFile",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\native\\unity-editor.log",
+        "-xaceFixture",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+        "-xaceReport",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\native\\unity.json"
+      ],
+      "returncode": 0,
+      "report": {
+        "cases": [
+          {
+            "name": "contiguous",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "sequence_gap",
+            "ok": true,
+            "result": "recover"
+          },
+          {
+            "name": "late_baseline",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "stale_sequence",
+            "ok": true,
+            "result": "drop"
+          },
+          {
+            "name": "reconnect_generation",
+            "ok": true,
+            "result": "accept"
+          },
+          {
+            "name": "stale_generation",
+            "ok": true,
+            "result": "drop"
+          },
+          {
+            "name": "wrong_epoch",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "corrupt_digest",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "corrupt_update",
+            "ok": true,
+            "result": "recover"
+          },
+          {
+            "name": "unsafe_integer",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "duplicate_binding",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "wrong_owner",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "null_stamp",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "duplicate_entity",
+            "ok": true,
+            "result": "reject"
+          },
+          {
+            "name": "parent_cycle",
+            "ok": true,
+            "result": "reject"
+          }
+        ],
+        "engine": "unity",
+        "geometry": true,
+        "input_fence": true,
+        "normal": [
+          1.00000012,
+          0,
+          1.1920929e-07
+        ],
+        "ok": true,
+        "position": [
+          6,
+          2,
+          -3
+        ],
+        "schema": "xace.native_contract_proof.v1",
+        "version": "6000.4.9f1"
+      }
+    },
+    "unreal": {
+      "command": [
+        "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp019\\native\\target-codex-task66-unreal-vertical-slice\\XaceTask66.uproject",
+        "-run=XaceNativeContractProof",
+        "-unattended",
+        "-nullrhi",
+        "-nosplash",
+        "-XaceFixture=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+        "-XaceReport=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\native\\unreal.json",
+        "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\native\\unreal-editor.log"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.native_contract_proof.v1",
+        "engine": "unreal",
+        "version": "5.7.4-51494982+++UE5+Release-5.7",
+        "ok": true,
+        "cases": [
+          {
+            "name": "contiguous",
+            "result": "accept",
+            "ok": true
+          },
+          {
+            "name": "sequence_gap",
+            "result": "recover",
+            "ok": true
+          },
+          {
+            "name": "late_baseline",
+            "result": "accept",
+            "ok": true
+          },
+          {
+            "name": "stale_sequence",
+            "result": "drop",
+            "ok": true
+          },
+          {
+            "name": "reconnect_generation",
+            "result": "accept",
+            "ok": true
+          },
+          {
+            "name": "stale_generation",
+            "result": "drop",
+            "ok": true
+          },
+          {
+            "name": "wrong_epoch",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "corrupt_digest",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "corrupt_update",
+            "result": "recover",
+            "ok": true
+          },
+          {
+            "name": "unsafe_integer",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "duplicate_binding",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "wrong_owner",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "null_stamp",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "duplicate_entity",
+            "result": "reject",
+            "ok": true
+          },
+          {
+            "name": "parent_cycle",
+            "result": "reject",
+            "ok": true
+          }
+        ],
+        "geometry": true,
+        "input_fence": true
+      }
+    }
+  }
+}

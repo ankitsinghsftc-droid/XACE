@@ -1,0 +1,65 @@
+{
+  "schema": "xace.xp015.proof.v1",
+  "ok": true,
+  "same_machine_only": true,
+  "public_deployment": "pending_owner_has_no_hosting",
+  "two_network_acceptance": "pending",
+  "results": {
+    "protocol": {
+      "tls13_verified": true,
+      "untrusted_certificate_refused": true,
+      "host_auth_required": true,
+      "expired_invite_refused": true,
+      "invite_replay_refused": true,
+      "channel_replay_refused": true,
+      "control_and_arbitrary_target_refused": true,
+      "guest_cannot_poll_host": true,
+      "bytes_preserved": true,
+      "end_closes_tunnels": true,
+      "session_bound_16": true
+    },
+    "limits": {
+      "frame_size_enforced": true,
+      "expired_capability_refused": true,
+      "two_connections_per_lease": true,
+      "traffic_limit_closes_tunnel": true,
+      "forwarded_before_limit": 8388608,
+      "traffic_test_seconds": 0.079,
+      "abandoned_host_expires": true
+    },
+    "native_certificate_refusals": {
+      "wrong_hostname": true,
+      "wrong_ca": true,
+      "no_player_started": true
+    },
+    "players": {
+      "one_authority": true,
+      "distinct_players": [
+        3,
+        4
+      ],
+      "package_acquired_through_tls": true,
+      "gameplay_through_tls": true,
+      "replay_keeps_existing_player": true,
+      "tools_absent_from_player_path": true
+    },
+    "reconnect": {
+      "same_players_and_authority": true,
+      "verified_generation": 2,
+      "tls_capture_bytes": 65536,
+      "application_plaintext_absent": true
+    },
+    "outage": {
+      "remote_membership_fenced": true,
+      "host_preserved": true,
+      "no_second_authority": true,
+      "visible_health_failure": true,
+      "no_silent_private_fallback": true
+    },
+    "cleanup": {
+      "players_stopped": true,
+      "cache_removed": true,
+      "journal_preserved": true
+    }
+  }
+}

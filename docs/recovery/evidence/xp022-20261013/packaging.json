@@ -1,0 +1,10 @@
+{
+  "schema": "xace.player.distribution_trust.v1",
+  "manifest_sha256": "89bd18acefb96d6297c17d79025b985c6d06f67558b276756bd1e1454bfe6485",
+  "broker_sha256": "2e7de4c518126d67e0845771af05e6b09345e3c4f153bbe15bffe16270a5feb0",
+  "godot_version": "4.6.3.stable.official.7d41c59c4",
+  "template_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+  "bytes": 118320574,
+  "zip_bytes": 39940996,
+  "directory": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\release"
+}

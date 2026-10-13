@@ -1,0 +1,15 @@
+{
+  "render_frame_interval_ms": {
+    "samples": 60,
+    "p50": 33.3333333333333,
+    "p95": 33.386,
+    "maximum": 33.713
+  },
+  "input_to_applied_tick_ms": {
+    "samples": 30,
+    "p50": 34.931,
+    "p95": 35.733,
+    "maximum": 35.918
+  },
+  "scope": "Fresh short rendered local 30-FPS proof; frame interval is not GPU duration or Internet latency."
+}

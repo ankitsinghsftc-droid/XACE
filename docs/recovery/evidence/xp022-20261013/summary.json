@@ -1,0 +1,106 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_xp022_seal_recovered": false,
+  "verified": {
+    "runtime_tests": 842,
+    "reference_fault_tests": 23,
+    "world_extensibility_tests": 8,
+    "installed_native_contracts": [
+      "Godot",
+      "Unity",
+      "Unreal"
+    ],
+    "local_short_gates": true,
+    "release_inventory_and_zip": true
+  },
+  "pending": [
+    "two-hour soak and complete archive replay",
+    "fresh recovery baseline seal",
+    "recurring native missing-input investigation at final recovery acceptance",
+    "NEC001 through NEC009 reconstruction and verification"
+  ],
+  "external_release_gates": "OPEN",
+  "off_device_backup": false,
+  "reports": [
+    {
+      "path": "recovery-evidence/20261012/xp022/pinned-binaries/identity.json",
+      "sha256": "ba5e479e9966e4cfe30c57281e8cb1825f586a7adf4699134aa5dcef4ec6462e",
+      "bytes": 297
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/packaging.json",
+      "sha256": "cb3d2e865cd520ddb784ab8d5c8b9082780379be4d348dfa3b26b02e435ddd7b",
+      "bytes": 538
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/distribution-verification.json",
+      "sha256": "e3e5cb4064adab612faddf31dfcae7607842101ed10948942f87bacbb78bce25",
+      "bytes": 155
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/hardware-fresh.json",
+      "sha256": "1558f271f1bfa1df7b4ba876482a66cdaa82513d961f6508ca92461303ceeb36",
+      "bytes": 805
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/player-performance.json",
+      "sha256": "732ce96941d0d7659d84f7ede96bfc547a33e3af6a96180e8c1ab9bd4a70af4c",
+      "bytes": 369
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/native/proof.json",
+      "sha256": "9c5901f340c1c656aceb93201edb38903e19478a360eae0eeafea5cfd2ae9f13",
+      "bytes": 9241
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/hosts/proof.json",
+      "sha256": "581fbb99a2ee55f5a511c3c3d83a16780bacbf74b777fd4d4fef9bc87bda828b",
+      "bytes": 7646
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/sockets/proof.json",
+      "sha256": "68fba779aae14b93ae61f9063f27c4887e33798d95d53411075dd489674d9586",
+      "bytes": 2323
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/process-faults/proof.json",
+      "sha256": "b17564570b8d3d198413c0eb68f72ba7cb7b4c743e3a1a38d5a8ba529d2ec99f",
+      "bytes": 1239
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/replay-faults/report.json",
+      "sha256": "4831397885d4700b91d93ea26465f82ae4c718c57b8e27158e0124853358a91f",
+      "bytes": 6590
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/debugger/proof.json",
+      "sha256": "b9d55b3525d7a67ac763f7a994c8e88346b071869be1a54a740812ca307b0ed5",
+      "bytes": 581
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/player-input/proof.json",
+      "sha256": "ca27e068eb5794c399fb56e582e25b39426dace663db75f2f3b323f6fe06958b",
+      "bytes": 3765
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/presentation/proof.json",
+      "sha256": "6a5c2cebff245481be6f7c08d8a1a04f90790f86edeb35eab135616d3ac86e44",
+      "bytes": 6101
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/launch/proof.json",
+      "sha256": "e89356b216d0168e763f9584f9b7839168cc526969f4a98fa503e745b2ade999",
+      "bytes": 708
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/invite/proof.json",
+      "sha256": "c306d9874ffd3247a1e23a8752040c9ff020b879485af82b85e2fb9e21361fd3",
+      "bytes": 1492
+    },
+    {
+      "path": "recovery-evidence/20261012/xp022/relay/proof.json",
+      "sha256": "ee5e6b10e74494c3290683901f3a6f50be67867eb0d863b195ef6504aa5df3a6",
+      "bytes": 1898
+    }
+  ]
+}

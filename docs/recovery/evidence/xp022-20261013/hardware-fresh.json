@@ -1,0 +1,23 @@
+{
+    "cpu":  {
+                "Name":  "12th Gen Intel(R) Core(TM) i7-12650HX",
+                "NumberOfCores":  14,
+                "NumberOfLogicalProcessors":  20
+            },
+    "memory_bytes":  16890322944,
+    "os":  {
+               "Caption":  "Microsoft Windows 11 Home Single Language",
+               "Version":  "10.0.26200",
+               "OSArchitecture":  "64-bit"
+           },
+    "graphics":  [
+                     {
+                         "Name":  "Intel(R) UHD Graphics",
+                         "DriverVersion":  "32.0.101.7080"
+                     },
+                     {
+                         "Name":  "NVIDIA GeForce RTX 4050 Laptop GPU",
+                         "DriverVersion":  "32.0.15.7705"
+                     }
+                 ]
+}

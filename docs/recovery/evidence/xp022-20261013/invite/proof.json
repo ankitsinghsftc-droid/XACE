@@ -1,0 +1,55 @@
+{
+  "schema": "xace.xp014.proof.v1",
+  "ok": true,
+  "same_machine_only": true,
+  "two_machine_acceptance": "pending_owner_has_no_second_machine",
+  "results": {
+    "partial_package_transfer": {
+      "refused": true,
+      "no_player_started": true,
+      "cache_removed": true
+    },
+    "refusals": {
+      "expired_invite": true,
+      "tampered_file": true,
+      "executable_download": true,
+      "path_escape": true,
+      "failed_acquisition_leaves_no_player_or_cache": true
+    },
+    "play_invite_join": {
+      "one_authority": true,
+      "distinct_players": [
+        3,
+        4
+      ],
+      "same_session": true,
+      "readiness": [
+        {
+          "player": 1,
+          "state": "Playing"
+        },
+        {
+          "player": 2,
+          "state": "Playing"
+        }
+      ],
+      "package_missing_acquired": true,
+      "invite_replay_refused_without_closing_player": true,
+      "recipient_developer_tools_removed_from_PATH": true
+    },
+    "leave_end": {
+      "friend_membership_released": true,
+      "cache_released": true,
+      "host_runtime_and_player_stopped": true,
+      "invite_service_closed": true,
+      "authoritative_journal_preserved": true
+    },
+    "preparation_failures": {
+      "close_cancels_download": true,
+      "cancelled_cache_removed": true,
+      "readiness_failure_refused": true,
+      "failed_player_never_required": true,
+      "host_kept_playing": true
+    }
+  }
+}
