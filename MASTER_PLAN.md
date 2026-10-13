@@ -12,6 +12,8 @@ Fresh recovery: XP020 passes864 Rust tests and new four-client epoch replay acce
 
 Fresh recovery: XP021 passes883 tests, Builder build/UI and actual browser walkthrough. XP022 reconstruction is next. Original seal missing and native timeout unresolved; see AGENT_PROGRESS.md.
 
+Fresh recovery: XP022 source reconstructed; release build, 23 reference/fault tests, 8 world tests and production socket proofs pass. Remaining local certification and two-hour soak are pending. Original seal missing; no off-device backup.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
