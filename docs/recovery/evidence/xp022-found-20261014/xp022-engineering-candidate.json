@@ -1,0 +1,235 @@
+{
+  "schema": "xace.xp022.engineering_baseline.v1",
+  "date": "2026-10-08",
+  "engineering_gates_passed": true,
+  "baseline_status": "sealed_for_engineering_review",
+  "release_certified": false,
+  "roadmap_amendment": "proposed_pending_owner_approval",
+  "nec_started": false,
+  "source_revision": "39ed07b8cd390619a479a3364dc903ee077a6d38",
+  "working_tree_sha256": "4d728ba9752124388cf451f7fd4492f2d87b4562fbdc965b19908dc389ac636a",
+  "runtime_sha256": "09825d6ebcc914a84dd0f3fb8000f0f3fbee3ec5810cfb1cc388a1466773cbe6",
+  "gameplay_hash": "6d04eed3166b195dace0324acd0543f028667de1e908f94594680f542fa3c352",
+  "baseline_directory": "target/xp022/engineering-baseline-20261008",
+  "native_assemblies": [
+    {
+      "path": "target/xp022/final-artifacts/build/target-codex-task65-unity-vertical-slice/Library/Bee/artifacts/1900b0aE.dag/XACE.Adapter.Unity.dll",
+      "sha256": "9c9dce31dd86ef7ca1a92e838edc8f11048b33487d5fd2d8b4633055d8ddf8ad",
+      "sealed_copy": "native-0-XACE.Adapter.Unity.dll"
+    },
+    {
+      "path": "target/xp022/final-artifacts/build/target-codex-task65-unity-vertical-slice/Library/Bee/artifacts/1900b0aE.dag/XACE.Adapter.Unity.Editor.dll",
+      "sha256": "0d194eb0e7acf76d6d507cedd414fda496d4f2a3903cad097b3b61b13bbc175c",
+      "sealed_copy": "native-1-XACE.Adapter.Unity.Editor.dll"
+    },
+    {
+      "path": "target/xp022/final-artifacts/build/target-codex-task65-unity-vertical-slice/Library/ScriptAssemblies/XACE.Adapter.Unity.dll",
+      "sha256": "9c9dce31dd86ef7ca1a92e838edc8f11048b33487d5fd2d8b4633055d8ddf8ad",
+      "sealed_copy": "native-2-XACE.Adapter.Unity.dll"
+    },
+    {
+      "path": "target/xp022/final-artifacts/build/target-codex-task65-unity-vertical-slice/Library/ScriptAssemblies/XACE.Adapter.Unity.Editor.dll",
+      "sha256": "0d194eb0e7acf76d6d507cedd414fda496d4f2a3903cad097b3b61b13bbc175c",
+      "sealed_copy": "native-3-XACE.Adapter.Unity.Editor.dll"
+    },
+    {
+      "path": "target/xp019/native/target-codex-task66-unreal-vertical-slice/Plugins/XACE/Binaries/Win64/UnrealEditor-XACEAdapter.dll",
+      "sha256": "899d2b63460078db854463a5b2f7d76501de20db0d8426df57fa6aa84a42e226",
+      "sealed_copy": "native-4-UnrealEditor-XACEAdapter.dll"
+    }
+  ],
+  "production_source_unchanged_since_soak": true,
+  "artifact_scope": "Windows installed-host/loopback/local TLS; original release acceptance remains open",
+  "production_fault_scope": "Observable pre/post durable decision kills, failed migration/admission, slow consumer and transport/package faults; precise internal failpoints are separate test-build evidence",
+  "deferred_release_gates": [
+    "REL-01",
+    "REL-02",
+    "REL-03",
+    "REL-04",
+    "REL-05"
+  ],
+  "reports": [
+    {
+      "path": "target/xp022/final-certification/player-input/proof.json",
+      "sha256": "ca27e068eb5794c399fb56e582e25b39426dace663db75f2f3b323f6fe06958b",
+      "bytes": 3765
+    },
+    {
+      "path": "target/xp022/final-certification/presentation/proof.json",
+      "sha256": "6a5c2cebff245481be6f7c08d8a1a04f90790f86edeb35eab135616d3ac86e44",
+      "bytes": 6101
+    },
+    {
+      "path": "target/xp022/final-certification/hosts-final/proof.json",
+      "sha256": "79b0ab8e1c78df8b5e147efb95bfdc082e0639f0ff5d49a5280ad763918b0a02",
+      "bytes": 7706
+    },
+    {
+      "path": "target/xp022/final-certification/admission-final/proof.json",
+      "sha256": "1ccef78a7902bbc2dc5108b1cdebcd8b8f1af984a97c2d34b6843169fc259093",
+      "bytes": 3080
+    },
+    {
+      "path": "target/xp022/final-certification/sockets/xp012_socket_proof/proof.json",
+      "sha256": "ed4d66e742df99bc82bbbc2a3d238dbdd23cff80b432e1cd45af4a5a2484f513",
+      "bytes": 1642
+    },
+    {
+      "path": "target/xp022/final-certification/invite-v2/proof.json",
+      "sha256": "c306d9874ffd3247a1e23a8752040c9ff020b879485af82b85e2fb9e21361fd3",
+      "bytes": 1492
+    },
+    {
+      "path": "target/xp022/final-certification/relay/proof.json",
+      "sha256": "7f55d170f4038a327318418751569feca1b6aef5a3add05c99ca667fbcf65a1d",
+      "bytes": 1898
+    },
+    {
+      "path": "target/xp022/final-certification/debugger/proof.json",
+      "sha256": "802ea8dbdf449d902ac80b90dece3dc02dfdcc5390170399f44b3945d468f714",
+      "bytes": 581
+    },
+    {
+      "path": "target/xp022/final-certification/process-faults-final/proof.json",
+      "sha256": "6a0822f51093c6d0badb4f7752fb755bfe2de1e3dd709fdb0dc6c9d60a01e94f",
+      "bytes": 1239
+    },
+    {
+      "path": "target/xp022/final-certification/native-v2/godot.json",
+      "sha256": "c69de0571eaf184daed9f832e47f61d9661d40cb1940407f8f1557fde4e79847",
+      "bytes": 1406
+    },
+    {
+      "path": "target/xp022/final-certification/native-v2/unity.json",
+      "sha256": "318b31ec531320bd4b27d2c286990b969a41336172bc64852d819171e181b361",
+      "bytes": 997
+    },
+    {
+      "path": "target/xp022/final-certification/native-v2/unreal.json",
+      "sha256": "ef09cf887f5575f79e7afb7d35177c49c35030c20e51628f8440e25d97c243d4",
+      "bytes": 1385
+    },
+    {
+      "path": "target/xp022/final-certification/launch-v3/proof.json",
+      "sha256": "5fa9cb209ab812a69a3751ed6b0560f2b1e19284ee00133f7f0d57fc6f110654",
+      "bytes": 708
+    },
+    {
+      "path": "target/xp022/final-certification/sockets/xp013_socket_proof/proof.json",
+      "sha256": "7e7a676a1edfa578d60c9203fa641f60c49d8465978e8536b342c1162b4e4922",
+      "bytes": 737
+    },
+    {
+      "path": "target/xp022/final-certification/replay-faults/report.json",
+      "sha256": "7d4ea12c978e135f6be650e78248e4ef3aa9b92b30dd988069139c746b48588e",
+      "bytes": 6611
+    },
+    {
+      "path": "target/xp022/final-certification/hardware.json",
+      "sha256": "1558f271f1bfa1df7b4ba876482a66cdaa82513d961f6508ca92461303ceeb36",
+      "bytes": 805
+    },
+    {
+      "path": "target/xp022/final-certification/player-performance.json",
+      "sha256": "73f2b5c69b7145ec7a11a9108af409b7acf1093891db331261c5b71384afdba8",
+      "bytes": 467
+    },
+    {
+      "path": "target/xp022/final-certification/packaging-v2.json",
+      "sha256": "d087f8853bcce4cbff2f2271f7c4bbaaae1165af45fa36430cd34e2dc90f4640",
+      "bytes": 548
+    },
+    {
+      "path": "target/xp022/final-certification/relay/relay-identity.json",
+      "sha256": "f78c19f52018118d324888c0d52846026261700e980d23ea7655f94e00bac305",
+      "bytes": 202
+    },
+    {
+      "path": "target/xp022/final-certification/reference-tests.log",
+      "sha256": "1fdaa5708a494cc505f8c57f681c1607fbb0aafcc8d01d6c6dd4bf33fddee7e8",
+      "bytes": 8070
+    },
+    {
+      "path": "target/xp022/final-certification/world-extensibility-tests.log",
+      "sha256": "76bb556f6b9ca0ca124059c79a3d9497eae23c6f848b58bd65c551126057f626",
+      "bytes": 850
+    },
+    {
+      "path": "target/xp022/independent-fixed-20261008-042759/final-result.json",
+      "sha256": "965da7c7520cf83a65097215362736150ea2f1cf75e58037ef7cbb773657e390",
+      "bytes": 1158
+    },
+    {
+      "path": "target/xp022/independent-fixed-20261008-042759/run/report.json",
+      "sha256": "c4b45f3b258c2ee78ab62beb34039a61f94a09a4cc17e441baa0ef3670aaa106",
+      "bytes": 597552
+    },
+    {
+      "path": "target/xp022/independent-fixed-20261008-042759/archive-verification/report.json",
+      "sha256": "def0a9f20d8e3d3b605d1d6dec1ff3cf1ed58a80edb6de9a360de61a85d34eea",
+      "bytes": 775186
+    },
+    {
+      "path": "docs/evidence/xp022-closeout-20261008.json",
+      "sha256": "99ac1c54bf596dc8f37b8d225b51ea818ac0036a142c24f0ad5c5df3a5355437",
+      "bytes": 122041
+    },
+    {
+      "path": "target/xp022/final-certification/release-v2/distribution.json",
+      "sha256": "9491db1c726f2dd9a36c5e57e36b6cc7e7ce15d2b249f37ad5e43ebb0f3de0f6",
+      "bytes": 3529
+    },
+    {
+      "path": "target/xp022/final-certification/release-v2/distribution.trust.json",
+      "sha256": "81f5105a284ea42c5ff859303f451045805e9d36f8ae3a8700494180a243864f",
+      "bytes": 376
+    }
+  ],
+  "sealed_files": [
+    {
+      "path": "native-0-XACE.Adapter.Unity.dll",
+      "sha256": "9c9dce31dd86ef7ca1a92e838edc8f11048b33487d5fd2d8b4633055d8ddf8ad",
+      "bytes": 88064
+    },
+    {
+      "path": "native-1-XACE.Adapter.Unity.Editor.dll",
+      "sha256": "0d194eb0e7acf76d6d507cedd414fda496d4f2a3903cad097b3b61b13bbc175c",
+      "bytes": 34816
+    },
+    {
+      "path": "native-2-XACE.Adapter.Unity.dll",
+      "sha256": "9c9dce31dd86ef7ca1a92e838edc8f11048b33487d5fd2d8b4633055d8ddf8ad",
+      "bytes": 88064
+    },
+    {
+      "path": "native-3-XACE.Adapter.Unity.Editor.dll",
+      "sha256": "0d194eb0e7acf76d6d507cedd414fda496d4f2a3903cad097b3b61b13bbc175c",
+      "bytes": 34816
+    },
+    {
+      "path": "native-4-UnrealEditor-XACEAdapter.dll",
+      "sha256": "899d2b63460078db854463a5b2f7d76501de20db0d8426df57fa6aa84a42e226",
+      "bytes": 757248
+    },
+    {
+      "path": "source-manifest.json",
+      "sha256": "fddf1d4ebf5eb8eebd990bec6341cf3d57cff3a834fe6a317545e20057d293b0",
+      "bytes": 227561
+    },
+    {
+      "path": "source.zip",
+      "sha256": "59f39072beb848c5211aae8c3afdf49a453cf527312e3c4f3040a6b643efd168",
+      "bytes": 13365334
+    },
+    {
+      "path": "unsigned-release.zip",
+      "sha256": "db1de232ff7b9d08c72f0f04617aba35cea3a35efdf483c27d7c0ee13d8d4898",
+      "bytes": 39940807
+    },
+    {
+      "path": "xace-session-relay.exe",
+      "sha256": "d6314dcb855a02e02ac6d1c49780fd0b46ca28828a83169ff674cfcf103872c8",
+      "bytes": 2284544
+    }
+  ]
+}

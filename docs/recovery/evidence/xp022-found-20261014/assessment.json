@@ -1,0 +1,17 @@
+{
+  "original_engineering_receipt_recovered": true,
+  "receipt_sha256": "2d66ac3f4b0b6f4abf76e59b6a349cf73a1571e1b78cc18f2fb5347a6630ee79",
+  "historical_hash_match": true,
+  "source_comparison": {
+    "xp022_process_faults.py": "matches reconstructed text after newline normalization",
+    "xp022_player_soak.py": "matches reconstructed text after newline normalization",
+    "XP022_STATUS.md": "matches except recovery warning banner"
+  },
+  "pyc": "Preserved only; not executed or decompiled",
+  "still_missing": [
+    "original source.zip and source-manifest.json",
+    "original pinned binaries and unsigned release",
+    "detailed original soak and certification reports"
+  ],
+  "off_device_backup": false
+}

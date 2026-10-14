@@ -16,6 +16,8 @@ Fresh recovery: XP022 source reconstructed; release build, 23 reference/fault te
 
 Fresh recovery update 2026-10-14: XP022 short gates pass; fresh two-hour soak was interrupted by documented Button/Lid system sleep and FAILED. Retry and sealing remain pending; see AGENT_PROGRESS.md.
 
+Recovery update 2026-10-14: original XP022 engineering-candidate receipt recovered and historical SHA256 matched; original sealed payloads/detailed reports still missing. User authorized a background endurance retry; see AGENT_PROGRESS.md.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

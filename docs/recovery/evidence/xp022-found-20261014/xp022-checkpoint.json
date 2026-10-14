@@ -1,0 +1,50 @@
+{
+  "schema": "xace.xp022.checkpoint.v1",
+  "date": "2026-10-04",
+  "certified": false,
+  "status": "in_progress",
+  "runtime_tests_passed": 842,
+  "projection_digests_unchanged_with_timing": true,
+  "authority_tick_p95_ms": 77.6461,
+  "authority_budget_met": false,
+  "build_profile": "dev",
+  "private_bytes_first": 1822720,
+  "private_bytes_last": 45756416,
+  "normal_authority_exit": true,
+  "artifacts": [
+    {
+      "path": "target/xp022/current-faults/report.json",
+      "sha256": "72a66e353a6f9273b64df9192f473746c2e03956837c5605dd9584396249f852"
+    },
+    {
+      "path": "target/xp022/four-host-result.json",
+      "sha256": "b95b7f546cde3e4ea178139b90530213916b1229e0a5f86d2ad3d37938030863"
+    },
+    {
+      "path": "target/xp022/session-preflight/report.json",
+      "sha256": "8b5912098d0ef0e9884b4837a5877dbb8836e6bb1cd020574bdb66785989f777"
+    },
+    {
+      "path": "target/xp022/timed-preflight/report.json",
+      "sha256": "f2882c9b5195db9277bfaf914b345221134998ad6dac353df5dd8fbda0d6b02b"
+    },
+    {
+      "path": "target/xp022/timed-preflight/tick-metrics.jsonl",
+      "sha256": "d7c367ce18eac023b1c959a63a22196873c1123a08f904cb7efbaacc1ef0233c"
+    }
+  ],
+  "pending_user_resources": [
+    "clean Windows machine",
+    "second machine",
+    "public relay and separate networks",
+    "signing certificate",
+    "three first-time testers"
+  ],
+  "pending_implementation": [
+    "bounded durable replay and diagnostic retention",
+    "performance hardening",
+    "complete real-process faults",
+    "two-hour four-native-client soak",
+    "final A-H pinned release certification"
+  ]
+}

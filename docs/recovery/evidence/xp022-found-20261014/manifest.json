@@ -1,0 +1,41 @@
+{
+  "note": "Newly found historical material; same-device preservation, originals unchanged.",
+  "files": [
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\xp022-engineering-candidate.json",
+      "copy": "xp022-engineering-candidate.json",
+      "bytes": 9648,
+      "sha256": "2d66ac3f4b0b6f4abf76e59b6a349cf73a1571e1b78cc18f2fb5347a6630ee79"
+    },
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\XP022_STATUS.md",
+      "copy": "XP022_STATUS.md",
+      "bytes": 8203,
+      "sha256": "91e74a0dd5889608c6b524633b5fedfe2443134d8d18e9ce939f3e00c7d61741"
+    },
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\xp022_final_proofs.cpython-311.pyc",
+      "copy": "xp022_final_proofs.cpython-311.pyc",
+      "bytes": 6100,
+      "sha256": "700622e1768d210dfc4ead3ef7824912a6106dade6bbc5376927118b6b118b05"
+    },
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\xp022_process_faults.py",
+      "copy": "xp022_process_faults.py",
+      "bytes": 13958,
+      "sha256": "6ca45a1152ce5d669a431b0ef789c908916585666de4528cf110c5eab3115b40"
+    },
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\xp022_player_soak.py",
+      "copy": "xp022_player_soak.py",
+      "bytes": 10787,
+      "sha256": "d5d013a3611ea102d6b9dc661a57dcf36d737202922917617e5b0348883c12e1"
+    },
+    {
+      "source": "C:\\Users\\ankit\\Downloads\\blender\\xp022-checkpoint.json",
+      "copy": "xp022-checkpoint.json",
+      "bytes": 1664,
+      "sha256": "9b2cba8d5f58594cac0a670788c593f72fd145acf9e69b77c2776bf104167986"
+    }
+  ]
+}
