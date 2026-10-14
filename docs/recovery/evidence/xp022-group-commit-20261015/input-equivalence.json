@@ -1,0 +1,5 @@
+{
+  "ok": true,
+  "validation_records": 140,
+  "comparison": "Four-engine original reconstructed host versus repaired host: identical input actions, peers, ticks, epochs and validation decisions; transport timestamps/credentials excluded."
+}

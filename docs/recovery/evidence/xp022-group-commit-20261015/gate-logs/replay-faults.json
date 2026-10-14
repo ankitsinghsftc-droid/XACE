@@ -1,0 +1,19 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp022_certification",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-group-commit\\replay-faults",
+    "--host",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-group-commit\\pinned-binaries\\xace_reference_host.exe",
+    "--recording",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-group-commit\\hosts\\four\\replay.json"
+  ],
+  "returncode": 2,
+  "passed": true,
+  "elapsed_seconds": 3.297000000020489
+}
