@@ -39,11 +39,13 @@ def main():
             code = child.wait(timeout=7800)
         report_path = out/'run/report.json'
         report = json.loads(report_path.read_text()) if report_path.exists() else None
-        passed = (code == 0 and report is not None and report.get('ok') is True
-                  and report.get('full_duration') is True and report.get('elapsed_seconds',0) >= 7200
-                  and report.get('authority_budget_met') is True and report.get('rejoined') is True
-                  and report.get('authority_exited') is True)
-        if passed:
+        completed = (code == 0 and report is not None and report.get('ok') is True
+                     and report.get('full_duration') is True and report.get('elapsed_seconds',0) >= 7200
+                     and report.get('rejoined') is True and report.get('authority_exited') is True)
+        passed = completed and report.get('authority_budget_met') is True
+        # A performance miss must not suppress verification of a complete archive.
+        # It still fails the overall gate even when every replay segment verifies.
+        if completed:
             archives = list((out/'run/rulesets').glob('recording-*'))
             if len(archives) != 1:
                 raise ValueError('expected one authority replay archive')
@@ -57,7 +59,7 @@ def main():
                 verification_code = child.wait(timeout=1800)
             verification_path = out/'archive-verification/report.json'
             verification = json.loads(verification_path.read_text()) if verification_path.exists() else {}
-            passed = (verification_code == 0 and verification.get('ok') is True
+            passed = (passed and verification_code == 0 and verification.get('ok') is True
                       and verification.get('verified_ticks') == report['authority_ticks'])
             status.update(verification_returncode=verification_code, archive_verification=str(verification_path))
         status.update(status='passed' if passed else 'failed', returncode=code,

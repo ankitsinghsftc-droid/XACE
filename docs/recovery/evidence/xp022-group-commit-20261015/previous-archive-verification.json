@@ -1,0 +1,10 @@
+{
+  "schema": "xace.replay_archive_verification.v1",
+  "ok": true,
+  "segments": 711,
+  "verified_ticks": 182002,
+  "index_sha256": "a54d567fd9cd908684cdf17ef95edc6e3091f23d47c5e2ab01dbb34c2ff9596e",
+  "report_path": "recovery-evidence\\20261014\\xp022-stall-diagnostic\\completed-run-archive-verification\\report.json",
+  "report_sha256": "288d9b6c915acb1c91e5b9e066de12c7755b13decaf6710e6414ba02af422205",
+  "performance_gate_passed": false
+}
