@@ -3638,6 +3638,14 @@ impl RuntimeOrchestrator {
     }
 
     pub fn pump_engine_inbound(&mut self) -> Result<()> {
+        if let Some(journal) = self.live_session_controller.as_ref().map(|c| c.journal()) {
+            journal.with_ingress_batch(|| self.pump_engine_inbound_staged())
+        } else {
+            self.pump_engine_inbound_staged()
+        }
+    }
+
+    fn pump_engine_inbound_staged(&mut self) -> Result<()> {
         for bridge in &mut self.bridges {
             bridge.pump_inbound();
             let ready = bridge.synchronize_projection(self.phase_orch.current_tick(),

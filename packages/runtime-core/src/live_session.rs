@@ -58,17 +58,48 @@ impl SessionLogProbe {
         }
     }
 }
+#[derive(Debug)]
+struct SessionLogFile {
+    file: File,
+    pending: Option<Vec<u8>>,
+}
 #[derive(Debug, Clone)]
 pub struct SessionLog {
-    file: Arc<Mutex<File>>,
+    file: Arc<Mutex<SessionLogFile>>,
     probe: Option<Arc<SessionLogProbe>>,
 }
 impl SessionLog {
     fn open(path: &Path) -> Result<Self> {
         Ok(Self {
-            file: Arc::new(Mutex::new(OpenOptions::new().create_new(true).append(true).open(path)?)),
+            file: Arc::new(Mutex::new(SessionLogFile { file: OpenOptions::new().create_new(true).append(true).open(path)?, pending: None })),
             probe: SessionLogProbe::start(),
         })
+    }
+    // The caller's staging operation must not release input to gameplay. Every
+    // staged record is synced before this scope can return success, even when
+    // the operation itself returns an error. No records are silently dropped.
+    pub(crate) fn with_ingress_batch<T>(&self, operation: impl FnOnce() -> Result<T>) -> Result<T> {
+        {
+            let mut state = self.file.lock().map_err(|_| anyhow::anyhow!("session log poisoned"))?;
+            anyhow::ensure!(state.pending.is_none(), "nested session journal batch");
+            state.pending = Some(Vec::new());
+        }
+        let result = operation();
+        let flush = (|| -> Result<()> {
+            let mut state = self.file.lock().map_err(|_| anyhow::anyhow!("session log poisoned"))?;
+            let bytes = state.pending.take().expect("active journal batch");
+            if !bytes.is_empty() {
+                if let Some(probe) = &self.probe { probe.set(Some("stage=ingress_batch_write".into())); }
+                write_durable_batch(&mut state.file, &bytes, |file| {
+                    if let Some(probe) = &self.probe { probe.set(Some("stage=ingress_batch_sync_data".into())); }
+                    file.sync_data()
+                })?;
+            }
+            Ok(())
+        })();
+        if let Some(probe) = &self.probe { probe.set(None); }
+        flush?;
+        result
     }
     pub fn append(&self, value: &Value) -> Result<()> {
         self.append_batch(std::slice::from_ref(value))
@@ -90,8 +121,14 @@ impl SessionLog {
         mark("lock");
         let result = (|| -> Result<()> {
             let mut file = self.file.lock().map_err(|_| anyhow::anyhow!("session log poisoned"))?;
+            if let Some(pending) = file.pending.as_mut() {
+                anyhow::ensure!(pending.len().saturating_add(bytes.len()) <= 8 * 1024 * 1024,
+                    "session journal ingress batch exceeds 8 MiB");
+                pending.extend_from_slice(&bytes);
+                return Ok(());
+            }
             mark("write");
-            write_durable_batch(&mut *file, &bytes, |file| {
+            write_durable_batch(&mut file.file, &bytes, |file| {
                 mark("sync_data");
                 file.sync_data()
             })?;
@@ -468,6 +505,8 @@ impl LiveSessionController {
         Ok(())
     }
 
+    pub(crate) fn journal(&self) -> SessionLog { self.log.clone() }
+
     pub fn mark_ready(&mut self, peer_id: u64) -> Result<()> {
         self.members.mark_peer_ready(peer_id)?;
         Ok(())
@@ -580,6 +619,37 @@ impl LiveSessionController {
 #[cfg(test)]
 mod durable_batch_tests {
     use super::*;
+    #[test]
+    fn ingress_scope_flushes_ordered_records_even_when_staging_fails() {
+        let path = std::env::temp_dir().join(format!("xace-journal-test-{}.jsonl", Uuid::new_v4()));
+        let log = SessionLog::open(&path).unwrap();
+        let result: Result<()> = log.with_ingress_batch(|| {
+            log.append(&json!({"peer": 3}))?;
+            log.append(&json!({"peer": 2}))?;
+            assert!(fs::read(&path)?.is_empty());
+            bail!("staging rejected")
+        });
+        assert!(result.unwrap_err().to_string().contains("staging rejected"));
+        assert_eq!(fs::read_to_string(&path).unwrap(), "{\"peer\":3}\n{\"peer\":2}\n");
+        log.append(&json!({"peer": 1})).unwrap();
+        assert!(fs::read_to_string(&path).unwrap().ends_with("{\"peer\":1}\n"));
+        drop(log);
+        fs::remove_file(path).unwrap();
+    }
+    #[test]
+    fn ingress_scope_rejects_nested_batches_and_oversized_records() {
+        let path = std::env::temp_dir().join(format!("xace-journal-test-{}.jsonl", Uuid::new_v4()));
+        let log = SessionLog::open(&path).unwrap();
+        log.with_ingress_batch(|| {
+            assert!(log.with_ingress_batch(|| Ok(())).is_err());
+            log.append(&json!({"kept": true}))?;
+            assert!(log.append(&json!({"large": "x".repeat(8 * 1024 * 1024)})).is_err());
+            Ok(())
+        }).unwrap();
+        assert_eq!(fs::read_to_string(&path).unwrap(), "{\"kept\":true}\n");
+        drop(log);
+        fs::remove_file(path).unwrap();
+    }
     #[test]
     fn ordered_records_reach_one_barrier_before_success() {
         let bytes = b"{\"peer\":3}\n{\"peer\":2}\n{\"peer\":1}\n";

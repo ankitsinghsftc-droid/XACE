@@ -30,6 +30,8 @@ with (logs/(a.gate+'.log')).open('xb') as log:
  result=subprocess.run(command,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT,timeout=1200,creationflags=subprocess.CREATE_NO_WINDOW)
 passed=result.returncode==(2 if a.gate=='replay-faults' else 0)
 if a.gate=='replay-faults':passed=passed and json.loads((out/'report.json').read_text())['local_subset_ok']
+if a.gate=='smoke':
+ report=json.loads((out/'report.json').read_text());passed=passed and report['ok'] and report['authority_budget_met']
 (logs/(a.gate+'.json')).write_text(json.dumps(dict(fresh_recovery_evidence=True,original_evidence_recovered=False,command=command,returncode=result.returncode,passed=passed,elapsed_seconds=time.monotonic()-started),indent=2))
 assert passed,str(logs/(a.gate+'.log'))
 print(a.gate+' passed',flush=True)
