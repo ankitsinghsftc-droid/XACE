@@ -32,29 +32,65 @@ pub struct SessionTicket {
     pub peer_id: u64,
     pub controller_id: u64,
 }
+// Opt-in wall-clock diagnostics only; never consumed by simulation or admission.
+#[derive(Debug, Default)]
+struct SessionLogProbe(Mutex<Option<(std::time::Instant, String)>>);
+impl SessionLogProbe {
+    fn start() -> Option<Arc<Self>> {
+        if std::env::var_os("XACE_SESSION_LOG_DIAGNOSTICS").is_none() { return None; }
+        let probe = Arc::new(Self::default());
+        let weak = Arc::downgrade(&probe);
+        std::thread::spawn(move || loop {
+            std::thread::sleep(std::time::Duration::from_millis(250));
+            let Some(probe) = weak.upgrade() else { break; };
+            let state = probe.0.lock().ok().and_then(|state| state.clone());
+            if let Some((started, operation)) = state {
+                if started.elapsed() >= std::time::Duration::from_secs(1) {
+                    log::warn!("session_journal_stall elapsed_ms={} {}", started.elapsed().as_millis(), operation);
+                }
+            }
+        });
+        Some(probe)
+    }
+    fn set(&self, operation: Option<String>) {
+        if let Ok(mut state) = self.0.lock() {
+            *state = operation.map(|name| (std::time::Instant::now(), name));
+        }
+    }
+}
 #[derive(Debug, Clone)]
-pub struct SessionLog(Arc<Mutex<File>>);
+pub struct SessionLog {
+    file: Arc<Mutex<File>>,
+    probe: Option<Arc<SessionLogProbe>>,
+}
 impl SessionLog {
     fn open(path: &Path) -> Result<Self> {
-        Ok(Self(Arc::new(Mutex::new(
-            OpenOptions::new()
-                .create_new(true)
-                .append(true)
-                .open(path)?,
-        ))))
+        Ok(Self {
+            file: Arc::new(Mutex::new(OpenOptions::new().create_new(true).append(true).open(path)?)),
+            probe: SessionLogProbe::start(),
+        })
     }
     pub fn append(&self, value: &Value) -> Result<()> {
-        // Serialize in memory first: streaming serde directly into an unbuffered
-        // File issues a filesystem write for every JSON token on the tick path.
+        // Keep the existing write-before-ingress durability contract unchanged.
         let mut bytes = serde_json::to_vec(value)?;
         bytes.push(b'\n');
-        let mut file = self
-            .0
-            .lock()
-            .map_err(|_| anyhow::anyhow!("session log poisoned"))?;
-        file.write_all(&bytes)?;
-        file.sync_data()?;
-        Ok(())
+        let mark = |stage: &str| {
+            if let Some(probe) = &self.probe {
+                probe.set(Some(format!("stage={} kind={} tick={} peer={}", stage,
+                    value["kind"], value["packet"]["tick"], value["peer_id"])));
+            }
+        };
+        mark("lock");
+        let result = (|| -> Result<()> {
+            let mut file = self.file.lock().map_err(|_| anyhow::anyhow!("session log poisoned"))?;
+            mark("write");
+            file.write_all(&bytes)?;
+            mark("sync_data");
+            file.sync_data()?;
+            Ok(())
+        })();
+        if let Some(probe) = &self.probe { probe.set(None); }
+        result
     }
 }
 #[derive(Debug, Clone)]

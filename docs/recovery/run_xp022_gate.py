@@ -2,7 +2,7 @@
 import argparse,json,os,subprocess,sys,time
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT))
-BASE=ROOT/'recovery-evidence/20261012/xp022';ART=BASE/'artifacts'
+BASE=Path(os.environ.get('XACE_RECOVERY_EVIDENCE',str(ROOT/'recovery-evidence/20261012/xp022'))).resolve();ART=BASE/'artifacts'
 from tools.xp017_mixed_session_proof import GODOT,TEMPLATE
 p=argparse.ArgumentParser(description=__doc__)
 p.add_argument('gate',choices=['sockets','hosts','process-faults','replay-faults','debugger','player-input','presentation','launch','invite','relay','smoke'])

@@ -1,5 +1,5 @@
 """Stage fresh recovered XP022 binaries and packages; never recreate original seal."""
-import sys, json, shutil, hashlib
+import sys, json, shutil, hashlib, os
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT))
@@ -9,7 +9,8 @@ from tools.xp008_player_build import prepare_player
 from tools.xp010_player_distribution import assemble
 from tools.xp007_package_proof import compile_plan
 from playable_package import RuntimeSupport,digest
-base=ROOT/'recovery-evidence/20261012/xp022'
+base=Path(os.environ.get('XACE_RECOVERY_EVIDENCE',str(ROOT/'recovery-evidence/20261012/xp022'))).resolve()
+base.mkdir(parents=True,exist_ok=True)
 build=Path('C:/Users/ankit/XACE-Recovery/build-output/cargo/release')
 pins=base/'pinned-binaries';pins.mkdir(exist_ok=False)
 identity={}

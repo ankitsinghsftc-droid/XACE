@@ -1,0 +1,1082 @@
+[
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.09375
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "sequence_id": 36722,
+      "tick": 36719,
+      "timestamp_ms": 1532338
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.09375
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36722,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36719,
+      "timestamp_ms": 1532338
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 4,
+      "player_id": 6,
+      "predicted": false,
+      "sequence_id": 36178,
+      "tick": 36719,
+      "timestamp_ms": 1513123
+    },
+    "peer_id": 4,
+    "player_id": 6,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.125
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 4,
+      "player_id": 6,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36178,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36719,
+      "timestamp_ms": 1513123
+    },
+    "peer_id": 4,
+    "player_id": 6,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.0625
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "sequence_id": 36722,
+      "tick": 36719,
+      "timestamp_ms": 1532365
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.03125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 1,
+      "player_id": 3,
+      "predicted": false,
+      "sequence_id": 36722,
+      "tick": 36719,
+      "timestamp_ms": 1532365
+    },
+    "peer_id": 1,
+    "player_id": 3,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.0625
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36722,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36719,
+      "timestamp_ms": 1532365
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": -0.03125
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 1,
+      "player_id": 3,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36722,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36719,
+      "timestamp_ms": 1532365
+    },
+    "peer_id": 1,
+    "player_id": 3,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.09375
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "sequence_id": 36723,
+      "tick": 36720,
+      "timestamp_ms": 1532444
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0625
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "sequence_id": 36723,
+      "tick": 36720,
+      "timestamp_ms": 1532444
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.03125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 1,
+      "player_id": 3,
+      "predicted": false,
+      "sequence_id": 36723,
+      "tick": 36720,
+      "timestamp_ms": 1532443
+    },
+    "peer_id": 1,
+    "player_id": 3,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 4,
+      "player_id": 6,
+      "predicted": false,
+      "sequence_id": 36179,
+      "tick": 36720,
+      "timestamp_ms": 1513217
+    },
+    "peer_id": 4,
+    "player_id": 6,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.09375
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36723,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36720,
+      "timestamp_ms": 1532444
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0625
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36723,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36720,
+      "timestamp_ms": 1532444
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.03125
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 1,
+      "player_id": 3,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36723,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36720,
+      "timestamp_ms": 1532443
+    },
+    "peer_id": 1,
+    "player_id": 3,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.125
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 4,
+      "player_id": 6,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36179,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36720,
+      "timestamp_ms": 1513217
+    },
+    "peer_id": 4,
+    "player_id": 6,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.09375
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "sequence_id": 36724,
+      "tick": 36721,
+      "timestamp_ms": 1532587
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0625
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "sequence_id": 36724,
+      "tick": 36721,
+      "timestamp_ms": 1532586
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.03125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 1,
+      "player_id": 3,
+      "predicted": false,
+      "sequence_id": 36724,
+      "tick": 36721,
+      "timestamp_ms": 1532586
+    },
+    "peer_id": 1,
+    "player_id": 3,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "kind": "input",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "button",
+          "phase": "cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "axis_1d",
+          "phase": "changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.125
+        }
+      ],
+      "device_id": "godot",
+      "msg_type": "input_packet",
+      "peer_id": 4,
+      "player_id": 6,
+      "predicted": false,
+      "sequence_id": 36180,
+      "tick": 36721,
+      "timestamp_ms": 1513360
+    },
+    "peer_id": 4,
+    "player_id": 6,
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.09375
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 3,
+      "player_id": 5,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36724,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36721,
+      "timestamp_ms": 1532587
+    },
+    "peer_id": 3,
+    "player_id": 5,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  },
+  {
+    "authority_incarnation": "540e4142-b669-46cd-9b90-5bc1dd1e7185",
+    "decision": "accepted",
+    "kind": "input_validation",
+    "packet": {
+      "actions": [
+        {
+          "action": "Jump",
+          "kind": "Button",
+          "metadata": {},
+          "phase": "Cancelled",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_x",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0
+        },
+        {
+          "action": "move_z",
+          "kind": "Axis1D",
+          "metadata": {},
+          "phase": "Changed",
+          "secondary_value": 0.0,
+          "target_entity": null,
+          "value": 0.0625
+        }
+      ],
+      "device_id": "godot",
+      "peer_id": 2,
+      "player_id": 4,
+      "predicted": false,
+      "schema_version": 1,
+      "sequence_id": 36724,
+      "signature": {
+        "algorithm": "",
+        "value": ""
+      },
+      "tick": 36721,
+      "timestamp_ms": 1532586
+    },
+    "peer_id": 2,
+    "player_id": 4,
+    "reason": "",
+    "ruleset_epoch": 2,
+    "schema": "xace.session_record.v1",
+    "session_id": "6c0501c4-77bc-48e1-a96a-251e3630a692"
+  }
+]

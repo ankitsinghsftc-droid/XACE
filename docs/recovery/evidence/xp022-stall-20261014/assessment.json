@@ -1,0 +1,16 @@
+{
+  "stalled_after_tick": 36720,
+  "next_tick": 36721,
+  "all_four_input_packets_received": true,
+  "validation_records_visible_for_peers": [
+    3,
+    2
+  ],
+  "largest_sample_gap_seconds": 10.219,
+  "no_matching_sleep_events_found": true,
+  "confirmed_root_cause": false,
+  "leading_hypothesis": "Synchronous per-record journal write or sync_data stall; retained timing spikes occur in inbound/input scheduling stages.",
+  "durability_contract": "XP011 and XP012 require durable input admission; must not remove fsync to get a pass.",
+  "next_action": "Opt-in journal stage watchdog; isolated diagnostic background rerun before selecting a production fix.",
+  "off_device_backup": false
+}
