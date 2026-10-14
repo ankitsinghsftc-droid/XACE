@@ -71,9 +71,16 @@ impl SessionLog {
         })
     }
     pub fn append(&self, value: &Value) -> Result<()> {
-        // Keep the existing write-before-ingress durability contract unchanged.
-        let mut bytes = serde_json::to_vec(value)?;
-        bytes.push(b'\n');
+        self.append_batch(std::slice::from_ref(value))
+    }
+    pub fn append_batch(&self, values: &[Value]) -> Result<()> {
+        if values.is_empty() { return Ok(()); }
+        let mut bytes = Vec::new();
+        for value in values {
+            serde_json::to_writer(&mut bytes, value)?;
+            bytes.push(b'\n');
+        }
+        let value = &values[0];
         let mark = |stage: &str| {
             if let Some(probe) = &self.probe {
                 probe.set(Some(format!("stage={} kind={} tick={} peer={}", stage,
@@ -84,14 +91,22 @@ impl SessionLog {
         let result = (|| -> Result<()> {
             let mut file = self.file.lock().map_err(|_| anyhow::anyhow!("session log poisoned"))?;
             mark("write");
-            file.write_all(&bytes)?;
-            mark("sync_data");
-            file.sync_data()?;
+            write_durable_batch(&mut *file, &bytes, |file| {
+                mark("sync_data");
+                file.sync_data()
+            })?;
             Ok(())
         })();
         if let Some(probe) = &self.probe { probe.set(None); }
         result
     }
+}
+// Success means every complete record in the batch has reached the durability
+// barrier. Callers must not release staged input until this returns successfully.
+fn write_durable_batch<W: Write>(writer: &mut W, bytes: &[u8],
+    sync: impl FnOnce(&mut W) -> std::io::Result<()>) -> std::io::Result<()> {
+    writer.write_all(bytes)?;
+    sync(writer)
 }
 #[derive(Debug, Clone)]
 pub struct SessionAdmission {
@@ -458,20 +473,27 @@ impl LiveSessionController {
         Ok(())
     }
 
-    pub fn record_input_validation(
+    pub(crate) fn input_validation_record(
         &self,
         packet: &xace_network_core::input::InputPacket,
         decision: &str,
         reason: &str,
-    ) -> Result<()> {
-        self.log.append(&json!({
+    ) -> Value {
+        json!({
             "schema":"xace.session_record.v1","kind":"input_validation",
             "session_id":self.contract.epoch.session_id,
             "authority_incarnation":self.contract.epoch.authority_incarnation,
             "ruleset_epoch":self.contract.epoch.ruleset_epoch,
             "peer_id":packet.peer_id,"player_id":packet.player_id,
             "decision":decision,"reason":reason,"packet":packet
-        }))
+        })
+    }
+    pub(crate) fn record_input_validations(&self, records: &[Value]) -> Result<()> {
+        self.log.append_batch(records)
+    }
+    pub fn record_input_validation(&self, packet: &xace_network_core::input::InputPacket,
+        decision: &str, reason: &str) -> Result<()> {
+        self.log.append(&self.input_validation_record(packet, decision, reason))
     }
 
     pub fn record_rejection(&self, reason: &str) -> Result<()> {
@@ -552,5 +574,45 @@ impl LiveSessionController {
             contract: self.contract.clone(),
             log: self.log.clone(),
         })
+    }
+}
+
+#[cfg(test)]
+mod durable_batch_tests {
+    use super::*;
+    #[test]
+    fn ordered_records_reach_one_barrier_before_success() {
+        let bytes = b"{\"peer\":3}\n{\"peer\":2}\n{\"peer\":1}\n";
+        let mut output = Vec::new();
+        let mut barriers = 0;
+        write_durable_batch(&mut output, bytes, |written| {
+            assert_eq!(written.as_slice(), bytes);
+            barriers += 1;
+            Ok(())
+        }).unwrap();
+        assert_eq!(barriers, 1);
+        assert_eq!(output, bytes);
+    }
+    #[test]
+    fn failed_durability_barrier_never_reports_success() {
+        let mut output = Vec::new();
+        let result = write_durable_batch(&mut output, b"record\n", |_| {
+            Err(std::io::Error::other("injected sync failure"))
+        });
+        assert!(result.is_err());
+        assert_eq!(output, b"record\n");
+    }
+    #[test]
+    fn failed_write_never_calls_durability_barrier() {
+        struct Reject;
+        impl Write for Reject {
+            fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+                Err(std::io::Error::other("injected write failure"))
+            }
+            fn flush(&mut self) -> std::io::Result<()> { Ok(()) }
+        }
+        assert!(write_durable_batch(&mut Reject, b"record\n", |_| {
+            panic!("must not acknowledge a failed write")
+        }).is_err());
     }
 }

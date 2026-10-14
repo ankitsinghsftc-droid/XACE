@@ -3974,6 +3974,7 @@ impl RuntimeOrchestrator {
         let drained = std::mem::take(&mut self.engine_inputs);
         let mut submission_applications = Vec::new();
         let mut late_applications = Vec::new();
+        let mut validation_records = Vec::new();
 
         {
             let sync = self.input_synchroniser.as_mut().ok_or_else(|| {
@@ -3991,8 +3992,7 @@ impl RuntimeOrchestrator {
                             .unwrap_or_else(|| "late_after_release".to_string())
                     } else { "late_after_release".to_string() };
                     if let Some(controller)=self.live_session_controller.as_ref() {
-                        controller.record_input_validation(&packet,"rejected",&reason)
-                            .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))?;
+                        validation_records.push(controller.input_validation_record(&packet,"rejected",&reason));
                     }
                     late_applications.push(RuntimeEngineInputApplication {
                         packet,
@@ -4024,8 +4024,7 @@ impl RuntimeOrchestrator {
                         Ok(()) => ("accepted", ""),
                         Err(err) => ("rejected", err.as_str()),
                     };
-                    controller.record_input_validation(&packet, decision, reason)
-                        .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))?;
+                    validation_records.push(controller.input_validation_record(&packet, decision, reason));
                 }
                 if let Err(err) = submitted {
                     submission_applications.push(RuntimeEngineInputApplication {
@@ -4037,6 +4036,12 @@ impl RuntimeOrchestrator {
             }
         }
 
+        // Staged synchroniser submissions cannot become gameplay until every
+        // validation record in this ingress pass is durably committed together.
+        if let Some(controller) = self.live_session_controller.as_ref() {
+            controller.record_input_validations(&validation_records)
+                .map_err(|err| runtime_input_sync_error(sim_tick, err.to_string()))?;
+        }
         let decision = self.lockstep_decision_for_runtime_tick(sim_tick)?;
         let mut trace = self.trace_for_lockstep_decision(sim_tick, &decision);
         let mut release_applications = Vec::new();
