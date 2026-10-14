@@ -1,0 +1,17 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp022_process_faults",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261014\\xp022-stall-diagnostic\\process-faults",
+    "--artifacts",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261014\\xp022-stall-diagnostic\\artifacts"
+  ],
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 3.51500000001397
+}
