@@ -1,0 +1,2743 @@
+{
+  "samples": [
+    {
+      "elapsed_seconds": 19.82799999997951,
+      "ticks": {
+        "1": 541,
+        "2": 541,
+        "3": 541,
+        "4": 542
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 37257216,
+        "private_bytes": 31014912
+      },
+      "players": {
+        "1": {
+          "working_set": 77582336,
+          "private_bytes": 36798464
+        },
+        "2": {
+          "working_set": 78372864,
+          "private_bytes": 37588992
+        },
+        "3": {
+          "working_set": 77742080,
+          "private_bytes": 37154816
+        },
+        "4": {
+          "working_set": 77549568,
+          "private_bytes": 37322752
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 29.82799999997951,
+      "ticks": {
+        "1": 841,
+        "2": 840,
+        "3": 841,
+        "4": 841
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 47009792,
+        "private_bytes": 40038400
+      },
+      "players": {
+        "1": {
+          "working_set": 77582336,
+          "private_bytes": 36798464
+        },
+        "2": {
+          "working_set": 78372864,
+          "private_bytes": 37588992
+        },
+        "3": {
+          "working_set": 77787136,
+          "private_bytes": 37216256
+        },
+        "4": {
+          "working_set": 77934592,
+          "private_bytes": 37404672
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 39.82799999997951,
+      "ticks": {
+        "1": 1140,
+        "2": 1139,
+        "3": 1140,
+        "4": 1140
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55398400,
+        "private_bytes": 48541696
+      },
+      "players": {
+        "1": {
+          "working_set": 77762560,
+          "private_bytes": 36913152
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37588992
+        },
+        "3": {
+          "working_set": 77860864,
+          "private_bytes": 37212160
+        },
+        "4": {
+          "working_set": 77934592,
+          "private_bytes": 37404672
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 49.82799999997951,
+      "ticks": {
+        "1": 1438,
+        "2": 1438,
+        "3": 1438,
+        "4": 1438
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 56184832,
+        "private_bytes": 50495488
+      },
+      "players": {
+        "1": {
+          "working_set": 77762560,
+          "private_bytes": 36913152
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37588992
+        },
+        "3": {
+          "working_set": 77869056,
+          "private_bytes": 37212160
+        },
+        "4": {
+          "working_set": 77942784,
+          "private_bytes": 37404672
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 59.82799999997951,
+      "ticks": {
+        "1": 1736,
+        "2": 1736,
+        "3": 1736,
+        "4": 1736
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55717888,
+        "private_bytes": 49389568
+      },
+      "players": {
+        "1": {
+          "working_set": 77975552,
+          "private_bytes": 36913152
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37588992
+        },
+        "3": {
+          "working_set": 77869056,
+          "private_bytes": 37212160
+        },
+        "4": {
+          "working_set": 78180352,
+          "private_bytes": 37404672
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 69.82799999997951,
+      "ticks": {
+        "1": 2035,
+        "2": 2035,
+        "3": 2035,
+        "4": 2035
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 56766464,
+        "private_bytes": 51027968
+      },
+      "players": {
+        "1": {
+          "working_set": 77959168,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78512128,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 77848576,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78200832,
+          "private_bytes": 37404672
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 79.82799999997951,
+      "ticks": {
+        "1": 2333,
+        "2": 2333,
+        "3": 2333,
+        "4": 2333
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54837248,
+        "private_bytes": 48041984
+      },
+      "players": {
+        "1": {
+          "working_set": 77959168,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78512128,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78036992,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78188544,
+          "private_bytes": 37367808
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 89.82799999997951,
+      "ticks": {
+        "1": 2627,
+        "2": 2626,
+        "3": 2627,
+        "4": 2627
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54964224,
+        "private_bytes": 48353280
+      },
+      "players": {
+        "1": {
+          "working_set": 77959168,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78512128,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78049280,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78241792,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 99.82799999997951,
+      "ticks": {
+        "1": 2915,
+        "2": 2914,
+        "3": 2915,
+        "4": 2915
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53112832,
+        "private_bytes": 46174208
+      },
+      "players": {
+        "1": {
+          "working_set": 78016512,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78053376,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78249984,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 109.82799999997951,
+      "ticks": {
+        "1": 3213,
+        "2": 3213,
+        "3": 3213,
+        "4": 3213
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53878784,
+        "private_bytes": 46956544
+      },
+      "players": {
+        "1": {
+          "working_set": 78016512,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78053376,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78249984,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 119.82799999997951,
+      "ticks": {
+        "1": 3513,
+        "2": 3512,
+        "3": 3513,
+        "4": 3513
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55214080,
+        "private_bytes": 48644096
+      },
+      "players": {
+        "1": {
+          "working_set": 78016512,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78053376,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78249984,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 129.8279999999795,
+      "ticks": {
+        "1": 3811,
+        "2": 3811,
+        "3": 3811,
+        "4": 3812
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55242752,
+        "private_bytes": 48386048
+      },
+      "players": {
+        "1": {
+          "working_set": 78016512,
+          "private_bytes": 36843520
+        },
+        "2": {
+          "working_set": 78528512,
+          "private_bytes": 37519360
+        },
+        "3": {
+          "working_set": 78053376,
+          "private_bytes": 37138432
+        },
+        "4": {
+          "working_set": 78249984,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 139.8279999999795,
+      "ticks": {
+        "1": 4083,
+        "2": 4082,
+        "3": 4083,
+        "4": 4083
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55496704,
+        "private_bytes": 48603136
+      },
+      "players": {
+        "1": {
+          "working_set": 77987840,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78413824,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 149.8279999999795,
+      "ticks": {
+        "1": 4350,
+        "2": 4349,
+        "3": 4350,
+        "4": 4350
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55492608,
+        "private_bytes": 49094656
+      },
+      "players": {
+        "1": {
+          "working_set": 77987840,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78413824,
+          "private_bytes": 37330944
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 159.8279999999795,
+      "ticks": {
+        "1": 4601,
+        "2": 4601,
+        "3": 4601,
+        "4": 4601
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55488512,
+        "private_bytes": 49119232
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78393344,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 169.8279999999795,
+      "ticks": {
+        "1": 4848,
+        "2": 4848,
+        "3": 4848,
+        "4": 4848
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55230464,
+        "private_bytes": 48320512
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78393344,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 179.8279999999795,
+      "ticks": {
+        "1": 5095,
+        "2": 5095,
+        "3": 5095,
+        "4": 5095
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55234560,
+        "private_bytes": 48332800
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78393344,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 189.8279999999795,
+      "ticks": {
+        "1": 5348,
+        "2": 5348,
+        "3": 5348,
+        "4": 5348
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55242752,
+        "private_bytes": 48340992
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 199.8279999999795,
+      "ticks": {
+        "1": 5596,
+        "2": 5595,
+        "3": 5596,
+        "4": 5596
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54980608,
+        "private_bytes": 48058368
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 209.8279999999795,
+      "ticks": {
+        "1": 5850,
+        "2": 5850,
+        "3": 5850,
+        "4": 5850
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54968320,
+        "private_bytes": 48033792
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 219.8279999999795,
+      "ticks": {
+        "1": 6105,
+        "2": 6105,
+        "3": 6105,
+        "4": 6105
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54976512,
+        "private_bytes": 48050176
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 229.8279999999795,
+      "ticks": {
+        "1": 6300,
+        "2": 6300,
+        "3": 6300,
+        "4": 6300
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54173696,
+        "private_bytes": 47226880
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 239.8279999999795,
+      "ticks": {
+        "1": 6412,
+        "2": 6412,
+        "3": 6412,
+        "4": 6412
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55013376,
+        "private_bytes": 48123904
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 249.8279999999795,
+      "ticks": {
+        "1": 6706,
+        "2": 6706,
+        "3": 6706,
+        "4": 6706
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52342784,
+        "private_bytes": 45400064
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 259.8279999999795,
+      "ticks": {
+        "1": 7005,
+        "2": 7005,
+        "3": 7005,
+        "4": 7005
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53125120,
+        "private_bytes": 46186496
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 269.8279999999795,
+      "ticks": {
+        "1": 7304,
+        "2": 7304,
+        "3": 7304,
+        "4": 7304
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53645312,
+        "private_bytes": 46702592
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 279.8279999999795,
+      "ticks": {
+        "1": 7602,
+        "2": 7602,
+        "3": 7602,
+        "4": 7602
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54444032,
+        "private_bytes": 47509504
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 289.8279999999795,
+      "ticks": {
+        "1": 7901,
+        "2": 7901,
+        "3": 7901,
+        "4": 7901
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54898688,
+        "private_bytes": 47968256
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 299.8279999999795,
+      "ticks": {
+        "1": 8199,
+        "2": 8199,
+        "3": 8199,
+        "4": 8199
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54996992,
+        "private_bytes": 48377856
+      },
+      "players": {
+        "1": {
+          "working_set": 77991936,
+          "private_bytes": 36777984
+        },
+        "2": {
+          "working_set": 78499840,
+          "private_bytes": 37453824
+        },
+        "3": {
+          "working_set": 78090240,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 309.8279999999795,
+      "ticks": {
+        "1": 8498,
+        "2": 8498,
+        "3": 8498,
+        "4": 8498
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52367360,
+        "private_bytes": 45371392
+      },
+      "players": {
+        "1": {
+          "working_set": 78163968,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78667776,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 78241792,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78405632,
+          "private_bytes": 37265408
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 319.8279999999795,
+      "ticks": {
+        "1": 8798,
+        "2": 8798,
+        "3": 8798,
+        "4": 8798
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53207040,
+        "private_bytes": 46211072
+      },
+      "players": {
+        "1": {
+          "working_set": 78163968,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78667776,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 78241792,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78557184,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 329.8279999999795,
+      "ticks": {
+        "1": 9097,
+        "2": 9097,
+        "3": 9097,
+        "4": 9097
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53743616,
+        "private_bytes": 46755840
+      },
+      "players": {
+        "1": {
+          "working_set": 78163968,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78667776,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 78241792,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78557184,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 339.8279999999795,
+      "ticks": {
+        "1": 9396,
+        "2": 9396,
+        "3": 9396,
+        "4": 9396
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54439936,
+        "private_bytes": 47435776
+      },
+      "players": {
+        "1": {
+          "working_set": 78163968,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78667776,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 78241792,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78557184,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 349.8279999999795,
+      "ticks": {
+        "1": 9695,
+        "2": 9695,
+        "3": 9695,
+        "4": 9695
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55042048,
+        "private_bytes": 48054272
+      },
+      "players": {
+        "1": {
+          "working_set": 78163968,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78667776,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 78241792,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78557184,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 359.8279999999795,
+      "ticks": {
+        "1": 9994,
+        "2": 9994,
+        "3": 9994,
+        "4": 9994
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52150272,
+        "private_bytes": 45187072
+      },
+      "players": {
+        "1": {
+          "working_set": 77766656,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78290944,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 77852672,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78192640,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 369.8279999999795,
+      "ticks": {
+        "1": 10293,
+        "2": 10293,
+        "3": 10293,
+        "4": 10293
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52514816,
+        "private_bytes": 45547520
+      },
+      "players": {
+        "1": {
+          "working_set": 77766656,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78290944,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 77852672,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78196736,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 379.8279999999795,
+      "ticks": {
+        "1": 10537,
+        "2": 10537,
+        "3": 10537,
+        "4": 10537
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52269056,
+        "private_bytes": 45309952
+      },
+      "players": {
+        "1": {
+          "working_set": 77766656,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78290944,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 77852672,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78196736,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 389.8279999999795,
+      "ticks": {
+        "1": 10827,
+        "2": 10827,
+        "3": 10827,
+        "4": 10827
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52891648,
+        "private_bytes": 45924352
+      },
+      "players": {
+        "1": {
+          "working_set": 77766656,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78290944,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 77852672,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 399.8279999999795,
+      "ticks": {
+        "1": 11068,
+        "2": 11069,
+        "3": 11068,
+        "4": 11068
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52645888,
+        "private_bytes": 45686784
+      },
+      "players": {
+        "1": {
+          "working_set": 77766656,
+          "private_bytes": 36851712
+        },
+        "2": {
+          "working_set": 78290944,
+          "private_bytes": 37523456
+        },
+        "3": {
+          "working_set": 77852672,
+          "private_bytes": 37113856
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 409.8279999999795,
+      "ticks": {
+        "1": 11245,
+        "2": 11245,
+        "3": 11245,
+        "4": 11245
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55238656,
+        "private_bytes": 48267264
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 419.8279999999795,
+      "ticks": {
+        "1": 11424,
+        "2": 11424,
+        "3": 11424,
+        "4": 11424
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54173696,
+        "private_bytes": 47177728
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37302272
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 429.8279999999795,
+      "ticks": {
+        "1": 11611,
+        "2": 11611,
+        "3": 11611,
+        "4": 11611
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53129216,
+        "private_bytes": 46141440
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 439.8279999999795,
+      "ticks": {
+        "1": 11910,
+        "2": 11910,
+        "3": 11910,
+        "4": 11910
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53649408,
+        "private_bytes": 46657536
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 449.8279999999795,
+      "ticks": {
+        "1": 12209,
+        "2": 12209,
+        "3": 12209,
+        "4": 12209
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54386688,
+        "private_bytes": 47403008
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 459.8279999999795,
+      "ticks": {
+        "1": 12509,
+        "2": 12508,
+        "3": 12509,
+        "4": 12509
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54956032,
+        "private_bytes": 47976448
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77815808,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 469.8279999999795,
+      "ticks": {
+        "1": 12807,
+        "2": 12807,
+        "3": 12807,
+        "4": 12807
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55001088,
+        "private_bytes": 48320512
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 479.8279999999795,
+      "ticks": {
+        "1": 13106,
+        "2": 13105,
+        "3": 13106,
+        "4": 13106
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52342784,
+        "private_bytes": 45350912
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 489.8279999999795,
+      "ticks": {
+        "1": 13404,
+        "2": 13404,
+        "3": 13404,
+        "4": 13404
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53121024,
+        "private_bytes": 46129152
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 499.8279999999795,
+      "ticks": {
+        "1": 13704,
+        "2": 13703,
+        "3": 13704,
+        "4": 13704
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53645312,
+        "private_bytes": 46657536
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 509.8279999999795,
+      "ticks": {
+        "1": 14003,
+        "2": 14002,
+        "3": 14003,
+        "4": 14003
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54423552,
+        "private_bytes": 47431680
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 519.8279999999795,
+      "ticks": {
+        "1": 14302,
+        "2": 14302,
+        "3": 14302,
+        "4": 14302
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54956032,
+        "private_bytes": 47976448
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 529.8279999999795,
+      "ticks": {
+        "1": 14599,
+        "2": 14599,
+        "3": 14599,
+        "4": 14599
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55066624,
+        "private_bytes": 48115712
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 539.8279999999795,
+      "ticks": {
+        "1": 14898,
+        "2": 14897,
+        "3": 14898,
+        "4": 14898
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52350976,
+        "private_bytes": 45359104
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 549.8279999999795,
+      "ticks": {
+        "1": 15196,
+        "2": 15196,
+        "3": 15196,
+        "4": 15197
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53129216,
+        "private_bytes": 46141440
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 559.8279999999795,
+      "ticks": {
+        "1": 15496,
+        "2": 15495,
+        "3": 15496,
+        "4": 15496
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53649408,
+        "private_bytes": 46653440
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 569.8279999999795,
+      "ticks": {
+        "1": 15795,
+        "2": 15795,
+        "3": 15795,
+        "4": 15795
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54439936,
+        "private_bytes": 47452160
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 579.8279999999795,
+      "ticks": {
+        "1": 16067,
+        "2": 16067,
+        "3": 16068,
+        "4": 16068
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54697984,
+        "private_bytes": 47714304
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 589.8279999999795,
+      "ticks": {
+        "1": 16324,
+        "2": 16324,
+        "3": 16324,
+        "4": 16324
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54685696,
+        "private_bytes": 47702016
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 599.8279999999795,
+      "ticks": {
+        "1": 16571,
+        "2": 16571,
+        "3": 16571,
+        "4": 16571
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54423552,
+        "private_bytes": 47431680
+      },
+      "players": {
+        "1": {
+          "working_set": 77713408,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78200832,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77836288,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 609.8279999999795,
+      "ticks": {
+        "1": 16826,
+        "2": 16826,
+        "3": 16826,
+        "4": 16826
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54444032,
+        "private_bytes": 47468544
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78168064,
+          "private_bytes": 37232640
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 619.8279999999795,
+      "ticks": {
+        "1": 17076,
+        "2": 17076,
+        "3": 17076,
+        "4": 17076
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54435840,
+        "private_bytes": 47456256
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 629.8279999999795,
+      "ticks": {
+        "1": 17300,
+        "2": 17300,
+        "3": 17300,
+        "4": 17300
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53919744,
+        "private_bytes": 46944256
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 639.8279999999795,
+      "ticks": {
+        "1": 17412,
+        "2": 17412,
+        "3": 17412,
+        "4": 17412
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55009280,
+        "private_bytes": 48078848
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 649.8279999999795,
+      "ticks": {
+        "1": 17703,
+        "2": 17703,
+        "3": 17703,
+        "4": 17703
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52170752,
+        "private_bytes": 45191168
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 659.8279999999795,
+      "ticks": {
+        "1": 18002,
+        "2": 18002,
+        "3": 18002,
+        "4": 18002
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52875264,
+        "private_bytes": 45895680
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 669.8279999999795,
+      "ticks": {
+        "1": 18300,
+        "2": 18300,
+        "3": 18300,
+        "4": 18300
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53661696,
+        "private_bytes": 46686208
+      },
+      "players": {
+        "1": {
+          "working_set": 77750272,
+          "private_bytes": 36814848
+        },
+        "2": {
+          "working_set": 78249984,
+          "private_bytes": 37482496
+        },
+        "3": {
+          "working_set": 77873152,
+          "private_bytes": 37109760
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 679.8279999999795,
+      "ticks": {
+        "1": 18598,
+        "2": 18598,
+        "3": 18598,
+        "4": 18598
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54161408,
+        "private_bytes": 47165440
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78204928,
+          "private_bytes": 37298176
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 689.8279999999795,
+      "ticks": {
+        "1": 18898,
+        "2": 18898,
+        "3": 18898,
+        "4": 18898
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54951936,
+        "private_bytes": 47972352
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 699.8279999999795,
+      "ticks": {
+        "1": 19197,
+        "2": 19197,
+        "3": 19197,
+        "4": 19197
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 55480320,
+        "private_bytes": 48529408
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 709.8279999999795,
+      "ticks": {
+        "1": 19495,
+        "2": 19495,
+        "3": 19495,
+        "4": 19495
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52215808,
+        "private_bytes": 45223936
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 719.8279999999795,
+      "ticks": {
+        "1": 19794,
+        "2": 19794,
+        "3": 19794,
+        "4": 19794
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52854784,
+        "private_bytes": 45867008
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 729.8279999999795,
+      "ticks": {
+        "1": 20093,
+        "2": 20093,
+        "3": 20093,
+        "4": 20093
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 53637120,
+        "private_bytes": 46641152
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77856768,
+          "private_bytes": 37076992
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 739.8279999999795,
+      "ticks": {
+        "1": 20392,
+        "2": 20392,
+        "3": 20392,
+        "4": 20392
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 54169600,
+        "private_bytes": 47181824
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77840384,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 4376.094000000041,
+      "ticks": {
+        "1": 20555,
+        "2": 20555,
+        "3": 20555,
+        "4": 20555
+      },
+      "epochs": {
+        "2": 2.0,
+        "4": 2.0,
+        "1": 2.0,
+        "3": 2.0
+      },
+      "authority": {
+        "working_set": 52858880,
+        "private_bytes": 45867008
+      },
+      "players": {
+        "1": {
+          "working_set": 77717504,
+          "private_bytes": 36749312
+        },
+        "2": {
+          "working_set": 78217216,
+          "private_bytes": 37416960
+        },
+        "3": {
+          "working_set": 77840384,
+          "private_bytes": 37044224
+        },
+        "4": {
+          "working_set": 78254080,
+          "private_bytes": 37830656
+        }
+      }
+    }
+  ],
+  "rejoined": true
+}

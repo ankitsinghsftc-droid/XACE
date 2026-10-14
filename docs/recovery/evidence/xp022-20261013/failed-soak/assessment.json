@@ -1,0 +1,12 @@
+{
+  "fresh_recovery_evidence": true,
+  "passed": false,
+  "reason": "System sleep interrupted required endurance run; Player liveness error observed after resume.",
+  "last_matching_tick": 20555,
+  "sample_count": 74,
+  "largest_sample_gap_seconds": 3636.2660000000615,
+  "two_hour_gate": "NOT PASSED",
+  "original_seal": "MISSING",
+  "retry": "Awaiting confirmation that laptop can remain plugged in, lid open and awake; no power-setting changes.",
+  "off_device_backup": false
+}

@@ -14,6 +14,8 @@ Fresh recovery: XP021 passes883 tests, Builder build/UI and actual browser walkt
 
 Fresh recovery: XP022 source reconstructed; release build, 23 reference/fault tests, 8 world tests and production socket proofs pass. Remaining local certification and two-hour soak are pending. Original seal missing; no off-device backup.
 
+Fresh recovery update 2026-10-14: XP022 short gates pass; fresh two-hour soak was interrupted by documented Button/Lid system sleep and FAILED. Retry and sealing remain pending; see AGENT_PROGRESS.md.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked

@@ -1,0 +1,38 @@
+[
+    {
+        "time_utc":  "2026-10-13T06:10:20.8202926Z",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  107,
+        "Message":  "The system has resumed from sleep."
+    },
+    {
+        "time_utc":  "2026-10-13T06:10:16.4670182Z",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  42,
+        "Message":  "The system is entering sleep.\r\n\r\nSleep Reason: Hibernate from Sleep - Fixed Timeout"
+    },
+    {
+        "time_utc":  "2026-10-13T06:10:14.7865938Z",
+        "ProviderName":  "Microsoft-Windows-Power-Troubleshooter",
+        "Id":  1,
+        "Message":  "The system has returned from a low power state.\r\n\r\nSleep Time: ?2026?-?10?-?13T06:10:14.472223100Z\r\nWake Time: ?2026?-?10?-?13T06:10:14.472223100Z\r\n\r\nWake Source: S4 Doze to Hibernate"
+    },
+    {
+        "time_utc":  "2026-10-13T06:10:12.5007665Z",
+        "ProviderName":  "Microsoft-Windows-Kernel-General",
+        "Id":  1,
+        "Message":  "The system time has changed to ?2026?-?10?-?13T06:10:12.500000000Z from ?2026?-?10?-?13T05:09:42.760807200Z.\r\nTime Delta: 3629739 ms\r\n\r\nChange Reason: System time synchronized with the hardware clock.\r\nProcess: \u0027\u0027 (PID 4).\r\n\r\nRTC time: ?2026?-?10?-?13T11:40:12.500000000Z\r\nCurrent time zone bias: -330\r\nRTC time is in UTC: false\r\nSystem time was based on RTC time: false"
+    },
+    {
+        "time_utc":  "2026-10-13T05:09:42.7610534Z",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  107,
+        "Message":  "The system has resumed from sleep."
+    },
+    {
+        "time_utc":  "2026-10-13T05:09:41.4424386Z",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  42,
+        "Message":  "The system is entering sleep.\r\n\r\nSleep Reason: Button or Lid"
+    }
+]

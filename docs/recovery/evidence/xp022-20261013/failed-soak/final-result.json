@@ -1,0 +1,23 @@
+{
+  "schema": "xace.background_soak.v1",
+  "status": "failed",
+  "supervisor_pid": 29756,
+  "started_utc": "2026-10-13T04:57:15.317270+00:00",
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-u",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\tools\\xp022_player_soak.py",
+    "--artifacts",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\artifacts",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261012\\xp022\\soak-20261013\\run",
+    "--seconds",
+    "7200"
+  ],
+  "runner_pid": 29428,
+  "returncode": 1,
+  "report": null,
+  "certified": false,
+  "elapsed_seconds": 4378.375,
+  "finished_utc": "2026-10-13T06:10:13.677325+00:00"
+}

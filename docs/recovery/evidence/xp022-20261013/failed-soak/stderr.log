@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp022_player_soak.py", line 163, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp022_player_soak.py", line 137, in main
+    pump()
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\xp022_player_soak.py", line 77, in pump
+    if row['kind']=='error':raise RuntimeError(row)
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: {'kind': 'error', 'message': 'Game runtime stopped responding. Gameplay is frozen.'}
