@@ -1,0 +1,199 @@
+{
+  "schema": "xace.xp022.final_proofs.v1",
+  "ok": true,
+  "pins": {
+    "parent/runtime/xace_runtime.exe": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+    "build/exported/xace-mixed-proof.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "build/exported/xace-mixed-proof.pck": "961f22814a7ca87c82c9d20fec0420474769254683658bc08793e07ccd4e858d"
+  },
+  "scope": "Installed Windows hosts and loopback only; external gates are separate",
+  "results": {
+    "pair": {
+      "schema": "xace.xp017.mixed_session_proof.v1",
+      "ok": true,
+      "engines": [
+        "player",
+        "godot"
+      ],
+      "owners": [
+        3,
+        4
+      ],
+      "versions": [
+        "4.6.3-stable (official)",
+        "4.6.3-stable (official)"
+      ],
+      "same_epoch": true,
+      "matching_applied_projections": true,
+      "matching_events": true,
+      "reference_shared_event": true,
+      "other_owner_velocity_changed_at": 9,
+      "authority_inputs_match_recording": true,
+      "wrong_world_rejected": true,
+      "departed_engine": "godot",
+      "departed_after_tick": 19,
+      "survivors_final_tick": 39,
+      "authority_hashes": 40,
+      "scope": "Actual installed native hosts and exported Player; loopback, one Windows computer.",
+      "recording": "gameplay.mp4",
+      "activation": {
+        "tick": 8,
+        "old_epoch_through": 7,
+        "new_epoch_from": 8,
+        "disabled_attempt_tick": 7,
+        "enabled_attempt_tick": 9,
+        "all_client_epochs_match": true
+      },
+      "recording_timing": "One actual rendered Player frame per authority tick, encoded at 20 FPS for inspection; not a latency measurement."
+    },
+    "four": {
+      "schema": "xace.xp017.mixed_session_proof.v1",
+      "ok": true,
+      "engines": [
+        "unity",
+        "godot",
+        "unreal",
+        "player"
+      ],
+      "owners": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "versions": [
+        "6000.4.9f1",
+        "4.6.3-stable (official)",
+        "5.7.4-51494982+++UE5+Release-5.7",
+        "4.6.3-stable (official)"
+      ],
+      "same_epoch": true,
+      "matching_applied_projections": true,
+      "matching_events": true,
+      "reference_shared_event": true,
+      "other_owner_velocity_changed_at": 9,
+      "authority_inputs_match_recording": true,
+      "wrong_world_rejected": true,
+      "departed_engine": "player",
+      "departed_after_tick": 19,
+      "survivors_final_tick": 39,
+      "authority_hashes": 40,
+      "scope": "Actual installed native hosts and exported Player; loopback, one Windows computer.",
+      "recording": "gameplay.mp4",
+      "activation": {
+        "tick": 8,
+        "old_epoch_through": 7,
+        "new_epoch_from": 8,
+        "disabled_attempt_tick": 7,
+        "enabled_attempt_tick": 9,
+        "all_client_epochs_match": true
+      },
+      "recording_timing": "One actual rendered Player frame per authority tick, encoded at 20 FPS for inspection; not a latency measurement."
+    },
+    "before": {
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent\\runtime\\xace_runtime.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\before.json",
+        "--epoch-replay-through-tick",
+        "7"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 8,
+        "epochs": 0,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "00651344f93071f9dc523707ce104cfbcb4eec1e2c4c55544ce5ec5671cf6664"
+      }
+    },
+    "at": {
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent\\runtime\\xace_runtime.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\at.json",
+        "--epoch-replay-through-tick",
+        "8"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 9,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "1519e20eee9888780df5f0144bf966128329e5dc975a88c4030b6713233bfac1"
+      }
+    },
+    "after": {
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent\\runtime\\xace_runtime.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\after.json",
+        "--epoch-replay-through-tick",
+        "39"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "e1fc26916dcb1a6adf075683178af767d95d5281a5febc45268b0489c9d19306"
+      }
+    },
+    "repeat": {
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent\\runtime\\xace_runtime.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\repeat.json",
+        "--epoch-replay-through-tick",
+        "39"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "e1fc26916dcb1a6adf075683178af767d95d5281a5febc45268b0489c9d19306"
+      }
+    },
+    "rewind": {
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent\\runtime\\xace_runtime.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\rewind.json",
+        "--epoch-replay-through-tick",
+        "7"
+      ],
+      "returncode": 0,
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 8,
+        "epochs": 0,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "00651344f93071f9dc523707ce104cfbcb4eec1e2c4c55544ce5ec5671cf6664"
+      }
+    }
+  }
+}

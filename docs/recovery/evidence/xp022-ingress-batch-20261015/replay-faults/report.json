@@ -1,0 +1,131 @@
+{
+  "schema": "xace.xp022.certification.v1",
+  "certified": false,
+  "local_subset_ok": true,
+  "source_revision": "dd2741c8105a8a646c9d3fe4a2e47bd4b4b95bb6",
+  "working_tree_sha256": "98e707363575450b74181cd96a8316a1cafe6e8be7174cf1833f67b1043f9847",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "machine": "AMD64",
+  "processor": "Intel64 Family 6 Model 151 Stepping 2, GenuineIntel",
+  "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "recording_sha256": "e438826fc8d9e45e4b69ba4f71f9b6d2804201d951062756ef4bc475f79f0ac9",
+  "historical_host": false,
+  "cases": [
+    {
+      "case": "baseline",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\baseline\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\baseline\\report.json"
+      ],
+      "expected": "verified replay",
+      "ok": true,
+      "returncode": 0,
+      "timed_out": false,
+      "elapsed_seconds": 0.3279999999795109,
+      "input_sha256": "e438826fc8d9e45e4b69ba4f71f9b6d2804201d951062756ef4bc475f79f0ac9",
+      "output_sha256": "c04f3c709134e3cfe800f91922d83b1f8d7bf78f03817b350c570096f7317be5",
+      "report": {
+        "schema": "xace.epoch_replay_report.v1",
+        "ok": true,
+        "verified_ticks": 40,
+        "epochs": 1,
+        "first_divergence": null,
+        "presentation_effects_emitted": 0,
+        "end_snapshot_hash": "e1fc26916dcb1a6adf075683178af767d95d5281a5febc45268b0489c9d19306"
+      }
+    },
+    {
+      "case": "digest-corruption",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\digest-corruption\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\digest-corruption\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.03200000000651926,
+      "input_sha256": "274006ad3bec7fa914ce57cb0400ba89343f8cfb974c7f5923ac2b3fb82819e9",
+      "output_sha256": "21e646380551ad64359b25e8c7eef0119531bf67312a708ff666a30815f5889a",
+      "report": null
+    },
+    {
+      "case": "partial-transfer",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\partial-transfer\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\partial-transfer\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.03100000007543713,
+      "input_sha256": "6e468bed99346ccf985b08f76915df173e6a13765f01c9dd51816ba849bac22e",
+      "output_sha256": "7916d1d9248150733597473b36f5fb3fa3dd9d8d778f6950cbb576a8824089ba",
+      "report": null
+    },
+    {
+      "case": "missing-recording",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\missing-recording\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\missing-recording\\report.json"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.015999999945051968,
+      "input_sha256": null,
+      "output_sha256": "40cd09a00bdb7cc048c7eec62a3b74da8bdfbcfb95a2e5121837a44f0bab5418",
+      "report": null
+    },
+    {
+      "case": "seek-out-of-range",
+      "kind": "real-process-offline-replay",
+      "command": [
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+        "--epoch-replay-in",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\seek-out-of-range\\replay.json",
+        "--epoch-replay-report",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\seek-out-of-range\\report.json",
+        "--epoch-replay-through-tick",
+        "40"
+      ],
+      "expected": "explicit rejection",
+      "ok": true,
+      "returncode": 1,
+      "timed_out": false,
+      "elapsed_seconds": 0.045999999972991645,
+      "input_sha256": "e438826fc8d9e45e4b69ba4f71f9b6d2804201d951062756ef4bc475f79f0ac9",
+      "output_sha256": "31576e761982279a65902e5b88dd1ce26f78278257c532b7bcf9bd9753b25cff",
+      "report": null
+    }
+  ],
+  "pending": {
+    "full_proof_a_h_current_source": "Replay/socket subset only; full A-H certification still required.",
+    "socket_fault_matrix": "Real socket drop/reorder/duplicate/backpressure coverage still required.",
+    "two_hour_four_client_soak": "Not run by this subset; consult the independent soak and final aggregate evidence.",
+    "performance": "Authority p95, render/latency and memory budgets not measured here.",
+    "clean_install": "User reported no clean Windows machine available.",
+    "separate_networks": "User reported no public relay/two Internet connections available.",
+    "release_signing": "User reported no signing certificate available.",
+    "three_first_time_testers": "User reported no first-time testers available."
+  },
+  "socket_package_files": null
+}

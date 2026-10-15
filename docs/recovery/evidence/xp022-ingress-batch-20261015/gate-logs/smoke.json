@@ -1,0 +1,19 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp022_player_soak",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\smoke",
+    "--artifacts",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts",
+    "--seconds",
+    "60"
+  ],
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 61.32799999997951
+}

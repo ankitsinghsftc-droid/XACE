@@ -1,0 +1,51 @@
+{
+  "schema": "xace.xp022.final_proofs.v1",
+  "ok": true,
+  "pins": {
+    "parent/runtime/xace_runtime.exe": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+    "build/exported/xace-mixed-proof.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "build/exported/xace-mixed-proof.pck": "961f22814a7ca87c82c9d20fec0420474769254683658bc08793e07ccd4e858d"
+  },
+  "scope": "Installed Windows hosts and loopback only; external gates are separate",
+  "results": {
+    "xp011_session_proof": {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-m",
+        "tools.xp011_session_proof",
+        "--package",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent",
+        "--out",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\sockets\\xp011_session_proof"
+      ],
+      "returncode": 0,
+      "proof_sha256": "1ccef78a7902bbc2dc5108b1cdebcd8b8f1af984a97c2d34b6843169fc259093"
+    },
+    "xp012_socket_proof": {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-m",
+        "tools.xp012_socket_proof",
+        "--package",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent",
+        "--out",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\sockets\\xp012_socket_proof"
+      ],
+      "returncode": 0,
+      "proof_sha256": "ed4d66e742df99bc82bbbc2a3d238dbdd23cff80b432e1cd45af4a5a2484f513"
+    },
+    "xp013_socket_proof": {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-m",
+        "tools.xp013_socket_proof",
+        "--package",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent",
+        "--out",
+        "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\sockets\\xp013_socket_proof"
+      ],
+      "returncode": 0,
+      "proof_sha256": "7e7a676a1edfa578d60c9203fa641f60c49d8465978e8536b342c1162b4e4922"
+    }
+  }
+}

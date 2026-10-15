@@ -18,6 +18,8 @@ Fresh recovery update 2026-10-14: XP022 short gates pass; fresh two-hour soak wa
 
 Recovery update 2026-10-14: original XP022 engineering-candidate receipt recovered and historical SHA256 matched; original sealed payloads/detailed reports still missing. User authorized a background endurance retry; see AGENT_PROGRESS.md.
 
+Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182002 archived ticks verify, but performance failed18.8007ms p95. New durable ingress/validation batching candidate passes847 runtime tests and real socket/process/mixed-engine/replay checks. Short timing preflight and full endurance remain pending; earlier freeze remains unconfirmed. Original receipt recovered, sealed payloads missing, no off-device backup. See AGENT_PROGRESS.md.
+
 # XACE MASTER BUILD PLAN
 # Version: Post-Audit (Audits 1-9 incorporated)
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
@@ -1593,3 +1595,5 @@ Blockers: None.
 Audit decisions relevant to current phase: API/BYOK remains the default and retains XACE token/cost estimation. Codex Agent Mode shows provider-managed account usage without manufacturing per-turn dollar estimates. Local descriptors state that provider API price may be zero while hardware, electricity, hosting, and operator cost remain unestimated. Unknown capability data degrades explicitly rather than blocking the mode.
 Verification: Full Builder gate passed (lint, typecheck, UI contract, 147 server tests); production Vite build passed; repository inference gate passed all 233 tests. Focused billing serialization and API-key/subscription/local/unknown state tests pass.
 Next session should start with: AG-015 only when explicitly requested.
+
+Recovery verification2026-10-15: ingress batching candidate dd2741c passes870 Rust tests and production socket/process/mixed-engine/replay gates; strict short soak passes4.1323ms p95. Full endurance pending. See AGENT_PROGRESS.md; no off-device backup.

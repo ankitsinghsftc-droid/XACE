@@ -1,0 +1,565 @@
+{
+  "schema": "xace.xp022.player_soak.v1",
+  "ok": true,
+  "certified": false,
+  "full_duration": false,
+  "elapsed_seconds": 60.09400000004098,
+  "authority_ticks": 1746,
+  "authority_p95_ms": 4.1323,
+  "authority_budget_met": true,
+  "rejoined": true,
+  "mutations": [
+    {
+      "tick": 256,
+      "preview": {
+        "configuration_components": [
+          10001
+        ],
+        "parent": {
+          "cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+          "plan_hash": "b6d2c3797615ac68c055d1252b4d9276643b8aa65a5f9919f713adea715cbffa",
+          "schema": "xace.candidate_parent.v1",
+          "session": {
+            "epoch": {
+              "authority_incarnation": "d783e079-73e4-46f6-a642-316ccfd6b79c",
+              "ruleset_epoch": 0,
+              "session_id": "44beae66-16c6-4c54-90fc-abd94467f88f"
+            },
+            "gameplay": {
+              "cgs": {
+                "cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                "schema_version": {
+                  "major": 0,
+                  "minor": 1,
+                  "patch": 0
+                }
+              },
+              "input": {
+                "artifact": {
+                  "content_hash": "f6cd1bfd29a87d6f29595b9f2bf384adc790aa9bfbca68beba601e0e15de1830",
+                  "id": "xace.input_profile",
+                  "version": "1.0.0"
+                },
+                "packet_schema_version": 1
+              },
+              "playable_package": {
+                "content_hash": "c35878d730c9e2c1c71187586ba2d26d86fbe0a99c100eddce2ca404a93e170e",
+                "id": "reference.activation",
+                "version": "1.0.0"
+              },
+              "runtime": {
+                "artifact": {
+                  "content_hash": "76e8786cf81bc22b97a1c11243b811b6cbf9b0a8d4e72104d0f4ae235ef126a5",
+                  "id": "xace.runtime_semantics",
+                  "version": "xace.runtime_executor.v1"
+                },
+                "engine_protocol_version": 1,
+                "wire_protocol_version": 1
+              },
+              "sgc": {
+                "adapter_protocol_version": 1,
+                "compiled_from_cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                "plan_hash": "b6d2c3797615ac68c055d1252b4d9276643b8aa65a5f9919f713adea715cbffa",
+                "plan_version": 1,
+                "schema_version": "0.1.0"
+              },
+              "world": {
+                "artifact": {
+                  "content_hash": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c",
+                  "id": "reference.arena",
+                  "version": "1.0.0"
+                },
+                "compiled_from_cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                "contract_version": 3,
+                "mode_id": "reference"
+              }
+            }
+          },
+          "snapshot_hash": "a90edb819ec646ad4d6cb61832542fb77fae1122449be52ad53127d205c49a75",
+          "tick": 0,
+          "world_digest": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c"
+        },
+        "proposal_digest": "805f08b7217960bfd964464d969403d7a284db26b46bc8dad96c8094afa8d9c3"
+      },
+      "staged": {
+        "candidate_digest": "805f08b7217960bfd964464d969403d7a284db26b46bc8dad96c8094afa8d9c3",
+        "proof": {
+          "after_migration_hash": "ff6532f88576d2d6a61a2d9ed7dd898778b9c24fd75f74d42b4d01aa7c37281d",
+          "artifact_digest": "8a0bdc63da648f8628b226821ede811f4ad26c92449c67ee2410e70e5528e856",
+          "before_migration_hash": "f432e94af400b93f372aac5b68da2dfce8896a816756e1a2d2aa32b63028ae20",
+          "changed_artifacts": [
+            "execution_plan.json",
+            "game.cgs.json",
+            "world.manifest.json"
+          ],
+          "compatibility": "additive",
+          "host_executable_digest": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+          "observations": {
+            "final_tick": 2
+          },
+          "parent": {
+            "cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+            "plan_hash": "b6d2c3797615ac68c055d1252b4d9276643b8aa65a5f9919f713adea715cbffa",
+            "schema": "xace.candidate_parent.v1",
+            "session": {
+              "epoch": {
+                "authority_incarnation": "d783e079-73e4-46f6-a642-316ccfd6b79c",
+                "ruleset_epoch": 0,
+                "session_id": "44beae66-16c6-4c54-90fc-abd94467f88f"
+              },
+              "gameplay": {
+                "cgs": {
+                  "cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                  "schema_version": {
+                    "major": 0,
+                    "minor": 1,
+                    "patch": 0
+                  }
+                },
+                "input": {
+                  "artifact": {
+                    "content_hash": "f6cd1bfd29a87d6f29595b9f2bf384adc790aa9bfbca68beba601e0e15de1830",
+                    "id": "xace.input_profile",
+                    "version": "1.0.0"
+                  },
+                  "packet_schema_version": 1
+                },
+                "playable_package": {
+                  "content_hash": "c35878d730c9e2c1c71187586ba2d26d86fbe0a99c100eddce2ca404a93e170e",
+                  "id": "reference.activation",
+                  "version": "1.0.0"
+                },
+                "runtime": {
+                  "artifact": {
+                    "content_hash": "76e8786cf81bc22b97a1c11243b811b6cbf9b0a8d4e72104d0f4ae235ef126a5",
+                    "id": "xace.runtime_semantics",
+                    "version": "xace.runtime_executor.v1"
+                  },
+                  "engine_protocol_version": 1,
+                  "wire_protocol_version": 1
+                },
+                "sgc": {
+                  "adapter_protocol_version": 1,
+                  "compiled_from_cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                  "plan_hash": "b6d2c3797615ac68c055d1252b4d9276643b8aa65a5f9919f713adea715cbffa",
+                  "plan_version": 1,
+                  "schema_version": "0.1.0"
+                },
+                "world": {
+                  "artifact": {
+                    "content_hash": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c",
+                    "id": "reference.arena",
+                    "version": "1.0.0"
+                  },
+                  "compiled_from_cgs_hash": "f974ae99016d05e5f3241290740eec85d70212a36e995af53fa536c7abb30bd6",
+                  "contract_version": 3,
+                  "mode_id": "reference"
+                }
+              }
+            },
+            "snapshot_hash": "a90edb819ec646ad4d6cb61832542fb77fae1122449be52ad53127d205c49a75",
+            "tick": 0,
+            "world_digest": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c"
+          },
+          "proposal_digest": "805f08b7217960bfd964464d969403d7a284db26b46bc8dad96c8094afa8d9c3",
+          "replaced_configuration": [
+            10001
+          ],
+          "schema": "xace.ruleset_candidate_proof.v1",
+          "tick_events": [
+            {
+              "events": [],
+              "tick": 0
+            },
+            {
+              "events": [],
+              "tick": 1
+            }
+          ],
+          "tick_hashes": [
+            "33660f5b6ca2b0a7713a7847510dfc21e54140143cd93b07dfbf41cb0b35ea23",
+            "fb2a0ee9be99fde6798e5375f6ad93977961b4ba95e3af24b7eb4e20f01795fa"
+          ],
+          "world_and_capabilities_unchanged": true
+        },
+        "proof_digest": "03f2b5ddb46926ee738c88f61d11ccc8947c1919fe240e2adb3f5c21cea16cca"
+      },
+      "prepared": {
+        "activation_id": "1979e967317fdb39707ddfac99b51c74884ee0070ab93c8e5e85cbd48b774fee",
+        "activation_tick": 256
+      }
+    },
+    {
+      "tick": 512,
+      "preview": {
+        "configuration_components": [
+          10001
+        ],
+        "parent": {
+          "cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+          "plan_hash": "91264b1ed837718c6c977f3de1453bcdd9a883cc575c5244267cfec9d4bd5238",
+          "schema": "xace.candidate_parent.v1",
+          "session": {
+            "epoch": {
+              "authority_incarnation": "d783e079-73e4-46f6-a642-316ccfd6b79c",
+              "ruleset_epoch": 1,
+              "session_id": "44beae66-16c6-4c54-90fc-abd94467f88f"
+            },
+            "gameplay": {
+              "cgs": {
+                "cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                "schema_version": {
+                  "major": 0,
+                  "minor": 1,
+                  "patch": 0
+                }
+              },
+              "input": {
+                "artifact": {
+                  "content_hash": "490443bc6af6bf7e147886ea47dcec52aa036fcdcb40fcc2a8e830c535d9ad7d",
+                  "id": "xace.input_profile",
+                  "version": "1.0.0"
+                },
+                "packet_schema_version": 1
+              },
+              "playable_package": {
+                "content_hash": "b2bff65ae1ba4f4565e4a29cff63d0d45835f358c38ca242c4a3681333e4a67f",
+                "id": "reference.activation",
+                "version": "1.0.0"
+              },
+              "runtime": {
+                "artifact": {
+                  "content_hash": "76e8786cf81bc22b97a1c11243b811b6cbf9b0a8d4e72104d0f4ae235ef126a5",
+                  "id": "xace.runtime_semantics",
+                  "version": "xace.runtime_executor.v1"
+                },
+                "engine_protocol_version": 1,
+                "wire_protocol_version": 1
+              },
+              "sgc": {
+                "adapter_protocol_version": 1,
+                "compiled_from_cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                "plan_hash": "91264b1ed837718c6c977f3de1453bcdd9a883cc575c5244267cfec9d4bd5238",
+                "plan_version": 1,
+                "schema_version": "0.1.0"
+              },
+              "world": {
+                "artifact": {
+                  "content_hash": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c",
+                  "id": "reference.arena",
+                  "version": "1.0.0"
+                },
+                "compiled_from_cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                "contract_version": 3,
+                "mode_id": "reference"
+              }
+            }
+          },
+          "snapshot_hash": "8ed47f98ece641fd4aa61ca3a76cb0fabaaca71f2326884c11e2dc1a40dc7b1b",
+          "tick": 282,
+          "world_digest": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c"
+        },
+        "proposal_digest": "a2aa9ef76e8586cb676cf5fa460ac0a06f7bbb4279a1b57b27ba9d4d5f4309e5"
+      },
+      "staged": {
+        "candidate_digest": "a2aa9ef76e8586cb676cf5fa460ac0a06f7bbb4279a1b57b27ba9d4d5f4309e5",
+        "proof": {
+          "after_migration_hash": "9c086dc967cd2579aa8103c26d1d7462091651a84b734b682ebf66f0bd3872f8",
+          "artifact_digest": "e69cb7faf7734074e0ad4527c30f1d222a4618ecd437ad812cbc47c12da6813c",
+          "before_migration_hash": "398bc9f24e35edb5a42deeaf97f9a2a1b3077aceaaaffd2acffc450efeb949b3",
+          "changed_artifacts": [
+            "execution_plan.json",
+            "game.cgs.json",
+            "world.manifest.json"
+          ],
+          "compatibility": "additive",
+          "host_executable_digest": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+          "observations": {
+            "final_tick": 284
+          },
+          "parent": {
+            "cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+            "plan_hash": "91264b1ed837718c6c977f3de1453bcdd9a883cc575c5244267cfec9d4bd5238",
+            "schema": "xace.candidate_parent.v1",
+            "session": {
+              "epoch": {
+                "authority_incarnation": "d783e079-73e4-46f6-a642-316ccfd6b79c",
+                "ruleset_epoch": 1,
+                "session_id": "44beae66-16c6-4c54-90fc-abd94467f88f"
+              },
+              "gameplay": {
+                "cgs": {
+                  "cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                  "schema_version": {
+                    "major": 0,
+                    "minor": 1,
+                    "patch": 0
+                  }
+                },
+                "input": {
+                  "artifact": {
+                    "content_hash": "490443bc6af6bf7e147886ea47dcec52aa036fcdcb40fcc2a8e830c535d9ad7d",
+                    "id": "xace.input_profile",
+                    "version": "1.0.0"
+                  },
+                  "packet_schema_version": 1
+                },
+                "playable_package": {
+                  "content_hash": "b2bff65ae1ba4f4565e4a29cff63d0d45835f358c38ca242c4a3681333e4a67f",
+                  "id": "reference.activation",
+                  "version": "1.0.0"
+                },
+                "runtime": {
+                  "artifact": {
+                    "content_hash": "76e8786cf81bc22b97a1c11243b811b6cbf9b0a8d4e72104d0f4ae235ef126a5",
+                    "id": "xace.runtime_semantics",
+                    "version": "xace.runtime_executor.v1"
+                  },
+                  "engine_protocol_version": 1,
+                  "wire_protocol_version": 1
+                },
+                "sgc": {
+                  "adapter_protocol_version": 1,
+                  "compiled_from_cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                  "plan_hash": "91264b1ed837718c6c977f3de1453bcdd9a883cc575c5244267cfec9d4bd5238",
+                  "plan_version": 1,
+                  "schema_version": "0.1.0"
+                },
+                "world": {
+                  "artifact": {
+                    "content_hash": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c",
+                    "id": "reference.arena",
+                    "version": "1.0.0"
+                  },
+                  "compiled_from_cgs_hash": "d83ab4870a07f15a507a0484748dc0ac3543bdb5ec41141040a6b4dca091e496",
+                  "contract_version": 3,
+                  "mode_id": "reference"
+                }
+              }
+            },
+            "snapshot_hash": "8ed47f98ece641fd4aa61ca3a76cb0fabaaca71f2326884c11e2dc1a40dc7b1b",
+            "tick": 282,
+            "world_digest": "2cf3ac2ff1077413c8353c5b030b52b11b8770b9b822a084f1f5f6db2aa5c21c"
+          },
+          "proposal_digest": "a2aa9ef76e8586cb676cf5fa460ac0a06f7bbb4279a1b57b27ba9d4d5f4309e5",
+          "replaced_configuration": [
+            10001
+          ],
+          "schema": "xace.ruleset_candidate_proof.v1",
+          "tick_events": [
+            {
+              "events": [],
+              "tick": 282
+            },
+            {
+              "events": [],
+              "tick": 283
+            }
+          ],
+          "tick_hashes": [
+            "44056019b4dafeadef6bb1945c57a08aa6e328771c9557ddf5231013a76b8414",
+            "b83678b4bc09812b9a4fde6e198ef33c72a6184239f594ca115d5ba4a48256c6"
+          ],
+          "world_and_capabilities_unchanged": true
+        },
+        "proof_digest": "252c31e3174dc3973a47a17e792e96f99a8670fe920f9640c3090b7e580d652c"
+      },
+      "prepared": {
+        "activation_id": "994e6270aae4c97be6edfc3623806ea1aba19091ec9df6de0b8af35f2c12f51b",
+        "activation_tick": 512
+      }
+    }
+  ],
+  "samples": [
+    {
+      "elapsed_seconds": 19.719000000040978,
+      "ticks": {
+        "1": 541,
+        "2": 541,
+        "3": 541,
+        "4": 541
+      },
+      "epochs": {
+        "1": 2.0,
+        "2": 2.0,
+        "3": 2.0,
+        "4": 2.0
+      },
+      "authority": {
+        "working_set": 37134336,
+        "private_bytes": 30711808
+      },
+      "players": {
+        "1": {
+          "working_set": 78184448,
+          "private_bytes": 37146624
+        },
+        "2": {
+          "working_set": 78258176,
+          "private_bytes": 37797888
+        },
+        "3": {
+          "working_set": 78229504,
+          "private_bytes": 37658624
+        },
+        "4": {
+          "working_set": 76713984,
+          "private_bytes": 35799040
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 29.719000000040978,
+      "ticks": {
+        "1": 840,
+        "2": 840,
+        "3": 840,
+        "4": 840
+      },
+      "epochs": {
+        "1": 2.0,
+        "2": 2.0,
+        "3": 2.0,
+        "4": 2.0
+      },
+      "authority": {
+        "working_set": 47370240,
+        "private_bytes": 40673280
+      },
+      "players": {
+        "1": {
+          "working_set": 78311424,
+          "private_bytes": 37146624
+        },
+        "2": {
+          "working_set": 78262272,
+          "private_bytes": 37801984
+        },
+        "3": {
+          "working_set": 78311424,
+          "private_bytes": 37658624
+        },
+        "4": {
+          "working_set": 77021184,
+          "private_bytes": 36917248
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 39.71900000004098,
+      "ticks": {
+        "1": 1140,
+        "2": 1140,
+        "3": 1140,
+        "4": 1140
+      },
+      "epochs": {
+        "1": 2.0,
+        "2": 2.0,
+        "3": 2.0,
+        "4": 2.0
+      },
+      "authority": {
+        "working_set": 55783424,
+        "private_bytes": 49446912
+      },
+      "players": {
+        "1": {
+          "working_set": 78352384,
+          "private_bytes": 37142528
+        },
+        "2": {
+          "working_set": 78266368,
+          "private_bytes": 37797888
+        },
+        "3": {
+          "working_set": 78430208,
+          "private_bytes": 37654528
+        },
+        "4": {
+          "working_set": 77021184,
+          "private_bytes": 36917248
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 49.71900000004098,
+      "ticks": {
+        "1": 1439,
+        "2": 1439,
+        "3": 1439,
+        "4": 1439
+      },
+      "epochs": {
+        "1": 2.0,
+        "2": 2.0,
+        "3": 2.0,
+        "4": 2.0
+      },
+      "authority": {
+        "working_set": 56012800,
+        "private_bytes": 49774592
+      },
+      "players": {
+        "1": {
+          "working_set": 78352384,
+          "private_bytes": 37142528
+        },
+        "2": {
+          "working_set": 78266368,
+          "private_bytes": 37797888
+        },
+        "3": {
+          "working_set": 78430208,
+          "private_bytes": 37654528
+        },
+        "4": {
+          "working_set": 77029376,
+          "private_bytes": 36917248
+        }
+      }
+    },
+    {
+      "elapsed_seconds": 59.71900000004098,
+      "ticks": {
+        "1": 1735,
+        "2": 1735,
+        "3": 1735,
+        "4": 1735
+      },
+      "epochs": {
+        "1": 2.0,
+        "2": 2.0,
+        "3": 2.0,
+        "4": 2.0
+      },
+      "authority": {
+        "working_set": 55562240,
+        "private_bytes": 48943104
+      },
+      "players": {
+        "1": {
+          "working_set": 78356480,
+          "private_bytes": 37142528
+        },
+        "2": {
+          "working_set": 78307328,
+          "private_bytes": 37855232
+        },
+        "3": {
+          "working_set": 78430208,
+          "private_bytes": 37654528
+        },
+        "4": {
+          "working_set": 77029376,
+          "private_bytes": 36917248
+        }
+      }
+    }
+  ],
+  "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "player_sha256": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+  "player_pack_sha256": "961f22814a7ca87c82c9d20fec0420474769254683658bc08793e07ccd4e858d",
+  "scope": "Four actual exported Players, headless, loopback, one Windows computer; render and Internet claims excluded",
+  "authority_exited": true
+}

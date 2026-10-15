@@ -1,0 +1,34 @@
+[
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\runtime-tests-final.log",
+    "sha256": "9d2fa3b5dfff631169ace523f4579f0e7bc37cff2e7c77297ac3c5ea9464d667"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\build-correct-package.log",
+    "sha256": "96be0bfc90614cade7d0d6a04474b42dacf7b0ed01c632f97d0d63c449650e22"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\staging.log",
+    "sha256": "48effbd186ff4e0c0c6408857fcf11aea5ab144bd513fbb358c793b2f43ace02"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\identity.json",
+    "sha256": "563609075e1ae24372f0e0d1b67f39e3cf36ec2283dc5d7c7fed8e713075a5b0"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\sockets\\proof.json",
+    "sha256": "1fb4f566a6001d93161913e7312663309801ba61adc46f45936a6425eb64f916"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\process-faults\\proof.json",
+    "sha256": "61038ce648e35d807a558a099c06842077dee26b0ed5e05c73c6f293db28ee31"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\proof.json",
+    "sha256": "b1ead3614ce996d6a44a176b64f6062a22b8b177f234242ea8a78d409b13ab94"
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\replay-faults\\report.json",
+    "sha256": "89e808c30216bfd421ea8da7f4f5257c8792891659b7882470546f19e4c3a1f7"
+  }
+]

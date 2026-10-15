@@ -1,0 +1,25 @@
+{
+  "source_checkpoint": "dd2741c",
+  "fresh_evidence": true,
+  "runtime_tests_passed": 847,
+  "reference_fault_tests_passed": 23,
+  "short_gates_passed": [
+    "sockets",
+    "process-faults",
+    "hosts",
+    "replay-faults",
+    "smoke"
+  ],
+  "preflight": {
+    "elapsed_seconds": 60.09400000004098,
+    "authority_ticks": 1746,
+    "authority_p95_ms": 4.1323,
+    "authority_budget_met": true,
+    "rejoined": true,
+    "authority_exited": true,
+    "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1"
+  },
+  "full_soak": "pending",
+  "freeze_root_cause": "unconfirmed",
+  "backed_up_off_device": false
+}
