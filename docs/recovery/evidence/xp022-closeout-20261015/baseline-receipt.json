@@ -1,0 +1,12 @@
+{
+  "schema": "xace.recovery_baseline_receipt.v1",
+  "baseline": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\baseline.json",
+  "sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "source_checkpoint": "13a3d9b6ddb68d155b51045d6ad7dcc297ed1df9",
+  "source_files": 1575,
+  "sealed_files": 54,
+  "readback_verified": true,
+  "original_seal": false,
+  "external_release_gates": "REL01-05 OPEN",
+  "off_device_backup": false
+}
