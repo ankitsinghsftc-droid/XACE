@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "legacy_append_fails_with_open_reader": true,
+  "repaired_append_succeeds": true,
+  "mixed_40_ticks_with_reader_held": true,
+  "production_runtime_changed": false
+}

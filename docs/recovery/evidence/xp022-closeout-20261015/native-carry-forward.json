@@ -1,0 +1,145 @@
+{
+  "reason": "Godot and Unity native reader source and shared fixture byte-identical to fresh recovered installed-host checks; final-host mixed sessions rerun separately. Unreal rebuilt for proof-only repair.",
+  "checked_files": [
+    {
+      "path": "adapters/godot/project.godot",
+      "sha256": "cf6dc2c6530a9399eb2173e4eacbc48b60cbab6fad543c33b88c6f3ca0ad8424"
+    },
+    {
+      "path": "adapters/godot/tests/mixed_session_proof.gd",
+      "sha256": "c722ff4b70bcf015cd451829e3b383caf78ccc58f80fd9df9d8f3d5c62be48af"
+    },
+    {
+      "path": "adapters/godot/tests/native_contract_proof.gd",
+      "sha256": "3d516576af346e3023d48cd477d7d88bcb52a17f9eca22780515bbc33bd43336"
+    },
+    {
+      "path": "adapters/godot/tests/native_live_proof.gd",
+      "sha256": "b9af6e9247628f97003c0ef826e22ba099e9e77b61f34636a104dd6cd9dab89b"
+    },
+    {
+      "path": "adapters/godot/xace_adapter.gd",
+      "sha256": "545c48bd838f83eeb5e9c9638be1121585e6af57588c2cfe0a566d9c7c17e7fa"
+    },
+    {
+      "path": "adapters/godot/xace_adapter_package_lifecycle.py",
+      "sha256": "d5f360691a56acac911ca24c51e2c928724dbeefc4dd3add5a518151c6c4b72b"
+    },
+    {
+      "path": "adapters/godot/xace_canonical_entities.gd",
+      "sha256": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56"
+    },
+    {
+      "path": "adapters/godot/xace_console_widget.gd",
+      "sha256": "09979e1670270a84c49e3125b1522ce2d063c2e197afa1c4bb81d8d50d05b692"
+    },
+    {
+      "path": "adapters/godot/xace_debug_hud.gd",
+      "sha256": "da07761fcf70a1d7b22ab064e1f96b2ed571ef74ba42448e535c761a8ddc75a0"
+    },
+    {
+      "path": "adapters/godot/xace_delta_applicator.gd",
+      "sha256": "6c14f006910810fd48f50d3c3b0e5bec946319302625de4f0b2acf412890e0c0"
+    },
+    {
+      "path": "adapters/godot/xace_entity_manager.gd",
+      "sha256": "5475981227e3922425099832db1ba2a03aa013201836c7c6d1a0002c86284f33"
+    },
+    {
+      "path": "adapters/godot/xace_godot_main.gd",
+      "sha256": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3"
+    },
+    {
+      "path": "adapters/godot/xace_godot_main.tscn",
+      "sha256": "065b36271b5077e707d5d9a9b28acf00c57594dea6885124e00627d31ba29265"
+    },
+    {
+      "path": "adapters/godot/xace_input_collector.gd",
+      "sha256": "018556b795d8fb0a1ef2e1770bce3f92194ae8641baaf73fe1e560ab67c3fa0b"
+    },
+    {
+      "path": "adapters/godot/xace_native_contract.gd",
+      "sha256": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185"
+    },
+    {
+      "path": "adapters/godot/xace_protocol.gd",
+      "sha256": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655"
+    },
+    {
+      "path": "adapters/godot/xace_transport.gd",
+      "sha256": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed"
+    },
+    {
+      "path": "adapters/tests/fixtures/xp016-contract-v1.json",
+      "sha256": "efab9cd98b0c81524f2a305b53938b682d5d109b9c4d15344ba8ee6ea44b41c8"
+    },
+    {
+      "path": "adapters/unity/Editor/XACE.Adapter.Unity.Editor.asmdef",
+      "sha256": "4b1d24a88c41d5c55139de36c4baed6001e45bea782575446eef728832f36cc3"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceMixedSessionProof.cs",
+      "sha256": "3a59e3dc61226c0b9abdff0f1e565d14e887d9befa8f8724d27bb74463747263"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceNativeContractProof.cs",
+      "sha256": "76b0f3f2dabfa372a428aea5d10d9e38e6be74c671fab18e7feb749606767d84"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceUnityLiveValidationCommand.cs",
+      "sha256": "7df6695abad84bc6c88f660ca6553686e6d2d2ba4d695c287111ff30d74a96d8"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceUnityPlayBootstrap.cs",
+      "sha256": "50ad7ac142226286daa903d8f2dd093376eee05518f0dddf82ded0b1a5a45d8b"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceUnitySetupMenu.cs",
+      "sha256": "f5bc4978739e80abc33b97b68583f92d49006c4ee6255da1c990588589cbd5ef"
+    },
+    {
+      "path": "adapters/unity/Editor/XaceUnityValidation.cs",
+      "sha256": "c0106cb1a7f44b91d55fa60bbb7bcd3228db27d377fa36a3cf96dae66462a7e2"
+    },
+    {
+      "path": "adapters/unity/README.md",
+      "sha256": "3f5a8487d04b856c733d0d3eb7426ed725a832efdb1aed0a82f77acc9b8e0734"
+    },
+    {
+      "path": "adapters/unity/XACE.Adapter.Unity.asmdef",
+      "sha256": "4104768b807504fbf3a2d3dfc94df455f83d9fcad653994d545895b39f84dd57"
+    },
+    {
+      "path": "adapters/unity/XaceConsoleWidget.cs",
+      "sha256": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507"
+    },
+    {
+      "path": "adapters/unity/XaceDeltaApplicator.cs",
+      "sha256": "c70d779b69565441242f31201b405cf1011abfdbbf5b1927916f5698ee7b446b"
+    },
+    {
+      "path": "adapters/unity/XaceInputCollector.cs",
+      "sha256": "f89283d830cdf988ea28b6d7a7b01c85aaa1679eddde922bfd11015a57c90dd2"
+    },
+    {
+      "path": "adapters/unity/XaceNativeContract.cs",
+      "sha256": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028"
+    },
+    {
+      "path": "adapters/unity/XaceRuntimeBootstrap.cs",
+      "sha256": "a6d0cc769aacfa9f64929dee943797b34f96e6ce128df2b1ce74834abf972791"
+    },
+    {
+      "path": "adapters/unity/XaceTransport.cs",
+      "sha256": "5d24be49709508db0e99bcb5578434ba12c334ab9d5a1bc512e7b85acf91e370"
+    },
+    {
+      "path": "adapters/unity/Xace_embedded.cs",
+      "sha256": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1"
+    },
+    {
+      "path": "adapters/unity/xace_adapter_package_lifecycle.py",
+      "sha256": "d5f360691a56acac911ca24c51e2c928724dbeefc4dd3add5a518151c6c4b72b"
+    }
+  ]
+}

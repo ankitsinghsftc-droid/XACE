@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "inventory_files": 25,
+  "release_zip_sha256": "86c9adce5c7be056107c3836331a73f841eb901e4231b46d523627b89b8553eb",
+  "runtime_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "manifest_sha256": "051852d6e3dd8f0fe34c9d9698f61791306cc41c844275ed41c5dfd3f6651199",
+  "zip_matches_inventory": true,
+  "unsigned": true
+}

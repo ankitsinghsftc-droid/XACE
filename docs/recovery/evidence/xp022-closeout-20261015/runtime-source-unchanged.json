@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "compared_checkpoint": "dd2741c",
+  "current_checkpoint": "29aacd7893754d36021ca6772a9f191cae506ae7",
+  "paths": [
+    "packages",
+    "examples",
+    "Cargo.toml",
+    "Cargo.lock"
+  ],
+  "changed_files": []
+}

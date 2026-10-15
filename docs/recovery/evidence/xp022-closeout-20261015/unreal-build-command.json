@@ -1,0 +1,14 @@
+{
+  "command": [
+    "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Build\\BatchFiles\\RunUAT.bat",
+    "BuildPlugin",
+    "-Plugin=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue022\\target-codex-task66-unreal-vertical-slice\\Plugins\\XACE\\XACE.uplugin",
+    "-Package=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue022\\unreal-package",
+    "-TargetPlatforms=Win64",
+    "-Rocket"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue022\\target-codex-task66-unreal-vertical-slice\\Plugins\\XACE",
+  "schema": "xace.unreal_vertical_slice_build_command.v1",
+  "task": "X10-066",
+  "timeout_seconds": 1800
+}
