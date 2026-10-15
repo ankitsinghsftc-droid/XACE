@@ -1,0 +1,403 @@
+{
+  "tested_source": [
+    {
+      "path": "adapters/unity/Authoring/Editor/AuthoringJson.cs",
+      "sha256": "ba5668e18611d7a085c6ba348d4152dece8b4b597e91ca6851ecbb9a00687d63"
+    },
+    {
+      "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+      "sha256": "e21590c1556b82d6c64a5867c8d559159f8221f073c165ccee0c3b3203574f00"
+    },
+    {
+      "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+      "sha256": "b88957e7c5e5f29810d04d6e999d3c6875a68651e20469c422468dab3c805218"
+    },
+    {
+      "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+      "sha256": "4d5d34c3346d50a5ad99b82ffc304e4af9f47e0507587fef84292761c4da50c3"
+    },
+    {
+      "path": "adapters/unity/Authoring/Editor/XACE.Authoring.Editor.asmdef",
+      "sha256": "2d10fd441a398fbf3e85676e7175ff5c21c6692d68a62977322a8a104dec8fb5"
+    },
+    {
+      "path": "adapters/unity/Authoring/Runtime/XACE.Authoring.Metadata.asmdef",
+      "sha256": "2695d7f7206e6ff7b821e3de376a6a468759dbdbea458c3ea47ae451b94bba45"
+    },
+    {
+      "path": "adapters/unity/Authoring/Runtime/XaceAuthoringBinding.cs",
+      "sha256": "4e5187b54c6e42999b927035c347ea0ac2d50fa4629719083d60e1b6804d0a74"
+    },
+    {
+      "path": "adapters/unity/Authoring/Runtime/XaceAuthoringIdentity.cs",
+      "sha256": "3c1b4a6e6d4a869c880b8444f1808a207653dd12d38c51e1aed446a049222434"
+    }
+  ],
+  "retained_artifacts": [
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-after.json",
+      "bytes": 5341,
+      "sha256": "b930b9c9c19bc09691877c4ae3e880c25a547cfe5a3cab3b4d2782b2e2aa6e5a"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-before.json",
+      "bytes": 5338,
+      "sha256": "da0dc7607313bb40733d1ad9111752dbde6a594b9dd491fa08877895f3ae1691"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-discovery.json",
+      "bytes": 4270,
+      "sha256": "1b9c91906e21c9ae68ee726f15ccf5594ee059d5911769ec6c8a0c5a0dd84c66"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-python-after.json",
+      "bytes": 5349,
+      "sha256": "13c90fc2227614a7e1e3bee7ec6bb5ae42917b8d81cad6299f1d71002e13b07d"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-python-request.json",
+      "bytes": 327,
+      "sha256": "ad2c474df44cedda079dbb9c709b62417d6881ddb998d8a66aa60c35bbc021d7"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-reload-expected.json",
+      "bytes": 5347,
+      "sha256": "8ef7531606c1a5565f89a69aa79798ca4a48b0e071e34ed17ccac13310ad1626"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-run-cases.json",
+      "bytes": 2047,
+      "sha256": "b846e6bc08021fc001c0f02a0aa776f539a4b882fdc54ebf54eebcfc2be1453c"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-unknown-component.json",
+      "bytes": 5551,
+      "sha256": "b1b149289ef51455028a7cd0215dcdccd9e1381ea49885d3aebff5d525db5326"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/291ce6e607b94e0bb907624b274849d6/0.before",
+      "bytes": 11995,
+      "sha256": "7920a1561aa0f66cd8e91dff10b568676e00b7f77edb8fe78d99f3e7a882e70f"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/291ce6e607b94e0bb907624b274849d6/0.displaced",
+      "bytes": 11995,
+      "sha256": "7920a1561aa0f66cd8e91dff10b568676e00b7f77edb8fe78d99f3e7a882e70f"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/291ce6e607b94e0bb907624b274849d6/ef368e89b3cf422cb13f6fb52b77c6c9.restore-displaced",
+      "bytes": 12000,
+      "sha256": "d2d5850a3638d44f319d13bbfb38570f0b0314661d8c9ea9144a33269b0a978b"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/291ce6e607b94e0bb907624b274849d6/journal.json",
+      "bytes": 1043,
+      "sha256": "2c5e6c88434e19e0d1fda7790226e3e9908a03e5fcb2906e198d04ed42680a74"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/0.before",
+      "bytes": 3002,
+      "sha256": "60714da1f20d16d8eb11291c2432233c51c9014cf352dfca41c970dd394617ce"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/0.displaced",
+      "bytes": 3002,
+      "sha256": "60714da1f20d16d8eb11291c2432233c51c9014cf352dfca41c970dd394617ce"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/1.before",
+      "bytes": 12370,
+      "sha256": "c8581de5bfbb644816066d6cc51676c88cf71109bd007ca59644c5fe154aa2c0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/1.displaced",
+      "bytes": 12370,
+      "sha256": "c8581de5bfbb644816066d6cc51676c88cf71109bd007ca59644c5fe154aa2c0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/7c79d64c7ac2498ca07a8c004bc96b3c.restore-displaced",
+      "bytes": 2995,
+      "sha256": "d223b9a897c508192a03d493db19df81cca4ff561067de4f85e9a25f9f886f33"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/a255dd92a46149a6a735ce923fada239.restore-displaced",
+      "bytes": 12371,
+      "sha256": "ad6c63f09b0fbd3404ad17b016c246f30842fd862c81892afc6a7aa4d17cdd4d"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/2b442b546e8f4fefb6a3000d2154abc0/journal.json",
+      "bytes": 1896,
+      "sha256": "66906df4687d64cb3c92b117ee77a844434adc5eacd3735138af08092811b8f1"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/3f340c425f3749ffbbfb0bba3d449976/0.before",
+      "bytes": 14828,
+      "sha256": "20ca74da938c6def6e58571d1b6aee7f15262173496db950b69749bfdbe057f0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/3f340c425f3749ffbbfb0bba3d449976/0.displaced",
+      "bytes": 14828,
+      "sha256": "20ca74da938c6def6e58571d1b6aee7f15262173496db950b69749bfdbe057f0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/3f340c425f3749ffbbfb0bba3d449976/91d8044c664f43a6bd69d30c7394583b.restore-displaced",
+      "bytes": 14828,
+      "sha256": "e26d5f1835a80ddd924fef47238289c667d0517f74f32137e63f8b432e887bb5"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/3f340c425f3749ffbbfb0bba3d449976/journal.json",
+      "bytes": 1044,
+      "sha256": "5ad4fe93db200078cccf7ea8fc181fc8600460cacb92ad1d0d27a5e7c2f26ba8"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/41bda1e6c52f4a07bfe33761221111e5/0.before",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/41bda1e6c52f4a07bfe33761221111e5/journal.json",
+      "bytes": 869,
+      "sha256": "3b92385eb0cb87ce25f80ef17051c62d6d1e88ad42b78ad58ee9ff1b7aea22b2"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/566797e0c2674c4d8417088c400234b1/0.before",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/566797e0c2674c4d8417088c400234b1/0.displaced",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/566797e0c2674c4d8417088c400234b1/4b076db4c4e44545bed5edbbf7fda72c.restore-displaced",
+      "bytes": 12371,
+      "sha256": "08dc7002d1176bab4bcfd9162592e2847c49c5640ca6f79d53c5979e81305b00"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/566797e0c2674c4d8417088c400234b1/journal.json",
+      "bytes": 1045,
+      "sha256": "29dcc1ac89a342d667b890cd40dbc95640f6f8821f63978249f48bd63c79b830"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/7a4a8242fab743aaa3fa117cce37357d/0.before",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/7a4a8242fab743aaa3fa117cce37357d/journal.json",
+      "bytes": 792,
+      "sha256": "a7e5c83830f23fac9abbd3fce39ee224f50729c60863afb55d3376d34c4625ea"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/84109f2bea014bf19d4f95959f263901/0.before",
+      "bytes": 11995,
+      "sha256": "7920a1561aa0f66cd8e91dff10b568676e00b7f77edb8fe78d99f3e7a882e70f"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/84109f2bea014bf19d4f95959f263901/0.displaced",
+      "bytes": 11995,
+      "sha256": "7920a1561aa0f66cd8e91dff10b568676e00b7f77edb8fe78d99f3e7a882e70f"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/84109f2bea014bf19d4f95959f263901/journal.json",
+      "bytes": 1044,
+      "sha256": "967c96035e959ccb8e18cc1e167f5d8201f24705e261e8a003d7f05be632038c"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/b68f376938f54a138e51775de40eee0a/0.before",
+      "bytes": 12374,
+      "sha256": "f6ab94d7ff12ba2c06b5a1c0bd5dd748537ca48a9bf4cb4b8739ade979dda1a7"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/b68f376938f54a138e51775de40eee0a/0.displaced",
+      "bytes": 12374,
+      "sha256": "f6ab94d7ff12ba2c06b5a1c0bd5dd748537ca48a9bf4cb4b8739ade979dda1a7"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/b68f376938f54a138e51775de40eee0a/journal.json",
+      "bytes": 1045,
+      "sha256": "656a97aa1fe0a5e8468c03a2ae07a67bbb531e229182e1e077b939a207cafb05"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c35a17ad5c1b4c619bbb902a3eee9137/0.before",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c35a17ad5c1b4c619bbb902a3eee9137/0.displaced",
+      "bytes": 12370,
+      "sha256": "081d5ef4673095a5c71c630f7238476aa4ba5cb66713c76387b36739c0013bf0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c35a17ad5c1b4c619bbb902a3eee9137/cc88ec2db57b424187c7802a2684c46d.restore-displaced",
+      "bytes": 12371,
+      "sha256": "08dc7002d1176bab4bcfd9162592e2847c49c5640ca6f79d53c5979e81305b00"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c35a17ad5c1b4c619bbb902a3eee9137/journal.json",
+      "bytes": 1045,
+      "sha256": "2df3aa690cc4e700956ab3ecff26d399349ac0cccca7d2ca1e1d82a540f58d89"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c938aee9eb0d4e2d9a459ad8dc310191/0.before",
+      "bytes": 12374,
+      "sha256": "f6ab94d7ff12ba2c06b5a1c0bd5dd748537ca48a9bf4cb4b8739ade979dda1a7"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c938aee9eb0d4e2d9a459ad8dc310191/0.displaced",
+      "bytes": 12374,
+      "sha256": "f6ab94d7ff12ba2c06b5a1c0bd5dd748537ca48a9bf4cb4b8739ade979dda1a7"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/c938aee9eb0d4e2d9a459ad8dc310191/journal.json",
+      "bytes": 1043,
+      "sha256": "4fca1f60b07b683b5237ccc15e5fc47c9001dd73ceb8da82aea85a53d53b9a82"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/d613dc819c7443299fea5222c0bea904/0.before",
+      "bytes": 12370,
+      "sha256": "c8581de5bfbb644816066d6cc51676c88cf71109bd007ca59644c5fe154aa2c0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/d613dc819c7443299fea5222c0bea904/0.displaced",
+      "bytes": 12370,
+      "sha256": "c8581de5bfbb644816066d6cc51676c88cf71109bd007ca59644c5fe154aa2c0"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/.xace/authoring-transactions/d613dc819c7443299fea5222c0bea904/journal.json",
+      "bytes": 1051,
+      "sha256": "8c98ea7682a7fa5848cb8eee9375d2a568f76b98eca5afc1c65fcaaee99cca6a"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Clip.anim",
+      "bytes": 1292,
+      "sha256": "9b9d3c5b51c63da3f083432511aece419453a29ddf24189c948d01f53ae0f85a"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Clip.anim.meta",
+      "bytes": 188,
+      "sha256": "a52ec39a91807723743c251a62e8a6b1b8e729f204b186ac4fb6890193c188eb"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Mesh.asset",
+      "bytes": 3486,
+      "sha256": "b28d07ccd5c4a7452a38b540a34214f9595199643c691eef605c9d1d4264ba60"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Mesh.asset.meta",
+      "bytes": 188,
+      "sha256": "9c46f7b5781f48a46949a1702b5530415f7d5c0e1b9229ac0f656b94ca5eb4a9"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Template.prefab",
+      "bytes": 3002,
+      "sha256": "60714da1f20d16d8eb11291c2432233c51c9014cf352dfca41c970dd394617ce"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/Template.prefab.meta",
+      "bytes": 154,
+      "sha256": "9951e7f086578341a02bd01b9a66df3c5f2a9f6c53715a570e6cdd8f4601992a"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/World.unity",
+      "bytes": 12376,
+      "sha256": "ca7322d678c5ef747f8572f85e12a4fbe3883a75eac90d367f365f3025f2d921"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/Fixture/World.unity.meta",
+      "bytes": 155,
+      "sha256": "28a848051a5abba28c1ae3272255349c7d7c507b367deef71579ca51d4350648"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor.meta",
+      "bytes": 172,
+      "sha256": "c18a706605b612b7d1248c1bd9cdd3d6f4d0565286e1c14f694757b616a95e6a"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime.meta",
+      "bytes": 172,
+      "sha256": "16d61a5a1935c28e285a9640b17fd48caff45aa4a4abd7a2a345780409202bec"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/AuthoringJson.cs",
+      "bytes": 5718,
+      "sha256": "ba5668e18611d7a085c6ba348d4152dece8b4b597e91ca6851ecbb9a00687d63"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/AuthoringJson.cs.meta",
+      "bytes": 59,
+      "sha256": "3f133277c206db1aa9db72364873ebe2a7ca8241ebf4f1b0f3c69ff8a921eaf8"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringProof.cs",
+      "bytes": 20885,
+      "sha256": "e21590c1556b82d6c64a5867c8d559159f8221f073c165ccee0c3b3203574f00"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringProof.cs.meta",
+      "bytes": 59,
+      "sha256": "e4da78c58a402eaefb04e9a8b18e0a08beee4f8e6179fd6045d8bd802b057c2f"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringReader.cs",
+      "bytes": 22757,
+      "sha256": "b88957e7c5e5f29810d04d6e999d3c6875a68651e20469c422468dab3c805218"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringReader.cs.meta",
+      "bytes": 59,
+      "sha256": "35f5bb809d565413ac60c03b48f62d470753417a93c95b36a64fb8fc19d345de"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringWriter.cs",
+      "bytes": 22355,
+      "sha256": "4d5d34c3346d50a5ad99b82ffc304e4af9f47e0507587fef84292761c4da50c3"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/UnityAuthoringWriter.cs.meta",
+      "bytes": 59,
+      "sha256": "21dd4b143a3e56ee98a00e241acea2371741141009469ad6a2258a0c7ed86371"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/XACE.Authoring.Editor.asmdef",
+      "bytes": 126,
+      "sha256": "2d10fd441a398fbf3e85676e7175ff5c21c6692d68a62977322a8a104dec8fb5"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Editor/XACE.Authoring.Editor.asmdef.meta",
+      "bytes": 166,
+      "sha256": "8272941bfef3a019f337e489ea715203f66943773516befa36aa5362365abc48"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XACE.Authoring.Metadata.asmdef",
+      "bytes": 73,
+      "sha256": "2695d7f7206e6ff7b821e3de376a6a468759dbdbea458c3ea47ae451b94bba45"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XACE.Authoring.Metadata.asmdef.meta",
+      "bytes": 166,
+      "sha256": "4995c39800c79b260d24ff8379b1e113578c6fdf82fd8beeb7f901579e9c576d"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XaceAuthoringBinding.cs",
+      "bytes": 407,
+      "sha256": "4e5187b54c6e42999b927035c347ea0ac2d50fa4629719083d60e1b6804d0a74"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XaceAuthoringBinding.cs.meta",
+      "bytes": 59,
+      "sha256": "aa5d6846d0ef29e7848e82d7d1e67dfcda406344ede03872473c73abc838903e"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XaceAuthoringIdentity.cs",
+      "bytes": 422,
+      "sha256": "3c1b4a6e6d4a869c880b8444f1808a207653dd12d38c51e1aed446a049222434"
+    },
+    {
+      "path": "recovery-evidence/20261015/nec004/native/unity-project/Assets/XaceAuthoring/Runtime/XaceAuthoringIdentity.cs.meta",
+      "bytes": 59,
+      "sha256": "a6aa15cb4167e568b8535266aa6030294cf9d343d4ba9d6955b3fe1eeb3a9688"
+    }
+  ]
+}

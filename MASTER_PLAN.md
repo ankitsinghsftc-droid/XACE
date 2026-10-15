@@ -25,6 +25,35 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-004: COMPLETE - UNITY NATIVE AUTHORING - 2026-10-09
+
+Implemented opt-in Unity 6000.4.9f1 saved-content discovery, explicit authoring
+metadata, normalized capture and approved staged native writes in
+`adapters/unity/Authoring/`, with the NEC-002/003 Python bridge in
+`packages/project-system/unity_authoring.py`.
+
+- [x] Persistent scene/prefab/instance identities, serialized allowlisted fields,
+  dependency fingerprints, dirty/Play refusal and notification/full-rescan handling.
+- [x] Native serialization and saved readback, unknown component/override retention,
+  exact numeric inverse conversion, before-images and conflict-preserving recovery.
+- [x] 228 Python tests and 50 installed-Unity checks pass, including actual saved
+  scenes/prefabs, cold reopen, Python-generated writes and both Play reload settings.
+- [x] All 2,140 protected XP-022 files and historical NEC receipts preserved.
+- [ ] NEC-005 through NEC-018: NOT STARTED. Stop before NEC-005.
+
+These are callable authoring APIs; no automatic CGS commit, baseline advance,
+continuous synchronization or runtime-free export is claimed. Regular prefab
+fixtures, legacy input declarations and explicit supported bindings are certified;
+arbitrary scripts/graphs and broader Unity package compatibility remain outside
+this proof. No roadmap tasks were added or reordered. NEC-007/009/010 consume
+these primitives for adoption, coordinated recovery and synchronization.
+REL-01 through REL-05 remain OPEN. No commit or push was performed.
+
+See [completion](docs/NEC004_UNITY_AUTHORING.md),
+[evidence](docs/recovery/evidence/nec004-20261015/summary.json) and
+`target/nec004/verification-20261009/`. Earlier entries below are historical;
+pre-NEC-004 live plans are retained in `target/nec004/entry-documents/`.
+
 ## NEC-003: COMPLETE - NORMALIZED NATIVE AUTHORING CONTRACTS - 2026-10-09
 
 Implemented opt-in project-system capture, snapshot, loss-report and delta contracts
@@ -1722,3 +1751,5 @@ NEC001 RECOVERY VERIFIED:85 Python +23 Rust acceptance tests pass; all54 sealed 
 NEC002 RECOVERY VERIFIED:24 identity/store tests +67 project/Player/authoring regressions pass (91 total). Atomic store interruption/concurrent-writer, rename/reparent/duplicate/tombstone/fork and migration cases restored; no native capture claimed. All55 protected recovery-baseline files including manifest unchanged. Evidence: docs/recovery/evidence/nec002-20261015/summary.json. Next NEC003. NOT backed up off-device.
 
 NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions pass (219 total), including independent Node golden checks,1500-object hierarchy and300 malformed mutations. All55 protected recovery-baseline files unchanged. Evidence: docs/recovery/evidence/nec003-20261015/summary.json. Native capture remains subsequent work. Next NEC004. NOT backed up off-device.
+
+NEC004 RECOVERY VERIFIED:228 Python tests and49 installed Unity6000.4.9f1 checks pass (39 run,4 cold reopen/Python write,6 Play). Historical closeout claimed50; actual reconstructed executable has49, all passing; no missing test invented. Persistent .xace holds native transaction receipts/before-images and proof snapshots; recovery-evidence holds isolated project/output. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec004-20261015/summary.json. Native APIs are callable; automatic CGS sync remains later work. Next NEC005. NOT backed up off-device.

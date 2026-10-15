@@ -1,4 +1,4 @@
-> Reconstructed historical NEC004 document. Fresh recovery verification pending; original evidence and disposable paths below are historical, not current instructions. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC004 document. Fresh recovery verification passed:228 Python tests and49 installed-Unity checks; original evidence and disposable paths below are historical, not current instructions. See AGENT_PROGRESS.md.
 
 # NEC-004 - Unity editor discovery, capture and staged writes
 
@@ -211,7 +211,7 @@ The runner creates only an isolated trusted fixture under `target/nec004`, requi
 the installed pinned editor and retains native files/receipts. It never opens the
 sealed XP-022 project or an arbitrary user Unity project.
 
-[Evidence](evidence/nec004-unity-20261009.json) records final source, native artifacts,
+[Evidence](recovery/evidence/nec004-20261015/summary.json) records final source, native artifacts,
 test logs and preservation hashes. All 2,140 protected XP-022 files are unchanged;
 the only changed frozen source-manifest entry is the permitted live master-plan
 addendum. NEC-003's original master/roadmap copies are retained under

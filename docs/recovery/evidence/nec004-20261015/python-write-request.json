@@ -1,0 +1,1 @@
+{"edits":[{"authoring_id":"00000000000000000000000000000003","document":"Assets/Fixture/World.unity","fields":{"transform.position":{"x":"11000000","y":"12000000","z":"-13000000"}}}],"expected_inventory_digest":"8ef7531606c1a5565f89a69aa79798ca4a48b0e071e34ed17ccac13310ad1626","schema":"xace.unity_authoring_write_request.v1"}

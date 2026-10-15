@@ -355,5 +355,9 @@
       "tools/nec004_unity_proof.py"
     ],
     "reason": "Unique receipts, before-images and proof snapshots moved from disposable Library/target to persistent .xace and recovery-evidence. Historical source retained under reviewed-source."
-  }
+  },
+  "reviewed_source_only_shell": [
+    1727
+  ],
+  "historical_claims": "Replayed document entries are historical; fresh verification remains pending in AGENT_PROGRESS.md."
 }

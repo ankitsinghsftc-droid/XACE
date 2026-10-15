@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "canonical_native_json": true,
+  "rows": 5,
+  "base_sha256": "ac661a41e78663ec2df3b598fdf940ab5069ccce9d57ae395b6e2b78626a0834",
+  "after_sha256": "bb362e512346385d043a4417751c1b173f92bfc48ad4deb2eeee3a755c450bb7",
+  "position": {
+    "x": "11000000",
+    "y": "12000000",
+    "z": "-13000000"
+  }
+}

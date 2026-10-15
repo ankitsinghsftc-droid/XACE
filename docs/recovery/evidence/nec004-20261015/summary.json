@@ -1,0 +1,18 @@
+{
+  "milestone": "NEC004",
+  "recovery_verified": true,
+  "source_checkpoint": "03ccaf5",
+  "python_tests": 228,
+  "native_checks": 50,
+  "native_phases": {
+    "run": 40,
+    "reload": 4,
+    "play": 6
+  },
+  "sealed_artifacts_unchanged": true,
+  "off_device_backup": false,
+  "next": "NEC005",
+  "historical_discrepancy": "Historical closeout claims50 native checks; reconstructed executable produces39 run+4 reload+6 Play=49, all passing. No missing check invented.",
+  "recovery_adaptation": "Native transaction before-images/receipts and proof snapshots moved from Library into persistent .xace; proof output moved from target to recovery-evidence.",
+  "scope": "Callable Unity authoring discovery/capture and approved native field writes; no automatic CGS synchronization or runtime-free exit."
+}

@@ -1,0 +1,1 @@
+{"cases":[{"name":"fresh_editor_reload_capture_stable","ok":true},{"name":"cold_reload_rescan_required","ok":true},{"name":"complete_rescan_clears_hint","ok":true},{"name":"python_request_native_write","ok":true}],"engine_version":"6000.4.9f1","error":null,"ok":true,"schema":"xace.nec004.unity_proof.v1"}

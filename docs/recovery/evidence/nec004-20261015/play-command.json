@@ -1,0 +1,15 @@
+[
+  "C:\\Program Files\\Unity\\Hub\\Editor\\6000.4.9f1\\Editor\\Unity.exe",
+  "-batchmode",
+  "-nographics",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec004\\native\\unity-project",
+  "-executeMethod",
+  "Xace.Authoring.Editor.UnityAuthoringProof.Play",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec004\\native\\play-editor.log",
+  "-necReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec004\\native\\play.json",
+  "-necGolden",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec004\\native\\unity-writer-golden.json"
+]
