@@ -1,0 +1,118 @@
+{
+  "records": [
+    {
+      "line": 646,
+      "original_patch_sha256": "be385029f95f8d85c683ac3aac49dcf3609452bea166352a7f37479969458996",
+      "changes": [
+        {
+          "path": "packages/project-system/authoring_identity.py",
+          "before_sha256": null,
+          "after_sha256": "6ebae992db12988d1ba83d7d5b567ac66c43222d5ac9d02b211bc89bbeae79cb"
+        }
+      ]
+    },
+    {
+      "line": 658,
+      "original_patch_sha256": "5244c52e875b231ec9f9c851b728e3b13e02e5586d2a2d60f995b726d6de13a9",
+      "changes": [
+        {
+          "path": "packages/project-system/authoring_identity_store.py",
+          "before_sha256": null,
+          "after_sha256": "917ef72fc585dbf310a9aaa941c213241222b2dba39fd281c85f590d833c4063"
+        }
+      ]
+    },
+    {
+      "line": 671,
+      "original_patch_sha256": "0c805afbd4e5c5e5d8912a9d0bce8a61cf3ad593d03caabdb8bde4de51280ac5",
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_authoring_identity.py",
+          "before_sha256": null,
+          "after_sha256": "188e6cddd92ee141cc999176b34d1d26043404504740887c4e0d599dbcf21859"
+        },
+        {
+          "path": "packages/project-system/tests/fixtures/authoring_identity_v1.json",
+          "before_sha256": null,
+          "after_sha256": "2fecc5e91fab50fe6378e058218f354bda53bf95004511a8cde677d164e41f6f"
+        }
+      ]
+    },
+    {
+      "line": 694,
+      "original_patch_sha256": "e7587a9c27d0c3c89c177e2cceb6b438151d3b4bdde3c30dbfbf6c5a4eab1d53",
+      "changes": [
+        {
+          "path": "packages/project-system/authoring_identity.py",
+          "before_sha256": "6ebae992db12988d1ba83d7d5b567ac66c43222d5ac9d02b211bc89bbeae79cb",
+          "after_sha256": "319a9fb29b1a0e597a63c0b53284075944556dbf78f36c442bce5d9132e6dc82"
+        },
+        {
+          "path": "packages/project-system/authoring_identity_store.py",
+          "before_sha256": "917ef72fc585dbf310a9aaa941c213241222b2dba39fd281c85f590d833c4063",
+          "after_sha256": "5ae5bf341a7fadd3926924b27d012cdcbc34333269d8eb0b2e959548df57f07d"
+        }
+      ]
+    },
+    {
+      "line": 703,
+      "original_patch_sha256": "540ff81e33c9b89990e1bf44bf8a8afdada70a0a50a28654ec959eabe0fd59dc",
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_authoring_identity.py",
+          "before_sha256": "188e6cddd92ee141cc999176b34d1d26043404504740887c4e0d599dbcf21859",
+          "after_sha256": "24b04c5028eb94740f8cc0a709cc79d4512232a814edd726c7b6518b37945771"
+        }
+      ]
+    },
+    {
+      "line": 769,
+      "original_patch_sha256": "0cccbfa19f5232d58584c8c24fa2e354f644e887ad635869618f822cf64a9d6f",
+      "changes": [
+        {
+          "path": "docs/NEC002_AUTHORING_IDENTITIES.md",
+          "before_sha256": null,
+          "after_sha256": "f8196ce8181f3045e611ddfc83cfab3581be674b88551303e8a1d75730f00a92"
+        }
+      ]
+    },
+    {
+      "line": 793,
+      "original_patch_sha256": "bcb53499449a4c1b634fb756e02965a08ad34817deba931c319f8e88e0ee5426",
+      "changes": [
+        {
+          "path": "MASTER_PLAN.md",
+          "before_sha256": "8cfea59ecb3ea2f4826d1d80c5752d887a2c03148ef68d085e3a25695f52e015",
+          "after_sha256": "8894a205fdde72fd88326e195c5393620d2254fcf8d5f5a7578190ff69f92f55"
+        },
+        {
+          "path": "docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md",
+          "before_sha256": "725f70e24cb6c6b526850d1771dbf1ff90e5323de622eb51d34baa6bbd70cb2e",
+          "after_sha256": "84786a6322c8d0b86f37a91cfda3760be4bb6f44a5c73c81166028281ce83c8d"
+        }
+      ]
+    },
+    {
+      "line": 810,
+      "original_patch_sha256": "df820fb5e313ec3fa49e6ec0a65047404ce73830ce6609a7cdecdd17a29c6f5a",
+      "changes": [
+        {
+          "path": "packages/project-system/authoring_identity.py",
+          "before_sha256": "319a9fb29b1a0e597a63c0b53284075944556dbf78f36c442bce5d9132e6dc82",
+          "after_sha256": "1b2c0614489e98db603eba504c68a6ba7d9bc1d5158f086fea85c0f986cfcef4"
+        },
+        {
+          "path": "docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md",
+          "before_sha256": "84786a6322c8d0b86f37a91cfda3760be4bb6f44a5c73c81166028281ce83c8d",
+          "after_sha256": "f19e4d640e408f2f4aa56d3970b29a434dcb93b9d503cf43f062e6160e72a690"
+        }
+      ]
+    }
+  ],
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\reconstruction\\nec002",
+  "adaptations": [
+    "Roadmap NEC-002 dash encoding normalized to historical through wording",
+    "810 historical evidence link mapped to fresh NEC001 receipt"
+  ],
+  "historical_evidence_writers_replayed": false
+}

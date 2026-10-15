@@ -4,7 +4,7 @@
 
 # XACE Native Engine Continuity Program
 
-Status: NEC-001 engineering handoff complete; NEC-002–018 NOT STARTED.
+Status: NEC-001 and NEC-002 complete; NEC-003 through NEC-018 NOT STARTED.
 
 Amended 2026-10-08 against the sealed local post-XP-022 implementation. Task IDs and ordering retained; section 1 amendments govern later task scopes.
 
@@ -28,7 +28,8 @@ Accept the sealed local XP-022 engineering profile for NEC-001. Do not rewrite i
 historical seal/status fields. REL-01 through REL-05 in [the release ledger](XP022_RELEASE_GATES.md)
 remain OPEN with original thresholds. This authorization permits engineering
 continuation only; original combined public-release acceptance is not passed.
-NEC-002 through NEC-018 remain NOT STARTED until further instruction.
+NEC-002 was subsequently authorized and completed; NEC-003 through NEC-018 remain
+NOT STARTED until further instruction. See [NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md).
 
 Pinned Windows x64 versions: Unity 6000.4.9f1, Godot 4.6.3-stable official,
 Unreal 5.7.4-51494982+++UE5+Release-5.7. Installed-host versions do not prove native
@@ -138,7 +139,13 @@ Legacy gameplay outside the adopted slice may continue operating on its own unre
 
 ## 5. Stable identity architecture
 
-Add a versioned **editor identity mapping** to the existing project-system manifests, distinct from runtime EntityID and package content hash. Proposed fields: project namespace, canonical authoring object ID, engine instance ID, native persistent locator, scene/prefab definition ID, instance identity, optional World object/actor/instance binding, generation, tombstone and provenance. These names describe future contract fields, not existing APIs.
+NEC-002 implements a versioned **authoring identity mapping** in project-system,
+bound to the existing manifest and stored under `.xace/authoring/`, distinct from
+runtime EntityID and package content hash. The typed contract includes namespace,
+branch, canonical object ID, persistent native document/object locator, scene,
+prefab definition/instance, optional World binding, generation, tombstone and
+provenance. See [the implemented contract](NEC002_AUTHORING_IDENTITIES.md).
+Native metadata attachment and capture remain NEC-004/005/006 work.
 
 Assign opaque IDs once during an approved metadata transaction. Persist them in version-controlled sidecar/native metadata. They are authoring identities and must not introduce random runtime behavior. Runtime entity IDs remain governed by deterministic runtime allocation; resolve runtime instances through the existing world binding map.
 
@@ -280,11 +287,14 @@ Retain source commit and working-tree digest, engine/OS/tool versions, fixture h
 
 ## 15. Ordered implementation program
 
-NEC-001 is **complete for engineering handoff**; NEC-002–018 are **not started**. Dependencies refer to completed and verified outputs, not merely merged code. Engine-specific tracks may be scheduled concurrently after shared contracts stabilize; that is a future implementation scheduling option, not delegation of this design task.
+NEC-001 and NEC-002 are **complete** within their declared scopes; NEC-003 through
+NEC-018 are **not started**. Dependencies refer to completed and verified outputs,
+not merely merged code. Engine-specific tracks may be scheduled concurrently after
+shared contracts stabilize; that is a future scheduling option, not delegation.
 
 ### NEC-001 — Freeze the post-XP-022 handoff and supported promise
 
-- **Status:** COMPLETE. See [audit](NEC001_HANDOFF_AUDIT.md), [ADR](adr/NEC-001-native-authoring-ownership.md) and [evidence](recovery/evidence/nec001-20261015/summary.json). NEC-002 requires a new user instruction.
+- **Status:** COMPLETE. See [audit](NEC001_HANDOFF_AUDIT.md), [ADR](adr/NEC-001-native-authoring-ownership.md) and [evidence](recovery/evidence/nec001-20261015/summary.json). NEC-002 was subsequently authorized and completed as recorded below.
 - **Purpose:** establish one honest start/release contract.
 - **Problem solved:** the original design used an older checkout; the actual uncommitted XP-022 seal now anchors the handoff. Broad engine ranges still cannot certify a profile.
 - **Reuse:** E01/E03/E09–E14; XP-018–022 contracts and proof matrix.
@@ -297,6 +307,9 @@ NEC-001 is **complete for engineering handoff**; NEC-002–018 are **not started
 
 ### NEC-002 — Persist canonical authoring identities and baselines
 
+- **Status:** COMPLETE. [Contract/completion](NEC002_AUTHORING_IDENTITIES.md) and
+  [evidence](evidence/nec002-identities-20261008.json). Project-side metadata only;
+  native capture/materialization and verified save receipts remain later tasks.
 - **Purpose:** make edits durable across rename, move and restart.
 - **Problem solved:** names/paths/runtime IDs cannot identify native authored objects reliably.
 - **Reuse:** E01 project manifest, E09 World bindings, E03 ownership hashes, E08 persistence.
@@ -511,9 +524,9 @@ NEC-001 is **complete for engineering handoff**; NEC-002–018 are **not started
 
 **Safely later:** additional versions/platforms, in-process embedding, richer geometry backends, broader plugin translators, full native animation-graph conversion, advanced collaborative editing, convenience automation, the major UX/UI redesign, and runtime-free source export research. Broader commercial-scale soak/support/store certification follows the existing release program; do not confuse this bounded production-path proof with certification of every game or platform.
 
-**Current stop point:** NEC-001 is complete against the exact local XP-022
-engineering baseline. The remaining 17 tasks retain their order with section 1's
-migration/recovery/release amendments. NEC-002 is not started and requires the
+**Current stop point:** NEC-001 and NEC-002 are complete against the local XP-022
+engineering baseline. The remaining 16 tasks retain their order with section 1's
+migration/recovery/release amendments. NEC-003 is not started and requires the
 owner's next instruction. Full runtime-free native source export remains outside
 this program and needs a separately approved compiler/parity effort.
 

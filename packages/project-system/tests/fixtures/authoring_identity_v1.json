@@ -1,0 +1,36 @@
+{
+  "schema": "xace.authoring_identity.v1",
+  "project_id": "fixture-project",
+  "namespace_id": "00000000000000000000000000000064",
+  "branch_id": "000000000000000000000000000000c8",
+  "engine": "godot",
+  "baseline": null,
+  "objects": {
+    "00000000000000000000000000000001": {
+      "authoring_id": "00000000000000000000000000000001",
+      "kind": "scene",
+      "locator": {"engine": "godot", "document_id": "original-resource-guid", "object_id": "scene-root-guid"},
+      "scene_id": null,
+      "prefab_id": null,
+      "parent_id": null,
+      "display_name": "Original scene",
+      "path_hint": "old/location.tscn",
+      "world_binding": null,
+      "duplicate_of": null,
+      "provenance": "retained-map:reviewed"
+    },
+    "00000000000000000000000000000002": {
+      "authoring_id": "00000000000000000000000000000002",
+      "kind": "object",
+      "locator": {"engine": "godot", "document_id": "original-resource-guid", "object_id": "persistent-node-guid"},
+      "scene_id": "00000000000000000000000000000001",
+      "prefab_id": null,
+      "parent_id": null,
+      "display_name": "Renamed later",
+      "path_hint": "old/location.tscn:OldNodePath",
+      "world_binding": {"world_object_id": "world.crate", "actor_id": "crate", "instance_index": 0},
+      "duplicate_of": null,
+      "provenance": "retained-map:reviewed"
+    }
+  }
+}

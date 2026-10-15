@@ -25,6 +25,43 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-002: COMPLETE - AUTHORING IDENTITIES AND BASELINES - 2026-10-08
+
+Implemented the opt-in project-system identity contract and durable revision store
+in `packages/project-system/authoring_identity.py` and
+`packages/project-system/authoring_identity_store.py`. The store binds to the
+existing project manifest without modifying CGS, runtime EntityID allocation,
+native project files or engine capability claims.
+
+- [x] Stable namespace/branch/object IDs; distinct prefab definitions/instances;
+  native persistent locators separate from name/path hints; optional World bindings.
+- [x] Copy-based preparation; rename/reparent continuity; distinct duplication;
+  tombstones and explicit undo; collision/lost-metadata refusal; fork conflicts.
+- [x] Versioned baseline and journal/receipt references; explicit retained-map
+  migration preserving IDs; content-addressed immutable history, locked CAS head
+  publication, idempotent retry and explicit missing/corrupt-head recovery.
+- [x] 24 focused tests and 67 existing project/Player/authoring regressions pass.
+  Focused proofs include 300 identity round trips, a real process exit before
+  publication and two real competing writer processes.
+- [ ] NEC-003 through NEC-018: NOT STARTED. Stop until the owner's next instruction.
+
+Native metadata attachment is specified for NEC-004/005/006, not implemented by
+this task. Normalized snapshots, three-way merge and multi-editor transaction
+recovery remain in NEC-003/008/009. Baseline receipts are validated references;
+the later coordinator must verify their actual native/canonical save content.
+No installed-editor, native shipping, performance or runtime-free export claim
+is added. The existing NEC ordering and XP-022 external release gates are unchanged.
+
+XP-022 seal and detailed certification files remain byte-identical; existing
+source-manifest entries are unchanged except the live master-plan addenda.
+NEC-001 receipts remain historical and untouched; pre-NEC-002 master/roadmap copies
+under `target/nec002/entry-documents/` match those original receipts.
+No commit or push was performed.
+
+See [NEC-002 contract and completion](docs/NEC002_AUTHORING_IDENTITIES.md),
+[evidence](docs/evidence/nec002-identities-20261008.json) and the
+[current NEC program](docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md).
+
 ## NEC-001: COMPLETE — ENGINEERING HANDOFF ONLY — 2026-10-08
 
 The owner supplied `C:/Users/ankit/Downloads/xace/target/xp016-work` and explicitly
