@@ -12,7 +12,8 @@
   "sealed_artifacts_unchanged": true,
   "off_device_backup": false,
   "next": "NEC005",
-  "historical_discrepancy": "Historical closeout claims50 native checks; reconstructed executable produces39 run+4 reload+6 Play=49, all passing. No missing check invented.",
+  "historical_discrepancy": null,
   "recovery_adaptation": "Native transaction before-images/receipts and proof snapshots moved from Library into persistent .xace; proof output moved from target to recovery-evidence.",
-  "scope": "Callable Unity authoring discovery/capture and approved native field writes; no automatic CGS synchronization or runtime-free exit."
+  "scope": "Callable Unity authoring discovery/capture and approved native field writes; no automatic CGS synchronization or runtime-free exit.",
+  "reporting_correction": "Checkpoint91b5f7c prose miscounted39 run cases; machine receipts correctly record40 run+4 reload+6 Play=50. Corrected without changing test evidence."
 }

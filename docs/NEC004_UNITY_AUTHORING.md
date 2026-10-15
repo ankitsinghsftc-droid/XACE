@@ -1,4 +1,4 @@
-> Reconstructed historical NEC004 document. Fresh recovery verification passed:228 Python tests and49 installed-Unity checks; original evidence and disposable paths below are historical, not current instructions. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC004 document. Fresh recovery verification passed:228 Python tests and50 installed-Unity checks; original evidence and disposable paths below are historical, not current instructions. See AGENT_PROGRESS.md.
 
 # NEC-004 - Unity editor discovery, capture and staged writes
 
