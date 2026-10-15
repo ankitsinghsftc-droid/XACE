@@ -1,0 +1,70 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\reconstruction\\nec001",
+  "records": [
+    {
+      "line": 420,
+      "patch_sha256": "ea0d6bd63f1602c401b3ffa7212ade9b0daef228d82866149a2395ffe43694a2",
+      "changes": [
+        {
+          "path": "tools/nec001_handoff_verify.py",
+          "before_sha256": null,
+          "after_sha256": "e55b4e127d33c2ee97ce40a6555668db96a7669ed68a3e9285ff16346fa29a6e"
+        }
+      ]
+    },
+    {
+      "line": 467,
+      "patch_sha256": "a54ea5d8fc76b703d5e4dce160c630d7b2cb249994e1009caf5e02df8d732c94",
+      "changes": [
+        {
+          "path": "docs/NEC001_HANDOFF_AUDIT.md",
+          "before_sha256": null,
+          "after_sha256": "7b20b64e741bc22ecccbb5c0bac3cdbf32baf5f5f00c94e3c4b7a4e67be9d207"
+        },
+        {
+          "path": "docs/adr/NEC-001-native-authoring-ownership.md",
+          "before_sha256": null,
+          "after_sha256": "56e95742c6e99637ef69f464e706fb6bf63d5c1016ee24413677bab345742b58"
+        }
+      ]
+    },
+    {
+      "line": 518,
+      "patch_sha256": "72748baa1e69abd53c55118c6b9ac675bd219dd619d3108c90aca3f8bebcfb3d",
+      "changes": [
+        {
+          "path": "MASTER_PLAN.md",
+          "before_sha256": "a864cf0a87a54bc6becd47adefb73fb88a5ccab8e81691ad4a8823e00bac5042",
+          "after_sha256": "f4ef37860c6696e2d8c374dc6a8b012d37681dbe2cc8725dae4cbe137d0087c6"
+        }
+      ]
+    },
+    {
+      "line": 532,
+      "patch_sha256": "01d52257588f79553ac6733c9dc6073affab293b4238ae76f21ac5ce1f04f387",
+      "changes": [
+        {
+          "path": "tools/nec001_handoff_verify.py",
+          "before_sha256": "e55b4e127d33c2ee97ce40a6555668db96a7669ed68a3e9285ff16346fa29a6e",
+          "after_sha256": "c1b6c266ebb718c2cceed18d31c6e4cd7a136fc2482ade6e1e17f710b38f4109"
+        },
+        {
+          "path": "docs/NEC001_HANDOFF_AUDIT.md",
+          "before_sha256": "7b20b64e741bc22ecccbb5c0bac3cdbf32baf5f5f00c94e3c4b7a4e67be9d207",
+          "after_sha256": "799e644cbf26715f613062a1e45d44afd144e05a4b3e0286a74641a73599d10d"
+        }
+      ]
+    },
+    {
+      "line": 496,
+      "reviewed_shell": "source-only roadmap reconciliation from surviving design document",
+      "encoding_cleanup": "571 source-only portion; historical evidence writers excluded"
+    }
+  ],
+  "excluded": [
+    512,
+    474,
+    548
+  ],
+  "note": "512 failed patch;474 unexecuted shell;548 historical evidence generation not replayed. Fresh verification pending."
+}

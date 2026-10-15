@@ -25,6 +25,51 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-001: COMPLETE — ENGINEERING HANDOFF ONLY — 2026-10-08
+
+The owner supplied `C:/Users/ankit/Downloads/xace/target/xp016-work` and explicitly
+authorized NEC-001 against its sealed post-XP-022 implementation, including
+uncommitted work. This supersedes the earlier wrong-checkout prerequisite block
+and authorizes the engineering/release separation for this handoff. The historical
+XP-022 entries below and the sealed certification/manifest are unchanged.
+
+- [x] NEC-001: audited actual XP-018–022 APIs, retained native proofs and present
+  import/edit/export limits; reconciled the roadmap; fixed pinned versions,
+  geometry/scale scope, ownership and required fixture assertions.
+- [ ] NEC-002 through NEC-018: NOT STARTED. Stop here until the owner's next instruction.
+- XP-022 ENGINEERING COMPLETE — EXTERNAL RELEASE GATES OPEN. REL-01 clean Windows,
+  REL-02 two-machine LAN, REL-03 public relay/two networks, REL-04 signing and
+  REL-05 three first-time testers remain OPEN. No original full release pass,
+  new commercial-use grant, commit or push is claimed.
+
+Frozen identity: revision `39ed07b8cd390619a479a3364dc903ee077a6d38` plus source
+inventory `4d728ba9752124388cf451f7fd4492f2d87b4562fbdc965b19908dc389ac636a`.
+The source ZIP, nine sealed payloads, 27 referenced reports, native assemblies
+and unsigned release remain intact. Before/after SHA-256 inventories verify all
+2,140 files in the sealed baseline and final-certification trees. This live master
+addendum is the only changed pre-existing source-manifest entry; the sealed master
+copy remains exact. All other NEC outputs are new files, outside XP-022 evidence.
+
+Fresh verification: 85 Python tests and 23 exact-source Rust reference tests pass;
+production-host session/socket/recovery proofs, five process-fault scenarios,
+five replay fault cases and five before/at/after/repeat/rewind verifications pass.
+Replay subset exit code 2 means `local_subset_ok: true`, `certified: false`, by
+design. Retained installed-native proofs and the two-hour soak were inspected and
+hash-verified, not rerun or relabeled as native authoring/build certification.
+
+Roadmap amendments: reuse actual installed Unity 6000.4.9f1, Godot 4.6.3 and
+Unreal 5.7.4 reader/session foundations; restrict live activation to registered
+read-only configuration replacement; structural/world edits require explicit
+stop/rebuild/new admission. XP-019 post-decision failure ends the session, so
+NEC-009 needs its own authoring recovery journal. XP-021 inspection is not a native
+conflict UI. NEC-016 must preserve segmented replay metadata, dependencies and
+continuing-use terms. Runtime-free native gameplay export remains outside NEC v1.
+
+Canonical records: [audit](docs/NEC001_HANDOFF_AUDIT.md),
+[ownership ADR](docs/adr/NEC-001-native-authoring-ownership.md),
+[amended NEC program](docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md),
+[evidence](docs/evidence/nec001-handoff-20261008.json).
+
 ---
 
 ## XP-022: LOCAL ENGINEERING GATES PASSED — EXTERNAL RELEASE ACCEPTANCE OPEN - 2026-10-08
