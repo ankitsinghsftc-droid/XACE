@@ -177,7 +177,7 @@ func opaque(node: Node, fingerprint_value: String) -> Array:
 	for signal_info in node.get_signal_list():
 		for connection in node.get_signal_connection_list(signal_info.name):
 			if connection.flags & Object.CONNECT_PERSIST: critical = true
-	result.append({"id": "native.properties", "sha256": (fingerprint_value + ":" + str(node.get_path()) + ":" + kind).sha256_text(), "critical": critical, "reason": "Unmapped native behavior retained" if critical else "Unowned native properties retained"})
+	result.append({"id": "native.properties", "sha256": (fingerprint_value + ":" + str(node.get_meta(META, {}).get("local_id", node.name)) + ":" + kind).sha256_text(), "critical": critical, "reason": "Unmapped native behavior retained" if critical else "Unowned native properties retained"})
 	return result
 
 func load_scene(path: String) -> PackedScene:

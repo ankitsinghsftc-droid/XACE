@@ -183,3 +183,5 @@ NEC004 RECOVERY VERIFIED:228 Python tests and50 installed Unity6000.4.9f1 checks
 NEC005 source restored from13 patches and8 reviewed source-only shell edits. Original historical evidence not generated. Fresh239 Python and74 installed-Godot checks pending. Persistent output paths enforced; no original data modified. NOT backed up off-device.
 
 NEC005 first native attempt timed out at missing godot-golden.json. Diagnosed omitted source-only shell edit within mixed historical call1993; restored exact successful staging edit. This is reconstruction correction, not new behavior. Failed fixture/log retained.239 Python tests pass; native retry pending.
+
+NEC005 mixed-call audit additionally restored1914 stable local_id fingerprint replacement. Prior native retry passed74 checks but was not final source; final native run required.239 Python tests unchanged.

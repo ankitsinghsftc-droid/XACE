@@ -214,6 +214,15 @@
         }
       ],
       "recovery_note": "Mixed patch+shell call had golden staging edit after patch. Restored after first native run exposed missing golden file; failed attempt retained."
+    },
+    {
+      "line": 1914,
+      "changes": [
+        {
+          "reviewed_source_only_shell": "First source replacement only; excluded disposable API-probe generation."
+        }
+      ],
+      "recovery_note": "Final mixed-call audit found stable local_id fingerprint replacement. Restored before accepting native evidence."
     }
   ],
   "historical_evidence_recreated": false,
