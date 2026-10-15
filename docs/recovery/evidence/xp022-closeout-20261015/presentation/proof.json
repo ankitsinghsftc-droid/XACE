@@ -1,0 +1,224 @@
+{
+  "schema": "xace.xp009.presentation_proof.v1",
+  "ok": true,
+  "full_suite": true,
+  "selected_scenarios": null,
+  "cosmetic_variants_same_gameplay_hash": true,
+  "cosmetic_variants_same_30_tick_projection_digests": true,
+  "scenarios": {
+    "0-normal": {
+      "errors": [],
+      "ticks": 30,
+      "presentation": {
+        "active_effects": 2,
+        "applied_effects": 3,
+        "duplicate_events": 0,
+        "records": [
+          {
+            "asset_id": "floor_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "player_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "target_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "wall_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "pulse",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "camera",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "sound",
+            "reason": "available",
+            "status": "resolved"
+          }
+        ],
+        "rollbacks": 0,
+        "schema": "xace.player.presentation_status.v1",
+        "world_bindings": {
+          "floor": "1",
+          "player": "3",
+          "target": "4",
+          "wall": "2"
+        }
+      },
+      "owned_runtime_stopped": true,
+      "checks": {
+        "duplicate_suppressed": true,
+        "restore_clean": true,
+        "restore_state_preserved": true,
+        "replay_once": true,
+        "expired_clean": true
+      }
+    },
+    "0-missing": {
+      "errors": [],
+      "ticks": 30,
+      "presentation": {
+        "active_effects": 2,
+        "applied_effects": 3,
+        "duplicate_events": 0,
+        "records": [
+          {
+            "asset_id": "floor_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "player_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "target_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "wall_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "pulse",
+            "reason": "cosmetic_missing_or_unsupported",
+            "status": "fallback"
+          },
+          {
+            "asset_id": "camera",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "sound",
+            "reason": "available",
+            "status": "resolved"
+          }
+        ],
+        "rollbacks": 0,
+        "schema": "xace.player.presentation_status.v1",
+        "world_bindings": {
+          "floor": "1",
+          "player": "3",
+          "target": "4",
+          "wall": "2"
+        }
+      },
+      "owned_runtime_stopped": true,
+      "checks": {
+        "duplicate_suppressed": true,
+        "restore_clean": true,
+        "restore_state_preserved": true,
+        "replay_once": true,
+        "expired_clean": true
+      }
+    },
+    "0-binding_mismatch": {
+      "errors": [
+        "World object binding is missing: floor"
+      ],
+      "ticks": 0,
+      "presentation": {},
+      "owned_runtime_stopped": true,
+      "checks": {}
+    },
+    "0-tamper": {
+      "errors": [
+        "Package verification failed. Reinstall this game package."
+      ],
+      "ticks": 0,
+      "presentation": {},
+      "owned_runtime_stopped": true,
+      "checks": {}
+    },
+    "0-geometry_missing": {
+      "errors": [
+        "Package verification failed. Reinstall this game package."
+      ],
+      "ticks": 0,
+      "presentation": {},
+      "owned_runtime_stopped": true,
+      "checks": {}
+    },
+    "1-normal": {
+      "errors": [],
+      "ticks": 30,
+      "presentation": {
+        "active_effects": 2,
+        "applied_effects": 3,
+        "duplicate_events": 0,
+        "records": [
+          {
+            "asset_id": "floor_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "player_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "target_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "wall_skin",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "pulse",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "camera",
+            "reason": "available",
+            "status": "resolved"
+          },
+          {
+            "asset_id": "sound",
+            "reason": "available",
+            "status": "resolved"
+          }
+        ],
+        "rollbacks": 0,
+        "schema": "xace.player.presentation_status.v1",
+        "world_bindings": {
+          "floor": "1",
+          "player": "3",
+          "target": "4",
+          "wall": "2"
+        }
+      },
+      "owned_runtime_stopped": true,
+      "checks": {
+        "duplicate_suppressed": true,
+        "restore_clean": true,
+        "restore_state_preserved": true,
+        "replay_once": true,
+        "expired_clean": true
+      }
+    }
+  },
+  "scope": "Exported Windows Player and native reference host on this machine; automated keyboard input. Verified full projection digests, not a world-hash replay. Local presentation restore tested; remote session restore remains later work."
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "xace.xp021.creator_walkthrough.v1",
+  "ok": true,
+  "walkthrough": {
+    "event_tick": 9,
+    "epoch": 1,
+    "live_before": 4609,
+    "live_after": 5889,
+    "guest_refused": true,
+    "verified": true,
+    "exported": true,
+    "live_fork_verified": true
+  },
+  "creator_pause_resume": true,
+  "recording_id": "e438826fc8d9e45e4b69ba4f71f9b6d2804201d951062756ef4bc475f79f0ac9",
+  "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "scope": "Windows browser + explicitly pinned host + separate running authority"
+}

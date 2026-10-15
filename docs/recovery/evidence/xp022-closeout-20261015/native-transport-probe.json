@@ -1,0 +1,17 @@
+{
+  "results": [
+    {
+      "mode": "observe",
+      "ok": true
+    },
+    {
+      "mode": "fragment",
+      "ok": true
+    },
+    {
+      "mode": "observe-repeat",
+      "ok": true
+    }
+  ],
+  "scope": "Diagnostic real TCP proxy, no runtime or adapter changes; passing does not prove historical root cause."
+}

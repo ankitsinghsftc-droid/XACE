@@ -1,11 +1,17 @@
 // Test host only: generic actions and evidence, no package gameplay rules.
+static bool WriteMixedEvidence(const FString& Transcript, const TSharedPtr<FJsonObject>& Row)
+{
+    FString Line=XaceCanonical::Json(Row);Line.ReplaceInline(TEXT("\r"),TEXT(""));Line.ReplaceInline(TEXT("\n"),TEXT(""));
+    return FFileHelper::SaveStringToFile(Line+TEXT("\n"),*Transcript,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,&IFileManager::Get(),FILEWRITE_Append|FILEWRITE_AllowRead);
+}
 static int32 MixedSessionProof(const FString& Params)
 {
     FString ConfigPath,Raw,Ticket,WorldJson;FParse::Value(*Params,TEXT("XaceMixed="),ConfigPath);
     if(!FFileHelper::LoadFileToString(Raw,*ConfigPath))return 1;
     auto Config=XaceCanonical::Parse(Raw);if(!Config)return 1;
     const FString Transcript=Config->GetStringField(TEXT("transcript"));
-    auto Record=[&](TSharedPtr<FJsonObject> Row){FString Line=XaceCanonical::Json(Row);Line.ReplaceInline(TEXT("\r"),TEXT(""));Line.ReplaceInline(TEXT("\n"),TEXT(""));FFileHelper::SaveStringToFile(Line+TEXT("\n"),*Transcript,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,&IFileManager::Get(),FILEWRITE_Append);};
+    bool EvidenceOk=true;
+    auto Record=[&](TSharedPtr<FJsonObject> Row){if(!WriteMixedEvidence(Transcript,Row)){EvidenceOk=false;UE_LOG(LogTemp,Error,TEXT("XACE mixed proof evidence write failed: %s"),*Transcript);}};
     if(!FFileHelper::LoadFileToString(Ticket,*Config->GetStringField(TEXT("ticket")))||!FFileHelper::LoadFileToString(WorldJson,*Config->GetStringField(TEXT("world"))))return 1;
     UWorld* World=UWorld::CreateWorld(EWorldType::Game,false,TEXT("XaceMixedProof"));
     AActor* Owner=World->SpawnActor<AActor>();auto Transport=NewObject<UXaceTransportComponent>(Owner);Owner->AddInstanceComponent(Transport);Transport->RegisterComponent();Transport->bAutoConnect=false;Transport->bReconnect=false;
@@ -30,7 +36,7 @@ static int32 MixedSessionProof(const FString& Params)
         Last=int64(M->GetNumberField(TEXT("tick")));Row->SetStringField(TEXT("kind"),TEXT("tick"));Row->SetNumberField(TEXT("tick"),Last);Row->SetBoolField(TEXT("applied"),Applied);Row->SetStringField(TEXT("projection_json"),M->GetStringField(TEXT("projection_json")));Row->SetObjectField(TEXT("sync"),M->GetObjectField(TEXT("sync")));Row->SetArrayField(TEXT("events"),M->GetArrayField(TEXT("events")));Record(Row);
     });
     Transport->ConnectToRuntime();const double Deadline=FPlatformTime::Seconds()+180;
-    while(Last<Stop&&FPlatformTime::Seconds()<Deadline){Transport->PumpOnce(0.005f);FPlatformProcess::Sleep(0.005f);}
-    const bool Ok=Last==Stop&&Transport->GetStats().ProtocolErrors==0;
-    Transport->DisconnectFromRuntime(TEXT("proof leave"));auto Row=MakeShared<FJsonObject>();Row->SetStringField(TEXT("kind"),TEXT("done"));Row->SetBoolField(TEXT("ok"),Ok);Record(Row);World->DestroyWorld(false);return Ok?0:1;
+    while(EvidenceOk&&Last<Stop&&FPlatformTime::Seconds()<Deadline){Transport->PumpOnce(0.005f);FPlatformProcess::Sleep(0.005f);}
+    const bool Ok=EvidenceOk&&Last==Stop&&Transport->GetStats().ProtocolErrors==0;
+    Transport->DisconnectFromRuntime(TEXT("proof leave"));auto Row=MakeShared<FJsonObject>();Row->SetStringField(TEXT("kind"),TEXT("done"));Row->SetBoolField(TEXT("ok"),Ok);Record(Row);World->DestroyWorld(false);return Ok&&EvidenceOk?0:1;
 }

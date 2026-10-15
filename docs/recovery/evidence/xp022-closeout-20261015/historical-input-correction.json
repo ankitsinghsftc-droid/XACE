@@ -1,0 +1,28 @@
+[
+  {
+    "milestone": "xp017",
+    "tick": 13,
+    "journal": "recovery-evidence\\20261012\\xp017\\four-acceptance\\four\\session.jsonl",
+    "journal_sha256": "99fb5df55693c24f48bd15c9d00f15b1683e1db5df816afff48546868d222f36",
+    "journal_line": 116,
+    "authority_received_input": true,
+    "device_id": "xp017-unreal",
+    "transcript": "recovery-evidence\\20261012\\xp017\\four-acceptance\\four\\unreal.jsonl",
+    "transcript_sha256": "99428817982b83610417c5b894a3e1f1586311ebc09ca9aa99d1b29906099286",
+    "local_input_row_missing": true,
+    "prior_missing_network_input_claim": "incorrect"
+  },
+  {
+    "milestone": "xp019",
+    "tick": 0,
+    "journal": "recovery-evidence\\20261012\\xp019\\four-acceptance\\four\\session.jsonl",
+    "journal_sha256": "39c31369e7b342ed121bcb5666160192abcb52cd7877a8f0b9a9b83b4e48f17f",
+    "journal_line": 11,
+    "authority_received_input": true,
+    "device_id": "xp017-unreal",
+    "transcript": "recovery-evidence\\20261012\\xp019\\four-acceptance\\four\\unreal.jsonl",
+    "transcript_sha256": "cdeebfee6869b9b7a8e0bdfd7b5d23465cfa4f19dd2f446b1cb5bc343fb95868",
+    "local_input_row_missing": true,
+    "prior_missing_network_input_claim": "incorrect"
+  }
+]

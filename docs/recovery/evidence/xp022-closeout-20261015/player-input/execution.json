@@ -1,0 +1,19 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp008_player_proof",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\player-input",
+    "--godot",
+    "C:\\Users\\ankit\\Downloads\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64_console.exe",
+    "--template",
+    "C:\\Users\\ankit\\Downloads\\xace\\tmp\\xp008-export\\windows_release_x86_64.exe"
+  ],
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 20.187999999998283
+}

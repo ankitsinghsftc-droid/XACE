@@ -1,0 +1,17 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp015_relay_proof",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\relay",
+    "--release",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\release"
+  ],
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 25.920999999998457
+}

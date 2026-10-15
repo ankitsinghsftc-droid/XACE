@@ -48,6 +48,16 @@ UXaceNativeContractProofCommandlet::UXaceNativeContractProofCommandlet()
 {IsClient=false;IsServer=false;IsEditor=true;LogToConsole=true;}
 int32 UXaceNativeContractProofCommandlet::Main(const FString& Params)
 {
+    if(Params.Contains(TEXT("XaceEvidenceWrite=")))
+    {
+        FString Path,ReportPath;FParse::Value(*Params,TEXT("XaceEvidenceWrite="),Path);FParse::Value(*Params,TEXT("XaceReport="),ReportPath);
+        const bool Legacy=FFileHelper::SaveStringToFile(TEXT("legacy\n"),*Path,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM,&IFileManager::Get(),FILEWRITE_Append);
+        auto Row=MakeShared<FJsonObject>();Row->SetStringField(TEXT("kind"),TEXT("sharing_probe"));
+        const bool Shared=WriteMixedEvidence(Path,Row);
+        auto Report=MakeShared<FJsonObject>();Report->SetBoolField(TEXT("legacy_write_succeeded"),Legacy);Report->SetBoolField(TEXT("shared_write_succeeded"),Shared);Report->SetBoolField(TEXT("ok"),!Legacy&&Shared);
+        const bool Saved=FFileHelper::SaveStringToFile(XaceCanonical::Json(Report),*ReportPath,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);
+        return !Legacy&&Shared&&Saved?0:1;
+    }
     if(Params.Contains(TEXT("XaceMixed=")))return MixedSessionProof(Params);
     if(FParse::Param(*Params,TEXT("XaceLive")))return LiveProof(Params);
     FString FixturePath,ReportPath,Raw;

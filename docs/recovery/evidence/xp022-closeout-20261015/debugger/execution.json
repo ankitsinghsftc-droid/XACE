@@ -1,0 +1,21 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_evidence_recovered": false,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "-m",
+    "tools.xp021_debugger_proof",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\debugger",
+    "--recording",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\hosts\\four\\replay.json",
+    "--package",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts\\parent",
+    "--current-host",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe"
+  ],
+  "returncode": 0,
+  "passed": true,
+  "elapsed_seconds": 5.922000000002299
+}
