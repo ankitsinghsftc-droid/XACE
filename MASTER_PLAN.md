@@ -25,6 +25,37 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-005: COMPLETE - GODOT SAVED NATIVE AUTHORING - 2026-10-09
+
+Implemented the opt-in Godot 4.6.3 editor authoring plugin, native discovery/capture,
+explicit persistent metadata and staged PackedScene writer under
+`adapters/godot/authoring/`, with the NEC-002/003 bridge in
+`packages/project-system/godot_authoring.py`.
+
+- [x] Scene/resource UIDs and node identities; nested packed instances, rename/
+  reparent continuity, grouped editor Undo/Redo and duplicate metadata refusal.
+- [x] Real text/binary scene saves, binary resource replacement, typed bindings,
+  saved dependency fingerprints, full rescan and retained native behavior losses.
+- [x] Receipt-bound writes, exact numeric refusal, before-image restore, newer-edit
+  conflicts and recovery in a fresh editor process; no gameplay authority added.
+- [x] 239 Python tests and 74 installed-Godot checks pass. Actual Play and a separate
+  non-editor process cannot acquire authoring privileges; runtime protocol unchanged.
+- [x] All 2,140 protected XP-022 files and historical NEC receipts preserved.
+- [ ] NEC-006 through NEC-018: NOT STARTED. Stop before NEC-006.
+
+Saved capture/write requires selected scenes closed after explicit save/discard:
+Godot 4.6.3 has no public unsaved-scene query. Unknown native behavior and physics
+remain blocking; arbitrary scripts/graphs and general inherited-scene ecosystems
+are not certified. No automatic CGS commit, baseline advance, synchronization or
+runtime-free export is claimed. No tasks added/reordered; NEC-007/009/010 must
+integrate this explicit boundary and the native receipts. REL-01 through REL-05
+remain OPEN. No commit or push was performed.
+
+See [completion](docs/NEC005_GODOT_AUTHORING.md),
+[evidence](docs/evidence/nec005-godot-20261009.json) and
+`target/nec005/verification-20261009/`. Earlier entries remain historical;
+pre-NEC-005 live plans are retained in `target/nec005/entry-documents/`.
+
 ## NEC-004: COMPLETE - UNITY NATIVE AUTHORING - 2026-10-09
 
 Implemented opt-in Unity 6000.4.9f1 saved-content discovery, explicit authoring

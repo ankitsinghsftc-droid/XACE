@@ -179,3 +179,5 @@ NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions
 NEC004 source reconstructed from23 successful patches1202-1696; rejected1360 excluded after deferred result1380 review. Partial replay preserved before correction. Fresh Unity/Python verification pending; receipt and output paths require persistent recovery adaptation. NOT backed up off-device.
 
 NEC004 RECOVERY VERIFIED:228 Python tests and50 installed Unity6000.4.9f1 checks pass (40 run,4 cold reopen/Python write,6 Play). All50 cases match the historical acceptance count. Persistent .xace holds native transaction receipts/before-images and proof snapshots; recovery-evidence holds isolated project/output. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec004-20261015/summary.json. Native APIs are callable; automatic CGS sync remains later work. Next NEC005. NOT backed up off-device.
+
+NEC005 source restored from13 patches and8 reviewed source-only shell edits. Original historical evidence not generated. Fresh239 Python and74 installed-Godot checks pending. Persistent output paths enforced; no original data modified. NOT backed up off-device.

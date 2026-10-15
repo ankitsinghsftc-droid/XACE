@@ -1,0 +1,214 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\preserved\\20261012\\codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T20-27-13-01a10244-eaef-7821-8567-210dc01e35a3.jsonl",
+  "source_sha256": "753b1490ef6f943a9dd95a04e7c3d6d9a742b658393a7a2ad5367cc23f483358",
+  "records": [
+    {
+      "line": 1888,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1888
+        }
+      ]
+    },
+    {
+      "line": 1893,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/authoring_wire.gd",
+          "before_sha256": null,
+          "after_sha256": "bd7e49a8a5fa2230dfaf13e492ffc3de0280caf25fd1dc140f45345118ca0205"
+        }
+      ]
+    },
+    {
+      "line": 1900,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/authoring_reader.gd",
+          "before_sha256": null,
+          "after_sha256": "e5e4ce342893bb870de92120913b9a59fa9671c42ca0fe735cc6065ca0fd51fb"
+        }
+      ]
+    },
+    {
+      "line": 1907,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/authoring_writer.gd",
+          "before_sha256": null,
+          "after_sha256": "f4f4293094620e4fcf16c99a6c3597b99782feb8489aeb7be3132101907da1d1"
+        }
+      ]
+    },
+    {
+      "line": 1914,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/plugin.cfg",
+          "before_sha256": null,
+          "after_sha256": "3ac5e29e1aa45f0136d850cf195be0f431b33f680560e355b1bd14a6233ac1e3"
+        },
+        {
+          "path": "adapters/godot/authoring/authoring_plugin.gd",
+          "before_sha256": null,
+          "after_sha256": "65abfc83e0959bad725700438ee4ef26d97beb2b5014024e7a4f8a8040a3e5f0"
+        }
+      ]
+    },
+    {
+      "line": 1924,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1924
+        }
+      ]
+    },
+    {
+      "line": 1931,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/native_proof.gd",
+          "before_sha256": null,
+          "after_sha256": "c465d13266ec040650c206fa7b078f41a9e2865fec3af5243eda780ba03defc2"
+        }
+      ]
+    },
+    {
+      "line": 1938,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1938
+        },
+        {
+          "path": "tools/nec005_godot_proof.py",
+          "before_sha256": null,
+          "after_sha256": "a5332d10fa6fa5b3926b9fb8c74aa5d9dff6d5d1e09f8319b355271eee97d138"
+        }
+      ]
+    },
+    {
+      "line": 1958,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1958
+        }
+      ]
+    },
+    {
+      "line": 1979,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1979
+        }
+      ]
+    },
+    {
+      "line": 1993,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/native_proof.gd",
+          "before_sha256": "da5343b316cde8ee6ca7239c8fc5f25d4491213a52725e078cbd4c279c9c5b0d",
+          "after_sha256": "18fb9d004056078e0f9fbd6c07146ec6b9e9688d08d076890375940c3769a4da"
+        }
+      ]
+    },
+    {
+      "line": 2015,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/authoring_plugin.gd",
+          "before_sha256": "65abfc83e0959bad725700438ee4ef26d97beb2b5014024e7a4f8a8040a3e5f0",
+          "after_sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b"
+        },
+        {
+          "path": "adapters/godot/authoring/authoring_reader.gd",
+          "before_sha256": "933df34eefcb7de4613b8c119459cbf6f842cea1cd80a8db3ba2f553a6412f2b",
+          "after_sha256": "7bd5292beb8e989821db1855c07a83a9ce8de173b3a753e3365a165ba1c12689"
+        }
+      ]
+    },
+    {
+      "line": 2022,
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_godot_authoring.py",
+          "before_sha256": "f64a53cb87eee6c0bd401c5fc9bb09b39eb2ee3a4ebc7498d30986d1d6053592",
+          "after_sha256": "a26c86c2cc308c3db032a91a4f7dabf48ef0f2900a6f9c60ab6e6804f50b2691"
+        }
+      ]
+    },
+    {
+      "line": 2030,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/native_proof.gd",
+          "before_sha256": "18fb9d004056078e0f9fbd6c07146ec6b9e9688d08d076890375940c3769a4da",
+          "after_sha256": "57999057033ff493ca07373e7379465e7cacd46da77a8d62b5fe9f3ccef8941f"
+        },
+        {
+          "path": "adapters/godot/authoring/runtime_privilege_proof.gd",
+          "before_sha256": null,
+          "after_sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6"
+        },
+        {
+          "path": "tools/nec005_godot_proof.py",
+          "before_sha256": "77e6e2d2bffd1e90e383f935ae6a64986ea9e5fb432c4a34df0046d56c55565e",
+          "after_sha256": "f3ce0c7466e6071b9756b9256284dfa9bd4b38e9ee3982f4b53c4154f6a7f4ab"
+        }
+      ]
+    },
+    {
+      "line": 2058,
+      "changes": [
+        {
+          "path": "docs/NEC005_GODOT_AUTHORING.md",
+          "before_sha256": null,
+          "after_sha256": "681b9e6296a0e9e08bf9e75a805178476ed710381330b950c5f8d0d3d9b42371"
+        }
+      ]
+    },
+    {
+      "line": 2065,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2065
+        }
+      ]
+    },
+    {
+      "line": 2084,
+      "changes": [
+        {
+          "path": "adapters/godot/authoring/authoring_reader.gd",
+          "before_sha256": "7bd5292beb8e989821db1855c07a83a9ce8de173b3a753e3365a165ba1c12689",
+          "after_sha256": "2f8b76cc871a34dc231fe2623301009359fd5c808f3fa53c8543d00557f2ec97"
+        },
+        {
+          "path": "adapters/godot/authoring/native_proof.gd",
+          "before_sha256": "57999057033ff493ca07373e7379465e7cacd46da77a8d62b5fe9f3ccef8941f",
+          "after_sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad"
+        }
+      ]
+    },
+    {
+      "line": 2121,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2121
+        }
+      ]
+    },
+    {
+      "line": 2144,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2144
+        }
+      ]
+    }
+  ],
+  "historical_evidence_recreated": false,
+  "recovery_adaptations": [
+    "Proof output confined to persistent recovery-evidence/20261016/nec005; existing phase evidence refused rather than removed. Native receipts already use persistent .xace_authoring."
+  ]
+}

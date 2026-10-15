@@ -4,7 +4,7 @@
 
 # XACE Native Engine Continuity Program
 
-Status: NEC-001 through NEC-004 complete; NEC-005 through NEC-018 NOT STARTED.
+Status: NEC-001 through NEC-005 complete; NEC-006 through NEC-018 NOT STARTED.
 
 Amended 2026-10-08 against the sealed local post-XP-022 implementation. Task IDs and ordering retained; section 1 amendments govern later task scopes.
 
@@ -28,11 +28,12 @@ Accept the sealed local XP-022 engineering profile for NEC-001. Do not rewrite i
 historical seal/status fields. REL-01 through REL-05 in [the release ledger](XP022_RELEASE_GATES.md)
 remain OPEN with original thresholds. This authorization permits engineering
 continuation only; original combined public-release acceptance is not passed.
-NEC-002 through NEC-004 were subsequently authorized and completed; NEC-005 through
+NEC-002 through NEC-005 were subsequently authorized and completed; NEC-006 through
 NEC-018 remain NOT STARTED until further instruction. See
 [NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md) and
 [NEC-003 completion](NEC003_NATIVE_AUTHORING_CONTRACTS.md) and
-[NEC-004 completion](NEC004_UNITY_AUTHORING.md).
+[NEC-004 completion](NEC004_UNITY_AUTHORING.md) and
+[NEC-005 completion](NEC005_GODOT_AUTHORING.md).
 
 Pinned Windows x64 versions: Unity 6000.4.9f1, Godot 4.6.3-stable official,
 Unreal 5.7.4-51494982+++UE5+Release-5.7. Installed-host versions do not prove native
@@ -148,8 +149,8 @@ runtime EntityID and package content hash. The typed contract includes namespace
 branch, canonical object ID, persistent native document/object locator, scene,
 prefab definition/instance, optional World binding, generation, tombstone and
 provenance. See [the implemented contract](NEC002_AUTHORING_IDENTITIES.md).
-Unity metadata attachment and capture are completed in NEC-004; Godot and Unreal
-remain NEC-005/006 work.
+Unity and Godot metadata/capture are complete in NEC-004/005; Unreal remains
+NEC-006 work.
 
 Assign opaque IDs once during an approved metadata transaction. Persist them in version-controlled sidecar/native metadata. They are authoring identities and must not introduce random runtime behavior. Runtime entity IDs remain governed by deterministic runtime allocation; resolve runtime instances through the existing world binding map.
 
@@ -291,7 +292,7 @@ Retain source commit and working-tree digest, engine/OS/tool versions, fixture h
 
 ## 15. Ordered implementation program
 
-NEC-001 through NEC-004 are **complete** within their declared scopes; NEC-005 through
+NEC-001 through NEC-005 are **complete** within their declared scopes; NEC-006 through
 NEC-018 are **not started**. Dependencies refer to completed and verified outputs,
 not merely merged code. Engine-specific tracks may be scheduled concurrently after
 shared contracts stabilize; that is a future scheduling option, not delegation.
@@ -367,7 +368,8 @@ missed notifications and both Play reload settings are covered. Unknown behavior
 still blocks schema admission. These APIs do not commit CGS or advance baselines.
 NEC-007/009/010 must integrate explicit enrollment, loss review, hash-bound writer
 requests, retained recovery receipts and saved-source reopen requirements.
-No task addition or reorder is needed. NEC-005 remains NOT STARTED.
+No task addition or reorder is needed. NEC-005 was subsequently authorized and
+completed as recorded below.
 
 ### NEC-005 — Godot editor reader, capture and staged writer
 
@@ -380,6 +382,17 @@ No task addition or reorder is needed. NEC-005 remains NOT STARTED.
 - **Tests/proofs:** real Godot editor save/reopen/undo corpus, `.tscn` plus supported binary resource handling, duplicate node metadata.
 - **Rollback/failure:** refuse ambiguous node identity; preserve last saved scene and mark required recovery on collision.
 - **Non-goals:** GDScript translation or a separate Player-only authoring model.
+
+Completed 2026-10-09: [implementation and boundaries](NEC005_GODOT_AUTHORING.md),
+[evidence](evidence/nec005-godot-20261009.json). 239 Python tests and 74 installed
+Godot checks pass. Actual text/binary PackedScene saves, external binary resources,
+instance metadata, grouped editor undo, staged writes and fresh-process recovery
+are covered. Capture/write requires selected saved scenes closed after explicit
+save/discard; Godot 4.6.3 exposes no public unsaved-scene query. Unknown behavior
+and native physics remain blocking, and inexact float materialization is refused.
+The unchanged Player/runtime protocol grants no editor privileges. NEC-007/009/010
+must integrate these boundaries, reviewed adoption and retained native receipts.
+No added/reordered task is needed. NEC-006 remains NOT STARTED.
 
 ### NEC-006 — Unreal editor reader, capture and staged writer
 
@@ -549,10 +562,10 @@ No task addition or reorder is needed. NEC-005 remains NOT STARTED.
 
 **Safely later:** additional versions/platforms, in-process embedding, richer geometry backends, broader plugin translators, full native animation-graph conversion, advanced collaborative editing, convenience automation, the major UX/UI redesign, and runtime-free source export research. Broader commercial-scale soak/support/store certification follows the existing release program; do not confuse this bounded production-path proof with certification of every game or platform.
 
-**Current stop point:** NEC-001 through NEC-004 are complete against the local
-XP-022 engineering baseline. The remaining 14 tasks retain their order with
-section 1's migration/recovery/release amendments and NEC-003/004's concrete
-contract/native writer handoff. NEC-005 is not started and requires the owner's
+**Current stop point:** NEC-001 through NEC-005 are complete against the local
+XP-022 engineering baseline. The remaining 13 tasks retain their order with
+section 1's migration/recovery/release amendments and NEC-003/004/005's concrete
+contract/native writer handoff. NEC-006 is not started and requires the owner's
 next instruction.
 Full runtime-free native source export remains outside this program and needs
 a separately approved compiler/parity effort.
