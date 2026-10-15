@@ -1,0 +1,1 @@
+{"name":"XACE.Authoring.Editor","references":["XACE.Authoring.Metadata"],"includePlatforms":["Editor"],"autoReferenced":true}

@@ -1,0 +1,359 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\preserved\\20261012\\codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T20-27-13-01a10244-eaef-7821-8567-210dc01e35a3.jsonl",
+  "source_sha256": "753b1490ef6f943a9dd95a04e7c3d6d9a742b658393a7a2ad5367cc23f483358",
+  "excluded": [
+    {
+      "line": 1360,
+      "reason": "Deferred approval rejected at transcript line1380; no execution."
+    }
+  ],
+  "historical_evidence_recreated": false,
+  "records": [
+    {
+      "line": 1202,
+      "patch": "1202-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Runtime/XACE.Authoring.Metadata.asmdef",
+          "before_sha256": null,
+          "after_sha256": "2695d7f7206e6ff7b821e3de376a6a468759dbdbea458c3ea47ae451b94bba45"
+        },
+        {
+          "path": "adapters/unity/Authoring/Runtime/XaceAuthoringIdentity.cs",
+          "before_sha256": null,
+          "after_sha256": "3c1b4a6e6d4a869c880b8444f1808a207653dd12d38c51e1aed446a049222434"
+        },
+        {
+          "path": "adapters/unity/Authoring/Runtime/XaceAuthoringBinding.cs",
+          "before_sha256": null,
+          "after_sha256": "4e5187b54c6e42999b927035c347ea0ac2d50fa4629719083d60e1b6804d0a74"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/XACE.Authoring.Editor.asmdef",
+          "before_sha256": null,
+          "after_sha256": "2d10fd441a398fbf3e85676e7175ff5c21c6692d68a62977322a8a104dec8fb5"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/AuthoringJson.cs",
+          "before_sha256": null,
+          "after_sha256": "ba5668e18611d7a085c6ba348d4152dece8b4b597e91ca6851ecbb9a00687d63"
+        }
+      ]
+    },
+    {
+      "line": 1209,
+      "patch": "1209-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": null,
+          "after_sha256": "9dcfbe05a441e2baac01ed9139fa99ebc7c7efa95559f65f09e28d604020a9a1"
+        }
+      ]
+    },
+    {
+      "line": 1221,
+      "patch": "1221-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": null,
+          "after_sha256": "66110a95af481420c4fbbbe5af151cb398e69c0c934145c23790329e9996b140"
+        }
+      ]
+    },
+    {
+      "line": 1231,
+      "patch": "1231-0.patch",
+      "changes": [
+        {
+          "path": "tools/nec004_unity_proof.py",
+          "before_sha256": null,
+          "after_sha256": "4575d5cfd45c00358b4bc1f7ca09c2be12320d563546f66866156bc56f3128ac"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": null,
+          "after_sha256": "f56894c569e52c7039c77dd18e5b417650677bd43c48953f1848167769096a41"
+        }
+      ]
+    },
+    {
+      "line": 1255,
+      "patch": "1255-0.patch",
+      "changes": [
+        {
+          "path": "packages/project-system/unity_authoring.py",
+          "before_sha256": null,
+          "after_sha256": "91bfcf06dc3041320db8d2dd977ceeadebfd36014a6c7dcb2f0237559a0629f0"
+        }
+      ]
+    },
+    {
+      "line": 1273,
+      "patch": "1273-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "9dcfbe05a441e2baac01ed9139fa99ebc7c7efa95559f65f09e28d604020a9a1",
+          "after_sha256": "b27e0238f31fb3814c33319cb59f860d57c131a60f0a487aed2ec5c9426780bc"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "f56894c569e52c7039c77dd18e5b417650677bd43c48953f1848167769096a41",
+          "after_sha256": "43d39c2a31a3b6e1f306a1282c323b50fa08b22a99cadf2cb0a0dc7bbf92778a"
+        }
+      ]
+    },
+    {
+      "line": 1299,
+      "patch": "1299-0.patch",
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_unity_authoring.py",
+          "before_sha256": null,
+          "after_sha256": "2da509eb1ecf273fcf2353ba614ba8efbd1e390ba1b3e7ab8226d33e27a0b5f3"
+        }
+      ]
+    },
+    {
+      "line": 1315,
+      "patch": "1315-0.patch",
+      "changes": [
+        {
+          "path": "tools/nec004_unity_proof.py",
+          "before_sha256": "4575d5cfd45c00358b4bc1f7ca09c2be12320d563546f66866156bc56f3128ac",
+          "after_sha256": "208f3ba4c996fe684326f3d72b2cc2aafce8fce8f3bd2a90d7b549a25b1fb596"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "b27e0238f31fb3814c33319cb59f860d57c131a60f0a487aed2ec5c9426780bc",
+          "after_sha256": "bfb03e3bdd7cd8743ad281a651f3c51f0bbca269d8c170b713c36f805fd3be59"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "66110a95af481420c4fbbbe5af151cb398e69c0c934145c23790329e9996b140",
+          "after_sha256": "5077b919992a58c3af19da19cf0101e8bde19db40437d19bc5f61ae2472cddad"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "43d39c2a31a3b6e1f306a1282c323b50fa08b22a99cadf2cb0a0dc7bbf92778a",
+          "after_sha256": "04e9327fd9361c567940527d427f8e66ecfad348fccb905cfbae864fcb6bafca"
+        }
+      ]
+    },
+    {
+      "line": 1332,
+      "patch": "1332-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "bfb03e3bdd7cd8743ad281a651f3c51f0bbca269d8c170b713c36f805fd3be59",
+          "after_sha256": "4f06993362f945e038591f1da07dcb919600d52f7e74a66c10188943f0c5ca92"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "5077b919992a58c3af19da19cf0101e8bde19db40437d19bc5f61ae2472cddad",
+          "after_sha256": "6bdb8ee1114703789047188d3913336918bfd6d309be2edd878ee458195c0775"
+        }
+      ]
+    },
+    {
+      "line": 1339,
+      "patch": "1339-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "6bdb8ee1114703789047188d3913336918bfd6d309be2edd878ee458195c0775",
+          "after_sha256": "e782a5c8d50f896d1380fc1ca51bf45154e5e8bd0803da7fde566f6936112e00"
+        }
+      ]
+    },
+    {
+      "line": 1402,
+      "patch": "1402-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "4f06993362f945e038591f1da07dcb919600d52f7e74a66c10188943f0c5ca92",
+          "after_sha256": "4f06993362f945e038591f1da07dcb919600d52f7e74a66c10188943f0c5ca92"
+        }
+      ]
+    },
+    {
+      "line": 1428,
+      "patch": "1428-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "4f06993362f945e038591f1da07dcb919600d52f7e74a66c10188943f0c5ca92",
+          "after_sha256": "66684b286554439742667a1dea423d266dce4fba0ccb131bb7589ab23d621ae9"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "e782a5c8d50f896d1380fc1ca51bf45154e5e8bd0803da7fde566f6936112e00",
+          "after_sha256": "f9a4aa77aa5d2302026bfcbd1aa2d6904fb2ae3a1c712565602e606091d0253f"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "04e9327fd9361c567940527d427f8e66ecfad348fccb905cfbae864fcb6bafca",
+          "after_sha256": "97d8571d4f09fa5daa96b51fd45b142c2e4102a40b1e967f7685a466262ec73c"
+        }
+      ]
+    },
+    {
+      "line": 1449,
+      "patch": "1449-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "66684b286554439742667a1dea423d266dce4fba0ccb131bb7589ab23d621ae9",
+          "after_sha256": "d20801a456b46246faee3fd516c9148cfa6bde11bb4ae261c49a079c33288f9b"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "f9a4aa77aa5d2302026bfcbd1aa2d6904fb2ae3a1c712565602e606091d0253f",
+          "after_sha256": "af77222210161ffebc050a96d058a065f47ff695a51b6dbb6bcbb313dafab009"
+        }
+      ]
+    },
+    {
+      "line": 1471,
+      "patch": "1471-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "97d8571d4f09fa5daa96b51fd45b142c2e4102a40b1e967f7685a466262ec73c",
+          "after_sha256": "d5d747a23c1c5050456bdc9fbc9a7bf4f48be296618e5e84ef94792f7cbacc0a"
+        }
+      ]
+    },
+    {
+      "line": 1494,
+      "patch": "1494-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "d20801a456b46246faee3fd516c9148cfa6bde11bb4ae261c49a079c33288f9b",
+          "after_sha256": "dda6b5a6de89127cb2e83647298f83352170cf12b1084584b234a95caf1e57c8"
+        }
+      ]
+    },
+    {
+      "line": 1509,
+      "patch": "1509-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "d5d747a23c1c5050456bdc9fbc9a7bf4f48be296618e5e84ef94792f7cbacc0a",
+          "after_sha256": "476dd70eaf3f4fcd56b4391d379fa8e6ce81657c7d2e1ba4e7295d5a7f3eeeb2"
+        },
+        {
+          "path": "tools/nec004_unity_proof.py",
+          "before_sha256": "208f3ba4c996fe684326f3d72b2cc2aafce8fce8f3bd2a90d7b549a25b1fb596",
+          "after_sha256": "898f2260cfcc67cb51853db261e8da6e499b7ef3c03da55acbbed5b993cbd842"
+        }
+      ]
+    },
+    {
+      "line": 1540,
+      "patch": "1540-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+          "before_sha256": "af77222210161ffebc050a96d058a065f47ff695a51b6dbb6bcbb313dafab009",
+          "after_sha256": "3ad2c078f23a553a4f8c009285ad7e613c5bdb63705e80ec63ae33700860a61a"
+        }
+      ]
+    },
+    {
+      "line": 1576,
+      "patch": "1576-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "dda6b5a6de89127cb2e83647298f83352170cf12b1084584b234a95caf1e57c8",
+          "after_sha256": "121d97ece4d7946c838a8601f933b42d05eeee958be91aafee2ecbcda082381a"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "476dd70eaf3f4fcd56b4391d379fa8e6ce81657c7d2e1ba4e7295d5a7f3eeeb2",
+          "after_sha256": "bd90e0e0968c06c180a7fda759bc5bdb9c4fd21c0fa35c36be2a93018b52c145"
+        }
+      ]
+    },
+    {
+      "line": 1592,
+      "patch": "1592-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs",
+          "before_sha256": "121d97ece4d7946c838a8601f933b42d05eeee958be91aafee2ecbcda082381a",
+          "after_sha256": "b88957e7c5e5f29810d04d6e999d3c6875a68651e20469c422468dab3c805218"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "bd90e0e0968c06c180a7fda759bc5bdb9c4fd21c0fa35c36be2a93018b52c145",
+          "after_sha256": "daf7cbc97a19a2c514d1cdfc53cc72c256efff74a7da0116ce3a994f2fb6514d"
+        }
+      ]
+    },
+    {
+      "line": 1605,
+      "patch": "1605-0.patch",
+      "changes": [
+        {
+          "path": "tools/nec004_unity_proof.py",
+          "before_sha256": "898f2260cfcc67cb51853db261e8da6e499b7ef3c03da55acbbed5b993cbd842",
+          "after_sha256": "99a341b490fe5ea6bfe98e238ac18e899e1fcd465309e7533ffe8c41843b7dd4"
+        },
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "daf7cbc97a19a2c514d1cdfc53cc72c256efff74a7da0116ce3a994f2fb6514d",
+          "after_sha256": "4be2cd1b904395435ac191ac9bf614e87d5dd658b211bf2c12528e8a1fa28b1d"
+        }
+      ]
+    },
+    {
+      "line": 1615,
+      "patch": "1615-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "4be2cd1b904395435ac191ac9bf614e87d5dd658b211bf2c12528e8a1fa28b1d",
+          "after_sha256": "1b8aa44e98f2116728a01b8c26fe36717f93466713bddd1ed51bd0b36bd4ebe1"
+        }
+      ]
+    },
+    {
+      "line": 1648,
+      "patch": "1648-0.patch",
+      "changes": [
+        {
+          "path": "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+          "before_sha256": "1b8aa44e98f2116728a01b8c26fe36717f93466713bddd1ed51bd0b36bd4ebe1",
+          "after_sha256": "eed824b1d40c1bf111250efcd354a1fe2b39e5a66c918c9a25db7157c16a52a3"
+        }
+      ]
+    },
+    {
+      "line": 1696,
+      "patch": "1696-0.patch",
+      "changes": [
+        {
+          "path": "docs/NEC004_UNITY_AUTHORING.md",
+          "before_sha256": null,
+          "after_sha256": "e97d2e9eca87225d60b9ea09dc6c244381904fc8b460384dd47df9b9134f202d"
+        }
+      ]
+    }
+  ],
+  "recovery_adaptations": {
+    "files": [
+      "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs",
+      "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs",
+      "tools/nec004_unity_proof.py"
+    ],
+    "reason": "Unique receipts, before-images and proof snapshots moved from disposable Library/target to persistent .xace and recovery-evidence. Historical source retained under reviewed-source."
+  }
+}

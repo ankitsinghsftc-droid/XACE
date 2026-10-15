@@ -175,3 +175,5 @@ NEC002 RECOVERY VERIFIED:24 identity/store tests +67 project/Player/authoring re
 NEC003 source replayed from ten successful patches957-1091 plus reviewed source-only roadmap writer1091. Numeric normalization, capture/snapshot/delta/loss contracts, golden corpus and tests restored. Fresh verification pending; historical evidence generation excluded. NOT backed up off-device.
 
 NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions pass (219 total), including independent Node golden checks,1500-object hierarchy and300 malformed mutations. All55 protected recovery-baseline files unchanged. Evidence: docs/recovery/evidence/nec003-20261015/summary.json. Native capture remains subsequent work. Next NEC004. NOT backed up off-device.
+
+NEC004 source reconstructed from23 successful patches1202-1696; rejected1360 excluded after deferred result1380 review. Partial replay preserved before correction. Fresh Unity/Python verification pending; receipt and output paths require persistent recovery adaptation. NOT backed up off-device.
