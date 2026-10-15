@@ -1,0 +1,8 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0.0",
+  "FriendlyName": "XACE Native Authoring",
+  "CanContainContent": false,
+  "Modules": [{"Name": "XACEAuthoring", "Type": "Editor", "LoadingPhase": "Default"}]
+}

@@ -1,0 +1,321 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\preserved\\20261012\\codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T20-27-13-01a10244-eaef-7821-8567-210dc01e35a3.jsonl",
+  "source_sha256": "753b1490ef6f943a9dd95a04e7c3d6d9a742b658393a7a2ad5367cc23f483358",
+  "records": [
+    {
+      "line": 2207,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2207
+        },
+        {
+          "path": "adapters/unreal/Authoring/XACEAuthoring.uplugin",
+          "before_sha256": null,
+          "after_sha256": "27b8c06ff1c253cb58f659d53b7b2b31ba048b9e5ed52b8ba9774c5e2d9e3cc9"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/XACEAuthoring.Build.cs",
+          "before_sha256": null,
+          "after_sha256": "f775edb34b327dcc091273f228f2158e59b6f046b0a092ed23f3529b4d6e7f6b"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoring.h",
+          "before_sha256": null,
+          "after_sha256": "7bfd6b47da49d874f744c61d8c69520c2860668285834445984e6a8a6e05c7b9"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWire.cpp",
+          "before_sha256": null,
+          "after_sha256": "7f930b399f2ab61e5ea5bc6a9d8e071603a699bef3b853784da786cb1d30e51a"
+        }
+      ]
+    },
+    {
+      "line": 2215,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoring.h",
+          "before_sha256": "7bfd6b47da49d874f744c61d8c69520c2860668285834445984e6a8a6e05c7b9",
+          "after_sha256": "bc6ae15d1d0b3456015defb3be5a9aae36ec383e7f57927a970803936d4a1475"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp",
+          "before_sha256": null,
+          "after_sha256": "ed273f9df920d64d8445079b9a78d8228b038c15af6a3611b4122c00a7346a19"
+        }
+      ]
+    },
+    {
+      "line": 2229,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWriter.cpp",
+          "before_sha256": null,
+          "after_sha256": "1082472c05d81ce5ddba519e2fe0cea6383ed5da5bad3ab9d13ee507220dbeef"
+        }
+      ]
+    },
+    {
+      "line": 2236,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoringProofCommandlet.h",
+          "before_sha256": null,
+          "after_sha256": "4d05adf807c71e3c637b03dd82d7da80e2d9e87550ef3ac2d1187fdbef001d41"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringModule.cpp",
+          "before_sha256": null,
+          "after_sha256": "08dbc71fa0d492588f90eddb9260bc0ef3f3cd72f000fecfe28afb929bdbcb7f"
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp",
+          "before_sha256": null,
+          "after_sha256": "dc80f28a63254e2625e35b1137e7fcf56a1dd22e5620c29050f2f6323dcff8fe"
+        }
+      ]
+    },
+    {
+      "line": 2243,
+      "changes": [
+        {
+          "path": "tools/nec006_unreal_proof.py",
+          "before_sha256": null,
+          "after_sha256": "73d06b2b85aa57f7a2879279262c3a55ec4901bb6da186f904d493203e3f975d"
+        }
+      ]
+    },
+    {
+      "line": 2259,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2259
+        }
+      ]
+    },
+    {
+      "line": 2266,
+      "changes": [
+        {
+          "path": "packages/project-system/unreal_authoring_stage.py",
+          "before_sha256": null,
+          "after_sha256": "5088b96450879e384bc2b5dae2da7c11285c6de1100832fe627c50b871b749a9"
+        },
+        {
+          "path": "packages/project-system/tests/test_unreal_authoring_stage.py",
+          "before_sha256": null,
+          "after_sha256": "735f28be0e4381e061210ff7a8d86bf5bf5c09c5249702e050dcbb2a5580e4d1"
+        }
+      ]
+    },
+    {
+      "line": 2282,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2282
+        }
+      ]
+    },
+    {
+      "line": 2297,
+      "changes": [
+        {
+          "path": "packages/project-system/unreal_authoring_stage.py",
+          "before_sha256": "5088b96450879e384bc2b5dae2da7c11285c6de1100832fe627c50b871b749a9",
+          "after_sha256": "547c2b8cf56d11666f7678b7c6b7105472b5d979dc46534a209ae20175e4e64f"
+        },
+        {
+          "path": "packages/project-system/tests/test_unreal_authoring_stage.py",
+          "before_sha256": "735f28be0e4381e061210ff7a8d86bf5bf5c09c5249702e050dcbb2a5580e4d1",
+          "after_sha256": "5f94ead72794cca7654ae31f47fe0fbb74ffd1421ea792253344e71fcd4bb72b"
+        }
+      ]
+    },
+    {
+      "line": 2326,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp",
+          "before_sha256": "89fea8aaf10ce478c432ea6a704ec624fd6a309d13853ae704d67d3f37af6fd1",
+          "after_sha256": "4e3945ec31e224ba96703393e8d067ceda5b59fe676fc8782f21ff6580bb5a88"
+        },
+        {
+          "path": "tools/nec006_unreal_proof.py",
+          "before_sha256": "73d06b2b85aa57f7a2879279262c3a55ec4901bb6da186f904d493203e3f975d",
+          "after_sha256": "14f7c9552cb91c5fcbc3bc9ed753d28c3f02d3a27fa049a954b331b0e72ac414"
+        }
+      ]
+    },
+    {
+      "line": 2341,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp",
+          "before_sha256": "4e3945ec31e224ba96703393e8d067ceda5b59fe676fc8782f21ff6580bb5a88",
+          "after_sha256": "bea5d0da84bfcfba8dd67546a4eb70cf7a1a426acb0c3ec9c4558ae9944803ab"
+        }
+      ]
+    },
+    {
+      "line": 2361,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2361
+        }
+      ]
+    },
+    {
+      "line": 2378,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2378
+        }
+      ]
+    },
+    {
+      "line": 2399,
+      "changes": [
+        {
+          "path": "tools/nec006_unreal_proof.py",
+          "before_sha256": "14f7c9552cb91c5fcbc3bc9ed753d28c3f02d3a27fa049a954b331b0e72ac414",
+          "after_sha256": "38e120a82c475b01b18b6058d7b24b62d795f490c167ace8f04c65b1e1baefe1"
+        }
+      ]
+    },
+    {
+      "line": 2419,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2419
+        }
+      ]
+    },
+    {
+      "line": 2436,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2436
+        }
+      ]
+    },
+    {
+      "line": 2499,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2499
+        }
+      ]
+    },
+    {
+      "line": 2573,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2573
+        }
+      ]
+    },
+    {
+      "line": 2599,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2599
+        }
+      ]
+    },
+    {
+      "line": 2618,
+      "changes": [
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp",
+          "before_sha256": "c55ae57c910f8df5ef29432f0b7146fc7f099e58ab15c20f631bae918f6c1a5d",
+          "after_sha256": "baf64ecd3de32246060ce01bced20cf2a89f778d5b0b5f0707d674713a403903"
+        }
+      ]
+    },
+    {
+      "line": 2642,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2642
+        }
+      ]
+    },
+    {
+      "line": 2654,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2654
+        }
+      ]
+    },
+    {
+      "line": 2666,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2666
+        },
+        {
+          "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp",
+          "before_sha256": "d1c806f71c22ba9ab610f47041d90ef2bffb646adb3aa4649486d45514c63786",
+          "after_sha256": "8571f8fc8ea4670a390896538ffae80c7cfb1e53967db236a058b08b4d484d32"
+        }
+      ]
+    },
+    {
+      "line": 2676,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2676
+        }
+      ]
+    },
+    {
+      "line": 2694,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2694
+        }
+      ]
+    },
+    {
+      "line": 2701,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2701
+        }
+      ]
+    },
+    {
+      "line": 2754,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2754
+        }
+      ]
+    },
+    {
+      "line": 2775,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2775
+        }
+      ]
+    },
+    {
+      "line": 2782,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2782
+        }
+      ]
+    }
+  ],
+  "excluded_patches": [
+    2688
+  ],
+  "historical_evidence_recreated": false,
+  "recovery_adaptations": [
+    "Unique native receipts and snapshots relocated from Saved to .xace.",
+    "Proof outputs confined to short persistent recovery-evidence/ue006; existing phase/fixture refused instead of moved."
+  ]
+}
