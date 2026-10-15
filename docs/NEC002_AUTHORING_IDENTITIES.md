@@ -1,4 +1,4 @@
-> Reconstructed historical NEC002 completion document. Fresh recovery verification is pending; old paths/test receipts are provenance only. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC002 completion document. Fresh recovery acceptance passes91 tests (24 focused,67 regression); evidence is in recovery/evidence/nec002-20261015/summary.json. Old paths/test receipts are provenance only. See AGENT_PROGRESS.md.
 
 # NEC-002: canonical authoring identities and baselines
 
@@ -16,7 +16,7 @@ Implementation:
   compare-and-swap publication and explicit recovery.
 - [tests](../packages/project-system/tests/test_authoring_identity.py) and
   [retained-map fixture](../packages/project-system/tests/fixtures/authoring_identity_v1.json).
-- [closeout evidence](evidence/nec002-identities-20261008.json).
+- [closeout evidence](recovery/evidence/nec002-20261015/summary.json).
 
 ## Boundary and integration
 

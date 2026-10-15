@@ -1,0 +1,14 @@
+test_arbitrary_object_and_event_names (test_player_presentation.PresentationTests.test_arbitrary_object_and_event_names) ... ok
+test_invalid_mesh_effect_audio_and_image (test_player_presentation.PresentationTests.test_invalid_mesh_effect_audio_and_image) ... ok
+test_legacy_catalog_absent (test_player_presentation.PresentationTests.test_legacy_catalog_absent) ... ok
+test_optional_absence_reports_fallback (test_player_presentation.PresentationTests.test_optional_absence_reports_fallback) ... ok
+test_required_absence_rejected (test_player_presentation.PresentationTests.test_required_absence_rejected) ... ok
+test_unknown_or_duplicate_binding (test_player_presentation.PresentationTests.test_unknown_or_duplicate_binding) ... ok
+test_unresolved_and_mismatched_types (test_player_presentation.PresentationTests.test_unresolved_and_mismatched_types) ... ok
+test_unsafe_and_executable_formats (test_player_presentation.PresentationTests.test_unsafe_and_executable_formats) ... ok
+test_world_hash_mismatch (test_player_presentation.PresentationTests.test_world_hash_mismatch) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.049s
+
+OK

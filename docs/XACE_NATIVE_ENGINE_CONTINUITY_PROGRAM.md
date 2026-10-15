@@ -308,7 +308,7 @@ shared contracts stabilize; that is a future scheduling option, not delegation.
 ### NEC-002 — Persist canonical authoring identities and baselines
 
 - **Status:** COMPLETE. [Contract/completion](NEC002_AUTHORING_IDENTITIES.md) and
-  [evidence](evidence/nec002-identities-20261008.json). Project-side metadata only;
+  [evidence](recovery/evidence/nec002-20261015/summary.json). Project-side metadata only;
   native capture/materialization and verified save receipts remain later tasks.
 - **Purpose:** make edits durable across rename, move and restart.
 - **Problem solved:** names/paths/runtime IDs cannot identify native authored objects reliably.

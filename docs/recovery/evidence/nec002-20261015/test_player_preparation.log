@@ -1,0 +1,9 @@
+test_arbitrary_action_and_world_metadata_survive_preparation_without_execution (test_player_preparation.PlayerPreparationTests.test_arbitrary_action_and_world_metadata_survive_preparation_without_execution) ... ok
+test_invalid_control_contracts_reject_before_output (test_player_preparation.PlayerPreparationTests.test_invalid_control_contracts_reject_before_output) ... ok
+test_invalid_presentation_rejects_before_output (test_player_preparation.PlayerPreparationTests.test_invalid_presentation_rejects_before_output) ... ok
+test_tamper_rejects_before_receipt_or_output (test_player_preparation.PlayerPreparationTests.test_tamper_rejects_before_receipt_or_output) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.150s
+
+OK

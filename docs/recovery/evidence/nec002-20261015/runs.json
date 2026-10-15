@@ -1,0 +1,146 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_authoring_identity.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 24,
+    "log": "recovery-evidence/20261015/nec002/test_authoring_identity.log",
+    "sha256": "e7e16c63b55538addd36e70f1059c1c73ee5dcc391b820e9d5b9136b1395fe87"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_project_system.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261015/nec002/test_project_system.log",
+    "sha256": "fa0e4051cdcc343fce7404fdffb1b2b14e855546c8e2e7aa17e9ade723859540"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_playable_package.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261015/nec002/test_playable_package.log",
+    "sha256": "ec9c0b950c7480a4de78cac79946c810e4555e78a2008744386694e2cd3a908e"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_player_preparation.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 4,
+    "log": "recovery-evidence/20261015/nec002/test_player_preparation.log",
+    "sha256": "97db6b3a535e9132f88118f7588fd3aa906126ec99682b69ef7c25a24b2137f9"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_player_presentation.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 9,
+    "log": "recovery-evidence/20261015/nec002/test_player_presentation.log",
+    "sha256": "c3fff423128496d9bb6e885f43df6e60bacf60b308f831128011a7a41b521468"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_engine_edit_router.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "recovery-evidence/20261015/nec002/test_engine_edit_router.log",
+    "sha256": "ca0f381e86725d25021244b57f706b0af84f6e8442c4135c47a8592b9f1b1917"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_world_extensibility.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 8,
+    "log": "recovery-evidence/20261015/nec002/test_world_extensibility.log",
+    "sha256": "526d4ce95d9c13c5b52a008ccd64d339c0673f55f2df1153850bbd5132d9403a"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_gameplay_package_authoring.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 10,
+    "log": "recovery-evidence/20261015/nec002/test_gameplay_package_authoring.log",
+    "sha256": "262ff2459d48317883c1f44b59d0a70e8e9c8c81cd26608b867b1d9a32bd4a84"
+  }
+]

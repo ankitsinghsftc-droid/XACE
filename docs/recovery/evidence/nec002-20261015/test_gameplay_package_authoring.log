@@ -1,0 +1,15 @@
+test_arbitrary_capability_uses_identical_path (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_arbitrary_capability_uses_identical_path) ... ok
+test_builder_preview_cancel_stale_and_gde_apply (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_builder_preview_cancel_stale_and_gde_apply) ... ok
+test_catalog_is_detached_and_invalid_declarations_rejected (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_catalog_is_detached_and_invalid_declarations_rejected) ... ok
+test_discovery_reports_requirements_without_changes (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_discovery_reports_requirements_without_changes) ... ok
+test_golden_template_compiles_to_reference_behavior_inputs (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_golden_template_compiles_to_reference_behavior_inputs) ... ok
+test_invalid_selections_and_stale_catalog_are_atomic (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_invalid_selections_and_stale_catalog_are_atomic) ... ok
+test_late_batch_failure_does_not_leak_package_changes (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_late_batch_failure_does_not_leak_package_changes) ... ok
+test_mark_selected_surface_and_missing_dependency (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_mark_selected_surface_and_missing_dependency) ... ok
+test_real_router_approval_persistence_both_configurations (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_real_router_approval_persistence_both_configurations) ... ok
+test_unsupported_runtime_contract_rejected (test_gameplay_package_authoring.GameplayPackageAuthoringTests.test_unsupported_runtime_contract_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.537s
+
+OK

@@ -1,0 +1,19 @@
+test_engine_edit_ack_includes_audit_record (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_ack_includes_audit_record) ... ok
+test_engine_edit_commit_builds_gde_value_mutation_and_updates_cgs (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_builds_gde_value_mutation_and_updates_cgs) ... ok
+test_engine_edit_commit_failure_leaves_preview_recoverable (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_failure_leaves_preview_recoverable) ... ok
+test_engine_edit_commit_merges_primitive_default_after_newer_cgs (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_merges_primitive_default_after_newer_cgs) ... ok
+test_engine_edit_commit_rejects_preview_only_commit_classes (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_rejects_preview_only_commit_classes) ... ok
+test_engine_edit_commit_rejects_stale_adapter_sequence_before_gde (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_rejects_stale_adapter_sequence_before_gde) ... ok
+test_engine_edit_commit_rejects_stale_cgs_hash_before_gde (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_rejects_stale_cgs_hash_before_gde) ... ok
+test_engine_edit_commit_rejects_stale_runtime_hash_before_gde (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_rejects_stale_runtime_hash_before_gde) ... ok
+test_engine_edit_commit_rejects_stale_schema_and_preview_id_before_gde (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_rejects_stale_schema_and_preview_id_before_gde) ... ok
+test_engine_edit_commit_requires_matching_accepted_audit (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_requires_matching_accepted_audit) ... ok
+test_engine_edit_commit_requires_preview_id_envelope (test_engine_edit_router.EngineEditRouterTests.test_engine_edit_commit_requires_preview_id_envelope) ... ok
+test_merge_rules_allow_only_primitive_component_defaults (test_engine_edit_router.EngineEditRouterTests.test_merge_rules_allow_only_primitive_component_defaults) ... ok
+test_static_precommit_conflict_reason_blocks_graph_hazard (test_engine_edit_router.EngineEditRouterTests.test_static_precommit_conflict_reason_blocks_graph_hazard) ... ok
+test_unknown_engine_edit_kind_is_rejected_before_runtime (test_engine_edit_router.EngineEditRouterTests.test_unknown_engine_edit_kind_is_rejected_before_runtime) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.072s
+
+OK

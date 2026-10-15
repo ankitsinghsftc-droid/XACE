@@ -1,0 +1,22 @@
+{
+  "milestone": "NEC002",
+  "recovery_verified": true,
+  "source_checkpoint": "eff66fe",
+  "focused_tests": 24,
+  "regression_tests": 67,
+  "total_tests": 91,
+  "sealed_artifacts_unchanged": true,
+  "scope": "Project-side identity and baseline reference contracts with atomic persistence; no native capture or materialization claimed.",
+  "entry_documents": [
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec002\\entry-documents\\MASTER_PLAN.md",
+      "sha256": "8cfea59ecb3ea2f4826d1d80c5752d887a2c03148ef68d085e3a25695f52e015"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec002\\entry-documents\\XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md",
+      "sha256": "d5d24a0e5847301258c8c3b8be38cad3c793cdf99c72ce084e09c409188fb4a8"
+    }
+  ],
+  "off_device_backup": false,
+  "next": "NEC003"
+}
