@@ -4,7 +4,7 @@
 
 # XACE Native Engine Continuity Program
 
-Status: NEC-001 and NEC-002 complete; NEC-003 through NEC-018 NOT STARTED.
+Status: NEC-001 through NEC-003 complete; NEC-004 through NEC-018 NOT STARTED.
 
 Amended 2026-10-08 against the sealed local post-XP-022 implementation. Task IDs and ordering retained; section 1 amendments govern later task scopes.
 
@@ -28,8 +28,10 @@ Accept the sealed local XP-022 engineering profile for NEC-001. Do not rewrite i
 historical seal/status fields. REL-01 through REL-05 in [the release ledger](XP022_RELEASE_GATES.md)
 remain OPEN with original thresholds. This authorization permits engineering
 continuation only; original combined public-release acceptance is not passed.
-NEC-002 was subsequently authorized and completed; NEC-003 through NEC-018 remain
-NOT STARTED until further instruction. See [NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md).
+NEC-002 and NEC-003 were subsequently authorized and completed; NEC-004 through
+NEC-018 remain NOT STARTED until further instruction. See
+[NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md) and
+[NEC-003 completion](NEC003_NATIVE_AUTHORING_CONTRACTS.md).
 
 Pinned Windows x64 versions: Unity 6000.4.9f1, Godot 4.6.3-stable official,
 Unreal 5.7.4-51494982+++UE5+Release-5.7. Installed-host versions do not prove native
@@ -332,6 +334,16 @@ shared contracts stabilize; that is a future scheduling option, not delegation.
 - **Rollback/failure:** refuse snapshot admission and retain baseline without native writes.
 - **Non-goals:** universal scene interchange format or new authoritative geometry engine.
 
+Completed 2026-10-09: [implementation and boundaries](NEC003_NATIVE_AUTHORING_CONTRACTS.md),
+[evidence](evidence/nec003-contracts-20261009.json). 28 focused plus 191 existing
+regression tests pass. No task renumbering/reordering or added task is needed.
+NEC-004/005/006 must consume the capture/snapshot contracts, certify host-owned
+field policies and document fingerprints, run the shared numeric golden corpus,
+and implement staged native writes with inverse conversions. NEC-003 write-field
+selection is not a materializer or save authorization. Dirty documents require
+save and recapture; opaque critical dependencies block admission. Full native
+reader/writer proofs and GDE adoption/reconciliation remain in their original tasks.
+
 ### NEC-004 — Unity editor reader, capture and staged writer
 
 - **Purpose:** operate on real Unity-authored content.
@@ -524,10 +536,11 @@ shared contracts stabilize; that is a future scheduling option, not delegation.
 
 **Safely later:** additional versions/platforms, in-process embedding, richer geometry backends, broader plugin translators, full native animation-graph conversion, advanced collaborative editing, convenience automation, the major UX/UI redesign, and runtime-free source export research. Broader commercial-scale soak/support/store certification follows the existing release program; do not confuse this bounded production-path proof with certification of every game or platform.
 
-**Current stop point:** NEC-001 and NEC-002 are complete against the local XP-022
-engineering baseline. The remaining 16 tasks retain their order with section 1's
-migration/recovery/release amendments. NEC-003 is not started and requires the
-owner's next instruction. Full runtime-free native source export remains outside
-this program and needs a separately approved compiler/parity effort.
+**Current stop point:** NEC-001 through NEC-003 are complete against the local
+XP-022 engineering baseline. The remaining 15 tasks retain their order with
+section 1's migration/recovery/release amendments and NEC-003's concrete contract
+handoff. NEC-004 is not started and requires the owner's next instruction.
+Full runtime-free native source export remains outside this program and needs
+a separately approved compiler/parity effort.
 
 The intended final claim is credible only with its certified scope attached: **You can adopt XACE without abandoning your engine, develop continuously across both, experience and ship the real game through Unity, Unreal or Godot, retain your project, and keep shipped local gameplay independent of Builder and XACE cloud availability.**

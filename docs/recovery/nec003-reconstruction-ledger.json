@@ -1,0 +1,146 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\reconstruction\\nec003",
+  "records": [
+    {
+      "line": 957,
+      "patch_sha256": "65d03b477ee62e715ff312a4c66127c8ae7763bf70ed225cca79dd42651105c4",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_values.py",
+          "before_sha256": null,
+          "after_sha256": "f9bdb67f12fc151efc90562693b72198023228d4ea0f90c50aadac15dbc0bbcc"
+        }
+      ]
+    },
+    {
+      "line": 964,
+      "patch_sha256": "2ee5261d438fefeda3cd7984af267db3ecad7b2f3d2a470eba81c7ff2ddfa08a",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": null,
+          "after_sha256": "cc5d740d9d3b71aa8df789d0536a1bc7228f1840f05cb5a04669eab1e13dc4bb"
+        }
+      ]
+    },
+    {
+      "line": 1002,
+      "patch_sha256": "27b65d8f6ded1e9f90d997c409dd0c2a06d83e5398be898a3ff6093b01af7cff",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_values.py",
+          "before_sha256": "f9bdb67f12fc151efc90562693b72198023228d4ea0f90c50aadac15dbc0bbcc",
+          "after_sha256": "d8dd69e185ac8d43e24d1c822e2448b20b65f8ee138c52e68cc0caadaa0ce00f"
+        },
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": "cc5d740d9d3b71aa8df789d0536a1bc7228f1840f05cb5a04669eab1e13dc4bb",
+          "after_sha256": "77962307d6d1e0a040390127e787d47aec5510a92a26555ee3aaa4fe387823f2"
+        }
+      ]
+    },
+    {
+      "line": 1009,
+      "patch_sha256": "88b194549570bdb93b425bc083b6c46024e0b8a7834283345e4e15cffcc178d2",
+      "changes": [
+        {
+          "path": "packages/project-system/tests/fixtures/native_authoring_golden.json",
+          "before_sha256": null,
+          "after_sha256": "3a4924e5cdff56595f0e3bbaa7e9a58ae0ae3652c51eaa944cfa70a042c06b0e"
+        },
+        {
+          "path": "tools/nec003_golden_check.mjs",
+          "before_sha256": null,
+          "after_sha256": "d3e95bc569b9e604276be62bd32059160d2f3c8d23172bab3b73d9009318fc05"
+        }
+      ]
+    },
+    {
+      "line": 1016,
+      "patch_sha256": "eb230cf44979209bfbfc622520c3c539cd2d2259312cfd2ee78946c91ec64e4a",
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_native_authoring_contract.py",
+          "before_sha256": null,
+          "after_sha256": "ca65809fc2b96a5e0a6b0cb4fee624ba53bffaf1a3fccd708493a17bde86f3fe"
+        }
+      ]
+    },
+    {
+      "line": 1030,
+      "patch_sha256": "910f34899152b40c2296acefa9c6016a430297a613b2ad5f1608e5ecbffc7bc2",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": "77962307d6d1e0a040390127e787d47aec5510a92a26555ee3aaa4fe387823f2",
+          "after_sha256": "93c5240121cb1dbfd02bed15590b3da94de1c74e25b3578489f68f9f7da458b7"
+        },
+        {
+          "path": "packages/project-system/tests/test_native_authoring_contract.py",
+          "before_sha256": "ca65809fc2b96a5e0a6b0cb4fee624ba53bffaf1a3fccd708493a17bde86f3fe",
+          "after_sha256": "16feb32396ebed8933aceb1a1b0afe7083529ebcc0792617d99d681bfff32380"
+        }
+      ]
+    },
+    {
+      "line": 1038,
+      "patch_sha256": "5ca3e65f45ca8b89f51b87271f7602dc7392b625cfe0e73f88af5c79b32f2b26",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": "93c5240121cb1dbfd02bed15590b3da94de1c74e25b3578489f68f9f7da458b7",
+          "after_sha256": "1e6846fc8631e83a9a12d9c7ef2cff00517bde43790a655d6967289a3765337c"
+        },
+        {
+          "path": "tools/nec003_golden_check.mjs",
+          "before_sha256": "d3e95bc569b9e604276be62bd32059160d2f3c8d23172bab3b73d9009318fc05",
+          "after_sha256": "46010292f1c66885faa7e4f805b7261cb938c90c718d1991e68b587df863d695"
+        },
+        {
+          "path": "packages/project-system/tests/test_native_authoring_contract.py",
+          "before_sha256": "16feb32396ebed8933aceb1a1b0afe7083529ebcc0792617d99d681bfff32380",
+          "after_sha256": "1ca2e9e36e31c3e6f799389cb52c24791cd8dc62dd9637f82bfc0e89388e91ca"
+        }
+      ]
+    },
+    {
+      "line": 1068,
+      "patch_sha256": "5af2658b8d2793e9f58720be8b3471c54e2cec2a01ea3e841e2dd13435e207fa",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": "1e6846fc8631e83a9a12d9c7ef2cff00517bde43790a655d6967289a3765337c",
+          "after_sha256": "54715cb85eecd8267536e12f48ac5f4d18be7f092ba2ccd7c1dc58249cc0a8d1"
+        },
+        {
+          "path": "packages/project-system/tests/test_native_authoring_contract.py",
+          "before_sha256": "1ca2e9e36e31c3e6f799389cb52c24791cd8dc62dd9637f82bfc0e89388e91ca",
+          "after_sha256": "80508c2102c35a505c5a7fc8af18a392a0ab135eafbaab71f624784aa3470be6"
+        }
+      ]
+    },
+    {
+      "line": 1084,
+      "patch_sha256": "dfa9b7998fe976754b8763fa492d9ca4629438e1d26f9fda2e4aa2c940658d9a",
+      "changes": [
+        {
+          "path": "docs/NEC003_NATIVE_AUTHORING_CONTRACTS.md",
+          "before_sha256": null,
+          "after_sha256": "1350294c114da826854e2b32b59b7d0020662001be5e2099707c78e9349bccd6"
+        }
+      ]
+    },
+    {
+      "line": 1091,
+      "patch_sha256": "388e860c5f21ad4366e089c064458e12b49bbce4bb04ec14555a66bf097ac38b",
+      "changes": [
+        {
+          "path": "packages/project-system/native_authoring_contract.py",
+          "before_sha256": "54715cb85eecd8267536e12f48ac5f4d18be7f092ba2ccd7c1dc58249cc0a8d1",
+          "after_sha256": "d45e8bebe1ebf5789e3f1f386c7b8df92153649bf9450d402d54aa7d8233797c"
+        }
+      ]
+    }
+  ],
+  "historical_evidence_writers_replayed": false
+}

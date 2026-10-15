@@ -25,6 +25,37 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-003: COMPLETE - NORMALIZED NATIVE AUTHORING CONTRACTS - 2026-10-09
+
+Implemented opt-in project-system capture, snapshot, loss-report and delta contracts
+in `native_authoring_contract.py`, with exact fixed-point/axis normalization in
+`native_authoring_values.py`. Reuses NEC-002 identity, typed AssetReference,
+semantic playback compatibility and the frozen XP-022 World geometry profile.
+
+- [x] Versioned, bounded canonical JSON; int64 decimal strings; fixed-point rounding
+  review; independent Python/Node golden values and full-snapshot digest parity.
+- [x] Host-pinned source versions and field ownership/read/write policies; stable
+  document fingerprints; dirty/Play capture refusal; explicit dependency closure.
+- [x] Loss reporting, retained opaque native content, unsupported geometry refusal,
+  preserved nested hierarchy, hash-bound snapshots and transport delta preconditions.
+- [x] 28 focused tests plus 191 existing regressions pass (219 unique tests).
+  Includes 30 numeric goldens, a 1,500-object hierarchy and 300 malformed mutations.
+- [ ] NEC-004 through NEC-018: NOT STARTED. Stop before NEC-004.
+
+No native editor reader/writer, watcher, CGS commit, baseline advancement or runtime
+change is added. Write capabilities default off. Snapshot admission is authoring
+validation, not native save authenticity or Play/readiness certification. Installed
+native proofs remain NEC-004/005/006; reconciliation/recovery remain NEC-008/009.
+The roadmap needs no new tasks or reorder; its reader/writer handoff now references
+these concrete contracts and golden cases. REL-01 through REL-05 remain OPEN.
+
+All 2,140 protected XP-022 files remain byte-identical. NEC-001/002 receipts are
+unchanged; pre-NEC-003 master/roadmap copies preserve NEC-002 hashes under
+`target/nec003/entry-documents/`. No commit or push was performed.
+See [completion](docs/NEC003_NATIVE_AUTHORING_CONTRACTS.md),
+[evidence](docs/evidence/nec003-contracts-20261009.json) and
+`target/nec003/verification-20261009/` for exact scope and verification.
+
 ## NEC-002: COMPLETE - AUTHORING IDENTITIES AND BASELINES - 2026-10-08
 
 Implemented the opt-in project-system identity contract and durable revision store

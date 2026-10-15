@@ -171,3 +171,5 @@ NEC001 RECOVERY VERIFIED:85 Python +23 Rust acceptance tests pass; all54 sealed 
 NEC002 source reconstructed from eight successful historical patches646-810. Namespace/branch/object identity contracts, atomic metadata store and24 focused tests restored. Historical evidence not recreated. Fresh tests pending; source checkpoint incomplete. NOT backed up off-device.
 
 NEC002 RECOVERY VERIFIED:24 identity/store tests +67 project/Player/authoring regressions pass (91 total). Atomic store interruption/concurrent-writer, rename/reparent/duplicate/tombstone/fork and migration cases restored; no native capture claimed. All55 protected recovery-baseline files including manifest unchanged. Evidence: docs/recovery/evidence/nec002-20261015/summary.json. Next NEC003. NOT backed up off-device.
+
+NEC003 source replayed from ten successful patches957-1091 plus reviewed source-only roadmap writer1091. Numeric normalization, capture/snapshot/delta/loss contracts, golden corpus and tests restored. Fresh verification pending; historical evidence generation excluded. NOT backed up off-device.
