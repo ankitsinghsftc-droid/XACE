@@ -2,7 +2,7 @@
 
 # NEC-006 — Unreal saved native authoring
 
-Date: 2026-10-10. Status: verification in progress; NEC-007 not started.
+Date: 2026-10-10. Status: complete within the declared profile; NEC-007 not started.
 
 This task adds an opt-in editor module and callable host APIs against the actual
 post-XP-022 working tree. It does not alter the frozen runtime or the existing
@@ -63,8 +63,9 @@ The editor phase uses D3D11 offscreen rendering; NullRHI crashed in installed ed
 startup before the authoring command. Failed diagnostic attempts remain in history.
 
 255 Python tests pass across 14 suites, including 16 new Unreal bridge/staging
-cases. Native proof totals and the final preservation receipt are recorded at
-closeout. Proofs exercise meaningful binary maps and meshes, saved mesh replacement,
+cases. All 73 installed-Unreal checks pass: 57 commandlet, 1 trusted-copy,
+6 cold-process and 9 real-editor checks. The final seal check confirms all 2,140
+protected XP-022 files and historical NEC receipts unchanged. Proofs exercise meaningful binary maps and meshes, saved mesh replacement,
 identity collisions/rekey, rename/reparent, native Blueprint opacity and drift,
 untrusted/runtime/streaming refusal, approval/dependency checks, fault rollback,
 newer-edit preservation, canonical Python interoperability and real editor Undo/Redo.
@@ -78,7 +79,8 @@ are retained as critical opaque losses and block ordinary schema admission. This
 profile does not convert Blueprint graphs, C++, input mappings, animation graphs,
 materials, arbitrary geometry, World Partition, streamed levels or split/bulk
 packages. These must be explicitly preserved/reviewed or refused; they are not
-silently treated as migrated gameplay. Only the allowlisted StaticMeshActor fields
+silently treated as migrated gameplay. The wire profile is bounded canonical ASCII JSON with decimal string numbers.
+Only the allowlisted StaticMeshActor fields
 have a native writer. Mesh files are referenced/replaced, not reconstructed from CGS.
 
 The staged-copy profile is for trusted content/Blueprint projects and their plugins;
@@ -103,4 +105,5 @@ Pre-NEC-006 master/roadmap copies are retained in
 `target/nec006/verification-20261010/`, native evidence under
 `target/nec006/native-20261009/`. The folder date records the start of native work.
 XP-022 sealed baseline, release binaries and certification evidence remain protected;
-REL-01 through REL-05 stay OPEN. No commit or push is performed.
+REL-01 through REL-05 stay OPEN. No commit or push is performed. See the
+[hash-bound evidence receipt](evidence/nec006-unreal-20261010.json).

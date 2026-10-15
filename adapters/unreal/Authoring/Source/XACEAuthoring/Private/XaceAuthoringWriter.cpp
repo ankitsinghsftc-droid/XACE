@@ -109,7 +109,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Prepare(UWorld* W,const FStri
     if(!Saved)return Fail(TEXT("Native staged map serialization failed")),nullptr;
     // Load the binary stage into a separate transient package for saved readback.
     UPackage* VerifyPackage=CreatePackage(*(TEXT("/Temp/XACEVerify_")+Tx));
-    UPackage* Loaded=LoadPackage(VerifyPackage,*Stage,LOAD_None);UWorld* Verified=Loaded?UWorld::FindWorldInPackage(Loaded):nullptr;
+    UPackage* Loaded=LoadPackage(VerifyPackage,FPackagePath::FromLocalPath(Stage),LOAD_None);UWorld* Verified=Loaded?UWorld::FindWorldInPackage(Loaded):nullptr;
     if(!Verified)return Fail(TEXT("Staged binary map reopen failed")),nullptr;
     if(Loaded->GetPersistentGuid()!=OriginalGuid)return Fail(TEXT("Staged package identity changed")),nullptr;
     TMap<FString,AActor*> SavedActors;for(AActor* A:Verified->PersistentLevel->Actors)if(A)SavedActors.Add(String(Metadata(A),TEXT("authoring_id")),A);

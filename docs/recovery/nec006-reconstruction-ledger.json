@@ -316,6 +316,21 @@
   "historical_evidence_recreated": false,
   "recovery_adaptations": [
     "Unique native receipts and snapshots relocated from Saved to .xace.",
-    "Proof outputs confined to short persistent recovery-evidence/ue006; existing phase/fixture refused instead of moved."
+    "Proof outputs confined to short persistent recovery-evidence/ue006; existing phase/fixture refused instead of moved.",
+    "Explicit FPackagePath::FromLocalPath readback for persistent .xace stage; legacy string loader failed to resolve saved file. New recovery repair, not historical equivalence."
+  ],
+  "historical_document_edits": [
+    {
+      "line": 2816,
+      "portion": "Master plan only; original later roadmap assertion failed"
+    },
+    {
+      "line": 2829,
+      "portion": "Successful roadmap/report corrections"
+    },
+    {
+      "line": 2853,
+      "portion": "Roadmap text only; historical evidence writes excluded"
+    }
   ]
 }

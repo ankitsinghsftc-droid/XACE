@@ -25,6 +25,37 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-006: COMPLETE - UNREAL SAVED NATIVE AUTHORING - 2026-10-10
+
+Implemented the pinned Unreal 5.7.4 editor authoring module in
+`adapters/unreal/Authoring/`, trusted independent project staging and the NEC-002/003
+bridge in `packages/project-system/unreal_authoring*.py`.
+
+- [x] Real binary maps/meshes, explicit scene/actor identities, duplicate refusal
+  and rekey, saved rename/reparent, typed mesh references and Blueprint drift inventory.
+- [x] Native staged saves preserve package identity, reopen with exact readback and
+  bind replacement-resource dependencies; approved publication requires map unload.
+- [x] Editor Undo/Redo, native before-images, injected-failure rollback and recovery
+  preserving newer edits; no gameplay authority or runtime transport changes.
+- [x] 255 Python tests and 73 installed-Unreal checks pass, including independent
+  trusted-copy extraction, cold Python/native round trip and real editor authoring.
+- [x] All 2,140 protected XP-022 files and historical NEC receipts preserved.
+- [ ] NEC-007 through NEC-018: NOT STARTED. Stop before NEC-007.
+
+Scope is one clean saved persistent map and allowlisted StaticMeshActor edits.
+Blueprint/native behavior is preserved as blocking opaque loss, not converted.
+C++ project builds, World Partition/streaming, arbitrary bindings/animations and
+full runtime-free export remain outside this profile. No automatic CGS commit or
+continuous synchronization is claimed. No tasks added/reordered; NEC-007/009/010
+must integrate trust/enrollment/loss review, save/reload/unload gates, replacement
+resource stamps and conflict-preserving receipts. REL-01 through REL-05 stay OPEN.
+No commit or push was performed.
+
+See [completion](docs/NEC006_UNREAL_AUTHORING.md),
+[evidence](docs/evidence/nec006-unreal-20261010.json) and
+`target/nec006/verification-20261010/`. Earlier entries remain historical;
+pre-NEC-006 live plans are retained in `target/nec006/entry-documents/`.
+
 ## NEC-005: COMPLETE - GODOT SAVED NATIVE AUTHORING - 2026-10-09
 
 Implemented the opt-in Godot 4.6.3 editor authoring plugin, native discovery/capture,

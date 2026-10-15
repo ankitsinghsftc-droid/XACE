@@ -189,3 +189,5 @@ NEC005 mixed-call audit additionally restored1914 stable local_id fingerprint re
 NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass (62 run,5 cold reopen/Python write,4 Play,3 runtime privilege). Final tested source matches recovered files; unknown native behavior admission refused. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec005-20261016/summary.json. Historical mixed-call omissions corrected; failed/prior attempts preserved. Next NEC006; NEC010 prohibited until recovery acceptance. NOT backed up off-device.
 
 NEC006 source reconstructed from successful historical patches and19 reviewed source-only shell edits; invalid patch2688 excluded and successful2694 replacement used. Fresh verification pending; persistent-path adaptation required before Unreal build. NOT backed up off-device.
+
+NEC006 build passes;255 Python tests pass. First native run failed staged readback after relocation to .xace (saved file exists). Adapted loader to installed Unreal explicit FPackagePath::FromLocalPath overload. Fresh build/native proof pending; failed fixture retained. NOT backed up off-device.
