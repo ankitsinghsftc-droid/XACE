@@ -384,7 +384,7 @@ completed as recorded below.
 - **Non-goals:** GDScript translation or a separate Player-only authoring model.
 
 Completed 2026-10-09: [implementation and boundaries](NEC005_GODOT_AUTHORING.md),
-[evidence](evidence/nec005-godot-20261009.json). 239 Python tests and 74 installed
+[evidence](recovery/evidence/nec005-20261016/summary.json). 239 Python tests and 74 installed
 Godot checks pass. Actual text/binary PackedScene saves, external binary resources,
 instance metadata, grouped editor undo, staged writes and fresh-process recovery
 are covered. Capture/write requires selected saved scenes closed after explicit

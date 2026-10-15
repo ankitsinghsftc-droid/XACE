@@ -1,4 +1,4 @@
-> Reconstructed historical NEC005 document. Fresh recovery verification pending; historical output paths below are not current instructions. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC005 document. Fresh recovery verification passed:239 Python tests and74 installed-Godot checks; historical output paths below are not current instructions. See AGENT_PROGRESS.md.
 
 # NEC-005 - Godot saved authoring capture and staged serialization
 
@@ -166,7 +166,7 @@ fresh `reload` process to recover. The runner creates only a trusted fixture und
 
 ## Preservation and next handoff
 
-[Evidence](evidence/nec005-godot-20261009.json) binds source, native proof files,
+[Evidence](recovery/evidence/nec005-20261016/summary.json) binds source, native proof files,
 test commands/logs and seal verification. All 2,140 protected XP-022 files remain
 unchanged. Historical NEC receipts are unchanged; NEC-004's live master/roadmap
 versions are retained under `target/nec005/entry-documents/`.

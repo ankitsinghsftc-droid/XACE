@@ -185,3 +185,5 @@ NEC005 source restored from13 patches and8 reviewed source-only shell edits. Ori
 NEC005 first native attempt timed out at missing godot-golden.json. Diagnosed omitted source-only shell edit within mixed historical call1993; restored exact successful staging edit. This is reconstruction correction, not new behavior. Failed fixture/log retained.239 Python tests pass; native retry pending.
 
 NEC005 mixed-call audit additionally restored1914 stable local_id fingerprint replacement. Prior native retry passed74 checks but was not final source; final native run required.239 Python tests unchanged.
+
+NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass (62 run,5 cold reopen/Python write,4 Play,3 runtime privilege). Final tested source matches recovered files; unknown native behavior admission refused. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec005-20261016/summary.json. Historical mixed-call omissions corrected; failed/prior attempts preserved. Next NEC006; NEC010 prohibited until recovery acceptance. NOT backed up off-device.

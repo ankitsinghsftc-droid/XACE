@@ -52,7 +52,7 @@ integrate this explicit boundary and the native receipts. REL-01 through REL-05
 remain OPEN. No commit or push was performed.
 
 See [completion](docs/NEC005_GODOT_AUTHORING.md),
-[evidence](docs/evidence/nec005-godot-20261009.json) and
+[evidence](docs/recovery/evidence/nec005-20261016/summary.json) and
 `target/nec005/verification-20261009/`. Earlier entries remain historical;
 pre-NEC-005 live plans are retained in `target/nec005/entry-documents/`.
 
@@ -1784,3 +1784,5 @@ NEC002 RECOVERY VERIFIED:24 identity/store tests +67 project/Player/authoring re
 NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions pass (219 total), including independent Node golden checks,1500-object hierarchy and300 malformed mutations. All55 protected recovery-baseline files unchanged. Evidence: docs/recovery/evidence/nec003-20261015/summary.json. Native capture remains subsequent work. Next NEC004. NOT backed up off-device.
 
 NEC004 RECOVERY VERIFIED:228 Python tests and50 installed Unity6000.4.9f1 checks pass (40 run,4 cold reopen/Python write,6 Play). All50 cases match the historical acceptance count. Persistent .xace holds native transaction receipts/before-images and proof snapshots; recovery-evidence holds isolated project/output. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec004-20261015/summary.json. Native APIs are callable; automatic CGS sync remains later work. Next NEC005. NOT backed up off-device.
+
+NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass (62 run,5 cold reopen/Python write,4 Play,3 runtime privilege). Final tested source matches recovered files; unknown native behavior admission refused. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec005-20261016/summary.json. Historical mixed-call omissions corrected; failed/prior attempts preserved. Next NEC006; NEC010 prohibited until recovery acceptance. NOT backed up off-device.

@@ -1,0 +1,200 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (7 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  12% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  37% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  62% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | XaceProtocol[39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Started Loading editor (5 steps)[39m[0m
+[   0% ] [90m[1mloading_editor_layout[22m | Loading editor layout...[39m[0m
+[  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
+[92m[ DONE ][39m [1mloading_editor_layout[22m
+[0m
+NEC005 binary_mesh_save true  
+NEC005 packed_template_save true  
+NEC005 scene_nested_instance_save true  
+NEC005 saved_native_capture true  
+NEC005 unapproved_project_refused true  
+NEC005 path_traversal_refused true unsafe resource path 
+NEC005 duplicate_json_key_refused true unsafe resource path 
+NEC005 numeric_json_token_refused true unsafe resource path 
+NEC005 binary_scene_save true unsafe resource path 
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:149)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:149)
+NEC005 binary_scene_capture true  
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:151)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:151)
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] prepare (res://addons/xace_authoring/authoring_writer.gd:113)
+       [3] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] prepare (res://addons/xace_authoring/authoring_writer.gd:113)
+       [3] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] prepare (res://addons/xace_authoring/authoring_writer.gd:147)
+       [2] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] prepare (res://addons/xace_authoring/authoring_writer.gd:147)
+       [2] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://.xace_authoring/transactions/0000000000000000000000000000033e/0.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] prepare (res://addons/xace_authoring/authoring_writer.gd:168)
+       [2] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://.xace_authoring/transactions/0000000000000000000000000000033e/0.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] prepare (res://addons/xace_authoring/authoring_writer.gd:168)
+       [2] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] prepare (res://addons/xace_authoring/authoring_writer.gd:181)
+       [3] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] prepare (res://addons/xace_authoring/authoring_writer.gd:181)
+       [3] run (res://addons/xace_authoring/native_proof.gd:152)
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] commit (res://addons/xace_authoring/authoring_writer.gd:233)
+       [3] run (res://addons/xace_authoring/native_proof.gd:153)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] commit (res://addons/xace_authoring/authoring_writer.gd:233)
+       [3] run (res://addons/xace_authoring/native_proof.gd:153)
+NEC005 binary_scene_staged_save true  
+WARNING: 'res://Fixture/World.scn': In external resource #0, invalid UID: 'uid://7x23dr1rlbqi' - using text path instead: 'res://Fixture/Template.tscn'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:154)
+WARNING: 'res://Fixture/World.scn': In external resource #1, invalid UID: 'uid://dfmjghh6qtkov' - using text path instead: 'res://Fixture/Clip.res'.
+   at: open (core/io/resource_format_binary.cpp:1089)
+   GDScript backtrace (most recent call first):
+       [0] load_scene (res://addons/xace_authoring/authoring_reader.gd:184)
+       [1] capture (res://addons/xace_authoring/authoring_reader.gd:205)
+       [2] run (res://addons/xace_authoring/native_proof.gd:154)
+NEC005 binary_scene_saved_readback true  
+NEC005 binary_scene_restore true  
+NEC005 binary_resource_uid_reference true  
+NEC005 instance_definition_distinct true  
+NEC005 discovery_preserves_saved_bytes true  
+NEC005 project_autoload_blocks_adoption true  
+NEC005 autoload_probe_restores_project_bytes true  
+NEC005 open_scene_capture_refused true close selected scene after save/discard before saved capture/write 
+NEC005 explicit_duplicate_rekey_group true  
+NEC005 editor_undo_restores_identity true  
+NEC005 editor_redo_rekeys_identity true  
+[   0% ] [90m[1msave[22m | Started Saving Scene (4 steps)[39m[0m
+[   0% ] [90m[1msave[22m | Analyzing[39m[0m
+[  20% ] [90m[1msave[22m | Creating Thumbnail[39m[0m
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:106)
+   GDScript backtrace (most recent call first):
+       [0] run (res://addons/xace_authoring/native_proof.gd:183)
+[  80% ] [90m[1msave[22m | Saving Scene[39m[0m
+[92m[ DONE ][39m [1msave[22m
+[0m
+NEC005 editor_native_save true  
+NEC005 editor_close_saved true  
+NEC005 editor_save_close_recapture true  
+NEC005 missed_notification_full_rescan true  
+NEC005 rename_reparent_identity_stable true  
+NEC005 duplicate_metadata_refused true foreign/duplicate native identity; recovery required 
+NEC005 staged_native_serialization true  
+NEC005 prepare_original_unchanged true  
+NEC005 approval_digest_refused true  receipt digest/scope mismatch
+NEC005 native_commit true  
+NEC005 save_reextract_position true  
+NEC005 unknown_light_property_preserved true  
+NEC005 packed_scene_reference_preserved true  
+NEC005 receipt_reload_recovery true  
+NEC005 rollback_exact_saved_bytes true  
+NEC005 shared_golden_native_position true  
+NEC005 shared_golden_restore true  
+NEC005 shared_golden_inexact_rotation_refused true  native float cannot preserve fixed value
+NEC005 exact_rotation_scale_input_prepare true  
+NEC005 exact_rotation_scale_input_commit true  
+NEC005 input_and_binding_preserved true  
+NEC005 exact_fields_undo true  
+NEC005 fault_after_replace_rollback true  injected native replacement failure
+NEC005 fault_preserves_before_image true  injected native replacement failure
+NEC005 binary_resource_replacement_prepare true  
+NEC005 binary_resource_replacement_commit true  
+NEC005 resource_replace_preserves_instance_identity true  
+NEC005 resource_replacement_rollback true  
+NEC005 unrepresentable_fixed_value_refused true  native float cannot preserve fixed value
+NEC005 conflict_fixture_prepare true  
+NEC005 newer_edit_recovery_conflict true  
+NEC005 newer_edit_retained true  
+NEC005 unknown_behavior_blocking_disposition true  
+NEC005 unknown_behavior_native_preservation_commit true  
+NEC005 unknown_behavior_retained true  
+NEC005 unknown_behavior_write_undo true  
+NEC005 source_drift_refuses_approved_write true  native source changed since approval
+NEC005 source_drift_keeps_newer_bytes true  native source changed since approval
+NEC005 restart_recovery_prepare true  
+NEC005 restart_recovery_commit true  

@@ -1,0 +1,1 @@
+{"cases":[{"name":"actual_play_active","ok":true},{"name":"play_authoring_capture_refused","ok":true},{"name":"play_saved_scene_unchanged","ok":true},{"name":"saved_capture_after_stop","ok":true}],"engine_version":"4.6.3-stable (official)","ok":true,"reader_error":"","schema":"xace.nec005.godot_proof.v1","writer_error":""}

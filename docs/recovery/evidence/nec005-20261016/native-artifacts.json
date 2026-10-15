@@ -1,0 +1,386 @@
+{
+  "tested_source": [
+    {
+      "path": "adapters/godot/authoring/authoring_plugin.gd",
+      "sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b",
+      "proof_sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b"
+    },
+    {
+      "path": "adapters/godot/authoring/authoring_reader.gd",
+      "sha256": "9ae9c4880bca4afc748cd15b5ac5b4b7ce2d0193bd50900fdcdd724482832f23",
+      "proof_sha256": "9ae9c4880bca4afc748cd15b5ac5b4b7ce2d0193bd50900fdcdd724482832f23"
+    },
+    {
+      "path": "adapters/godot/authoring/authoring_wire.gd",
+      "sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e",
+      "proof_sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e"
+    },
+    {
+      "path": "adapters/godot/authoring/authoring_writer.gd",
+      "sha256": "ebab6a579154635c90173839558ba5d3bfdc6aff79d626043f0afc330644668a",
+      "proof_sha256": "ebab6a579154635c90173839558ba5d3bfdc6aff79d626043f0afc330644668a"
+    },
+    {
+      "path": "adapters/godot/authoring/native_proof.gd",
+      "sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad",
+      "proof_sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad"
+    },
+    {
+      "path": "adapters/godot/authoring/plugin.cfg",
+      "sha256": "3ac5e29e1aa45f0136d850cf195be0f431b33f680560e355b1bd14a6233ac1e3",
+      "proof_sha256": "5b4b61ba15ee05b8bfba1e5c3867c5d7ba53db79fad2a7973c9c8b4ded516c85"
+    },
+    {
+      "path": "adapters/godot/authoring/runtime_privilege_proof.gd",
+      "sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6",
+      "proof_sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6"
+    }
+  ],
+  "retained_artifacts": [
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/godot-golden.json",
+      "bytes": 336,
+      "sha256": "a1ede931bef96c7e288639f8f1bd73a48b90cb309a3eaf98a65dcd180576c893"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/native-after-python.json",
+      "bytes": 7008,
+      "sha256": "140cf1d8230023c8cc034c9d0b88fa5e88bd990278a187b8f914d0a243fb75ce"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/native-before.json",
+      "bytes": 7005,
+      "sha256": "17155fc75a547ec2bce873c14688367b6fe404a2d89b55bb585911d7dce61f5f"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/native-discovery.json",
+      "bytes": 4781,
+      "sha256": "cc61749859652a8f883c93d74ff7de3fecd98b19bdf533ca167b5961517ca37a"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/native-unknown.json",
+      "bytes": 7714,
+      "sha256": "95e5f6d25901aebe16394e6a6432e0fcb11a7ab4a273d99e64010de19e50776b"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/project.godot",
+      "bytes": 309,
+      "sha256": "1b7c55e9504f94c9a212a3950babc59aebcdd0eb2e7e40c642030eff3bc559ce"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/proof-play.json",
+      "bytes": 324,
+      "sha256": "b143f60f6ca8588a115a019deb17d686efb3c9a041135146efd3487b8a7d24ee"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/proof-privilege.json",
+      "bytes": 271,
+      "sha256": "86fa3237c70ae74cc6c47a7f899053d4b040a37c7085546a87f167b83b51e982"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/proof-reload.json",
+      "bytes": 388,
+      "sha256": "aeb61670d7bb463c9a66ee90588916b4a90f03e06624b6a39a44dfa6ed55c1d2"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/proof-run.json",
+      "bytes": 3184,
+      "sha256": "829e86bb47f9aa1555ca65090bcb23f70e55de1702632c77174ba166847eea21"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/python-request.json",
+      "bytes": 324,
+      "sha256": "c6ed85495c29ce099d66e895ce8352920b95b24b7e30aeabfd67690a9408cac4"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/restart-recovery.json",
+      "bytes": 159,
+      "sha256": "92e8699708ee012dc1159cc8c195f44f63358a937c60ac74284aba5f2d038bd1"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/xace_protocol.gd",
+      "bytes": 11908,
+      "sha256": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/xace_protocol.gd.uid",
+      "bytes": 20,
+      "sha256": "45b0646708c9be274fa1853446b0dee3fbb310aedc6fa2548251fcedc449dd38"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/.gdignore",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000320/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000320/0.tscn",
+      "bytes": 2140,
+      "sha256": "d5a750a9048db253e406c88825ef98ee2abc8112d535eb230d3ed3df92211074"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000320/receipt.json",
+      "bytes": 930,
+      "sha256": "c790499fda05955b1cae1688d0c1497a6c48626c2c9e7ff9100bbd5a09e4058b"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000321/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000321/0.tscn",
+      "bytes": 2140,
+      "sha256": "6cddac2690e0b7d757f1fd1890ba6adac3d23f2b6039cf6b49afe869b5622670"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000321/receipt.json",
+      "bytes": 930,
+      "sha256": "5c1a013c9a881f418a8d2169c633e0fff496f8e7a15c5befc716e74973ad6893"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000322/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000322/0.tscn",
+      "bytes": 2278,
+      "sha256": "0b1a549d8eb210fecbcdb2b0e0b166b990d13d1f6ba349e8568ecf5615a38182"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000322/receipt.json",
+      "bytes": 1006,
+      "sha256": "30d8cc95651145f7f3d423916a9ba9f155b31c493ed0779874af1d60f3f72500"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000323/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000324/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000324/0.tscn",
+      "bytes": 2141,
+      "sha256": "dc45eb9d9c08df7342464eb6141745e779e58e446ac4cd090bd36debe66c73be"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000324/receipt.json",
+      "bytes": 924,
+      "sha256": "49db94aeae372693687fe632a464cf4935cc65edcf58425b7c61230e47a536c5"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032a/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032a/0.tscn",
+      "bytes": 2141,
+      "sha256": "7e4b393131c32bf6a3ef337c26f4a0dd38bd4363da11a1381ca5f4d7730f0daa"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032a/receipt.json",
+      "bytes": 931,
+      "sha256": "dc3ed5cf8ef75a7e0058e2a503e054a380a70ceb9dc962110902d435f078cc00"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032b/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032c/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032c/0.tscn",
+      "bytes": 2167,
+      "sha256": "5fa256d1844968626bf9b3528992674800500e7daa7b0bad5e52bc5448b3d741"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000032c/receipt.json",
+      "bytes": 1111,
+      "sha256": "1324e02e13473e59183f742964c054f97813a0b24fdec6c0b050c7f76101e11a"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000334/0.before",
+      "bytes": 2465,
+      "sha256": "ea80f83f56786d2f9ac4fbd11b8b193e9857cbf40902d03243419621554e2da3"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000334/0.tscn",
+      "bytes": 2465,
+      "sha256": "e9b3a0dce84f7e757046600e8aeacd67c6d20ad0e298ceaf227f11d5b9fde56f"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000334/receipt.json",
+      "bytes": 918,
+      "sha256": "c043ae0fd1115e885e2acda2168b1ba3073457786b501779dcf16bed878ee27c"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000335/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000335/0.tscn",
+      "bytes": 2140,
+      "sha256": "033f6267e118d22f2c4b772d0a5ccc8bf1498e40ce2af89df0f2f7207c1cf00d"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000335/receipt.json",
+      "bytes": 915,
+      "sha256": "70b7f81b97069f026f24f9effec4bf2e663a5c766b3dad7a190588bae1ecfac0"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000033e/0.before",
+      "bytes": 2734,
+      "sha256": "ee738926a52fcecf7bffde1d27fc5f7f6ec23712da8998d4f6a908aabb62ce9d"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000033e/0.scn",
+      "bytes": 2734,
+      "sha256": "a66144b820c178c03a7840afebf8a8d9c886b0d11083c290adf7d401c15461a6"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/0000000000000000000000000000033e/receipt.json",
+      "bytes": 914,
+      "sha256": "2774131b93acaa81b8a5fa212b8cdfbabaee5a86f4d56c20fed22e408d75be70"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000348/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000348/0.tscn",
+      "bytes": 2140,
+      "sha256": "1385346b101f248536d1eb9d01a9e7b05b9de22b0f25c7658a6707d38854419b"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000348/receipt.json",
+      "bytes": 918,
+      "sha256": "a1ce08fbcb7efa074b7ca1bd485f7880f89c276a9177a3f68b503fbf1163a1cc"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000385/0.before",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000385/0.tscn",
+      "bytes": 2143,
+      "sha256": "777a1f56ba8deb9787837130ad6da2a71db0ed357d61154bb23cd9fb08d2b27f"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/.xace_authoring/transactions/00000000000000000000000000000385/receipt.json",
+      "bytes": 933,
+      "sha256": "4ebd89d363f36df9bd25fee13087804ab670742d778e3b1097dec339f841f4ea"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_plugin.gd",
+      "bytes": 2408,
+      "sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_plugin.gd.uid",
+      "bytes": 20,
+      "sha256": "57eaf2e947916ca39b1e07235b2755747b18a6384afc34aa247b5a9f15c21c8f"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_reader.gd",
+      "bytes": 13493,
+      "sha256": "9ae9c4880bca4afc748cd15b5ac5b4b7ce2d0193bd50900fdcdd724482832f23"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_reader.gd.uid",
+      "bytes": 19,
+      "sha256": "2632db160b041f5806f31581d2011ad436f33000b66b394e05491113d9af6f5d"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_wire.gd",
+      "bytes": 3782,
+      "sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_wire.gd.uid",
+      "bytes": 19,
+      "sha256": "9ffac0544fb62a50cf22c4f63b4613875f949e52a519448d17117a84acfffcb6"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_writer.gd",
+      "bytes": 12221,
+      "sha256": "ebab6a579154635c90173839558ba5d3bfdc6aff79d626043f0afc330644668a"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/authoring_writer.gd.uid",
+      "bytes": 19,
+      "sha256": "c2e91248be70964b2c80a8c5183191e8b41ea1fd517945965e3007d1f8a3f154"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/native_proof.gd",
+      "bytes": 17938,
+      "sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/native_proof.gd.uid",
+      "bytes": 20,
+      "sha256": "7ee71b21b8ca43484bc96239dc29783ca3dfea969ea09b86bfbad0b126a8792b"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/plugin.cfg",
+      "bytes": 187,
+      "sha256": "5b4b61ba15ee05b8bfba1e5c3867c5d7ba53db79fad2a7973c9c8b4ded516c85"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/runtime_privilege_proof.gd",
+      "bytes": 1072,
+      "sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/addons/xace_authoring/runtime_privilege_proof.gd.uid",
+      "bytes": 19,
+      "sha256": "32c48efb67447c9d5efa75344036894ebedb77f35a8c8de75a0821418700a841"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/Clip.res",
+      "bytes": 304,
+      "sha256": "3e1f131bb05122639435187fc3a1a9d35ade08417a45ddb176aad15956621df8"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/Mesh.res",
+      "bytes": 416,
+      "sha256": "251539549b1fe8c8929228040bf833a41d68b96782e14a9fafb24b82e40017b3"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/Replacement.res",
+      "bytes": 405,
+      "sha256": "654b0de4d5f207c80557b2f806282056bc046cc322e49d2b7501381567a86279"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/Template.tscn",
+      "bytes": 799,
+      "sha256": "cf4362de91aeb673842568b848852fdcc3a85a542f0500f15572b23a71bada06"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/World.scn",
+      "bytes": 2734,
+      "sha256": "ee738926a52fcecf7bffde1d27fc5f7f6ec23712da8998d4f6a908aabb62ce9d"
+    },
+    {
+      "path": "recovery-evidence/20261016/nec005/native-final/godot-project/Fixture/World.tscn",
+      "bytes": 2140,
+      "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+    }
+  ]
+}

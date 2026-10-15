@@ -1,0 +1,19 @@
+{
+  "milestone": "NEC005",
+  "recovery_verified": true,
+  "source_checkpoint": "a7a5a1d",
+  "python_tests": 239,
+  "native_checks": 74,
+  "native_phases": {
+    "run": 62,
+    "reload": 5,
+    "play": 4,
+    "privilege": 3
+  },
+  "sealed_artifacts_unchanged": true,
+  "off_device_backup": false,
+  "next": "NEC006",
+  "unknown_behavior_admission_refused": true,
+  "scope": "Trusted-editor saved scenes/resources, selected scenes closed after save/discard; callable capture and approved writes only.",
+  "failed_attempt": "native: missing golden fixture caused timeout; exact historical staging restored. native-complete passed but predated stable fingerprint correction; native-final verifies final source."
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "C:\\Users\\ankit\\Downloads\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64_console.exe",
+    "--headless",
+    "--path",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec005\\native-final\\godot-project",
+    "--script",
+    "addons/xace_authoring/runtime_privilege_proof.gd"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace",
+  "executable_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a"
+}
