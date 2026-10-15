@@ -47,6 +47,8 @@ renderer/rendering_method="gl_compatibility"
     # Existing Player/editor runtime protocol is copied byte-for-byte for proof;
     # no authoring methods or privileges are added to it.
     shutil.copyfile(ROOT/'adapters/godot/xace_protocol.gd', project/'xace_protocol.gd')
+    golden = json.loads((ROOT/'packages/project-system/tests/fixtures/native_authoring_golden.json').read_text())
+    (project/'godot-golden.json').write_text(json.dumps([g for g in golden if g['engine']=='godot' and g['kind'] in {'position','rotation'} and g.get('losses')==[] and not g.get('reject')]))
     if phase == 'reload':
         sys.path.insert(0, str(ROOT/'packages/project-system'))
         from godot_authoring import prepare_identity_map, capture, policy, write_request

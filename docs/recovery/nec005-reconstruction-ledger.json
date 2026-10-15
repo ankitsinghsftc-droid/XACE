@@ -205,6 +205,15 @@
           "reviewed_source_only_shell": 2144
         }
       ]
+    },
+    {
+      "line": 1993,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 1993
+        }
+      ],
+      "recovery_note": "Mixed patch+shell call had golden staging edit after patch. Restored after first native run exposed missing golden file; failed attempt retained."
     }
   ],
   "historical_evidence_recreated": false,
