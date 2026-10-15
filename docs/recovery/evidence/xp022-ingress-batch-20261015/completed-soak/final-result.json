@@ -1,0 +1,26 @@
+{
+  "schema": "xace.background_soak.v1",
+  "status": "passed",
+  "supervisor_pid": 22924,
+  "started_utc": "2026-10-15T04:45:09.649801+00:00",
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-u",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\tools\\xp022_player_soak.py",
+    "--artifacts",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\run",
+    "--seconds",
+    "7200"
+  ],
+  "runner_pid": 23028,
+  "soak_returncode": 0,
+  "verification_returncode": 0,
+  "archive_verification": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\archive-verification\\report.json",
+  "returncode": 0,
+  "report": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\run\\report.json",
+  "certified": false,
+  "elapsed_seconds": 7544.625,
+  "finished_utc": "2026-10-15T06:50:54.357418+00:00"
+}

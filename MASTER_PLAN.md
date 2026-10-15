@@ -1597,3 +1597,5 @@ Verification: Full Builder gate passed (lint, typecheck, UI contract, 147 server
 Next session should start with: AG-015 only when explicitly requested.
 
 Recovery verification2026-10-15: ingress batching candidate dd2741c passes870 Rust tests and production socket/process/mixed-engine/replay gates; strict short soak passes4.1323ms p95. Full endurance pending. See AGENT_PROGRESS.md; no off-device backup.
+
+XP022 repaired-candidate full endurance PASSED:7200.844 seconds,188507 ticks,11.6411ms p95 against16.7ms, successful reconnect and clean authority exit. All737 replay segments/188507 ticks verified without divergence. Finished2026-10-15 06:50:54 UTC (12:20:54 IST). Fresh evidence: docs/recovery/evidence/xp022-ingress-batch-20261015/completed-soak/summary.json. No rerun required for this gate. This is new recovered-candidate evidence, not original sealed evidence or full release certification. Earlier intermittent failure root cause remains unconfirmed; recovery sealing and remaining acceptance audit are pending. NEC010 not started. NOT backed up off-device.

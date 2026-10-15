@@ -1,0 +1,18 @@
+{
+  "fresh_recovery_evidence": true,
+  "original_sealed_evidence": false,
+  "passed": true,
+  "elapsed_seconds": 7200.844000000001,
+  "authority_ticks": 188507,
+  "authority_p95_ms": 11.6411,
+  "budget_ms": 16.7,
+  "rejoined": true,
+  "authority_exited": true,
+  "replay_segments": 737,
+  "verified_ticks": 188507,
+  "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "finished_utc": "2026-10-15T06:50:54.357418+00:00",
+  "scope": "Four actual exported Players, headless, loopback, one Windows computer; render and Internet claims excluded",
+  "backed_up_off_device": false,
+  "limitations": "One successful endurance run does not establish the root cause of earlier intermittent freezes. XP022 recovery sealing and remaining acceptance audit are still pending."
+}

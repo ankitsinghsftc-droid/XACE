@@ -1,0 +1,17 @@
+[
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\final-result.json",
+    "sha256": "a00e80dcd9d0b182c2782bdd6ac63a074b6b1ef20a5b19c99bc260c6a17b4487",
+    "bytes": 1200
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\run\\report.json",
+    "sha256": "73832572939dc0b898dcac7edfeb52d1330b19e436507ce566419daa6c7fb52a",
+    "bytes": 592523
+  },
+  {
+    "source": "recovery-evidence\\20261015\\xp022-ingress-batch\\background-run\\archive-verification\\report.json",
+    "sha256": "e9852802fb43373f01ce6672a38e19989a5b5d359934eef96fc8738f50cd200d",
+    "bytes": 756905
+  }
+]
