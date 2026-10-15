@@ -1,0 +1,16 @@
+{
+  "pid": 22924,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-B",
+    "tools/xp022_background_soak.py",
+    "--artifacts",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\artifacts",
+    "--out",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\background-run"
+  ],
+  "started_utc": "2026-10-15T04:45:09.487007+00:00",
+  "source_checkpoint": "dd2741c",
+  "evidence_checkpoint": "745f660",
+  "host_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1"
+}
