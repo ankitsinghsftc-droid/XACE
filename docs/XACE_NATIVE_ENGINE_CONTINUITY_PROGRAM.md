@@ -335,7 +335,7 @@ shared contracts stabilize; that is a future scheduling option, not delegation.
 - **Non-goals:** universal scene interchange format or new authoritative geometry engine.
 
 Completed 2026-10-09: [implementation and boundaries](NEC003_NATIVE_AUTHORING_CONTRACTS.md),
-[evidence](evidence/nec003-contracts-20261009.json). 28 focused plus 191 existing
+[evidence](recovery/evidence/nec003-20261015/summary.json). 28 focused plus 191 existing
 regression tests pass. No task renumbering/reordering or added task is needed.
 NEC-004/005/006 must consume the capture/snapshot contracts, certify host-owned
 field policies and document fingerprints, run the shared numeric golden corpus,

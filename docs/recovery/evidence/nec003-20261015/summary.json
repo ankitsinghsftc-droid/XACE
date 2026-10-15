@@ -1,0 +1,12 @@
+{
+  "milestone": "NEC003",
+  "recovery_verified": true,
+  "source_checkpoint": "8be6097",
+  "focused_tests": 28,
+  "regression_tests": 191,
+  "total_tests": 219,
+  "sealed_artifacts_unchanged": true,
+  "scope": "Normalized authoring capture/snapshot/delta/loss contracts and cross-language golden validation. Native engine capture is subsequent work.",
+  "off_device_backup": false,
+  "next": "NEC004"
+}

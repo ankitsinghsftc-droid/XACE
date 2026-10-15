@@ -53,7 +53,7 @@ All 2,140 protected XP-022 files remain byte-identical. NEC-001/002 receipts are
 unchanged; pre-NEC-003 master/roadmap copies preserve NEC-002 hashes under
 `target/nec003/entry-documents/`. No commit or push was performed.
 See [completion](docs/NEC003_NATIVE_AUTHORING_CONTRACTS.md),
-[evidence](docs/evidence/nec003-contracts-20261009.json) and
+[evidence](docs/recovery/evidence/nec003-20261015/summary.json) and
 `target/nec003/verification-20261009/` for exact scope and verification.
 
 ## NEC-002: COMPLETE - AUTHORING IDENTITIES AND BASELINES - 2026-10-08
@@ -1720,3 +1720,5 @@ XP022 recovered baseline SEALED and readback verified: C:/Users/ankit/XACE-Recov
 NEC001 RECOVERY VERIFIED:85 Python +23 Rust acceptance tests pass; all54 sealed files/1575 archived source entries preserved before/after; final XP022 proofs retained with hashes, not rerun/relabelled. Roadmap keeps original amendments plus persistent recovery paths/checkpoints. Evidence: docs/recovery/evidence/nec001-20261015/summary.json. Next NEC002 under sequential authorization. NEC010 prohibited; REL01-05 OPEN; NOT backed up off-device.
 
 NEC002 RECOVERY VERIFIED:24 identity/store tests +67 project/Player/authoring regressions pass (91 total). Atomic store interruption/concurrent-writer, rename/reparent/duplicate/tombstone/fork and migration cases restored; no native capture claimed. All55 protected recovery-baseline files including manifest unchanged. Evidence: docs/recovery/evidence/nec002-20261015/summary.json. Next NEC003. NOT backed up off-device.
+
+NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions pass (219 total), including independent Node golden checks,1500-object hierarchy and300 malformed mutations. All55 protected recovery-baseline files unchanged. Evidence: docs/recovery/evidence/nec003-20261015/summary.json. Native capture remains subsequent work. Next NEC004. NOT backed up off-device.

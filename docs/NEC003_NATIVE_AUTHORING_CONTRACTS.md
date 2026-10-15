@@ -1,4 +1,4 @@
-> Reconstructed historical NEC003 document. Fresh recovery verification pending; original evidence and output paths below are historical. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC003 document. Fresh recovery verification passed (219 tests); original evidence and output paths below are historical. See AGENT_PROGRESS.md.
 
 # NEC-003 - Normalized native authoring contracts
 
@@ -191,7 +191,7 @@ Godot/GDScript reader or materializer. Those proofs remain NEC-004/005/006.
 Runtime Rust and engine binaries were unchanged; their sealed certification was
 verified rather than represented as a fresh engine/build/soak run.
 
-Evidence: [receipt](evidence/nec003-contracts-20261009.json) and
+Evidence: [receipt](recovery/evidence/nec003-20261015/summary.json) and
 `target/nec003/verification-20261009/`. The final preservation check compares all
 2,140 protected XP-022 files with entry, verifies every sealed source entry except
 the permitted live master addenda, and preserves original NEC-001/002 receipts.
