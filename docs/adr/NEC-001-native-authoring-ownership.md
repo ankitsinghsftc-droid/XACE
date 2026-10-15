@@ -1,3 +1,5 @@
+> Current recovery reconciliation: [NEC001 recovery acceptance](../recovery/NEC001_RECOVERY_ACCEPTANCE.md). This governs current baseline, verification, authorization and output paths.
+
 > Reconstructed historical NEC001 document. Historical paths, test counts and completion statements below are not fresh recovery verification. Current recovery status is in AGENT_PROGRESS.md. Original sealed payloads remain missing; use the new persistent recovered baseline.
 
 # ADR NEC-001: native authoring is reviewed definition work, not runtime feedback

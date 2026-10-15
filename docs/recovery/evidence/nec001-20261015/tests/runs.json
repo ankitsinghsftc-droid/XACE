@@ -1,0 +1,173 @@
+[
+  {
+    "name": "test_project_system",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_project_system.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_project_system.log",
+    "sha256": "ab7a21f7cefb15f81ebd57e14ec421e4978d3ad017db6800e93b7222acd310f7"
+  },
+  {
+    "name": "test_playable_package",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_playable_package.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_playable_package.log",
+    "sha256": "135a95fa7438ac4697bc0d227869f56e40acfba7e4823d1e24140447ee41448a"
+  },
+  {
+    "name": "test_engine_edit_router",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_engine_edit_router.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_engine_edit_router.log",
+    "sha256": "4ac06e9bf68a3579bd09eb4fdccb5fc833901436611565f9a21aa5b910138dd7"
+  },
+  {
+    "name": "test_world_contract",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_world_contract.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_world_contract.log",
+    "sha256": "f203df46f6aa0292d29a0fe531ca63d65476a0ae29b7e4cb2b7ce23e28f1b06a"
+  },
+  {
+    "name": "test_world_extensibility",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_world_extensibility.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 8,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_world_extensibility.log",
+    "sha256": "bd47bf0da59e4da010524026669c068e4559194b52496ae3aa537c9c2ab1b057"
+  },
+  {
+    "name": "test_replay_debugger",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_replay_debugger.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 9,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_replay_debugger.log",
+    "sha256": "29f20a66876dee7515b90d934101e765769ad410a8c3909305ce0ec236884c95"
+  },
+  {
+    "name": "test_gameplay_package_authoring",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_gameplay_package_authoring.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 10,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_gameplay_package_authoring.log",
+    "sha256": "85ebbff09092afe7ea529fb3b92bac29a9c1d798dc9b6a8f848ad42ecd0c26e8"
+  },
+  {
+    "name": "test_asset_import_workflow",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_asset_import_workflow.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 6,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_asset_import_workflow.log",
+    "sha256": "1cf2fc67332830cb1ea928d0dba6b3dd971628a84f175405b8f4c962f40a2de5"
+  },
+  {
+    "name": "test_semantic_binding_status",
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_semantic_binding_status.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 2,
+    "log": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\nec001\\tests\\test_semantic_binding_status.log",
+    "sha256": "078a51d7addd1e043b2ae52ed07ce943349c47f4d560dbf4792cf4cd54eca212"
+  }
+]

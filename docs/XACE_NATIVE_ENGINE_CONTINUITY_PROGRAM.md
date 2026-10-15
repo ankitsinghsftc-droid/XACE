@@ -1,3 +1,5 @@
+> Current recovery reconciliation: [NEC001 recovery acceptance](recovery/NEC001_RECOVERY_ACCEPTANCE.md). This governs current baseline, verification, authorization and output paths.
+
 > Reconstructed historical NEC001 document. Historical paths, test counts and completion statements below are not fresh recovery verification. Current recovery status is in AGENT_PROGRESS.md. Original sealed payloads remain missing; use the new persistent recovered baseline.
 
 # XACE Native Engine Continuity Program
@@ -18,7 +20,7 @@ revision `39ed07b8cd390619a479a3364dc903ee077a6d38` plus frozen working-tree inv
 The original design audit at `d3ef383` is historical. The owner supplied the sealed
 folder and authorized NEC-001 while external release gates remain open.
 [NEC-001 audit](NEC001_HANDOFF_AUDIT.md), [ownership ADR](adr/NEC-001-native-authoring-ownership.md)
-and [evidence](evidence/nec001-handoff-20261008.json) govern current claims.
+and [evidence](recovery/evidence/nec001-20261015/summary.json) govern current claims.
 
 ### 1.1 Engineering versus release gate
 
@@ -48,7 +50,7 @@ backend/configuration before shipping; broad manifest ranges are insufficient.
 - **E11 — Player and local lifecycle: implemented profile.** [apps/xace-player/player.gd](../apps/xace-player/player.gd) loads verified package data and starts/connects to Rust authority; loss freezes gameplay. [player_launch.py](../packages/builder-workspace/server/player_launch.py) validates the installed release and saved-project/package match. [player-launcher](../packages/player-launcher/src/main.rs), [session.rs](../packages/player-launcher/src/session.rs), [distribution.rs](../packages/player-launcher/src/distribution.rs) and [job.rs](../packages/player-launcher/src/job.rs) provide process ownership, admission, installation and session primitives. The current Builder service rejects a stale packaged game and asks for an updated package; it is not yet universal project-specific native build preparation.
 - **E12 — Live authority: preserve the stronger current boundary.** [engine_bridge.rs](../packages/runtime-core/src/engine_bridge.rs), `queue_feedback`, rejects gameplay feedback from admitted live presentation clients. [runtime_orchestrator.rs](../packages/runtime-core/src/runtime_orchestrator.rs) processes allowed feedback at tick start on the other path. Editor proposals must never be smuggled through presentation feedback or weaken live-client authority protections.
 - **E13 — Shipping/exit: mixed maturity.** The Builder handoff route copies adapter sources and metadata. [xp008_player_build.py](../tools/xp008_player_build.py) exports a real Godot Windows Player with a bundled runtime. [CLI build](../packages/cli/src/commands/build.rs), `generate_artifact`, writes adapter configuration JSON; [CLI deploy](../packages/cli/src/commands/deploy.rs) returns not implemented. No complete native gameplay source exporter was found. Preserve the working Player packaging foundation instead of treating the older CLI comments as shipping implementation.
-- **E14 — Actual installed-host evidence now exists.** [XP-022 certification](XP022_ENGINEERING_CERTIFICATION.md) and sealed `native-v2` / `hosts-final` reports prove all three pinned installed readers and mixed sessions, not merely named socket clients. Fifteen conformance vectors per engine and four-host applied projections/events are retained. These do not certify native editor authoring or engine-built shipping. Fresh checks are separately recorded in [NEC-001 evidence](evidence/nec001-handoff-20261008.json).
+- **E14 — Actual installed-host evidence now exists.** [XP-022 certification](XP022_ENGINEERING_CERTIFICATION.md) and sealed `native-v2` / `hosts-final` reports prove all three pinned installed readers and mixed sessions, not merely named socket clients. Fifteen conformance vectors per engine and four-host applied projections/events are retained. These do not certify native editor authoring or engine-built shipping. Fresh checks are separately recorded in [NEC-001 evidence](recovery/evidence/nec001-20261015/summary.json).
 
 ### 1.3 Confirmed handoff and mandatory amendments
 
@@ -282,7 +284,7 @@ NEC-001 is **complete for engineering handoff**; NEC-002–018 are **not started
 
 ### NEC-001 — Freeze the post-XP-022 handoff and supported promise
 
-- **Status:** COMPLETE. See [audit](NEC001_HANDOFF_AUDIT.md), [ADR](adr/NEC-001-native-authoring-ownership.md) and [evidence](evidence/nec001-handoff-20261008.json). NEC-002 requires a new user instruction.
+- **Status:** COMPLETE. See [audit](NEC001_HANDOFF_AUDIT.md), [ADR](adr/NEC-001-native-authoring-ownership.md) and [evidence](recovery/evidence/nec001-20261015/summary.json). NEC-002 requires a new user instruction.
 - **Purpose:** establish one honest start/release contract.
 - **Problem solved:** the original design used an older checkout; the actual uncommitted XP-022 seal now anchors the handoff. Broad engine ranges still cannot certify a profile.
 - **Reuse:** E01/E03/E09–E14; XP-018–022 contracts and proof matrix.

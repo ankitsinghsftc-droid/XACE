@@ -1,0 +1,14 @@
+test_changed_recording_rejected (test_replay_debugger.ReplayDebuggerTests.test_changed_recording_rejected) ... ok
+test_creator_explicit_session_pause_and_restore_refusal (test_replay_debugger.ReplayDebuggerTests.test_creator_explicit_session_pause_and_restore_refusal) ... ok
+test_generic_event_state_world_and_dependencies (test_replay_debugger.ReplayDebuggerTests.test_generic_event_state_world_and_dependencies) ... ok
+test_guest_spoof_and_missing_confirmation_refused (test_replay_debugger.ReplayDebuggerTests.test_guest_spoof_and_missing_confirmation_refused) ... ok
+test_import_ignores_filenames_and_keeps_content_identity (test_replay_debugger.ReplayDebuggerTests.test_import_ignores_filenames_and_keeps_content_identity) ... ok
+test_inspection_export_and_bad_frame_never_control_live (test_replay_debugger.ReplayDebuggerTests.test_inspection_export_and_bad_frame_never_control_live) ... ok
+test_legacy_websocket_guest_control_is_blocked (test_replay_debugger.ReplayDebuggerTests.test_legacy_websocket_guest_control_is_blocked) ... ok
+test_live_preparation_status_is_read_only (test_replay_debugger.ReplayDebuggerTests.test_live_preparation_status_is_read_only) ... ok
+test_missing_host_and_path_payload_fail_closed (test_replay_debugger.ReplayDebuggerTests.test_missing_host_and_path_payload_fail_closed) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.492s
+
+OK

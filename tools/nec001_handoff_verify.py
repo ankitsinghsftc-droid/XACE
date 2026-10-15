@@ -1,7 +1,8 @@
 """Read-only XP-022 seal verification; writes only a fresh NEC report.
 
-Run before NEC edits without --allow-master-update. On closeout allow only the
-live MASTER_PLAN.md documentation change; the sealed archive is always exact.
+Recovery default verifies the new persistent seal and its committed receipt.
+--allow-master-update permits only MASTER_PLAN.md and AGENT_PROGRESS.md changes.
+The reconstructed historical verifier is retained for provenance, not executed.
 This does not reseal XP-022 or declare external release certification.
 """
 import argparse
@@ -11,7 +12,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / 'target/xp022/engineering-baseline-20261008'
+BASE = Path('C:/Users/ankit/XACE-Recovery/baselines/xp022-recovered-20261015')
 
 
 def sha(path):
@@ -33,7 +34,7 @@ def child(root, name):
     return path
 
 
-def verify(allow_master_update=False):
+def verify_historical(allow_master_update=False):
     baseline = json.loads((BASE / 'baseline.json').read_text())
     source = json.loads((BASE / 'source-manifest.json').read_text())
     require(baseline['engineering_gates_passed'] and not baseline['release_certified'],
@@ -110,6 +111,44 @@ def verify(allow_master_update=False):
                 protected_files=protected, release_certified=False)
 
 
+def verify(allow_master_update=False):
+    """Recovery adaptation: verify the new seal; never impersonate original evidence."""
+    receipt = json.loads((ROOT / 'docs/recovery/evidence/xp022-closeout-20261015/baseline-receipt.json').read_text())
+    require(sha(BASE / 'baseline.json') == receipt['sha256'], 'recovery baseline receipt mismatch')
+    baseline = json.loads((BASE / 'baseline.json').read_text())
+    require(baseline['schema'] == 'xace.recovery_baseline.v1' and not baseline['original_seal'], 'not a recovery baseline')
+    require(baseline['local_engineering_gates'] == 'passed', 'engineering gates not passed')
+    protected = []
+    for row in baseline['files']:
+        p = child(BASE, row['path'])
+        require(p.is_file() and sha(p) == row['sha256'] and p.stat().st_size == row['bytes'], 'changed sealed file: ' + row['path'])
+        protected.append(dict(path=str(p), sha256=sha(p)))
+    protected.append(dict(path=str(BASE / 'baseline.json'), sha256=sha(BASE / 'baseline.json')))
+    source = json.loads((BASE / 'source-manifest.json').read_text())
+    deviations = []
+    with zipfile.ZipFile(BASE / 'source.zip') as archive:
+        require(sorted(archive.namelist()) == sorted(r['path'] for r in source['files']), 'source inventory mismatch')
+        for row in source['files']:
+            require(hashlib.sha256(archive.read(row['path'])).hexdigest() == row['sha256'], 'archived source changed')
+            p = child(ROOT, row['path']); actual = sha(p) if p.is_file() else None
+            if actual != row['sha256']:
+                require(allow_master_update and row['path'] in ['MASTER_PLAN.md', 'AGENT_PROGRESS.md'], 'frozen implementation changed: ' + row['path'])
+                deviations.append(dict(path=row['path'], baseline_sha256=row['sha256'], current_sha256=actual))
+    with zipfile.ZipFile(BASE / 'unsigned-release.zip') as archive:
+        manifest = json.loads(archive.read('distribution.json')); trust = json.loads(archive.read('distribution.trust.json'))
+        require(hashlib.sha256(archive.read('distribution.json')).hexdigest() == trust['manifest_sha256'], 'distribution trust mismatch')
+        require(set(archive.namelist()) == {r['path'] for r in manifest['files']} | {'distribution.json','distribution.trust.json'}, 'release inventory mismatch')
+        for row in manifest['files']:
+            raw = archive.read(row['path'])
+            require(len(raw) == row['size'] and hashlib.sha256(raw).hexdigest() == row['sha256'], 'distribution bytes changed')
+        require(hashlib.sha256(archive.read('package/runtime/xace_runtime.exe')).hexdigest() == baseline['host_sha256'], 'host mismatch')
+    return dict(schema='xace.nec001.recovery_seal_check.v1', ok=True, original_seal=False,
+                baseline_manifest_sha256=receipt['sha256'], source_checkpoint=source['source_checkpoint'],
+                source_entries=len(source['files']), sealed_files=len(baseline['files']), distribution_files=len(manifest['files']),
+                runtime_sha256=baseline['host_sha256'], live_source_deviations=deviations,
+                protected_files=protected, release_certified=False)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, required=True)
@@ -117,7 +156,7 @@ def main():
     parser.add_argument('--compare', type=Path)
     args = parser.parse_args()
     out = args.out.resolve()
-    require(out.is_relative_to((ROOT / 'target/nec001').resolve()), 'output must be under target/nec001')
+    require(out.is_relative_to((ROOT / 'recovery-evidence/20261015/nec001').resolve()), 'output must be under persistent NEC001 recovery evidence')
     require(not out.exists(), 'choose a fresh report filename')
     result = verify(args.allow_master_update)
     if args.compare:

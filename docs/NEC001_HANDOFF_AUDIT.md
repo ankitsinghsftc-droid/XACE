@@ -1,3 +1,5 @@
+> Current recovery reconciliation: [NEC001 recovery acceptance](recovery/NEC001_RECOVERY_ACCEPTANCE.md). This governs current baseline, verification, authorization and output paths.
+
 > Reconstructed historical NEC001 document. Historical paths, test counts and completion statements below are not fresh recovery verification. Current recovery status is in AGENT_PROGRESS.md. Original sealed payloads remain missing; use the new persistent recovered baseline.
 
 # NEC-001 — verified post-XP-022 engineering handoff
@@ -17,10 +19,10 @@ It does not certify a release or authorize NEC-002, a commit or a push.
 - Frozen working-tree inventory: `4d728ba9752124388cf451f7fd4492f2d87b4562fbdc965b19908dc389ac636a`.
 - Production host: `09825d6ebcc914a84dd0f3fb8000f0f3fbee3ec5810cfb1cc388a1466773cbe6`.
 - Gameplay: `6d04eed3166b195dace0324acd0543f028667de1e908f94594680f542fa3c352`.
-- [Sealed baseline](../target/xp022/engineering-baseline-20261008/baseline.json),
+- Historical sealed baseline (original payload missing),
   [certification](XP022_ENGINEERING_CERTIFICATION.md),
-  [fresh verification](../target/nec001/verification-20261008/),
-  [compact NEC evidence](evidence/nec001-handoff-20261008.json).
+  historical verification directory (missing),
+  [compact NEC evidence](recovery/evidence/nec001-20261015/summary.json).
 
 Before NEC changes, all 1,372 source entries match the live tree and source ZIP;
 all nine sealed payloads and 27 report hashes match. The unsigned distribution's

@@ -1,0 +1,19 @@
+test_bounds_and_resource_limits (test_world_contract.WorldContractTests.test_bounds_and_resource_limits) ... ok
+test_capabilities_cannot_assign_solid_semantics_to_points (test_world_contract.WorldContractTests.test_capabilities_cannot_assign_solid_semantics_to_points) ... ok
+test_generic_capabilities_are_package_data (test_world_contract.WorldContractTests.test_generic_capabilities_are_package_data) ... ok
+test_golden_exact_bytes_and_package_source_binding (test_world_contract.WorldContractTests.test_golden_exact_bytes_and_package_source_binding) ... ok
+test_ids_survive_insertion_and_display_rename (test_world_contract.WorldContractTests.test_ids_survive_insertion_and_display_rename) ... ok
+test_immutable_result_returns_detached_views (test_world_contract.WorldContractTests.test_immutable_result_returns_detached_views) ... ok
+test_malformed_world_source_never_reaches_sgc (test_world_contract.WorldContractTests.test_malformed_world_source_never_reaches_sgc) ... ok
+test_native_asset_resolution_does_not_change_world_content (test_world_contract.WorldContractTests.test_native_asset_resolution_does_not_change_world_content) ... ok
+test_no_world_contract_preserves_legacy_package_shape (test_world_contract.WorldContractTests.test_no_world_contract_preserves_legacy_package_shape) ... ok
+test_package_version_override_cannot_forge_world_provenance (test_world_contract.WorldContractTests.test_package_version_override_cannot_forge_world_provenance) ... ok
+test_real_gde_rejection_restores_state_and_persisted_artifacts (test_world_contract.WorldContractTests.test_real_gde_rejection_restores_state_and_persisted_artifacts) ... ok
+test_render_unresolved_reference_also_blocks_commit (test_world_contract.WorldContractTests.test_render_unresolved_reference_also_blocks_commit) ... ok
+test_reorder_source_preserves_content_but_rebinds_provenance (test_world_contract.WorldContractTests.test_reorder_source_preserves_content_but_rebinds_provenance) ... ok
+test_stale_hash_rejected_by_strict_validator (test_world_contract.WorldContractTests.test_stale_hash_rejected_by_strict_validator) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.172s
+
+OK

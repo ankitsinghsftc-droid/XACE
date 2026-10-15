@@ -1,0 +1,7 @@
+test_adapter_status_reports_are_split_by_engine (test_semantic_binding_status.SemanticBindingStatusTests.test_adapter_status_reports_are_split_by_engine) ... ok
+test_tracks_resolved_unresolved_unsupported_missing_and_fallback_per_engine (test_semantic_binding_status.SemanticBindingStatusTests.test_tracks_resolved_unresolved_unsupported_missing_and_fallback_per_engine) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.074s
+
+OK

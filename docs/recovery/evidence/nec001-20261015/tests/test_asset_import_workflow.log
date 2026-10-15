@@ -1,0 +1,11 @@
+test_import_folder_can_copy_to_project_assets (test_asset_import_workflow.TestAssetImportWorkflow.test_import_folder_can_copy_to_project_assets) ... ok
+test_import_folder_links_assets_in_place (test_asset_import_workflow.TestAssetImportWorkflow.test_import_folder_links_assets_in_place) ... ok
+test_import_versions_duplicate_asset_ids_deterministically (test_asset_import_workflow.TestAssetImportWorkflow.test_import_versions_duplicate_asset_ids_deterministically) ... ok
+test_infer_asset_type_general_extensions (test_asset_import_workflow.TestAssetImportWorkflow.test_infer_asset_type_general_extensions) ... ok
+test_scan_folder_is_deterministic_and_hashes_files (test_asset_import_workflow.TestAssetImportWorkflow.test_scan_folder_is_deterministic_and_hashes_files) ... ok
+test_suggest_repairs_for_missing_assets (test_asset_import_workflow.TestAssetImportWorkflow.test_suggest_repairs_for_missing_assets) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.037s
+
+OK
