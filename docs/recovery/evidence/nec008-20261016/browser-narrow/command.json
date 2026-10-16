@@ -1,0 +1,16 @@
+[
+  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "--headless",
+  "--disable-gpu",
+  "--no-first-run",
+  "--no-default-browser-check",
+  "--disable-background-networking",
+  "--disable-component-update",
+  "--disable-extensions",
+  "--window-size=600,1000",
+  "--virtual-time-budget=45000",
+  "--dump-dom",
+  "--user-data-dir=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec008\\browser-narrow\\browser-profile",
+  "--screenshot=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec008\\browser-narrow\\review.png",
+  "http://127.0.0.1:62418/__proof"
+]

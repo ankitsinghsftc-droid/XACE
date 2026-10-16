@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XACE · Review engine changes</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10141c;color:#e7ecf5}body{max-width:1100px;margin:40px auto;padding:0 24px}a{color:#a7caff}h1{font-size:28px}p{line-height:1.6;color:#b7c3d6}button,select{font:inherit;background:#24364b;color:inherit;border:1px solid #50637c;border-radius:6px;padding:9px;margin:4px}button:disabled{opacity:.45}section{margin:20px 0;padding:16px;border:1px solid #39475b;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#18212f;padding:10px}.versions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.issue{color:#ffd28f}#status{min-height:24px}label{display:block}@media(max-width:700px){.versions{grid-template-columns:1fr}}
+</style>
+</head><body data-test-state="passed" data-checks="10" data-viewport="582"><a href="/">← Builder workspace</a><h1>Review engine changes</h1>
+<p>Compare the last verified version, your XACE changes, and your saved engine changes.
+Approving records your review. It does not save either project or start the game.</p>
+<button id="refresh">Load current changes</button><button id="resolve">Review choices</button>
+<button id="approve" disabled="">Approve reviewed proposal</button><button id="cancel">Cancel review</button>
+<p id="status" role="status" aria-live="polite">Review is blocked. Resolve conflicts and listed requirements first.</p>
+<div id="summary">1 conflicts · 1 proposed XACE edits · 1 proposed engine edits</div><div id="losses"><p class="issue">Choose how to resolve the conflicts below.</p></div><div id="conflicts"><section><h2>Both versions changed this value</h2><p>&lt;img src=x onerror="window.injected=true"&gt; · Position · X</p><div class="versions"><div><h3>Last verified</h3><pre>1 m</pre></div><div><h3>XACE</h3><pre>5 m</pre></div><div><h3>Engine</h3><pre>9 m</pre></div></div><label>Choose the version to propose <select aria-label="same_field 00000000000000000000000000000002"><option value="">Keep unresolved</option><option value="xace">Use XACE</option><option value="engine">Use engine</option></select></label></section></div>
+<details><summary>Technical proposal</summary><pre id="proposal">{
+  "identities": {
+    "baseline": "a588c29b46b3103b08b1eb293a3992236e08f7d21db20f18a441bfa8eac05aa7",
+    "branch_id": "000000000000000000000000000000c8",
+    "current_cgs": "a23d2efa87dcc40ce98da3033b38accdb155d0a33a4ec4793a443810951853b5",
+    "mapping_digest": "2d43428969a216c043ee37957e79434ca706033a090b4d7e49ca871d5c8e3bf2",
+    "namespace_id": "00000000000000000000000000000064",
+    "native_source": "4885ff9491be584ea4e769477676c3ca48c1176c626f8f44dab5d54641c69b9b",
+    "policy": "14f5a349d38f2699f9a48ababe55da95c2be919460cb0ea24af8cce6a07a8bbc",
+    "project_id": "adoption"
+  },
+  "conflicts": [
+    {
+      "allowed": [
+        "xace",
+        "engine"
+      ],
+      "base": "1000000",
+      "engine": "9000000",
+      "id": "3baf61d69037928f494724aaa888abf33dc3c1697cd9e85d4581db53a7be7f32",
+      "object_id": "00000000000000000000000000000002",
+      "path": [
+        "fields",
+        "transform.position",
+        "x"
+      ],
+      "reason": "same_field",
+      "resolution": null,
+      "xace": "5000000"
+    }
+  ],
+  "losses": [
+    {
+      "code": "unresolved_conflict",
+      "field": "",
+      "object_id": "",
+      "severity": "blocking"
+    }
+  ],
+  "typed_operations": {
+    "expected_cgs_digest": "a23d2efa87dcc40ce98da3033b38accdb155d0a33a4ec4793a443810951853b5",
+    "operations": [
+      {
+        "actor_id": "native_00000000000000000000000000000064_00000000000000000000000000000002",
+        "expected_actor_digest": "1be324e85f8516dc99745eb36ac5d7373c9679479e7a3718f763f951ae0ef7c2",
+        "kind": "set_native_transform",
+        "mode_id": "reference",
+        "operation_id": "reconcile.00000000000000000000000000000002",
+        "transform": {
+          "parent_entity_id": 0,
+          "position": {
+            "x": 1000000,
+            "y": 2000000,
+            "z": -3000000
+          },
+          "rotation": {
+            "w": 1000000,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1000000,
+            "y": 1000000,
+            "z": 1000000
+          }
+        }
+      }
+    ],
+    "schema": "xace.native_reconciliation_operations.v1"
+  },
+  "native_write_preview": null
+}</pre></details>
+<script type="module" src="/__proof/test.js"></script>
+</body></html>

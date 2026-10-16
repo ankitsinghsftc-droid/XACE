@@ -1,4 +1,4 @@
-> Reconstructed historical NEC008 document. Fresh recovery verification pending; historical paths and evidence below are not current results. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC008 document. Fresh recovery verification passed; see recovery/evidence/nec008-20261016/summary.json. The historical paths and counts below remain historical, not recovered evidence. See AGENT_PROGRESS.md.
 
 # NEC-008 completion: three-way reconciliation and review
 

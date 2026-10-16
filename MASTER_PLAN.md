@@ -1882,3 +1882,8 @@ NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass
 NEC006 RECOVERY VERIFIED:255 Python tests and73 installed Unreal5.7.4 checks pass (57 commandlet,1 independent trusted copy,6 cold-process,9 real editor). Persistent .xace transaction stage uses scoped native mount for saved binary readback; this recovery repair is explicitly distinct from historical source. Failed a/b fixtures preserved. Unknown Blueprint behavior blocks admission. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec006-20261016/summary.json. Next NEC007. NOT backed up off-device.
 
 NEC007 RECOVERY VERIFIED:276 Python tests (21 adoption) and6 fresh runtime executions pass using the verified XP022 host and fresh native captures. Explicit damage behavior, native transforms, no-op repeat adoption and deterministic hashes verified. Preview only; no CGS publication or automatic sync. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec007-20261016/summary.json. Next NEC008. NOT backed up off-device.
+
+
+## NEC008 recovery verification ? 2026-10-16
+
+NEC008 RECOVERY VERIFIED:308 Python tests in17 suites,3 fresh capture-derived reconciliation proofs and20 real Chrome/HTTP checks pass. Desktop/narrow screenshots inspected; JS syntax check passes. Root-transform review only, no publication or baseline advance. All55 protected sealed files unchanged. Evidence: docs/recovery/evidence/nec008-20261016/summary.json. Next NEC009; NEC010 prohibited. NOT backed up off-device.

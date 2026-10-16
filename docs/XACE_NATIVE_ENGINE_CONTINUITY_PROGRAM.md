@@ -645,3 +645,8 @@ Full runtime-free native source export remains outside this program and needs
 a separately approved compiler/parity effort.
 
 The intended final claim is credible only with its certified scope attached: **You can adopt XACE without abandoning your engine, develop continuously across both, experience and ship the real game through Unity, Unreal or Godot, retain your project, and keep shipped local gameplay independent of Builder and XACE cloud availability.**
+
+
+## NEC008 recovery verification ? 2026-10-16
+
+NEC008 RECOVERY VERIFIED:308 Python tests in17 suites,3 fresh capture-derived reconciliation proofs and20 real Chrome/HTTP checks pass. Desktop/narrow screenshots inspected; JS syntax check passes. Root-transform review only, no publication or baseline advance. All55 protected sealed files unchanged. Evidence: docs/recovery/evidence/nec008-20261016/summary.json. Next NEC009; NEC010 prohibited. NOT backed up off-device.

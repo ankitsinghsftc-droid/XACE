@@ -201,3 +201,6 @@ NEC007 source reconstructed from historical patches and15 source-only shell edit
 NEC007 RECOVERY VERIFIED:276 Python tests (21 adoption) and6 fresh runtime executions pass using the verified XP022 host and fresh native captures. Explicit damage behavior, native transforms, no-op repeat adoption and deterministic hashes verified. Preview only; no CGS publication or automatic sync. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec007-20261016/summary.json. Next NEC008. NOT backed up off-device.
 
 NEC008 source reconstructed from16 successful source patches and reviewed roadmap writer3599; historical evidence generator excluded. Fresh three-way reconciliation, guarded review routes, browser and capture-derived proofs pending. NOT backed up off-device.
+
+
+NEC008 RECOVERY VERIFIED:308 Python tests in17 suites,3 fresh capture-derived reconciliation proofs and20 real Chrome/HTTP checks pass. Desktop/narrow screenshots inspected; JS syntax check passes. Root-transform review only, no publication or baseline advance. All55 protected sealed files unchanged. Evidence: docs/recovery/evidence/nec008-20261016/summary.json. Next NEC009; NEC010 prohibited. NOT backed up off-device.

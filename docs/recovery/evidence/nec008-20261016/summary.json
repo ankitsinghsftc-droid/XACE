@@ -1,0 +1,14 @@
+{
+  "status": "verified",
+  "source_commit": "cfbd7077864ab70c85318b46352567c8daf715e6",
+  "python_tests": 308,
+  "python_suites": 17,
+  "capture_proofs": 3,
+  "browser_checks": 20,
+  "screenshots_visually_inspected": true,
+  "javascript_syntax_check": "passed",
+  "original_historical_evidence": false,
+  "off_device_backup": false,
+  "boundary": "Reviewed root-transform proposals only; no publication or baseline advance",
+  "preservation": "preservation.json"
+}

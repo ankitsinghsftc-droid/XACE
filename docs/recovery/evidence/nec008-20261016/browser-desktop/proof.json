@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "real_browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "real_http": true,
+  "width": 1280,
+  "checks": 10,
+  "scenarios": [
+    "unresolved blocked",
+    "native text cannot execute markup",
+    "three versions visible",
+    "choice requires re-review",
+    "approval receipt cannot commit",
+    "source drift invalidates review",
+    "stale approval disabled",
+    "cancel preserves projects",
+    "refresh after cancellation",
+    "no horizontal overflow"
+  ],
+  "native_project_written": false
+}
