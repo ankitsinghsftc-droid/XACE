@@ -1,0 +1,62 @@
+[
+  {
+    "destroyed_ids": [],
+    "entities": [
+      {
+        "actor_id": "",
+        "components": {
+          "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+          "100": "{\"current\":100000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+          "101": "{\"amount\":10000000}"
+        },
+        "id": 1
+      }
+    ],
+    "events": [],
+    "msg_type": "tick_snapshot",
+    "playback_commands": [],
+    "spawned_ids": [],
+    "tick": 0,
+    "timestamp_ms": 0
+  },
+  {
+    "destroyed_ids": [],
+    "entities": [
+      {
+        "actor_id": "",
+        "components": {
+          "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+          "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+          "101": "{\"amount\":0,\"processed_tick\":0}"
+        },
+        "id": 1
+      }
+    ],
+    "events": [],
+    "msg_type": "tick_snapshot",
+    "playback_commands": [],
+    "spawned_ids": [],
+    "tick": 1,
+    "timestamp_ms": 16
+  },
+  {
+    "destroyed_ids": [],
+    "entities": [
+      {
+        "actor_id": "",
+        "components": {
+          "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+          "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+          "101": "{\"amount\":0,\"processed_tick\":0}"
+        },
+        "id": 1
+      }
+    ],
+    "events": [],
+    "msg_type": "tick_snapshot",
+    "playback_commands": [],
+    "spawned_ids": [],
+    "tick": 2,
+    "timestamp_ms": 33
+  }
+]

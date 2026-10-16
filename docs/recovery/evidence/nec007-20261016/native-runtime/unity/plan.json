@@ -1,0 +1,608 @@
+{
+  "accepted_loss_digest": null,
+  "can_commit": false,
+  "candidate_valid": true,
+  "choice_digest": "4a546f64589e3d69cde73c1f3a267c69e4cf43a8e8aa9b083acf1ec659281f61",
+  "choices": {
+    "legacy_dispositions": [],
+    "mode_id": "reference",
+    "new_mode": null,
+    "objects": {
+      "00000000000000000000000000000003": {
+        "actor_type": "WORLD_OBJECT",
+        "asset_role": null,
+        "capabilities": [],
+        "components": [
+          {
+            "defaults": {
+              "current": 100000000,
+              "is_invincible": false,
+              "max": 100000000,
+              "regen_rate": 0
+            },
+            "name": "COMP_HEALTH_V1",
+            "type_id": 100
+          },
+          {
+            "defaults": {
+              "amount": 10000000
+            },
+            "name": "COMP_DAMAGE_V1",
+            "type_id": 101
+          }
+        ],
+        "control_type": "NONE",
+        "geometry_profile": null,
+        "playback": null,
+        "properties": {},
+        "semantic_type": "project.imported.v1"
+      }
+    },
+    "packages": [
+      {
+        "actor_ids": [
+          "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003"
+        ],
+        "capability_targets": [],
+        "configuration_id": "default",
+        "explanation": "User chose 10 health damage once",
+        "kind": "install_gameplay_package",
+        "mode_id": "reference",
+        "operation_id": "package.damage",
+        "package_hash": "9b3c9ecbd30ed66ba6b85cbab660f331aff7be52cd30599c18f8eb329ef1c410",
+        "package_id": "project.explicit_damage.v1",
+        "template_id": ""
+      }
+    ],
+    "world_contract": {
+      "capability_declarations": [],
+      "contract_version": 3,
+      "geometry_profiles": [],
+      "id": "project.imported",
+      "objects": [],
+      "schemas": [
+        {
+          "definition": {
+            "fields": {},
+            "type": "object"
+          },
+          "id": "project.imported.v1"
+        }
+      ],
+      "version": "1.0.0"
+    }
+  },
+  "compiled": {
+    "cgs_hash": "03355a6122820eb5be0348307cc749836b757fcbdee325d72f62bec9cc4bc027",
+    "systems": [
+      {
+        "depends_on": [],
+        "description": "",
+        "deterministic": true,
+        "display_name": "DamageSystem",
+        "id": "DamageSystem",
+        "phase": "Simulation",
+        "reads": [
+          100,
+          101
+        ],
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "writes": [
+          100,
+          101
+        ]
+      }
+    ],
+    "world": {
+      "capability_declarations": [],
+      "contract_version": 3,
+      "geometry_profiles": [],
+      "mode_id": "reference",
+      "objects": [
+        {
+          "actor_id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "asset_bindings": {},
+          "capabilities": [],
+          "geometry": null,
+          "id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "instance_index": 0,
+          "properties": {},
+          "relationships": {},
+          "semantic_type": "project.imported.v1",
+          "transform": {
+            "parent_entity_id": 0,
+            "position": {
+              "x": 1000000,
+              "y": 2000000,
+              "z": -3000000
+            },
+            "rotation": {
+              "w": 1000000,
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1000000,
+              "y": 1000000,
+              "z": 1000000
+            }
+          }
+        }
+      ],
+      "schema": "xace.world_contract.v3",
+      "schemas": [
+        {
+          "definition": {
+            "fields": {},
+            "type": "object"
+          },
+          "id": "project.imported.v1"
+        }
+      ]
+    }
+  },
+  "current_cgs_digest": "842a1f939bdc7315d9b01ac7169cb86825f8a9a98020a606e9ae183ec8a38b08",
+  "dependency_closure": [
+    "00000000000000000000000000000001",
+    "00000000000000000000000000000002",
+    "00000000000000000000000000000003"
+  ],
+  "dispositions": [
+    {
+      "disposition": "required_native_dependency",
+      "native_unchanged": true,
+      "object_id": "00000000000000000000000000000001"
+    },
+    {
+      "disposition": "required_native_dependency",
+      "native_unchanged": true,
+      "object_id": "00000000000000000000000000000002"
+    },
+    {
+      "disposition": "adopt",
+      "native_unchanged": true,
+      "object_id": "00000000000000000000000000000003"
+    },
+    {
+      "disposition": "excluded_native",
+      "native_unchanged": true,
+      "object_id": "00000000000000000000000000000004"
+    },
+    {
+      "disposition": "excluded_native",
+      "native_unchanged": true,
+      "object_id": "00000000000000000000000000000005"
+    }
+  ],
+  "eligibility_reason": "Preview only; coordinator, native readiness and activation gates remain required",
+  "legacy_disablement_plan": [],
+  "losses": [
+    {
+      "code": "native_owned_retained",
+      "detail": "",
+      "field": "native.name",
+      "object_id": "00000000000000000000000000000003",
+      "severity": "info"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Native serialized properties retained; only declared fields are mapped",
+      "field": "component:0:UnityEngine.Light",
+      "object_id": "00000000000000000000000000000002",
+      "severity": "info"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Native serialized properties retained; only declared fields are mapped",
+      "field": "component:0:UnityEngine.Light",
+      "object_id": "00000000000000000000000000000003",
+      "severity": "info"
+    }
+  ],
+  "mapping_digest": "438cfadbb37a9b69b3964d42f7fd7a2b5273e64406cdaec22df087f92cd2c136",
+  "mapping_profile": {
+    "actor_id": "native_<namespace>_<authoring_id>",
+    "instance_index": 0,
+    "numeric_profile": "fixed64_y_up_neg_z_v1",
+    "spawn_count": 1,
+    "version": "native.adoption.mapping.v1"
+  },
+  "native_write_preview": [],
+  "noop": false,
+  "play_eligible": false,
+  "preview_only": true,
+  "proposed_cgs": {
+    "assets": [
+      {
+        "asset_type": "project.volumetric_asset.v1",
+        "id": "volume_asset",
+        "status": "PLACEHOLDER"
+      }
+    ],
+    "component_schemas": [
+      {
+        "defaults": {
+          "current": 100000000,
+          "is_invincible": false,
+          "max": 100000000,
+          "regen_rate": 0
+        },
+        "name": "COMP_HEALTH_V1",
+        "source": "dcl.combat",
+        "type_id": 100
+      },
+      {
+        "defaults": {
+          "amount": 10000000
+        },
+        "name": "COMP_DAMAGE_V1",
+        "source": "dcl.combat",
+        "type_id": 101
+      }
+    ],
+    "global_systems": [],
+    "metadata": {
+      "cgs_hash": "03355a6122820eb5be0348307cc749836b757fcbdee325d72f62bec9cc4bc027",
+      "name": "ReferenceMechanicProof",
+      "schema_version": "0.1.0",
+      "version": "0.1.0"
+    },
+    "modes": [
+      {
+        "actors": [
+          {
+            "actor_type": "WORLD_OBJECT",
+            "components": [
+              {
+                "defaults": {
+                  "parent_entity_id": 0,
+                  "position": {
+                    "x": 1000000,
+                    "y": 2000000,
+                    "z": -3000000
+                  },
+                  "rotation": {
+                    "w": 1000000,
+                    "x": 0,
+                    "y": 0,
+                    "z": 0
+                  },
+                  "scale": {
+                    "x": 1000000,
+                    "y": 1000000,
+                    "z": 1000000
+                  }
+                },
+                "name": "COMP_TRANSFORM_V1",
+                "type_id": 1
+              },
+              {
+                "defaults": {
+                  "current": 100000000,
+                  "is_invincible": false,
+                  "max": 100000000,
+                  "regen_rate": 0
+                },
+                "name": "COMP_HEALTH_V1",
+                "type_id": 100
+              },
+              {
+                "defaults": {
+                  "amount": 10000000
+                },
+                "name": "COMP_DAMAGE_V1",
+                "type_id": 101
+              }
+            ],
+            "control_type": "NONE",
+            "id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+            "spawn_count": 1
+          }
+        ],
+        "id": "reference",
+        "is_default": true,
+        "rules": [],
+        "schema_version": "0.1.0",
+        "systems": [
+          {
+            "depends_on": [],
+            "deterministic": true,
+            "id": "DamageSystem",
+            "phase": "Simulation",
+            "reads": [
+              100,
+              101
+            ],
+            "writes": [
+              100,
+              101
+            ]
+          }
+        ],
+        "ui": {},
+        "world": {
+          "contract": {
+            "capability_declarations": [],
+            "contract_version": 3,
+            "geometry_profiles": [],
+            "id": "project.imported",
+            "objects": [
+              {
+                "actor_id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+                "asset_bindings": {},
+                "capabilities": [],
+                "geometry_profile": null,
+                "id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+                "instance_index": 0,
+                "properties": {},
+                "relationships": {},
+                "semantic_type": "project.imported.v1"
+              }
+            ],
+            "schemas": [
+              {
+                "definition": {
+                  "fields": {},
+                  "type": "object"
+                },
+                "id": "project.imported.v1"
+              }
+            ],
+            "version": "1.0.0"
+          },
+          "day_length_ticks": 0,
+          "gravity": {
+            "x": 0,
+            "y": -9810000,
+            "z": 0
+          },
+          "size": {
+            "depth": 100000000,
+            "height": 100000000,
+            "width": 100000000
+          }
+        }
+      }
+    ]
+  },
+  "provenance": [
+    {
+      "field": "transform.position",
+      "object_id": "00000000000000000000000000000003",
+      "origin": "native_capture",
+      "source_value": {
+        "x": "1000000",
+        "y": "2000000",
+        "z": "-3000000"
+      },
+      "target": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003.components.1.position"
+    },
+    {
+      "field": "transform.rotation",
+      "object_id": "00000000000000000000000000000003",
+      "origin": "native_capture",
+      "source_value": {
+        "w": "1000000",
+        "x": "0",
+        "y": "0",
+        "z": "0"
+      },
+      "target": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003.components.1.rotation"
+    },
+    {
+      "field": "transform.scale",
+      "object_id": "00000000000000000000000000000003",
+      "origin": "native_capture",
+      "source_value": {
+        "x": "1000000",
+        "y": "1000000",
+        "z": "1000000"
+      },
+      "target": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003.components.1.scale"
+    },
+    {
+      "object_id": "00000000000000000000000000000003",
+      "origin": "native_capture",
+      "runtime_binding": "root",
+      "source_value": null,
+      "target": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003.authoring_parent"
+    },
+    {
+      "object_id": "00000000000000000000000000000003",
+      "origin": "explicit_user_choice",
+      "source_value": {
+        "actor_type": "WORLD_OBJECT",
+        "asset_role": null,
+        "capabilities": [],
+        "components": [
+          {
+            "defaults": {
+              "current": 100000000,
+              "is_invincible": false,
+              "max": 100000000,
+              "regen_rate": 0
+            },
+            "name": "COMP_HEALTH_V1",
+            "type_id": 100
+          },
+          {
+            "defaults": {
+              "amount": 10000000
+            },
+            "name": "COMP_DAMAGE_V1",
+            "type_id": 101
+          }
+        ],
+        "control_type": "NONE",
+        "geometry_profile": null,
+        "playback": null,
+        "properties": {},
+        "semantic_type": "project.imported.v1"
+      },
+      "target": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003.classification_components_world"
+    },
+    {
+      "origin": "explicit_user_choice",
+      "source_value": {
+        "actor_ids": [
+          "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003"
+        ],
+        "capability_targets": [],
+        "configuration_id": "default",
+        "explanation": "User chose 10 health damage once",
+        "kind": "install_gameplay_package",
+        "mode_id": "reference",
+        "operation_id": "package.damage",
+        "package_hash": "9b3c9ecbd30ed66ba6b85cbab660f331aff7be52cd30599c18f8eb329ef1c410",
+        "package_id": "project.explicit_damage.v1",
+        "template_id": ""
+      },
+      "target": "package.project.explicit_damage.v1"
+    }
+  ],
+  "schema": "xace.native_adoption_plan.v1",
+  "selected": [
+    "00000000000000000000000000000003"
+  ],
+  "source": {
+    "documents": [
+      {
+        "after": "01d62701bb189c0ecc192a7bac938990a1fba02d39f5de5b7ff1ae4fafa908f7",
+        "before": "01d62701bb189c0ecc192a7bac938990a1fba02d39f5de5b7ff1ae4fafa908f7",
+        "dirty": false,
+        "id": "22f7e241d79d15343a2827329e9001bf"
+      },
+      {
+        "after": "5fe03c1fbf1c7db83f01add6ef7e552b53a0c005d8a4b11802aeee6c4825cb03",
+        "before": "5fe03c1fbf1c7db83f01add6ef7e552b53a0c005d8a4b11802aeee6c4825cb03",
+        "dirty": false,
+        "id": "b52ecd4807302eb4fbe523cdbb3c26aa"
+      }
+    ],
+    "engine": "unity",
+    "engine_version": "6000.4.9f1",
+    "materializer_version": "unity.authoring.writer.v1",
+    "play_mode": false,
+    "reader_version": "unity.authoring.reader.v1"
+  },
+  "source_digest": "da0dc7607313bb40733d1ad9111752dbde6a594b9dd491fa08877895f3ae1691",
+  "typed_operations": {
+    "expected_cgs_digest": "842a1f939bdc7315d9b01ac7169cb86825f8a9a98020a606e9ae183ec8a38b08",
+    "operations": [
+      {
+        "contract": {
+          "capability_declarations": [],
+          "contract_version": 3,
+          "geometry_profiles": [],
+          "id": "project.imported",
+          "objects": [],
+          "schemas": [
+            {
+              "definition": {
+                "fields": {},
+                "type": "object"
+              },
+              "id": "project.imported.v1"
+            }
+          ],
+          "version": "1.0.0"
+        },
+        "kind": "initialize_world",
+        "mode_id": "reference",
+        "operation_id": "adopt.0"
+      },
+      {
+        "actor": {
+          "actor_type": "WORLD_OBJECT",
+          "components": [
+            {
+              "defaults": {
+                "parent_entity_id": 0,
+                "position": {
+                  "x": 1000000,
+                  "y": 2000000,
+                  "z": -3000000
+                },
+                "rotation": {
+                  "w": 1000000,
+                  "x": 0,
+                  "y": 0,
+                  "z": 0
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                }
+              },
+              "name": "COMP_TRANSFORM_V1",
+              "type_id": 1
+            },
+            {
+              "defaults": {
+                "current": 100000000,
+                "is_invincible": false,
+                "max": 100000000,
+                "regen_rate": 0
+              },
+              "name": "COMP_HEALTH_V1",
+              "type_id": 100
+            },
+            {
+              "defaults": {
+                "amount": 10000000
+              },
+              "name": "COMP_DAMAGE_V1",
+              "type_id": 101
+            }
+          ],
+          "control_type": "NONE",
+          "id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "spawn_count": 1
+        },
+        "kind": "create_actor",
+        "mode_id": "reference",
+        "operation_id": "adopt.1"
+      },
+      {
+        "kind": "create_world_object",
+        "mode_id": "reference",
+        "object": {
+          "actor_id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "asset_bindings": {},
+          "capabilities": [],
+          "geometry_profile": null,
+          "id": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "instance_index": 0,
+          "properties": {},
+          "relationships": {},
+          "semantic_type": "project.imported.v1"
+        },
+        "operation_id": "adopt.2"
+      },
+      {
+        "kind": "legacy",
+        "operation": {
+          "actor_ids": [
+            "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003"
+          ],
+          "capability_targets": [],
+          "configuration_id": "default",
+          "explanation": "User chose 10 health damage once",
+          "kind": "install_gameplay_package",
+          "mode_id": "reference",
+          "operation_id": "package.damage",
+          "package_hash": "9b3c9ecbd30ed66ba6b85cbab660f331aff7be52cd30599c18f8eb329ef1c410",
+          "package_id": "project.explicit_damage.v1",
+          "template_id": ""
+        },
+        "operation_id": "adopt.3"
+      }
+    ],
+    "schema": "xace.native_adoption_operations.v1"
+  }
+}

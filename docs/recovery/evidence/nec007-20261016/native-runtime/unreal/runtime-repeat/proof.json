@@ -1,0 +1,109 @@
+{
+  "ok": true,
+  "snapshots": [
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":2000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":100000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":10000000}"
+          },
+          "id": 1
+        },
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":3000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":100000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":10000000}"
+          },
+          "id": 2
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 0,
+      "timestamp_ms": 0
+    },
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":2000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 1
+        },
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":3000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 2
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 1,
+      "timestamp_ms": 16
+    },
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":2000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 1
+        },
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":3000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 2
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 2,
+      "timestamp_ms": 33
+    }
+  ],
+  "hash_log": [
+    {
+      "tick": 0,
+      "world_hash": "e33080c5eecd4a5ec4f0257c3e15dcaeac60aef6c48825cafec993e0fb07c4e5"
+    },
+    {
+      "tick": 1,
+      "world_hash": "03d15c36e9ba6d38eb5c25debb91298f377714931034a7a190fe5a805c850d06"
+    }
+  ],
+  "health": [
+    100000000,
+    90000000,
+    90000000
+  ],
+  "damage_consumed_once": true,
+  "native_transforms_preserved": true
+}

@@ -452,7 +452,7 @@ existing records require reconciliation. The old Builder wizard remains unchange
 native fixture families. Unknown Unity/Godot/Unreal behavior remains blocking after
 manual disablement review. Explicit damage choices execute once, native transforms
 remain unchanged and replay hashes match. See [completion](NEC007_NATIVE_ADOPTION.md)
-and [evidence](evidence/nec007-adoption-20261010.json). All 2,140 protected XP-022
+and [evidence](recovery/evidence/nec007-20261016/summary.json). All 2,140 protected XP-022
 files and prior receipts are preserved. NEC-008 through NEC-018 are NOT STARTED.
 
 **Mandatory handoff amendment:** NEC-008/009 must retain blocking losses and

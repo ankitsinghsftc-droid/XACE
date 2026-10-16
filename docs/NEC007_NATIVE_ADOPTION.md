@@ -1,4 +1,4 @@
-> Reconstructed historical NEC007 document. Fresh recovery verification pending; historical paths/evidence below are not current results. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC007 document. Fresh recovery verification passed:276 Python tests and6 runtime executions; historical paths/evidence below are not current results. See AGENT_PROGRESS.md.
 
 # NEC-007 completion: typed native adoption previews
 
@@ -156,7 +156,7 @@ because optional runtime `actor_id` was absent; final assertions compare the
 complete transform multiset and entity count. That failed attempt is retained;
 only the final run is certification evidence.
 
-See [receipt](evidence/nec007-adoption-20261010.json),
-[tests](../target/nec007/verification-20261010/tests.json),
-[runtime proof](../target/nec007/native-final-20261010/proof.json) and
-[closeout](../target/nec007/verification-20261010/closeout.json).
+See [receipt](recovery/evidence/nec007-20261016/summary.json),
+[tests](recovery/evidence/nec007-20261016/runs.json),
+[runtime proof](recovery/evidence/nec007-20261016/native-runtime/proof.json) and
+[closeout](recovery/evidence/nec007-20261016/summary.json).

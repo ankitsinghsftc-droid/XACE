@@ -1,0 +1,13 @@
+{
+  "milestone": "NEC007",
+  "recovery_verified": true,
+  "source_checkpoint": "c6070cd",
+  "python_tests": 276,
+  "focused_tests": 21,
+  "runtime_runs": 6,
+  "sealed_artifacts_unchanged": true,
+  "off_device_backup": false,
+  "next": "NEC008",
+  "scope": "Source-bound adoption previews through GDE/Factory/SGC and isolated runtime. No CGS publication or continuous synchronization.",
+  "fresh_native_fixtures": true
+}

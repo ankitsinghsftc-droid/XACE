@@ -1,0 +1,26 @@
+test_assets_native_write_preview_and_scope_preservation (test_native_adoption.NativeAdoptionTests.test_assets_native_write_preview_and_scope_preservation) ... ok
+test_binding_edits_use_record_cas_and_final_asset_validation (test_native_adoption.NativeAdoptionTests.test_binding_edits_use_record_cas_and_final_asset_validation) ... ok
+test_dirty_or_play_blocks_even_excluded_objects (test_native_adoption.NativeAdoptionTests.test_dirty_or_play_blocks_even_excluded_objects) ... ok
+test_explicit_new_mode_and_cancellation (test_native_adoption.NativeAdoptionTests.test_explicit_new_mode_and_cancellation) ... ok
+test_gde_removal_binding_and_cycle_atomicity (test_native_adoption.NativeAdoptionTests.test_gde_removal_binding_and_cycle_atomicity) ... ok
+test_gde_unknown_and_stale_operation_no_side_effect (test_native_adoption.NativeAdoptionTests.test_gde_unknown_and_stale_operation_no_side_effect) ... ok
+test_invalid_choice_component_and_geometry_fail_closed (test_native_adoption.NativeAdoptionTests.test_invalid_choice_component_and_geometry_fail_closed) ... ok
+test_legacy_movement_cannot_claim_structured_compatibility (test_native_adoption.NativeAdoptionTests.test_legacy_movement_cannot_claim_structured_compatibility) ... ok
+test_missing_transform_is_reported_not_defaulted (test_native_adoption.NativeAdoptionTests.test_missing_transform_is_reported_not_defaulted) ... ok
+test_multiple_package_order_is_idempotent_and_capability_mapping_refused (test_native_adoption.NativeAdoptionTests.test_multiple_package_order_is_idempotent_and_capability_mapping_refused) ... ok
+test_package_component_defaults_are_explicit_and_repeatable (test_native_adoption.NativeAdoptionTests.test_package_component_defaults_are_explicit_and_repeatable) ... ok
+test_package_install_noop_and_configuration_conflict (test_native_adoption.NativeAdoptionTests.test_package_install_noop_and_configuration_conflict) ... ok
+test_parent_is_not_fabricated_runtime_entity_id (test_native_adoption.NativeAdoptionTests.test_parent_is_not_fabricated_runtime_entity_id) ... ok
+test_real_native_unknown_behaviors_remain_blocked_after_review (test_native_adoption.NativeAdoptionTests.test_real_native_unknown_behaviors_remain_blocked_after_review) ... ok
+test_repeat_is_noop_and_existing_edit_is_conflict (test_native_adoption.NativeAdoptionTests.test_repeat_is_noop_and_existing_edit_is_conflict) ... ok
+test_selected_dependency_closure_blocks_unknown (test_native_adoption.NativeAdoptionTests.test_selected_dependency_closure_blocks_unknown) ... ok
+test_source_loss_review_is_bound (test_native_adoption.NativeAdoptionTests.test_source_loss_review_is_bound) ... ok
+test_stale_and_untrusted_refused (test_native_adoption.NativeAdoptionTests.test_stale_and_untrusted_refused) ... ok
+test_three_axes_no_inference_and_factory (test_native_adoption.NativeAdoptionTests.test_three_axes_no_inference_and_factory) ... ok
+test_typed_playback_and_undeclared_event (test_native_adoption.NativeAdoptionTests.test_typed_playback_and_undeclared_event) ... ok
+test_unknown_behavior_cannot_be_acknowledged_away (test_native_adoption.NativeAdoptionTests.test_unknown_behavior_cannot_be_acknowledged_away) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.327s
+
+OK

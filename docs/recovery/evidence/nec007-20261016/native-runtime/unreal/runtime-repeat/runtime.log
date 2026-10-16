@@ -1,0 +1,2 @@
+[INFO] Loaded 'game.cgs.json': mode='reference' actors=2 entities=2 systems=1 plan_source=PersistedSgc
+[INFO] Runtime control socket listening on 127.0.0.1:61780

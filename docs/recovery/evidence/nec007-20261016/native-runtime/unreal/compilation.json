@@ -1,0 +1,174 @@
+{
+  "schema": "xace.native_adoption_compilation.v1",
+  "plan_digest": "0da02c15f6dffd667490a874a926dec116e0d037f32d289da55333075abf1671",
+  "execution_plan": {
+    "schema_version": "0.1.0",
+    "plan_version": 1,
+    "created_tick": 0,
+    "plan_hash": "6cc174104c78d9a4d3a09459bd279e463c0367d2fc9cd0e4c4e6118f21ea7a89",
+    "phases": {
+      "2": {
+        "phase": "Simulation",
+        "groups": [
+          {
+            "group_id": "Simulation_group_0",
+            "phase": "Simulation",
+            "parallel": false,
+            "systems": [
+              "DamageSystem"
+            ],
+            "serialization_constraints": [],
+            "execution_index": 0
+          }
+        ],
+        "total_system_count": 1
+      }
+    },
+    "all_system_ids": [
+      "DamageSystem"
+    ],
+    "compiled_from_cgs_hash": "ee6ca2d45da2fbc078017c98cc19ca15c57eabd99c27f0d2a10c3d4dd6e1f6b0",
+    "adapter_protocol_version": 1,
+    "migration_status": "current",
+    "component_access_sets": {
+      "schema": "xace.sgc.component_access_sets.v1",
+      "by_system": {
+        "DamageSystem": {
+          "reads": [
+            100,
+            101
+          ],
+          "writes": [
+            100,
+            101
+          ]
+        }
+      },
+      "all_reads": [
+        100,
+        101
+      ],
+      "all_writes": [
+        100,
+        101
+      ],
+      "component_ids": [
+        100,
+        101
+      ]
+    },
+    "system_metadata": {
+      "schema": "xace.sgc.system_metadata.v1",
+      "systems": {
+        "DamageSystem": {
+          "display_name": "DamageSystem",
+          "phase": "Simulation",
+          "depends_on": [],
+          "deterministic": true,
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "description": ""
+        }
+      }
+    },
+    "proof_bundle": {
+      "schema": "xace.sgc.proof_ref.v1",
+      "path": ".xace/proof/sgc/ee6ca2d45da2fbc078017c98cc19ca15c57eabd99c27f0d2a10c3d4dd6e1f6b0",
+      "compiled_from_cgs_hash": "ee6ca2d45da2fbc078017c98cc19ca15c57eabd99c27f0d2a10c3d4dd6e1f6b0",
+      "plan_hash": "6cc174104c78d9a4d3a09459bd279e463c0367d2fc9cd0e4c4e6118f21ea7a89",
+      "input_hash": "f17dfed4707e4bc60e3ff4a4aaaf87f8bc334a70628759b9a627d8481d8c9200",
+      "validation_hash": "fbc26e37a08018dc9e2ec90c24fe943b74aa8387db4e41db749eb55091e03625"
+    }
+  },
+  "world": {
+    "capability_declarations": [],
+    "contract_version": 3,
+    "geometry_profiles": [],
+    "mode_id": "reference",
+    "objects": [
+      {
+        "actor_id": "native_00000000000000000000000000000064_00000000000000000000000000000002",
+        "asset_bindings": {
+          "project.visual.v1": {
+            "asset_type": "MESH",
+            "id": "unreal_C1C5A9044436FCD441AB94851C20DA6E"
+          }
+        },
+        "capabilities": [],
+        "geometry": null,
+        "id": "native_00000000000000000000000000000064_00000000000000000000000000000002",
+        "instance_index": 0,
+        "properties": {},
+        "relationships": {},
+        "semantic_type": "project.imported.v1",
+        "transform": {
+          "parent_entity_id": 0,
+          "position": {
+            "x": 2000000,
+            "y": 2000000,
+            "z": -3000000
+          },
+          "rotation": {
+            "w": 1000000,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1000000,
+            "y": 1000000,
+            "z": 1000000
+          }
+        }
+      },
+      {
+        "actor_id": "native_00000000000000000000000000000064_00000000000000000000000000000003",
+        "asset_bindings": {
+          "project.visual.v1": {
+            "asset_type": "MESH",
+            "id": "unreal_C1C5A9044436FCD441AB94851C20DA6E"
+          }
+        },
+        "capabilities": [],
+        "geometry": null,
+        "id": "native_00000000000000000000000000000064_00000000000000000000000000000003",
+        "instance_index": 0,
+        "properties": {},
+        "relationships": {},
+        "semantic_type": "project.imported.v1",
+        "transform": {
+          "parent_entity_id": 0,
+          "position": {
+            "x": 3000000,
+            "y": 2000000,
+            "z": -3000000
+          },
+          "rotation": {
+            "w": 1000000,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1000000,
+            "y": 1000000,
+            "z": 1000000
+          }
+        }
+      }
+    ],
+    "schema": "xace.world_contract.v3",
+    "schemas": [
+      {
+        "definition": {
+          "fields": {},
+          "type": "object"
+        },
+        "id": "project.imported.v1"
+      }
+    ]
+  },
+  "activation_performed": false
+}

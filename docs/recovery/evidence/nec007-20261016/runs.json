@@ -1,0 +1,272 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_native_adoption.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 21,
+    "log": "recovery-evidence/20261016/nec007/test_native_adoption.log",
+    "sha256": "fc0c7a9df9b0029eb4b499c2fcfda524172a9eeae6c8754a5710a7740a5265dc"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_unreal_authoring.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261016/nec007/test_unreal_authoring.log",
+    "sha256": "b85eafc60d14d342727b30af292eb8afad3d9270af79c3604529872d4f04c49b"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_unreal_authoring_stage.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 5,
+    "log": "recovery-evidence/20261016/nec007/test_unreal_authoring_stage.log",
+    "sha256": "51a092dfcd5d376929e73d7c7b0a7862a28e29fbfe9bd34826751f613734180e"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_godot_authoring.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261016/nec007/test_godot_authoring.log",
+    "sha256": "f7d301d97e22cec1956c48bec43fd549d43abc9e071fbee437830b026c3451de"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_unity_authoring.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 9,
+    "log": "recovery-evidence/20261016/nec007/test_unity_authoring.log",
+    "sha256": "221a5949abd627cb944138123a0fc68c6bb86fa91799c970ab8ab47eba7c3512"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_native_authoring_contract.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 28,
+    "log": "recovery-evidence/20261016/nec007/test_native_authoring_contract.log",
+    "sha256": "4aaefac17373550de50afbf2fb1dc0611eb4620825a9a33fd8b456611ed45a95"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_authoring_identity.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 24,
+    "log": "recovery-evidence/20261016/nec007/test_authoring_identity.log",
+    "sha256": "7427d9244f3b02cf6b42429930272711ce78528994caee704d1b4bce12ae3495"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_project_system.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261016/nec007/test_project_system.log",
+    "sha256": "2c6fa30ebac48766c0917c7e222ed657ec1e2a8db2ca3556aad6bf324bda0291"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_playable_package.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 11,
+    "log": "recovery-evidence/20261016/nec007/test_playable_package.log",
+    "sha256": "0a2328bf9da2ed7a7269ec3843af7196ad4d4430ac1950892b1955e11afd361a"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_player_presentation.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 9,
+    "log": "recovery-evidence/20261016/nec007/test_player_presentation.log",
+    "sha256": "4ae7e85583f9e1eb322b53db2ab540a4d7acdf8fded751572f871f1a9f1c765e"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_asset_validation.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 107,
+    "log": "recovery-evidence/20261016/nec007/test_asset_validation.log",
+    "sha256": "945918d1b1d95b638bcd0d98e960d6f04d80e787fc826e8b8fa00699ea14924c"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_asset_reference_preflight.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 5,
+    "log": "recovery-evidence/20261016/nec007/test_asset_reference_preflight.log",
+    "sha256": "183c0e8e993699260213855130e2918fbe1737c635e6af334e2174b71f0dfaec"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_semantic_binding_status.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 2,
+    "log": "recovery-evidence/20261016/nec007/test_semantic_binding_status.log",
+    "sha256": "6092490b1b534c787e6dcf285b243960168da19b330aa077235d4851394a0f9a"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_world_extensibility.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 8,
+    "log": "recovery-evidence/20261016/nec007/test_world_extensibility.log",
+    "sha256": "2d33d5c5203c0affe72911ddf3bdda33bf34e7c7652230347a95a6d48e0befaa"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_engine_edit_router.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "recovery-evidence/20261016/nec007/test_engine_edit_router.log",
+    "sha256": "8a05426e687da37ec610320f5e66038ae3c3317221efa54d6e457705b20e825e"
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "schema_version": "0.1.0",
+  "plan_version": 1,
+  "created_tick": 0,
+  "plan_hash": "56159113813ca1ae8f5a8e2393995162b688a9418e949cbb8cb0a90eaa94dcd4",
+  "phases": {
+    "2": {
+      "phase": "Simulation",
+      "groups": [
+        {
+          "group_id": "Simulation_group_0",
+          "phase": "Simulation",
+          "parallel": false,
+          "systems": [
+            "DamageSystem"
+          ],
+          "serialization_constraints": [],
+          "execution_index": 0
+        }
+      ],
+      "total_system_count": 1
+    }
+  },
+  "all_system_ids": [
+    "DamageSystem"
+  ],
+  "compiled_from_cgs_hash": "03355a6122820eb5be0348307cc749836b757fcbdee325d72f62bec9cc4bc027",
+  "adapter_protocol_version": 1,
+  "migration_status": "current",
+  "component_access_sets": {
+    "schema": "xace.sgc.component_access_sets.v1",
+    "by_system": {
+      "DamageSystem": {
+        "reads": [
+          100,
+          101
+        ],
+        "writes": [
+          100,
+          101
+        ]
+      }
+    },
+    "all_reads": [
+      100,
+      101
+    ],
+    "all_writes": [
+      100,
+      101
+    ],
+    "component_ids": [
+      100,
+      101
+    ]
+  },
+  "system_metadata": {
+    "schema": "xace.sgc.system_metadata.v1",
+    "systems": {
+      "DamageSystem": {
+        "display_name": "DamageSystem",
+        "phase": "Simulation",
+        "depends_on": [],
+        "deterministic": true,
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "description": ""
+      }
+    }
+  },
+  "proof_bundle": {
+    "schema": "xace.sgc.proof_ref.v1",
+    "path": ".xace/proof/sgc/03355a6122820eb5be0348307cc749836b757fcbdee325d72f62bec9cc4bc027",
+    "compiled_from_cgs_hash": "03355a6122820eb5be0348307cc749836b757fcbdee325d72f62bec9cc4bc027",
+    "plan_hash": "56159113813ca1ae8f5a8e2393995162b688a9418e949cbb8cb0a90eaa94dcd4",
+    "input_hash": "7ad18813e3e3d96aeb29dc7ccdbb18facd518a743e4d448d3f1b3e6902d413dd",
+    "validation_hash": "a895833a9493c737bbcb088702226b0867da50269b7cf9534b0d3aaec07900af"
+  }
+}

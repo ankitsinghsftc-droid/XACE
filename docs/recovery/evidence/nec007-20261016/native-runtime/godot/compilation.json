@@ -1,0 +1,134 @@
+{
+  "schema": "xace.native_adoption_compilation.v1",
+  "plan_digest": "0d43082da2c75b1f89f9a731ae8bd95630f381b73095cfcf78f9b8ec0cd19ef8",
+  "execution_plan": {
+    "schema_version": "0.1.0",
+    "plan_version": 1,
+    "created_tick": 0,
+    "plan_hash": "46d1fd49148b4a3511d28eb1b0f1a56a56d390dc80660cabb279e4e2bde035c5",
+    "phases": {
+      "2": {
+        "phase": "Simulation",
+        "groups": [
+          {
+            "group_id": "Simulation_group_0",
+            "phase": "Simulation",
+            "parallel": false,
+            "systems": [
+              "DamageSystem"
+            ],
+            "serialization_constraints": [],
+            "execution_index": 0
+          }
+        ],
+        "total_system_count": 1
+      }
+    },
+    "all_system_ids": [
+      "DamageSystem"
+    ],
+    "compiled_from_cgs_hash": "eaf18622e8bf2bdf5facbfc8e507140cad9c5031ab380b6c92e8098d19bb7990",
+    "adapter_protocol_version": 1,
+    "migration_status": "current",
+    "component_access_sets": {
+      "schema": "xace.sgc.component_access_sets.v1",
+      "by_system": {
+        "DamageSystem": {
+          "reads": [
+            100,
+            101
+          ],
+          "writes": [
+            100,
+            101
+          ]
+        }
+      },
+      "all_reads": [
+        100,
+        101
+      ],
+      "all_writes": [
+        100,
+        101
+      ],
+      "component_ids": [
+        100,
+        101
+      ]
+    },
+    "system_metadata": {
+      "schema": "xace.sgc.system_metadata.v1",
+      "systems": {
+        "DamageSystem": {
+          "display_name": "DamageSystem",
+          "phase": "Simulation",
+          "depends_on": [],
+          "deterministic": true,
+          "version": {
+            "major": 1,
+            "minor": 0
+          },
+          "description": ""
+        }
+      }
+    },
+    "proof_bundle": {
+      "schema": "xace.sgc.proof_ref.v1",
+      "path": ".xace/proof/sgc/eaf18622e8bf2bdf5facbfc8e507140cad9c5031ab380b6c92e8098d19bb7990",
+      "compiled_from_cgs_hash": "eaf18622e8bf2bdf5facbfc8e507140cad9c5031ab380b6c92e8098d19bb7990",
+      "plan_hash": "46d1fd49148b4a3511d28eb1b0f1a56a56d390dc80660cabb279e4e2bde035c5",
+      "input_hash": "d3f5f9ddeae22310b1ae41b48e2fa4bdb644ab87d8667a7ef77b9e436259b9fd",
+      "validation_hash": "39e101be8f938373ab4570814ea55413dcdf7e901e30c498ac676201f3368461"
+    }
+  },
+  "world": {
+    "capability_declarations": [],
+    "contract_version": 3,
+    "geometry_profiles": [],
+    "mode_id": "reference",
+    "objects": [
+      {
+        "actor_id": "native_00000000000000000000000000000064_00000000000000000000000000000005",
+        "asset_bindings": {},
+        "capabilities": [],
+        "geometry": null,
+        "id": "native_00000000000000000000000000000064_00000000000000000000000000000005",
+        "instance_index": 0,
+        "properties": {},
+        "relationships": {},
+        "semantic_type": "project.imported.v1",
+        "transform": {
+          "parent_entity_id": 0,
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "rotation": {
+            "w": 1000000,
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "scale": {
+            "x": 1000000,
+            "y": 1000000,
+            "z": 1000000
+          }
+        }
+      }
+    ],
+    "schema": "xace.world_contract.v3",
+    "schemas": [
+      {
+        "definition": {
+          "fields": {},
+          "type": "object"
+        },
+        "id": "project.imported.v1"
+      }
+    ]
+  },
+  "activation_performed": false
+}

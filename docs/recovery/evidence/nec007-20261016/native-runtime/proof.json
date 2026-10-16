@@ -1,0 +1,103 @@
+{
+  "schema": "xace.nec007.native_adoption_proof.v1",
+  "ok": true,
+  "engines": {
+    "unity": {
+      "ok": true,
+      "native_fixture": {
+        "source": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-before.json",
+        "sha256": "da0dc7607313bb40733d1ad9111752dbde6a594b9dd491fa08877895f3ae1691",
+        "bytes": 5338,
+        "original_historical_capture": false
+      },
+      "captured_objects": 5,
+      "selected": 1,
+      "plan_digest": "6066b1ca7c40d36d68c18be181f898674737e01a6f5610a778db0af1be91cef1",
+      "idempotent": true,
+      "source_and_current_unchanged": true,
+      "actual_runtime_runs": 2,
+      "deterministic_hashes": [
+        {
+          "tick": 0,
+          "world_hash": "882159e5697973798f89ce92102df0e3315a373829664c230ff2f031aca0c92c"
+        },
+        {
+          "tick": 1,
+          "world_hash": "5c6f742d60e4c23ffbee678feec58a8d7096b800961d8d6ff38e9ab9a7901fd6"
+        }
+      ],
+      "expected_health": [
+        100000000,
+        90000000,
+        90000000
+      ],
+      "native_transforms_preserved": true
+    },
+    "godot": {
+      "ok": true,
+      "native_fixture": {
+        "source": "recovery-evidence/20261016/nec005/native-final/godot-project/native-before.json",
+        "sha256": "17155fc75a547ec2bce873c14688367b6fe404a2d89b55bb585911d7dce61f5f",
+        "bytes": 7005,
+        "original_historical_capture": false
+      },
+      "captured_objects": 7,
+      "selected": 1,
+      "plan_digest": "0d43082da2c75b1f89f9a731ae8bd95630f381b73095cfcf78f9b8ec0cd19ef8",
+      "idempotent": true,
+      "source_and_current_unchanged": true,
+      "actual_runtime_runs": 2,
+      "deterministic_hashes": [
+        {
+          "tick": 0,
+          "world_hash": "198fea99847ea004862af17f922f1b47a1e99b3ba25942c72e08d604c6e6b6d8"
+        },
+        {
+          "tick": 1,
+          "world_hash": "b4dc5e21ade6134f2094981afb849a7261238600e7ee179217fc2da9d8e5907e"
+        }
+      ],
+      "expected_health": [
+        100000000,
+        90000000,
+        90000000
+      ],
+      "native_transforms_preserved": true
+    },
+    "unreal": {
+      "ok": true,
+      "native_fixture": {
+        "source": "recovery-evidence/ue006/c/unreal-project/.xace/native-before.json",
+        "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0",
+        "bytes": 3330,
+        "original_historical_capture": false
+      },
+      "captured_objects": 3,
+      "selected": 2,
+      "plan_digest": "0da02c15f6dffd667490a874a926dec116e0d037f32d289da55333075abf1671",
+      "idempotent": true,
+      "source_and_current_unchanged": true,
+      "actual_runtime_runs": 2,
+      "deterministic_hashes": [
+        {
+          "tick": 0,
+          "world_hash": "e33080c5eecd4a5ec4f0257c3e15dcaeac60aef6c48825cafec993e0fb07c4e5"
+        },
+        {
+          "tick": 1,
+          "world_hash": "03d15c36e9ba6d38eb5c25debb91298f377714931034a7a190fe5a805c850d06"
+        }
+      ],
+      "expected_health": [
+        100000000,
+        90000000,
+        90000000
+      ],
+      "native_transforms_preserved": true
+    }
+  },
+  "runtime_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "sgc_sha256": "5c8c5fa77d16b35f295d167c4124c74b84b53aa833ed1500b93869b35c289db0",
+  "runtime_free_export": false,
+  "commit_performed": false
+}

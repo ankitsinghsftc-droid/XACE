@@ -1,0 +1,16 @@
+test_archive_traversal_links_duplicates_and_limits (test_playable_package.PlayablePackageTests.test_archive_traversal_links_duplicates_and_limits) ... ok
+test_creator_machine_asset_paths_are_not_package_dependencies (test_playable_package.PlayablePackageTests.test_creator_machine_asset_paths_are_not_package_dependencies) ... ok
+test_deterministic_archive_and_factory_projection (test_playable_package.PlayablePackageTests.test_deterministic_archive_and_factory_projection) ... ok
+test_forged_sgc_identity_rejected_even_when_file_checksums_recomputed (test_playable_package.PlayablePackageTests.test_forged_sgc_identity_rejected_even_when_file_checksums_recomputed) ... ok
+test_import_never_executes_payload (test_playable_package.PlayablePackageTests.test_import_never_executes_payload) ... ok
+test_install_relocation_and_interruption_preserve_previous_activation (test_playable_package.PlayablePackageTests.test_install_relocation_and_interruption_preserve_previous_activation) ... ok
+test_legacy_reference_package_uses_same_generic_verifier (test_playable_package.PlayablePackageTests.test_legacy_reference_package_uses_same_generic_verifier) ... ok
+test_missing_and_tampered_artifacts_reject (test_playable_package.PlayablePackageTests.test_missing_and_tampered_artifacts_reject) ... ok
+test_presentation_variants_share_gameplay_identity (test_playable_package.PlayablePackageTests.test_presentation_variants_share_gameplay_identity) ... ok
+test_rehashed_world_tamper_still_fails_factory_source_check (test_playable_package.PlayablePackageTests.test_rehashed_world_tamper_still_fails_factory_source_check) ... ok
+test_untrusted_runtime_executor_and_profiles_reject (test_playable_package.PlayablePackageTests.test_untrusted_runtime_executor_and_profiles_reject) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.791s
+
+OK

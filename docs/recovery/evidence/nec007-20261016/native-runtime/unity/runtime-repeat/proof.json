@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "snapshots": [
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":100000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":10000000}"
+          },
+          "id": 1
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 0,
+      "timestamp_ms": 0
+    },
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 1
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 1,
+      "timestamp_ms": 16
+    },
+    {
+      "destroyed_ids": [],
+      "entities": [
+        {
+          "actor_id": "",
+          "components": {
+            "1": "{\"parent_entity_id\":0,\"position\":{\"x\":1000000,\"y\":2000000,\"z\":-3000000},\"rotation\":{\"w\":1000000,\"x\":0,\"y\":0,\"z\":0},\"scale\":{\"x\":1000000,\"y\":1000000,\"z\":1000000}}",
+            "100": "{\"current\":90000000,\"is_invincible\":false,\"max\":100000000,\"regen_rate\":0}",
+            "101": "{\"amount\":0,\"processed_tick\":0}"
+          },
+          "id": 1
+        }
+      ],
+      "events": [],
+      "msg_type": "tick_snapshot",
+      "playback_commands": [],
+      "spawned_ids": [],
+      "tick": 2,
+      "timestamp_ms": 33
+    }
+  ],
+  "hash_log": [
+    {
+      "tick": 0,
+      "world_hash": "882159e5697973798f89ce92102df0e3315a373829664c230ff2f031aca0c92c"
+    },
+    {
+      "tick": 1,
+      "world_hash": "5c6f742d60e4c23ffbee678feec58a8d7096b800961d8d6ff38e9ab9a7901fd6"
+    }
+  ],
+  "health": [
+    100000000,
+    90000000,
+    90000000
+  ],
+  "damage_consumed_once": true,
+  "native_transforms_preserved": true
+}

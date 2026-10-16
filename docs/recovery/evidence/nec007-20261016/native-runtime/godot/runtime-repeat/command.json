@@ -1,0 +1,19 @@
+[
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261015\\xp022-ingress-batch\\pinned-binaries\\xace_reference_host.exe",
+  "--cgs",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec007\\native-runtime\\godot\\runtime-repeat\\game.cgs.json",
+  "--sgc-plan",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec007\\native-runtime\\godot\\runtime-repeat\\execution_plan.json",
+  "--require-sgc-plan",
+  "--world",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec007\\native-runtime\\godot\\runtime-repeat\\world.json",
+  "--world-manifest",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\20261016\\nec007\\native-runtime\\godot\\runtime-repeat\\world.manifest.json",
+  "--port",
+  "0",
+  "--control-port",
+  "61764",
+  "--no-wait",
+  "--start-paused",
+  "--quiet"
+]
