@@ -191,3 +191,5 @@ NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass
 NEC006 source reconstructed from successful historical patches and19 reviewed source-only shell edits; invalid patch2688 excluded and successful2694 replacement used. Fresh verification pending; persistent-path adaptation required before Unreal build. NOT backed up off-device.
 
 NEC006 build passes;255 Python tests pass. First native run failed staged readback after relocation to .xace (saved file exists). Adapted loader to installed Unreal explicit FPackagePath::FromLocalPath overload. Fresh build/native proof pending; failed fixture retained. NOT backed up off-device.
+
+NEC006 second native attempt also failed readback: installed loader resolved transient /Temp outer instead of persistent stage. Added scoped per-transaction package mount, preserving native saved readback and GUID checks. Fresh build/native verification pending; first two attempts retained.

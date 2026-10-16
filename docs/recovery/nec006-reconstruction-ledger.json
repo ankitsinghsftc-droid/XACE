@@ -317,7 +317,8 @@
   "recovery_adaptations": [
     "Unique native receipts and snapshots relocated from Saved to .xace.",
     "Proof outputs confined to short persistent recovery-evidence/ue006; existing phase/fixture refused instead of moved.",
-    "Explicit FPackagePath::FromLocalPath readback for persistent .xace stage; legacy string loader failed to resolve saved file. New recovery repair, not historical equivalence."
+    "Explicit FPackagePath::FromLocalPath readback for persistent .xace stage; legacy string loader failed to resolve saved file. New recovery repair, not historical equivalence.",
+    "Local-path overload alone still resolves transient outer name in installed loader. Use scoped transaction-specific mount for staged binary reopen; unregister on scope exit. Both failed attempts retained."
   ],
   "historical_document_edits": [
     {
