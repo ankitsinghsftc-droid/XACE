@@ -1,0 +1,262 @@
+[
+  {
+    "line": 3705,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction_contract.py",
+        "before_sha256": null,
+        "after_sha256": "35b30c84b0a2a2740c4eebf2c0fcbe5cf60308afb0a0372ee35b58989d0a0540"
+      }
+    ]
+  },
+  {
+    "line": 3713,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction_files.py",
+        "before_sha256": null,
+        "after_sha256": "c7c8726b07a085f8ce0695b10a3024e14dc6365b322bdd9e7692afbe860189a3"
+      }
+    ]
+  },
+  {
+    "line": 3720,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction.py",
+        "before_sha256": null,
+        "after_sha256": "4dc85f4092205e357629637208ae543d9ce857b8ce1f8dd87d1a5a2e6ec55d5d"
+      }
+    ]
+  },
+  {
+    "line": 3741,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_native_participant.py",
+        "before_sha256": null,
+        "after_sha256": "633fda97a3a9b91c987db813e72c2ff51906dad2aca20e505b9993f96e477b91"
+      },
+      {
+        "path": "packages/gde/src/domain_dsl/typed_operations/native_authoring_commit.py",
+        "before_sha256": null,
+        "after_sha256": "cab7a4c9d7ebd4fe8404c2d28279bd889e6f1578149e4d2a4402bd4ec085f034"
+      }
+    ]
+  },
+  {
+    "line": 3751,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction_files.py",
+        "before_sha256": "c7c8726b07a085f8ce0695b10a3024e14dc6365b322bdd9e7692afbe860189a3",
+        "after_sha256": "fc2d8ff936724e4faf3523324dc510261edc7819d4c797e4f02e5e0d9b07ff75"
+      },
+      {
+        "path": "packages/project-system/authoring_transaction.py",
+        "before_sha256": "4dc85f4092205e357629637208ae543d9ce857b8ce1f8dd87d1a5a2e6ec55d5d",
+        "after_sha256": "f1364b76209d3694eef1011d937fbc2687cb030b25fafe05de5d31efa38cff7f"
+      }
+    ]
+  },
+  {
+    "line": 3758,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction_files.py",
+        "before_sha256": "fc2d8ff936724e4faf3523324dc510261edc7819d4c797e4f02e5e0d9b07ff75",
+        "after_sha256": "2976b8525fdaa4b50168169a966abc785d36b718ba4ef8c7e9bdadae34437aef"
+      },
+      {
+        "path": "packages/project-system/authoring_apply.py",
+        "before_sha256": null,
+        "after_sha256": "aa49a9363b7a637dff63b7c23c3e5d0443d0ff54a7462049fce22c0ba43ea4b0"
+      }
+    ]
+  },
+  {
+    "line": 3767,
+    "changes": [
+      {
+        "path": "packages/project-system/tests/test_authoring_transaction.py",
+        "before_sha256": null,
+        "after_sha256": "32c7b8c254ee95b4f6b6e325aa26a809ef2e9a2e26ab483af33ad8f4a4a30b01"
+      }
+    ]
+  },
+  {
+    "line": 3775,
+    "changes": [
+      {
+        "path": "packages/gde/src/domain_dsl/typed_operations/native_authoring_commit.py",
+        "before_sha256": "cab7a4c9d7ebd4fe8404c2d28279bd889e6f1578149e4d2a4402bd4ec085f034",
+        "after_sha256": "29eda24bbe09bbaa1de3043fca1817879d715100a1dba843088f833ad4c3410c"
+      },
+      {
+        "path": "packages/project-system/authoring_transaction.py",
+        "before_sha256": "f1364b76209d3694eef1011d937fbc2687cb030b25fafe05de5d31efa38cff7f",
+        "after_sha256": "03e6c24e61daf840d17bb3ac622fb0f82400239468ef2a3ec8299e0a8171edd3"
+      }
+    ]
+  },
+  {
+    "line": 3785,
+    "changes": [
+      {
+        "path": "packages/project-system/authoring_transaction_files.py",
+        "before_sha256": "2976b8525fdaa4b50168169a966abc785d36b718ba4ef8c7e9bdadae34437aef",
+        "after_sha256": "997f83e09b67d768a832e91956aacb0a424edfdbdb067ef579e1b1e172bd68bb"
+      },
+      {
+        "path": "packages/project-system/authoring_apply.py",
+        "before_sha256": "aa49a9363b7a637dff63b7c23c3e5d0443d0ff54a7462049fce22c0ba43ea4b0",
+        "after_sha256": "524abe3925029299e7d7531773e2bf6de6928bdd4b3838f90560e41160c86377"
+      }
+    ]
+  },
+  {
+    "line": 3848,
+    "changes": [
+      {
+        "reviewed_source_shell": 3848
+      },
+      {
+        "path": "packages/project-system/authoring_saved_pair.py",
+        "before_sha256": null,
+        "after_sha256": "b73c1b8d62c3e7d3c9e3f5ae41bb253a9025f7e8bde0728aa674abc2106eb450"
+      }
+    ]
+  },
+  {
+    "line": 3856,
+    "changes": [
+      {
+        "reviewed_source_shell": 3856
+      }
+    ]
+  },
+  {
+    "line": 3863,
+    "changes": [
+      {
+        "path": "packages/project-system/tests/test_authoring_apply.py",
+        "before_sha256": null,
+        "after_sha256": "de275e6e64b00d43716b2cc88014fcc5ffd99bb1ea25fbe1edf13d6082b33941"
+      }
+    ]
+  },
+  {
+    "line": 3901,
+    "changes": [
+      {
+        "path": "tools/nec009_godot_gateway.gd",
+        "before_sha256": null,
+        "after_sha256": "29f7c4e3b66ffc450660e2315277d5c98136dabd83d75940e2230dbc3f8259b5"
+      },
+      {
+        "path": "tools/nec009_godot_transaction_proof.py",
+        "before_sha256": null,
+        "after_sha256": "6caf9f25546411532533a1e1ce1fc74ff0a0e5fbf16c20f36b3e1de212476da3"
+      }
+    ]
+  },
+  {
+    "line": 3908,
+    "changes": [
+      {
+        "reviewed_source_shell": 3908
+      }
+    ]
+  },
+  {
+    "line": 3915,
+    "changes": [
+      {
+        "path": "packages/project-system/tests/test_authoring_apply.py",
+        "before_sha256": "de275e6e64b00d43716b2cc88014fcc5ffd99bb1ea25fbe1edf13d6082b33941",
+        "after_sha256": "771d15d3191d47bc7739ba92cab39f75acefabdbe1cdda3f9e7e15c7a9594864"
+      },
+      {
+        "path": "tools/nec009_transaction_proof.py",
+        "before_sha256": null,
+        "after_sha256": "9136dbc3a3ba93e5b92b45d64d25a86bae849c2a5dcd9c1b743cd004eb4cec23"
+      }
+    ]
+  },
+  {
+    "line": 3947,
+    "changes": [
+      {
+        "reviewed_source_shell": 3947
+      }
+    ]
+  },
+  {
+    "line": 3955,
+    "changes": [
+      {
+        "reviewed_source_shell": 3955
+      }
+    ]
+  },
+  {
+    "line": 3962,
+    "changes": [
+      {
+        "reviewed_source_shell": 3962
+      },
+      {
+        "path": "packages/project-system/tests/test_authoring_apply.py",
+        "before_sha256": "771d15d3191d47bc7739ba92cab39f75acefabdbe1cdda3f9e7e15c7a9594864",
+        "after_sha256": "28c0aca573ae5b8912c2e2d44306222e12f9f14c00b8a9edaea32656330b5746"
+      }
+    ]
+  },
+  {
+    "line": 3977,
+    "changes": [
+      {
+        "reviewed_source_shell": 3977
+      }
+    ]
+  },
+  {
+    "line": 4006,
+    "changes": [
+      {
+        "reviewed_source_shell": 4006
+      }
+    ]
+  },
+  {
+    "line": 4013,
+    "changes": [
+      {
+        "reviewed_source_shell": 4013
+      }
+    ]
+  },
+  {
+    "line": 4020,
+    "changes": [
+      {
+        "path": "packages/project-system/tests/test_authoring_apply.py",
+        "before_sha256": "28c0aca573ae5b8912c2e2d44306222e12f9f14c00b8a9edaea32656330b5746",
+        "after_sha256": "ce2be51ad7ad0d5a11c9abacd118f08fcbd85fba63ff9f6576d62454c23e4398"
+      }
+    ]
+  },
+  {
+    "line": 4046,
+    "changes": [
+      {
+        "reviewed_source_shell": 4046
+      },
+      {
+        "path": "packages/project-system/tests/test_authoring_apply.py",
+        "before_sha256": "ce2be51ad7ad0d5a11c9abacd118f08fcbd85fba63ff9f6576d62454c23e4398",
+        "after_sha256": "0b559dfa01f143950bf482ab4f515e31b219100de550b829cc854fdad2c20058"
+      }
+    ]
+  }
+]
