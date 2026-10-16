@@ -409,7 +409,7 @@ its subsequent completion is recorded below.
 - **Non-goals:** arbitrary Blueprint/C++ conversion or blanket World Partition certification.
 
 **Completed 2026-10-10:** [NEC-006 implementation and profile](NEC006_UNREAL_AUTHORING.md),
-[evidence](evidence/nec006-unreal-20261010.json). 255 Python tests and 73 native
+[evidence](recovery/evidence/nec006-20261016/summary.json). 255 Python tests and 73 native
 Unreal checks pass. The pinned editor captures actual saved actors and typed meshes,
 with explicit identity/rekey, attachment continuity, Blueprint/dependency opacity,
 trusted independent copies and native binary stage/reopen. Staging uses native

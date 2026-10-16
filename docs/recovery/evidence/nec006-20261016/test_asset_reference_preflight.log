@@ -1,0 +1,10 @@
+test_documented_fallback_allows_optional_unresolved_ref (test_asset_reference_preflight.TestAssetReferencePreflight.test_documented_fallback_allows_optional_unresolved_ref) ... ok
+test_engine_support_matrix_rejects_godot_controller_handoff (test_asset_reference_preflight.TestAssetReferencePreflight.test_engine_support_matrix_rejects_godot_controller_handoff) ... ok
+test_hash_mismatch_blocks (test_asset_reference_preflight.TestAssetReferencePreflight.test_hash_mismatch_blocks) ... ok
+test_linked_hashed_asset_passes_every_boundary (test_asset_reference_preflight.TestAssetReferencePreflight.test_linked_hashed_asset_passes_every_boundary) ... ok
+test_unresolved_ref_blocks_without_fallback (test_asset_reference_preflight.TestAssetReferencePreflight.test_unresolved_ref_blocks_without_fallback) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.034s
+
+OK

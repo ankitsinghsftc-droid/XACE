@@ -1,0 +1,53 @@
+Running AutomationTool...
+Using bundled DotNet SDK version: 8.0.412 win-x64
+Starting AutomationTool...
+Parsing command line: BuildPlugin -Plugin=C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\unreal-project\Plugins\XACEAuthoring\XACEAuthoring.uplugin -Package=C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin -TargetPlatforms=Win64 -Rocket
+Initializing script modules...
+Total script module initialization time: 2.62 s.
+Using C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe
+Executing commands...
+Copying 10 file(s) using max 64 thread(s)
+Reading plugin from C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Plugins\XACEAuthoring\XACEAuthoring.uplugin...
+Building plugin for host platforms: Win64
+Running: C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\ThirdParty\DotNet\8.0.412\win-x64\dotnet.exe "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" UnrealEditor Win64 Development -Project="C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\HostProject.uproject" -plugin="C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Plugins\XACEAuthoring\XACEAuthoring.uplugin" -noubtmakefiles -manifest="C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Saved\Manifest-UnrealEditor-Win64-Development.xml" -nohotreload -log="C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\UBA-UnrealEditor-Win64-Development.txt"
+Log file: C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\UBA-UnrealEditor-Win64-Development.txt
+WARNING: Unable to find Visual Studio SDK. Editor integration will be disabled
+UHT compiled-in object format Default
+Parsing headers for UnrealEditor
+  Running Internal UnrealHeaderTool C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\HostProject.uproject C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Intermediate\Build\Win64\UnrealEditor\Development\UnrealEditor.uhtmanifest -WarningsAsErrors -installed
+UHT processed UnrealEditor in 2.5310875 seconds (4 files written)
+Writing manifest to C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Saved\Manifest-UnrealEditor-Win64-Development.xml
+Building UnrealEditor...
+Using Visual Studio 2022 14.44.35225 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from XACEAuthoring unity file: XaceAuthoringModule.cpp, XaceAuthoringProofCommandlet.cpp, XaceAuthoringReader.cpp, XaceAuthoringWire.cpp, XaceAuthoringWriter.cpp
+Determining max actions to execute in parallel (14 physical cores, 20 logical cores)
+  Executing up to 14 processes, one per physical core
+  Requested 1.5 GB memory per action, 3.62 GB available: limiting max parallel actions to 2
+Using Unreal Build Accelerator local executor to run 11 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 261016_110900 ----
+UbaServer - Listening on 0.0.0.0:1345
+[1/11] Resource Default.rc2
+[2/11] Compile [x64] SharedPCH.UnrealEd.Cpp20.cpp
+[3/11] Compile [x64] Module.XACEAuthoring.cpp
+[4/11] Compile [x64] XaceAuthoringModule.cpp
+[5/11] Compile [x64] XaceAuthoringReader.cpp
+[6/11] Compile [x64] XaceAuthoringProofCommandlet.cpp
+[7/11] Compile [x64] XaceAuthoringWire.cpp
+[8/11] Compile [x64] XaceAuthoringWriter.cpp
+[9/11] Link [x64] UnrealEditor-XACEAuthoring.lib
+[10/11] Link [x64] UnrealEditor-XACEAuthoring.dll
+[11/11] WriteMetadata UnrealEditor.target [NoUba]
+
+Trace written to file C:/Users/ankit/AppData/Roaming/Unreal Engine/AutomationTool/Logs/C+Program+Files+Epic+Games+UE_5.7/UBA-UnrealEditor-Win64-Development.uba with size 8.2kb
+Total time in Unreal Build Accelerator local executor: 45.42 seconds
+
+Result: Succeeded
+Total execution time: 105.43 seconds
+Took 105.79s to run dotnet.exe, ExitCode=0
+Building plugin for target platforms: Win64
+Reading filter rules from C:\Users\ankit\XACE-Recovery\worktrees\xace\recovery-evidence\ue006\c\built-plugin\HostProject\Plugins\XACEAuthoring\Config\FilterPlugin.ini
+Loading FilterPluginWin64.ini
+BUILD SUCCESSFUL
+AutomationTool executed for 0h 1m 50s
+AutomationTool exiting with ExitCode=0 (Success)

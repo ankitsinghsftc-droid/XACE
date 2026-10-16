@@ -52,7 +52,7 @@ resource stamps and conflict-preserving receipts. REL-01 through REL-05 stay OPE
 No commit or push was performed.
 
 See [completion](docs/NEC006_UNREAL_AUTHORING.md),
-[evidence](docs/evidence/nec006-unreal-20261010.json) and
+[evidence](docs/recovery/evidence/nec006-20261016/summary.json) and
 `target/nec006/verification-20261010/`. Earlier entries remain historical;
 pre-NEC-006 live plans are retained in `target/nec006/entry-documents/`.
 
@@ -1817,3 +1817,5 @@ NEC003 RECOVERY VERIFIED:28 normalized authoring contract tests +191 regressions
 NEC004 RECOVERY VERIFIED:228 Python tests and50 installed Unity6000.4.9f1 checks pass (40 run,4 cold reopen/Python write,6 Play). All50 cases match the historical acceptance count. Persistent .xace holds native transaction receipts/before-images and proof snapshots; recovery-evidence holds isolated project/output. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec004-20261015/summary.json. Native APIs are callable; automatic CGS sync remains later work. Next NEC005. NOT backed up off-device.
 
 NEC005 RECOVERY VERIFIED:239 Python tests and74 installed Godot4.6.3 checks pass (62 run,5 cold reopen/Python write,4 Play,3 runtime privilege). Final tested source matches recovered files; unknown native behavior admission refused. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec005-20261016/summary.json. Historical mixed-call omissions corrected; failed/prior attempts preserved. Next NEC006; NEC010 prohibited until recovery acceptance. NOT backed up off-device.
+
+NEC006 RECOVERY VERIFIED:255 Python tests and73 installed Unreal5.7.4 checks pass (57 commandlet,1 independent trusted copy,6 cold-process,9 real editor). Persistent .xace transaction stage uses scoped native mount for saved binary readback; this recovery repair is explicitly distinct from historical source. Failed a/b fixtures preserved. Unknown Blueprint behavior blocks admission. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec006-20261016/summary.json. Next NEC007. NOT backed up off-device.

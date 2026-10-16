@@ -1,0 +1,18 @@
+{
+  "command": [
+    "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue006\\c\\unreal-project\\NEC006.uproject",
+    "-unattended",
+    "-nop4",
+    "-nosplash",
+    "-NullRHI",
+    "-NoSound",
+    "-NoShaderCompile",
+    "-stdout",
+    "-FullStdOutLogOutput",
+    "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue006\\c\\run-engine.log",
+    "-run=XaceAuthoringProof",
+    "-Phase=run"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace"
+}

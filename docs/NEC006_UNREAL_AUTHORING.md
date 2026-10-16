@@ -1,4 +1,4 @@
-> Reconstructed historical NEC006 document. Fresh recovery verification pending; historical disposable paths below are not current instructions. See AGENT_PROGRESS.md.
+> Reconstructed historical NEC006 document. Fresh recovery verification passed:255 Python tests and73 installed-Unreal checks; historical disposable paths below are not current instructions. See AGENT_PROGRESS.md.
 
 # NEC-006 — Unreal saved native authoring
 
@@ -106,4 +106,4 @@ Pre-NEC-006 master/roadmap copies are retained in
 `target/nec006/native-20261009/`. The folder date records the start of native work.
 XP-022 sealed baseline, release binaries and certification evidence remain protected;
 REL-01 through REL-05 stay OPEN. No commit or push is performed. See the
-[hash-bound evidence receipt](evidence/nec006-unreal-20261010.json).
+[hash-bound evidence receipt](recovery/evidence/nec006-20261016/summary.json).

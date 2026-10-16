@@ -1,0 +1,41 @@
+{
+  "ok": true,
+  "admission_rejected": true,
+  "losses": [
+    {
+      "code": "retained_native",
+      "detail": "Native class/Blueprint/physics/level behavior retained; adoption blocked /Game/Fixture/Behavior",
+      "field": "native.properties",
+      "object_id": "00000000000000000000000000000005",
+      "severity": "blocking"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Unowned native properties retained",
+      "field": "native.properties",
+      "object_id": "00000000000000000000000000000001",
+      "severity": "info"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Unowned native properties retained",
+      "field": "native.properties",
+      "object_id": "00000000000000000000000000000002",
+      "severity": "info"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Unowned native properties retained",
+      "field": "native.properties",
+      "object_id": "00000000000000000000000000000003",
+      "severity": "info"
+    },
+    {
+      "code": "retained_native",
+      "detail": "Unowned native properties retained",
+      "field": "native.properties",
+      "object_id": "00000000000000000000000000000004",
+      "severity": "info"
+    }
+  ]
+}

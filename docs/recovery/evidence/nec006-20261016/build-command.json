@@ -1,0 +1,11 @@
+{
+  "command": [
+    "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Build\\BatchFiles\\RunUAT.bat",
+    "BuildPlugin",
+    "-Plugin=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue006\\c\\unreal-project\\Plugins\\XACEAuthoring\\XACEAuthoring.uplugin",
+    "-Package=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\recovery-evidence\\ue006\\c\\built-plugin",
+    "-TargetPlatforms=Win64",
+    "-Rocket"
+  ],
+  "cwd": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace"
+}

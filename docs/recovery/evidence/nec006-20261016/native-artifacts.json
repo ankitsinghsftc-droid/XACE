@@ -1,0 +1,347 @@
+{
+  "tested_source": [
+    {
+      "path": "adapters/unreal/Authoring/XACEAuthoring.uplugin",
+      "sha256": "d277f7bc8fe54f83625dc8c2ac434625724eea83667bffbb9a80f00968dc7fb3"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/XACEAuthoring.Build.cs",
+      "sha256": "f775edb34b327dcc091273f228f2158e59b6f046b0a092ed23f3529b4d6e7f6b"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringModule.cpp",
+      "sha256": "08dbc71fa0d492588f90eddb9260bc0ef3f3cd72f000fecfe28afb929bdbcb7f"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp",
+      "sha256": "e12aa0bfbfd028efced6289cce80a6bd69b42ceb640ab8be076146caa7466671"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp",
+      "sha256": "a1d72f123078d6969dd961cad887f01e320b05d18e17aaccdf89a2db780a94cc"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWire.cpp",
+      "sha256": "7f930b399f2ab61e5ea5bc6a9d8e071603a699bef3b853784da786cb1d30e51a"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWriter.cpp",
+      "sha256": "9f5df99fde61ffe71f264a347d341acc32024fbafe70ea75878ea1f024b54d79"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoring.h",
+      "sha256": "7b11a515005712afebc9121d41c48c67fdb4275a6efd128ee41f70f40c60c033"
+    },
+    {
+      "path": "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoringProofCommandlet.h",
+      "sha256": "4d05adf807c71e3c637b03dd82d7da80e2d9e87550ef3ac2d1187fdbef001d41"
+    }
+  ],
+  "retained_artifacts": [
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/dependencies-before.json",
+      "bytes": 759,
+      "sha256": "dd149ff8ec468d0c891d349249852cd12ded167ef66361965a69282e37b480e4"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/dependencies-cold.json",
+      "bytes": 759,
+      "sha256": "dd149ff8ec468d0c891d349249852cd12ded167ef66361965a69282e37b480e4"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-after-python.json",
+      "bytes": 3333,
+      "sha256": "fcb7dabfbcd76108be307109faf7f6e5087f3b0ce8b24159ae75d991ec562322"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-cold.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-discovery.json",
+      "bytes": 2400,
+      "sha256": "a10b0975374204269d1c9108c3b38a2ae1537182315d0274beeef99437ed504e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-reparented.json",
+      "bytes": 4453,
+      "sha256": "84a7603ef8f418ad9346c171ba4ee76e6389cbb53bdbc161da99cd61075ebb40"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/native-unknown.json",
+      "bytes": 5419,
+      "sha256": "7b4dbe6d81cd4131f62125daf68a4bc8485107c4916ffb42c2a40a2b5d6d43e1"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/pre-enrollment-discovery.json",
+      "bytes": 2400,
+      "sha256": "a10b0975374204269d1c9108c3b38a2ae1537182315d0274beeef99437ed504e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/proof-interactive.json",
+      "bytes": 532,
+      "sha256": "e6bc4ffd9f1d03491b4066ef1797d4983ca8f80bf41efe75c278fa79973e8fa6"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/proof-reload.json",
+      "bytes": 439,
+      "sha256": "144f83fb0936a95ffa73089859c3871fe67ebbaef2c4204d05751920c97b2fb6"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/proof-run.json",
+      "bytes": 2842,
+      "sha256": "ca4ab1ba1edb9ed758909dfab149aba64c81152aa294bc6d2bbae2258d4c65b8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/python-request.json",
+      "bytes": 321,
+      "sha256": "36aba657a9aea8b7dd613cfc05c801dbf7e43dda72d919dcc30f75c1132a056e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/displaced.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/inventory-after-prepare.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/inventory-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/receipt.json",
+      "bytes": 842,
+      "sha256": "2774ed0790316f75aadae07d452343e20ecbd685e1c98eca5a9949b636503366"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000320/staged.umap",
+      "bytes": 14738,
+      "sha256": "f9bcf7d571479642b9ba164d6b8475c8cbfc58ce407c6daef14826a257cfe4b7"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032a/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/displaced.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/inventory-after-prepare.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/inventory-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/receipt.json",
+      "bytes": 578,
+      "sha256": "14f99450d65355a8d9e69dca38c17074507edd03f920aaa26ae9c952775c4b1e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032b/staged.umap",
+      "bytes": 14608,
+      "sha256": "697cab5f02020ab93be8161afcbc37b41fa5c9814e0cf92796c9694948a46543"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032c/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032c/inventory-after-prepare.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032c/inventory-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032c/receipt.json",
+      "bytes": 575,
+      "sha256": "04dd274be1498834fd4d4656078e2cae289f476aeda099438cb8ef4fb333cd70"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032c/staged.umap",
+      "bytes": 14608,
+      "sha256": "697cab5f02020ab93be8161afcbc37b41fa5c9814e0cf92796c9694948a46543"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032f/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032f/inventory-after-prepare.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032f/inventory-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032f/receipt.json",
+      "bytes": 833,
+      "sha256": "36ca30c907467dd95f70b6cb6e0ebe3c054a8d11042b4ba509c496247e95a117"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/0000000000000000000000000000032f/staged.umap",
+      "bytes": 14738,
+      "sha256": "f9bcf7d571479642b9ba164d6b8475c8cbfc58ce407c6daef14826a257cfe4b7"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/before.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/displaced.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/inventory-after-prepare.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/inventory-before.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/receipt.json",
+      "bytes": 581,
+      "sha256": "8f4abfc5e9f0eae463d00bf239b1861de864454849c5340c930586e1e9ab392c"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/.xace/XACEAuthoring/Transactions/00000000000000000000000000000385/staged.umap",
+      "bytes": 14610,
+      "sha256": "2b7852c1278868df02e9784c09b890c003ba526905e3105c7f22e6b8a5b677f4"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Content/Fixture/Behavior.uasset",
+      "bytes": 23689,
+      "sha256": "b34bfc91f54d88640dc6ddb5c481125b1eeb975495cabe2a9a8a2df75b634d35"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Content/Fixture/Mesh.uasset",
+      "bytes": 13948,
+      "sha256": "32db318e57c305aa956037be5feb39d1cb72893a3c0d9fbd7120789150d0e622"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Content/Fixture/OtherMesh.uasset",
+      "bytes": 58458,
+      "sha256": "457ce1d3a92160d0671fd4ceee3eaf9ab09f3894f7d6b0b103c151bcae48ff2c"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Content/Fixture/World.umap",
+      "bytes": 14648,
+      "sha256": "ea3c7c89a3079932e30149ea70dab537ad5f14e1e333ab1630fab42219c7b975"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Config/DefaultEngine.ini",
+      "bytes": 472,
+      "sha256": "98c7b94b6ada0a402bee7843ebf6db30caa8b8792d54d3eee886ea4b918d5e4b"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Config/DefaultInput.ini",
+      "bytes": 9106,
+      "sha256": "05cc777eaf15bfc20f234c39196737b098102583cc05c35912e05a39be8cf919"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor-XACEAuthoring.dll",
+      "bytes": 378368,
+      "sha256": "a0cb743f50959621f4e3be428fdfd0ac5733f52baab2398436df6e7ca465fba9"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor-XACEAuthoring.pdb",
+      "bytes": 60919808,
+      "sha256": "862559a0fbb2d8c00033b7e27927941b0c3450a6e3ab7c8683c396688c201d4e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/unreal-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor.modules",
+      "bytes": 104,
+      "sha256": "9e6cf52ce3e6c8577ec604884903e534b9f2973c536a3a1a825e6577aa89b5b5"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/.xace/native-staged.json",
+      "bytes": 3330,
+      "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/.xace/proof-capture.json",
+      "bytes": 195,
+      "sha256": "9547a4dfdda8e22f62db3c37bd0b49d2ed615cc1da2d84371772f2723291656a"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Content/Fixture/Behavior.uasset",
+      "bytes": 23689,
+      "sha256": "b34bfc91f54d88640dc6ddb5c481125b1eeb975495cabe2a9a8a2df75b634d35"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Content/Fixture/Mesh.uasset",
+      "bytes": 13948,
+      "sha256": "32db318e57c305aa956037be5feb39d1cb72893a3c0d9fbd7120789150d0e622"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Content/Fixture/OtherMesh.uasset",
+      "bytes": 58458,
+      "sha256": "457ce1d3a92160d0671fd4ceee3eaf9ab09f3894f7d6b0b103c151bcae48ff2c"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Content/Fixture/World.umap",
+      "bytes": 12517,
+      "sha256": "202812eb870ea391e366040ae4f4aff7e2f83b3b36e0a52a7c90d49a74b655a8"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Config/DefaultEngine.ini",
+      "bytes": 472,
+      "sha256": "98c7b94b6ada0a402bee7843ebf6db30caa8b8792d54d3eee886ea4b918d5e4b"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor-XACEAuthoring.dll",
+      "bytes": 378368,
+      "sha256": "a0cb743f50959621f4e3be428fdfd0ac5733f52baab2398436df6e7ca465fba9"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor-XACEAuthoring.pdb",
+      "bytes": 60919808,
+      "sha256": "862559a0fbb2d8c00033b7e27927941b0c3450a6e3ab7c8683c396688c201d4e"
+    },
+    {
+      "path": "recovery-evidence/ue006/c/trusted-stage-project/Plugins/XACEAuthoring/Binaries/Win64/UnrealEditor.modules",
+      "bytes": 104,
+      "sha256": "9e6cf52ce3e6c8577ec604884903e534b9f2973c536a3a1a825e6577aa89b5b5"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "milestone": "NEC006",
+  "recovery_verified": true,
+  "source_checkpoint": "01e4929",
+  "python_tests": 255,
+  "native_checks": 73,
+  "native_phases": {
+    "run": 57,
+    "staged": 1,
+    "reload": 6,
+    "interactive": 9
+  },
+  "sealed_artifacts_unchanged": true,
+  "off_device_backup": false,
+  "next": "NEC007",
+  "unknown_behavior_admission_refused": true,
+  "scope": "Trusted editor, one saved persistent map, allowlisted StaticMeshActor fields; no automatic CGS sync or graph translation.",
+  "recovery_repairs": "Persistent .xace receipts and snapshots; scoped transaction-specific native package mount required for saved stage readback. Failed a/b fixtures retained; c passes final source."
+}
