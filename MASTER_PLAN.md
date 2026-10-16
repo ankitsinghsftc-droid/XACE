@@ -25,6 +25,36 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-008: COMPLETE - THREE-WAY RECONCILIATION REVIEW - 2026-10-10
+
+Implemented deterministic baseline/XACE/engine comparison, field ownership,
+semantic dependency checks, retained conflict versions and hash-bound choices.
+The concrete root-transform profile emits typed GDE proposals and exact native
+writer previews. Baseline receipts, map/branch identity and current source/CGS
+hashes are revalidated; no saved baseline or active package is changed.
+
+- [x] Safe same-value/disjoint merges, explicit same-field/delete-edit/reparent
+  conflicts, graph validation and opaque native behavior preservation.
+- [x] Principal-bound expiring review sessions and signed process-local approvals;
+  concurrent review CAS and source drift invalidate stale decisions.
+- [x] Opt-in XP-021 Builder review panel and guarded routes; no apply endpoint.
+- [x] 308 Python tests in 17 suites, three real capture-derived engine proofs,
+  and 20 real-browser/HTTP checks pass. Desktop/narrow screenshots inspected.
+- [x] All 2,140 protected XP-022 files and 95 NEC-007 artifact records preserved.
+- [ ] NEC-009 through NEC-018: NOT STARTED. Stop before NEC-009.
+
+Root-transform proposals are certified; structural/identity changes and broader
+asset/input/binding mappings remain explicitly gated. Review approval cannot
+commit or start Play. NEC-009 must perform fresh publication-time verification,
+CAS/locks, journal and receipt checks; NEC-010/011 extend durable mappings before
+wider admission. No task additions or reorder. REL-01 through REL-05 remain OPEN.
+No commit or push was performed.
+
+See [completion](docs/NEC008_NATIVE_RECONCILIATION.md),
+[evidence](docs/evidence/nec008-reconciliation-20261010.json), and
+`target/nec008/verification-20261010/`. Earlier entries are historical;
+pre-NEC-008 live plans are retained in `target/nec008/entry-documents/`.
+
 ## NEC-007: COMPLETE - TYPED NATIVE ADOPTION PREVIEWS - 2026-10-10
 
 Implemented the opt-in source-bound adoption API and structural GDE extension.

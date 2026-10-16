@@ -199,3 +199,5 @@ NEC006 RECOVERY VERIFIED:255 Python tests and73 installed Unreal5.7.4 checks pas
 NEC007 source reconstructed from historical patches and15 source-only shell edits. Native fixture snapshots replaced with fresh verified engine captures and explicit provenance; original historical snapshots unavailable. Verification pending; runtime proof paths require recovery adaptation. NOT backed up off-device.
 
 NEC007 RECOVERY VERIFIED:276 Python tests (21 adoption) and6 fresh runtime executions pass using the verified XP022 host and fresh native captures. Explicit damage behavior, native transforms, no-op repeat adoption and deterministic hashes verified. Preview only; no CGS publication or automatic sync. All55 sealed baseline files unchanged. Evidence: docs/recovery/evidence/nec007-20261016/summary.json. Next NEC008. NOT backed up off-device.
+
+NEC008 source reconstructed from16 successful source patches and reviewed roadmap writer3599; historical evidence generator excluded. Fresh three-way reconciliation, guarded review routes, browser and capture-derived proofs pending. NOT backed up off-device.

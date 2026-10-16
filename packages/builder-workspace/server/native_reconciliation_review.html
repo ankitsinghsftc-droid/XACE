@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>XACE · Review engine changes</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10141c;color:#e7ecf5}body{max-width:1100px;margin:40px auto;padding:0 24px}a{color:#a7caff}h1{font-size:28px}p{line-height:1.6;color:#b7c3d6}button,select{font:inherit;background:#24364b;color:inherit;border:1px solid #50637c;border-radius:6px;padding:9px;margin:4px}button:disabled{opacity:.45}section{margin:20px 0;padding:16px;border:1px solid #39475b;border-radius:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#18212f;padding:10px}.versions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.issue{color:#ffd28f}#status{min-height:24px}label{display:block}@media(max-width:700px){.versions{grid-template-columns:1fr}}
+</style>
+<a href="/">← Builder workspace</a><h1>Review engine changes</h1>
+<p>Compare the last verified version, your XACE changes, and your saved engine changes.
+Approving records your review. It does not save either project or start the game.</p>
+<button id="refresh">Load current changes</button><button id="resolve" disabled>Review choices</button>
+<button id="approve" disabled>Approve reviewed proposal</button><button id="cancel" disabled>Cancel review</button>
+<p id="status" role="status" aria-live="polite">Load the current saved changes to begin.</p>
+<div id="summary"></div><div id="losses"></div><div id="conflicts"></div>
+<details><summary>Technical proposal</summary><pre id="proposal"></pre></details>
+<script type="module" src="/native-review.js"></script></html>

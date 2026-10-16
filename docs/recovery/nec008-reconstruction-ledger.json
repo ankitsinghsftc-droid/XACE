@@ -1,0 +1,201 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\preserved\\20261012\\codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T20-27-13-01a10244-eaef-7821-8567-210dc01e35a3.jsonl",
+  "source_sha256": "753b1490ef6f943a9dd95a04e7c3d6d9a742b658393a7a2ad5367cc23f483358",
+  "records": [
+    {
+      "line": 3389,
+      "changes": [
+        {
+          "path": "packages/project-system/native_reconciliation.py",
+          "before_sha256": null,
+          "after_sha256": "f76671f40e1dae9adc37067778e54a112f74de8ff6dd0a2c06ac7f3b3c5b019e"
+        }
+      ]
+    },
+    {
+      "line": 3396,
+      "changes": [
+        {
+          "path": "packages/gde/src/domain_dsl/typed_operations/native_reconciliation_operations.py",
+          "before_sha256": null,
+          "after_sha256": "1d355bc2af2e2140dfbc481e9edc068a42cfe43220bdc49325dd8de6a9ffffb1"
+        }
+      ]
+    },
+    {
+      "line": 3417,
+      "changes": [
+        {
+          "path": "packages/project-system/native_reconciliation_plan.py",
+          "before_sha256": null,
+          "after_sha256": "d36151daf4966cce9943e540b6c022a5e1876fccb1b73647aad8a2cc86487fc3"
+        }
+      ]
+    },
+    {
+      "line": 3424,
+      "changes": [
+        {
+          "path": "packages/project-system/native_reconciliation_review.py",
+          "before_sha256": null,
+          "after_sha256": "321dafbcefa0f27bc5f755c96339f963f053d199b356313b5904b9033b978aa0"
+        }
+      ]
+    },
+    {
+      "line": 3433,
+      "changes": [
+        {
+          "path": "packages/builder-workspace/server/native_reconciliation_routes.py",
+          "before_sha256": null,
+          "after_sha256": "5ea4c138c75276579ca09d9c878231df70204b50d1938c1152a73808426e2ab9"
+        },
+        {
+          "path": "packages/builder-workspace/server/native_reconciliation_review.html",
+          "before_sha256": null,
+          "after_sha256": "c3302eb8d3856750abb08645e72b6c28bf6eeb0e617b862ab19aaa0326b49edd"
+        },
+        {
+          "path": "packages/builder-workspace/server/native_reconciliation_review.js",
+          "before_sha256": null,
+          "after_sha256": "c59ccbb929d252a110a195d7b427c33ae82e57f3b45e9dd20108127ba0a08ad6"
+        }
+      ]
+    },
+    {
+      "line": 3441,
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_native_reconciliation.py",
+          "before_sha256": null,
+          "after_sha256": "2bfa14ed9bcda811c3aac43090a0b0cc8eec5e15e7e779a8b983ef8171434a94"
+        }
+      ]
+    },
+    {
+      "line": 3449,
+      "changes": [
+        {
+          "path": "packages/project-system/native_reconciliation.py",
+          "before_sha256": "f76671f40e1dae9adc37067778e54a112f74de8ff6dd0a2c06ac7f3b3c5b019e",
+          "after_sha256": "95ab22f182cc6f17af321a3fde9fb01fda00d4527dd253971e0b83e88ed10cfe"
+        },
+        {
+          "path": "packages/project-system/native_reconciliation_plan.py",
+          "before_sha256": "d36151daf4966cce9943e540b6c022a5e1876fccb1b73647aad8a2cc86487fc3",
+          "after_sha256": "e0401f49980ef502a681de261540899c71023b816cc9a0bb9e922b43d894b7d5"
+        }
+      ]
+    },
+    {
+      "line": 3466,
+      "changes": [
+        {
+          "path": "packages/builder-workspace/server/tests/test_native_reconciliation_routes.py",
+          "before_sha256": null,
+          "after_sha256": "576a77d034378753b7d94469a2ff394248b2d778feaab3cea4692fa4c61d8dc7"
+        }
+      ]
+    },
+    {
+      "line": 3483,
+      "changes": [
+        {
+          "path": "packages/project-system/native_reconciliation_plan.py",
+          "before_sha256": "e0401f49980ef502a681de261540899c71023b816cc9a0bb9e922b43d894b7d5",
+          "after_sha256": "0be66f06112ac734e3fc2874286c54949adcbe841bc01ba0b2c128c96448fced"
+        },
+        {
+          "path": "tools/nec008_reconciliation_proof.py",
+          "before_sha256": null,
+          "after_sha256": "71be9cbc3837b251277b98f28928fda68077a3d80c89832d64e72d16bd8fb2ac"
+        }
+      ]
+    },
+    {
+      "line": 3491,
+      "changes": [
+        {
+          "path": "tools/nec008_review_browser_proof.py",
+          "before_sha256": null,
+          "after_sha256": "64b560ed72b676b22eed1a76d58b81f1496669378fc8afe954c061aa44f60da3"
+        }
+      ]
+    },
+    {
+      "line": 3499,
+      "changes": [
+        {
+          "path": "tools/nec008_review_browser_proof.py",
+          "before_sha256": "64b560ed72b676b22eed1a76d58b81f1496669378fc8afe954c061aa44f60da3",
+          "after_sha256": "88d4a3768b7a16265bfb51d5f40811b26df789da0b9807891de753d56bf771f3"
+        }
+      ]
+    },
+    {
+      "line": 3516,
+      "changes": [
+        {
+          "path": "packages/builder-workspace/server/native_reconciliation_review.js",
+          "before_sha256": "c59ccbb929d252a110a195d7b427c33ae82e57f3b45e9dd20108127ba0a08ad6",
+          "after_sha256": "9ecb29759fecf50828dae12aeb53617d689d70c76375884155ba42ce053fc4b7"
+        }
+      ]
+    },
+    {
+      "line": 3524,
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_native_reconciliation.py",
+          "before_sha256": "2bfa14ed9bcda811c3aac43090a0b0cc8eec5e15e7e779a8b983ef8171434a94",
+          "after_sha256": "edfed1e7f8acc80572c038099967803871d5a01324e56aeb6857b220165c81b0"
+        },
+        {
+          "path": "tools/nec008_review_browser_proof.py",
+          "before_sha256": "88d4a3768b7a16265bfb51d5f40811b26df789da0b9807891de753d56bf771f3",
+          "after_sha256": "be278eccedf7ed82fe8b049cfd444264ade4fef0e86f35131d9db8fec0dd825f"
+        }
+      ]
+    },
+    {
+      "line": 3546,
+      "changes": [
+        {
+          "path": "packages/builder-workspace/server/tests/test_native_reconciliation_routes.py",
+          "before_sha256": "576a77d034378753b7d94469a2ff394248b2d778feaab3cea4692fa4c61d8dc7",
+          "after_sha256": "a20b2f1004d880c8e625a5914e57a08b0b2ecd4a63c2787b874a000c778083d4"
+        }
+      ]
+    },
+    {
+      "line": 3564,
+      "changes": [
+        {
+          "path": "tools/nec008_review_browser_proof.py",
+          "before_sha256": "be278eccedf7ed82fe8b049cfd444264ade4fef0e86f35131d9db8fec0dd825f",
+          "after_sha256": "bdc40484e91f8038fdf35aba8eb622aef266004993a509daa259731714aaf434"
+        }
+      ]
+    },
+    {
+      "line": 3592,
+      "changes": [
+        {
+          "path": "docs/NEC008_NATIVE_RECONCILIATION.md",
+          "before_sha256": null,
+          "after_sha256": "31083ddeff82c2b86743846a9f4e1ef1e23c867e30681ad854b02b6c169b05a1"
+        }
+      ]
+    },
+    {
+      "line": 3599,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3599
+        }
+      ]
+    }
+  ],
+  "excluded_historical_evidence_generator": 3606,
+  "historical_evidence_recreated": false
+}

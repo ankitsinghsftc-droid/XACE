@@ -1,0 +1,155 @@
+"""Host-bound NEC-008 CGS/native reconciliation previews.
+
+No baseline is established here. The caller supplies a verified NEC-002 baseline
+and an out-of-band receipt verifier. Native documents are never written.
+"""
+import copy
+import hashlib
+import importlib
+from decimal import Decimal
+
+from authoring_identity import IdentityMap, canonical, require
+from native_authoring_contract import Snapshot, load_snapshot, parse
+from native_reconciliation import reconcile_records, MergeProposal
+from native_adoption import bridge, digest, encode, factory
+from tools.cgs_schema_validate import compute_cgs_hash
+
+gde=importlib.import_module('gde.src.domain_dsl.typed_operations.native_reconciliation_operations')
+PARENT='xace.authoring_parent.v1'
+TRANSFORMS={'transform.position','transform.rotation','transform.scale'}
+
+
+def _binding(cgs, binding):
+    found=[]
+    for mode in cgs['modes']:
+        for obj in mode.get('world',{}).get('contract',{}).get('objects',[]):
+            if obj['id']==binding.world_object_id:
+                require(obj['actor_id']==binding.actor_id and obj['instance_index']==binding.instance_index,'World binding identity changed')
+                actors=[a for a in mode['actors'] if a['id']==binding.actor_id]
+                require(len(actors)==1 and actors[0]['spawn_count']==1 and binding.instance_index==0,'ambiguous actor instance')
+                found.append((mode,actors[0],obj))
+    require(len(found)<=1,'ambiguous World binding');return found[0] if found else None
+
+
+def _project(cgs,base,mapping):
+    rows=copy.deepcopy(base)
+    by_world={r.world_binding.world_object_id:k for k,r in mapping.objects.items() if r.world_binding}
+    for key,record in mapping.objects.items():
+        if not record.world_binding:continue
+        require(key in rows,'bound object outside capture')
+        found=_binding(cgs,record.world_binding)
+        if found is None:
+            rows[key]=dict(generation=rows[key]['generation'],deleted=True,parent_id=None,fields={},dependencies=[],opaque=[]);continue
+        _,actor,obj=found
+        components=[c for c in actor['components'] if c['type_id']==1]
+        require(len(components)==1,'bound actor needs one transform')
+        value=components[0]['defaults'];require(value['parent_entity_id']==0,'runtime parent identity cannot be projected')
+        for name in ['position','rotation','scale']:
+            require(all(type(v) is int for v in value[name].values()),'structured fixed-point transform required')
+            rows[key]['fields']['transform.'+name]={axis:str(v) for axis,v in value[name].items()}
+        parents=obj.get('relationships',{}).get(PARENT,[])
+        require(len(parents)<=1 and all(p in by_world for p in parents),'unbound semantic parent')
+        rows[key]['parent_id']=by_world[parents[0]] if parents else None
+    return rows
+
+
+def _native_transform(engine,field,value):
+    # Exact inverse of NEC-003 coordinate normalization, without binary floats.
+    kind=field.split('.')[1];axes='xyzw' if kind=='rotation' else 'xyz'
+    n=[Decimal(value[k])/Decimal(1000000) for k in axes]
+    if engine=='unity':
+        if kind=='position':n[2]=-n[2]
+        elif kind=='rotation':n[0]=-n[0];n[1]=-n[1]
+    elif engine=='unreal':
+        x,y,z=n[:3]
+        if kind=='rotation':n=[z,-x,-y,n[3]]
+        else:n=[-z if kind=='position' else z,x,y]
+        if kind=='position':n=[v*100 for v in n]
+    return {k:format(v,'f') if v else '0' for k,v in zip(axes,n)}
+
+
+def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:IdentityMap,
+                        current_mapping:IdentityMap, current_cgs:dict, native_inventory:bytes,
+                        expected_current_cgs_digest:str, expected_source_digest:str,
+                        verify_baseline, trusted_project:bool, resolutions:dict|None=None,
+                        accepted_loss_digest=None) -> MergeProposal:
+    require(trusted_project is True,'trusted native extraction required')
+    mapping.validate();current_mapping.validate()
+    require(mapping.to_dict()==current_mapping.to_dict(),'branch/identity/baseline drift requires explicit identity review')
+    saved=mapping.baseline;require(saved is not None,'verified reconciliation baseline required')
+    require(saved.mapping_digest==mapping.mapping_digest() and saved.cgs_digest==digest(baseline_cgs)
+            and saved.native_snapshot_digest==baseline.sha256,'baseline identity mismatch')
+    require(callable(verify_baseline) and verify_baseline(copy.deepcopy(saved)) is True,'baseline receipts not verified by host')
+    require(digest(current_cgs)==expected_current_cgs_digest,'stale current CGS')
+    require(hashlib.sha256(native_inventory).hexdigest()==expected_source_digest,'stale native source')
+    for cgs in [baseline_cgs,current_cgs]:
+        require(cgs.get('metadata',{}).get('cgs_hash')==compute_cgs_hash(cgs),'invalid CGS hash')
+        factory.compile_portable_cgs(cgs)
+    reader=bridge(mapping.engine);policy=reader.policy(enable_writes=True)
+    before=load_snapshot(baseline.payload,mapping,policy).to_dict()['inspection']['normalized']
+    require(_project(baseline_cgs,before,mapping)==before,'baseline canonical/native projection disagrees')
+    bound=[k for k,r in mapping.objects.items() if r.world_binding]
+    require(0<len(bound)<=128,'select 1..128 verified instance bindings')
+    inspection=reader.capture(native_inventory,current_mapping,enable_writes=True)
+    observed=parse(inspection.payload);engine=observed['normalized']
+    xace=_project(current_cgs,before,mapping)
+    merge=reconcile_records(before,xace,engine,policy,resolutions=resolutions).to_dict()
+    losses=copy.deepcopy(merge['losses'])+copy.deepcopy(observed['losses'])
+    def block(code,key='',field=''):
+        losses.append(dict(code=code,object_id=key,field=field,severity='blocking'))
+    if any(r['severity']=='review' for r in observed['losses']):
+        if accepted_loss_digest!=inspection.loss_digest:block('unreviewed_precision_loss')
+    else:require(accepted_loss_digest is None,'unexpected precision review')
+    if not merge['resolved']:block('unresolved_conflict')
+    for key,row in merge['merged'].items():
+        if key in bound and row['parent_id'] is not None:block('runtime_parent_binding_required',key)
+        record=mapping.objects[key]
+        if not row['deleted']:
+            for reference in [record.scene_id,record.prefab_id]:
+                if reference and merge['merged'][reference]['deleted']:block('implicit_dependency_deleted',key)
+    for key in bound:
+        previous=_binding(baseline_cgs,mapping.objects[key].world_binding)
+        current=_binding(current_cgs,mapping.objects[key].world_binding)
+        if previous is not None and current is not None:
+            old_object,new_object=copy.deepcopy(previous[2]),copy.deepcopy(current[2])
+            for obj in [old_object,new_object]:obj.get('relationships',{}).pop(PARENT,None)
+            if old_object!=new_object:block('unprojected_canonical_world_change',key)
+    for op in merge['canonical_proposals']+merge['native_proposals']:
+        if op['kind']!='set_field':block('structural_materialization_requires_coordinator',op['object_id'])
+        elif op['field'] not in TRANSFORMS or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
+        elif op['object_id'] not in bound:block('unbound_native_object',op['object_id'],op['field'])
+    operations=[]
+    for key in bound:
+        desired=merge['merged'][key];current=_binding(current_cgs,mapping.objects[key].world_binding)
+        if current is None or desired['deleted']:continue
+        mode,actor,_=current
+        if not TRANSFORMS <= set(desired['fields']):block('incomplete_transform',key);continue
+        transform={name:{axis:int(value) for axis,value in desired['fields']['transform.'+name].items()} for name in ['position','rotation','scale']}
+        transform['parent_entity_id']=0
+        if next(c['defaults'] for c in actor['components'] if c['type_id']==1)!=transform:
+            operations.append(dict(operation_id='reconcile.'+key,kind='set_native_transform',mode_id=mode['id'],actor_id=actor['id'],expected_actor_digest=digest(actor),transform=transform))
+    batch=dict(schema=gde.SCHEMA,expected_cgs_digest=digest(current_cgs),operations=operations)
+    candidate=None;native_request=None
+    try:
+        candidate=gde.preview(batch,current_cgs,validate=factory.compile_portable_cgs).proposed_cgs
+        for system in factory.compile_portable_cgs(candidate).to_sgc_input():
+            if 1 in system.get('reads',[]) or 1 in system.get('writes',[]):block('uncertified_structured_transform_system',field=system['id'])
+    except (ValueError,KeyError,TypeError):block('gde_factory_rejected')
+    if not any(r['severity']=='blocking' for r in losses) and merge['native_proposals']:
+        target=reader.inventory(native_inventory)
+        for op in merge['native_proposals']:
+            target['objects'][op['object_id']]['fields'][op['field']]=_native_transform(mapping.engine,op['field'],op['value']['value'])
+        try:
+            admitted=inspection.admit(accepted_loss_digest)
+            desired=reader.capture(canonical(target),mapping,enable_writes=True).admit(accepted_loss_digest)
+            require(desired.to_dict()['inspection']['normalized']==merge['merged'],'native materialization does not match merged values')
+            native_request=parse(reader.write_request(native_inventory,admitted,desired,mapping))
+        except ValueError:block('native_materialization_rejected')
+    report=dict(schema='xace.native_reconciliation_plan.v1',preview_only=True,can_commit=False,play_eligible=False,
+                identities=dict(project_id=mapping.project_id,branch_id=mapping.branch_id,namespace_id=mapping.namespace_id,
+                                mapping_digest=mapping.mapping_digest(),baseline=digest(mapping.to_dict()),
+                                current_cgs=digest(current_cgs),native_source=expected_source_digest,policy=digest(policy.description())),
+                merge=merge,losses=sorted(losses,key=encode),typed_operations=batch,proposed_cgs=candidate,native_write_preview=native_request,
+                reviewable=candidate is not None and not any(r['severity']=='blocking' for r in losses),
+                noop=not operations and not merge['native_proposals'] and not merge['canonical_proposals'])
+    return MergeProposal(encode(report))

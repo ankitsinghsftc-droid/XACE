@@ -4,7 +4,7 @@
 
 # XACE Native Engine Continuity Program
 
-Status: NEC-001 through NEC-007 complete; NEC-008 through NEC-018 NOT STARTED.
+Status: NEC-001 through NEC-008 complete; NEC-009 through NEC-018 NOT STARTED.
 
 Amended 2026-10-08 against the sealed local post-XP-022 implementation. Task IDs and ordering retained; section 1 amendments govern later task scopes.
 
@@ -28,14 +28,15 @@ Accept the sealed local XP-022 engineering profile for NEC-001. Do not rewrite i
 historical seal/status fields. REL-01 through REL-05 in [the release ledger](XP022_RELEASE_GATES.md)
 remain OPEN with original thresholds. This authorization permits engineering
 continuation only; original combined public-release acceptance is not passed.
-NEC-002 through NEC-007 were subsequently authorized and completed; NEC-008 through
+NEC-002 through NEC-008 were subsequently authorized and completed; NEC-009 through
 NEC-018 remain NOT STARTED until further instruction. See
 [NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md) and
 [NEC-003 completion](NEC003_NATIVE_AUTHORING_CONTRACTS.md) and
 [NEC-004 completion](NEC004_UNITY_AUTHORING.md) and
 [NEC-005 completion](NEC005_GODOT_AUTHORING.md) and
 [NEC-006 completion](NEC006_UNREAL_AUTHORING.md) and
-[NEC-007 completion](NEC007_NATIVE_ADOPTION.md).
+[NEC-007 completion](NEC007_NATIVE_ADOPTION.md) and
+[NEC-008 completion](NEC008_NATIVE_RECONCILIATION.md).
 
 Pinned Windows x64 versions: Unity 6000.4.9f1, Godot 4.6.3-stable official,
 Unreal 5.7.4-51494982+++UE5+Release-5.7. Installed-host versions do not prove native
@@ -453,7 +454,8 @@ native fixture families. Unknown Unity/Godot/Unreal behavior remains blocking af
 manual disablement review. Explicit damage choices execute once, native transforms
 remain unchanged and replay hashes match. See [completion](NEC007_NATIVE_ADOPTION.md)
 and [evidence](recovery/evidence/nec007-20261016/summary.json). All 2,140 protected XP-022
-files and prior receipts are preserved. NEC-008 through NEC-018 are NOT STARTED.
+files and prior receipts are preserved. At this NEC-007 handoff, NEC-008 through
+NEC-018 had not started; NEC-008 completion follows below.
 
 **Mandatory handoff amendment:** NEC-008/009 must retain blocking losses and
 revalidate source/map/CGS/choice/catalog identities before recovery-coordinated
@@ -477,6 +479,30 @@ are needed. These limits amend later acceptance, not the sealed XP-022 baseline.
 - **Tests/proofs:** deterministic permutation/idempotence corpus, stale approval, concurrent users, branch identity collisions and dirty scenes.
 - **Rollback/failure:** unresolved conflicts keep last verified baseline/package active; retain both competing versions.
 - **Non-goals:** CRDT multiplayer editor or timestamp-based overwrite policy.
+
+**NEC-008 completion (2026-10-10):** the
+[three-way kernel](../packages/project-system/native_reconciliation.py),
+[CGS/native planner](../packages/project-system/native_reconciliation_plan.py),
+[host review service](../packages/project-system/native_reconciliation_review.py)
+and [opt-in Builder surface](../packages/builder-workspace/server/native_reconciliation_routes.py)
+retain B/X/E values, enforce ownership and semantic dependencies, require explicit
+conflict choices and bind approvals to exact current inputs and principal/session.
+Same-value/disjoint safe edits merge; stale or concurrent decisions are refused.
+Native code stays native. Review cannot write either store or advance a baseline.
+
+308 Python tests, three real native capture-derived proofs and 20 real-browser
+checks pass. Actual Builder host integration and desktop/narrow visual inspection
+are verified. All 2,140 protected XP-022 files and 95 NEC-007 artifact records are
+unchanged. See [completion](NEC008_NATIVE_RECONCILIATION.md) and
+[evidence](evidence/nec008-reconciliation-20261010.json).
+
+**Mandatory handoff amendment:** NEC-009 must verify process-local review receipts
+against fresh store state and perform its own publication CAS/locks/journal and
+participant receipt checks. The concrete mapping profile covers bound root
+transforms; structural/identity changes and broader asset/input/playback mappings
+remain blocked until NEC-010/011 prove them. Missing native inventory rows are not
+deletions; explicit enrollment/tombstone workflows remain necessary. No tasks added
+or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 ### NEC-009 — Recoverable authoring transaction coordinator
 
@@ -610,10 +636,10 @@ are needed. These limits amend later acceptance, not the sealed XP-022 baseline.
 
 **Safely later:** additional versions/platforms, in-process embedding, richer geometry backends, broader plugin translators, full native animation-graph conversion, advanced collaborative editing, convenience automation, the major UX/UI redesign, and runtime-free source export research. Broader commercial-scale soak/support/store certification follows the existing release program; do not confuse this bounded production-path proof with certification of every game or platform.
 
-**Current stop point:** NEC-001 through NEC-007 are complete against the local
-XP-022 engineering baseline. The remaining 11 tasks retain their order with
-section 1's migration/recovery/release amendments and NEC-003/004/005/006/007's concrete
-contract/native writer/adoption handoffs. NEC-008 is not started and requires the owner's
+**Current stop point:** NEC-001 through NEC-008 are complete against the local
+XP-022 engineering baseline. The remaining 10 tasks retain their order with
+section 1's migration/recovery/release amendments and NEC-003/004/005/006/007/008's concrete
+contract/native writer/adoption/review handoffs. NEC-009 is not started and requires the owner's
 next instruction.
 Full runtime-free native source export remains outside this program and needs
 a separately approved compiler/parity effort.
