@@ -1,0 +1,21 @@
+test_baseline_snapshot_must_match_durable_verification_record (test_authoring_apply.ApplyTests.test_baseline_snapshot_must_match_durable_verification_record) ... ok
+test_created_file_rollback_retains_bytes_and_detects_race (test_authoring_apply.ApplyTests.test_created_file_rollback_retains_bytes_and_detects_race) ... ok
+test_file_partial_publication_and_rollback (test_authoring_apply.ApplyTests.test_file_partial_publication_and_rollback) ... ok
+test_fresh_pair_rejects_native_drift_and_preserves_baseline (test_authoring_apply.ApplyTests.test_fresh_pair_rejects_native_drift_and_preserves_baseline) ... ok
+test_fresh_review_check_cannot_be_skipped (test_authoring_apply.ApplyTests.test_fresh_review_check_cannot_be_skipped) ... ok
+test_native_conflict_never_invokes_publication_or_restore (test_authoring_apply.ApplyTests.test_native_conflict_never_invokes_publication_or_restore) ... ok
+test_native_gateway_rejects_bad_prepared_receipt (test_authoring_apply.ApplyTests.test_native_gateway_rejects_bad_prepared_receipt) ... ok
+test_native_request_must_equal_review (test_authoring_apply.ApplyTests.test_native_request_must_equal_review) ... ok
+test_postdecision_journal_disk_full_recovers_without_receipt (test_authoring_apply.ApplyTests.test_postdecision_journal_disk_full_recovers_without_receipt) ... ok
+test_readiness_gate_serializes_other_project_writer (test_authoring_apply.ApplyTests.test_readiness_gate_serializes_other_project_writer) ... ok
+test_real_gde_apply_baseline_and_reconciliation_receipt_all_profiles (test_authoring_apply.ApplyTests.test_real_gde_apply_baseline_and_reconciliation_receipt_all_profiles) ... ok
+test_restore_claim_does_not_replace_actual_before_verification (test_authoring_apply.ApplyTests.test_restore_claim_does_not_replace_actual_before_verification) ... ok
+test_rollback_restart_at_each_boundary (test_authoring_apply.ApplyTests.test_rollback_restart_at_each_boundary) ... ok
+test_saved_mapping_drift_rejects_prepare (test_authoring_apply.ApplyTests.test_saved_mapping_drift_rejects_prepare) ... ok
+test_verifier_configuration_is_bound_to_decision_on_restart (test_authoring_apply.ApplyTests.test_verifier_configuration_is_bound_to_decision_on_restart) ... ok
+test_windows_replace_retains_actual_racing_image (test_authoring_apply.ApplyTests.test_windows_replace_retains_actual_racing_image) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 5.499s
+
+OK

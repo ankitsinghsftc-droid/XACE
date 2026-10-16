@@ -1,0 +1,15 @@
+{
+  "status": "verified_with_documented_scope",
+  "source_commit": "5052000",
+  "python_tests": 338,
+  "suites": 19,
+  "filesystem_cases": 25,
+  "durable_boundaries": 14,
+  "actual_process_restarts": 3,
+  "independent_edit_conflicts": 2,
+  "fixture_apply_profiles": 6,
+  "real_godot": "saved, process exited73, mismatch refused, rolled back, baseline unadvanced",
+  "original_evidence": false,
+  "off_device_backup": false,
+  "production_native_apply_certified": false
+}

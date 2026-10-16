@@ -15,25 +15,25 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 |---|---|---|
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
 | XP-016 | Reconstructed through original continuation line7936; original evidence JSON missing | Fresh native, live, unit and selected Player gates pass; scope limits below |
-| XP-017 | Reconstructed; original evidence missing | All three local scenarios pass; initial four-client timeout unresolved |
+| XP-017 | Verified; checkpoint 3e36d66 | Local gates pass; proof-writer timeout corrected and retested during XP022 closeout |
 | XP-018 | Reconstructed from successful records; source c5a81ba | 857 Rust + 10 Builder tests; candidate and live isolation proof pass |
-| XP-019 | Reconstructed; source a6a70b2, harness f9802c0 | 842 runtime +21 reference; all local matrix gates pass, recurring timeout unresolved |
+| XP-019 | Verified; checkpoint 1f825e8 | Local matrix passes; evidence-writer defect corrected and held-reader regression passes in XP022 closeout |
 | XP-020 | Reconstructed; source 9775bce, harness 0c9a4a4 | 864 Rust tests and actual four-client replay proof pass |
 | XP-021 | Reconstructed; source 4ea57e2, harness 626c8f6 | 883 tests, Builder build/UI and actual browser walkthrough pass |
-| XP-022 | Historical source reconstructed through final seal-tool corrections | Fresh certification pending; original seal missing |
-| NEC-001 through NEC-008 | Pending | Not run |
-| NEC-009 | Pending; historical final edits unverified | Not run |
+| XP-022 | Local engineering verified; seal checkpoint 7851743 | Two-hour soak/replay pass; fresh baseline sealed. REL01-05 open; original payloads missing |
+| NEC-001 through NEC-008 | Verified; latest checkpoint a3f50c0 | Fresh acceptance per milestone; all55 sealed files preserved |
+| NEC-009 | Verified within coordinator scope; source 5052000 | 338 tests,25 filesystem cases and real Godot crash/refusal/rollback pass |
 | NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
 
 ## Evidence boundaries
 
 Original XP-022 sealed artifacts remain missing. Reconstructed historical docs are not fresh verification and must never be presented as an original seal.
-Historical NEC-009 passed 337 tests before later edits; 338 passing tests and final closeout are unverified.
+Historical NEC-009 passed337 tests before final edits; its final verification/closeout was unrecorded. Fresh reconstructed source passes338 tests,25 filesystem cases and the real Godot recovery proof; see docs/NEC009_AUTHORING_TRANSACTIONS.md.
 XP-016 initially had a Unity license blocker; original continuation at transcript lines7926?7939 fixed the proof setup and passed Unity. This continuation is now recovered. Missing-cosmetic startup regression remained open.
 
 ## Next work
 
-XP-016 reconstruction and fresh historical-scope verification are checkpointed at `8625fd5`. Next reconstruct XP-017, then proceed in order through XP-022 and NEC-009. Preserve fresh reports under `docs/recovery/evidence/` or the persistent recovery evidence directory.
+Recovery through NEC009 is verified within documented scope. Complete final receipt/checkpoint audit, then stop before NEC010 until explicit authorization. Preserve fresh reports under `docs/recovery/evidence/` or persistent `recovery-evidence/`. All checkpoints remain on-device only.
 
 ## Checkpoints
 
@@ -207,3 +207,6 @@ NEC008 RECOVERY VERIFIED:308 Python tests in17 suites,3 fresh capture-derived re
 
 
 NEC009 source reconstructed from successful historical patches and reviewed source-only shell edits. Rejected completion call4055 excluded; final historical verification had no recorded result. Fresh verification and persistent proof-path adaptation pending. NOT backed up off-device.
+
+
+NEC009 RECOVERY VERIFIED:338 Python tests,25 retained filesystem cases and installed Godot save/crash/refusal/rollback proof pass. No mixed revision advertised as success; baseline remains unadvanced on serialization mismatch. Production all-engine apply and automatic readiness integration are not certified. Source5052000; docs/recovery/evidence/nec009-20261016/summary.json. NEC010 NOT STARTED. NOT backed up off-device.

@@ -1,0 +1,16 @@
+test_adapter_install_update_rollback_uninstall_preserves_user_files (test_project_system.TestProjectSystem.test_adapter_install_update_rollback_uninstall_preserves_user_files) ... ok
+test_create_project_refuses_existing_project_without_force (test_project_system.TestProjectSystem.test_create_project_refuses_existing_project_without_force) ... ok
+test_create_project_writes_manifest_cgs_and_standard_dirs (test_project_system.TestProjectSystem.test_create_project_writes_manifest_cgs_and_standard_dirs) ... ok
+test_engine_inventory_detects_all_supported_engines_read_only (test_project_system.TestProjectSystem.test_engine_inventory_detects_all_supported_engines_read_only) ... ok
+test_import_engine_project_can_wrap_nonempty_engine_folder (test_project_system.TestProjectSystem.test_import_engine_project_can_wrap_nonempty_engine_folder) ... ok
+test_import_engine_project_refuses_ambiguous_markers_before_writing_xace_project (test_project_system.TestProjectSystem.test_import_engine_project_refuses_ambiguous_markers_before_writing_xace_project) ... ok
+test_make_template_writes_stable_hash (test_project_system.TestProjectSystem.test_make_template_writes_stable_hash) ... ok
+test_manual_migration_wizard_builds_reversible_reference_mappings (test_project_system.TestProjectSystem.test_manual_migration_wizard_builds_reversible_reference_mappings) ... ok
+test_open_legacy_project_with_only_cgs (test_project_system.TestProjectSystem.test_open_legacy_project_with_only_cgs) ... ok
+test_template_catalog_includes_launch_starters (test_project_system.TestProjectSystem.test_template_catalog_includes_launch_starters) ... ok
+test_x10_016_manifest_recovery_restores_last_valid_backup (test_project_system.TestProjectSystem.test_x10_016_manifest_recovery_restores_last_valid_backup) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.517s
+
+OK

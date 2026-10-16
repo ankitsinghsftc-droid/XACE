@@ -1,3 +1,5 @@
+> Current recovery status (2026-10-16): XP016?XP022 and NEC001?NEC009 verified within documented local scope. NEC009 acceptance: docs/NEC009_AUTHORING_TRANSACTIONS.md. NEC010 NOT STARTED; awaiting explicit authorization. REL01?05 remain open; original sealed payloads missing; no off-device backup. Historical statements below are retained as history.
+
 > Current recovery reconciliation: [NEC001 recovery acceptance](recovery/NEC001_RECOVERY_ACCEPTANCE.md). This governs current baseline, verification, authorization and output paths.
 
 > Reconstructed historical NEC001 document. Historical paths, test counts and completion statements below are not fresh recovery verification. Current recovery status is in AGENT_PROGRESS.md. Original sealed payloads remain missing; use the new persistent recovered baseline.

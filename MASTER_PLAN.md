@@ -1,3 +1,5 @@
+> Current recovery status (2026-10-16): XP016?XP022 and NEC001?NEC009 verified within documented local scope. NEC009 acceptance: docs/NEC009_AUTHORING_TRANSACTIONS.md. NEC010 NOT STARTED; awaiting explicit authorization. REL01?05 remain open; original sealed payloads missing; no off-device backup. Historical statements below are retained as history.
+
 # Recovery status ? 2026-10-12
 
 This is a reconstructed historical plan. Current verification and outstanding recovery work are tracked in [AGENT_PROGRESS.md](AGENT_PROGRESS.md). Historical passing claims below are not fresh verification. Original XP-022 sealed evidence is missing.

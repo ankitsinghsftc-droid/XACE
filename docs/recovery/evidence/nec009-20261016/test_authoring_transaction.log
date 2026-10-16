@@ -1,0 +1,19 @@
+test_authorization_rechecked_after_staging (test_authoring_transaction.CoordinatorTests.test_authorization_rechecked_after_staging) ... ok
+test_corrupt_stage_and_manifest_block_recovery (test_authoring_transaction.CoordinatorTests.test_corrupt_stage_and_manifest_block_recovery) ... ok
+test_crash_at_every_durable_boundary_resume (test_authoring_transaction.CoordinatorTests.test_crash_at_every_durable_boundary_resume) ... ok
+test_disk_full_and_permission_failure_injected (test_authoring_transaction.CoordinatorTests.test_disk_full_and_permission_failure_injected) ... ok
+test_gde_apply_prepares_versioned_copy (test_authoring_transaction.CoordinatorTests.test_gde_apply_prepares_versioned_copy) ... ok
+test_newer_baseline_is_never_overwritten (test_authoring_transaction.CoordinatorTests.test_newer_baseline_is_never_overwritten) ... ok
+test_newer_edit_during_rollback_is_preserved_and_blocks (test_authoring_transaction.CoordinatorTests.test_newer_edit_during_rollback_is_preserved_and_blocks) ... ok
+test_pair_verification_failure_does_not_advance_baseline (test_authoring_transaction.CoordinatorTests.test_pair_verification_failure_does_not_advance_baseline) ... ok
+test_path_escape_and_reused_id_refused (test_authoring_transaction.CoordinatorTests.test_path_escape_and_reused_id_refused) ... ok
+test_pending_recovery_blocks_other_transactions (test_authoring_transaction.CoordinatorTests.test_pending_recovery_blocks_other_transactions) ... ok
+test_real_process_death_and_restart (test_authoring_transaction.CoordinatorTests.test_real_process_death_and_restart) ... ok
+test_real_readonly_target_refuses_publication (test_authoring_transaction.CoordinatorTests.test_real_readonly_target_refuses_publication) ... ok
+test_rollback_after_partial_publication (test_authoring_transaction.CoordinatorTests.test_rollback_after_partial_publication) ... ok
+test_success_idempotence_and_activation_separation (test_authoring_transaction.CoordinatorTests.test_success_idempotence_and_activation_separation) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 5.765s
+
+OK
