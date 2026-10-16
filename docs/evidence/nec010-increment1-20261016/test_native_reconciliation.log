@@ -1,0 +1,30 @@
+test_delete_edit_and_missing_not_deletion (test_native_reconciliation.MergeTests.test_delete_edit_and_missing_not_deletion) ... ok
+test_dependency_delete_and_generation_collision (test_native_reconciliation.MergeTests.test_dependency_delete_and_generation_collision) ... ok
+test_deterministic_merge_corpus (test_native_reconciliation.MergeTests.test_deterministic_merge_corpus) ... ok
+test_native_owned_name_and_code_never_overwritten (test_native_reconciliation.MergeTests.test_native_owned_name_and_code_never_overwritten) ... ok
+test_parent_change_conflicts_with_descendant_edit (test_native_reconciliation.MergeTests.test_parent_change_conflicts_with_descendant_edit) ... ok
+test_permutations_and_repeat_are_identical (test_native_reconciliation.MergeTests.test_permutations_and_repeat_are_identical) ... ok
+test_quaternion_is_atomic (test_native_reconciliation.MergeTests.test_quaternion_is_atomic) ... ok
+test_reparent_interaction_and_combined_cycle (test_native_reconciliation.MergeTests.test_reparent_interaction_and_combined_cycle) ... ok
+test_same_field_preserves_three_versions_and_requires_choice (test_native_reconciliation.MergeTests.test_same_field_preserves_three_versions_and_requires_choice) ... ok
+test_same_value_and_disjoint_axes (test_native_reconciliation.MergeTests.test_same_value_and_disjoint_axes) ... ok
+test_stale_conflict_choice_refused (test_native_reconciliation.MergeTests.test_stale_conflict_choice_refused) ... ok
+test_branch_identity_and_baseline_collision_refused (test_native_reconciliation.PlanTests.test_branch_identity_and_baseline_collision_refused) ... ok
+test_conflict_resolution_and_cgs_only_work_preserved (test_native_reconciliation.PlanTests.test_conflict_resolution_and_cgs_only_work_preserved) ... ok
+test_dirty_play_unknown_code_and_uncertified_input_block (test_native_reconciliation.PlanTests.test_dirty_play_unknown_code_and_uncertified_input_block) ... ok
+test_noop_and_same_value (test_native_reconciliation.PlanTests.test_noop_and_same_value) ... ok
+test_receipts_source_hash_and_cgs_hash_required (test_native_reconciliation.PlanTests.test_receipts_source_hash_and_cgs_hash_required) ... ok
+test_structural_parent_gate_retained (test_native_reconciliation.PlanTests.test_structural_parent_gate_retained) ... ok
+test_tampered_baseline_and_projection_refused (test_native_reconciliation.PlanTests.test_tampered_baseline_and_projection_refused) ... ok
+test_three_engine_disjoint_merge_and_exact_write (test_native_reconciliation.PlanTests.test_three_engine_disjoint_merge_and_exact_write) ... ok
+test_typed_gde_atomicity_and_unsupported_kind (test_native_reconciliation.PlanTests.test_typed_gde_atomicity_and_unsupported_kind) ... ok
+test_unprojected_world_change_and_transform_system_block (test_native_reconciliation.PlanTests.test_unprojected_world_change_and_transform_system_block) ... ok
+test_approval_signature_principal_and_staleness (test_native_reconciliation.ReviewTests.test_approval_signature_principal_and_staleness) ... ok
+test_cancel_and_expiration_preserve_state (test_native_reconciliation.ReviewTests.test_cancel_and_expiration_preserve_state) ... ok
+test_concurrent_review_cas_and_conflicts (test_native_reconciliation.ReviewTests.test_concurrent_review_cas_and_conflicts) ... ok
+test_two_users_stale_after_external_cgs_change (test_native_reconciliation.ReviewTests.test_two_users_stale_after_external_cgs_change) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 1.031s
+
+OK

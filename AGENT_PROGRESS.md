@@ -23,7 +23,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 | XP-022 | Local engineering verified; seal checkpoint 7851743 | Two-hour soak/replay pass; fresh baseline sealed. REL01-05 open; original payloads missing |
 | NEC-001 through NEC-008 | Verified; latest checkpoint a3f50c0 | Fresh acceptance per milestone; all55 sealed files preserved |
 | NEC-009 | Verified within coordinator scope; source 5052000 | 338 tests,25 filesystem cases and real Godot crash/refusal/rollback pass |
-| NEC-010 | Not started; blocked until recovered implementation and NEC-009 verified | Not run |
+| NEC-010 | Authorized and active on2026-10-16 | Ownership regression implementation; full native cycles pending |
 
 ## Evidence boundaries
 
@@ -33,7 +33,7 @@ XP-016 initially had a Unity license blocker; original continuation at transcrip
 
 ## Next work
 
-Recovery through NEC009 is verified within documented scope. Final receipt/checkpoint audit passed; stop before NEC010 until explicit authorization. Preserve fresh reports under `docs/recovery/evidence/` or persistent `recovery-evidence/`. All checkpoints remain on-device only.
+Recovery through NEC009 is verified within documented scope. The owner has now explicitly authorized NEC010; continue its acceptance checklist in docs/NEC010_DURABLE_MATERIALIZATION.md. NEC011 is not authorized. Preserve fresh reports under `docs/recovery/evidence/` or persistent `recovery-evidence/`. All checkpoints remain on-device only.
 
 ## Checkpoints
 
@@ -213,3 +213,6 @@ NEC009 RECOVERY VERIFIED:338 Python tests,25 retained filesystem cases and insta
 
 
 Recovery acceptance audit PASSED within documented scope:16 milestone commits reachable, Git fsck passes,55 protected sealed files unchanged, current proof hashes verified. NEC008 a3f50c0; NEC009 3eba518. See docs/recovery/RECOVERY_ACCEPTANCE.md. NEC010 NOT STARTED; awaiting explicit authorization. Every checkpoint remains NOT backed up off-device.
+
+
+NEC010 explicitly authorized after recovery acceptance. Active: durable native materialization and review/apply loop. Entry seal verified under evidence/nec010/20261016. First correction separates engine-owned opaque refresh from CGS structural edits; critical behavior and exact saved-pair checks remain enforced. Full all-editor acceptance, setup/resources/bindings, UX and lifecycle integration pending. NOT backed up off-device.

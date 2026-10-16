@@ -1,0 +1,13 @@
+test_additive_template_and_collision_atomicity (test_world_extensibility.WorldExtensibilityTests.test_additive_template_and_collision_atomicity) ... ok
+test_builder_global_flow_skips_actor_question_and_stages_for_approval (test_world_extensibility.WorldExtensibilityTests.test_builder_global_flow_skips_actor_question_and_stages_for_approval) ... ok
+test_explicit_migration_preserves_reference_geometry (test_world_extensibility.WorldExtensibilityTests.test_explicit_migration_preserves_reference_geometry) ... ok
+test_global_package_needs_no_actor_or_world (test_world_extensibility.WorldExtensibilityTests.test_global_package_needs_no_actor_or_world) ... ok
+test_malformed_extensions_reject_before_package (test_world_extensibility.WorldExtensibilityTests.test_malformed_extensions_reject_before_package) ... ok
+test_package_roles_attach_only_their_components (test_world_extensibility.WorldExtensibilityTests.test_package_roles_attach_only_their_components) ... ok
+test_semantic_nouns_roundtrip_without_core_enums (test_world_extensibility.WorldExtensibilityTests.test_semantic_nouns_roundtrip_without_core_enums) ... ok
+test_v3_package_binds_arbitrary_semantic_capability (test_world_extensibility.WorldExtensibilityTests.test_v3_package_binds_arbitrary_semantic_capability) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.149s
+
+OK

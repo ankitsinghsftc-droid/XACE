@@ -1,0 +1,10 @@
+test_binary_copy_receipt_without_source_write_or_launch (test_unreal_authoring_stage.UnrealStagingTests.test_binary_copy_receipt_without_source_write_or_launch) ... ok
+test_cpp_project_requires_explicit_supported_build_profile (test_unreal_authoring_stage.UnrealStagingTests.test_cpp_project_requires_explicit_supported_build_profile) ... ok
+test_mid_copy_source_drift_never_produces_approved_receipt (test_unreal_authoring_stage.UnrealStagingTests.test_mid_copy_source_drift_never_produces_approved_receipt) ... ok
+test_resolved_nested_destination_is_refused (test_unreal_authoring_stage.UnrealStagingTests.test_resolved_nested_destination_is_refused) ... ok
+test_untrusted_stale_nested_and_existing_destinations_refused (test_unreal_authoring_stage.UnrealStagingTests.test_untrusted_stale_nested_and_existing_destinations_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.098s
+
+OK

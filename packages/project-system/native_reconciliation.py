@@ -173,7 +173,12 @@ def reconcile_records(base:dict, xace:dict, engine:dict, policy:AuthoringPolicy,
         for label,source,output in [('xace',xace,canonical_ops),('engine',engine,native)]:
             old,new=source[key],merged[key]
             if old==new:continue
-            if {k:v for k,v in old.items() if k!='fields'}!={k:v for k,v in new.items() if k!='fields'}:
+            # Native-owned opaque records are carried into the next verified
+            # baseline, never converted into a canonical structural mutation.
+            # Critical behavior and attempted canonical opaque writes are still
+            # blocking losses above. Native publication retains exact checks.
+            excluded={'fields','opaque'} if label=='xace' else {'fields'}
+            if {k:v for k,v in old.items() if k not in excluded}!={k:v for k,v in new.items() if k not in excluded}:
                 output.append(dict(kind='review_structure',object_id=key,before=copy.deepcopy(old),after=copy.deepcopy(new)))
                 continue
             for field in sorted(set(old['fields'])|set(new['fields'])):

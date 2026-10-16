@@ -1,0 +1,9 @@
+{
+  "task": "NEC010",
+  "status": "in_progress",
+  "python_tests": 343,
+  "suites": 20,
+  "native_boundary_proof": "running",
+  "full_acceptance": "pending",
+  "off_device_backup": false
+}
