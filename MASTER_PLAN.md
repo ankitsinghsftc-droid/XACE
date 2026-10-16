@@ -25,6 +25,37 @@ Recovery update 2026-10-15: prior diagnostic soak completed two hours and all182
 # Status: [ ] Not Started | [~] In Progress | [x] Complete | [!] Blocked
 # Update this file after every single session.
 
+## NEC-007: COMPLETE - TYPED NATIVE ADOPTION PREVIEWS - 2026-10-10
+
+Implemented the opt-in source-bound adoption API and structural GDE extension.
+Native transforms/resources are preserved; semantic roles, additional component
+values and hash-pinned gameplay package choices are explicit. Dependency closure,
+per-item losses, reviewed manual behavior disablement and exact optional native
+write requests remain inspectable without publishing CGS or changing native files.
+
+- [x] Typed creation/removal/reparent/binding operations validate on an isolated CGS
+  copy; stale source/CGS/records and invalid Factory contracts fail closed.
+- [x] Repeat import is a no-op; differing existing records require reconciliation.
+- [x] 276 Python tests pass, including 21 adoption tests and 255 prior regressions.
+- [x] Three certified native fixture families and six fresh pinned-runtime runs
+  prove explicit damage behavior, unchanged transforms and matching replay hashes.
+- [x] All 2,140 protected XP-022 files and historical NEC receipts preserved.
+- [ ] NEC-008 through NEC-018: NOT STARTED. Stop before NEC-008.
+
+Preview-only host API; legacy Builder migration routes are unchanged. Arbitrary
+native code/input/animation conversion, commit, continuous sync and runtime-free
+export remain unimplemented. Parented runtime objects and systems accessing
+structured transforms stay blocked pending certified instance bindings/executor
+contracts. Package capability materialization also requires a separately reviewed
+World mapping. NEC-008/009 preserve these gates; NEC-010/011/012 must integrate and
+prove them before wider Play admission. No tasks added or reordered. REL-01 through
+REL-05 remain OPEN. No commit or push was performed.
+
+See [completion](docs/NEC007_NATIVE_ADOPTION.md),
+[evidence](docs/evidence/nec007-adoption-20261010.json) and
+`target/nec007/verification-20261010/`. Earlier entries remain historical;
+pre-NEC-007 live plans are retained in `target/nec007/entry-documents/`.
+
 ## NEC-006: COMPLETE - UNREAL SAVED NATIVE AUTHORING - 2026-10-10
 
 Implemented the pinned Unreal 5.7.4 editor authoring module in

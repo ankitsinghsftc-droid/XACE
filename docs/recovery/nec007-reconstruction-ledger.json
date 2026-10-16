@@ -1,0 +1,182 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\preserved\\20261012\\codex\\sessions\\2026\\10\\03\\rollout-2026-10-03T20-27-13-01a10244-eaef-7821-8567-210dc01e35a3.jsonl",
+  "source_sha256": "753b1490ef6f943a9dd95a04e7c3d6d9a742b658393a7a2ad5367cc23f483358",
+  "records": [
+    {
+      "line": 2946,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2946
+        }
+      ]
+    },
+    {
+      "line": 2997,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 2997
+        }
+      ]
+    },
+    {
+      "line": 3004,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3004
+        }
+      ]
+    },
+    {
+      "line": 3013,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3013
+        }
+      ]
+    },
+    {
+      "line": 3025,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3025
+        }
+      ]
+    },
+    {
+      "line": 3032,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3032
+        }
+      ]
+    },
+    {
+      "line": 3046,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3046
+        }
+      ]
+    },
+    {
+      "line": 3111,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3111
+        }
+      ]
+    },
+    {
+      "line": 3118,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3118
+        }
+      ]
+    },
+    {
+      "line": 3125,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3125
+        }
+      ]
+    },
+    {
+      "line": 3148,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3148
+        }
+      ]
+    },
+    {
+      "line": 3155,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3155
+        }
+      ]
+    },
+    {
+      "line": 3168,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3168
+        }
+      ]
+    },
+    {
+      "line": 3224,
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_native_adoption.py",
+          "before_sha256": "91725c24f470b383581f22b9306fad3c1ad3abb8c0761e307563c47b2a29bb36",
+          "after_sha256": "2420d4f9c9996376a04a091e1893f724678c1c8490a879eeea6dfa9efb197076"
+        }
+      ]
+    },
+    {
+      "line": 3232,
+      "changes": [
+        {
+          "path": "packages/project-system/native_adoption.py",
+          "before_sha256": "cecb4d8548dd20cc7075bedff61f9ee80c2159a7a6aa83e49f649a11a061ac3b",
+          "after_sha256": "5efb1af9c2f347e263301f87b53567571fc786e67cdbd8e0cca515620792e772"
+        }
+      ]
+    },
+    {
+      "line": 3242,
+      "changes": [
+        {
+          "path": "packages/project-system/tests/test_native_adoption.py",
+          "before_sha256": "2420d4f9c9996376a04a091e1893f724678c1c8490a879eeea6dfa9efb197076",
+          "after_sha256": "3bf7b8d6b1e68d237b23cadda77f623c093229a61e04806983e86130f4579a50"
+        }
+      ]
+    },
+    {
+      "line": 3260,
+      "changes": [
+        {
+          "path": "docs/NEC007_NATIVE_ADOPTION.md",
+          "before_sha256": null,
+          "after_sha256": "9cda0d970906a71fa98ee1cdda982330bb7c062e828a36d6dc79849ce09dbb6d"
+        }
+      ]
+    },
+    {
+      "line": 3269,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3269
+        }
+      ]
+    },
+    {
+      "line": 3276,
+      "changes": [
+        {
+          "reviewed_source_only_shell": 3276
+        }
+      ]
+    },
+    {
+      "line": 3283,
+      "changes": [
+        {
+          "path": "docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md",
+          "before_sha256": "da74c88a1b234911c2d0cef6d9880d9c2433d4c9c6215a4067404a30bfcc70a2",
+          "after_sha256": "d48bc88d977095a87050ebe2d02c8d857d6343f997f0a075610a8a56fac2344f"
+        }
+      ]
+    }
+  ],
+  "excluded_historical_evidence_generator": 3291,
+  "historical_evidence_recreated": false,
+  "recovery_adaptations": [
+    "Historical3139/3224 fixture copying replaced with fresh verified NEC004/005/006 captures; native UUIDs/fingerprints are new and provenance labels this explicitly.",
+    "Fresh proof uses sealed-candidate ccbd runtime and existing recovery SGC, writes only persistent recovery-evidence."
+  ]
+}

@@ -4,7 +4,7 @@
 
 # XACE Native Engine Continuity Program
 
-Status: NEC-001 through NEC-006 complete; NEC-007 through NEC-018 NOT STARTED.
+Status: NEC-001 through NEC-007 complete; NEC-008 through NEC-018 NOT STARTED.
 
 Amended 2026-10-08 against the sealed local post-XP-022 implementation. Task IDs and ordering retained; section 1 amendments govern later task scopes.
 
@@ -28,13 +28,14 @@ Accept the sealed local XP-022 engineering profile for NEC-001. Do not rewrite i
 historical seal/status fields. REL-01 through REL-05 in [the release ledger](XP022_RELEASE_GATES.md)
 remain OPEN with original thresholds. This authorization permits engineering
 continuation only; original combined public-release acceptance is not passed.
-NEC-002 through NEC-006 were subsequently authorized and completed; NEC-007 through
+NEC-002 through NEC-007 were subsequently authorized and completed; NEC-008 through
 NEC-018 remain NOT STARTED until further instruction. See
 [NEC-002 completion](NEC002_AUTHORING_IDENTITIES.md) and
 [NEC-003 completion](NEC003_NATIVE_AUTHORING_CONTRACTS.md) and
 [NEC-004 completion](NEC004_UNITY_AUTHORING.md) and
 [NEC-005 completion](NEC005_GODOT_AUTHORING.md) and
-[NEC-006 completion](NEC006_UNREAL_AUTHORING.md).
+[NEC-006 completion](NEC006_UNREAL_AUTHORING.md) and
+[NEC-007 completion](NEC007_NATIVE_ADOPTION.md).
 
 Pinned Windows x64 versions: Unity 6000.4.9f1, Godot 4.6.3-stable official,
 Unreal 5.7.4-51494982+++UE5+Release-5.7. Installed-host versions do not prove native
@@ -424,7 +425,7 @@ Blueprint instances remain opaque native behavior, not translated prefab/gamepla
 rules. C++ project builds, partition/streamed maps, general input/animation/geometry
 translation and cross-store automation are outside this proven profile. These limits
 must appear in adoption previews and synchronization policy. No tasks are added or
-reordered. NEC-007 remains NOT STARTED.
+reordered. At this NEC-006 handoff, NEC-007 had not started; its completion follows.
 
 ### NEC-007 — Typed adoption plans and meaningful migration previews
 
@@ -437,6 +438,33 @@ reordered. NEC-007 remains NOT STARTED.
 - **Tests/proofs:** three non-trivial native fixtures, rejected unsupported behavior, stale source, no-op import and expected supported gameplay assertions.
 - **Rollback/failure:** preview cannot commit; cancellation preserves originals and current CGS.
 - **Non-goals:** invent gameplay from names or automatic arbitrary source conversion.
+
+**NEC-007 completion (2026-10-10):** the opt-in
+[native adoption API](../packages/project-system/native_adoption.py) and
+[structural GDE grammar](../packages/gde/src/domain_dsl/typed_operations/native_adoption_operations.py)
+provide source/choice-bound selected-slice previews, typed World/assets/playback,
+component/system package mappings, closure/loss review and exact optional native
+write requests. All work remains on copies; no commit, native write, baseline
+advance or Play activation is performed. Repeat imports are no-ops and differing
+existing records require reconciliation. The old Builder wizard remains unchanged.
+
+276 Python tests and six fresh pinned-runtime runs pass over three actual certified
+native fixture families. Unknown Unity/Godot/Unreal behavior remains blocking after
+manual disablement review. Explicit damage choices execute once, native transforms
+remain unchanged and replay hashes match. See [completion](NEC007_NATIVE_ADOPTION.md)
+and [evidence](evidence/nec007-adoption-20261010.json). All 2,140 protected XP-022
+files and prior receipts are preserved. NEC-008 through NEC-018 are NOT STARTED.
+
+**Mandatory handoff amendment:** NEC-008/009 must retain blocking losses and
+revalidate source/map/CGS/choice/catalog identities before recovery-coordinated
+publication. Native parent identity is not a runtime EntityID; parented proposals
+remain blocked. The frozen MovementSystem uses flat transform fields, so systems
+accessing component 1 are conservatively blocked pending structured-transform
+executor certification. NEC-010/011/012 must prove instance binding, transform
+compatibility, resource readiness and reviewed package capability mapping before
+widening admission. Component/system packages are supported here; templates and
+capability materialization are explicitly refused. No task additions or reorder
+are needed. These limits amend later acceptance, not the sealed XP-022 baseline.
 
 ### NEC-008 — Three-way reconciliation and conflict proposals
 
@@ -582,10 +610,10 @@ reordered. NEC-007 remains NOT STARTED.
 
 **Safely later:** additional versions/platforms, in-process embedding, richer geometry backends, broader plugin translators, full native animation-graph conversion, advanced collaborative editing, convenience automation, the major UX/UI redesign, and runtime-free source export research. Broader commercial-scale soak/support/store certification follows the existing release program; do not confuse this bounded production-path proof with certification of every game or platform.
 
-**Current stop point:** NEC-001 through NEC-006 are complete against the local
-XP-022 engineering baseline. The remaining 12 tasks retain their order with
-section 1's migration/recovery/release amendments and NEC-003/004/005/006's concrete
-contract/native writer handoffs. NEC-007 is not started and requires the owner's
+**Current stop point:** NEC-001 through NEC-007 are complete against the local
+XP-022 engineering baseline. The remaining 11 tasks retain their order with
+section 1's migration/recovery/release amendments and NEC-003/004/005/006/007's concrete
+contract/native writer/adoption handoffs. NEC-008 is not started and requires the owner's
 next instruction.
 Full runtime-free native source export remains outside this program and needs
 a separately approved compiler/parity effort.

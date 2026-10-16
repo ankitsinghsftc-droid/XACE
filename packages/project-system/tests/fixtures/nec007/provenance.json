@@ -1,0 +1,38 @@
+{
+  "unity": {
+    "source": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-before.json",
+    "sha256": "da0dc7607313bb40733d1ad9111752dbde6a594b9dd491fa08877895f3ae1691",
+    "bytes": 5338,
+    "original_historical_capture": false
+  },
+  "unity-unknown": {
+    "source": "recovery-evidence/20261015/nec004/native/unity-project/.xace/nec004-unknown-component.json",
+    "sha256": "b1b149289ef51455028a7cd0215dcdccd9e1381ea49885d3aebff5d525db5326",
+    "bytes": 5551,
+    "original_historical_capture": false
+  },
+  "godot": {
+    "source": "recovery-evidence/20261016/nec005/native-final/godot-project/native-before.json",
+    "sha256": "17155fc75a547ec2bce873c14688367b6fe404a2d89b55bb585911d7dce61f5f",
+    "bytes": 7005,
+    "original_historical_capture": false
+  },
+  "godot-unknown": {
+    "source": "recovery-evidence/20261016/nec005/native-final/godot-project/native-unknown.json",
+    "sha256": "95e5f6d25901aebe16394e6a6432e0fcb11a7ab4a273d99e64010de19e50776b",
+    "bytes": 7714,
+    "original_historical_capture": false
+  },
+  "unreal": {
+    "source": "recovery-evidence/ue006/c/unreal-project/.xace/native-before.json",
+    "sha256": "92492ffcc12561f3d7333b389d8d1e6de4c4cd3c83ade011e7e95dd9c42b69a0",
+    "bytes": 3330,
+    "original_historical_capture": false
+  },
+  "unreal-unknown": {
+    "source": "recovery-evidence/ue006/c/unreal-project/.xace/native-unknown.json",
+    "sha256": "7b4dbe6d81cd4131f62125daf68a4bc8485107c4916ffb42c2a40a2b5d6d43e1",
+    "bytes": 5419,
+    "original_historical_capture": false
+  }
+}
