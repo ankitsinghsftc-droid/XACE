@@ -166,7 +166,7 @@ func fields(node: Node) -> Dictionary:
 	if not wire.error.is_empty(): fail(wire.error)
 	return result
 
-func opaque(node: Node, fingerprint_value: String) -> Array:
+func opaque(node: Node, _fingerprint_value: String) -> Array:
 	var result: Array = []
 	var kind := node.get_class()
 	var critical := kind not in ["Node", "Node3D", "MeshInstance3D", "DirectionalLight3D", "OmniLight3D", "SpotLight3D"] or node.get_script() != null
@@ -177,7 +177,10 @@ func opaque(node: Node, fingerprint_value: String) -> Array:
 	for signal_info in node.get_signal_list():
 		for connection in node.get_signal_connection_list(signal_info.name):
 			if connection.flags & Object.CONNECT_PERSIST: critical = true
-	result.append({"id": "native.properties", "sha256": (fingerprint_value + ":" + str(node.get_meta(META, {}).get("local_id", node.name)) + ":" + kind).sha256_text(), "critical": critical, "reason": "Unmapped native behavior retained" if critical else "Unowned native properties retained"})
+	var preservation = preload("authoring_preservation.gd").new()
+	var preserved: String = preservation.fingerprint(node, self)
+	if not preservation.error.is_empty(): fail(preservation.error)
+	result.append({"id": "native.properties", "sha256": preserved, "critical": critical, "reason": "Unmapped native behavior retained" if critical else "Unowned native properties retained"})
 	return result
 
 func load_scene(path: String) -> PackedScene:

@@ -1,6 +1,8 @@
 // Host-owned context only. Text content prevents native names becoming markup.
 let review = null;
 let choices = {};
+let approval = null;
+let applyAvailable = false;
 const byId = id => document.getElementById(id);
 const text = (tag, value, parent) => { const el=document.createElement(tag); el.textContent=value; parent.append(el); return el; };
 const reasons={same_field:'Both versions changed this value',delete_edit:'One version deleted an object that the other edited',reparent_interaction:'Hierarchy and object edits need a joint decision',dependency_change:'Related objects changed',native_owned:'The engine owns this value'};
@@ -26,6 +28,7 @@ async function request(action, body) {
   return result;
 }
 function render() {
+  approval=null;byId('apply').disabled=true;byId('apply').hidden=!applyAvailable;
   const r=review.report;
   byId('summary').textContent=r.noop?'No synchronized changes.':`${r.merge.conflicts.length} conflicts · ${r.merge.canonical_proposals.length} proposed XACE edits · ${r.merge.native_proposals.length} proposed engine edits`;
   byId('losses').replaceChildren(); byId('conflicts').replaceChildren();
@@ -49,21 +52,23 @@ function render() {
       const option=text('option',title,select);option.value=value;
     }
     select.value=choices[conflict.id] || '';
-    select.onchange=()=>{if(select.value)choices[conflict.id]=select.value;else delete choices[conflict.id];byId('approve').disabled=true;byId('status').textContent='Choices changed. Review them before approving.';};
+    select.onchange=()=>{approval=null;byId('apply').disabled=true;if(select.value)choices[conflict.id]=select.value;else delete choices[conflict.id];byId('approve').disabled=true;byId('status').textContent='Choices changed. Review them before approving.';};
   }
   byId('proposal').textContent=JSON.stringify({identities:r.identities,conflicts:r.merge.conflicts,losses:r.losses,typed_operations:r.typed_operations,native_write_preview:r.native_write_preview},null,2);
   byId('resolve').disabled=false;byId('cancel').disabled=false;byId('approve').disabled=!r.reviewable;
   byId('status').textContent=r.reviewable?'Ready for review approval. Nothing has been saved.':'Review is blocked. Resolve conflicts and listed requirements first.';
 }
 async function run(work) {
-  for(const id of ['refresh','resolve','approve','cancel'])byId(id).disabled=true;
-  try {await work();} catch(error) {byId('status').textContent=error.message;byId('approve').disabled=true;}
+  for(const id of ['refresh','resolve','approve','apply','cancel'])byId(id).disabled=true;
+  try {await work();} catch(error) {byId('status').textContent=error.message;byId('approve').disabled=true;approval=null;byId('apply').disabled=true;}
   finally {byId('refresh').disabled=false;if(review)byId('cancel').disabled=false;}
 }
 byId('refresh').onclick=()=>run(async()=>{
   if(review)await request('cancel',{token:review.token});review=null;
-  review=await request('',null);choices={};render();
+  review=await request('',null);applyAvailable=review.apply_available===true;choices={};render();
 });
 byId('resolve').onclick=()=>run(async()=>{review=await request('resolve',{token:review.token,proposal_digest:review.proposal_digest,resolutions:choices});render();});
-byId('approve').onclick=()=>run(async()=>{const result=await request('approve',{token:review.token,proposal_digest:review.proposal_digest});byId('status').textContent='Review approval recorded. Project files and the active game are unchanged.';byId('proposal').textContent=JSON.stringify(result,null,2);});
+byId('approve').onclick=()=>run(async()=>{const result=await request('approve',{token:review.token,proposal_digest:review.proposal_digest});byId('status').textContent='Review approval recorded. Project files and the active game are unchanged.';byId('proposal').textContent=JSON.stringify(result,null,2);approval=result;byId('apply').disabled=!applyAvailable;});
 byId('cancel').onclick=()=>run(async()=>{await request('cancel',{token:review.token});review=null;choices={};for(const id of ['summary','losses','conflicts','proposal'])byId(id).replaceChildren();byId('status').textContent='Review cancelled. Both projects are unchanged.';});
+
+byId('apply').onclick=()=>run(async()=>{if(!approval)throw new Error('Approve the current review first.');const result=await request('apply',{approval,proposal_digest:review.proposal_digest});approval=null;review=null;byId('status').textContent=result.state==='noop'?'Already synchronized. No files changed.':'Changes saved and verified. The active game has not restarted.';byId('proposal').textContent=JSON.stringify(result,null,2);});

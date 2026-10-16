@@ -152,9 +152,18 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 		var targets := {}
 		for node in reader.nodes(root):
 			targets[node.get_meta(reader.META, {}).get("authoring_id", "")] = node
+		var before_preservation := {}
+		for key in targets:
+			before_preservation[key] = reader.opaque(targets[key], "")
+		var transform_only := true
+		for edit in grouped[path]:
+			for field in edit.fields:
+				if not field.begins_with("transform."): transform_only = false
 		for edit in grouped[path]:
 			if not targets.has(edit.authoring_id): fail("write target disappeared")
 			else: apply(targets[edit.authoring_id], edit.fields)
+		var expected_fields := {}
+		for key in targets: expected_fields[key] = reader.fields(targets[key])
 		var staged := PackedScene.new()
 		if not error.is_empty() or staged.pack(root) != OK:
 			root.free()
@@ -172,6 +181,12 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 		root = reopened.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 		targets.clear()
 		for node in reader.nodes(root): targets[node.get_meta(reader.META, {}).get("authoring_id", "")] = node
+		if targets.size() != expected_fields.size(): fail("saved object set changed")
+		for key in targets:
+			if not expected_fields.has(key) or reader.fields(targets[key]) != expected_fields[key]:
+				fail("saved mapped fields changed outside the reviewed write")
+			if transform_only and (not before_preservation.has(key) or reader.opaque(targets[key], "") != before_preservation[key]):
+				fail("saved unowned properties changed")
 		for edit in grouped[path]:
 			if not targets.has(edit.authoring_id): fail("saved identity lost")
 			else: verify_fields(targets[edit.authoring_id], edit.fields)

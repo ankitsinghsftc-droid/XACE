@@ -219,3 +219,6 @@ NEC010 explicitly authorized after recovery acceptance. Active: durable native m
 
 
 NEC010 increment1 source4ddc048 passes343 Python tests/20 suites and real Godot planner/GDE/coordinator save-crash-refusal-rollback proof. All55 sealed baseline files unchanged. Source diff check passes; immutable raw logs retain upstream warning whitespace. Completed-increment receipt: docs/evidence/nec010-increment1-20261016/completed-increment.json. Full NEC010 remains INCOMPLETE: staged preservation/readback, all-editor repeated persistence, setup/bindings/input writes, review/apply UI and readiness integration still pending. No off-device backup.
+
+
+NEC010 active continuation: Godot stored-property fingerprints and strict staged readback pass real save/crash/restart/baseline commit (godot-semantic-b). Explicit host apply/no-op/stale-principal checks and actual Player route recovery gate pass focused tests. New Unity fingerprint is pending native verification; first regex escaping attempt failed and was corrected. Godot unknown-property probe parse failure fixed, rerun pending. Full NEC010 remains incomplete; continuing all-engine/setup/review acceptance. No off-device backup.

@@ -72,6 +72,16 @@ class ReconciliationReview:
             require(fresh.payload==session['plan'].payload and fresh.to_dict()['reviewable'],'approval no longer current')
             return fresh
 
+    def approved_context(self,principal,receipt):
+        """Host-only fresh inputs for explicit publication; never browser data."""
+        with self._lock:
+            plan=self.verify_approval(principal,receipt)
+            session=self._get(principal,receipt['session'])
+            context=copy.deepcopy(self.context_provider())
+            context['resolutions']=copy.deepcopy(session['resolutions'])
+            require(plan_reconciliation(**context).payload==plan.payload,'approved inputs changed')
+            return plan,context
+
     def cancel(self,principal,token):
         # Cancellation works even after source drift and never changes either store.
         with self._lock:

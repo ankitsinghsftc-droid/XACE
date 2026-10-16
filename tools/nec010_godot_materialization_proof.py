@@ -102,17 +102,12 @@ def main(out):
     child=subprocess.run([sys.executable,__file__,'--crash',str(out)],cwd=ROOT,capture_output=True)
     (out/'crash-child.log').write_bytes(child.stdout+child.stderr);assert child.returncode==73,child.stderr
     coordinator,prepared,_=build(out);assert coordinator.status()['play_build_blocked']
-    try:coordinator.recover('godot-main')
-    except ValueError as exc:assert 'saved native revision differs' in str(exc),str(exc)
-    else:raise AssertionError('uncertified opaque serialization admitted')
-    assert coordinator.status()['play_build_blocked'] and not (root/MAP).exists()
-    state=load_json(root/'.xace/authoring-transactions/godot-main/state.json')
-    assert state['state']=='recovery_conflict'
-    (out/'blocked-state.json').write_bytes(encode(state))
-    result=coordinator.recover('godot-main',action='rollback');assert result['state']=='rolled_back'
-    assert (root/'game.cgs.json').read_bytes()==encode(current) and gateway.capture()==observed
-    assert coordinator.recover('godot-main',action='rollback')==result and not coordinator.status()['play_build_blocked']
-    (out/'proof.json').write_bytes(encode(dict(schema='xace.nec010.godot_materialization_boundary.v1',ok=True,engine='godot',editor_sha256=gateway.identity['editor_sha256'],real_editor=True,real_native_save=True,process_exit=73,recovered='rolled_back',baseline_unadvanced=True,mixed_revision_blocked=True,opaque_serialization_refused=True,idempotent_recovery=True,runtime_activation=False,canonical_version=prepared['cgs']['cgs']['metadata']['version'],scope='NEC010 initial planner and prepare_apply integration; saved-pair serialization mismatch still blocks baseline advance; complete materialization not certified')))
+    result=coordinator.recover('godot-main');assert result['state']=='committed'
+    recovered_mapping=IdentityMap.from_dict(load_json(root/MAP))
+    assert verify_baseline_receipts(root,recovered_mapping.baseline)
+    assert coordinator.recover('godot-main')==result
+    assert not coordinator.status()['play_build_blocked']
+    (out/'proof.json').write_bytes(encode(dict(schema='xace.nec010.godot_materialization.v1',ok=True,real_editor=True,real_native_save=True,process_exit=73,recovered='committed',baseline_verified=True,idempotent_recovery=True,runtime_activation=False,scope='Bound root transform; complete NEC010 all-engine acceptance still pending')))
     print((out/'proof.json').read_text())
 
 
