@@ -1,0 +1,12 @@
+{
+  "task": "NEC010",
+  "task_complete": false,
+  "increment": "native-owned opaque refresh classification",
+  "source_checkpoint": "4ddc048",
+  "python_tests": 343,
+  "suites": 20,
+  "godot_boundary_proof": "passed; post-save mismatch refused and rolled back",
+  "protected_files_unchanged": 55,
+  "next": "native staged readback/preservation certification, then all-engine complete loop",
+  "off_device_backup": false
+}

@@ -1,0 +1,762 @@
+[
+  {
+    "path": "evidence/nec010/20261016/entry-documents/AGENT_PROGRESS.md",
+    "bytes": 31362,
+    "sha256": "d10db0f5af12ffe3d4ed2693b2d8c6a4ce33f76a8da74e11b59844d30c63bc5c"
+  },
+  {
+    "path": "evidence/nec010/20261016/entry-documents/MASTER_PLAN.md",
+    "bytes": 135551,
+    "sha256": "ea4f762b1ee441917c67d24bb1c7b19f6eb0fabc55bb988f5cb94bc62e89d99a"
+  },
+  {
+    "path": "evidence/nec010/20261016/entry-documents/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md",
+    "bytes": 80223,
+    "sha256": "7e93a2b9fb9ea9425154a922ac2bcdd3d4a82dc7bfd058cfacf15ee728134aa1"
+  },
+  {
+    "path": "evidence/nec010/20261016/entry-preservation.json",
+    "bytes": 14325,
+    "sha256": "2d50ba51435632240c596aa3023d28a2434a6d389c865619e3c18cae468be2ee"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/blocked-state.json",
+    "bytes": 3309,
+    "sha256": "dd8843e73940e12cd2a3348835edd500d741439eb804d8d24cb000aa5b9a49d8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/context.json",
+    "bytes": 25704,
+    "sha256": "0812df712195ad05f3921ad0b977dad0142ec9cbf3b172ecc40823947f87d137"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/crash-child.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/000-command.json",
+    "bytes": 392,
+    "sha256": "afda9352b989387d5661de4e166a85a26b98f41927c293a8adfc0af63ee1ed57"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/000-editor.log",
+    "bytes": 1610,
+    "sha256": "dd1cde96247f5af5f82a9764fcb48274901d2f921ab34805a91a1d73cff8af13"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/000-result.json",
+    "bytes": 7112,
+    "sha256": "5d119f71edf276c3455de10faa73f296ad8a7081e2adf9b953e36c2e3dd8e11d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/001-command.json",
+    "bytes": 764,
+    "sha256": "09215326e79dd12419eea2d59d72e92e0e867043883ca46baaeecaaf852c7616"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/001-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/001-previous-result.json",
+    "bytes": 7112,
+    "sha256": "5d119f71edf276c3455de10faa73f296ad8a7081e2adf9b953e36c2e3dd8e11d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/001-result.json",
+    "bytes": 1187,
+    "sha256": "11d546319e7cf0354bca4538a01acdbc5ae45448f3468a75e027513cfef55fd0"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/002-command.json",
+    "bytes": 2045,
+    "sha256": "402499e402eba03a20da88433ad0d92609026a710e56217101c410b534dca11b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/002-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/002-previous-result.json",
+    "bytes": 1187,
+    "sha256": "11d546319e7cf0354bca4538a01acdbc5ae45448f3468a75e027513cfef55fd0"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/002-result.json",
+    "bytes": 1008,
+    "sha256": "623aef9fe00645b711ae610d8b2e9862b1741f26da9cc64e84639be17491e4a7"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/003-command.json",
+    "bytes": 392,
+    "sha256": "afda9352b989387d5661de4e166a85a26b98f41927c293a8adfc0af63ee1ed57"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/003-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/003-previous-result.json",
+    "bytes": 1008,
+    "sha256": "623aef9fe00645b711ae610d8b2e9862b1741f26da9cc64e84639be17491e4a7"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/003-result.json",
+    "bytes": 7112,
+    "sha256": "43b21d57de4f6a7739b0311320c6a2c7cc8864aac1e40ea3b53e55cd68cd1aa8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/004-command.json",
+    "bytes": 770,
+    "sha256": "e70fe67e714cd992ded72016e8939f4087f1e3266dd1819251cff94bd9df49bc"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/004-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/004-previous-result.json",
+    "bytes": 7112,
+    "sha256": "43b21d57de4f6a7739b0311320c6a2c7cc8864aac1e40ea3b53e55cd68cd1aa8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/004-result.json",
+    "bytes": 1193,
+    "sha256": "67409a8b58d2a10079131a03f2d54cc9b687ac66c9e018b466396b946e16c7b0"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/005-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/005-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/005-previous-result.json",
+    "bytes": 1193,
+    "sha256": "67409a8b58d2a10079131a03f2d54cc9b687ac66c9e018b466396b946e16c7b0"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/005-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/006-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/006-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/006-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/006-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/007-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/007-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/007-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/007-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/008-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/008-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/008-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/008-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/009-command.json",
+    "bytes": 2051,
+    "sha256": "93274bea1c3a9f7ae49a35dc91cd8e08ccbc0c6739f628ef8163d4aabe290e0e"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/009-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/009-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/009-result.json",
+    "bytes": 1014,
+    "sha256": "8fecb5a480337f0911cac6be571af48f12b065df350398e48934502b7297afea"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/010-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/010-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/010-previous-result.json",
+    "bytes": 1014,
+    "sha256": "8fecb5a480337f0911cac6be571af48f12b065df350398e48934502b7297afea"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/010-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/011-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/011-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/011-previous-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/011-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/012-command.json",
+    "bytes": 392,
+    "sha256": "afda9352b989387d5661de4e166a85a26b98f41927c293a8adfc0af63ee1ed57"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/012-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/012-previous-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/012-result.json",
+    "bytes": 7112,
+    "sha256": "058c4e131cbc2ccd48dcefdc56dd0c4f8d59c5e306156068cdf6374ffd80f89b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/013-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/013-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/013-previous-result.json",
+    "bytes": 7112,
+    "sha256": "058c4e131cbc2ccd48dcefdc56dd0c4f8d59c5e306156068cdf6374ffd80f89b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/013-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/014-command.json",
+    "bytes": 2052,
+    "sha256": "080a4a5b0b0d31a3ae1eb0c1ed727eadb29dd863e36be35cfd425a635f67e5d9"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/014-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/014-previous-result.json",
+    "bytes": 110,
+    "sha256": "90809627a9b14409c58bf01da380953ee7b0e5047719fb5ee04ce31daa71317d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/014-result.json",
+    "bytes": 1017,
+    "sha256": "6d7763762e68319f7ebe9014ea461f86400d6d098c8ba377b423f490daa3d429"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/015-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/015-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/015-previous-result.json",
+    "bytes": 1017,
+    "sha256": "6d7763762e68319f7ebe9014ea461f86400d6d098c8ba377b423f490daa3d429"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/015-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/016-command.json",
+    "bytes": 2052,
+    "sha256": "d2d4d62bf6eec4503a3847cff4cb556b00aa5ef52a4916a98600530ffd968fa4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/016-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/016-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/016-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/017-command.json",
+    "bytes": 392,
+    "sha256": "afda9352b989387d5661de4e166a85a26b98f41927c293a8adfc0af63ee1ed57"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/017-editor.log",
+    "bytes": 1367,
+    "sha256": "08391aebbf6611d087e659f043f7e3add3aa6e7c2d55cbab0c98cb3766508578"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/017-previous-result.json",
+    "bytes": 111,
+    "sha256": "f6d13bb8a08254323976a2a0014b564506fa09b720f1a5879221c58251271275"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/editor-calls/017-result.json",
+    "bytes": 7112,
+    "sha256": "43b21d57de4f6a7739b0311320c6a2c7cc8864aac1e40ea3b53e55cd68cd1aa8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/.gdignore",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/0.tscn-folding-8996e3dceba76728c28dbc31580878bc.cfg",
+    "bytes": 49,
+    "sha256": "fa44dfbae9b3b64980c44d9922acdad9b34ea46c85cce8a917708577229c27f6"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/0.tscn-folding-abfe0c8523eaabba37adf0cd0d482a44.cfg",
+    "bytes": 49,
+    "sha256": "fa44dfbae9b3b64980c44d9922acdad9b34ea46c85cce8a917708577229c27f6"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/editor_layout.cfg",
+    "bytes": 1345,
+    "sha256": "4d200cd58f4e7df4814bd95fbf6fd425b05eeee205616afe060bb15abbd7a269"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/filesystem_cache10",
+    "bytes": 1763,
+    "sha256": "4727171e6c68cb7ff65c72e680a818053525c0053f48d3879e810a0f24b7dccb"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/project_metadata.cfg",
+    "bytes": 150,
+    "sha256": "e0305c0e7dcbfa5bc1aff291b0a25500f500d57c9bc50739106d0bed9dbb0550"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/editor/script_editor_cache.cfg",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/global_script_class_cache.cfg",
+    "bytes": 8,
+    "sha256": "f61aa7ad3097022d6a9d110ca3f73fa7bb348ec2cf9a6e7c9523574dc75f5a16"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.godot/uid_cache.bin",
+    "bytes": 635,
+    "sha256": "72fcf89300af50fa6bf9848926642820fb63fd0795f6d7dc9eedc56ad0794f01"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/canonical/0.after",
+    "bytes": 2025,
+    "sha256": "82c310b0c57a10746c651f85efb9425d07a2373400b065addabd78ae9f9273bf"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/canonical/0.before",
+    "bytes": 2019,
+    "sha256": "3365fdffd0b722bccc2e8b47f1ad80f38cc08cca34037cdf41a98bdbb934d141"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/canonical/0.displaced",
+    "bytes": 2019,
+    "sha256": "3365fdffd0b722bccc2e8b47f1ad80f38cc08cca34037cdf41a98bdbb934d141"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/canonical/0.restore-displaced",
+    "bytes": 2025,
+    "sha256": "82c310b0c57a10746c651f85efb9425d07a2373400b065addabd78ae9f9273bf"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/canonical/prepared.json",
+    "bytes": 405,
+    "sha256": "7bf4fea8a7edbdbaf524fe2e77f670d5684864775d86a2687cb48af167e95fa5"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/manifest.json",
+    "bytes": 8714,
+    "sha256": "eb9793565fe0edad189d7f61cf5614d0b60237582adc495ab6978a0839fc80bb"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/native/prepared.json",
+    "bytes": 1871,
+    "sha256": "fac2d85568a320c346fb3de50673f393c1e96521528c94787c15991d08ec1241"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/authoring-transactions/godot-main/state.json",
+    "bytes": 3332,
+    "sha256": "3bf46fa16947f6f14922c36e053b4027f881233441e2a603d8b14060815b733a"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace/cgs.write.lock",
+    "bytes": 1,
+    "sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/.gdignore",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/8288f9ef978038599568305394c33e4c/0.before",
+    "bytes": 2200,
+    "sha256": "14506be653991256a550356273f67893bc61188831ca5cb18ef6d7ee97d39f0c"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/8288f9ef978038599568305394c33e4c/0.tscn",
+    "bytes": 2200,
+    "sha256": "43df8d099732f1bf081de4ea7d7d85b367d8e77d9f9adcd0bffaee62ac065b72"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/8288f9ef978038599568305394c33e4c/receipt.json",
+    "bytes": 924,
+    "sha256": "8dd6f217aae5ca865046e07eda0da515aabe821af5f0440cc83a675d5a43caf0"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/9111a65a511c61ea4c16a1e7a2b389d8/0.before",
+    "bytes": 2140,
+    "sha256": "864e8a96595cc43fbebbd98ee7e5de9c62e9f5b364530ec3b22134615489b6db"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/9111a65a511c61ea4c16a1e7a2b389d8/0.tscn",
+    "bytes": 2200,
+    "sha256": "14506be653991256a550356273f67893bc61188831ca5cb18ef6d7ee97d39f0c"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/.xace_authoring/transactions/9111a65a511c61ea4c16a1e7a2b389d8/receipt.json",
+    "bytes": 915,
+    "sha256": "dad035f9b450c6b5cc3a92ac45272e3225a0c16a298f775f52095f93518f5c37"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_plugin.gd",
+    "bytes": 2408,
+    "sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_plugin.gd.uid",
+    "bytes": 20,
+    "sha256": "58e036602f170223b4c6a666fdfe108ce5532c537dbcd3550460700d15cc561a"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_reader.gd",
+    "bytes": 13493,
+    "sha256": "9ae9c4880bca4afc748cd15b5ac5b4b7ce2d0193bd50900fdcdd724482832f23"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_reader.gd.uid",
+    "bytes": 20,
+    "sha256": "dd7962258818706a9dbcc5bef624ef4c01f13ee7bc0c076d377cca1d140063cc"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_wire.gd",
+    "bytes": 3782,
+    "sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_wire.gd.uid",
+    "bytes": 20,
+    "sha256": "cce2a5242c51fa6c45ad1645c7c5c4003ad45f704320c91d4990cd0fd46d2bc4"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_writer.gd",
+    "bytes": 12221,
+    "sha256": "ebab6a579154635c90173839558ba5d3bfdc6aff79d626043f0afc330644668a"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/authoring_writer.gd.uid",
+    "bytes": 20,
+    "sha256": "5c1c0adc3a62d7b0ccef872e3a4e141f6a352e5c784988672051da5aa7707a47"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/native_proof.gd",
+    "bytes": 17938,
+    "sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/native_proof.gd.uid",
+    "bytes": 19,
+    "sha256": "fcbd33a3d3f4bb1831f8c36fdb1cae743d52c68d5a995f0d0d32047cc8bbc649"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/nec009_gateway.gd",
+    "bytes": 2159,
+    "sha256": "8e659807669c39b61ccc7571fbd319aa76fbf313f6aeb031c1945b46404033aa"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/nec009_gateway.gd.uid",
+    "bytes": 19,
+    "sha256": "70c4ef6bb7b15668a0088fdc5f7429618178d9a2eff6714bf5a419c7a0819bd6"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/plugin.cfg",
+    "bytes": 189,
+    "sha256": "76c2e767ca77ee7e3023a99268fd6946c582adc5f1edbaade06f24d08aa853fd"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/runtime_privilege_proof.gd",
+    "bytes": 1072,
+    "sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/addons/xace_authoring/runtime_privilege_proof.gd.uid",
+    "bytes": 20,
+    "sha256": "201f052537c27e50ed59846bf9a81d078705e14da93ecfc0e8e9bdac59468e72"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/Clip.res",
+    "bytes": 304,
+    "sha256": "3e1f131bb05122639435187fc3a1a9d35ade08417a45ddb176aad15956621df8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/Mesh.res",
+    "bytes": 416,
+    "sha256": "251539549b1fe8c8929228040bf833a41d68b96782e14a9fafb24b82e40017b3"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/Replacement.res",
+    "bytes": 405,
+    "sha256": "654b0de4d5f207c80557b2f806282056bc046cc322e49d2b7501381567a86279"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/Template.tscn",
+    "bytes": 799,
+    "sha256": "cf4362de91aeb673842568b848852fdcc3a85a542f0500f15572b23a71bada06"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/World.scn",
+    "bytes": 2734,
+    "sha256": "ee738926a52fcecf7bffde1d27fc5f7f6ec23712da8998d4f6a908aabb62ce9d"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/Fixture/World.tscn",
+    "bytes": 2200,
+    "sha256": "14506be653991256a550356273f67893bc61188831ca5cb18ef6d7ee97d39f0c"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/game.cgs.json",
+    "bytes": 2019,
+    "sha256": "3365fdffd0b722bccc2e8b47f1ad80f38cc08cca34037cdf41a98bdbb934d141"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/nec009-command.json",
+    "bytes": 20,
+    "sha256": "03fb71a2fd8662bdfc2107b6ee6e7a78080b9e7de1e64b9c88a3a8dd58e83b85"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/nec009-result.json",
+    "bytes": 7112,
+    "sha256": "43b21d57de4f6a7739b0311320c6a2c7cc8864aac1e40ea3b53e55cd68cd1aa8"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/godot-project/project.godot",
+    "bytes": 313,
+    "sha256": "93a0dae7ad3fca1c513c7c4ca449af069127b098a6d27a761e563295566a4f1f"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/prepared.json",
+    "bytes": 14977,
+    "sha256": "4752ec6610e31b994a48e3a0a3b8a5327dc4a74a8d9316b30abc322e69bc657b"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/proof.json",
+    "bytes": 598,
+    "sha256": "90beee3cc8933c76031730afcf13a0cfd6f2d02f232f4e1dec26c29378980110"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-boundary/reviewed-reconciliation.json",
+    "bytes": 30611,
+    "sha256": "f9577c48601d8b9b5ffef4ee97afa92f86074d25f0089bbf7f50702d92619793"
+  },
+  {
+    "path": "evidence/nec010/20261016/runs.json",
+    "bytes": 9872,
+    "sha256": "084819a9c4f092098669433b8e3686cec5fc37d9691a2d5d2257b0a550633812"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_asset_reference_preflight.log",
+    "bytes": 914,
+    "sha256": "12605314d7ef9fff619b9763dcf903738daa8c426b62f204e2edcdad561b09e5"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_asset_validation.log",
+    "bytes": 12743,
+    "sha256": "945918d1b1d95b638bcd0d98e960d6f04d80e787fc826e8b8fa00699ea14924c"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_authoring_apply.log",
+    "bytes": 2464,
+    "sha256": "94f41b510ccc88781ee4ebf19e8da5b585a15c5c89184923f3270db1bb285ff2"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_authoring_identity.log",
+    "bytes": 4119,
+    "sha256": "bb4ee7eb410aa45e7f05dc45274b2507a85605fbec11a04a3237ae42d39f5ce5"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_authoring_transaction.log",
+    "bytes": 2128,
+    "sha256": "d13583e39c53f69cd6c94c27c7d9ce57848a9bf26e020130025da3b3bc4bce9d"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_engine_edit_router.log",
+    "bytes": 2552,
+    "sha256": "8c0a85abf020431079b696555b69e893db41dea2cf718d9f3b430e3a06da985e"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_godot_authoring.log",
+    "bytes": 1950,
+    "sha256": "3030195a935f5e027fd1e077b2b45316cf6b9ceb0388c868bcdd8930a9645261"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_native_adoption.log",
+    "bytes": 3291,
+    "sha256": "b2bdff1be1c4d0bca5efad7d99e58669c0932ee6c00efd819645fc14178c0a07"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_native_authoring_contract.log",
+    "bytes": 4712,
+    "sha256": "471711945d93307fbf94ae8782a1d69b7b4d0f1ae83a4623fbda3f3b86116177"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_native_materialization.log",
+    "bytes": 985,
+    "sha256": "93785347a56476e31b9de04477a62380f0e811c800c5b30716d5d861e5cef7a0"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_native_reconciliation.log",
+    "bytes": 3526,
+    "sha256": "3d5ca661e99da158e4c2df97c8d1ae1efa3f335da89e833ca69b602d9b10e6ff"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_native_reconciliation_routes.log",
+    "bytes": 6074,
+    "sha256": "4e4f999e425c42b075e179ab3164f46a2d065f4a140532654b55b08c9c4ef7ae"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_playable_package.log",
+    "bytes": 1889,
+    "sha256": "28ffbdcd4dfd4ef782f4de969db93395363dceb72e5f2bf4e47f3c2165f5680d"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_player_presentation.log",
+    "bytes": 1194,
+    "sha256": "c2df5ceb802e2a395bfa82fb50afb770f891ad14f52a62e22e151912c495ed27"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_project_system.log",
+    "bytes": 1902,
+    "sha256": "d7a7a2bf4a1eed506d2809f844bc6eb00a0b9517939a4362b9df0a067cdcf9a3"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_semantic_binding_status.log",
+    "bytes": 483,
+    "sha256": "156dc0174b6ecbc2f630b83ce90d3348754e28cac70f681d0c09d8426f3f36bd"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_unity_authoring.log",
+    "bytes": 1585,
+    "sha256": "543a83a120a580005ae6beb7d4418b6bd293fae4a89d469d411e126a2a7856db"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_unreal_authoring.log",
+    "bytes": 1972,
+    "sha256": "9dc8b9975ad363311856eb6b8acf50fa7891b579796b039c3db6a7acbaf7e967"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_unreal_authoring_stage.log",
+    "bytes": 948,
+    "sha256": "69dc562dd8b90cac1e5ab6067c729825e3833440dac5df1a5c0cf8f6a5609e35"
+  },
+  {
+    "path": "evidence/nec010/20261016/test_world_extensibility.log",
+    "bytes": 1397,
+    "sha256": "7b8ef202b0d840627fb69d23f1807d27f2cb7300a79b816e71a465064a0c9802"
+  }
+]

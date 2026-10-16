@@ -216,3 +216,6 @@ Recovery acceptance audit PASSED within documented scope:16 milestone commits re
 
 
 NEC010 explicitly authorized after recovery acceptance. Active: durable native materialization and review/apply loop. Entry seal verified under evidence/nec010/20261016. First correction separates engine-owned opaque refresh from CGS structural edits; critical behavior and exact saved-pair checks remain enforced. Full all-editor acceptance, setup/resources/bindings, UX and lifecycle integration pending. NOT backed up off-device.
+
+
+NEC010 increment1 source4ddc048 passes343 Python tests/20 suites and real Godot planner/GDE/coordinator save-crash-refusal-rollback proof. All55 sealed baseline files unchanged. Source diff check passes; immutable raw logs retain upstream warning whitespace. Completed-increment receipt: docs/evidence/nec010-increment1-20261016/completed-increment.json. Full NEC010 remains INCOMPLETE: staged preservation/readback, all-editor repeated persistence, setup/bindings/input writes, review/apply UI and readiness integration still pending. No off-device backup.

@@ -25,3 +25,7 @@ Authorized2026-10-16 after recovery acceptance checkpoint `7cb2dfd`. This is new
 The reviewed target must distinguish requested owned-field changes from native serialization effects. An acceptable stage must bind exact before/staged file hashes, target identity, dependency hashes and a native proof of preservation of unowned content. A fresh recapture must equal that reviewed staged target. Do not ignore opaque fingerprints globally, substitute whatever is read back as the expected result, or advance the baseline merely because a writer returned success. Native stage evidence must be established before the durable publication decision and survive process restart.
 
 Evidence is under `evidence/nec010/20261016`; native fixtures and unique receipts remain outside disposable directories. All checkpoints remain NOT backed up off-device.
+
+## Increment1 verification
+
+Source4ddc048 passes343 Python tests in20 suites. The installed Godot boundary proof passes normal plan/prepare_apply integration and preserves strict saved-pair refusal, process-exit recovery and rollback. All55 protected baseline files are unchanged. Full NEC010 acceptance remains pending. See [increment receipt](evidence/nec010-increment1-20261016/completed-increment.json).
