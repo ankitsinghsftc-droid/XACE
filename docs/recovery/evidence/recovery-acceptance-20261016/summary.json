@@ -1,0 +1,30 @@
+{
+  "status": "local_recovery_acceptance_passed_with_scope_limits",
+  "verified_through": "NEC009",
+  "milestone_commits": {
+    "XP016": "2d34696",
+    "XP017": "3e36d66",
+    "XP018": "17c89ad",
+    "XP019": "1f825e8",
+    "XP020": "46d22f7",
+    "XP021": "7e43b1f",
+    "XP022": "7851743",
+    "NEC001": "b2b3bca",
+    "NEC002": "9b8198f",
+    "NEC003": "40e38c0",
+    "NEC004": "4d0c48c",
+    "NEC005": "1ff0ae7",
+    "NEC006": "efaece8",
+    "NEC007": "b0d2033",
+    "NEC008": "a3f50c0",
+    "NEC009": "3eba518"
+  },
+  "git_fsck": "passed",
+  "current_proof_records_hash_checked": 624,
+  "protected_sealed_files": 55,
+  "original_sealed_payloads_recovered": false,
+  "bit_identical_historical_source_claim": false,
+  "off_device_backup": false,
+  "external_release_gates": "REL01-05 open",
+  "nec010": "not started; requires explicit authorization"
+}

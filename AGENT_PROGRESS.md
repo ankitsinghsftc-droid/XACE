@@ -33,7 +33,7 @@ XP-016 initially had a Unity license blocker; original continuation at transcrip
 
 ## Next work
 
-Recovery through NEC009 is verified within documented scope. Complete final receipt/checkpoint audit, then stop before NEC010 until explicit authorization. Preserve fresh reports under `docs/recovery/evidence/` or persistent `recovery-evidence/`. All checkpoints remain on-device only.
+Recovery through NEC009 is verified within documented scope. Final receipt/checkpoint audit passed; stop before NEC010 until explicit authorization. Preserve fresh reports under `docs/recovery/evidence/` or persistent `recovery-evidence/`. All checkpoints remain on-device only.
 
 ## Checkpoints
 
@@ -210,3 +210,6 @@ NEC009 source reconstructed from successful historical patches and reviewed sour
 
 
 NEC009 RECOVERY VERIFIED:338 Python tests,25 retained filesystem cases and installed Godot save/crash/refusal/rollback proof pass. No mixed revision advertised as success; baseline remains unadvanced on serialization mismatch. Production all-engine apply and automatic readiness integration are not certified. Source5052000; docs/recovery/evidence/nec009-20261016/summary.json. NEC010 NOT STARTED. NOT backed up off-device.
+
+
+Recovery acceptance audit PASSED within documented scope:16 milestone commits reachable, Git fsck passes,55 protected sealed files unchanged, current proof hashes verified. NEC008 a3f50c0; NEC009 3eba518. See docs/recovery/RECOVERY_ACCEPTANCE.md. NEC010 NOT STARTED; awaiting explicit authorization. Every checkpoint remains NOT backed up off-device.
