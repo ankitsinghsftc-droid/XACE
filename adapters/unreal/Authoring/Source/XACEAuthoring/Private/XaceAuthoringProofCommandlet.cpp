@@ -80,7 +80,12 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     if(!Check(TEXT("saved_native_map_reload"),W!=nullptr))return Finish();SaveJson(TEXT("pre-enrollment-discovery.json"),Service.Capture(W,Map,true));auto Inventory=Service.Capture(W,Map);
     if(!Check(TEXT("meaningful_native_capture"),Inventory && Child(Inventory,TEXT("objects"))->Values.Num()==3))return Finish();SaveJson(TEXT("native-before.json"),Inventory);
     Check(TEXT("duplicate_labels_distinct_guids"),Find(W,2)->GetActorGuid()!=Find(W,3)->GetActorGuid());auto Discovery=Service.Capture(W,Map,true);Check(TEXT("actual_native_discovery"),Discovery.IsValid());SaveJson(TEXT("native-discovery.json"),Discovery);
+    SaveJson(TEXT("preservation-before-resource.json"),Service.PreservationProperties(W->GetWorldSettings()));
+    SaveJson(TEXT("actor-preservation-before-resource.json"),Service.PreservationProperties(Find(W,2)));
     auto ChangedFields=Position(8000000,2000000,-3000000);ChangedFields->SetObjectField(TEXT("presentation.asset"),Service.Asset(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Fixture/OtherMesh.OtherMesh"))));
+    SaveJson(TEXT("preservation-after-resource.json"),Service.PreservationProperties(W->GetWorldSettings()));
+    SaveJson(TEXT("actor-preservation-after-resource.json"),Service.PreservationProperties(Find(W,2)));
+    SaveJson(TEXT("native-before-prepare.json"),Service.Capture(W,Map));
     auto Prepared=Service.Prepare(W,Map,Request(Inventory,Map,2,ChangedFields),IdValue(800));
     if(!Check(TEXT("native_staged_save_readback"),Prepared.IsValid()))return Finish();
     FString BeforeHash=FileHash(Filename);Check(TEXT("prepare_keeps_original"),BeforeHash==String(Child(Prepared,TEXT("receipt")),TEXT("before")));

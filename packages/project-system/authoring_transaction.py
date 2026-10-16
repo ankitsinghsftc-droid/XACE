@@ -163,10 +163,12 @@ class AuthoringCoordinator:
         from authoring_transaction_files import FileParticipant
         return isinstance(participant,FileParticipant) and observed=='after' and all(r['before']==r['after'] for r in token['rows'])
 
-    def recover(self,transaction_id,*,action='resume'):
+    def recover(self,transaction_id,*,action='resume',configure_verification=None):
         require(action in {'resume','rollback'},'unknown recovery action')
         with self.store.cgs_write_lock():
             folder,state,manifest=self._load(transaction_id)
+            if configure_verification is not None:
+                configure_verification(copy.deepcopy(state),copy.deepcopy(manifest))
             if state['state']=='committed':return self._verify_committed(folder,state,manifest)
             if state['state'] in {'aborted','rolled_back'}:return copy.deepcopy(state)
             try:

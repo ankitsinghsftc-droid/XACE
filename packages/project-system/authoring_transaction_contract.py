@@ -13,6 +13,7 @@ class TransactionRequest:
     participant_requests: dict
     activation_record: dict
     verification_record: dict | None = None
+    recovery_payload: dict | None = None
 
 
 class Participant(Protocol):
@@ -42,6 +43,9 @@ def validate_request(request:TransactionRequest, participants:dict):
     if request.verification_record is not None:
         require(type(request.verification_record) is dict,'invalid verification binding')
         encode(request.verification_record)
+    if request.recovery_payload is not None:
+        require(type(request.recovery_payload) is dict,'invalid recovery payload')
+        encode(request.recovery_payload)
 
 
 def receipt(participant,token,state):

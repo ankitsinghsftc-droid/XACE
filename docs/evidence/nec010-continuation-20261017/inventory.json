@@ -1,0 +1,42 @@
+[
+  {
+    "path": "evidence/nec010/20261016/godot-cycles-a/proof.json",
+    "retained": "0-proof.json",
+    "sha256": "5cc063b0c45305ce5202931ae95f64151086318aae948364f0f272994f2ba42a"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-cycles-a/cycles.json",
+    "retained": "1-cycles.json",
+    "sha256": "b3a21943a9925ec69a36bfb54ab18f36ea9b0df99e73ae349ff9cd4af914c5cf"
+  },
+  {
+    "path": "evidence/nec010/20261016/godot-preservation-b/proof.json",
+    "retained": "2-proof.json",
+    "sha256": "d4e079b86d4ed1136b8380dda229ee8d550addfc0271523313ba4b447ca82019"
+  },
+  {
+    "path": "evidence/nec010/20261016/unity-semantic-b/run.json",
+    "retained": "3-run.json",
+    "sha256": "b4d46e00067f3c5397a1d1be76b7f0a30563b37a9057c6e553299d8200b688b0"
+  },
+  {
+    "path": "evidence/nec010/20261016/unity-semantic-b/reload.json",
+    "retained": "4-reload.json",
+    "sha256": "78d278950b2926e76a564e88db173262f67088c80b0fb751a5575f959c521995"
+  },
+  {
+    "path": "evidence/nec010/20261016/unity-semantic-b/play.json",
+    "retained": "5-play.json",
+    "sha256": "0b83ca1cc6d41090b632e983cefb7c8fe6f29aa4e906309f93b6466b02f330f4"
+  },
+  {
+    "path": "evidence/nec010/ue/a/unreal-project/.xace/proof-run.json",
+    "retained": "6-proof-run.json",
+    "sha256": "3c8be201f1f5073737dd8543922466dede34b44991a3c4ba0dfd4563a03e891b"
+  },
+  {
+    "path": "evidence/nec010/20261017/regression-a/runs.json",
+    "retained": "7-runs.json",
+    "sha256": "c7748e78e020b0b9a9701754ac0e2fa6c8b4ffff1f868d16102b3aa14c89ea7e"
+  }
+]

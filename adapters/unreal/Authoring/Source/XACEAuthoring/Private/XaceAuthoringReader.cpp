@@ -18,6 +18,7 @@
 #include "Misc/Paths.h"
 #include "HAL/PlatformFileManager.h"
 #include "UObject/UObjectIterator.h"
+#include "UObject/UnrealType.h"
 using namespace XaceAuthoringWire;
 const TCHAR* FXaceUnrealAuthoring::Version=TEXT("5.7.4-51494982+++UE5+Release-5.7");
 namespace
@@ -36,6 +37,36 @@ bool SafeFile(const FString& Name)
     return true;
 }
 TSharedPtr<FJsonValue> Null(){return MakeShared<FJsonValueNull>();}
+}
+FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor* Actor)
+{
+    // The pinned editor exports stored properties; runtime/transient fields are
+    // excluded by serialization flags. Only the separately mapped root transform
+    // is excluded. Native classes and all other properties remain represented.
+    auto Rows=New();const FString Package=Actor->GetOutermost()->GetName();
+    TArray<UObject*> Objects;Objects.Add(Actor);
+    for(UActorComponent* Component:Actor->GetComponents())
+        if(Component && !Component->HasAnyFlags(RF_Transient) && !Component->IsVisualizationComponent())Objects.Add(Component);
+    for(UObject* Item:Objects){
+        auto Properties=New();
+        for(TFieldIterator<FProperty> It(Item->GetClass());It;++It){
+            FProperty* Property=*It;
+            if(Property->HasAnyPropertyFlags(CPF_Transient|CPF_DuplicateTransient|CPF_NonPIEDuplicateTransient|CPF_SkipSerialization))continue;
+            const FString Name=Property->GetName();
+            if(Item==Actor->GetRootComponent() && (Name==TEXT("RelativeLocation")||Name==TEXT("RelativeRotation")||Name==TEXT("RelativeScale3D")))continue;
+            FString Value;
+            Property->ExportTextItem_Direct(Value,Property->ContainerPtrToValuePtr<void>(Item),nullptr,Item,PPF_None);
+            Value.ReplaceInline(*Package,TEXT("<document>"),ESearchCase::CaseSensitive);
+            Properties->SetStringField(Name,Value);
+        }
+        FString Key=Item==Actor?TEXT("actor"):Item->GetName();
+        Properties->SetStringField(TEXT("$class"),Item->GetClass()->GetPathName());Rows->SetObjectField(Key,Properties);
+    }
+    return Rows;
+}
+FString FXaceUnrealAuthoring::Preservation(AActor* Actor)
+{
+    return Hash(TEXT("unreal.stored_properties.v1:")+Json(PreservationProperties(Actor)));
 }
 bool FXaceUnrealAuthoring::Fail(const FString& M){if(Error.IsEmpty())Error=M;return false;}
 bool FXaceUnrealAuthoring::Editor(UWorld* W)
@@ -161,7 +192,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Capture(UWorld* W,const FStri
         }
         FString ClassSource;
         if(UObject* Blueprint=A->GetClass()->ClassGeneratedBy){Critical=true;ClassSource=Blueprint->GetOutermost()->GetName();}
-        Opaque->SetStringField(TEXT("id"),TEXT("native.properties"));Opaque->SetStringField(TEXT("sha256"),Hash(Before+TEXT(":")+Guid+TEXT(":")+A->GetClass()->GetPathName()));Opaque->SetBoolField(TEXT("critical"),Critical);Opaque->SetStringField(TEXT("reason"),Critical?TEXT("Native class/Blueprint/physics/level behavior retained; adoption blocked ")+ClassSource:TEXT("Unowned native properties retained"));
+        Opaque->SetStringField(TEXT("id"),TEXT("native.properties"));Opaque->SetStringField(TEXT("sha256"),Preservation(A));Opaque->SetBoolField(TEXT("critical"),Critical);Opaque->SetStringField(TEXT("reason"),Critical?TEXT("Native class/Blueprint/physics/level behavior retained; adoption blocked ")+ClassSource:TEXT("Unowned native properties retained"));
         if(Discovery){auto D=New();D->SetStringField(TEXT("actor_guid"),Guid);D->SetStringField(TEXT("document_id"),Document);D->SetStringField(TEXT("native_path_hint"),A->GetPathName());D->SetObjectField(TEXT("fields"),F);D->SetBoolField(TEXT("registered"),ValidateMetadata(Meta));D->SetArrayField(TEXT("opaque"),{MakeShared<FJsonValueObject>(Opaque)});Discovered.Add(MakeShared<FJsonValueObject>(D));continue;}
         if(!ValidateMetadata(Meta) || String(Meta,TEXT("namespace_id"))!=Namespace || (IsScene!=(String(Meta,TEXT("kind"))==TEXT("scene"))) || Rows->HasField(String(Meta,TEXT("authoring_id"))) || !A->GetActorGuid().IsValid() || Guids.Contains(Guid))return Fail(TEXT("Missing/foreign/duplicate actor identity; recovery required: ")+A->GetPathName()+TEXT(" GUID=")+Guid+TEXT(" metadata=")+MetadataText(A)),nullptr;
         Guids.Add(Guid);auto Row=New();Row->SetObjectField(TEXT("metadata"),Meta);auto Locator=New();Locator->SetStringField(TEXT("engine"),TEXT("unreal"));Locator->SetStringField(TEXT("document_id"),Document);Locator->SetStringField(TEXT("object_id"),Guid);Row->SetObjectField(TEXT("locator"),Locator);

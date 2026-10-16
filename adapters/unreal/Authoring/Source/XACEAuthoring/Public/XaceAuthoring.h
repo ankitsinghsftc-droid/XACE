@@ -36,6 +36,8 @@ public:
     bool Enroll(AActor* Actor, const Object& Metadata, const FString& ExpectedOld = TEXT(""));
     Object Metadata(AActor* Actor) const;
     Object Fields(AActor* Actor);
+    FString Preservation(AActor* Actor);
+    Object PreservationProperties(AActor* Actor);
     Object Asset(UObject* Resource);
     FString Fingerprint(const FString& ApprovedMap, bool AssetPackage = false);
     FString MapFilename(const FString& ApprovedMap);

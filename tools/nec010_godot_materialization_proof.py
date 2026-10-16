@@ -107,6 +107,33 @@ def main(out):
     assert verify_baseline_receipts(root,recovered_mapping.baseline)
     assert coordinator.recover('godot-main')==result
     assert not coordinator.status()['play_build_blocked']
+    from authoring_saved_pair import CGS,NATIVE
+    cycles=[]
+    for cycle in range(2):
+        mapping=IdentityMap.from_dict(load_json(root/MAP))
+        current=load_json(root/'game.cgs.json')
+        context=dict(baseline=Snapshot((root/NATIVE).read_bytes()),baseline_cgs=load_json(root/CGS),mapping=mapping,
+            current_mapping=copy.deepcopy(mapping),current_cgs=current,native_inventory=gateway.capture(),
+            expected_current_cgs_digest=digest(current),verify_baseline=lambda b:verify_baseline_receipts(root,b),trusted_project=True)
+        context['expected_source_digest']=sha(context['native_inventory'])
+        no_op=plan_reconciliation(**context).to_dict();assert no_op['reviewable'] and no_op['noop'],no_op['losses']
+        before={p.relative_to(root).as_posix():sha(p.read_bytes()) for p in (root/'Fixture').iterdir() if p.is_file()}
+        assert plan_reconciliation(**context).to_dict()['noop']
+        assert before=={p.relative_to(root).as_posix():sha(p.read_bytes()) for p in (root/'Fixture').iterdir() if p.is_file()}
+        current['modes'][0]['actors'][0]['components'][0]['defaults']['position']['x']+=1000000
+        rehash(current);(root/'game.cgs.json').write_bytes(encode(current));context['expected_current_cgs_digest']=digest(current)
+        proposal=plan_reconciliation(**context);assert proposal.to_dict()['reviewable']
+        tx='godot-cycle-'+str(cycle)
+        prepared=prepare_apply(proposal,context=context,transaction_id=tx,project_root=root)
+        pair=SavedPair(root,mapping=IdentityMap.from_dict(prepared['target_mapping']),expected_cgs=prepared['cgs']['cgs'],expected_normalized=prepared['expected_normalized'],recapture=gateway.capture)
+        coordinator=AuthoringCoordinator(root,dict(canonical=FileParticipant(root,name='canonical',allowed_paths=['game.cgs.json']),native=NativeParticipant(gateway)),verify_pair=pair.verify,baseline_participant=pair.participant,baseline_request=pair.baseline_request)
+        def fresh():
+            context['native_inventory']=gateway.capture();context['expected_source_digest']=sha(context['native_inventory'])
+            return prepare_apply(proposal,context=context,transaction_id=tx,project_root=root)
+        result=apply_prepared(coordinator,prepared,transaction_id=tx,native_participant_request=dict(write_request=prepared['native_request']),authorize=lambda r:True,refresh_preparation=fresh)
+        assert result['state']=='committed'
+        cycles.append(dict(cycle=str(cycle),committed=True,cold_editor_reopens=True,no_op_stable=True))
+    (out/'cycles.json').write_bytes(encode(dict(ok=True,cycles=cycles)))
     (out/'proof.json').write_bytes(encode(dict(schema='xace.nec010.godot_materialization.v1',ok=True,real_editor=True,real_native_save=True,process_exit=73,recovered='committed',baseline_verified=True,idempotent_recovery=True,runtime_activation=False,scope='Bound root transform; complete NEC010 all-engine acceptance still pending')))
     print((out/'proof.json').read_text())
 

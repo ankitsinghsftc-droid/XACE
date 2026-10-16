@@ -29,3 +29,8 @@ Evidence is under `evidence/nec010/20261016`; native fixtures and unique receipt
 ## Increment1 verification
 
 Source4ddc048 passes343 Python tests in20 suites. The installed Godot boundary proof passes normal plan/prepare_apply integration and preserves strict saved-pair refusal, process-exit recovery and rollback. All55 protected baseline files are unchanged. Full NEC010 acceptance remains pending. See [increment receipt](evidence/nec010-increment1-20261016/completed-increment.json).
+
+## Continuation verification2026-10-17
+
+
+NEC010 continuation2026-10-17: Unity50 native checks pass (40 run,4 cold-reopen,6 Play). Godot saved-pair crash recovery and2 additional cold-editor materialization cycles pass;6 unknown-property preservation checks pass. Host persists the reviewed saved-pair contract and resumes it after restart without review memory;5 host tests pass. Authenticated recovery HTTP route passes3 focused tests. Regression run passes350 tests (before the third route test was added). Unreal semantic fingerprint build passed but first native run refused stale inventory at staged preparation; diagnostic native build is ongoing. Full NEC010 remains INCOMPLETE: all-engine loops, setup/owned writes and complete UX/readiness acceptance pending. Evidence: docs/evidence/nec010-continuation-20261017. All55 sealed XP022 files preserved. No checkpoint backed up off-device.

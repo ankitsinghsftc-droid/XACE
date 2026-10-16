@@ -47,4 +47,51 @@ class HostTests(unittest.TestCase):
             (root/'.xace/authoring-transactions/incomplete').mkdir(parents=True)
             with self.assertRaisesRegex(ValueError,'recovery blocks'):host.apply('operator',approval,approval['proposal_digest'])
 
+    def test_restart_resumes_durable_decision_without_review_memory(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,_=self.fixture(root);approval=self.approve(host)
+            commit=host.gateway.commit
+            def interrupted(prepared):
+                commit(prepared)
+                raise RuntimeError('lost acknowledgement after native save')
+            with patch.object(host.gateway,'commit',side_effect=interrupted):
+                with self.assertRaisesRegex(RuntimeError,'lost acknowledgement'):
+                    host.apply('operator',approval,approval['proposal_digest'])
+            pending=host.status()['pending'];self.assertEqual(len(pending),1)
+            restarted=NativeMaterializationHost(root,lambda:None,Gateway(root))
+            result=restarted.recover(pending[0]['transaction_id'])
+            self.assertEqual(result['state'],'committed')
+            self.assertFalse(restarted.status()['play_build_blocked'])
+            self.assertEqual(restarted.recover(pending[0]['transaction_id'])['state'],'committed')
+
+    def test_recovery_preserves_independent_native_edit(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,_=self.fixture(root);approval=self.approve(host)
+            with patch.object(host.gateway,'commit',side_effect=RuntimeError('save unavailable')):
+                with self.assertRaises(RuntimeError):host.apply('operator',approval,approval['proposal_digest'])
+            tx=host.status()['pending'][0]['transaction_id']
+            newer=b'independent native edit';(root/'native.json').write_bytes(newer)
+            restarted=NativeMaterializationHost(root,lambda:None,Gateway(root))
+            with self.assertRaisesRegex(ValueError,'conflict'):restarted.recover(tx)
+            self.assertEqual((root/'native.json').read_bytes(),newer)
+            self.assertTrue(restarted.status()['play_build_blocked'])
+            self.assertFalse((root/'.xace/authoring-baseline.native.json').exists())
+
+    def test_recovery_payload_tampering_refused_before_publication(self):
+        from unittest.mock import patch
+        from authoring_transaction_files import load_json,atomic_json
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,_=self.fixture(root);approval=self.approve(host)
+            with patch.object(host.gateway,'commit',side_effect=RuntimeError('save unavailable')):
+                with self.assertRaises(RuntimeError):host.apply('operator',approval,approval['proposal_digest'])
+            tx=host.status()['pending'][0]['transaction_id']
+            path=root/'.xace/authoring-transactions'/tx/'manifest.json';value=load_json(path)
+            value['request']['recovery_payload']['normalized']={};atomic_json(path,value)
+            before=(root/'native.json').read_bytes()
+            with self.assertRaisesRegex(ValueError,'manifest changed'):host.recover(tx)
+            self.assertEqual((root/'native.json').read_bytes(),before)
+            self.assertTrue(host.status()['play_build_blocked'])
+
 if __name__=='__main__':unittest.main()

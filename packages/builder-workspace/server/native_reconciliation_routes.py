@@ -1,4 +1,4 @@
-"""Opt-in NEC-008 review on the XP-021 local-operator surface; no apply route."""
+"""Opt-in native review and explicitly configured materialization/recovery routes."""
 import asyncio
 import json
 import secrets
@@ -57,8 +57,13 @@ def install_reconciliation_routes(app, context_provider, *, dev_mode=False, mate
                     value[key]=item
                 return value
             body=json.loads(data,object_pairs_hook=pairs)
-            expected={'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
-            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply'}:raise ValueError('Invalid review action')
+            expected={'transaction_id','recovery_action'} if action=='recover' else {'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
+            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply','recover'}:raise ValueError('Invalid review action')
+            if action=='recover':
+                if materialization_host is None:raise ValueError('Native recovery is not configured')
+                if type(body['transaction_id']) is not str or body['recovery_action'] not in {'resume','rollback'}:raise ValueError('Invalid recovery action')
+                result=await asyncio.to_thread(materialization_host.recover,body['transaction_id'],action=body['recovery_action'])
+                return JSONResponse(result,headers=headers)
             if action=='apply':
                 if materialization_host is None:raise ValueError('Native publication is not configured')
                 result=await asyncio.to_thread(materialization_host.apply,request.cookies.get('xace_native_review',''),body['approval'],body['proposal_digest'])

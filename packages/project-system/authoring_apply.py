@@ -59,7 +59,7 @@ def prepare_apply(plan,*,context:dict,transaction_id:str,project_root:Path):
                 native_request=native,source_digest=context['expected_source_digest'],
                 mapping_digest=context['mapping'].mapping_digest(),sgc_input=compiled.to_sgc_input(),
                 world=compiled.world_contract.content() if compiled.world_contract else None,
-                activation_record=copy.deepcopy(ACTIVATION))
+                activation_record=copy.deepcopy(ACTIVATION),accepted_loss_digest=context.get('accepted_loss_digest'))
 
 
 def apply_prepared(coordinator,prepared,*,transaction_id,native_participant_request,authorize,refresh_preparation):
@@ -72,8 +72,9 @@ def apply_prepared(coordinator,prepared,*,transaction_id,native_participant_requ
     require(set(coordinator.participants)=={'canonical','native'},'canonical/native participants required')
     require(native_participant_request.get('write_request')==prepared['native_request'],'native participant request differs from reviewed write')
     verification=dict(mapping=prepared['target_mapping'],cgs_digest=digest(prepared['cgs']['cgs']),normalized_digest=digest(prepared['expected_normalized']))
-    request=TransactionRequest(transaction_id,prepared['proposal_digest'],dict(canonical=prepared['canonical_request'],native=native_participant_request),prepared['activation_record'],verification)
-    keys=['proposal_digest','canonical_request','native_request','source_digest','mapping_digest','activation_record','target_mapping','expected_normalized']
+    recovery=dict(cgs=prepared['cgs']['cgs'],normalized=prepared['expected_normalized'],accepted_loss_digest=prepared.get('accepted_loss_digest'))
+    request=TransactionRequest(transaction_id,prepared['proposal_digest'],dict(canonical=prepared['canonical_request'],native=native_participant_request),prepared['activation_record'],verification,recovery)
+    keys=['proposal_digest','canonical_request','native_request','source_digest','mapping_digest','activation_record','target_mapping','expected_normalized','accepted_loss_digest']
     expected=digest({k:prepared[k] for k in keys})
     def fresh_approval(request):
         fresh=refresh_preparation()

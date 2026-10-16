@@ -26,6 +26,28 @@ class MaterializationRoutes(unittest.IsolatedAsyncioTestCase):
                     response=await c.post('/api/player/play',json={'cgs_hash':'hash'},headers={'x-xace-player-capability':app.state.player_launch.capability})
                     self.assertEqual(response.status_code,400);self.assertIn('recovery blocks',response.json()['message']);launch.assert_not_called()
                     response=await c.post('/api/player/stop',json={},headers={'x-xace-player-capability':app.state.player_launch.capability});self.assertEqual(response.status_code,200);launch.assert_called_once()
+    async def test_explicit_recovery_route_after_lost_acknowledgement(self):
+        from native_materialization import NativeMaterializationHost
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,_=fixtures.HostTests().fixture(root)
+            approval=fixtures.HostTests().approve(host);commit=host.gateway.commit
+            def interrupted(prepared):
+                commit(prepared)
+                raise RuntimeError('lost acknowledgement')
+            with patch.object(host.gateway,'commit',side_effect=interrupted):
+                with self.assertRaises(RuntimeError):host.apply('operator',approval,approval['proposal_digest'])
+            tx=host.status()['pending'][0]['transaction_id']
+            restarted=NativeMaterializationHost(root,lambda:None,fixtures.Gateway(root))
+            with patch.dict(os.environ,{'XACE_LAUNCHER_STATE':str(root/'launcher.json')}):
+                app=create_materialization_app(restarted,project_path=str(root),static_dir=str(root/'no-dist'),model_provider='auto')
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app,client=('127.0.0.1',1234)),base_url='http://127.0.0.1:8765') as c:
+                body=dict(transaction_id=tx,recovery_action='resume')
+                self.assertEqual((await c.post('/api/native-reconciliation/recover',json=body)).status_code,403)
+                result=await c.post('/api/native-reconciliation/recover',json=body,headers={'x-xace-agent-auth':'1'})
+                self.assertEqual(result.status_code,200,result.text)
+                self.assertEqual(result.json()['state'],'committed')
+                self.assertFalse(restarted.status()['play_build_blocked'])
+
     async def test_wrong_project_cannot_install_host(self):
         with tempfile.TemporaryDirectory() as d:
             host,_=fixtures.HostTests().fixture(Path(d))

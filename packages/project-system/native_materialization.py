@@ -64,3 +64,29 @@ class NativeMaterializationHost:
             self.review.cancel(principal,approval['session'])
             return dict(schema='xace.native_materialization_result.v1',state=state['state'],transaction_id=transaction_id,
                 files_written=True,runtime_activation=False)
+
+    def recover(self,transaction_id,*,action='resume'):
+        """Explicit host recovery; no lost browser approval or new plan required.
+
+        Resume uses only the already durable decision, bound to the registered
+        gateway and stored payload digests. It cannot authorize another proposal.
+        """
+        from native_adoption import digest
+        with self._lock:
+            coordinator=self._coordinator()
+            def configure(state,manifest):
+                if (action=='rollback' and state['state']!='committed') or state['state'] in {'preparing','aborted','rolled_back'}:
+                    return
+                request=manifest['request'];payload=request.get('recovery_payload')
+                require(type(payload) is dict,'saved recovery payload unavailable; explicit rollback required')
+                decision=request['verification_record']
+                require(digest(payload['cgs'])==decision['cgs_digest'] and
+                        digest(payload['normalized'])==decision['normalized_digest'],
+                        'recovery payload differs from durable decision')
+                pair=SavedPair(self.root,mapping=IdentityMap.from_dict(decision['mapping']),
+                    expected_cgs=payload['cgs'],expected_normalized=payload['normalized'],
+                    recapture=self.gateway.capture,accepted_loss_digest=payload.get('accepted_loss_digest'))
+                coordinator.verify_pair=pair.verify
+                coordinator.baseline_participant=pair.participant
+                coordinator.baseline_request=pair.baseline_request
+            return coordinator.recover(transaction_id,action=action,configure_verification=configure)
