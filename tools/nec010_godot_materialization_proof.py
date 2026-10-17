@@ -1,4 +1,4 @@
-"""NEC010 initial Godot planning/apply boundary proof; saved serialization remains blocked.
+"""NEC010 Godot planner/coordinator saved-pair recovery and repeated-cycle proof.
 
 Gateway is proof-only, single-scene writes, pinned editor and closed saved scenes.
 It does not install a production IPC service or certify concurrent native editors.

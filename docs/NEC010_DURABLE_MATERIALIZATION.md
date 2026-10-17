@@ -6,7 +6,7 @@ Authorized2026-10-16 after recovery acceptance checkpoint `7cb2dfd`. This is new
 
 - [x] Reconcile roadmap with recovered NEC009 and preserve entry baseline.
 - [x] Separate engine-owned opaque metadata refresh from canonical structural edits; retain critical behavior and actual structural refusal.
-- [ ] Certify exact staged native readback and preservation of all unowned content across save serialization. Whole-document fingerprints currently change after permitted writes; do not waive saved-pair equality to work around this.
+- [ ] Certify exact staged native readback and preservation of all unowned content across save serialization. Stored-property fingerprints replace whole-document fingerprints for admitted content; full preservation acceptance remains pending. Saved-pair equality stays mandatory.
 - [ ] Connect a durable reviewed plan, explicit apply authorization, staged artifacts and NEC009 recovery to the native host and minimal review/apply UI.
 - [ ] Implement new-project setup and explicit owned marker/resource/input/binding writes with previewable file changes.
 - [ ] Repeated materialize/capture/reconcile cycles in Unity, Godot and Unreal, including closing/reopening both tools and stable no-op echo suppression.
@@ -18,7 +18,7 @@ Authorized2026-10-16 after recovery acceptance checkpoint `7cb2dfd`. This is new
 
 `native_reconciliation.py` now treats native-owned opaque metadata as retained inspection information instead of an implied CGS structural mutation. It still records native changes in the report; critical behavior remains blocking, canonical opaque writes remain blocking, and parent/dependency/deletion changes still require structural review. Neither native writer permission nor saved-pair equality is relaxed.
 
-`test_native_materialization.py` tests this boundary across the three reader profiles. The NEC010 Godot boundary runner uses a fresh copied fixture and the normal `prepare_apply` path. It is expected to retain NEC009's strict post-save refusal and rollback until serialized readback is fully certified; this is not the completed materialization acceptance proof.
+`test_native_materialization.py` tests this boundary across the three reader profiles. The NEC010 Godot boundary runner uses a fresh copied fixture and the normal `prepare_apply` path. The first run retained NEC009's strict post-save refusal and rollback. The later stored-property implementation passes Godot saved-pair recovery and two additional cold-editor cycles; full all-engine/setup acceptance is still required.
 
 ## Required next design constraint
 

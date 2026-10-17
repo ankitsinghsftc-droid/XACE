@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "real_browser": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "real_http": true,
+  "width": 540,
+  "checks": 7,
+  "filesystem_fixture": true,
+  "native_editor": false,
+  "verified_pair_written": true
+}

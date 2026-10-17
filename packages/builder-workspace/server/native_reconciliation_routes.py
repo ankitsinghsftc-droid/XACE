@@ -57,8 +57,11 @@ def install_reconciliation_routes(app, context_provider, *, dev_mode=False, mate
                     value[key]=item
                 return value
             body=json.loads(data,object_pairs_hook=pairs)
-            expected={'transaction_id','recovery_action'} if action=='recover' else {'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
-            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply','recover'}:raise ValueError('Invalid review action')
+            expected=set() if action=='status' else {'transaction_id','recovery_action'} if action=='recover' else {'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
+            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply','recover','status'}:raise ValueError('Invalid review action')
+            if action=='status':
+                result=await asyncio.to_thread(materialization_host.status) if materialization_host else dict(play_build_blocked=False,pending=[])
+                return JSONResponse(result,headers=headers)
             if action=='recover':
                 if materialization_host is None:raise ValueError('Native recovery is not configured')
                 if type(body['transaction_id']) is not str or body['recovery_action'] not in {'resume','rollback'}:raise ValueError('Invalid recovery action')

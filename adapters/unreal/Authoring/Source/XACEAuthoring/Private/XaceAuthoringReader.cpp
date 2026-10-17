@@ -181,6 +181,9 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Capture(UWorld* W,const FStri
     if(!W->GetOutermost()->GetPersistentGuid().IsValid())return Fail(TEXT("Saved persistent package GUID required")),nullptr;
     for(AActor* A:Actors){
         auto Meta=Metadata(A);const bool IsScene=A==W->GetWorldSettings();
+        // GetActorLabel lazily initializes an empty saved label. Resolve it before
+        // fingerprinting so reading the name cannot invalidate the same capture.
+        const FString ActorLabel=A->GetActorLabel();
         auto F=IsScene?New():Fields(A);if(!Error.IsEmpty())return nullptr;
         const FString Guid=A->GetActorGuid().ToString(EGuidFormats::Digits);
         auto Opaque=New();bool Critical=!IsScene && A->GetClass()!=AStaticMeshActor::StaticClass();
@@ -198,7 +201,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Capture(UWorld* W,const FStri
         Guids.Add(Guid);auto Row=New();Row->SetObjectField(TEXT("metadata"),Meta);auto Locator=New();Locator->SetStringField(TEXT("engine"),TEXT("unreal"));Locator->SetStringField(TEXT("document_id"),Document);Locator->SetStringField(TEXT("object_id"),Guid);Row->SetObjectField(TEXT("locator"),Locator);
         Row->SetField(TEXT("scene_id"),IsScene?Null():MakeShared<FJsonValueString>(SceneId));Row->SetField(TEXT("prefab_id"),Null());Row->SetField(TEXT("parent_id"),Null());
         if(AActor* Parent=A->GetAttachParentActor()){auto PM=Metadata(Parent);if(!ValidateMetadata(PM))return Fail(TEXT("Unregistered parent actor")),nullptr;Row->SetStringField(TEXT("parent_id"),String(PM,TEXT("authoring_id")));}
-        Row->SetObjectField(TEXT("fields"),F);Row->SetArrayField(TEXT("dependencies"),{});Row->SetArrayField(TEXT("opaque"),{MakeShared<FJsonValueObject>(Opaque)});Row->SetStringField(TEXT("name"),A->GetActorLabel());Row->SetStringField(TEXT("path_hint"),Map);Rows->SetObjectField(String(Meta,TEXT("authoring_id")),Row);
+        Row->SetObjectField(TEXT("fields"),F);Row->SetArrayField(TEXT("dependencies"),{});Row->SetArrayField(TEXT("opaque"),{MakeShared<FJsonValueObject>(Opaque)});Row->SetStringField(TEXT("name"),ActorLabel);Row->SetStringField(TEXT("path_hint"),Map);Rows->SetObjectField(String(Meta,TEXT("authoring_id")),Row);
     }
     for(const auto& Pair:Rows->Values){auto R=Pair.Value->AsObject();FString Parent=String(R,TEXT("parent_id"));if(!Parent.IsEmpty() && !Rows->HasField(Parent))return Fail(TEXT("Parent outside approved map")),nullptr;}
     FString After=Fingerprint(Map);if(!Error.IsEmpty() || Before!=After)return Fail(TEXT("Native source changed during capture")),nullptr;

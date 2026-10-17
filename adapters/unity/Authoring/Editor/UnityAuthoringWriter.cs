@@ -154,7 +154,7 @@ namespace Xace.Authoring.Editor
             foreach(var edit in edits)scope.Contains(edit.Document);
             Need(edits.Select(e=>e.Document+":"+e.AuthoringId).Distinct().Count()==edits.Length,"Duplicate edit target");
             string id=Guid.NewGuid().ToString("N"),stageRoot="Assets/__XaceAuthoringStage/"+id;
-            var write=new PreparedAuthoringWrite{Directory=".xace/authoring-transactions/"+id};
+            var write=new PreparedAuthoringWrite{Directory=".xace/unity-authoring-transactions/"+id};
             Directory.CreateDirectory(write.Directory);Directory.CreateDirectory(stageRoot);
             var files=new List<object>();
             write.Journal=Map("schema","xace.unity_authoring_write.v1","state","preparing","id",id,"capture_digest",expectedInventoryDigest,"files",files);
@@ -258,7 +258,11 @@ namespace Xace.Authoring.Editor
         public static PreparedAuthoringWrite Recover(string transactionId,string expectedJournalDigest,AuthoringScope approvedScope)
         {
             Need(System.Text.RegularExpressions.Regex.IsMatch(transactionId??"","^[0-9a-f]{32}$"),"Invalid recovery ID");
-            var write=new PreparedAuthoringWrite{Directory=".xace/authoring-transactions/"+transactionId};
+            var directory=".xace/unity-authoring-transactions/"+transactionId;
+            // Read legacy receipts only through explicit recovery. Never relocate
+            // historical evidence or create new native stages in coordinator storage.
+            if(!File.Exists(Path.Combine(directory,"journal.json")))directory=".xace/authoring-transactions/"+transactionId;
+            var write=new PreparedAuthoringWrite{Directory=directory};
             string json=File.ReadAllText(write.ReceiptPath);Need(AuthoringJson.Hash(json)==expectedJournalDigest,"Recovery receipt changed");
             write.Journal=AuthoringJson.Obj(AuthoringJson.Parse(json));
             Need((string)write.Journal["id"]==transactionId && (string)write.Journal["schema"]=="xace.unity_authoring_write.v1","Recovery journal identity");

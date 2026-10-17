@@ -6,7 +6,7 @@ let applyAvailable = false;
 const byId = id => document.getElementById(id);
 const text = (tag, value, parent) => { const el=document.createElement(tag); el.textContent=value; parent.append(el); return el; };
 const reasons={same_field:'Both versions changed this value',delete_edit:'One version deleted an object that the other edited',reparent_interaction:'Hierarchy and object edits need a joint decision',dependency_change:'Related objects changed',native_owned:'The engine owns this value'};
-const lossMessages={unresolved_conflict:'Choose how to resolve the conflicts below.',runtime_parent_binding_required:'This hierarchy needs a verified runtime binding before it can be used.',structural_materialization_requires_coordinator:'Creating, removing, or restructuring objects needs the later save coordinator.',field_mapping_not_certified:'This type of change is not supported by the current mapping.',unprojected_canonical_world_change:'A world change needs an additional reviewed mapping.',critical_native_behavior:'Unsupported native behavior must be reviewed in the engine.',unstable_document:'Save or discard unsaved engine changes, then reload this review.',play_mode_capture:'Stop the game before reviewing saved changes.',native_code_retained:'Native code is retained in the engine; it has not been converted.'};
+const lossMessages={unresolved_conflict:'Choose how to resolve the conflicts below.',runtime_parent_binding_required:'This hierarchy needs a verified runtime binding before it can be used.',structural_materialization_requires_coordinator:'Creating, removing, or restructuring these objects is not supported by the current mapping.',field_mapping_not_certified:'This type of change is not supported by the current mapping.',unprojected_canonical_world_change:'A world change needs an additional reviewed mapping.',critical_native_behavior:'Unsupported native behavior must be reviewed in the engine.',unstable_document:'Save or discard unsaved engine changes, then reload this review.',play_mode_capture:'Stop the game before reviewing saved changes.',native_code_retained:'Native code is retained in the engine; it has not been converted.'};
 function fixed(value) {
   const n=BigInt(value),sign=n<0n?'-':'',absolute=n<0n?-n:n;
   const fraction=(absolute%1000000n).toString().padStart(6,'0').replace(/0+$/,'');
@@ -63,7 +63,30 @@ async function run(work) {
   try {await work();} catch(error) {byId('status').textContent=error.message;byId('approve').disabled=true;approval=null;byId('apply').disabled=true;}
   finally {byId('refresh').disabled=false;if(review)byId('cancel').disabled=false;}
 }
+async function showRecovery() {
+  const state=await request('status',{}),panel=byId('recovery');
+  panel.replaceChildren();panel.hidden=!state.play_build_blocked;
+  if(!state.play_build_blocked)return false;
+  text('h2','An interrupted save needs attention',panel);
+  text('p','Play and further changes stay blocked until the saved files are verified. Newer engine edits will be preserved.',panel);
+  for(const item of state.pending) {
+    const row=text('div','',panel);text('p',item.transaction_id+' ? '+item.state,row);
+    if(item.state==='corrupt_or_incomplete') {text('p','The saved recovery record needs inspection before it can be used.',row);continue;}
+    for(const [action,label] of [['resume','Finish approved save'],['rollback','Restore before this save']]) {
+      const button=text('button',label,row);
+      button.onclick=()=>run(async()=>{
+        for(const control of panel.querySelectorAll('button'))control.disabled=true;
+        const result=await request('recover',{transaction_id:item.transaction_id,recovery_action:action});
+        byId('status').textContent=result.state==='committed'?'Saved changes verified. Load current changes to continue.':'Previous files restored. Load current changes to continue.';
+        await showRecovery();
+      });
+    }
+  }
+  byId('status').textContent='Resolve the interrupted save before reviewing further changes.';
+  return true;
+}
 byId('refresh').onclick=()=>run(async()=>{
+  if(await showRecovery()){approval=null;return;}
   if(review)await request('cancel',{token:review.token});review=null;
   review=await request('',null);applyAvailable=review.apply_available===true;choices={};render();
 });

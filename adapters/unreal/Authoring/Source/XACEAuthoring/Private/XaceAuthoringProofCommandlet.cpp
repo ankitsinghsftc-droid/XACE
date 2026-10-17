@@ -42,6 +42,21 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     auto Check=[&](const TCHAR* Name,bool Value){auto C=New();C->SetStringField(TEXT("name"),Name);C->SetBoolField(TEXT("ok"),Value);Cases.Add(MakeShared<FJsonValueObject>(C));Ok&=Value;UE_LOG(LogTemp,Display,TEXT("NEC006 %s %d %s"),Name,Value,*Service.Error);return Value;};
     auto Finish=[&](){auto R=New();R->SetStringField(TEXT("schema"),TEXT("xace.nec006.unreal_proof.v1"));R->SetStringField(TEXT("engine_version"),FEngineVersion::Current().ToString());R->SetBoolField(TEXT("ok"),Ok);R->SetBoolField(TEXT("commandlet"),IsRunningCommandlet());R->SetStringField(TEXT("error"),Service.Error);R->SetArrayField(TEXT("cases"),Cases);SaveJson(TEXT("proof-")+Phase+TEXT(".json"),R);return Ok?0:1;};
     const FString Map=TEXT("/Game/Fixture/World");const FString Filename=FPackageName::LongPackageNameToFilename(Map,TEXT(".umap"));
+    if(Phase==TEXT("gateway")){
+        if(!FPaths::FileExists(FPaths::ProjectDir()/TEXT("NEC010.fixture")))return 2;
+        auto Command=ReadJson(TEXT("nec010-command.json"));const FString Action=String(Command,TEXT("action"));Object Result;
+        if(Action==TEXT("capture") || Action==TEXT("prepare")){
+            UWorld* W=Service.LoadApprovedMap(Map);
+            if(W)Result=Action==TEXT("capture")?Service.Capture(W,Map):Service.Prepare(W,Map,Json(Child(Command,TEXT("request"))),String(Command,TEXT("transaction_id")));
+        } else {
+            auto Prepared=Child(Command,TEXT("prepared"));FString Directory=String(Prepared,TEXT("directory"));
+            if(Action==TEXT("commit"))Result=Service.Commit(Map,Directory,String(Prepared,TEXT("approval_digest")));
+            if(Action==TEXT("recover"))Result=Service.Recover(Map,Directory,FileHash(Directory/TEXT("receipt.json")));
+        }
+        auto Output=New();bool Success=Result.IsValid() && Service.Error.IsEmpty();Output->SetBoolField(TEXT("ok"),Success);
+        Output->SetStringField(TEXT("error"),Service.Error);if(Result)Output->SetObjectField(TEXT("result"),Result);
+        SaveJson(TEXT("nec010-result.json"),Output);return Success?0:1;
+    }
     if(Phase==TEXT("capture")){
         UWorld* W=Service.LoadApprovedMap(Map);auto Captured=W?Service.Capture(W,Map):nullptr;
         Check(TEXT("trusted_staged_binary_extraction"),Captured.IsValid());SaveJson(TEXT("native-staged.json"),Captured);return Finish();
