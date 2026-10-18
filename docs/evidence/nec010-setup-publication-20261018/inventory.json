@@ -1,0 +1,65 @@
+[
+  {
+    "source": "evidence/nec010/ue/cycles-b/proof.json",
+    "retained": "docs\\evidence\\nec010-setup-publication-20261018\\unreal-proof.json",
+    "sha256": "d3c8070a3d9527a0aa7e323124f1c1eec8233b89a38211fce666b547f2de8639"
+  },
+  {
+    "source": "evidence/nec010/ue/cycles-b/cycles.json",
+    "retained": "docs\\evidence\\nec010-setup-publication-20261018\\unreal-cycles.json",
+    "sha256": "b3a21943a9925ec69a36bfb54ab18f36ea9b0df99e73ae349ff9cd4af914c5cf"
+  },
+  {
+    "source": "evidence/nec010/20261018/setup-files-a/runs.json",
+    "retained": "docs\\evidence\\nec010-setup-publication-20261018\\setup-runs.json",
+    "sha256": "b337c45cf9807bf021f0239108226c41669c46eb3f1d42929d1172bae9875ee9"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\XACEAuthoring.Build.cs",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\XACEAuthoring.Build.cs",
+    "sha256": "f775edb34b327dcc091273f228f2158e59b6f046b0a092ed23f3529b4d6e7f6b"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringModule.cpp",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringModule.cpp",
+    "sha256": "08dbc71fa0d492588f90eddb9260bc0ef3f3cd72f000fecfe28afb929bdbcb7f"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringProofCommandlet.cpp",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringProofCommandlet.cpp",
+    "sha256": "2fe36f649a6f48bf00f0556e9b582defee0845443a0d6a265d4bc4be6416fa6e"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringReader.cpp",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringReader.cpp",
+    "sha256": "d2e872c705281526665f40df3b3f86a327afd4e7b27a0a8e843c56168f875be4"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWire.cpp",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWire.cpp",
+    "sha256": "7f930b399f2ab61e5ea5bc6a9d8e071603a699bef3b853784da786cb1d30e51a"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWriter.cpp",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWriter.cpp",
+    "sha256": "061f580dec06bc2726e869196c373a427e2d34361a50492eb7e3280e24ba4f92"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Public\\XaceAuthoring.h",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Public\\XaceAuthoring.h",
+    "sha256": "9104ef7b9152d59448b739d448e81cf682f210d7beebea0b1d5ca897769ec39f"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Public\\XaceAuthoringProofCommandlet.h",
+    "tested_copy": "evidence\\nec010\\ue\\cycles-b\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Public\\XaceAuthoringProofCommandlet.h",
+    "sha256": "4d05adf807c71e3c637b03dd82d7da80e2d9e87550ef3ac2d1187fdbef001d41"
+  },
+  {
+    "source": "packages/project-system/native_setup_files.py",
+    "sha256": "49e12a3773118cbfdfb5df72c64d6a536d6be788362f696e907ea2d681e688e4"
+  },
+  {
+    "source": "packages/project-system/tests/test_native_setup_files.py",
+    "sha256": "c2622a95ba14e25032ea2533c5fb90caa2246a527344770ef3607816b1754681"
+  }
+]

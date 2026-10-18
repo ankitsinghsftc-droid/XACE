@@ -1,0 +1,38 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_native_setup_files.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 7,
+    "log": "evidence\\nec010\\20261018\\setup-files-a\\test_native_setup_files.py.log",
+    "sha256": "a62d97edfe40177a479836ae2a14d63fa4f84a8b7ddab79ae9c04f592e246309"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_authoring_transaction.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "evidence\\nec010\\20261018\\setup-files-a\\test_authoring_transaction.py.log",
+    "sha256": "ae4400aa0777b87127258af6a62ddfbc7fdf90ddf635a61548d6ecd7c7b0693f"
+  }
+]
