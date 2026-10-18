@@ -1,0 +1,113 @@
+{
+  "existing_refused": true,
+  "inventory": {
+    "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "objects": {
+      "2e04433c3f5283ae4b2a3cb021b78e55": {
+        "dependencies": [],
+        "fields": {},
+        "locator": {
+          "document_id": "f54b19d70160ed2479ce4a9b78141780",
+          "engine": "unity",
+          "object_id": "GlobalObjectId_V1-2-f54b19d70160ed2479ce4a9b78141780-1222247383-0"
+        },
+        "metadata": {
+          "authoring_id": "2e04433c3f5283ae4b2a3cb021b78e55",
+          "generation": "1",
+          "kind": "scene",
+          "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "schema": "xace.native_identity.v1"
+        },
+        "name": "XACEWorld",
+        "opaque": [
+          {
+            "critical": false,
+            "id": "native.gameobject",
+            "reason": "Unowned GameObject properties retained",
+            "sha256": "87522d7a3de90135925fe5843090a40bf342ff6044d51ebae0c98527f7299e00"
+          },
+          {
+            "critical": false,
+            "id": "native.transform",
+            "reason": "Unowned Transform properties retained",
+            "sha256": "4bba3705be541307700c2304d65d6691a20307ce4ec652156ca77bf03fb97b9d"
+          }
+        ],
+        "parent_id": null,
+        "path_hint": "Assets/XACEGenerated/World.unity",
+        "prefab_id": null,
+        "scene_id": null
+      },
+      "8aa216da22505b8d1237ee8da225bc84": {
+        "dependencies": [],
+        "fields": {
+          "native.name": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+          "transform.position": {
+            "x": "1",
+            "y": "2",
+            "z": "3"
+          },
+          "transform.rotation": {
+            "w": "1",
+            "x": "0",
+            "y": "0",
+            "z": "0"
+          },
+          "transform.scale": {
+            "x": "1",
+            "y": "1",
+            "z": "1"
+          }
+        },
+        "locator": {
+          "document_id": "f54b19d70160ed2479ce4a9b78141780",
+          "engine": "unity",
+          "object_id": "GlobalObjectId_V1-2-f54b19d70160ed2479ce4a9b78141780-224995787-0"
+        },
+        "metadata": {
+          "authoring_id": "8aa216da22505b8d1237ee8da225bc84",
+          "generation": "1",
+          "kind": "object",
+          "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "schema": "xace.native_identity.v1"
+        },
+        "name": "native_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_00000000000000000000000000000003",
+        "opaque": [
+          {
+            "critical": false,
+            "id": "native.gameobject",
+            "reason": "Unowned GameObject properties retained",
+            "sha256": "1e43ed5847d76d67d918dae38c099de5f1405ac23504355a14d3e25dc537e2c2"
+          },
+          {
+            "critical": false,
+            "id": "native.transform",
+            "reason": "Unowned Transform properties retained",
+            "sha256": "529e28c71381d860b730add0e32cbbfcdaf564fc74af4aa8a786fed6d14c2fff"
+          }
+        ],
+        "parent_id": null,
+        "path_hint": "Assets/XACEGenerated/World.unity",
+        "prefab_id": null,
+        "scene_id": "2e04433c3f5283ae4b2a3cb021b78e55"
+      }
+    },
+    "schema": "xace.unity_authoring_inventory.v1",
+    "source": {
+      "documents": [
+        {
+          "after": "826aeda7ae4830088ca3ba7dd4b4685e75fe20e01e9d46093e1562267016e5e2",
+          "before": "826aeda7ae4830088ca3ba7dd4b4685e75fe20e01e9d46093e1562267016e5e2",
+          "dirty": false,
+          "id": "f54b19d70160ed2479ce4a9b78141780"
+        }
+      ],
+      "engine": "unity",
+      "engine_version": "6000.4.9f1",
+      "materializer_version": "unity.authoring.writer.v1",
+      "play_mode": false,
+      "reader_version": "unity.authoring.reader.v1"
+    }
+  },
+  "unchanged": true
+}

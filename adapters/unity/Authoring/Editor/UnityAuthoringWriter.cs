@@ -73,7 +73,7 @@ namespace Xace.Authoring.Editor
             {try{if(AuthoringJson.Encode(UnityAuthoringReader.Asset(candidate))==AuthoringJson.Encode(asset))return candidate;}catch(InvalidDataException){}}
             throw new InvalidDataException("Resource identity/type/status mismatch");
         }
-        static void Apply(GameObject go,Dictionary<string,object> fields)
+        internal static void Apply(GameObject go,Dictionary<string,object> fields)
         {
             Need(fields!=null && fields.Count>0 && fields.Count<=14,"Empty/oversized edit");
             foreach(var field in fields.OrderBy(p=>p.Key,StringComparer.Ordinal))

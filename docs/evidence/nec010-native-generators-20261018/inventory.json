@@ -1,0 +1,77 @@
+[
+  {
+    "source": "evidence\\nec010\\20261018\\godot-setup-c\\proof.json",
+    "retained": "godot-proof.json",
+    "sha256": "552c13d4cf000db2245bc2b46a6ba2dde93216b16e75a391aeeea6ac9f95a4ca"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\godot-setup-c\\setup-plan.json",
+    "retained": "godot-setup-plan.json",
+    "sha256": "6411a1cbcd4ffa134fc66106942a8b8cc9afeb6fafb358c887ae5d1670b4e772"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\godot-setup-c\\source.cgs.json",
+    "retained": "godot-source.cgs.json",
+    "sha256": "631c1545a2b382e71a8fbd179adfc006e5fb8c618b7f3b8f64bd05bcfa808538"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\godot-setup-c\\create.json",
+    "retained": "godot-create.json",
+    "sha256": "f3bb7e43ebc027084b1e364bfe65db288d35de78419027b9b212f108d2b362ce"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\godot-setup-c\\reload.json",
+    "retained": "godot-reload.json",
+    "sha256": "f2985f4dcbeddf37a8530f5911f20ad3405d316f8186dccb0f13cddaf09ee624"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\unity-setup-c\\proof.json",
+    "retained": "unity-proof.json",
+    "sha256": "552c13d4cf000db2245bc2b46a6ba2dde93216b16e75a391aeeea6ac9f95a4ca"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\unity-setup-c\\setup-plan.json",
+    "retained": "unity-setup-plan.json",
+    "sha256": "0f09fff7e87470ebf569cacc7f8dee7827ab81a011973665d5d781c95933bbb9"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\unity-setup-c\\source.cgs.json",
+    "retained": "unity-source.cgs.json",
+    "sha256": "b2893cb1b66b38d8a73f2c8e9a59b3a7d2615ce1863bb97c1ccef70881e7b485"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\unity-setup-c\\create.json",
+    "retained": "unity-create.json",
+    "sha256": "3d5847207971b146a28f74e7305d5dd665f7370574dc2ea208f50ac77665a525"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\unity-setup-c\\reload.json",
+    "retained": "unity-reload.json",
+    "sha256": "3004dd505a6dd12702d5fa64a597a9ab01b91f5eb1c19cb817c6c5a691493946"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\setup-a\\proof.json",
+    "retained": "unreal-proof.json",
+    "sha256": "78d1a74111778dc4a98e0d13902e0f85d7500f9129f40747ead565333bdf31c9"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\setup-a\\setup-plan.json",
+    "retained": "unreal-setup-plan.json",
+    "sha256": "f1a6b2f9dad961e92c98c29ecf746b834b3b121e96d0bf6cbba26e0048f9afad"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\setup-a\\source.cgs.json",
+    "retained": "unreal-source.cgs.json",
+    "sha256": "12acbe1827fa4a4c5fe84766b734497479dd8ce01d452e48022da09e3b6c1f8f"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\setup-a\\create.json",
+    "retained": "unreal-create.json",
+    "sha256": "90717b9864414c8606fc8767830da17f345cba4aefa4e147f51fad6c1e365a4f"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\setup-a\\reload.json",
+    "retained": "unreal-reload.json",
+    "sha256": "66a9df3aa78da2039fb2991f91ec15e663881cf80b0668c62c33b06176043029"
+  }
+]

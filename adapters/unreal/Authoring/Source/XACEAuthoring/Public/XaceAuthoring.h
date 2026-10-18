@@ -32,6 +32,7 @@ public:
     bool bRescanRequired = true;
     UWorld* LoadApprovedMap(const FString& ApprovedMap);
     // One clean, saved, non-partitioned persistent map per certified operation.
+    Object CreateSetup(const Object& Spec, const FString& ApprovedDigest);
     Object Capture(UWorld* World, const FString& ApprovedMap, bool bDiscovery = false);
     bool Enroll(AActor* Actor, const Object& Metadata, const FString& ExpectedOld = TEXT(""));
     Object Metadata(AActor* Actor) const;

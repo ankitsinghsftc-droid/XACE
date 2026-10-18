@@ -1,0 +1,109 @@
+{
+  "error": "",
+  "result": {
+    "files": [
+      "XACEGenerated/World.tscn"
+    ],
+    "inventory": {
+      "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "objects": {
+        "2e04433c3f5283ae4b2a3cb021b78e55": {
+          "dependencies": [],
+          "fields": {
+            "native.name": "XACEWorld"
+          },
+          "locator": {
+            "document_id": "uid://dmra46pxia7i2",
+            "engine": "godot",
+            "object_id": "f0999eed987786e9d2b00729f06a1303"
+          },
+          "metadata": {
+            "authoring_id": "2e04433c3f5283ae4b2a3cb021b78e55",
+            "generation": "1",
+            "kind": "scene",
+            "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "schema": "xace.native_identity.v1"
+          },
+          "name": "XACEWorld",
+          "opaque": [
+            {
+              "critical": false,
+              "id": "native.properties",
+              "reason": "Unowned native properties retained",
+              "sha256": "f7d74a7175850f1385b98d38a6def6fc73a5f97a7f3099ef1cf4cb93f5ba2217"
+            }
+          ],
+          "parent_id": null,
+          "path_hint": "res://XACEGenerated/World.tscn",
+          "prefab_id": null,
+          "scene_id": null
+        },
+        "ad1ab23795cfb48c746c1ba1d1a084dc": {
+          "dependencies": [],
+          "fields": {
+            "native.name": "native_00000000000000000000000000000064_00000000000000000000000000000005",
+            "transform.position": {
+              "x": "0",
+              "y": "0",
+              "z": "0"
+            },
+            "transform.rotation": {
+              "w": "1",
+              "x": "0",
+              "y": "0",
+              "z": "0"
+            },
+            "transform.scale": {
+              "x": "1",
+              "y": "1",
+              "z": "1"
+            }
+          },
+          "locator": {
+            "document_id": "uid://dmra46pxia7i2",
+            "engine": "godot",
+            "object_id": "c894f543408576e9978d327759d53ba9"
+          },
+          "metadata": {
+            "authoring_id": "ad1ab23795cfb48c746c1ba1d1a084dc",
+            "generation": "1",
+            "kind": "object",
+            "namespace_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "schema": "xace.native_identity.v1"
+          },
+          "name": "native_00000000000000000000000000000064_00000000000000000000000000000005",
+          "opaque": [
+            {
+              "critical": false,
+              "id": "native.properties",
+              "reason": "Unowned native properties retained",
+              "sha256": "1c61a1e8dac0ac364e8cc79bebca786b34e4ccc382ef69472b552c41b443629f"
+            }
+          ],
+          "parent_id": null,
+          "path_hint": "res://XACEGenerated/World.tscn",
+          "prefab_id": null,
+          "scene_id": "2e04433c3f5283ae4b2a3cb021b78e55"
+        }
+      },
+      "schema": "xace.godot_authoring_inventory.v1",
+      "source": {
+        "documents": [
+          {
+            "after": "a0263d1cc230a6db7e2c68fe17b89dfb40ae9eec97367b238f9bb08ee23c3d73",
+            "before": "a0263d1cc230a6db7e2c68fe17b89dfb40ae9eec97367b238f9bb08ee23c3d73",
+            "dirty": false,
+            "id": "uid://dmra46pxia7i2"
+          }
+        ],
+        "engine": "godot",
+        "engine_version": "4.6.3-stable (official)",
+        "materializer_version": "godot.authoring.writer.v1",
+        "play_mode": false,
+        "reader_version": "godot.authoring.reader.v1"
+      }
+    },
+    "request_digest": "8ce29ba87c3a4b2e1bda13d0c5fa79944e98b21be883ec33690f017248a80f43",
+    "schema": "xace.godot_native_setup_result.v1"
+  }
+}
