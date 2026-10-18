@@ -102,7 +102,7 @@ class GatedPlayerService:
         with self.host.publication_gate():return self.service.control(action,*args)
 
 
-def create_materialization_app(host,**builder_options):
+def create_materialization_app(host,*,setup_provider=None,**builder_options):
     from builder_server import create_app
     from player_launch_routes import player_router
     if Path(builder_options['project_path']).resolve()!=host.root:
@@ -111,4 +111,8 @@ def create_materialization_app(host,**builder_options):
     install_reconciliation_routes(app,None,dev_mode=builder_options.get('dev_mode',False),materialization_host=host)
     app.router.routes[0:0]=player_router(GatedPlayerService(app.state.player_launch,host),dev_mode=builder_options.get('dev_mode',False)).routes
     app.state.native_materialization=host
+    if setup_provider is not None:
+        from native_setup_review import NativeSetupReview
+        from native_setup_routes import install_setup_routes
+        install_setup_routes(app,NativeSetupReview(host,setup_provider),dev_mode=builder_options.get('dev_mode',False))
     return app

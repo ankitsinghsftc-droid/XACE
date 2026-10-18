@@ -22,24 +22,31 @@ TERMINAL={'committed','rolled_back','aborted'}
 
 
 class AuthoringCoordinator:
-    def __init__(self,project_root,participants,*,verify_pair,baseline_participant,baseline_request,checkpoint=None):
+    def __init__(self,project_root,participants,*,verify_pair,baseline_participant,baseline_request,checkpoint=None,historical_participants=None):
         self.root=Path(project_root).absolute();self.store=CGSPersistence(self.root)
         self.journal=confined(self.root,'.xace/authoring-transactions')
         self.participants=dict(sorted(participants.items()));self.verify_pair=verify_pair
         self.baseline_participant=baseline_participant;self.baseline_request=baseline_request
         self.checkpoint=checkpoint or (lambda event:None)
+        self.historical_participants=historical_participants
         require(callable(verify_pair) and callable(baseline_request),'host pair/baseline verification required')
         for name in self.participants:require(name!='baseline' and name.replace('_','').isalnum() and len(name)<=64,'invalid participant name')
 
     def _save(self,folder,state,event):
         atomic_json(folder/'state.json',state);self.checkpoint(event)
 
-    def _load(self,transaction_id):
+    def _load(self,transaction_id,*,for_status=False):
         folder=confined(self.journal,transaction_id);state=load_json(folder/'state.json');manifest=load_json(folder/'manifest.json')
         require(state['schema']=='xace.authoring_transaction_state.v1' and manifest['schema']=='xace.authoring_transaction.v1','unknown journal version')
         require(state['state'] in TERMINAL|{'preparing','decided','recovery_required','recovery_conflict','rolling_back'},'unknown transaction state')
         require(state['manifest_digest']==digest(manifest),'journal manifest changed')
-        require(manifest['transaction_id']==transaction_id and manifest['participants']=={k:p.identity for k,p in self.participants.items()},'registered participants differ')
+        registered=self.participants
+        if for_status and manifest['participants']!={k:p.identity for k,p in registered.items()} and self.historical_participants is not None:
+            # Only host-registered implementations may recognize another authoring
+            # operation's journal. Never import code or classes from that journal.
+            registered=self.historical_participants(copy.deepcopy(manifest['participants']))
+        require(type(registered) is dict and set(registered)==set(self.participants),'registered participant set differs')
+        require(manifest['transaction_id']==transaction_id and manifest['participants']=={k:p.identity for k,p in registered.items()},'registered participants differ')
         require(manifest['baseline_participant']==self.baseline_participant.identity,'baseline participant differs')
         for name,token in state['tokens'].items():
             require(name in self.participants and state['token_digests'][name]==digest(token),'prepared token changed')
@@ -76,7 +83,7 @@ class AuthoringCoordinator:
             for folder in sorted(self.journal.iterdir()):
                 if not folder.is_dir():continue
                 try:
-                    _,state,_=self._load(folder.name)
+                    _,state,_=self._load(folder.name,for_status=True)
                     if state['state'] not in TERMINAL:pending.append(dict(transaction_id=folder.name,state=state['state']))
                 except (ValueError,OSError,KeyError,TypeError):pending.append(dict(transaction_id=folder.name,state='corrupt_or_incomplete'))
         return dict(schema='xace.authoring_recovery_gate.v1',play_build_blocked=bool(pending),pending=pending,runtime_activation_performed=False)

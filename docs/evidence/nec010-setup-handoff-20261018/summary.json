@@ -1,0 +1,77 @@
+{
+  "schema": "xace.nec010.setup_handoff_checkpoint.v1",
+  "nec010_complete": false,
+  "all_three_production_factories": true,
+  "all_three_native_publication_handoffs": true,
+  "python_project_regression": 235,
+  "native_route_tests": 12,
+  "setup_tests": 27,
+  "browser_checks": 14,
+  "browser_native_editor": false,
+  "protected_seal_files": 55,
+  "off_device_backup": false,
+  "evidence": [
+    {
+      "path": "evidence/nec010/20261018/godot-gateway-a/proof.json",
+      "sha256": "e8be50d7e70e2407da70e6463a5315aa2d2dbc0235d018194eb3c0655a647ddf"
+    },
+    {
+      "path": "evidence/nec010/20261018/unity-gateway-b/proof.json",
+      "sha256": "b68de54642ce95a119afc844c655674990c0a139b4966163a2a84d15a852a70e"
+    },
+    {
+      "path": "evidence/nec010/ue/gateway-a/proof.json",
+      "sha256": "d9f31104c6cc501920d4bedf16cffb9c7aff20acce2c4040c52d4945a8b4a20c"
+    },
+    {
+      "path": "evidence/nec010/20261018/godot-factory-b/proof.json",
+      "sha256": "2d7d1fb6365bc1ee06947637424ffe511c504ce32be34ae12ab863f319278821"
+    },
+    {
+      "path": "evidence/nec010/20261018/unity-factory-a/proof.json",
+      "sha256": "7c7156836211084cda3dbec4392ce7605ba99c01dd202aab41ca076917a9d5aa"
+    },
+    {
+      "path": "evidence/nec010/ue/factory-a/proof.json",
+      "sha256": "4194968e238b212ce181a41366cd39e91e957db320451ae4e6131723639c6ec2"
+    },
+    {
+      "path": "evidence/nec010/20261018/godot-publication-b/proof.json",
+      "sha256": "a73e44aacc30c2c69feb740c263a1d5e676b534182a9f9c643d0844f47c09108"
+    },
+    {
+      "path": "evidence/nec010/20261018/unity-publication-b/proof.json",
+      "sha256": "c7edb2d1e0192b705d5a6b444f3f2c54bfebd132884e4cae1155c1661a3f90c9"
+    },
+    {
+      "path": "evidence/nec010/ue/publication-b/proof.json",
+      "sha256": "1e1946fdf3d2693ba07e8317ea68f5b08a016c2f89d6f2b6c90ccd844fe5ba89"
+    },
+    {
+      "path": "evidence/nec010/20261018/setup-browser-desktop-b/proof.json",
+      "sha256": "f4f27ad227c758869ca1a961cf7fbc2dd1ea7cdaa416e85f0b6c4e39ab6ee362"
+    },
+    {
+      "path": "evidence/nec010/20261018/setup-browser-narrow-b/proof.json",
+      "sha256": "9bdc63c051b7236e819f0b5680df6d9ec8c573fa25a840a265b4778b3ee7b15e"
+    },
+    {
+      "path": "evidence/nec010/20261018/setup-handoff-seal.json",
+      "sha256": "7749aafa737d9c65dea28e5735db347cb9755cbbc051fe1b71488f494abd2dc6"
+    },
+    {
+      "path": "evidence/nec010/20261018/setup-handoff-regression-a/results.json",
+      "sha256": "9dd6d3211764bc8ff667439d499d9d3b604d0fb66bb54c1cb472d3e2ed674743"
+    }
+  ],
+  "limitations": [
+    "Root World placement setup only; no arbitrary gameplay translation",
+    "Broader owned resource/input/playback write integration remains incomplete",
+    "Final full NEC010 acceptance audit and completion checkpoint remain pending"
+  ],
+  "retained_failures": [
+    "Godot factory-a missing entry timed out; current template fixed and preflight now rejects missing entry",
+    "Unity gateway-a correctly rejected staging inventory; reserved native transaction staging is separately receipt-verified",
+    "Browser narrow-a screenshot used wider Chrome viewport; narrow-b measures actual390px"
+  ]
+}

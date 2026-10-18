@@ -1,0 +1,32 @@
+test_conflicting_later_batch_prevents_further_publication (test_native_setup_bundle.SetupBundleTests.test_conflicting_later_batch_prevents_further_publication) ... ok
+test_cross_batch_alias_refused (test_native_setup_bundle.SetupBundleTests.test_cross_batch_alias_refused) ... ok
+test_foreign_or_changed_request_rejected (test_native_setup_bundle.SetupBundleTests.test_foreign_or_changed_request_rejected) ... ok
+test_restart_after_first_batch_then_rollback_retains_all_bytes (test_native_setup_bundle.SetupBundleTests.test_restart_after_first_batch_then_rollback_retains_all_bytes) ... ok
+test_changed_cgs_rejected_before_any_stage_writes (test_native_setup_factory.SetupFactoryTests.test_changed_cgs_rejected_before_any_stage_writes) ... ok
+test_disposable_stage_refused_before_creation (test_native_setup_factory.SetupFactoryTests.test_disposable_stage_refused_before_creation) ... ok
+test_existing_directory_untouched (test_native_setup_factory.SetupFactoryTests.test_existing_directory_untouched) ... ok
+test_coordinator_restart_and_explicit_rollback (test_native_setup_files.NativeSetupFilesTests.test_coordinator_restart_and_explicit_rollback) ... ok
+test_existing_native_file_is_never_adopted_or_replaced (test_native_setup_files.NativeSetupFilesTests.test_existing_native_file_is_never_adopted_or_replaced) ... ok
+test_nested_creation_resume_and_rollback_preserves_unowned (test_native_setup_files.NativeSetupFilesTests.test_nested_creation_resume_and_rollback_preserves_unowned) ... ok
+test_newer_file_after_prepare_is_preserved (test_native_setup_files.NativeSetupFilesTests.test_newer_file_after_prepare_is_preserved) ... ok
+test_partial_publication_can_resume_and_rollback (test_native_setup_files.NativeSetupFilesTests.test_partial_publication_can_resume_and_rollback) ... ok
+test_unsafe_or_ambiguous_path_sets_refused (test_native_setup_files.NativeSetupFilesTests.test_unsafe_or_ambiguous_path_sets_refused) ... ok
+test_write_set_and_corrupt_stage_refused (test_native_setup_files.NativeSetupFilesTests.test_write_set_and_corrupt_stage_refused) ... ok
+test_ambiguous_spawn_and_runtime_parent_refused (test_native_setup_plan.SetupPlanTests.test_ambiguous_spawn_and_runtime_parent_refused) ... ok
+test_changed_cgs_invalidates_setup (test_native_setup_plan.SetupPlanTests.test_changed_cgs_invalidates_setup) ... ok
+test_deterministic_all_engine_native_requests (test_native_setup_plan.SetupPlanTests.test_deterministic_all_engine_native_requests) ... ok
+test_existing_capture_cannot_impersonate_generated_identities (test_native_setup_plan.SetupPlanTests.test_existing_capture_cannot_impersonate_generated_identities) ... ok
+test_changed_stage_invalidates_approval (test_native_setup_review.SetupReviewTests.test_changed_stage_invalidates_approval) ... ok
+test_foreign_operator_or_missing_approval_cannot_write (test_native_setup_review.SetupReviewTests.test_foreign_operator_or_missing_approval_cannot_write) ... ok
+test_fresh_host_recovers_failed_reopen_without_review_memory (test_native_setup_review.SetupReviewTests.test_fresh_host_recovers_failed_reopen_without_review_memory) ... ok
+test_newer_published_content_is_retained_during_recovery (test_native_setup_review.SetupReviewTests.test_newer_published_content_is_retained_during_recovery) ... ok
+test_review_separate_apply_and_handoff_to_normal_host (test_native_setup_review.SetupReviewTests.test_review_separate_apply_and_handoff_to_normal_host) ... ok
+test_unknown_historical_participant_still_blocks (test_native_setup_review.SetupReviewTests.test_unknown_historical_participant_still_blocks) ... ok
+test_byte_edit_or_addition_invalidates_frozen_stage (test_native_setup_stage.SetupStageTests.test_byte_edit_or_addition_invalidates_frozen_stage) ... ok
+test_cgs_change_requires_explicit_restage (test_native_setup_stage.SetupStageTests.test_cgs_change_requires_explicit_restage) ... ok
+test_returned_file_set_cannot_change_frozen_stage (test_native_setup_stage.SetupStageTests.test_returned_file_set_cannot_change_frozen_stage) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 4.398s
+
+OK

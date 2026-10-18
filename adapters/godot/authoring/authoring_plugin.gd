@@ -12,6 +12,9 @@ func _enter_tree() -> void:
 	scene_saved.connect(_invalidate)
 	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_invalidate)
 	get_undo_redo().history_changed.connect(_invalidate)
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--xace-authoring-command="):
+			call_deferred("_run_host_command", arg.trim_prefix("--xace-authoring-command="))
 
 func _invalidate(_unused: Variant = null) -> void:
 	reader.rescan_required = true
@@ -51,3 +54,7 @@ func enroll(node: Node, identity: Dictionary, expected_old: Variant = null) -> b
 func rescan(approved_saved_scenes: Array) -> Dictionary:
 	# Always re-read disk, even when an editor/file event was missed.
 	return reader.capture(approved_saved_scenes)
+
+func _run_host_command(path: String) -> void:
+	var command = preload("authoring_command.gd").new()
+	get_tree().quit(0 if command.run(path) else 1)

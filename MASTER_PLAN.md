@@ -1,3 +1,5 @@
+> NEC0102026-10-18: all-engine production setup/review/publication/baseline handoff verified; broader owned-field integration and final acceptance pending. See docs/evidence/nec010-setup-handoff-20261018. Incomplete; no off-device backup.
+
 > NEC010 is now explicitly authorized and IN PROGRESS (2026-10-16). Current acceptance checklist: docs/NEC010_DURABLE_MATERIALIZATION.md. Earlier stop/not-started entries are historical. NEC011 has not started.
 
 > Current recovery status (2026-10-16): XP016?XP022 and NEC001?NEC009 verified within documented local scope. NEC009 acceptance: docs/NEC009_AUTHORING_TRANSACTIONS.md. NEC010 NOT STARTED; awaiting explicit authorization. REL01?05 remain open; original sealed payloads missing; no off-device backup. Historical statements below are retained as history.

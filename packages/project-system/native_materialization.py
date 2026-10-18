@@ -21,13 +21,21 @@ class NativeMaterializationHost:
         self.review=ReconciliationReview(context_provider)
         self._lock=threading.RLock()
 
-    def _coordinator(self,pair=None):
+    def _coordinator(self,pair=None,native=None):
         baseline=FileParticipant(self.root,name='verified-baseline',allowed_paths=[MAP,CGS,NATIVE])
         return AuthoringCoordinator(self.root,
-            dict(canonical=FileParticipant(self.root,name='canonical',allowed_paths=['game.cgs.json']),native=NativeParticipant(self.gateway)),
+            dict(canonical=FileParticipant(self.root,name='canonical',allowed_paths=['game.cgs.json']),native=native or NativeParticipant(self.gateway)),
             verify_pair=pair.verify if pair else lambda *_:False,
             baseline_participant=pair.participant if pair else baseline,
-            baseline_request=pair.baseline_request if pair else lambda *_:None)
+            baseline_request=pair.baseline_request if pair else lambda *_:None,historical_participants=self._historical_participants)
+
+    def _historical_participants(self,identities):
+        from native_setup_bundle import registered_setup_bundle
+        canonical=FileParticipant(self.root,name='canonical',allowed_paths=['game.cgs.json'])
+        native=NativeParticipant(self.gateway)
+        if identities.get('native')!=native.identity:
+            native=registered_setup_bundle(self.root,self.gateway.identity['engine'],identities.get('native'))
+        return dict(canonical=canonical,native=native)
 
     def status(self):
         return self._coordinator().status()
@@ -73,7 +81,10 @@ class NativeMaterializationHost:
         """
         from native_adoption import digest
         with self._lock:
-            coordinator=self._coordinator()
+            from authoring_transaction_files import load_json,confined
+            manifest=load_json(confined(self.root,'.xace/authoring-transactions/'+transaction_id+'/manifest.json'))
+            participants=self._historical_participants(manifest['participants'])
+            coordinator=self._coordinator(native=participants['native'])
             def configure(state,manifest):
                 if (action=='rollback' and state['state']!='committed') or state['state'] in {'preparing','aborted','rolled_back'}:
                     return

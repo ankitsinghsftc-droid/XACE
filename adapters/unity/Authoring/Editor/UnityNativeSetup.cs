@@ -21,6 +21,16 @@ namespace Xace.Authoring.Editor
             var id=go.AddComponent<XaceAuthoringIdentity>();id.NamespaceId=ns;id.AuthoringId=Text(row,"authoring_id");id.Kind=kind;id.Generation=Text(row,"generation");
             UnityAuthoringReader.Identity(id);
         }
+        public static void Run()
+        {
+            const string output=".xace/result-create.json";
+            if(File.Exists(output)){EditorApplication.Exit(2);return;}
+            try {
+                var spec=AuthoringJson.Obj(AuthoringJson.Parse(File.ReadAllText(".xace/spec.json")));
+                var result=Create(spec,AuthoringJson.Hash(AuthoringJson.Encode(spec)));
+                File.WriteAllText(output,AuthoringJson.Encode(UnityAuthoringReader.Map("ok",true,"result",result)));EditorApplication.Exit(0);
+            }catch(Exception error){Debug.LogException(error);File.WriteAllText(output,AuthoringJson.Encode(UnityAuthoringReader.Map("ok",false,"error",error.ToString())));EditorApplication.Exit(1);}
+        }
         public static Dictionary<string,object> Create(Dictionary<string,object> spec,string approvedDigest)
         {
             UnityAuthoringReader.EditMode();

@@ -43,3 +43,16 @@ class NativeSetupBundle:
         require(self.inspect(token,directory)!='conflict','newer setup content retained')
         for i in reversed(range(len(self.groups))):self.groups[i].restore(token['groups'][i],Path(directory)/str(i))
         require(self.inspect(token,directory)=='before','setup bundle rollback failed');return receipt(self,token,'before')
+
+
+def registered_setup_bundle(root,engine,identity):
+    """Recognize only this registered create-only implementation and fixed root."""
+    require(type(identity) is dict and identity.get('schema')=='xace.native_setup_bundle.v1','unknown native setup participant')
+    groups=identity.get('groups');require(type(groups) is list and 0<len(groups)<=8,'setup group limit')
+    paths=[]
+    for group in groups:
+        require(type(group) is dict and type(group.get('allowed_paths')) is list,'invalid setup group')
+        paths.extend(group['allowed_paths'])
+    participant=NativeSetupBundle(root,engine=engine,allowed_paths=paths)
+    require(participant.identity==identity,'foreign setup root, engine or publication policy')
+    return participant

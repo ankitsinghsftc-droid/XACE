@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Set up native project</title>
+<style>body{font:16px/1.6 system-ui;background:#10151d;color:#e5eef8;max-width:1100px;margin:40px auto;padding:0 24px}a{color:#a9d3ff}button{font:inherit;background:#24374b;color:inherit;border:1px solid #57708b;border-radius:5px;padding:9px 14px;margin:4px}button:disabled{opacity:.4}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#182331;padding:16px}summary{cursor:pointer;overflow-wrap:anywhere}#status{min-height:2em}</style></head>
+<body><a href="/native-review">Review engine changes and recover interrupted saves</a><h1>Set up native project</h1>
+<p>Review the generated project files before saving. Existing files will not be replaced. This step creates native scene content; it does not start the game.</p>
+<div><button id="open">Review staged project</button><button id="approve" disabled>Approve reviewed files</button><button id="apply" disabled>Save approved project</button><button id="cancel" disabled>Cancel review</button></div>
+<p id="status" role="status" aria-live="polite">Ready to review the configured project.</p><div id="files"></div>
+<script src="/native-setup.js"></script></body></html>
