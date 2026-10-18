@@ -129,6 +129,25 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 		seen[edit.authoring_id] = true
 		if not grouped.has(edit.document): grouped[edit.document] = []
 		grouped[edit.document].append(edit)
+	var resource_fingerprints := {}
+	for edit in request.edits:
+		var refs: Array = []
+		if edit.fields.has("presentation.asset"): refs.append(edit.fields["presentation.asset"])
+		if edit.fields.has("binding.playback"):
+			var playback: Variant = edit.fields["binding.playback"]
+			if not playback is Dictionary or not playback.has("asset"):
+				fail("invalid playback resource")
+				return {}
+			refs.append(playback.asset)
+		for ref in refs:
+			if not ref is Dictionary or not ref.get("resolved_path") is String:
+				fail("explicit persistent resource required")
+				return {}
+			var stamp := reader.fingerprint(ref.resolved_path)
+			if stamp.is_empty() or not reader.error.is_empty():
+				fail("resource dependency unavailable")
+				return {}
+			resource_fingerprints[ref.resolved_path] = stamp
 	var directory := "res://.xace_authoring/transactions/" + transaction_id
 	if not reader.path_ok(directory) or DirAccess.dir_exists_absolute(directory):
 		fail("unsafe/reused transaction directory")
@@ -137,7 +156,7 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 		fail("transaction directory unavailable")
 		return {}
 	write_bytes("res://.xace_authoring/.gdignore", PackedByteArray())
-	var receipt := {"schema": "xace.godot_native_transaction.v1", "transaction_id": transaction_id, "state": "prepared", "inventory_digest": request.expected_inventory_digest, "scope": paths.duplicate(), "rows": []}
+	var receipt := {"schema": "xace.godot_native_transaction.v1", "transaction_id": transaction_id, "state": "prepared", "inventory_digest": request.expected_inventory_digest, "scope": paths.duplicate(), "rows": [], "resource_fingerprints": resource_fingerprints}
 	var docs: Array = grouped.keys()
 	docs.sort()
 	for path in docs:
@@ -257,6 +276,10 @@ func commit(directory: String, approval_digest: String, paths: Array, fail_after
 	for row in receipt.rows:
 		if FileAccess.get_sha256(row.document) != row.before or FileAccess.get_sha256(row.stage) != row.after or reader.fingerprint(row.document) != row.dependency_fingerprint:
 			fail("source/stage/dependency mismatch")
+			return {}
+	for resource_path in receipt.get("resource_fingerprints", {}):
+		if reader.fingerprint(resource_path) != receipt.resource_fingerprints[resource_path] or not reader.error.is_empty():
+			fail("approved resource changed after staging")
 			return {}
 	receipt.state = "applying"
 	if not persist(directory, receipt): return {}

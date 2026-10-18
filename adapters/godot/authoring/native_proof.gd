@@ -250,6 +250,15 @@ func run() -> void:
 	after = rescan(PATHS)
 	check("resource_replace_preserves_instance_identity", after.objects[oid(7)].locator == inventory.objects[oid(7)].locator and after.objects[oid(7)].fields["presentation.asset"].resolved_path == "res://Fixture/Replacement.res")
 	check("resource_replacement_rollback", undo_transaction(prepared).get("state") == "rolled_back")
+	var dependency_before := FileAccess.get_sha256(PATHS[1])
+	prepared = writer.prepare(PATHS, request(rescan(PATHS), [edit(7, {"presentation.asset": reader.asset(replacement)})]), oid(930))
+	if not check("new_resource_drift_fixture_prepared", not prepared.is_empty()):
+		finish()
+		return
+	replacement.resource_name = "ChangedAfterReview"
+	check("new_resource_drift_fixture_saved", ResourceSaver.save(replacement, "res://Fixture/Replacement.res") == OK)
+	check("new_resource_dependency_drift_refused", writer.commit(prepared.directory, prepared.approval_digest, PATHS).is_empty())
+	check("dependency_refusal_preserves_scene", FileAccess.get_sha256(PATHS[1]) == dependency_before)
 	prepared = writer.prepare(PATHS, request(rescan(PATHS), [edit(4, {"transform.position": {"x": "1", "y": "0", "z": "0"}})]), oid(803))
 	check("unrepresentable_fixed_value_refused", prepared.is_empty())
 	prepared = writer.prepare(PATHS, request(rescan(PATHS), [edit(4, {"transform.position": {"x": "10000000", "y": "0", "z": "0"}})]), oid(804))

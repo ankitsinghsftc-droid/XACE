@@ -1,0 +1,33 @@
+{
+  "nec010_complete": false,
+  "unity_checks": 50,
+  "godot_checks": 71,
+  "source_hashes": {
+    "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs": "badf11c6584271086fc0f43cc7caf1b8c61412df9452d93db7040d1fdd29d34a",
+    "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs": "135de2858609aa531f4fa90a00030c69cfbc5f74d5228b1d3a2bfffa6bb91bf6",
+    "adapters/godot/authoring/authoring_writer.gd": "bd0b212dec87d6bf00c08681157c72adb46d9fd8a7788c2e7b293ec88661191f",
+    "adapters/godot/authoring/native_proof.gd": "77799cbc7f0798fe5ad567da2bf2f5166c429f6a52ff9e98210717e83ca73904"
+  },
+  "evidence": [
+    {
+      "path": "evidence/nec010/20261016/unity-owned-b/run.json",
+      "sha256": "89e5602b6b565a47e762cb5f0c99267945d945269041c49d21f4629c144487cb"
+    },
+    {
+      "path": "evidence/nec010/20261016/unity-owned-b/reload.json",
+      "sha256": "78d278950b2926e76a564e88db173262f67088c80b0fb751a5575f959c521995"
+    },
+    {
+      "path": "evidence/nec010/20261017/godot-owned-b/run.json",
+      "sha256": "da20bf59535b039c2916edf4d50a9c82f9bf27e48ef334ec7d20ae2d662583a5"
+    },
+    {
+      "path": "evidence/nec010/20261017/godot-owned-b/reload.json",
+      "sha256": "aeb61670d7bb463c9a66ee90588916b4a90f03e06624b6a39a44dfa6ed55c1d2"
+    }
+  ],
+  "verified": "Newly selected resource dependency changes refuse publication without modifying original scene bytes; fresh editor reload passes",
+  "retained_failed_attempt": "godot-owned-a reused synthetic transaction820; new930 fixes fixture collision",
+  "remaining": "Owned resource/input/binding CGS-to-native integration and final NEC010 acceptance remain incomplete",
+  "off_device_backup": false
+}

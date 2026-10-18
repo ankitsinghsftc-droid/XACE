@@ -162,8 +162,16 @@ namespace Xace.Authoring.Editor
             string id=Guid.NewGuid().ToString("N"),stageRoot="Assets/__XaceAuthoringStage/"+id;
             var write=new PreparedAuthoringWrite{Directory=".xace/unity-authoring-transactions/"+id};
             Directory.CreateDirectory(write.Directory);Directory.CreateDirectory(stageRoot);
+            var resources=Map();
+            foreach(var edit in edits)
+                if(edit.Fields.TryGetValue("binding.playback",out var playback))
+                {
+                    var reference=AuthoringJson.Obj(AuthoringJson.Obj(playback)["asset"]);Resource(reference);
+                    string resourcePath=AuthoringJson.Text(reference,"resolved_path");
+                    resources[resourcePath]=UnityAuthoringReader.Fingerprint(resourcePath);
+                }
             var files=new List<object>();
-            write.Journal=Map("schema","xace.unity_authoring_write.v1","state","preparing","id",id,"capture_digest",expectedInventoryDigest,"files",files);
+            write.Journal=Map("schema","xace.unity_authoring_write.v1","state","preparing","id",id,"capture_digest",expectedInventoryDigest,"files",files,"resource_fingerprints",resources);
             Persist(write);
             try
             {
@@ -226,6 +234,9 @@ namespace Xace.Authoring.Editor
             var files=((List<object>)write.Journal["files"]).Select(AuthoringJson.Obj).ToArray();
             foreach(var row in files)
             {string source=AuthoringJson.Text(row,"source");Need(!UnityAuthoringReader.Dirty(source)&&FileHash(source)==(string)row["before"]&&FileHash(source+".meta")== (string)row["meta"]&&UnityAuthoringReader.Fingerprint(source)==(string)row["fingerprint"]&&FileHash((string)row["staged"])==(string)row["after"],"Stale/dirty/tampered staged set");}
+            if(write.Journal.TryGetValue("resource_fingerprints",out var resourcePins))
+                foreach(var pin in AuthoringJson.Obj(resourcePins))
+                    Need(UnityAuthoringReader.Fingerprint(pin.Key)==(string)pin.Value,"Approved resource changed after staging");
             write.Journal["state"]="applying";Persist(write);
             try
             {
