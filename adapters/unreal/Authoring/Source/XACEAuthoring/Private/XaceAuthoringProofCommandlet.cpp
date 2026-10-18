@@ -90,7 +90,7 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     UStaticMesh* OtherMesh=OtherSource?Cast<UStaticMesh>(StaticDuplicateObject(OtherSource,OtherPackage,TEXT("OtherMesh"))):nullptr;
     if(!Check(TEXT("second_binary_mesh_asset"),OtherMesh && SaveAsset(OtherMesh,FPackageName::LongPackageNameToFilename(TEXT("/Game/Fixture/OtherMesh"),TEXT(".uasset")))))return Finish();FAssetRegistryModule::AssetCreated(OtherMesh);
     Check(TEXT("scene_identity_enrollment"),Service.Enroll(W->GetWorldSettings(),Identity(1,true)));
-    for(int32 N=2;N<=3;++N){auto* A=W->SpawnActor<AStaticMeshActor>();A->SetActorLabel(TEXT("Ordinary Name"));A->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);A->GetStaticMeshComponent()->SetStaticMesh(Mesh);A->GetStaticMeshComponent()->SetCollisionProfileName(TEXT("NoCollision"));A->SetActorLocation(FVector(300,100*N,200));Check(N==2?TEXT("actor_one_enrollment"):TEXT("actor_two_enrollment"),Service.Enroll(A,Identity(N)));}
+    for(int32 N=2;N<=3;++N){auto* A=W->SpawnActor<AStaticMeshActor>();A->SetActorLabel(TEXT("Ordinary Name"));A->Tags.Add(FName(TEXT("literal:/Game/Fixture/World.World:keep")));A->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);A->GetStaticMeshComponent()->SetStaticMesh(Mesh);A->GetStaticMeshComponent()->SetCollisionProfileName(TEXT("NoCollision"));A->SetActorLocation(FVector(300,100*N,200));Check(N==2?TEXT("actor_one_enrollment"):TEXT("actor_two_enrollment"),Service.Enroll(A,Identity(N)));}
     if(!Check(TEXT("binary_map_native_save"),FEditorFileUtils::SaveMap(W,Filename)))return Finish();W=Service.LoadApprovedMap(Map);
     if(!Check(TEXT("saved_native_map_reload"),W!=nullptr))return Finish();SaveJson(TEXT("pre-enrollment-discovery.json"),Service.Capture(W,Map,true));auto Inventory=Service.Capture(W,Map);
     if(!Check(TEXT("meaningful_native_capture"),Inventory && Child(Inventory,TEXT("objects"))->Values.Num()==3))return Finish();SaveJson(TEXT("native-before.json"),Inventory);
@@ -113,6 +113,7 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     Check(TEXT("saved_actor_position"),Find(W,2)->GetActorLocation().Equals(FVector(300,800,200),0));
     Check(TEXT("saved_native_mesh_replacement"),Cast<AStaticMeshActor>(Find(W,2))->GetStaticMeshComponent()->GetStaticMesh()->GetPathName()==TEXT("/Game/Fixture/OtherMesh.OtherMesh"));
     Check(TEXT("unknown_actor_label_preserved"),Find(W,2)->GetActorLabel()==TEXT("Ordinary Name"));
+    Check(TEXT("literal_package_text_preserved"),Find(W,2)->Tags.Contains(FName(TEXT("literal:/Game/Fixture/World.World:keep"))));
     UEditorLoadingAndSavingUtils::NewBlankMap(false);auto Restored=Service.Recover(Map,String(Prepared,TEXT("directory")),FileHash(String(Prepared,TEXT("directory"))/TEXT("receipt.json")));
     Check(TEXT("receipt_reload_recovery"),String(Restored,TEXT("state"))==TEXT("rolled_back"));Check(TEXT("rollback_exact_binary_bytes"),FileHash(Filename)==BeforeHash);
     W=Service.LoadApprovedMap(Map);Inventory=Service.Capture(W,Map);

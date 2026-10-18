@@ -1,0 +1,1 @@
+{"cases":[{"name":"actual_non_editor_process","ok":true},{"name":"runtime_cannot_gain_authoring_privilege","ok":true},{"name":"unchanged_shared_runtime_protocol_loads","ok":true}],"engine_version":"4.6.3-stable (official)","ok":true,"schema":"xace.nec005.godot_proof.v1"}

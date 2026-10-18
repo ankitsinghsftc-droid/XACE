@@ -1,0 +1,112 @@
+[
+  {
+    "source": "evidence\\nec010\\20261016\\unity-stored-d\\run.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unity-run.json",
+    "sha256": "b4d46e00067f3c5397a1d1be76b7f0a30563b37a9057c6e553299d8200b688b0"
+  },
+  {
+    "source": "evidence\\nec010\\20261016\\unity-stored-d\\reload.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unity-reload.json",
+    "sha256": "78d278950b2926e76a564e88db173262f67088c80b0fb751a5575f959c521995"
+  },
+  {
+    "source": "evidence\\nec010\\20261016\\unity-stored-d\\play.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unity-play.json",
+    "sha256": "0b83ca1cc6d41090b632e983cefb7c8fe6f29aa4e906309f93b6466b02f330f4"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\godot-native-b\\run.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-run.json",
+    "sha256": "829e86bb47f9aa1555ca65090bcb23f70e55de1702632c77174ba166847eea21"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\godot-native-b\\reload.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-reload.json",
+    "sha256": "aeb61670d7bb463c9a66ee90588916b4a90f03e06624b6a39a44dfa6ed55c1d2"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\godot-native-b\\play.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-play.json",
+    "sha256": "b143f60f6ca8588a115a019deb17d686efb3c9a041135146efd3487b8a7d24ee"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\godot-native-b\\privilege.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-privilege.json",
+    "sha256": "86fa3237c70ae74cc6c47a7f899053d4b040a37c7085546a87f167b83b51e982"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\h\\run.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unreal-run.json",
+    "sha256": "6cf5a8609f69bc2c47b639f9fbb2742d19816b10880ee6843d748b3081e9436b"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\h\\reload.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unreal-reload.json",
+    "sha256": "e6959a3be4ea3594b34e427f9cc9380d1c7cffee6ff7c0ddae08d2eaf226a761"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\h\\staged.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unreal-staged.json",
+    "sha256": "97ef8d07ff24e80e35dfbecdd4b1e65b5d3d51a67ea7f7cb47fb22cbe13b9485"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\h\\interactive.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unreal-interactive.json",
+    "sha256": "dc47de6cbd44837194d213a93c5394a88901716102a463b76e86ce3caa2e5699"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\unity-cycles-c\\proof.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unity-proof.json",
+    "sha256": "143f7b5c997ebdd58896b371d06fb6d713c1bb61d295da9c127660cd9caa7ca3"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\unity-cycles-c\\cycles.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unity-cycles.json",
+    "sha256": "b3a21943a9925ec69a36bfb54ab18f36ea9b0df99e73ae349ff9cd4af914c5cf"
+  },
+  {
+    "source": "evidence\\nec010\\20261016\\godot-cycles-b\\proof.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-proof.json",
+    "sha256": "5cc063b0c45305ce5202931ae95f64151086318aae948364f0f272994f2ba42a"
+  },
+  {
+    "source": "evidence\\nec010\\20261016\\godot-cycles-b\\cycles.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\godot-cycles.json",
+    "sha256": "b3a21943a9925ec69a36bfb54ab18f36ea9b0df99e73ae349ff9cd4af914c5cf"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\browser-apply-b\\proof.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\browser-apply-b.json",
+    "sha256": "26bf8bdaebd0f79423be32242ab1a7d5cdc7316373e3fd742bb69220fd7c6434"
+  },
+  {
+    "source": "evidence\\nec010\\20261017\\browser-apply-narrow-b\\proof.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\browser-apply-narrow-b.json",
+    "sha256": "5ea08c458c89a3d4371a1394881dca66fbcb256e9d45248423b9e606ff25b879"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\seal-preservation.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\seal-preservation.json",
+    "sha256": "e856febc67aad7b09f5bcda00ed073c428f606d0bdc1510ecd0949d7a704f86c"
+  },
+  {
+    "source": "evidence\\nec010\\20261018\\regression-a\\runs.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\regression-runs.json",
+    "sha256": "e30c3ed4f372d2c7fc34caa9f0d2e4f5168a8ea65a92de42224c58ccfa943465"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\g\\unreal-project\\.xace\\proof-run.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\unreal-pre-fix-failure.json",
+    "sha256": "5ff620fd730ff9f25853d48236e4d5027ea0aced551651b03223ee6e69776f81"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\g\\unreal-project\\.xace\\XACEAuthoring\\Transactions\\00000000000000000000000000000320\\stored-after-save.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\stored-after-save.json",
+    "sha256": "b71078f856ac5523e20196661f83e4324e0d16608c033c33df006e1c85656d67"
+  },
+  {
+    "source": "evidence\\nec010\\ue\\g\\unreal-project\\.xace\\XACEAuthoring\\Transactions\\00000000000000000000000000000320\\stored-before-save.json",
+    "retained": "docs\\evidence\\nec010-preservation-20261018\\stored-before-save.json",
+    "sha256": "bf6842336e3466775b8348644d07db1bd89d7255466cceb40e042312bcb58323"
+  }
+]

@@ -77,12 +77,14 @@ def build(out):
     return c,prepared,request
 
 
-def main(out):
+def main(out,source):
+    assert source.is_relative_to(ROOT/"evidence/nec010/ue")
+    assert load_json(source/"run.json")["ok"]
+    source=source/"unreal-project"
     assert out.resolve().is_relative_to(ROOT/'evidence/nec010/ue') and not out.exists();out.mkdir(parents=True)
     root=out/'unreal-project';root.mkdir();(root/'.xace').mkdir()
-    source=ROOT/'evidence/nec010/ue/c/unreal-project'
     for folder in ['Content','Config']:shutil.copytree(source/folder,root/folder)
-    shutil.copytree(ROOT/'evidence/nec010/ue/d/unreal-project/Plugins',root/'Plugins',ignore=shutil.ignore_patterns('Intermediate'))
+    shutil.copytree(source/'Plugins',root/'Plugins',ignore=shutil.ignore_patterns('Intermediate'))
     shutil.copyfile(source/'NEC006.uproject',root/'NEC006.uproject')
     for marker in ['NEC006.fixture','NEC010.fixture']:(root/marker).write_text('Explicit isolated native materialization fixture')
     gateway=Gateway(out);data=gateway.capture();mapping=reader.prepare_identity_map(data,project_id='nec010-unreal',branch_id='b'*32)
@@ -144,4 +146,4 @@ if __name__=='__main__':
             if event=='published_before_receipt:canonical':os._exit(73)
         c.checkpoint=crash
         c.commit(request,authorize=lambda r:True)
-    else:main(Path(sys.argv[1]).resolve())
+    else:main(Path(sys.argv[1]).resolve(),Path(sys.argv[2]).resolve())

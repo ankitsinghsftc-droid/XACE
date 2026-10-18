@@ -43,7 +43,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
     // The pinned editor exports stored properties; runtime/transient fields are
     // excluded by serialization flags. Only the separately mapped root transform
     // is excluded. Native classes and all other properties remain represented.
-    auto Rows=New();const FString Package=Actor->GetOutermost()->GetName();
+    auto Rows=New();UWorld* World=Actor->GetWorld();
     TArray<UObject*> Objects;Objects.Add(Actor);
     for(UActorComponent* Component:Actor->GetComponents())
         if(Component && !Component->HasAnyFlags(RF_Transient) && !Component->IsVisualizationComponent())Objects.Add(Component);
@@ -56,7 +56,14 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
             if(Item==Actor->GetRootComponent() && (Name==TEXT("RelativeLocation")||Name==TEXT("RelativeRotation")||Name==TEXT("RelativeScale3D")))continue;
             FString Value;
             Property->ExportTextItem_Direct(Value,Property->ContainerPtrToValuePtr<void>(Item),nullptr,Item,PPF_None);
-            Value.ReplaceInline(*Package,TEXT("<document>"),ESearchCase::CaseSensitive);
+            // Normalize actual object references, never arbitrary user strings.
+            // The staging package renames the UWorld, but object identity inside
+            // that world is its relative path, including the referenced class.
+            if(auto* Reference=CastField<FObjectPropertyBase>(Property)){
+                UObject* Target=Reference->GetObjectPropertyValue_InContainer(Item);
+                if(Target && World && (Target==World || Target->IsIn(World)))
+                    Value=Target->GetClass()->GetPathName()+TEXT(":<world>:")+Target->GetPathName(World);
+            }
             Properties->SetStringField(Name,Value);
         }
         FString Key=Item==Actor?TEXT("actor"):Item->GetName();
@@ -66,7 +73,9 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
 }
 FString FXaceUnrealAuthoring::Preservation(AActor* Actor)
 {
-    return Hash(TEXT("unreal.stored_properties.v1:")+Json(PreservationProperties(Actor)));
+    FString Stored=Json(PreservationProperties(Actor));
+    if(Stored.IsEmpty()){Fail(TEXT("Stored properties exceed supported serialization profile"));return TEXT("");}
+    return Hash(TEXT("unreal.stored_properties.v1:")+Stored);
 }
 bool FXaceUnrealAuthoring::Fail(const FString& M){if(Error.IsEmpty())Error=M;return false;}
 bool FXaceUnrealAuthoring::Editor(UWorld* W)

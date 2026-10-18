@@ -149,9 +149,11 @@ namespace Xace.Authoring.Editor
             }
             return fields;
         }
-        static List<object> Opaque(GameObject go,string documentFingerprint)
+        public static List<object> Opaque(GameObject go,string documentFingerprint)
         {
             var entries=new List<object>();int index=0;
+            entries.Add(Map("id","native.gameobject","sha256",UnityAuthoringPreservation.Fingerprint(go),"critical",false,"reason","Unowned GameObject properties retained"));
+            entries.Add(Map("id","native.transform","sha256",UnityAuthoringPreservation.Fingerprint(go.transform,go.GetComponent<XaceAuthoringIdentity>()?.Kind!="scene"),"critical",false,"reason","Unowned Transform properties retained"));
             foreach(var component in go.GetComponents<Component>())
             {
                 AuthoringJson.Need(component!=null,"Missing script must be resolved before capture");
@@ -217,7 +219,7 @@ namespace Xace.Authoring.Editor
                     rows.Add(id.AuthoringId,Map("metadata",Map("schema","xace.native_identity.v1","namespace_id",id.NamespaceId,"authoring_id",id.AuthoringId,"kind",id.Kind,"generation",id.Generation),
                         "locator",Map("engine","unity","document_id",AssetDatabase.AssetPathToGUID(path),"object_id",Locator(go)),
                         "scene_id",path.EndsWith(".unity") && id!=definition?definition.AuthoringId:null,"prefab_id",string.IsNullOrEmpty(id.PrefabId)?null:id.PrefabId,
-                        "parent_id",parent,"fields",id.Kind=="scene"?Map():Fields(go),"dependencies",new List<object>(),"opaque",id.Kind=="scene"?new List<object>():Opaque(go,before[path]),"name",go.name,"path_hint",path));
+                        "parent_id",parent,"fields",id.Kind=="scene"?Map():Fields(go),"dependencies",new List<object>(),"opaque",Opaque(go,before[path]),"name",go.name,"path_hint",path));
                 }
                 var after=Fingerprint(path);AuthoringJson.Need(before[path]==after && !Dirty(path),"Source changed during capture");
                 docs.Add(Map("id",AssetDatabase.AssetPathToGUID(path),"before",before[path],"after",after,"dirty",false));

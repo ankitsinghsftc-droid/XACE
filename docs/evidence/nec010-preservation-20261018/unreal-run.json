@@ -1,0 +1,241 @@
+{
+  "cases": [
+    {
+      "name": "native_editor_world",
+      "ok": true
+    },
+    {
+      "name": "real_binary_mesh_asset",
+      "ok": true
+    },
+    {
+      "name": "second_binary_mesh_asset",
+      "ok": true
+    },
+    {
+      "name": "scene_identity_enrollment",
+      "ok": true
+    },
+    {
+      "name": "actor_one_enrollment",
+      "ok": true
+    },
+    {
+      "name": "actor_two_enrollment",
+      "ok": true
+    },
+    {
+      "name": "binary_map_native_save",
+      "ok": true
+    },
+    {
+      "name": "saved_native_map_reload",
+      "ok": true
+    },
+    {
+      "name": "meaningful_native_capture",
+      "ok": true
+    },
+    {
+      "name": "duplicate_labels_distinct_guids",
+      "ok": true
+    },
+    {
+      "name": "actual_native_discovery",
+      "ok": true
+    },
+    {
+      "name": "native_staged_save_readback",
+      "ok": true
+    },
+    {
+      "name": "prepare_keeps_original",
+      "ok": true
+    },
+    {
+      "name": "loaded_map_commit_refused",
+      "ok": true
+    },
+    {
+      "name": "wrong_approval_refused",
+      "ok": true
+    },
+    {
+      "name": "approved_native_commit",
+      "ok": true
+    },
+    {
+      "name": "committed_binary_reopen",
+      "ok": true
+    },
+    {
+      "name": "saved_actor_position",
+      "ok": true
+    },
+    {
+      "name": "saved_native_mesh_replacement",
+      "ok": true
+    },
+    {
+      "name": "unknown_actor_label_preserved",
+      "ok": true
+    },
+    {
+      "name": "literal_package_text_preserved",
+      "ok": true
+    },
+    {
+      "name": "receipt_reload_recovery",
+      "ok": true
+    },
+    {
+      "name": "rollback_exact_binary_bytes",
+      "ok": true
+    },
+    {
+      "name": "untrusted_editor_refused",
+      "ok": true
+    },
+    {
+      "name": "map_path_traversal_refused",
+      "ok": true
+    },
+    {
+      "name": "noncanonical_numeric_json_refused",
+      "ok": true
+    },
+    {
+      "name": "duplicate_json_keys_refused",
+      "ok": true
+    },
+    {
+      "name": "pie_world_capture_refused",
+      "ok": true
+    },
+    {
+      "name": "streaming_level_profile_refused",
+      "ok": true
+    },
+    {
+      "name": "native_owned_write_refused",
+      "ok": true
+    },
+    {
+      "name": "unsafe_transaction_id_refused",
+      "ok": true
+    },
+    {
+      "name": "fault_prepare",
+      "ok": true
+    },
+    {
+      "name": "injected_failure_exact_rollback",
+      "ok": true
+    },
+    {
+      "name": "replacement_resource_approval",
+      "ok": true
+    },
+    {
+      "name": "replacement_resource_native_resave",
+      "ok": true
+    },
+    {
+      "name": "replacement_resource_drift_refused",
+      "ok": true
+    },
+    {
+      "name": "dependency_guard_prepare",
+      "ok": true
+    },
+    {
+      "name": "config_drift_capture_refused",
+      "ok": true
+    },
+    {
+      "name": "dependency_drift_commit_refused",
+      "ok": true
+    },
+    {
+      "name": "native_actor_duplicate",
+      "ok": true
+    },
+    {
+      "name": "duplicate_metadata_copied",
+      "ok": true
+    },
+    {
+      "name": "duplicate_binary_save",
+      "ok": true
+    },
+    {
+      "name": "duplicate_authoring_identity_refused",
+      "ok": true
+    },
+    {
+      "name": "explicit_duplicate_rekey",
+      "ok": true
+    },
+    {
+      "name": "rekey_native_save",
+      "ok": true
+    },
+    {
+      "name": "rekey_saved_reopen",
+      "ok": true
+    },
+    {
+      "name": "rename_parent_native_save",
+      "ok": true
+    },
+    {
+      "name": "rename_parent_identity_stable",
+      "ok": true
+    },
+    {
+      "name": "native_blueprint_created",
+      "ok": true
+    },
+    {
+      "name": "binary_blueprint_asset_save",
+      "ok": true
+    },
+    {
+      "name": "blueprint_instance_enrollment",
+      "ok": true
+    },
+    {
+      "name": "blueprint_map_save",
+      "ok": true
+    },
+    {
+      "name": "blueprint_instance_opaque",
+      "ok": true
+    },
+    {
+      "name": "dirty_blueprint_dependency_refused",
+      "ok": true
+    },
+    {
+      "name": "changed_blueprint_saved",
+      "ok": true
+    },
+    {
+      "name": "saved_blueprint_drift_detected",
+      "ok": true
+    },
+    {
+      "name": "newer_native_edit_preserved",
+      "ok": true
+    },
+    {
+      "name": "fixture_original_restored",
+      "ok": true
+    }
+  ],
+  "commandlet": true,
+  "engine_version": "5.7.4-51494982+++UE5+Release-5.7",
+  "error": "",
+  "ok": true,
+  "schema": "xace.nec006.unreal_proof.v1"
+}

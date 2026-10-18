@@ -135,13 +135,19 @@ namespace Xace.Authoring.Editor
                 Need(AuthoringJson.Encode(actual)==AuthoringJson.Encode(field.Value),"Native save readback does not match approved field: "+field.Key);
             }
         }
-        static void VerifySaved(string staged,IEnumerable<AuthoringEdit> edits)
+        static string Stored(XaceAuthoringIdentity identity)
+        {
+            return AuthoringJson.Hash(AuthoringJson.Encode(Map("fields",UnityAuthoringReader.Fields(identity.gameObject),"unowned",UnityAuthoringReader.Opaque(identity.gameObject,""),"identity",UnityAuthoringPreservation.Fingerprint(identity))));
+        }
+        static void VerifySaved(string staged,IEnumerable<AuthoringEdit> edits,Dictionary<string,string> expectedStored)
         {
             var scene=default(UnityEngine.SceneManagement.Scene);GameObject prefab=null;
             try
             {
                 GameObject[] roots;if(staged.EndsWith(".unity")){scene=EditorSceneManager.OpenScene(staged,OpenSceneMode.Additive);roots=scene.GetRootGameObjects();}else{prefab=PrefabUtility.LoadPrefabContents(staged);roots=new[]{prefab};}
                 var objects=roots.SelectMany(r=>r.GetComponentsInChildren<XaceAuthoringIdentity>(true)).ToArray();
+                Need(objects.Length==expectedStored.Count,"Staged object set changed");
+                foreach(var identity in objects)Need(expectedStored.ContainsKey(identity.AuthoringId) && expectedStored[identity.AuthoringId]==Stored(identity),"Staged stored properties changed");
                 foreach(var edit in edits){var matches=objects.Where(o=>o.AuthoringId==edit.AuthoringId).ToArray();Need(matches.Length==1,"Readback identity mismatch");VerifyFields(matches[0].gameObject,edit.Fields);}
             }
             finally{if(prefab!=null)PrefabUtility.UnloadPrefabContents(prefab);if(scene.IsValid())EditorSceneManager.CloseScene(scene,true);}
@@ -167,6 +173,7 @@ namespace Xace.Authoring.Editor
                     File.Copy(source,backup,false);File.Copy(source,staged,false);AssetDatabase.ImportAsset(staged,ImportAssetOptions.ForceSynchronousImport);
                     var row=Map("source",source,"staged",staged,"backup",backup,"before",FileHash(source),"meta",FileHash(source+".meta"),"fingerprint",UnityAuthoringReader.Fingerprint(source),"after",null,"edits",group.Select(e=>Map("authoring_id",e.AuthoringId,"fields",e.Fields)).ToList());
                     files.Add(row);Persist(write);
+                    var expectedStored=new Dictionary<string,string>(StringComparer.Ordinal);
                     var scene=default(UnityEngine.SceneManagement.Scene);GameObject prefab=null;
                     try
                     {
@@ -175,10 +182,11 @@ namespace Xace.Authoring.Editor
                         else {prefab=PrefabUtility.LoadPrefabContents(staged);roots=new[]{prefab};}
                         var objects=roots.SelectMany(r=>r.GetComponentsInChildren<XaceAuthoringIdentity>(true)).ToArray();
                         foreach(var edit in group){var matches=objects.Where(o=>o.AuthoringId==edit.AuthoringId).ToArray();Need(matches.Length==1,"Ambiguous/missing staged object");Apply(matches[0].gameObject,edit.Fields);}
+                        foreach(var identity in objects)expectedStored.Add(identity.AuthoringId,Stored(identity));
                         if(prefab!=null)PrefabUtility.SaveAsPrefabAsset(prefab,staged);else Need(EditorSceneManager.SaveScene(scene,staged),"Staged scene save failed");
                     }
                     finally {if(prefab!=null)PrefabUtility.UnloadPrefabContents(prefab);if(scene.IsValid())EditorSceneManager.CloseScene(scene,true);}
-                    VerifySaved(staged,group);row["readback_verified"]=true;row["after"]=FileHash(staged);Persist(write);
+                    VerifySaved(staged,group,expectedStored);row["readback_verified"]=true;row["after"]=FileHash(staged);Persist(write);
                 }
                 // Originals must still be untouched after preparing native copies.
                 Need(AuthoringJson.Hash(AuthoringJson.Encode(UnityAuthoringReader.Capture(scope)))==expectedInventoryDigest,"Source changed during staging");

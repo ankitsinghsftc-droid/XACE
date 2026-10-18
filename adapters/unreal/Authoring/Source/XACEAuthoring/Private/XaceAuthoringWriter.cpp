@@ -1,4 +1,6 @@
 #include "XaceAuthoring.h"
+#include "GameFramework/WorldSettings.h"
+#include "Engine/LevelScriptActor.h"
 #include "Editor.h"
 #include "Engine/World.h"
 #include "Engine/Level.h"
@@ -100,10 +102,14 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Prepare(UWorld* W,const FStri
     UPackage* Package=W->GetOutermost();FPackagePath OriginalPath=Package->GetLoadedPath();FGuid OriginalGuid=Package->GetPersistentGuid();
     TMap<AActor*,FTransform> Transforms;TMap<AStaticMeshActor*,UStaticMesh*> Meshes;
     for(const auto& E:*Edits){auto O=E->AsObject();AActor* A=Actors[String(O,TEXT("authoring_id"))];if(!A->GetRootComponent())return Fail(TEXT("Missing native root")),nullptr;Transforms.Add(A,A->GetRootComponent()->GetRelativeTransform());if(auto* M=Cast<AStaticMeshActor>(A))Meshes.Add(M,M->GetStaticMeshComponent()->GetStaticMesh());}
+    TMap<FString,FString> ExpectedStored;
+    auto Stored=[&](AActor* A){auto Value=New();A->GetActorLabel();Value->SetObjectField(TEXT("fields"),A->IsA<AWorldSettings>()?New():Fields(A));Value->SetObjectField(TEXT("unowned"),PreservationProperties(A));return Json(Value);};
+    auto Included=[](UWorld* World,AActor* A){return A && !A->HasAnyFlags(RF_Transient) && !A->IsA<ALevelScriptActor>() && A!=World->GetDefaultBrush();};
     bool Saved=false;
     {
         ON_SCOPE_EXIT {for(const auto& P:Transforms)P.Key->GetRootComponent()->SetRelativeTransform(P.Value);for(const auto& P:Meshes)P.Key->GetStaticMeshComponent()->SetStaticMesh(P.Value);Package->SetLoadedPath(OriginalPath);Package->SetPersistentGuid(OriginalGuid);Package->SetDirtyFlag(false);};
         for(const auto& E:*Edits){auto O=E->AsObject();if(!Apply(Actors[String(O,TEXT("authoring_id"))],Child(O,TEXT("fields"))))return nullptr;}
+        for(AActor* A:W->PersistentLevel->Actors)if(Included(W,A))ExpectedStored.Add(A->GetActorGuid().ToString(EGuidFormats::Digits),Stored(A));
         Saved=NativeSave(Package,W,Stage);
     }
     if(!Saved)return Fail(TEXT("Native staged map serialization failed")),nullptr;
@@ -115,6 +121,14 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Prepare(UWorld* W,const FStri
     UPackage* Loaded=LoadPackage(nullptr,*(VerifyMount+TEXT("staged")),LOAD_None);UWorld* Verified=Loaded?UWorld::FindWorldInPackage(Loaded):nullptr;
     if(!Verified)return Fail(TEXT("Staged binary map reopen failed")),nullptr;
     if(Loaded->GetPersistentGuid()!=OriginalGuid)return Fail(TEXT("Staged package identity changed")),nullptr;
+    TMap<FString,FString> ActualStored;
+    for(AActor* A:Verified->PersistentLevel->Actors)if(Included(Verified,A))ActualStored.Add(A->GetActorGuid().ToString(EGuidFormats::Digits),Stored(A));
+    auto ExpectedEvidence=New(),ActualEvidence=New();
+    for(const auto& Entry:ExpectedStored)ExpectedEvidence->SetObjectField(Entry.Key,Parse(Entry.Value));
+    for(const auto& Entry:ActualStored)ActualEvidence->SetObjectField(Entry.Key,Parse(Entry.Value));
+    if(Json(ExpectedEvidence).IsEmpty() || Json(ActualEvidence).IsEmpty() || !FFileHelper::SaveStringToFile(Json(ExpectedEvidence),*(Dir/TEXT("stored-before-save.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM) || !FFileHelper::SaveStringToFile(Json(ActualEvidence),*(Dir/TEXT("stored-after-save.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM))return Fail(TEXT("Stored-property stage evidence unavailable")),nullptr;
+    if(ActualStored.Num()!=ExpectedStored.Num())return Fail(TEXT("Staged actor set changed")),nullptr;
+    for(const auto& Entry:ExpectedStored)if(!ActualStored.Contains(Entry.Key)||ActualStored[Entry.Key]!=Entry.Value)return Fail(TEXT("Staged stored properties changed")),nullptr;
     TMap<FString,AActor*> SavedActors;for(AActor* A:Verified->PersistentLevel->Actors)if(A)SavedActors.Add(String(Metadata(A),TEXT("authoring_id")),A);
     for(const auto& E:*Edits){auto O=E->AsObject();FString IdValue=String(O,TEXT("authoring_id"));if(!SavedActors.Contains(IdValue)||!VerifyFields(SavedActors[IdValue],Child(O,TEXT("fields"))))return Fail(TEXT("Saved native identity/field readback failed")),nullptr;}
     auto After=Capture(W,Map);FFileHelper::SaveStringToFile(Json(Inventory),*(Dir/TEXT("inventory-before.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);FFileHelper::SaveStringToFile(Json(After),*(Dir/TEXT("inventory-after-prepare.json")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);if(!After||Hash(Json(After))!=Hash(Json(Inventory))||FileHash(Original)!=FileHash(Backup))return Fail(TEXT("Original changed during preparation")),nullptr;

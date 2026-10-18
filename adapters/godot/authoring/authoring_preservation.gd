@@ -50,7 +50,7 @@ func properties(object: Object, reader: RefCounted, depth: int = 0) -> Dictionar
 		var name: String = property.name
 		# Position/quaternion/scale are verified separately by exact typed readback.
 		# Every other serialized property, including arbitrary metadata, is retained.
-		if object is Node3D and name == "transform": continue
+		if object is Node3D and name == "transform" and object.get_meta(reader.META, {}).get("kind") != "scene": continue
 		result[name] = value(object.get(name), reader, depth + 1)
 	return result
 

@@ -1,0 +1,117 @@
+[
+  {
+    "source": "adapters\\unity\\Authoring\\Editor\\AuthoringJson.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Editor\\AuthoringJson.cs",
+    "sha256": "ba5668e18611d7a085c6ba348d4152dece8b4b597e91ca6851ecbb9a00687d63"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Editor\\UnityAuthoringPreservation.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringPreservation.cs",
+    "sha256": "2b3650fdacf40f08c72b9c3ff9eb62ea25e99a8210d7bf5f7818fea2bdb72ec1"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Editor\\UnityAuthoringProof.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringProof.cs",
+    "sha256": "e21590c1556b82d6c64a5867c8d559159f8221f073c165ccee0c3b3203574f00"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Editor\\UnityAuthoringReader.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringReader.cs",
+    "sha256": "3137bdfaaa528205d50d196ba34a326b2819fb8941b3528c7ebb1fe5f947337c"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Editor\\UnityAuthoringWriter.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringWriter.cs",
+    "sha256": "c4912a1c1089f99e6056f29888e83a21a13d289cf64e585aac1624627a2940e5"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Runtime\\XaceAuthoringBinding.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Runtime\\XaceAuthoringBinding.cs",
+    "sha256": "4e5187b54c6e42999b927035c347ea0ac2d50fa4629719083d60e1b6804d0a74"
+  },
+  {
+    "source": "adapters\\unity\\Authoring\\Runtime\\XaceAuthoringIdentity.cs",
+    "fixture": "evidence\\nec010\\20261016\\unity-stored-d\\unity-project\\Assets\\XaceAuthoring\\Runtime\\XaceAuthoringIdentity.cs",
+    "sha256": "3c1b4a6e6d4a869c880b8444f1808a207653dd12d38c51e1aed446a049222434"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\authoring_plugin.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\authoring_plugin.gd",
+    "sha256": "424d62583c298ebd19b519309c8a88709bad62c01306d2e19d2b5294917c521b"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\authoring_preservation.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\authoring_preservation.gd",
+    "sha256": "8e28c79e8326ec2dc3fdedf0e814cd5a1dcaa99724b944665682b760c4203296"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\authoring_reader.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\authoring_reader.gd",
+    "sha256": "0e85680180dab49c3162f0aab4ff9a037c2ef470c41e4355387dcedb01af23d7"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\authoring_wire.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\authoring_wire.gd",
+    "sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\authoring_writer.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\authoring_writer.gd",
+    "sha256": "f54c0647d51b34e3593844a86bfc88bc41e33566a799e5eb5a26ba3a007ebab8"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\native_proof.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\native_proof.gd",
+    "sha256": "71af1e8112f6f529527847714148b4c656dcaca544089ff142ecd40bd787a7ad"
+  },
+  {
+    "source": "adapters\\godot\\authoring\\runtime_privilege_proof.gd",
+    "fixture": "evidence\\nec010\\20261017\\godot-native-b\\godot-project\\addons\\xace_authoring\\runtime_privilege_proof.gd",
+    "sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\XACEAuthoring.uplugin",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\XACEAuthoring.uplugin",
+    "sha256": "d277f7bc8fe54f83625dc8c2ac434625724eea83667bffbb9a80f00968dc7fb3"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\XACEAuthoring.Build.cs",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\XACEAuthoring.Build.cs",
+    "sha256": "f775edb34b327dcc091273f228f2158e59b6f046b0a092ed23f3529b4d6e7f6b"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringModule.cpp",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringModule.cpp",
+    "sha256": "08dbc71fa0d492588f90eddb9260bc0ef3f3cd72f000fecfe28afb929bdbcb7f"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringProofCommandlet.cpp",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringProofCommandlet.cpp",
+    "sha256": "2fe36f649a6f48bf00f0556e9b582defee0845443a0d6a265d4bc4be6416fa6e"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringReader.cpp",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringReader.cpp",
+    "sha256": "d2e872c705281526665f40df3b3f86a327afd4e7b27a0a8e843c56168f875be4"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWire.cpp",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWire.cpp",
+    "sha256": "7f930b399f2ab61e5ea5bc6a9d8e071603a699bef3b853784da786cb1d30e51a"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWriter.cpp",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringWriter.cpp",
+    "sha256": "061f580dec06bc2726e869196c373a427e2d34361a50492eb7e3280e24ba4f92"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Public\\XaceAuthoring.h",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Public\\XaceAuthoring.h",
+    "sha256": "9104ef7b9152d59448b739d448e81cf682f210d7beebea0b1d5ca897769ec39f"
+  },
+  {
+    "source": "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Public\\XaceAuthoringProofCommandlet.h",
+    "fixture": "evidence\\nec010\\ue\\h\\unreal-project\\Plugins\\XACEAuthoring\\Source\\XACEAuthoring\\Public\\XaceAuthoringProofCommandlet.h",
+    "sha256": "4d05adf807c71e3c637b03dd82d7da80e2d9e87550ef3ac2d1187fdbef001d41"
+  }
+]

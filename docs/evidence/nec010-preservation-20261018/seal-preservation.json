@@ -1,0 +1,246 @@
+{
+  "schema": "xace.nec001.recovery_seal_check.v1",
+  "ok": true,
+  "original_seal": false,
+  "baseline_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "source_checkpoint": "13a3d9b6ddb68d155b51045d6ad7dcc297ed1df9",
+  "source_entries": 1575,
+  "sealed_files": 54,
+  "distribution_files": 25,
+  "runtime_sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1",
+  "live_source_deviations": [
+    {
+      "path": "AGENT_PROGRESS.md",
+      "baseline_sha256": "c248a8f91581e76d395648309d68b6e4c45cc1240491e49223cabf41e05091d4",
+      "current_sha256": "20d904df91bf7325fe8fb0b508e902a05a0a83d38496a44581bb430199b4456c"
+    },
+    {
+      "path": "MASTER_PLAN.md",
+      "baseline_sha256": "6c13e21439c25632e530a3a67f74b68fb3cbdb9b73ac3ae8b110b323c411ec29",
+      "current_sha256": "02913c45cc902d5aa9255be1e4418c99c12fa1e2ce2cf3b20549c9fa06427468"
+    }
+  ],
+  "protected_files": [
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\debugger\\execution.json",
+      "sha256": "112388dd98db0b7843b0575504a6f4f2870ae845f9b9985469f8b88a04547e62"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\debugger\\proof.json",
+      "sha256": "1f5cd7421e53a8f6d447735595669d38dd2b62d3b638debfada2a2151f258d68"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\godot-native-carried.json",
+      "sha256": "c69de0571eaf184daed9f832e47f61d9661d40cb1940407f8f1557fde4e79847"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\historical-input-correction.json",
+      "sha256": "2ed5c5746b1efd49425abb624e55c02928bf2f7daa059fa16985a844519a1349"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\invite\\execution.json",
+      "sha256": "5e17bf11589209043c530e50485badb81e01d2ddc0504777d3c1babd42ba1237"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\invite\\proof.json",
+      "sha256": "c306d9874ffd3247a1e23a8752040c9ff020b879485af82b85e2fb9e21361fd3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\launch\\execution.json",
+      "sha256": "28cd4c4a45d509f48e87f7eb5b4fe1e02d8a348c54c8ca890dc21b27ef5a9486"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\launch\\proof.json",
+      "sha256": "5cf19d043bbc3800a938bef51097d791a9fbadf01a264887ff812d8e2dfccd0c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\native-carry-forward.json",
+      "sha256": "ca278589eec725d9cea69e82bdd1f9675600923b094df994e63df01d53030bb9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\native-transport-probe.json",
+      "sha256": "8b1d72b7a37f21017ddf0470fab4c9a8074f10b89e996577d03db7ba872fcdbc"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\packaging-verification.json",
+      "sha256": "36ded40a600da268a124e3c62b0f01b2c15cbe685632ad148a962dd0ed53ecba"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\player-input\\execution.json",
+      "sha256": "665bd1f886e957dfb3ce128057ed4b8ea5fdfa77dcea02a3b9f7d3fc9314f0dd"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\player-input\\proof.json",
+      "sha256": "ca27e068eb5794c399fb56e582e25b39426dace663db75f2f3b323f6fe06958b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\presentation\\execution.json",
+      "sha256": "e560023cf29438e043814b753d24c40909ebbddb0b03cc43e7a09101a4e5d67a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\presentation\\proof.json",
+      "sha256": "6a5c2cebff245481be6f7c08d8a1a04f90790f86edeb35eab135616d3ac86e44"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\relay\\execution.json",
+      "sha256": "4f9221f7c94ba181d9dbb06a0baad5e386d3d0543c42ea88b8d84a6f71921d91"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\relay\\proof.json",
+      "sha256": "45bfa7e42d671dbec7e81818fd8147da817b2374b862f765e97fb02d65716872"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\runtime-source-unchanged.json",
+      "sha256": "5e180ef0ec4c5a2a5368493a40f221326bb1a695627b7dfca862d54cb3911f6b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\unity-native-carried.json",
+      "sha256": "318b31ec531320bd4b27d2c286990b969a41336172bc64852d819171e181b361"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\unreal-build-command.json",
+      "sha256": "9d6f09de2fdb2cf321213eff7e4d8d3bb0d77f2d2ab6ffeb0db724820e625637"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\unreal-native.json",
+      "sha256": "ef09cf887f5575f79e7afb7d35177c49c35030c20e51628f8440e25d97c243d4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\writer-mixed-proof.json",
+      "sha256": "b95b7f546cde3e4ea178139b90530213916b1229e0a5f86d2ad3d37938030863"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\writer-regression.json",
+      "sha256": "56d65d383d40ba168e10d6f560e6b5e670f12a39fb5f5de05ce2aa9a1e7ae2f7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-closeout-20261015\\writer-sharing.json",
+      "sha256": "b7212bbac6d13b95ef7e4b7143a3fcbbb78b5d2e8cbb6e2ab9bec0d809cb6133"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\build-correct-package.log",
+      "sha256": "96be0bfc90614cade7d0d6a04474b42dacf7b0ed01c632f97d0d63c449650e22"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\completed-soak\\archive-verification\\report.json",
+      "sha256": "e9852802fb43373f01ce6672a38e19989a5b5d359934eef96fc8738f50cd200d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\completed-soak\\final-result.json",
+      "sha256": "a00e80dcd9d0b182c2782bdd6ac63a074b6b1ef20a5b19c99bc260c6a17b4487"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\completed-soak\\manifest.json",
+      "sha256": "b3b5994dbb23be55733146535e7c8c3a30ded6428353fd81acb375cdc28df3fa"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\completed-soak\\run\\report.json",
+      "sha256": "73832572939dc0b898dcac7edfeb52d1330b19e436507ce566419daa6c7fb52a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\completed-soak\\summary.json",
+      "sha256": "bf7b3873a8f29d8c5e94d8501b012731884a9f1f16c1ae696cdd9fc0c077d064"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\gate-logs\\hosts.json",
+      "sha256": "c47f240952047db3005c2729d5e35badb79bd4bc380debdb3ae015f9b3e25b57"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\gate-logs\\process-faults.json",
+      "sha256": "56b39e108a81f600b9eddb6e74c423ad7e48185ed50a18843e043ad2651ff952"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\gate-logs\\replay-faults.json",
+      "sha256": "71cd40f4dc27550f63e103fc62abf367c7fc736ffd4585b232ec59e8789991e0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\gate-logs\\smoke.json",
+      "sha256": "6b0d7dad8f2f7a3b5077366c2cf28691cfb4eb73cc32c4707dbfa7082aa67d64"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\gate-logs\\sockets.json",
+      "sha256": "3edaac2cad2107ed56f1ba029a00920b2a686676268426a999b65b2b71063aba"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\hosts\\proof.json",
+      "sha256": "b1ead3614ce996d6a44a176b64f6062a22b8b177f234242ea8a78d409b13ab94"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\launch.json",
+      "sha256": "11cc3839a228e1cb8b4c49c16b5286cb82ae1d7b93df8c41bf833d27c19d9638"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\manifest.json",
+      "sha256": "54f55a71c29fb9f8a1b36b2c8e59e2dfcb3fb79a8086f2963598e59397476ff1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\pinned-binaries\\identity.json",
+      "sha256": "563609075e1ae24372f0e0d1b67f39e3cf36ec2283dc5d7c7fed8e713075a5b0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\process-faults\\proof.json",
+      "sha256": "61038ce648e35d807a558a099c06842077dee26b0ed5e05c73c6f293db28ee31"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\reference-tests.log",
+      "sha256": "3fa867991afa6a4d67982c3a7b5a433847a28e0b9cbc84228eb02bc586437264"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\replay-faults\\report.json",
+      "sha256": "89e808c30216bfd421ea8da7f4f5257c8792891659b7882470546f19e4c3a1f7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\runtime-tests-final.log",
+      "sha256": "9d2fa3b5dfff631169ace523f4579f0e7bc37cff2e7c77297ac3c5ea9464d667"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\smoke\\report.json",
+      "sha256": "6d199f09f11a02d70b555b2e050a1a873dfc76be83a093875e56eaf406c70293"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\sockets\\proof.json",
+      "sha256": "1fb4f566a6001d93161913e7312663309801ba61adc46f45936a6425eb64f916"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\staging.log",
+      "sha256": "48effbd186ff4e0c0c6408857fcf11aea5ab144bd513fbb358c793b2f43ace02"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\reports\\xp022-ingress-batch-20261015\\summary.json",
+      "sha256": "5d5dcc51e817751b784fa5f6c7d6fccd8e61ad4168eeb9c6192670e67df59a6d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\source-manifest.json",
+      "sha256": "c985a9170bc4109de8431aacd812416bbf3dbd5d5a7cafc97125b384a333a141"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\source.zip",
+      "sha256": "3c5a8c291389371c52ac9fbe0e0be0ba2e0e7fc08433cef942c0707e04405e81"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\UnrealEditor-XACEAdapter-proof.dll",
+      "sha256": "9a5ce76aa23920969dc774937ac3277f10f0cbece398d3e6e6d96481bae688e0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\unsigned-release.zip",
+      "sha256": "86c9adce5c7be056107c3836331a73f841eb901e4231b46d523627b89b8553eb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\xace-player-launcher.exe",
+      "sha256": "2e7de4c518126d67e0845771af05e6b09345e3c4f153bbe15bffe16270a5feb0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\xace-session-relay.exe",
+      "sha256": "2d68ac97001f833052194cfacaf622652463d22615d0294227a81243f9e1749d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\xace_reference_host.exe",
+      "sha256": "ccbd880532321eb86c544e40260da6238b3ee3232bd68026bd9b848d54543ae1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\baselines\\xp022-recovered-20261015\\baseline.json",
+      "sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc"
+    }
+  ],
+  "release_certified": false
+}

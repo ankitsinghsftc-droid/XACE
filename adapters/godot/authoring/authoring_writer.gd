@@ -163,7 +163,10 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 			if not targets.has(edit.authoring_id): fail("write target disappeared")
 			else: apply(targets[edit.authoring_id], edit.fields)
 		var expected_fields := {}
-		for key in targets: expected_fields[key] = reader.fields(targets[key])
+		var expected_preservation := {}
+		for key in targets:
+			expected_fields[key] = reader.fields(targets[key])
+			expected_preservation[key] = reader.opaque(targets[key], "")
 		var staged := PackedScene.new()
 		if not error.is_empty() or staged.pack(root) != OK:
 			root.free()
@@ -185,6 +188,8 @@ func prepare(paths: Array, request_text: String, transaction_id: String) -> Dict
 		for key in targets:
 			if not expected_fields.has(key) or reader.fields(targets[key]) != expected_fields[key]:
 				fail("saved mapped fields changed outside the reviewed write")
+			if not expected_preservation.has(key) or reader.opaque(targets[key], "") != expected_preservation[key]:
+				fail("saved stored properties differ from staged target")
 			if transform_only and (not before_preservation.has(key) or reader.opaque(targets[key], "") != before_preservation[key]):
 				fail("saved unowned properties changed")
 		for edit in grouped[path]:
