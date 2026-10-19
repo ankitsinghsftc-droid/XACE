@@ -1,0 +1,23 @@
+.................................................E.........................................................................................................................................................................................................
+======================================================================
+ERROR: test_pending_recovery_blocks_other_transactions (test_authoring_transaction.CoordinatorTests.test_pending_recovery_blocks_other_transactions)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\tests\test_authoring_transaction.py", line 148, in test_pending_recovery_blocks_other_transactions
+    with self.assertRaises(Crash):c.commit(r,authorize=lambda r:True)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_transaction.py", line 119, in commit
+    state['state']='decided';self._save(folder,state,'decision_durable')
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_transaction.py", line 36, in _save
+    atomic_json(folder/'state.json',state);self.checkpoint(event)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_transaction_files.py", line 42, in atomic_json
+    next_path=path.with_suffix('.next');durable(next_path,encode(value));os.replace(next_path,path)
+                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+PermissionError: [WinError 5] Access is denied: 'C:\\Users\\ankit\\AppData\\Local\\Temp\\tmpfpz65jaq\\.xace\\authoring-transactions\\txn1\\state.next' -> 'C:\\Users\\ankit\\AppData\\Local\\Temp\\tmpfpz65jaq\\.xace\\authoring-transactions\\txn1\\state.json'
+
+----------------------------------------------------------------------
+Ran 251 tests in 46.617s
+
+FAILED (errors=1)

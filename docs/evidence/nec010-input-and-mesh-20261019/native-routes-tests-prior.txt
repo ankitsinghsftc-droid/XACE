@@ -1,0 +1,136 @@
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+07:27:01 [asyncio] WARNING: Executing <Task pending name='Task-2' coro=<MaterializationRoutes.test_explicit_apply_route_and_actual_player_gate() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:20> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 1.406 seconds
+07:27:01 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:02 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 200 OK"
+07:27:02 [asyncio] WARNING: Executing <Task pending name='Task-2' coro=<MaterializationRoutes.test_explicit_apply_route_and_actual_player_gate() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:22> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.125 seconds
+07:27:02 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 409 Conflict"
+07:27:02 [asyncio] WARNING: Executing <Task pending name='Task-2' coro=<MaterializationRoutes.test_explicit_apply_route_and_actual_player_gate() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:23> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.110 seconds
+07:27:03 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 200 OK"
+07:27:03 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/play "HTTP/1.1 400 Bad Request"
+07:27:03 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/stop "HTTP/1.1 200 OK"
+.C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+07:27:04 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/recover "HTTP/1.1 403 Forbidden"
+07:27:04 [asyncio] WARNING: Executing <Task pending name='Task-7' coro=<MaterializationRoutes.test_explicit_recovery_route_after_lost_acknowledgement() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:46> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.953 seconds
+07:27:04 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/recover "HTTP/1.1 200 OK"
+..C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+07:27:04 [asyncio] WARNING: Executing <Task pending name='Task-17' coro=<RouteTests.test_actual_builder_host_extension() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_reconciliation_routes.py:24> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.281 seconds
+07:27:04 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review "HTTP/1.1 200 OK"
+07:27:04 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:04 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/prompt/capability-matrix "HTTP/1.1 200 OK"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/resolve "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/cancel "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/resolve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 409 Conflict"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review.js "HTTP/1.1 200 OK"
+.07:27:05 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 415 Unsupported Media Type"
+.07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 403 Forbidden"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 403 Forbidden"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 200 OK"
+07:27:05 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/approve "HTTP/1.1 200 OK"
+07:27:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/apply "HTTP/1.1 200 OK"
+.07:27:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 409 Conflict"
+07:27:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/cancel "HTTP/1.1 409 Conflict"
+07:27:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-setup "HTTP/1.1 200 OK"
+.
+----------------------------------------------------------------------
+Ran 12 tests in 5.932s
+
+OK

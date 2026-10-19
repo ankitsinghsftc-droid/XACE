@@ -1,0 +1,15 @@
+{
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp": "ac1d6d6740d66e3d6e3d54b83d59638224234df78bfba8a2ae03df503760207c",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp": "60ba0e04bab88d14f8449330db7f136d3c8f74783d5687e7d0135fa37cb8fd61",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWriter.cpp": "1390870ceef2944ef05f026b642097373fd4f85f378f7bb76064c02686763b50",
+  "packages/gde/src/domain_dsl/typed_operations/native_reconciliation_operations.py": "1f3a9fac0a10bb79a9af1f5a166f79e6fb32e926a05e7c6464f951c86d276282",
+  "packages/project-system/authoring_transaction_files.py": "45c165d80065d3265267149db75bd4867b53712b9fdbf401a2e57045a86fddf7",
+  "packages/project-system/native_reconciliation_plan.py": "d199d5795b0cb8469495bc62646987b63e5428d4ffd1974a26fb60ebec7199b8",
+  "packages/project-system/tests/test_native_playback_reconciliation.py": "07ceeebb6f4d52cb7cd5d3739976ff5a019a7b70253ad4d1cb06fbb4afb6d99f",
+  "packages/project-system/unreal_authoring.py": "4adf4291b26093499ce023492ad890841ccab5d31fad89ab2d5c5acbe0308289",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoringBinding.h": "b5930fc7e2431d0ecbc61af89c2bbdc587e4fb5c918807cffa49a2fe1b4fd001",
+  "packages/gde/src/domain_dsl/typed_operations/native_input_bindings.py": "e59dc60946f06731c9c51db701b60c45df0ad8b114cee9162ffef444280db710",
+  "packages/project-system/tests/test_authoring_journal_io.py": "e9635c135698a05115fd27121f0cea00389d9131711bf24883121ca9372d36a7",
+  "packages/project-system/tests/test_native_input_reconciliation.py": "f2e20a2e747a872ea4ff75a9efe3c45b42e2d99e11c64ae6cfe56b59f792142e",
+  "tools/nec010_input_host_proof.py": "224495d4eb47033265fb6cf06ab4ce0cb36039ac5a3eaf63d06809656cb2c4e9"
+}

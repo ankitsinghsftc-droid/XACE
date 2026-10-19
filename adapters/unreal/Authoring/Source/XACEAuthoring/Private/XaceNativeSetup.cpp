@@ -1,4 +1,5 @@
 #include "XaceAuthoring.h"
+#include "XaceAuthoringBinding.h"
 #include "Editor.h"
 #include "FileHelpers.h"
 #include "Engine/World.h"
@@ -23,13 +24,18 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::CreateSetup(const Object& Spe
     if(!ValidateMetadata(Scene)||String(Scene,TEXT("kind"))!=TEXT("scene")||!Spec->TryGetArrayField(TEXT("objects"),Rows)||Rows->IsEmpty()||Rows->Num()>128)return Fail(TEXT("Explicit scene and object identities required")),nullptr;
     TSet<FString> Seen;Seen.Add(String(Scene,TEXT("authoring_id")));
     for(const auto& Value:*Rows){auto Row=Value->AsObject();auto Identity=Child(Row,TEXT("identity"));auto F=Child(Row,TEXT("fields"));FString Name=String(Row,TEXT("name"));
-        if(!Row||Row->Values.Num()!=3||!ValidateMetadata(Identity)||String(Identity,TEXT("namespace_id"))!=String(Scene,TEXT("namespace_id"))||String(Identity,TEXT("kind"))!=TEXT("object")||Seen.Contains(String(Identity,TEXT("authoring_id")))||Name.IsEmpty()||Name.Len()>128||!F||F->Values.Num()!=3||!F->HasField(TEXT("transform.position"))||!F->HasField(TEXT("transform.rotation"))||!F->HasField(TEXT("transform.scale")))return Fail(TEXT("Invalid setup object")),nullptr;
+        if(!Row||Row->Values.Num()!=3||!ValidateMetadata(Identity)||String(Identity,TEXT("namespace_id"))!=String(Scene,TEXT("namespace_id"))||String(Identity,TEXT("kind"))!=TEXT("object")||Seen.Contains(String(Identity,TEXT("authoring_id")))||Name.IsEmpty()||Name.Len()>128||!F||(F->Values.Num()<3||F->Values.Num()>6)||!F->HasField(TEXT("transform.position"))||!F->HasField(TEXT("transform.rotation"))||!F->HasField(TEXT("transform.scale")))return Fail(TEXT("Invalid setup object")),nullptr;
+        for(const auto& Entry:F->Values)if(Entry.Key!=TEXT("transform.position") && Entry.Key!=TEXT("transform.rotation") && Entry.Key!=TEXT("transform.scale") && Entry.Key!=TEXT("presentation.asset") && Entry.Key!=TEXT("input.action") && Entry.Key!=TEXT("binding.playback"))return Fail(TEXT("Unsupported setup field")),nullptr;
         Seen.Add(String(Identity,TEXT("authoring_id")));
     }
     UWorld* Current=GEditor->GetEditorWorldContext().World();
     if(Current && Current->GetOutermost()->IsDirty())return Fail(TEXT("Dirty editor world; do not discard existing work")),nullptr;
     UWorld* World=UEditorLoadingAndSavingUtils::NewBlankMap(false);if(!World || !Enroll(World->GetWorldSettings(),Scene))return nullptr;
     for(const auto& Value:*Rows){auto Row=Value->AsObject();auto* Actor=World->SpawnActor<AStaticMeshActor>();Actor->SetActorLabel(String(Row,TEXT("name")));Actor->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);Actor->GetStaticMeshComponent()->SetCollisionProfileName(TEXT("NoCollision"));
+        auto FieldsValue=Child(Row,TEXT("fields"));
+        if(FieldsValue->HasField(TEXT("input.action")) || FieldsValue->HasField(TEXT("binding.playback"))){
+            auto* Binding=NewObject<UXaceAuthoringBinding>(Actor,TEXT("XaceAuthoringBinding"));Binding->InputAction=String(FieldsValue,TEXT("input.action"));Binding->BindingId=String(Child(FieldsValue,TEXT("binding.playback")),TEXT("binding_id"));Actor->AddInstanceComponent(Binding);Binding->RegisterComponent();
+        }
         if(!Enroll(Actor,Child(Row,TEXT("identity")))||!Apply(Actor,Child(Row,TEXT("fields"))))return nullptr;
     }
     FString Filename=FPackageName::LongPackageNameToFilename(Map,FPackageName::GetMapPackageExtension());

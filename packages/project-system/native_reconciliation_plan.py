@@ -68,13 +68,17 @@ def _project(cgs,base,mapping):
         found=_binding(cgs,record.world_binding)
         if found is None:
             rows[key]=dict(generation=rows[key]['generation'],deleted=True,parent_id=None,fields={},dependencies=[],opaque=[]);continue
-        _,actor,obj=found
+        mode,actor,obj=found
         components=[c for c in actor['components'] if c['type_id']==1]
         require(len(components)==1,'bound actor needs one transform')
         value=components[0]['defaults'];require(value['parent_entity_id']==0,'runtime parent identity cannot be projected')
         for name in ['position','rotation','scale']:
             require(all(type(v) is int for v in value[name].values()),'structured fixed-point transform required')
             rows[key]['fields']['transform.'+name]={axis:str(v) for axis,v in value[name].items()}
+        input_binding=gde.native_input_bindings.for_object(cgs,mode['id'],obj['id'],mapping.engine)
+        if input_binding:
+            require('input.action' in rows[key]['fields'],'native input selector enrollment required')
+            rows[key]['fields']['input.action']=input_binding['native_actions'][mapping.engine]
         if 'presentation.asset' in rows[key]['fields'] and obj.get('asset_bindings'):
             rows[key]['fields']['presentation.asset']=_presentation(cgs,obj,mapping.engine,rows[key]['fields']['presentation.asset'])
         if 'binding.playback' in rows[key]['fields']:
@@ -150,7 +154,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
             if old_object!=new_object:block('unprojected_canonical_world_change',key)
     for op in merge['canonical_proposals']+merge['native_proposals']:
         if op['kind']!='set_field':block('structural_materialization_requires_coordinator',op['object_id'])
-        elif op['field'] not in TRANSFORMS|{'binding.playback','presentation.asset'} or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
+        elif op['field'] not in TRANSFORMS|{'binding.playback','presentation.asset','input.action'} or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
         elif op['object_id'] not in bound:block('unbound_native_object',op['object_id'],op['field'])
     operations=[]
     for key in bound:
@@ -162,6 +166,18 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         transform['parent_entity_id']=0
         if next(c['defaults'] for c in actor['components'] if c['type_id']==1)!=transform:
             operations.append(dict(operation_id='reconcile.'+key,kind='set_native_transform',mode_id=mode['id'],actor_id=actor['id'],expected_actor_digest=digest(actor),transform=transform))
+    for key in bound:
+        desired=merge['merged'][key];native_action=desired.get('fields',{}).get('input.action')
+        if native_action is None:continue
+        found=_binding(current_cgs,mapping.objects[key].world_binding)
+        if found is None:continue
+        mode,_,obj=found
+        binding=gde.native_input_bindings.for_object(current_cgs,mode['id'],obj['id'],mapping.engine)
+        if binding is None:
+            if before[key]['fields'].get('input.action')!=native_action:block('explicit_input_binding_required',key)
+            continue
+        if binding['native_actions'][mapping.engine]!=native_action:
+            operations.append(dict(operation_id='input.'+key,kind='set_native_input',binding_id=binding['binding_id'],expected_binding_digest=digest(binding),engine=mapping.engine,native_action=native_action))
     for key in bound:
         desired=merge['merged'][key];native_asset=desired.get('fields',{}).get('presentation.asset')
         if native_asset is None:continue

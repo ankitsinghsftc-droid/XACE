@@ -1,5 +1,9 @@
 #include "XaceAuthoringProofCommandlet.h"
 #include "XaceAuthoring.h"
+#include "XaceAuthoringBinding.h"
+#include "Sound/SoundWave.h"
+#include "GameFramework/InputSettings.h"
+#include "Misc/ConfigCacheIni.h"
 #include "Editor.h"
 #include "FileHelpers.h"
 #include "Engine/World.h"
@@ -89,8 +93,15 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     UStaticMesh* OtherSource=LoadObject<UStaticMesh>(nullptr,TEXT("/Engine/BasicShapes/Sphere.Sphere"));UPackage* OtherPackage=CreatePackage(TEXT("/Game/Fixture/OtherMesh"));
     UStaticMesh* OtherMesh=OtherSource?Cast<UStaticMesh>(StaticDuplicateObject(OtherSource,OtherPackage,TEXT("OtherMesh"))):nullptr;
     if(!Check(TEXT("second_binary_mesh_asset"),OtherMesh && SaveAsset(OtherMesh,FPackageName::LongPackageNameToFilename(TEXT("/Game/Fixture/OtherMesh"),TEXT(".uasset")))))return Finish();FAssetRegistryModule::AssetCreated(OtherMesh);
+    // Authoring-only audio asset: no audible playback certification is claimed.
+    UPackage* ClipPackage=CreatePackage(TEXT("/Game/Fixture/Clip"));auto* Clip=NewObject<USoundWave>(ClipPackage,TEXT("Clip"),RF_Public|RF_Standalone);
+    if(!Check(TEXT("saved_audio_declaration_resource"),SaveAsset(Clip,FPackageName::LongPackageNameToFilename(TEXT("/Game/Fixture/Clip"),TEXT(".uasset")))))return Finish();FAssetRegistryModule::AssetCreated(Clip);
+    FString InputConfig=TEXT("[/Script/Engine.InputSettings]\n+ActionMappings=(ActionName=\"XaceMove\",Key=SpaceBar)\n+ActionMappings=(ActionName=\"XaceOther\",Key=Enter)\n");
+    if(!Check(TEXT("declared_input_config_saved"),FFileHelper::SaveStringToFile(InputConfig,*(FPaths::ProjectConfigDir()/TEXT("DefaultInput.ini")),FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM)))return Finish();
+    FConfigCacheIni::LoadGlobalIniFile(GInputIni,TEXT("Input"),nullptr,true);GetMutableDefault<UInputSettings>()->ReloadConfig();
     Check(TEXT("scene_identity_enrollment"),Service.Enroll(W->GetWorldSettings(),Identity(1,true)));
     for(int32 N=2;N<=3;++N){auto* A=W->SpawnActor<AStaticMeshActor>();A->SetActorLabel(TEXT("Ordinary Name"));A->Tags.Add(FName(TEXT("literal:/Game/Fixture/World.World:keep")));A->GetStaticMeshComponent()->SetMobility(EComponentMobility::Movable);A->GetStaticMeshComponent()->SetStaticMesh(Mesh);A->GetStaticMeshComponent()->SetCollisionProfileName(TEXT("NoCollision"));A->SetActorLocation(FVector(300,100*N,200));Check(N==2?TEXT("actor_one_enrollment"):TEXT("actor_two_enrollment"),Service.Enroll(A,Identity(N)));}
+    auto* Binding=NewObject<UXaceAuthoringBinding>(Find(W,2),TEXT("ExplicitAuthoringBinding"));Binding->InputAction=TEXT("XaceMove");Binding->BindingId=TEXT("walk");Binding->EventName=TEXT("actor.walk");Binding->PlaybackKind=TEXT("Audio");Binding->Resource=Clip;Find(W,2)->AddInstanceComponent(Binding);Binding->RegisterComponent();
     if(!Check(TEXT("binary_map_native_save"),FEditorFileUtils::SaveMap(W,Filename)))return Finish();W=Service.LoadApprovedMap(Map);
     if(!Check(TEXT("saved_native_map_reload"),W!=nullptr))return Finish();SaveJson(TEXT("pre-enrollment-discovery.json"),Service.Capture(W,Map,true));auto Inventory=Service.Capture(W,Map);
     if(!Check(TEXT("meaningful_native_capture"),Inventory && Child(Inventory,TEXT("objects"))->Values.Num()==3))return Finish();SaveJson(TEXT("native-before.json"),Inventory);
@@ -102,6 +113,7 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     SaveJson(TEXT("preservation-after-resource.json"),Service.PreservationProperties(W->GetWorldSettings()));
     SaveJson(TEXT("actor-preservation-after-resource.json"),Service.PreservationProperties(Find(W,2)));
     SaveJson(TEXT("native-before-prepare.json"),Service.Capture(W,Map));
+    ChangedFields->SetStringField(TEXT("input.action"),TEXT("XaceOther"));auto Playback=New();Playback->SetStringField(TEXT("binding_id"),TEXT("walk"));Playback->SetStringField(TEXT("event_name"),TEXT("actor.reviewed"));Playback->SetStringField(TEXT("playback_kind"),TEXT("Audio"));Playback->SetObjectField(TEXT("asset"),Service.Asset(LoadObject<USoundWave>(nullptr,TEXT("/Game/Fixture/Clip.Clip"))));ChangedFields->SetObjectField(TEXT("binding.playback"),Playback);
     auto Prepared=Service.Prepare(W,Map,Request(Inventory,Map,2,ChangedFields),IdValue(800));
     if(!Check(TEXT("native_staged_save_readback"),Prepared.IsValid()))return Finish();
     FString BeforeHash=FileHash(Filename);Check(TEXT("prepare_keeps_original"),BeforeHash==String(Child(Prepared,TEXT("receipt")),TEXT("before")));
@@ -114,6 +126,8 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     Check(TEXT("saved_actor_position"),Find(W,2)->GetActorLocation().Equals(FVector(300,800,200),0));
     Check(TEXT("saved_native_mesh_replacement"),Cast<AStaticMeshActor>(Find(W,2))->GetStaticMeshComponent()->GetStaticMesh()->GetPathName()==TEXT("/Game/Fixture/OtherMesh.OtherMesh"));
     Check(TEXT("mesh_change_preserves_unowned_properties"),Service.Preservation(Find(W,2))==UnownedBeforeMesh);
+    Check(TEXT("input_selector_saved"),Find(W,2)->FindComponentByClass<UXaceAuthoringBinding>()->InputAction==TEXT("XaceOther"));
+    Check(TEXT("playback_declaration_saved"),Find(W,2)->FindComponentByClass<UXaceAuthoringBinding>()->EventName==TEXT("actor.reviewed"));
     Check(TEXT("unknown_actor_label_preserved"),Find(W,2)->GetActorLabel()==TEXT("Ordinary Name"));
     Check(TEXT("literal_package_text_preserved"),Find(W,2)->Tags.Contains(FName(TEXT("literal:/Game/Fixture/World.World:keep"))));
     UEditorLoadingAndSavingUtils::NewBlankMap(false);auto Restored=Service.Recover(Map,String(Prepared,TEXT("directory")),FileHash(String(Prepared,TEXT("directory"))/TEXT("receipt.json")));

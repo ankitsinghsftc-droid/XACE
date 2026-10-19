@@ -1,0 +1,21 @@
+{
+  "status": "incomplete_checkpoint",
+  "verified": [
+    "all-three-engine mesh host proofs at 859fa0a",
+    "Unity/Godot input host proofs before journal retry repair",
+    "254 project-system tests after journal retry repair",
+    "five coordinator runs of14 tests each",
+    "three native Windows sharing tests",
+    "27 existing setup tests plus4 new owned setup tests"
+  ],
+  "pending": [
+    "Unreal n native preservation run",
+    "Godot/Unity owned setup host proofs",
+    "Unreal playback/input host integration",
+    "Unreal owned setup host proof",
+    "final NEC010 regression/acceptance closeout"
+  ],
+  "unreal_first_failure": "Typed InstanceComponents references relocated during staging. Failed m receipt retained; typed-array world-reference repair compiled in n.",
+  "next_scope": "Close NEC010, then approved amendments and NEC011 only; stop before NEC012",
+  "off_device_backup": false
+}

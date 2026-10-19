@@ -1,0 +1,38 @@
+Iteration 1
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 7.705s
+
+OK
+Iteration 2
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 7.314s
+
+OK
+Iteration 3
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 6.908s
+
+OK
+Iteration 4
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 6.668s
+
+OK
+Iteration 5
+..........F...
+======================================================================
+FAIL: test_real_process_death_and_restart (test_authoring_transaction.CoordinatorTests.test_real_process_death_and_restart) (event='published_before_receipt:canonical')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\tests\test_authoring_transaction.py", line 65, in test_real_process_death_and_restart
+    self.assertEqual(child.returncode,73,child.stderr)
+AssertionError: 1 != 73 : b'Traceback (most recent call last):\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction.py", line 119, in commit\r\n    state[\'state\']=\'decided\';self._save(folder,state,\'decision_durable\')\r\n                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction.py", line 36, in _save\r\n    atomic_json(folder/\'state.json\',state);self.checkpoint(event)\r\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction_files.py", line 42, in atomic_json\r\n    next_path=path.with_suffix(\'.next\');durable(next_path,encode(value));os.replace(next_path,path)\r\n                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nPermissionError: [WinError 5] Access is denied: \'C:\\\\Users\\\\ankit\\\\AppData\\\\Local\\\\Temp\\\\tmp1epdvzwt\\\\.xace\\\\authoring-transactions\\\\txn1\\\\state.next\' -> \'C:\\\\Users\\\\ankit\\\\AppData\\\\Local\\\\Temp\\\\tmp1epdvzwt\\\\.xace\\\\authoring-transactions\\\\txn1\\\\state.json\'\r\n\r\nDuring handling of the above exception, another exception occurred:\r\n\r\nTraceback (most recent call last):\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\tests\\test_authoring_transaction.py", line 180, in <module>\r\n    c,r=fixture(sys.argv[2],die,initialize=False);c.commit(r,authorize=lambda r:True)\r\n                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction.py", line 125, in commit\r\n    self._save(folder,state,\'failure_recorded\')\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction.py", line 36, in _save\r\n    atomic_json(folder/\'state.json\',state);self.checkpoint(event)\r\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\packages\\project-system\\authoring_transaction_files.py", line 42, in atomic_json\r\n    next_path=path.with_suffix(\'.next\');durable(next_path,encode(value));os.replace(next_path,path)\r\n                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nPermissionError: [WinError 5] Access is denied: \'C:\\\\Users\\\\ankit\\\\AppData\\\\Local\\\\Temp\\\\tmp1epdvzwt\\\\.xace\\\\authoring-transactions\\\\txn1\\\\state.next\' -> \'C:\\\\Users\\\\ankit\\\\AppData\\\\Local\\\\Temp\\\\tmp1epdvzwt\\\\.xace\\\\authoring-transactions\\\\txn1\\\\state.json\'\r\n'
+
+----------------------------------------------------------------------
+Ran 14 tests in 6.594s
+
+FAILED (failures=1)

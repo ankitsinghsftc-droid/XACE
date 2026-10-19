@@ -1,0 +1,23 @@
+{
+  "status": "verified_increment_nec010_incomplete",
+  "parent_checkpoint": "859fa0a",
+  "project_system_tests": 254,
+  "coordinator_repeated_runs": 5,
+  "coordinator_tests_per_run": 14,
+  "native_windows_sharing_tests": 3,
+  "proofs": {
+    "godot-input.json": "125e0d33bd7c1726915dce774ab868c40749afaa0f49ceefceb567ca42d3e0d5",
+    "unity-input.json": "07a6f30abacc2221df0fcc027fa87ddaaecb1e26df5918ccfb96ee23ca60f437",
+    "unity-mesh.json": "425aefa578a7ec6a40c4c010bb519f5e3330dcf8241ffa3e3b24fb0597af4d4d",
+    "unreal-mesh.json": "bdb69a5f2fbf1e8eb2bbf71d0d962c0588aabc84fbf990e507b1b3c1c09490ba"
+  },
+  "provenance": "All mesh processes loaded the pre-input-extension shared Python source captured at 859fa0a. Input host proofs preceded the journal retry repair; current regression covers the repair. Unreal new metadata source compiled at ue/m; native run still pending.",
+  "limitations": [
+    "Unreal metadata native verification pending.",
+    "New-project owned fields and final NEC010 closeout unfinished.",
+    "Runtime input/playback execution not claimed.",
+    "Windows access-denied root holding process not identified; real native sharing conditions reproduce the failure class and verify bounded conflict-aware repair."
+  ],
+  "runtime_activation": false,
+  "off_device_backup": false
+}

@@ -11,7 +11,7 @@ from tools.world_extensibility_proof import rehash
 
 def context(engine):
     data,mapping,cgs,selected,choices=inputs(engine);raw=json.loads(data)
-    path='Assets/hit.wav' if engine=='unity' else 'res://hit.wav'
+    path={'unity':'Assets/hit.wav','godot':'res://hit.wav','unreal':'/Game/Hit.Hit'}[engine]
     raw['objects'][oid(2)]['fields']['binding.playback']=dict(binding_id='import.hit',event_name='combat.hit',playback_kind='Audio',asset=dict(asset_id='audio_hit',asset_type='AUDIO_CLIP',status='LINKED',resolved_path=path))
     choices['objects'][oid(2)]['playback']=dict(semantic_action='play',entity_selector='SourceEntity',parameters={},enabled=True,priority=1)
     cgs['semantic_events']=[dict(name=n,payload_fields=[],version='1.0.0') for n in ['combat.hit','combat.other']];rehash(cgs);data=canonical(raw)
@@ -23,13 +23,13 @@ def context(engine):
 
 class PlaybackTests(unittest.TestCase):
     def test_canonical_event_change_emits_native_write_without_semantic_inference(self):
-        for engine in ['unity','godot']:
+        for engine in ['unity','godot','unreal']:
             c=context(engine);c['current_cgs']['semantic_bindings']['bindings'][0]['event_name']='combat.other';refresh(c)
             r=plan_reconciliation(**c).to_dict();self.assertTrue(r['reviewable'],r['losses'])
             self.assertEqual(r['native_write_preview']['edits'][0]['fields']['binding.playback']['event_name'],'combat.other')
             self.assertEqual(r['typed_operations']['operations'],[])
     def test_native_event_change_uses_typed_gde_and_preserves_gameplay_semantics(self):
-        for engine in ['unity','godot']:
+        for engine in ['unity','godot','unreal']:
             c=context(engine);raw=json.loads(c['native_inventory']);raw['objects'][oid(2)]['fields']['binding.playback']['event_name']='combat.other';c['native_inventory']=canonical(raw);refresh(c)
             r=plan_reconciliation(**c).to_dict();self.assertTrue(r['reviewable'],r['losses']);binding=r['proposed_cgs']['semantic_bindings']['bindings'][0]
             self.assertEqual(binding['event_name'],'combat.other');self.assertEqual(binding['semantic_action'],'play');self.assertEqual(binding['entity_selector'],'SourceEntity')

@@ -1,4 +1,8 @@
 #include "XaceAuthoring.h"
+#include "XaceAuthoringBinding.h"
+#include "GameFramework/InputSettings.h"
+#include "Sound/SoundWave.h"
+#include "Animation/AnimSequence.h"
 #include "Editor.h"
 #include "FileHelpers.h"
 #include "ScopedTransaction.h"
@@ -57,6 +61,10 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
             if(auto* MeshActor=Cast<AStaticMeshActor>(Actor); MeshActor &&
                 Item==MeshActor->GetStaticMeshComponent() && Name==TEXT("StaticMesh") &&
                 MeshActor->GetStaticMeshComponent()->GetStaticMesh())continue;
+            if(auto* Binding=Cast<UXaceAuthoringBinding>(Item); Binding && Binding->GetClass()==UXaceAuthoringBinding::StaticClass()){
+                if(Name==TEXT("InputAction") && !Binding->InputAction.IsEmpty())continue;
+                if(!Binding->BindingId.IsEmpty() && (Name==TEXT("BindingId")||Name==TEXT("EventName")||Name==TEXT("PlaybackKind")||Name==TEXT("Resource")))continue;
+            }
             FString Value;
             Property->ExportTextItem_Direct(Value,Property->ContainerPtrToValuePtr<void>(Item),nullptr,Item,PPF_None);
             // Normalize actual object references, never arbitrary user strings.
@@ -66,6 +74,19 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
                 UObject* Target=Reference->GetObjectPropertyValue_InContainer(Item);
                 if(Target && World && (Target==World || Target->IsIn(World)))
                     Value=Target->GetClass()->GetPathName()+TEXT(":<world>:")+Target->GetPathName(World);
+            }
+            // Arrays of stored object references (e.g. InstanceComponents) also
+            // relocate with the staged world. Preserve order/class/relative
+            // identity; never normalize user strings or omit the collection.
+            if(auto* Array=CastField<FArrayProperty>(Property))if(auto* Reference=CastField<FObjectPropertyBase>(Array->Inner)){
+                FScriptArrayHelper Items(Array,Array->ContainerPtrToValuePtr<void>(Item));TArray<TSharedPtr<FJsonValue>> Entries;
+                for(int32 Index=0;Index<Items.Num();++Index){
+                    FString Entry;Array->Inner->ExportTextItem_Direct(Entry,Items.GetRawPtr(Index),nullptr,Item,PPF_None);
+                    UObject* Target=Reference->GetObjectPropertyValue(Items.GetRawPtr(Index));
+                    if(Target && World && (Target==World || Target->IsIn(World)))Entry=Target->GetClass()->GetPathName()+TEXT(":<world>:")+Target->GetPathName(World);
+                    Entries.Add(MakeShared<FJsonValueString>(Entry));
+                }
+                auto ArrayValue=New();ArrayValue->SetArrayField(TEXT("object_references"),Entries);Value=Json(ArrayValue);
             }
             Properties->SetStringField(Name,Value);
         }
@@ -122,6 +143,7 @@ FString FXaceUnrealAuthoring::Fingerprint(const FString& Map,bool AssetPackage)
         TArray<FName> Dependencies;Registry.GetDependencies(PackageName,Dependencies);Pending.Append(Dependencies);
     }
     TArray<FString> Configs;IFileManager::Get().FindFilesRecursive(Configs,*FPaths::ProjectConfigDir(),TEXT("*.ini"),true,false);
+    IFileManager::Get().FindFilesRecursive(Configs,*(FPaths::ProjectSavedDir()/TEXT("Config")),TEXT("Input.ini"),true,false);
     for(const FString& Path:Configs){if(!SafeFile(Path)){Fail(TEXT("Linked config"));return TEXT("");}FString Relative=FPaths::ConvertRelativePathToFull(Path);FPaths::MakePathRelativeTo(Relative,*FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()));Files->SetStringField(Relative,FileHash(Path));}
     DependencyInventory=Files;return Hash(Json(Files));
 }
@@ -157,11 +179,15 @@ bool FXaceUnrealAuthoring::Enroll(AActor* A,const Object& M,const FString& Expec
 }
 FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Asset(UObject* Resource)
 {
-    if(!Resource || !Resource->IsA<UStaticMesh>() || Resource->GetClass()!=UStaticMesh::StaticClass()){Fail(TEXT("Unsupported persistent resource type"));return nullptr;}
+    FString Type;
+    if(Resource && Resource->GetClass()==UStaticMesh::StaticClass())Type=TEXT("MESH");
+    else if(Resource && Resource->GetClass()==USoundWave::StaticClass())Type=TEXT("AUDIO_CLIP");
+    else if(Resource && Resource->GetClass()==UAnimSequence::StaticClass())Type=TEXT("ANIMATION_CLIP");
+    else {Fail(TEXT("Unsupported persistent resource type"));return nullptr;}
     UPackage* Package=Resource->GetOutermost();FString Path;
     if(!Package->GetName().StartsWith(TEXT("/Game/")) || Package->IsDirty() || !Package->GetPersistentGuid().IsValid() || !FPackageName::DoesPackageExist(Package->GetName(),&Path)){Fail(TEXT("Saved project mesh resource required"));return nullptr;}
     auto O=New();O->SetStringField(TEXT("asset_id"),TEXT("unreal_")+Package->GetPersistentGuid().ToString(EGuidFormats::Digits));
-    O->SetStringField(TEXT("asset_type"),TEXT("MESH"));O->SetStringField(TEXT("status"),TEXT("LINKED"));O->SetStringField(TEXT("resolved_path"),Resource->GetPathName());return O;
+    O->SetStringField(TEXT("asset_type"),Type);O->SetStringField(TEXT("status"),TEXT("LINKED"));O->SetStringField(TEXT("resolved_path"),Resource->GetPathName());return O;
 }
 FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Fields(AActor* A)
 {
@@ -172,6 +198,22 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Fields(AActor* A)
     }
     if(auto* MeshActor=Cast<AStaticMeshActor>(A);MeshActor && MeshActor->GetStaticMeshComponent()->GetStaticMesh()){
         auto Ref=Asset(MeshActor->GetStaticMeshComponent()->GetStaticMesh());if(Ref)O->SetObjectField(TEXT("presentation.asset"),Ref);
+    }
+    TInlineComponentArray<UXaceAuthoringBinding*> BindingComponents;A->GetComponents(BindingComponents);
+    if(BindingComponents.Num()>1){Fail(TEXT("Ambiguous authoring binding components"));return nullptr;}
+    if(auto* Binding=A->FindComponentByClass<UXaceAuthoringBinding>()){
+        if(Binding->GetClass()!=UXaceAuthoringBinding::StaticClass()){Fail(TEXT("Custom authoring behavior requires explicit profile"));return nullptr;}
+        if(!Binding->InputAction.IsEmpty()){
+            TArray<FName> Actions,Axes;const auto* Settings=GetDefault<UInputSettings>();Settings->GetActionNames(Actions);Settings->GetAxisNames(Axes);
+            if(!Actions.Contains(FName(*Binding->InputAction)) && !Axes.Contains(FName(*Binding->InputAction))){Fail(TEXT("Input action absent from native configuration"));return nullptr;}
+            O->SetStringField(TEXT("input.action"),Binding->InputAction);
+        }
+        if(!Binding->BindingId.IsEmpty()){
+            auto Ref=Asset(Binding->Resource);if(!Ref)return nullptr;
+            const FString Type=String(Ref,TEXT("asset_type"));
+            if(Binding->EventName.IsEmpty() || !((Binding->PlaybackKind==TEXT("Audio") && Type==TEXT("AUDIO_CLIP")) || (Binding->PlaybackKind==TEXT("Animation") && Type==TEXT("ANIMATION_CLIP")))){Fail(TEXT("Invalid playback declaration"));return nullptr;}
+            auto Playback=New();Playback->SetStringField(TEXT("binding_id"),Binding->BindingId);Playback->SetStringField(TEXT("event_name"),Binding->EventName);Playback->SetStringField(TEXT("playback_kind"),Binding->PlaybackKind);Playback->SetObjectField(TEXT("asset"),Ref);O->SetObjectField(TEXT("binding.playback"),Playback);
+        }
     }
     return O;
 }
@@ -202,7 +244,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Capture(UWorld* W,const FStri
         if(IsScene && (W->GetWorldSettings()->DefaultGameMode || W->PersistentLevel->GetLevelScriptBlueprint(true)))Critical=true;
         for(UActorComponent* Component:A->GetComponents()){
             if(!Component || Component->HasAnyFlags(RF_Transient) || Component->IsVisualizationComponent())continue;
-            if(!IsScene && Component->GetClass()!=UStaticMeshComponent::StaticClass() && Component->GetClass()!=USceneComponent::StaticClass())Critical=true;
+            if(!IsScene && Component->GetClass()!=UStaticMeshComponent::StaticClass() && Component->GetClass()!=USceneComponent::StaticClass() && Component->GetClass()!=UXaceAuthoringBinding::StaticClass())Critical=true;
             if(auto* Primitive=Cast<UPrimitiveComponent>(Component);Primitive && Primitive->GetCollisionEnabled()!=ECollisionEnabled::NoCollision)Critical=true;
         }
         FString ClassSource;

@@ -16,7 +16,7 @@ ENGINE_VERSION = "5.7.4-51494982+++UE5+Release-5.7"
 READER_VERSION = "unreal.authoring.reader.v1"
 WRITER_VERSION = "unreal.authoring.writer.v1"
 WRITABLE = frozenset({"transform.position", "transform.rotation", "transform.scale",
-                      "presentation.asset"})
+                      "presentation.asset", "input.action", "binding.playback"})
 
 
 def policy(*, enable_writes: bool = False) -> AuthoringPolicy:

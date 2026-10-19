@@ -35,11 +35,16 @@ func create(spec: Dictionary, approved_digest: String) -> Dictionary:
 		if not row.identity is Dictionary or not reader.metadata(row.identity) or row.identity.kind != "object" or row.identity.namespace_id != spec.scene.namespace_id or seen.has(row.identity.authoring_id):
 			root.free()
 			return fail("Ambiguous setup identity")
-		if not row.name is String or row.name.is_empty() or row.name.length() > 128 or not row.fields is Dictionary or row.fields.size() != 3 or not row.fields.has_all(["transform.position", "transform.rotation", "transform.scale"]):
+		if not row.name is String or row.name.is_empty() or row.name.length() > 128 or not row.fields is Dictionary or row.fields.size() < 3 or row.fields.size() > 6 or not row.fields.has_all(["transform.position", "transform.rotation", "transform.scale"]):
 			root.free()
 			return fail("Explicit name and root transform required")
+		for field in row.fields:
+			if field not in ["transform.position", "transform.rotation", "transform.scale", "presentation.asset", "input.action", "binding.playback"]:
+				root.free()
+				return fail("Unsupported setup field")
 		seen[row.identity.authoring_id] = true
-		var node := Node3D.new()
+		var node: Node3D = MeshInstance3D.new() if row.fields.has("presentation.asset") else Node3D.new()
+		if row.fields.has("input.action") or row.fields.has("binding.playback"): node.set_meta(reader.BINDING, {})
 		node.name = row.name
 		node.set_meta(reader.META, row.identity.duplicate(true))
 		root.add_child(node, true)

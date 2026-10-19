@@ -1,0 +1,12 @@
+{
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp": "73260569616895f31efeaa44315d0792c7d7000d60a8f4444329116a8a3a5792",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringWriter.cpp": "1390870ceef2944ef05f026b642097373fd4f85f378f7bb76064c02686763b50",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceNativeSetup.cpp": "c2847288f2793463780b51efbee39931f5d25847e7bc7f11ccca7a305682fc18",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Public/XaceAuthoringBinding.h": "b5930fc7e2431d0ecbc61af89c2bbdc587e4fb5c918807cffa49a2fe1b4fd001",
+  "adapters/unity/Authoring/Editor/UnityNativeSetup.cs": "0f38ebea7e65cb344b8009b8a980c16cbcb0e57904978096c1fe149f84570154",
+  "adapters/godot/authoring/native_setup.gd": "19da3b8977cb9cb36f6ca349b028ca2289d3030dee4cb7e6946a040d86f2087c",
+  "packages/project-system/native_setup_plan.py": "5d5bd2b27b4696c23a78d9ebb40c3fa54978583d3d4fce28e2720d1d419c7b6c",
+  "packages/project-system/native_setup_factory.py": "3ca66d0f6b467714b5a7ede1a0bd687a3655dc69db2b86e774cca1d441d567af",
+  "packages/project-system/tests/test_native_setup_owned.py": "062c8b6c3c82bee7745dcbcab9c85294f465ad6b93c46acb19d9da4adda5f35c",
+  "tools/nec010_owned_setup_proof.py": "3f94d2630ffb207df7c3e36e4a0165cf6fe8c2db404d47cdec3884e624d89646"
+}

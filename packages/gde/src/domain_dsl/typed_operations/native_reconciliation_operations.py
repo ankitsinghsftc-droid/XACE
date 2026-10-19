@@ -2,6 +2,7 @@
 import copy
 from .native_adoption_operations import digest, exact, require, identifier, index, AdoptionOperationResult
 from ...cgs.cgs_serializer import CGSSerializer
+from . import native_input_bindings
 
 SCHEMA='xace.native_reconciliation_operations.v1'
 
@@ -10,8 +11,18 @@ def preview(batch, current, *, validate):
     exact(batch,{'schema','expected_cgs_digest','operations'})
     require(batch['schema']==SCHEMA and batch['expected_cgs_digest']==digest(current),'stale reconciliation CGS')
     require(callable(validate) and type(batch['operations']) is list and len(batch['operations'])<=128,'invalid reconciliation batch')
+    native_input_bindings.validate(current)
     proposed=copy.deepcopy(current);ids=set()
     for op in batch['operations']:
+        if op.get('kind')=='set_native_input':
+            exact(op,{'operation_id','kind','binding_id','expected_binding_digest','engine','native_action'})
+            oid=identifier(op['operation_id']);require(oid not in ids,'duplicate operation');ids.add(oid)
+            bindings=index(native_input_bindings.validate(proposed),'binding_id')
+            require(op['binding_id'] in bindings,'explicit input binding required');binding=bindings[op['binding_id']]
+            require(digest(binding)==op['expected_binding_digest'],'stale input binding')
+            require(op['engine'] in binding['native_actions'],'engine input enrollment required')
+            binding['native_actions'][op['engine']]=op['native_action']
+            native_input_bindings.validate(proposed);continue
         if op.get('kind')=='set_native_presentation':
             exact(op,{'operation_id','kind','mode_id','object_id','expected_object_digest','role','asset'})
             oid=identifier(op['operation_id']);require(oid not in ids,'duplicate operation');ids.add(oid)
@@ -62,5 +73,6 @@ def preview(batch, current, *, validate):
     if changed:
         unhashed=copy.deepcopy(proposed);unhashed['metadata'].pop('cgs_hash',None)
         proposed['metadata']['cgs_hash']=CGSSerializer.compute_hash(unhashed)
+    native_input_bindings.validate(proposed)
     validate(copy.deepcopy(proposed))
     return AdoptionOperationResult(proposed,digest(batch),changed)

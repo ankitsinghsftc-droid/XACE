@@ -54,8 +54,11 @@ namespace Xace.Authoring.Editor
                     var row=AuthoringJson.Obj(raw);Need(row.Count==3,"Setup object fields");var id=AuthoringJson.Obj(row["identity"]);
                     Need(seen.Add(Text(id,"authoring_id")),"Duplicate setup identity");
                     string name=Text(row,"name");Need(name.Length>0 && name.Length<=128,"Setup name");
-                    var fields=AuthoringJson.Obj(row["fields"]);Need(fields.Keys.OrderBy(k=>k).SequenceEqual(new[]{"transform.position","transform.rotation","transform.scale"}),"Root transform required");
-                    var go=new GameObject(name);SceneManager.MoveGameObjectToScene(go,scene);Identity(go,id,"object",ns);UnityAuthoringWriter.Apply(go,fields);
+                    var fields=AuthoringJson.Obj(row["fields"]);Need(new[]{"transform.position","transform.rotation","transform.scale"}.All(fields.ContainsKey) && fields.Keys.All(k=>new[]{"transform.position","transform.rotation","transform.scale","presentation.asset","input.action","binding.playback"}.Contains(k)),"Explicit supported setup fields required");
+                    var go=new GameObject(name);SceneManager.MoveGameObjectToScene(go,scene);Identity(go,id,"object",ns);
+                    if(fields.ContainsKey("presentation.asset")){go.AddComponent<MeshFilter>();go.AddComponent<MeshRenderer>();}
+                    if(fields.ContainsKey("input.action") || fields.ContainsKey("binding.playback"))go.AddComponent<XaceAuthoringBinding>();
+                    UnityAuthoringWriter.Apply(go,fields);
                 }
                 Directory.CreateDirectory("Assets/XACEGenerated");AssetDatabase.Refresh();
                 Need(EditorSceneManager.SaveScene(scene,ScenePath),"Native scene save failed");AssetDatabase.SaveAssets();

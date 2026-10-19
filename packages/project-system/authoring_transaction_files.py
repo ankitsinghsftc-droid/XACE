@@ -8,6 +8,7 @@ import ctypes
 import hashlib
 import json
 import os
+import time
 from pathlib import Path
 
 from authoring_identity import require,exact
@@ -39,7 +40,20 @@ def durable(path,data):
 
 
 def atomic_json(path,value):
-    next_path=path.with_suffix('.next');durable(next_path,encode(value));os.replace(next_path,path)
+    next_path=path.with_suffix('.next');data=encode(value);before=read_state(path)
+    durable(next_path,data)
+    # Windows indexers/readers can briefly deny rename after a durable close.
+    # Retry only the journal rename, never publication or an authorization step.
+    # Keep the old journal and staged bytes on permanent denial or concurrent edit.
+    deadline=time.monotonic()+1.0;delay=0.01
+    while True:
+        require(read_state(path)==before and next_path.read_bytes()==data,'journal changed during replacement')
+        try:
+            os.replace(next_path,path);return
+        except OSError as error:
+            if os.name!='nt' or getattr(error,'winerror',None) not in {5,32,33} or time.monotonic()>=deadline:raise
+            time.sleep(delay);delay=min(delay*2,0.1)
+
 
 
 def load_json(path):

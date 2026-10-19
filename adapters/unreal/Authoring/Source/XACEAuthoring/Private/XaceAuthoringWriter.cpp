@@ -1,4 +1,5 @@
 #include "XaceAuthoring.h"
+#include "XaceAuthoringBinding.h"
 #include "GameFramework/WorldSettings.h"
 #include "Engine/LevelScriptActor.h"
 #include "Editor.h"
@@ -63,6 +64,16 @@ bool FXaceUnrealAuthoring::Apply(AActor* A,const Object& F)
             auto* Mesh=LoadObject<UStaticMesh>(nullptr,*Path);auto Actual=Asset(Mesh);
             if(!Actual || Json(Actual)!=Json(Ref))return Fail(TEXT("Resource identity/type mismatch"));
             CastChecked<AStaticMeshActor>(A)->GetStaticMeshComponent()->SetStaticMesh(Mesh);
+        }else if(K==TEXT("input.action")){
+            auto* Binding=A->FindComponentByClass<UXaceAuthoringBinding>();FString Value=String(F,K);
+            if(!Binding || Binding->InputAction.IsEmpty() || Value.IsEmpty() || Value.Len()>128)return Fail(TEXT("Existing explicit input selector required"));
+            Binding->InputAction=Value;
+        }else if(K==TEXT("binding.playback")){
+            auto* Binding=A->FindComponentByClass<UXaceAuthoringBinding>();auto Value=Child(F,K);auto Ref=Child(Value,TEXT("asset"));FString Path=String(Ref,TEXT("resolved_path"));
+            if(!Binding || Binding->BindingId.IsEmpty() || !Value || Value->Values.Num()!=4 || String(Value,TEXT("binding_id"))!=Binding->BindingId || !Path.StartsWith(TEXT("/Game/")))return Fail(TEXT("Existing explicit playback identity required"));
+            UObject* Resource=LoadObject<UObject>(nullptr,*Path);auto Actual=Asset(Resource);
+            if(!Actual || Json(Actual)!=Json(Ref))return Fail(TEXT("Playback resource identity/type mismatch"));
+            Binding->EventName=String(Value,TEXT("event_name"));Binding->PlaybackKind=String(Value,TEXT("playback_kind"));Binding->Resource=Resource;
         }else return Fail(TEXT("Field not writable: ")+K);
     }
     return VerifyFields(A,F);
@@ -72,7 +83,8 @@ bool FXaceUnrealAuthoring::VerifyFields(AActor* A,const Object& F)
     auto Actual=Fields(A);if(!Error.IsEmpty())return false;
     FTransform T=A->GetRootComponent()->GetRelativeTransform();
     for(const auto& Pair:F->Values){FString K=Pair.Key;
-        if(K==TEXT("presentation.asset")){if(Json(Child(Actual,K))!=Json(Child(F,K)))return Fail(TEXT("Saved asset readback mismatch"));continue;}
+        if(K==TEXT("input.action")){if(String(Actual,K)!=String(F,K))return Fail(TEXT("Saved input selector mismatch"));continue;}
+        if(K==TEXT("presentation.asset") || K==TEXT("binding.playback")){if(Json(Child(Actual,K))!=Json(Child(F,K)))return Fail(TEXT("Saved asset readback mismatch"));continue;}
         auto Expected=Child(F,K);if(!Expected)return Fail(TEXT("Invalid numeric field"));
         TArray<double> Values;
         if(K==TEXT("transform.rotation")){FQuat Q=T.GetRotation();Values={-Q.Y*1e6,-Q.Z*1e6,Q.X*1e6,Q.W*1e6};double Sign=Values[3]!=0?Values[3]:(Values[0]!=0?Values[0]:(Values[1]!=0?Values[1]:Values[2]));if(Sign<0)for(double& V:Values)V=-V;}
@@ -95,19 +107,24 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::Prepare(UWorld* W,const FStri
     TMap<FString,AActor*> Actors;for(AActor* A:W->PersistentLevel->Actors)if(A)Actors.Add(String(Metadata(A),TEXT("authoring_id")),A);
     TSet<FString> Seen;for(const auto& E:*Edits){auto O=E->AsObject();FString IdValue=String(O,TEXT("authoring_id"));if(!O||O->Values.Num()!=3||String(O,TEXT("document"))!=Map||!Actors.Contains(IdValue)||Seen.Contains(IdValue)||!Child(O,TEXT("fields"))||Child(O,TEXT("fields"))->Values.IsEmpty())return Fail(TEXT("Invalid duplicate/out-of-scope edit")),nullptr;Seen.Add(IdValue);}
     auto Resources=New();
-    for(const auto& E:*Edits){auto Ref=Child(Child(E->AsObject(),TEXT("fields")),TEXT("presentation.asset"));if(Ref){FString Name=FPackageName::ObjectPathToPackageName(String(Ref,TEXT("resolved_path")));FString Stamp=Fingerprint(Name,true);if(Stamp.IsEmpty()||!Error.IsEmpty())return nullptr;Resources->SetStringField(Name,Stamp);}}
+    for(const auto& E:*Edits){auto FieldsValue=Child(E->AsObject(),TEXT("fields"));
+        for(auto Ref:{Child(FieldsValue,TEXT("presentation.asset")),Child(Child(FieldsValue,TEXT("binding.playback")),TEXT("asset"))})if(Ref){FString Name=FPackageName::ObjectPathToPackageName(String(Ref,TEXT("resolved_path")));FString Stamp=Fingerprint(Name,true);if(Stamp.IsEmpty()||!Error.IsEmpty())return nullptr;Resources->SetStringField(Name,Stamp);}}
+
     if(!IFileManager::Get().MakeDirectory(*Dir,true))return Fail(TEXT("Transaction directory unavailable")),nullptr;
     FString Original=MapFilename(Map),Stage=Dir/TEXT("staged.umap"),Backup=Dir/TEXT("before.umap");
     if(!Copy(Backup,Original))return Fail(TEXT("Before-image preparation failed")),nullptr;
     UPackage* Package=W->GetOutermost();FPackagePath OriginalPath=Package->GetLoadedPath();FGuid OriginalGuid=Package->GetPersistentGuid();
     TMap<AActor*,FTransform> Transforms;TMap<AStaticMeshActor*,UStaticMesh*> Meshes;
     for(const auto& E:*Edits){auto O=E->AsObject();AActor* A=Actors[String(O,TEXT("authoring_id"))];if(!A->GetRootComponent())return Fail(TEXT("Missing native root")),nullptr;Transforms.Add(A,A->GetRootComponent()->GetRelativeTransform());if(auto* M=Cast<AStaticMeshActor>(A))Meshes.Add(M,M->GetStaticMeshComponent()->GetStaticMesh());}
+    struct FBindingState { FString InputAction,BindingId,EventName,PlaybackKind; UObject* Resource; };
+    TMap<UXaceAuthoringBinding*,FBindingState> BindingStates;
+    for(const auto& E:*Edits)if(auto* B=Actors[String(E->AsObject(),TEXT("authoring_id"))]->FindComponentByClass<UXaceAuthoringBinding>())BindingStates.Add(B,{B->InputAction,B->BindingId,B->EventName,B->PlaybackKind,B->Resource});
     TMap<FString,FString> ExpectedStored;
     auto Stored=[&](AActor* A){auto Value=New();A->GetActorLabel();Value->SetObjectField(TEXT("fields"),A->IsA<AWorldSettings>()?New():Fields(A));Value->SetObjectField(TEXT("unowned"),PreservationProperties(A));return Json(Value);};
     auto Included=[](UWorld* World,AActor* A){return A && !A->HasAnyFlags(RF_Transient) && !A->IsA<ALevelScriptActor>() && A!=World->GetDefaultBrush();};
     bool Saved=false;
     {
-        ON_SCOPE_EXIT {for(const auto& P:Transforms)P.Key->GetRootComponent()->SetRelativeTransform(P.Value);for(const auto& P:Meshes)P.Key->GetStaticMeshComponent()->SetStaticMesh(P.Value);Package->SetLoadedPath(OriginalPath);Package->SetPersistentGuid(OriginalGuid);Package->SetDirtyFlag(false);};
+        ON_SCOPE_EXIT {for(const auto& P:BindingStates){auto* B=P.Key;const auto& V=P.Value;B->InputAction=V.InputAction;B->BindingId=V.BindingId;B->EventName=V.EventName;B->PlaybackKind=V.PlaybackKind;B->Resource=V.Resource;}for(const auto& P:Transforms)P.Key->GetRootComponent()->SetRelativeTransform(P.Value);for(const auto& P:Meshes)P.Key->GetStaticMeshComponent()->SetStaticMesh(P.Value);Package->SetLoadedPath(OriginalPath);Package->SetPersistentGuid(OriginalGuid);Package->SetDirtyFlag(false);};
         for(const auto& E:*Edits){auto O=E->AsObject();if(!Apply(Actors[String(O,TEXT("authoring_id"))],Child(O,TEXT("fields"))))return nullptr;}
         for(AActor* A:W->PersistentLevel->Actors)if(Included(W,A))ExpectedStored.Add(A->GetActorGuid().ToString(EGuidFormats::Digits),Stored(A));
         Saved=NativeSave(Package,W,Stage);

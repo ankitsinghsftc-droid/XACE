@@ -15,7 +15,7 @@ from native_setup_plan import NativeSetupPlan,plan_setup
 
 def create_native_setup_stage(plan,cgs,stage_root,*,template_files,gateway_config):
     require(type(plan) is NativeSetupPlan,'typed setup plan required')
-    data=plan.to_dict();expected=plan_setup(cgs,**{k:data[k] for k in ['engine','namespace_id','project_id','branch_id','mode_id']})
+    data=plan.to_dict();expected=plan_setup(cgs,**{k:data[k] for k in ['engine','namespace_id','project_id','branch_id','mode_id']},playback_bindings=data.get('playback_bindings'))
     require(expected.payload==plan.payload,'setup plan/source changed')
     root=Path(stage_root).absolute();engine=data['engine']
     require(not root.exists(),'fresh stage directory required')
