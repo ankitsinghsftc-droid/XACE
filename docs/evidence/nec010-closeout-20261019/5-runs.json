@@ -1,0 +1,164 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_*.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 258,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\0-test_all.py.log",
+    "sha256": "b67f7ecb9ba9978e4798e8af0f659f64aecb60d0ae7525f00a96229bb1de19b4"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_asset_validation.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 107,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\1-test_asset_validation.py.log",
+    "sha256": "945918d1b1d95b638bcd0d98e960d6f04d80e787fc826e8b8fa00699ea14924c"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_asset_reference_preflight.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 5,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\2-test_asset_reference_preflight.py.log",
+    "sha256": "c6af678fdbf62dd09c1159665ade34a476044cdcebad247df42b8d4fb80cf7dd"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests",
+      "-p",
+      "test_semantic_binding_status.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 2,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\3-test_semantic_binding_status.py.log",
+    "sha256": "1b1257e32d91b43632be411d340dd27d57fd922bb9482dcc305c36adc05f4f33"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_world_extensibility.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 8,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\4-test_world_extensibility.py.log",
+    "sha256": "d25c6ac3a137293e64666a50940f282d9cd2c00922487cb832c776149a111093"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_engine_edit_router.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 14,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\5-test_engine_edit_router.py.log",
+    "sha256": "5421aefa417061a393142458ac23a92a690e0af74b5897df4a13f877fa1d08bf"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_native_reconciliation_routes.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 7,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\6-test_native_reconciliation_routes.py.log",
+    "sha256": "fe7aa9d57e55fe35f0406bd56eece6981cae2a8d450e05ab71b21fd9338009c5"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_native_materialization_routes.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 3,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\7-test_native_materialization_routes.py.log",
+    "sha256": "a4645905af74481fd8dd6467f1e09d9cdd18bfefd8ff9fe67899405313470d47"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_native_setup_routes.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "tests": 2,
+    "log": "evidence\\nec010\\20261019\\final-regression-a\\8-test_native_setup_routes.py.log",
+    "sha256": "1a27474d58fe92a9279d032924f2ba1c4a0389c82ea7faff1e6f04de7415cf31"
+  }
+]

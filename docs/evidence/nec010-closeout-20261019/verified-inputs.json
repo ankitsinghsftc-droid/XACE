@@ -1,0 +1,37 @@
+[
+  {
+    "path": "evidence/nec010/20261019/godot-owned-setup-a/proof.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\0-proof.json",
+    "sha256": "2b1d34c886048dfb8644c11072c09497f509af35b6f83bb4a9e4d363605f46da"
+  },
+  {
+    "path": "evidence/nec010/20261019/unity-owned-setup-a/proof.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\1-proof.json",
+    "sha256": "ffb651b9960fe85d9058f6e578fb74d8e6359ea87bee8af240bb8c9a7389678f"
+  },
+  {
+    "path": "evidence/nec010/ue/o/run.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\2-run.json",
+    "sha256": "1c419b836b523596ae2b629a573a8f0244f2ae50b3d676d98564fb033e33a6ed"
+  },
+  {
+    "path": "evidence/nec010/ue/o/reload.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\3-reload.json",
+    "sha256": "e6959a3be4ea3594b34e427f9cc9380d1c7cffee6ff7c0ddae08d2eaf226a761"
+  },
+  {
+    "path": "evidence/nec010/ue/n/unreal-project/.xace/proof-run.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\4-proof-run.json",
+    "sha256": "a0358b562ec2733d659e0c5eab806bfb60a429fa000c4f2cc723782bfe77fd75"
+  },
+  {
+    "path": "evidence/nec010/20261019/final-regression-a/runs.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\5-runs.json",
+    "sha256": "b5578f4390f8b7414bb4fc067da439eef7a2aac728621aa33d0cb5da10c2e3ac"
+  },
+  {
+    "path": "evidence/nec010/20261016/unity-closeout-a/run.json",
+    "copy": "docs\\evidence\\nec010-closeout-20261019\\6-run.json",
+    "sha256": "e878bc1d09c17fbfae4a34fae73b981a68b4113ebe65821c5c0aa9e8f58e4d3b"
+  }
+]

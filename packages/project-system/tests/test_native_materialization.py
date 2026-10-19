@@ -46,6 +46,21 @@ class MaterializationOwnershipTests(unittest.TestCase):
         self.assertTrue(any(v['code']=='native_code_is_not_cgs' for v in r['losses']))
         self.assertEqual(r['merged'][oid(2)]['opaque'],e[oid(2)]['opaque'])
 
+    def test_native_deletion_never_becomes_silent_canonical_delete(self):
+        for engine in ['unity','godot','unreal']:
+            with self.subTest(engine=engine):
+                c=context(engine);before=canonical(c['current_cgs'])
+                raw=json.loads(c['native_inventory']);del raw['objects'][oid(2)]
+                c['native_inventory']=canonical(raw);refresh(c)
+                try:
+                    report=plan_reconciliation(**c).to_dict()
+                except ValueError:
+                    pass  # Missing persistent locator is an explicit refusal.
+                else:
+                    self.assertFalse(report['reviewable'], report)
+                    self.assertFalse(report['can_commit'])
+                self.assertEqual(before,canonical(c['current_cgs']))
+
     def test_real_structure_with_opaque_refresh_still_requires_review(self):
         b,x,e,p=rows();e[oid(2)]['opaque']=opaque();e[oid(2)]['parent_id']=oid(3)
         r=reconcile_records(b,x,e,p).to_dict()

@@ -16,8 +16,8 @@ from tools.world_extensibility_proof import rehash
 from nec010_editor_gateway_proof import EXES
 
 def main(engine,out):
-    assert engine in ['unity','godot'] and out.is_relative_to(ROOT/'evidence/nec010') and not out.exists()
-    out.mkdir(parents=True);source=ROOT/'evidence/nec010/20261019'/(engine+'-input-a')/(engine+'-project')
+    assert engine in ['unity','godot','unreal'] and out.is_relative_to(ROOT/'evidence/nec010') and not out.exists()
+    out.mkdir(parents=True);source=ROOT/'evidence/nec010/20261019'/('unreal-bindings-a' if engine=='unreal' else engine+'-input-a')/(engine+'-project')
     cgs=json.loads((source/'game.cgs.json').read_text());snapshot=json.loads((source/NATIVE).read_bytes());rows=snapshot['inspection']['normalized']
     meshes={canonical(r['fields']['presentation.asset']) for r in rows.values() if 'presentation.asset' in r['fields']};assert len(meshes)==1
     ref=json.loads(next(iter(meshes)));obj=cgs['modes'][0]['world']['contract']['objects'][0]
@@ -26,17 +26,21 @@ def main(engine,out):
     links={obj['id']:cgs['semantic_bindings']['bindings'][0]['binding_id']}
     plan=plan_setup(cgs,engine=engine,namespace_id='e'*32,project_id='owned-setup-proof',branch_id='b'*32,mode_id=cgs['modes'][0]['id'],playback_bindings=links)
     if engine=='unity':roots=['Assets','Packages','ProjectSettings'];addon='Assets/XaceAuthoring';docs=['Assets/XACEGenerated/World.unity'];code=ROOT/'adapters/unity/Authoring'
-    else:roots=['Fixture','addons','project.godot','xace_protocol.gd','xace_protocol.gd.uid'];addon='addons/xace_authoring';docs=['res://XACEGenerated/World.tscn'];code=ROOT/'adapters/godot/authoring'
+    elif engine=='godot':roots=['Fixture','addons','project.godot','xace_protocol.gd','xace_protocol.gd.uid'];addon='addons/xace_authoring';docs=['res://XACEGenerated/World.tscn'];code=ROOT/'adapters/godot/authoring'
+    else:roots=['Config','Content','Plugins','NEC006.uproject'];addon='Plugins/XACEAuthoring';docs=['/Game/XACEGenerated/World'];code=ROOT/'adapters/unreal/Authoring'
     files={}
     for relative in roots:
         path=source/relative
         for p in ([path] if path.is_file() else path.rglob('*')):
             name=p.relative_to(source).as_posix()
-            if p.is_file() and '__xaceauthoringstage' not in name.lower() and 'proof' not in name.lower():files[name]=p.read_bytes()
+            if p.is_file() and '__xaceauthoringstage' not in name.lower() and (engine=='unreal' or 'proof' not in name.lower()) and 'Intermediate' not in p.parts and p.suffix!='.pdb':files[name]=p.read_bytes()
     for p in code.rglob('*'):
-        if p.is_file() and 'proof' not in p.name.lower():files[addon+'/'+p.relative_to(code).as_posix()]=p.read_bytes()
+        if p.is_file() and (engine=='unreal' or 'proof' not in p.name.lower()):
+            name=addon+'/'+p.relative_to(code).as_posix()
+            if engine=='unreal':assert files[name]==p.read_bytes(),'Compiled setup source mismatch'
+            else:files[name]=p.read_bytes()
     if engine=='godot':roots.append('XACEGenerated')
-    config=dict(engine=engine,executable=str(EXES[engine]),executable_sha256=sha(EXES[engine].read_bytes()),documents=docs,source_roots=roots,plugin_hashes={p:sha(b) for p,b in files.items() if p.startswith(addon+'/') and not p.endswith('.meta')},trusted_closed_project=True)
+    config=dict(engine=engine,executable=str(EXES[engine]),executable_sha256=sha(EXES[engine].read_bytes()),documents=docs,source_roots=roots,plugin_hashes={p:sha(b) for p,b in files.items() if p.startswith(addon+'/') and not p.endswith('.meta')},project_file="NEC006.uproject" if engine=="unreal" else None,trusted_closed_project=True)
     (out/'source.cgs.json').write_bytes(canonical(cgs));(out/'setup-plan.json').write_bytes(plan.payload);(out/'gateway-config.json').write_bytes(canonical(config))
     stage=create_native_setup_stage(plan,cgs,out/'native-stage',template_files=files,gateway_config=config)
     assert all({'presentation.asset','input.action','binding.playback'}<=set(r['fields']) for r in plan.to_dict()['native_request']['objects'])

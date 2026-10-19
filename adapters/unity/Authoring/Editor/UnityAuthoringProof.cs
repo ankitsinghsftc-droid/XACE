@@ -71,7 +71,9 @@ namespace Xace.Authoring.Editor
                 var priorLocator=Hash(AuthoringJson.Obj(rows[Id(4)])["locator"]);
                 Undo.RecordObject(sibling.transform,"Move authored object");sibling.transform.localPosition=new Vector3(4,5,6);Undo.FlushUndoRecordObjects();
                 Reject("dirty_capture_refused",()=>UnityAuthoringReader.Capture(scope));
-                Undo.PerformUndo();Check("native_undo",sibling.transform.localPosition==Vector3.zero);Save();
+                Undo.PerformUndo();Check("native_undo",sibling.transform.localPosition==Vector3.zero);
+                Undo.PerformRedo();Check("native_redo",sibling.transform.localPosition==new Vector3(4,5,6));
+                Undo.PerformUndo();Check("native_undo_after_redo",sibling.transform.localPosition==Vector3.zero);Save();
                 sibling.name="Renamed freely";nested.transform.SetParent(instance.transform,false);EditorSceneManager.MarkSceneDirty(scene);Save();
                 var rescanned=UnityAuthoringNotifications.Rescan(scope);rows=AuthoringJson.Obj(rescanned["objects"]);
                 Check("rename_identity_stable",Hash(AuthoringJson.Obj(rows[Id(4)])["locator"])==priorLocator);

@@ -143,7 +143,7 @@ FString FXaceUnrealAuthoring::Fingerprint(const FString& Map,bool AssetPackage)
         TArray<FName> Dependencies;Registry.GetDependencies(PackageName,Dependencies);Pending.Append(Dependencies);
     }
     TArray<FString> Configs;IFileManager::Get().FindFilesRecursive(Configs,*FPaths::ProjectConfigDir(),TEXT("*.ini"),true,false);
-    IFileManager::Get().FindFilesRecursive(Configs,*(FPaths::ProjectSavedDir()/TEXT("Config")),TEXT("Input.ini"),true,false);
+    TArray<FString> GeneratedInputs;IFileManager::Get().FindFilesRecursive(GeneratedInputs,*(FPaths::ProjectSavedDir()/TEXT("Config")),TEXT("Input.ini"),true,false);Configs.Append(GeneratedInputs);
     for(const FString& Path:Configs){if(!SafeFile(Path)){Fail(TEXT("Linked config"));return TEXT("");}FString Relative=FPaths::ConvertRelativePathToFull(Path);FPaths::MakePathRelativeTo(Relative,*FPaths::ConvertRelativePathToFull(FPaths::ProjectDir()));Files->SetStringField(Relative,FileHash(Path));}
     DependencyInventory=Files;return Hash(Json(Files));
 }
