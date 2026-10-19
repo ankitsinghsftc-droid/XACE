@@ -12,6 +12,39 @@ def preview(batch, current, *, validate):
     require(callable(validate) and type(batch['operations']) is list and len(batch['operations'])<=128,'invalid reconciliation batch')
     proposed=copy.deepcopy(current);ids=set()
     for op in batch['operations']:
+        if op.get('kind')=='set_native_presentation':
+            exact(op,{'operation_id','kind','mode_id','object_id','expected_object_digest','role','asset'})
+            oid=identifier(op['operation_id']);require(oid not in ids,'duplicate operation');ids.add(oid)
+            modes=index(proposed['modes']);require(op['mode_id'] in modes,'unknown mode')
+            objects=index(modes[op['mode_id']].get('world',{}).get('contract',{}).get('objects',[]))
+            require(op['object_id'] in objects,'unknown World object');obj=objects[op['object_id']]
+            require(digest(obj)==op['expected_object_digest'],'stale World object')
+            require(set(obj['asset_bindings'])=={op['role']},'explicit single presentation role required')
+            ref=op['asset'];exact(ref,{'id','asset_type','status'})
+            asset=index(proposed.get('assets',[])).get(ref['id'])
+            require(asset is not None and ref=={k:asset[k] for k in ['id','asset_type','status']} and ref['asset_type']=='MESH' and ref['status']=='LINKED','registered linked mesh required')
+            obj['asset_bindings'][op['role']]=copy.deepcopy(ref);continue
+        if op.get('kind')=='set_native_playback':
+            exact(op,{'operation_id','kind','binding_id','expected_binding_digest','binding'})
+            oid=identifier(op['operation_id']);require(oid not in ids,'duplicate operation');ids.add(oid)
+            bindings=index(proposed.get('semantic_bindings',{}).get('bindings',[]),'binding_id')
+            require(op['binding_id'] in bindings,'unknown playback binding')
+            previous=bindings[op['binding_id']];value=op['binding']
+            require(digest(previous)==op['expected_binding_digest'],'stale playback binding')
+            exact(value,set(previous));require(value['binding_id']==previous['binding_id'],'binding identity change refused')
+            for key in previous:
+                if key not in {'event_name','playback_kind','asset','parameters'}:require(value[key]==previous[key],'gameplay semantics require separate operation')
+            exact(value['parameters'],set(previous['parameters']))
+            for key in previous['parameters']:
+                if key!='resource_path':require(value['parameters'][key]==previous['parameters'][key],'playback parameter semantics changed')
+            require(value['event_name'] in {e['name'] for e in proposed.get('semantic_events',[])},'undeclared playback event')
+            ref=value['asset'];exact(ref,{'id','asset_type','status'})
+            asset=index(proposed.get('assets',[])).get(ref['id'])
+            require(asset is not None and asset['status']=='LINKED' and ref['status']=='Linked','registered linked playback asset required')
+            require(ref['asset_type']==''.join(part.title() for part in asset['asset_type'].split('_')),'playback asset type mismatch')
+            expected={'Animation':{'ANIMATION_CLIP','ANIMATION_CONTROLLER'},'Audio':{'AUDIO_CLIP'}}
+            require(asset['asset_type'] in expected.get(value['playback_kind'],set()),'playback kind/type mismatch')
+            previous.clear();previous.update(copy.deepcopy(value));continue
         exact(op,{'operation_id','kind','mode_id','actor_id','expected_actor_digest','transform'})
         oid=identifier(op['operation_id']);require(oid not in ids,'duplicate operation');ids.add(oid)
         require(op['kind']=='set_native_transform','unsupported reconciliation operation')

@@ -161,7 +161,7 @@ namespace Xace.Authoring.Editor
                 // Even supported components retain their unowned serialized properties.
                 bool critical=!(component is MeshFilter || component is Renderer || component is Light || component is BoxCollider);
                 entries.Add(Map("id","component:"+(index++).ToString(CultureInfo.InvariantCulture)+":"+component.GetType().FullName,
-                    "sha256",UnityAuthoringPreservation.Fingerprint(component),"critical",critical,
+                    "sha256",UnityAuthoringPreservation.Fingerprint(component,false,component is MeshFilter),"critical",critical,
                     "reason",critical?"Native behavior retained; translation/adoption review required":"Native serialized properties retained; only declared fields are mapped"));
             }
             return entries;

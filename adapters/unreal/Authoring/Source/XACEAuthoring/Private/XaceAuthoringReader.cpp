@@ -41,8 +41,8 @@ TSharedPtr<FJsonValue> Null(){return MakeShared<FJsonValueNull>();}
 FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor* Actor)
 {
     // The pinned editor exports stored properties; runtime/transient fields are
-    // excluded by serialization flags. Only the separately mapped root transform
-    // is excluded. Native classes and all other properties remain represented.
+    // excluded by serialization flags. Separately mapped root transform and
+    // static mesh reference are verified in typed fields. All other properties remain.
     auto Rows=New();UWorld* World=Actor->GetWorld();
     TArray<UObject*> Objects;Objects.Add(Actor);
     for(UActorComponent* Component:Actor->GetComponents())
@@ -54,6 +54,9 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::PreservationProperties(AActor
             if(Property->HasAnyPropertyFlags(CPF_Transient|CPF_DuplicateTransient|CPF_NonPIEDuplicateTransient|CPF_SkipSerialization))continue;
             const FString Name=Property->GetName();
             if(Item==Actor->GetRootComponent() && (Name==TEXT("RelativeLocation")||Name==TEXT("RelativeRotation")||Name==TEXT("RelativeScale3D")))continue;
+            if(auto* MeshActor=Cast<AStaticMeshActor>(Actor); MeshActor &&
+                Item==MeshActor->GetStaticMeshComponent() && Name==TEXT("StaticMesh") &&
+                MeshActor->GetStaticMeshComponent()->GetStaticMesh())continue;
             FString Value;
             Property->ExportTextItem_Direct(Value,Property->ContainerPtrToValuePtr<void>(Item),nullptr,Item,PPF_None);
             // Normalize actual object references, never arbitrary user strings.

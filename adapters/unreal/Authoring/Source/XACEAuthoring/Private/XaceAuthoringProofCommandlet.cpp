@@ -95,6 +95,7 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     if(!Check(TEXT("saved_native_map_reload"),W!=nullptr))return Finish();SaveJson(TEXT("pre-enrollment-discovery.json"),Service.Capture(W,Map,true));auto Inventory=Service.Capture(W,Map);
     if(!Check(TEXT("meaningful_native_capture"),Inventory && Child(Inventory,TEXT("objects"))->Values.Num()==3))return Finish();SaveJson(TEXT("native-before.json"),Inventory);
     Check(TEXT("duplicate_labels_distinct_guids"),Find(W,2)->GetActorGuid()!=Find(W,3)->GetActorGuid());auto Discovery=Service.Capture(W,Map,true);Check(TEXT("actual_native_discovery"),Discovery.IsValid());SaveJson(TEXT("native-discovery.json"),Discovery);
+    FString UnownedBeforeMesh=Service.Preservation(Find(W,2));
     SaveJson(TEXT("preservation-before-resource.json"),Service.PreservationProperties(W->GetWorldSettings()));
     SaveJson(TEXT("actor-preservation-before-resource.json"),Service.PreservationProperties(Find(W,2)));
     auto ChangedFields=Position(8000000,2000000,-3000000);ChangedFields->SetObjectField(TEXT("presentation.asset"),Service.Asset(LoadObject<UStaticMesh>(nullptr,TEXT("/Game/Fixture/OtherMesh.OtherMesh"))));
@@ -112,6 +113,7 @@ int32 UXaceAuthoringProofCommandlet::Run(const FString& Phase)
     W=Service.LoadApprovedMap(Map);if(!Check(TEXT("committed_binary_reopen"),W!=nullptr))return Finish();
     Check(TEXT("saved_actor_position"),Find(W,2)->GetActorLocation().Equals(FVector(300,800,200),0));
     Check(TEXT("saved_native_mesh_replacement"),Cast<AStaticMeshActor>(Find(W,2))->GetStaticMeshComponent()->GetStaticMesh()->GetPathName()==TEXT("/Game/Fixture/OtherMesh.OtherMesh"));
+    Check(TEXT("mesh_change_preserves_unowned_properties"),Service.Preservation(Find(W,2))==UnownedBeforeMesh);
     Check(TEXT("unknown_actor_label_preserved"),Find(W,2)->GetActorLabel()==TEXT("Ordinary Name"));
     Check(TEXT("literal_package_text_preserved"),Find(W,2)->Tags.Contains(FName(TEXT("literal:/Game/Fixture/World.World:keep"))));
     UEditorLoadingAndSavingUtils::NewBlankMap(false);auto Restored=Service.Recover(Map,String(Prepared,TEXT("directory")),FileHash(String(Prepared,TEXT("directory"))/TEXT("receipt.json")));

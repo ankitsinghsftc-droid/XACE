@@ -1,6 +1,6 @@
 @tool
 extends RefCounted
-## Fingerprint stored native properties independently of mapped Node3D transforms.
+## Fingerprint unowned stored properties; declared fields are verified separately.
 ## Never hash instance IDs or use Object serialization. Unsupported values fail closed.
 var error := ""
 var active := {}
@@ -49,8 +49,24 @@ func properties(object: Object, reader: RefCounted, depth: int = 0) -> Dictionar
 		if not (property.usage & PROPERTY_USAGE_STORAGE): continue
 		var name: String = property.name
 		# Position/quaternion/scale are verified separately by exact typed readback.
-		# Every other serialized property, including arbitrary metadata, is retained.
+		# Unmapped properties and unknown binding metadata remain represented.
 		if object is Node3D and name == "transform" and object.get_meta(reader.META, {}).get("kind") != "scene": continue
+		if object is MeshInstance3D and name == "mesh": continue
+		if object is Node and name == "metadata/" + reader.BINDING:
+			var binding: Variant = object.get(name)
+			if not binding is Dictionary:
+				fail("invalid binding preservation metadata")
+				return {}
+			var unowned: Dictionary = binding.duplicate()
+			var mapped: Dictionary = reader.fields(object)
+			if not reader.error.is_empty():
+				fail(reader.error)
+				return {}
+			if mapped.has("input.action"): unowned.erase("input_action")
+			if mapped.has("binding.playback"):
+				for key in ["binding_id", "event_name", "playback_kind", "resource"]: unowned.erase(key)
+			result[name] = value(unowned, reader, depth + 1)
+			continue
 		result[name] = value(object.get(name), reader, depth + 1)
 	return result
 

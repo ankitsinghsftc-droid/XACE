@@ -1,0 +1,18 @@
+{
+  "adapters/godot/authoring/authoring_preservation.gd": "5ce2dd0d2f209fee4ce9eda00e4f33f3fa15d4f8683a4bc788d865315b5cf9fb",
+  "adapters/godot/authoring/native_proof.gd": "54fa9bf1190bc2eb7c6e4d00e9e3a1dff27bba84707737d167ddb8d13c2ac5a4",
+  "adapters/unity/Authoring/Editor/UnityAuthoringPreservation.cs": "9486af6428d89cb4a5484d2187522298b8703ba16b4823a0dbf6e1545c8c073c",
+  "adapters/unity/Authoring/Editor/UnityAuthoringProof.cs": "6ec14d8403e2515e7a46f68443e03eeb9df9d185ca8843c205209e466f5c9ce5",
+  "adapters/unity/Authoring/Editor/UnityAuthoringReader.cs": "f42d8e40e2390ee7f680e815521a4efac7454745503947863439994c2277f4d6",
+  "adapters/unity/Authoring/Editor/UnityAuthoringWriter.cs": "c1f1227faeb360b453daa6da1fa8418abcba8233c499422893dc59264b69eca4",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp": "8c0866b45b5d9062e93133582bfb9a376505586280d113105e3b71a14ce3fbf3",
+  "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceAuthoringReader.cpp": "5f606c6488d0baed95414f36d099204aa28426dcf012032a5252a169e10480ce",
+  "packages/gde/src/domain_dsl/typed_operations/native_reconciliation_operations.py": "dbd61fc66129c09fa06d4ff11c9c93b9ed37bde893810bbae47eebd36ee1d2d8",
+  "packages/project-system/native_reconciliation_plan.py": "a15418ea7cb20c8ed5a7a523a58a2a507627150fb5e3729248e9ae3f589e8c30",
+  "packages/project-system/tests/test_unity_authoring.py": "5f695aec1603403df4bf212ec16aa44993697949ca451367a7ee3e4726183c51",
+  "packages/project-system/unity_authoring.py": "5c22e8ae03224c5ecce79ac0a46237da63a9f73c80a98305fb3502778b6d30bf",
+  "packages/project-system/tests/test_native_playback_reconciliation.py": "2de40ad9fbae45698ffdb2338d974f00e064f19c67929e980bcfc34330da070b",
+  "packages/project-system/tests/test_native_presentation_reconciliation.py": "e1458ff45e066da865e14174d8dcfa9dc2b5c0622557ee350866bffab584e6df",
+  "tools/nec010_playback_host_proof.py": "72c6c36fb8c2bc3212c138f17199436195e25df7862a708f3f478ed41c1e17a3",
+  "tools/nec010_mesh_host_proof.py": "a41f635366541348a348c590a28cee75c5063bc06986063513697e24ed610332"
+}

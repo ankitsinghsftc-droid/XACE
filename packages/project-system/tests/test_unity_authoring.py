@@ -91,6 +91,15 @@ class UnityBridgeTests(unittest.TestCase):
             target=inspect_capture(changed,mapping,policy(enable_writes=True)).admit()
             with self.subTest(kind=kind),self.assertRaises(ValueError):write_request(data,base,target,mapping)
 
+    def test_typed_mesh_resource_write_uses_existing_component(self):
+        value=fixture();value['objects'][oid(2)]['fields']['presentation.asset']=dict(asset_id='mesh_a',asset_type='MESH',status='LINKED',resolved_path='Assets/A.asset')
+        data=canonical(value);mapping=prepare_identity_map(data,project_id='fixture',branch_id=oid(200));base=capture(data,mapping,enable_writes=True).admit()
+        target=copy.deepcopy(value);target['objects'][oid(2)]['fields']['presentation.asset']=dict(asset_id='mesh_b',asset_type='MESH',status='LINKED',resolved_path='Assets/B.asset')
+        desired=capture(canonical(target),mapping,enable_writes=True).admit();request=json.loads(write_request(data,base,desired,mapping))
+        self.assertEqual(request['edits'][0]['fields']['presentation.asset'],target['objects'][oid(2)]['fields']['presentation.asset'])
+        target['objects'][oid(3)]['fields']['presentation.asset']=target['objects'][oid(2)]['fields']['presentation.asset']
+        with self.assertRaises(ValueError):write_request(data,base,capture(canonical(target),mapping,enable_writes=True).admit(),mapping)
+
     def test_read_policy_cannot_authorize_write_request(self):
         data=canonical(fixture());mapping=prepare_identity_map(data,project_id="fixture",branch_id=oid(200))
         base=capture(data,mapping).admit()

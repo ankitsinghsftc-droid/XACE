@@ -32,11 +32,13 @@ namespace Xace.Authoring.Editor
             }
             return UnityAuthoringReader.Locator(obj);
         }
-        public static string Fingerprint(Object component,bool mappedTransform=false)
+        public static string Fingerprint(Object component,bool mappedTransform=false,bool mappedMesh=false)
         {
             string json=EditorJsonUtility.ToJson(component,false);
             if(mappedTransform)
                 json=Regex.Replace(json,@"(?<!\\)""m_Local(Position|Rotation|Scale|EulerAnglesHint)""\s*:\s*\{[^{}]*\},?","");
+            if(mappedMesh)
+                json=Regex.Replace(json,@"(?<!\\)""m_Mesh""\s*:\s*\{[^{}]*\},?","");
             // Match actual JSON keys, not escaped text inside string values.
             json=Regex.Replace(json,@"(?<!\\)""instanceID""\s*:\s*(-?\d+)",
                 match=>"\"stableReference\":"+AuthoringJson.Encode(Reference(int.Parse(match.Groups[1].Value,CultureInfo.InvariantCulture))));

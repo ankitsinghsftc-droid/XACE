@@ -1,0 +1,56 @@
+{
+  "status": "verified_increment_nec010_incomplete",
+  "parent_commit": "7457732ebc5af4b723ee78bd5caf0c08e9479aea",
+  "project_system_tests": 247,
+  "native_route_tests": 12,
+  "proofs": {
+    "unity_playback": {
+      "path": "evidence/nec010/20261019/unity-playback-b/proof.json",
+      "sha256": "6e0c1cd2a9cb0e45d5e7700afe94b499d17e8124853b219877e894a30b4a4d2c"
+    },
+    "godot_playback": {
+      "path": "evidence/nec010/20261019/godot-playback-b/proof.json",
+      "sha256": "99e6ab58502fc06e2d291249ce7c48fa0c8a18a7b6d347dd2920a1b91759a9e8"
+    },
+    "godot_mesh": {
+      "path": "evidence/nec010/20261019/godot-mesh-c/proof.json",
+      "sha256": "64cccc1b1a031d8c2420a4330cb50bdf1773b70095719541e7f6b39b5bf5aa24"
+    },
+    "unity_native_run": {
+      "path": "evidence/nec010/20261016/unity-resources-a/run.json",
+      "sha256": "ca062152dab2783b5460a4055d148911e73305ee5b708b617cf74b0d6ce799e7"
+    },
+    "unity_native_reload": {
+      "path": "evidence/nec010/20261016/unity-resources-a/reload.json",
+      "sha256": "78d278950b2926e76a564e88db173262f67088c80b0fb751a5575f959c521995"
+    },
+    "godot_native_run": {
+      "path": "evidence/nec010/20261017/godot-mapped-preservation-a/run.json",
+      "sha256": "4f6b3230949ed388c268ef6f3b9986c126a067e22d996dd0fb46a5933d37ce9d"
+    },
+    "godot_native_reload": {
+      "path": "evidence/nec010/20261017/godot-mapped-preservation-a/reload.json",
+      "sha256": "aeb61670d7bb463c9a66ee90588916b4a90f03e06624b6a39a44dfa6ed55c1d2"
+    },
+    "unreal_native_run": {
+      "path": "evidence/nec010/ue/l/run.json",
+      "sha256": "d6d9a1d658fb0dd2ef7fb84fdc35b9f637fd477360fe3ef795128089a273a297"
+    },
+    "unreal_native_reload": {
+      "path": "evidence/nec010/ue/l/reload.json",
+      "sha256": "e6959a3be4ea3594b34e427f9cc9380d1c7cffee6ff7c0ddae08d2eaf226a761"
+    }
+  },
+  "remaining_running": [
+    "unity-mesh-a",
+    "unreal-mesh-a"
+  ],
+  "limitations": [
+    "Playback host proofs preceded the orthogonal mesh planner extension; subsequent 247-test regression covers current shared Python source.",
+    "Native playback edits are authored binding metadata, not proof of executing gameplay or engine playback.",
+    "Mesh host proof currently complete for Godot; Unity/Unreal full host proofs still running.",
+    "Input mapping and broader new-project owned-field integration remain unfinished.",
+    "NEC011 not started; approved amendments must be integrated after NEC010 closure.",
+    "All checkpoints remain NOT backed up off-device."
+  ]
+}

@@ -115,7 +115,7 @@ func run() -> void:
 	root.set_editable_instance(instance, true)
 	instance.set_meta(reader.META, identity(3, "prefab_instance", oid(2)))
 	instance.get_child(0).set_meta(reader.META, identity(7))
-	instance.set_meta(reader.BINDING, {"input_action": "move", "binding_id": "walk", "event_name": "walking", "playback_kind": "Animation", "resource": animation})
+	instance.set_meta(reader.BINDING, {"input_action": "move", "binding_id": "walk", "event_name": "walking", "playback_kind": "Animation", "resource": animation, "creator_note": "unowned-binding-metadata"})
 	var sibling := Node3D.new()
 	sibling.name = "Sibling"
 	sibling.position = Vector3(1, 2, 3)
@@ -237,6 +237,14 @@ func run() -> void:
 		return
 	check("exact_rotation_scale_input_commit", writer.commit(prepared.directory, prepared.approval_digest, PATHS).get("state") == "committed")
 	check("input_and_binding_preserved", rescan(PATHS).objects[oid(3)].fields["input.action"] == "jump" and rescan(PATHS).objects[oid(3)].fields.has("binding.playback"))
+	var stored_scene: PackedScene = ResourceLoader.load(PATHS[1], "", ResourceLoader.CACHE_MODE_IGNORE_DEEP)
+	var stored_root: Node = stored_scene.instantiate()
+	var binding_note_preserved := false
+	for stored_node in reader.nodes(stored_root):
+		if stored_node.get_meta(reader.META, {}).get("authoring_id") == oid(3):
+			binding_note_preserved = stored_node.get_meta(reader.BINDING, {}).get("creator_note") == "unowned-binding-metadata"
+	stored_root.free()
+	check("unowned_binding_metadata_preserved", binding_note_preserved)
 	check("exact_fields_undo", undo_transaction(prepared).get("state") == "rolled_back")
 	prepared = writer.prepare(PATHS, request(rescan(PATHS), [edit(4, {"transform.position": {"x": "9000000", "y": "2000000", "z": "3000000"}})]), oid(801))
 	check("fault_after_replace_rollback", not prepared.is_empty() and writer.commit(prepared.directory, prepared.approval_digest, PATHS, 0).get("state") == "rolled_back")

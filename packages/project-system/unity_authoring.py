@@ -17,7 +17,7 @@ READER_VERSION = "unity.authoring.reader.v1"
 WRITER_VERSION = "unity.authoring.writer.v1"
 WRITABLE = frozenset({"transform.position", "transform.rotation", "transform.scale",
                       "collision.size", "collision.offset", "collision.trigger",
-                      "input.action", "binding.playback"})
+                      "input.action", "binding.playback", "presentation.asset"})
 
 
 def policy(*, enable_writes: bool = False) -> AuthoringPolicy:

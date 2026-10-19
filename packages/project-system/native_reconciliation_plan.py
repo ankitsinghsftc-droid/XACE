@@ -11,7 +11,7 @@ from decimal import Decimal
 from authoring_identity import IdentityMap, canonical, require
 from native_authoring_contract import Snapshot, load_snapshot, parse
 from native_reconciliation import reconcile_records, MergeProposal
-from native_adoption import bridge, digest, encode, factory
+from native_adoption import bridge, digest, encode, factory, _asset_source
 from tools.cgs_schema_validate import compute_cgs_hash
 
 gde=importlib.import_module('gde.src.domain_dsl.typed_operations.native_reconciliation_operations')
@@ -31,6 +31,34 @@ def _binding(cgs, binding):
     require(len(found)<=1,'ambiguous World binding');return found[0] if found else None
 
 
+def _playback(cgs,binding_id,engine):
+    bindings=[b for b in cgs.get('semantic_bindings',{}).get('bindings',[]) if b['binding_id']==binding_id]
+    require(len(bindings)==1,'explicit canonical playback binding required')
+    binding=bindings[0];ref=binding['asset'];assets=[a for a in cgs.get('assets',[]) if a['id']==ref['id']]
+    require(len(assets)==1,'registered playback asset required');asset=assets[0]
+    path=binding.get('parameters',{}).get('resource_path')
+    require(asset['status']=='LINKED' and ref['status']=='Linked' and asset.get('source')==_asset_source(engine,path),'playback resource registration disagrees')
+    require(ref['asset_type']==''.join(p.title() for p in asset['asset_type'].split('_')),'playback asset type mismatch')
+    return dict(binding_id=binding_id,event_name=binding['event_name'],playback_kind=binding['playback_kind'],asset=dict(asset_id=asset['id'],asset_type=asset['asset_type'],status='LINKED',resolved_path=path))
+
+
+def _presentation(cgs,obj,engine,previous):
+    roles=obj.get('asset_bindings',{})
+    require(len(roles)==1,'explicit single presentation role required')
+    ref=next(iter(roles.values()));assets=[a for a in cgs.get('assets',[]) if a['id']==ref['id']]
+    require(len(assets)==1,'registered presentation asset required');asset=assets[0]
+    require(ref=={k:asset[k] for k in ['id','asset_type','status']} and ref['asset_type']=='MESH' and ref['status']=='LINKED','linked mesh presentation profile required')
+    source=asset.get('source');require(type(source) is str,'saved native mesh source required')
+    if previous['asset_id']==ref['id']:path=previous['resolved_path']
+    elif engine=='godot':path='res://'+source
+    elif engine=='unity':path=source
+    else:
+        require(source.startswith('Content/') and source.endswith('.uasset'),'Unreal project mesh package required')
+        package=source[len('Content/'):-len('.uasset')];path='/Game/'+package+'.'+package.rsplit('/',1)[-1]
+    require(_asset_source(engine,path)==source,'registered mesh source differs')
+    return dict(asset_id=ref['id'],asset_type='MESH',status='LINKED',resolved_path=path)
+
+
 def _project(cgs,base,mapping):
     rows=copy.deepcopy(base)
     by_world={r.world_binding.world_object_id:k for k,r in mapping.objects.items() if r.world_binding}
@@ -47,6 +75,10 @@ def _project(cgs,base,mapping):
         for name in ['position','rotation','scale']:
             require(all(type(v) is int for v in value[name].values()),'structured fixed-point transform required')
             rows[key]['fields']['transform.'+name]={axis:str(v) for axis,v in value[name].items()}
+        if 'presentation.asset' in rows[key]['fields'] and obj.get('asset_bindings'):
+            rows[key]['fields']['presentation.asset']=_presentation(cgs,obj,mapping.engine,rows[key]['fields']['presentation.asset'])
+        if 'binding.playback' in rows[key]['fields']:
+            rows[key]['fields']['binding.playback']=_playback(cgs,rows[key]['fields']['binding.playback']['binding_id'],mapping.engine)
         parents=obj.get('relationships',{}).get(PARENT,[])
         require(len(parents)<=1 and all(p in by_world for p in parents),'unbound semantic parent')
         rows[key]['parent_id']=by_world[parents[0]] if parents else None
@@ -113,10 +145,12 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         if previous is not None and current is not None:
             old_object,new_object=copy.deepcopy(previous[2]),copy.deepcopy(current[2])
             for obj in [old_object,new_object]:obj.get('relationships',{}).pop(PARENT,None)
+            if 'presentation.asset' in before[key]['fields'] and len(old_object.get('asset_bindings',{}))==1 and set(old_object['asset_bindings'])==set(new_object.get('asset_bindings',{})):
+                old_object.pop('asset_bindings');new_object.pop('asset_bindings')
             if old_object!=new_object:block('unprojected_canonical_world_change',key)
     for op in merge['canonical_proposals']+merge['native_proposals']:
         if op['kind']!='set_field':block('structural_materialization_requires_coordinator',op['object_id'])
-        elif op['field'] not in TRANSFORMS or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
+        elif op['field'] not in TRANSFORMS|{'binding.playback','presentation.asset'} or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
         elif op['object_id'] not in bound:block('unbound_native_object',op['object_id'],op['field'])
     operations=[]
     for key in bound:
@@ -128,6 +162,39 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         transform['parent_entity_id']=0
         if next(c['defaults'] for c in actor['components'] if c['type_id']==1)!=transform:
             operations.append(dict(operation_id='reconcile.'+key,kind='set_native_transform',mode_id=mode['id'],actor_id=actor['id'],expected_actor_digest=digest(actor),transform=transform))
+    for key in bound:
+        desired=merge['merged'][key];native_asset=desired.get('fields',{}).get('presentation.asset')
+        if native_asset is None:continue
+        found=_binding(current_cgs,mapping.objects[key].world_binding)
+        if found is None:continue
+        mode,_,obj=found
+        if not obj.get('asset_bindings'):
+            if before[key]['fields'].get('presentation.asset')!=native_asset:block('explicit_presentation_role_required',key)
+            continue
+        try:
+            projected=_presentation(current_cgs,obj,mapping.engine,before[key]['fields']['presentation.asset'])
+            if projected==native_asset:continue
+            asset=next(a for a in current_cgs.get('assets',[]) if a['id']==native_asset['asset_id'])
+            require(asset['asset_type']==native_asset['asset_type']=='MESH' and asset['status']==native_asset['status']=='LINKED' and asset.get('source')==_asset_source(mapping.engine,native_asset['resolved_path']),'unregistered native mesh')
+            operations.append(dict(operation_id='presentation.'+key,kind='set_native_presentation',mode_id=mode['id'],object_id=obj['id'],expected_object_digest=digest(obj),role=next(iter(obj['asset_bindings'])),asset={k:asset[k] for k in ['id','asset_type','status']}))
+        except (ValueError,KeyError,StopIteration):block('presentation_mapping_not_certified',key)
+    for key in bound:
+        desired=merge['merged'][key]
+        playback=desired.get('fields',{}).get('binding.playback')
+        if playback is None:continue
+        original=before[key]['fields'].get('binding.playback')
+        if original is None or original['binding_id']!=playback['binding_id']:
+            block('playback_identity_requires_explicit_enrollment',key);continue
+        try:
+            existing=next(b for b in current_cgs['semantic_bindings']['bindings'] if b['binding_id']==playback['binding_id'])
+            if _playback(current_cgs,playback['binding_id'],mapping.engine)==playback:continue
+            replacement=copy.deepcopy(existing);ref=playback['asset']
+            asset=next(a for a in current_cgs.get('assets',[]) if a['id']==ref['asset_id'])
+            require(asset['status']==ref['status']=='LINKED' and asset['asset_type']==ref['asset_type'] and asset.get('source')==_asset_source(mapping.engine,ref['resolved_path']),'unregistered native playback resource')
+            replacement.update(event_name=playback['event_name'],playback_kind=playback['playback_kind'],asset=dict(id=asset['id'],asset_type=''.join(p.title() for p in asset['asset_type'].split('_')),status='Linked'))
+            replacement['parameters']['resource_path']=ref['resolved_path']
+            operations.append(dict(operation_id='playback.'+key,kind='set_native_playback',binding_id=existing['binding_id'],expected_binding_digest=digest(existing),binding=replacement))
+        except (ValueError,KeyError,StopIteration):block('playback_mapping_not_certified',key)
     batch=dict(schema=gde.SCHEMA,expected_cgs_digest=digest(current_cgs),operations=operations)
     candidate=None;native_request=None
     try:
@@ -138,7 +205,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     if not any(r['severity']=='blocking' for r in losses) and merge['native_proposals']:
         target=reader.inventory(native_inventory)
         for op in merge['native_proposals']:
-            target['objects'][op['object_id']]['fields'][op['field']]=_native_transform(mapping.engine,op['field'],op['value']['value'])
+            target['objects'][op['object_id']]['fields'][op['field']]=(_native_transform(mapping.engine,op['field'],op['value']['value']) if op['field'] in TRANSFORMS else copy.deepcopy(op['value']['value']))
         try:
             admitted=inspection.admit(accepted_loss_digest)
             desired=reader.capture(canonical(target),mapping,enable_writes=True).admit(accepted_loss_digest)

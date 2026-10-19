@@ -109,6 +109,14 @@ namespace Xace.Authoring.Editor
                 replacementClip.name="ChangedAfterApproval";EditorUtility.SetDirty(replacementClip);AssetDatabase.SaveAssets();
                 Reject("new_playback_dependency_drift_refused",()=>UnityAuthoringWriter.Commit(replacementWrite,replacementWrite.ApprovalDigest));
                 Check("dependency_refusal_leaves_scene_unchanged",ownedBefore.SequenceEqual(File.ReadAllBytes(ScenePath)));
+                var replacementMesh=new Mesh{name="ReplacementMesh"};replacementMesh.vertices=new[]{Vector3.zero,Vector3.right*2,Vector3.up};replacementMesh.triangles=new[]{0,1,2};AssetDatabase.CreateAsset(replacementMesh,"Assets/Fixture/ReplacementMesh.asset");AssetDatabase.SaveAssets();
+                var meshBefore=UnityAuthoringReader.Capture(scope);var originalMeshBytes=File.ReadAllBytes(ScenePath);
+                var meshWrite=UnityAuthoringWriter.Prepare(scope,Hash(meshBefore),new[]{new AuthoringEdit{Document=ScenePath,AuthoringId=Id(4),Fields=Map("presentation.asset",UnityAuthoringReader.Asset(replacementMesh))}});
+                Check("mesh_preview_preserves_scene",originalMeshBytes.SequenceEqual(File.ReadAllBytes(ScenePath)));
+                UnityAuthoringWriter.Commit(meshWrite,meshWrite.ApprovalDigest);var meshAfter=UnityAuthoringReader.Capture(scope);
+                Check("mesh_resource_saved",Find(4).GetComponent<MeshFilter>().sharedMesh==replacementMesh);
+                Check("mesh_change_preserves_unowned_properties",Hash(AuthoringJson.Obj(AuthoringJson.Obj(meshBefore["objects"])[Id(4)])["opaque"])==Hash(AuthoringJson.Obj(AuthoringJson.Obj(meshAfter["objects"])[Id(4)])["opaque"]));
+                Check("mesh_write_exact_rollback",UnityAuthoringWriter.Rollback(meshWrite) && originalMeshBytes.SequenceEqual(File.ReadAllBytes(ScenePath)));
                 var before=UnityAuthoringReader.Capture(scope);var sourceBytes=File.ReadAllBytes(ScenePath);
                 var edit=new AuthoringEdit{Document=ScenePath,AuthoringId=Id(3),Fields=Map("transform.position",Map("x","8000000","y","9000000","z","-10000000"))};
                 var prepared=UnityAuthoringWriter.Prepare(scope,Hash(before),new[]{edit});

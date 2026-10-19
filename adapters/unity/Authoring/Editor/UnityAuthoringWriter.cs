@@ -89,6 +89,9 @@ namespace Xace.Authoring.Editor
                     case "collision.size":var size=Vector(field.Value,false,true);Need(size.x>0&&size.y>0&&size.z>0,"Invalid collider size");Need(go.GetComponent<BoxCollider>()!=null,"No mapped collider");go.GetComponent<BoxCollider>().size=size;break;
                     case "collision.offset":Need(go.GetComponent<BoxCollider>()!=null,"No mapped collider");go.GetComponent<BoxCollider>().center=Vector(field.Value,true,true);break;
                     case "collision.trigger":Need(go.GetComponent<BoxCollider>()!=null && field.Value is bool,"No collider/bad trigger");go.GetComponent<BoxCollider>().isTrigger=(bool)field.Value;break;
+                    case "presentation.asset":
+                        var filter=go.GetComponent<MeshFilter>();Need(filter!=null,"No mapped mesh filter");
+                        var meshResource=Resource(field.Value) as Mesh;Need(meshResource!=null,"Mesh asset required");filter.sharedMesh=meshResource;break;
                     case "input.action":
                         var input=go.GetComponent<XaceAuthoringBinding>();Need(input!=null && field.Value is string,"No explicit input binding");
                         Need(UnityAuthoringReader.InputExists((string)field.Value),"Unknown input action");input.InputAction=(string)field.Value;break;
@@ -103,7 +106,7 @@ namespace Xace.Authoring.Editor
             }
             // Keep unrelated overrides; record only the actual changed serialized objects.
             foreach(var component in go.GetComponents<Component>())
-                if(component is Transform || component is BoxCollider || component is XaceAuthoringBinding)
+                if(component is Transform || component is BoxCollider || component is MeshFilter || component is XaceAuthoringBinding)
                 {EditorUtility.SetDirty(component);if(PrefabUtility.IsPartOfPrefabInstance(component))PrefabUtility.RecordPrefabInstancePropertyModifications(component);}
             var collider=go.GetComponent<BoxCollider>();
             if(collider!=null)
@@ -169,6 +172,12 @@ namespace Xace.Authoring.Editor
                     var reference=AuthoringJson.Obj(AuthoringJson.Obj(playback)["asset"]);Resource(reference);
                     string resourcePath=AuthoringJson.Text(reference,"resolved_path");
                     resources[resourcePath]=UnityAuthoringReader.Fingerprint(resourcePath);
+                }
+            foreach(var edit in edits)
+                if(edit.Fields.TryGetValue("presentation.asset",out var meshAsset))
+                {
+                    var reference=AuthoringJson.Obj(meshAsset);Resource(reference);
+                    string resourcePath=AuthoringJson.Text(reference,"resolved_path");resources[resourcePath]=UnityAuthoringReader.Fingerprint(resourcePath);
                 }
             var files=new List<object>();
             write.Journal=Map("schema","xace.unity_authoring_write.v1","state","preparing","id",id,"capture_digest",expectedInventoryDigest,"files",files,"resource_fingerprints",resources);
