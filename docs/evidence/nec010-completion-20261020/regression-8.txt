@@ -1,0 +1,7 @@
+test_explicit_review_approve_apply_and_local_operator_guards (test_native_setup_routes.SetupRoutes.test_explicit_review_approve_apply_and_local_operator_guards) ... ok
+test_paths_and_duplicate_keys_never_reach_provider (test_native_setup_routes.SetupRoutes.test_paths_and_duplicate_keys_never_reach_provider) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.434s
+
+OK

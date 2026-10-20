@@ -1,0 +1,99 @@
+{
+  "schema": "xace.nec010.completion.v1",
+  "nec010_complete": true,
+  "date": "2026-10-20",
+  "implementation_checkpoint": "ae5c04034e42bb7fbc5f09fedce4bbefaf105c4c",
+  "proofs": [
+    {
+      "path": "evidence/nec010/20261019/unity-owned-setup-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\0-unity-owned-setup-a-proof.json",
+      "sha256": "ffb651b9960fe85d9058f6e578fb74d8e6359ea87bee8af240bb8c9a7389678f"
+    },
+    {
+      "path": "evidence/nec010/20261019/godot-owned-setup-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\1-godot-owned-setup-a-proof.json",
+      "sha256": "2b1d34c886048dfb8644c11072c09497f509af35b6f83bb4a9e4d363605f46da"
+    },
+    {
+      "path": "evidence/nec010/20261019/unreal-owned-setup-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\2-unreal-owned-setup-a-proof.json",
+      "sha256": "47cbc8b326d4e4488e25cc24d7da40df915f8975a62e3bf8dd2cb0e12eca05bb"
+    },
+    {
+      "path": "evidence/nec010/20261019/unreal-bindings-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\3-unreal-bindings-a-proof.json",
+      "sha256": "533a671a47c019edba9aca0266cb3717ba8a36d32b687594583d2e10154452b0"
+    },
+    {
+      "path": "evidence/nec010/20261019/unity-input-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\4-unity-input-a-proof.json",
+      "sha256": "07a6f30abacc2221df0fcc027fa87ddaaecb1e26df5918ccfb96ee23ca60f437"
+    },
+    {
+      "path": "evidence/nec010/20261019/godot-input-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\5-godot-input-a-proof.json",
+      "sha256": "125e0d33bd7c1726915dce774ab868c40749afaa0f49ceefceb567ca42d3e0d5"
+    },
+    {
+      "path": "evidence/nec010/20261019/unity-playback-b/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\6-unity-playback-b-proof.json",
+      "sha256": "6e0c1cd2a9cb0e45d5e7700afe94b499d17e8124853b219877e894a30b4a4d2c"
+    },
+    {
+      "path": "evidence/nec010/20261019/godot-playback-b/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\7-godot-playback-b-proof.json",
+      "sha256": "99e6ab58502fc06e2d291249ce7c48fa0c8a18a7b6d347dd2920a1b91759a9e8"
+    },
+    {
+      "path": "evidence/nec010/20261019/unity-mesh-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\8-unity-mesh-a-proof.json",
+      "sha256": "425aefa578a7ec6a40c4c010bb519f5e3330dcf8241ffa3e3b24fb0597af4d4d"
+    },
+    {
+      "path": "evidence/nec010/20261019/godot-mesh-c/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\9-godot-mesh-c-proof.json",
+      "sha256": "64cccc1b1a031d8c2420a4330cb50bdf1773b70095719541e7f6b39b5bf5aa24"
+    },
+    {
+      "path": "evidence/nec010/20261019/unreal-mesh-a/proof.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\10-unreal-mesh-a-proof.json",
+      "sha256": "bdb69a5f2fbf1e8eb2bbf71d0d962c0588aabc84fbf990e507b1b3c1c09490ba"
+    },
+    {
+      "path": "evidence/nec010/ue/o/run.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\11-o-run.json",
+      "sha256": "1c419b836b523596ae2b629a573a8f0244f2ae50b3d676d98564fb033e33a6ed"
+    },
+    {
+      "path": "evidence/nec010/ue/o/reload.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\12-o-reload.json",
+      "sha256": "e6959a3be4ea3594b34e427f9cc9380d1c7cffee6ff7c0ddae08d2eaf226a761"
+    },
+    {
+      "path": "evidence/nec010/ue/o/interactive.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\13-o-interactive.json",
+      "sha256": "dc47de6cbd44837194d213a93c5394a88901716102a463b76e86ce3caa2e5699"
+    },
+    {
+      "path": "evidence/nec010/20261016/unity-closeout-a/run.json",
+      "copy": "docs\\evidence\\nec010-completion-20261020\\14-unity-closeout-a-run.json",
+      "sha256": "e878bc1d09c17fbfae4a34fae73b981a68b4113ebe65821c5c0aa9e8f58e4d3b"
+    }
+  ],
+  "regression_tests": 406,
+  "additional_structural_test": "docs/evidence/nec010-closeout-20261019/structural-refusal.txt",
+  "source_hashes": "docs/evidence/nec010-closeout-20261019/source-hashes.json",
+  "sealed_manifest": "C:/Users/ankit/XACE-Recovery/baselines/xp022-recovered-20261015/baseline.json",
+  "sealed_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "original_seal": false,
+  "off_device_backup": false,
+  "limitations": [
+    "Explicit approved saved-content synchronization only",
+    "Single-instance root World bindings; 128 bound objects",
+    "Single registered mesh role; explicit input selector and playback declarations",
+    "No arbitrary native gameplay conversion or runtime-free export",
+    "Runtime execution/input/playback fidelity remains NEC011; native shipping NEC012-018",
+    "Parent/structured-transform gameplay gates retained until NEC011 proof",
+    "REL01-05 open; no Steam or clean-machine certification"
+  ]
+}

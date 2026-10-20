@@ -23,7 +23,9 @@ semantics, packet fields, axis/button fidelity, actual gameplay input and cooked
 readiness remain separate NEC-011/012 gates. No gameplay or runtime activation is
 claimed by these persistence proofs. Empty Godot fixture action event arrays are
 intentional authoring fixtures, not playable input certification. Unreal selector
-support is implemented but native verification is still pending at this checkpoint. No automatic enrollment or unapproved apply is
+native save/rollback/configuration-drift verification passes at ue/o; the full
+production-host round trip passes in unreal-bindings-a, including both directions
+and cold no-op checks. No automatic enrollment or unapproved apply is
 introduced.
 
 Proofs use the production review/approve/apply host, paired-save verification,

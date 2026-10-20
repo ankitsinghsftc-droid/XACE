@@ -1,0 +1,115 @@
+test_contract_construction (test_asset_validation.TestAnimationContract.test_contract_construction) ... ok
+test_contract_event_roundtrip (test_asset_validation.TestAnimationContract.test_contract_event_roundtrip) ... ok
+test_contract_layer_roundtrip (test_asset_validation.TestAnimationContract.test_contract_layer_roundtrip) ... ok
+test_contract_parameter_roundtrip (test_asset_validation.TestAnimationContract.test_contract_parameter_roundtrip) ... ok
+test_get_layer (test_asset_validation.TestAnimationContract.test_get_layer) ... ok
+test_get_layer_missing_returns_none (test_asset_validation.TestAnimationContract.test_get_layer_missing_returns_none) ... ok
+test_get_parameter (test_asset_validation.TestAnimationContract.test_get_parameter) ... ok
+test_ik_config_roundtrip (test_asset_validation.TestAnimationContract.test_ik_config_roundtrip) ... ok
+test_layer_names (test_asset_validation.TestAnimationContract.test_layer_names) ... ok
+test_parameter_names_sorted (test_asset_validation.TestAnimationContract.test_parameter_names_sorted) ... ok
+test_serialization_roundtrip (test_asset_validation.TestAnimationContract.test_serialization_roundtrip) ... ok
+test_blend_trees_extracted (test_asset_validation.TestAnimationContractGenerator.test_blend_trees_extracted) ... ok
+test_cache_hit_on_second_call (test_asset_validation.TestAnimationContractGenerator.test_cache_hit_on_second_call) ... ok
+test_consumed_events_excluded (test_asset_validation.TestAnimationContractGenerator.test_consumed_events_excluded) ... ok
+test_event_out_of_range_time_raises (test_asset_validation.TestAnimationContractGenerator.test_event_out_of_range_time_raises) ... ok
+test_force_regenerate_bypasses_cache (test_asset_validation.TestAnimationContractGenerator.test_force_regenerate_bypasses_cache) ... ok
+test_generate_from_component_json_direct (test_asset_validation.TestAnimationContractGenerator.test_generate_from_component_json_direct) ... ok
+test_generate_no_animation_component_returns_none (test_asset_validation.TestAnimationContractGenerator.test_generate_no_animation_component_returns_none) ... ok
+test_generate_returns_contract (test_asset_validation.TestAnimationContractGenerator.test_generate_returns_contract) ... ok
+test_ik_config_extracted_when_present (test_asset_validation.TestAnimationContractGenerator.test_ik_config_extracted_when_present) ... ok
+test_invalid_parameter_type_raises (test_asset_validation.TestAnimationContractGenerator.test_invalid_parameter_type_raises) ... ok
+test_invalidate_all_clears_all (test_asset_validation.TestAnimationContractGenerator.test_invalidate_all_clears_all) ... ok
+test_invalidate_cache_clears_entry (test_asset_validation.TestAnimationContractGenerator.test_invalidate_cache_clears_entry) ... ok
+test_layers_extracted_correctly (test_asset_validation.TestAnimationContractGenerator.test_layers_extracted_correctly) ... ok
+test_no_ik_component_means_no_ik_in_contract (test_asset_validation.TestAnimationContractGenerator.test_no_ik_component_means_no_ik_in_contract) ... ok
+test_parameters_extracted_correctly (test_asset_validation.TestAnimationContractGenerator.test_parameters_extracted_correctly) ... ok
+test_version_increments_on_force_regenerate (test_asset_validation.TestAnimationContractGenerator.test_version_increments_on_force_regenerate) ... ok
+test_describe_human_readable (test_asset_validation.TestAssetNamingPolicy.test_describe_human_readable) ... ok
+test_describe_invalid_returns_raw (test_asset_validation.TestAssetNamingPolicy.test_describe_invalid_returns_raw) ... ok
+test_extract_asset_type (test_asset_validation.TestAssetNamingPolicy.test_extract_asset_type) ... ok
+test_extract_version (test_asset_validation.TestAssetNamingPolicy.test_extract_version) ... ok
+test_generate_all_asset_types (test_asset_validation.TestAssetNamingPolicy.test_generate_all_asset_types) ... ok
+test_generate_basic (test_asset_validation.TestAssetNamingPolicy.test_generate_basic) ... ok
+test_generate_empty_name_raises (test_asset_validation.TestAssetNamingPolicy.test_generate_empty_name_raises) ... ok
+test_generate_empty_type_raises (test_asset_validation.TestAssetNamingPolicy.test_generate_empty_type_raises) ... ok
+test_generate_next_version (test_asset_validation.TestAssetNamingPolicy.test_generate_next_version) ... ok
+test_generate_normalises_hyphens (test_asset_validation.TestAssetNamingPolicy.test_generate_normalises_hyphens) ... ok
+test_generate_normalises_spaces (test_asset_validation.TestAssetNamingPolicy.test_generate_normalises_spaces) ... ok
+test_generate_version_zero_raises (test_asset_validation.TestAssetNamingPolicy.test_generate_version_zero_raises) ... ok
+test_generate_with_version (test_asset_validation.TestAssetNamingPolicy.test_generate_with_version) ... ok
+test_is_valid_canonical_ids (test_asset_validation.TestAssetNamingPolicy.test_is_valid_canonical_ids) ... ok
+test_is_valid_rejects_invalid (test_asset_validation.TestAssetNamingPolicy.test_is_valid_rejects_invalid) ... ok
+test_parse_compound_entity_name (test_asset_validation.TestAssetNamingPolicy.test_parse_compound_entity_name) ... ok
+test_parse_invalid_returns_none (test_asset_validation.TestAssetNamingPolicy.test_parse_invalid_returns_none) ... ok
+test_parse_roundtrip (test_asset_validation.TestAssetNamingPolicy.test_parse_roundtrip) ... ok
+test_empty_asset_id_raises (test_asset_validation.TestAssetReference.test_empty_asset_id_raises) ... ok
+test_equality_by_asset_id (test_asset_validation.TestAssetReference.test_equality_by_asset_id) ... ok
+test_hashable (test_asset_validation.TestAssetReference.test_hashable) ... ok
+test_inequality_different_id (test_asset_validation.TestAssetReference.test_inequality_different_id) ... ok
+test_link_transitions_to_linked (test_asset_validation.TestAssetReference.test_link_transitions_to_linked) ... ok
+test_link_unresolved_raises (test_asset_validation.TestAssetReference.test_link_unresolved_raises) ... ok
+test_link_with_empty_path_raises (test_asset_validation.TestAssetReference.test_link_with_empty_path_raises) ... ok
+test_linked_without_path_raises_at_construction (test_asset_validation.TestAssetReference.test_linked_without_path_raises_at_construction) ... ok
+test_mark_missing (test_asset_validation.TestAssetReference.test_mark_missing) ... ok
+test_mark_missing_non_linked_raises (test_asset_validation.TestAssetReference.test_mark_missing_non_linked_raises) ... ok
+test_non_linked_with_path_raises_at_construction (test_asset_validation.TestAssetReference.test_non_linked_with_path_raises_at_construction) ... ok
+test_placeholder_construction (test_asset_validation.TestAssetReference.test_placeholder_construction) ... ok
+test_revert_to_placeholder (test_asset_validation.TestAssetReference.test_revert_to_placeholder) ... ok
+test_serialization_roundtrip_linked (test_asset_validation.TestAssetReference.test_serialization_roundtrip_linked) ... ok
+test_serialization_roundtrip_placeholder (test_asset_validation.TestAssetReference.test_serialization_roundtrip_placeholder) ... ok
+test_unresolved_construction (test_asset_validation.TestAssetReference.test_unresolved_construction) ... ok
+test_from_string_invalid_raises (test_asset_validation.TestAssetStatusEnum.test_from_string_invalid_raises) ... ok
+test_from_string_valid (test_asset_validation.TestAssetStatusEnum.test_from_string_valid) ... ok
+test_healthy_states (test_asset_validation.TestAssetStatusEnum.test_healthy_states) ... ok
+test_missing_is_warning_state (test_asset_validation.TestAssetStatusEnum.test_missing_is_warning_state) ... ok
+test_only_linked_is_renderable (test_asset_validation.TestAssetStatusEnum.test_only_linked_is_renderable) ... ok
+test_only_unresolved_blocks_commit (test_asset_validation.TestAssetStatusEnum.test_only_unresolved_blocks_commit) ... ok
+test_problem_states (test_asset_validation.TestAssetStatusEnum.test_problem_states) ... ok
+test_unresolved_is_error_state (test_asset_validation.TestAssetStatusEnum.test_unresolved_is_error_state) ... ok
+test_all_eleven_types_exist (test_asset_validation.TestAssetTypeEnum.test_all_eleven_types_exist) ... ok
+test_from_string_invalid_raises (test_asset_validation.TestAssetTypeEnum.test_from_string_invalid_raises) ... ok
+test_from_string_valid (test_asset_validation.TestAssetTypeEnum.test_from_string_valid) ... ok
+test_is_animation_related (test_asset_validation.TestAssetTypeEnum.test_is_animation_related) ... ok
+test_is_audio_correct (test_asset_validation.TestAssetTypeEnum.test_is_audio_correct) ... ok
+test_is_visual_correct (test_asset_validation.TestAssetTypeEnum.test_is_visual_correct) ... ok
+test_placeholder_description_non_empty (test_asset_validation.TestAssetTypeEnum.test_placeholder_description_non_empty) ... ok
+test_str_enum_serializes_to_value (test_asset_validation.TestAssetTypeEnum.test_str_enum_serializes_to_value) ... ok
+test_empty_report_is_clean (test_asset_validation.TestAssetValidationReport.test_empty_report_is_clean) ... ok
+test_report_summary_clean (test_asset_validation.TestAssetValidationReport.test_report_summary_clean) ... ok
+test_report_summary_with_issues (test_asset_validation.TestAssetValidationReport.test_report_summary_with_issues) ... ok
+test_to_dict_structure (test_asset_validation.TestAssetValidationReport.test_to_dict_structure) ... ok
+test_i12_invariant_placeholder_never_blocks (test_asset_validation.TestAssetValidator.test_i12_invariant_placeholder_never_blocks)
+I12: Only UNRESOLVED blocks commit. PLACEHOLDER must never block. ... ok
+test_i12_invariant_unresolved_always_blocks (test_asset_validation.TestAssetValidator.test_i12_invariant_unresolved_always_blocks)
+I12: UNRESOLVED must always block CGS commit, no exceptions. ... ok
+test_malformed_asset_id_is_error (test_asset_validation.TestAssetValidator.test_malformed_asset_id_is_error) ... ok
+test_missing_asset_gives_warning_not_error (test_asset_validation.TestAssetValidator.test_missing_asset_gives_warning_not_error) ... ok
+test_type_match_no_type_error (test_asset_validation.TestAssetValidator.test_type_match_no_type_error) ... ok
+test_type_mismatch_is_error (test_asset_validation.TestAssetValidator.test_type_mismatch_is_error) ... ok
+test_unregistered_asset_id_is_unresolved_error (test_asset_validation.TestAssetValidator.test_unregistered_asset_id_is_unresolved_error) ... ok
+test_unresolved_status_in_manifest_is_error (test_asset_validation.TestAssetValidator.test_unresolved_status_in_manifest_is_error) ... ok
+test_valid_linked_asset_passes (test_asset_validation.TestAssetValidator.test_valid_linked_asset_passes) ... ok
+test_valid_placeholder_gives_warning_not_error (test_asset_validation.TestAssetValidator.test_valid_placeholder_gives_warning_not_error) ... ok
+test_validate_asset_id_list (test_asset_validation.TestAssetValidator.test_validate_asset_id_list) ... ok
+test_validate_manifest_full_scan (test_asset_validation.TestAssetValidator.test_validate_manifest_full_scan) ... ok
+test_validate_no_unresolved_blocked (test_asset_validation.TestAssetValidator.test_validate_no_unresolved_blocked) ... ok
+test_validate_no_unresolved_clean (test_asset_validation.TestAssetValidator.test_validate_no_unresolved_clean) ... ok
+test_all_known_domains_valid (test_asset_validation.TestGameConfigLoader.test_all_known_domains_valid) ... ok
+test_asset_registry_config_defaults (test_asset_validation.TestGameConfigLoader.test_asset_registry_config_defaults) ... ok
+test_collects_all_errors_before_raising (test_asset_validation.TestGameConfigLoader.test_collects_all_errors_before_raising)
+Validation must collect all errors, not fail-fast on first. ... ok
+test_domains_loaded_correctly (test_asset_validation.TestGameConfigLoader.test_domains_loaded_correctly) ... ok
+test_empty_domains_list_is_valid (test_asset_validation.TestGameConfigLoader.test_empty_domains_list_is_valid) ... ok
+test_has_domain_method (test_asset_validation.TestGameConfigLoader.test_has_domain_method) ... ok
+test_missing_game_name_raises (test_asset_validation.TestGameConfigLoader.test_missing_game_name_raises) ... ok
+test_missing_world_id_raises (test_asset_validation.TestGameConfigLoader.test_missing_world_id_raises) ... ok
+test_to_dict_serialization (test_asset_validation.TestGameConfigLoader.test_to_dict_serialization) ... ok
+test_unknown_domain_raises (test_asset_validation.TestGameConfigLoader.test_unknown_domain_raises) ... ok
+test_unknown_engine_target_raises (test_asset_validation.TestGameConfigLoader.test_unknown_engine_target_raises) ... ok
+test_valid_config_loads (test_asset_validation.TestGameConfigLoader.test_valid_config_loads) ... ok
+
+----------------------------------------------------------------------
+Ran 107 tests in 0.004s
+
+OK

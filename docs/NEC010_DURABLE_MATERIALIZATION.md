@@ -1,4 +1,4 @@
-# NEC-010 ? durable native materialization (in progress)
+# NEC-010 - durable native materialization (complete within declared profile)
 
 Authorized2026-10-16 after recovery acceptance checkpoint `7cb2dfd`. This is new development, not reconstructed historical work. NEC011 has not started. The sealed XP022 recovered baseline remains immutable.
 
@@ -6,13 +6,19 @@ Authorized2026-10-16 after recovery acceptance checkpoint `7cb2dfd`. This is new
 
 - [x] Reconcile roadmap with recovered NEC009 and preserve entry baseline.
 - [x] Separate engine-owned opaque metadata refresh from canonical structural edits; retain critical behavior and actual structural refusal.
-- [ ] Certify exact staged native readback and preservation of all unowned content across save serialization. Stored-property fingerprints replace whole-document fingerprints for admitted content; full preservation acceptance remains pending. Saved-pair equality stays mandatory.
+- [x] Certify exact staged native readback and preservation of unowned stored content within the declared supported profiles. Typed object references normalize only native relocation identity; user strings, unknown properties and overrides remain preserved. Saved-pair equality stays mandatory. Evidence: preservation-20261018, owned-reconciliation-20261019 and closeout-20261019; this is not arbitrary third-party component certification.
 - [x] Connect a durable reviewed plan, explicit apply authorization, staged artifacts and NEC009 recovery to the native host and minimal review/apply UI. Verified in the setup-handoff and all-engine-cycle receipts; later field extensions retain final regression requirements.
-- [ ] Implement new-project setup and explicit owned marker/resource/input/binding writes with previewable file changes.
-- [x] Repeated bound-root-transform materialize/capture/reconcile cycles in Unity, Godot and Unreal, with fresh host/editor processes and stable no-op echo suppression. Full new-project and broader owned-field cycles remain under the setup acceptance item.
-- [ ] Rename/delete/reparent, native undo/redo and file ownership proofs; preserve or explicitly block unsupported structural mappings.
-- [ ] Integrate actual Play/build readiness checks, failed-save recovery and baseline advancement only after verified paired saves.
-- [ ] Final regression, native proofs, master-plan update and completion checkpoint.
+- [x] New-project setup and explicit owned marker/resource/input/binding writes pass reviewed publication and exact cold-capture/baseline handoff in all3 engines. Completion receipts identify each native proof.
+- [x] Repeated bound-root-transform materialize/capture/reconcile cycles in Unity, Godot and Unreal, with fresh host/editor processes and stable no-op echo suppression. New-project and owned-field proofs are indexed in the completion receipt.
+- [x] Rename/reparent identity and native Undo/Redo proofs pass in installed editors; exact before/staged ownership and rollback hashes remain checked. Missing/deleted locators and unsupported parent mappings refuse publication instead of silently changing CGS. Unity closeout adds explicit Redo; all3 deletion-refusal coverage is retained in closeout-20261019.
+- [x] Integrate authoring recovery readiness with the actual Builder Player control route and host publication gate; failed-save recovery cannot advance a baseline without verified paired saves. The native engine Play/build hooks remain NEC-012 through NEC-015, not claimed here. Existing standalone legacy adapter handoff is not a certified native-game build. Tests: test_native_materialization_routes.py, test_authoring_apply.py and all-engine saved-pair crash-cycle proofs.
+- [x] Final regression and native proofs pass; completion evidence and master-plan update are checkpointed together. See docs/evidence/nec010-completion-20261020/summary.json.
+
+## Completion - 2026-10-20
+
+NEC010 is complete for the explicit reviewed saved-authoring profile. Implementation checkpoint ae5c040; completion commit contains this document and the final evidence. 406 regression tests passed; the subsequently added deletion-refusal test passes in the6-test ownership suite. Unity52 native checks and Unreal63+6+9 checks passed in separate receipts. All3 owned setup proofs and Unreal combined input/playback bidirectional host proof passed. Earlier entries below retain their historical incomplete status.
+
+The profile remains bounded: single-instance root World objects,128 bound objects, a single registered mesh role, explicit input selector and playback declarations. No general runtime input/playback execution, arbitrary native code conversion, automatic approvals, parented gameplay, native shipping or runtime-free export is certified. These limitations remain explicit inputs to NEC011-018. The actual Player route is recovery-gated; native engine Play/build hooks are later tasks.55 protected recovered XP022 files are unchanged; original historical sealed payloads remain missing. REL01-05 remain open. No off-device backup.
 
 ## First implementation increment
 
