@@ -265,3 +265,6 @@ NEC010 COMPLETE within the declared reviewed saved-authoring profile (2026-10-20
 
 
 Approved strategic amendments integrated2026-10-20 after NEC010 completion44cb7bf. NEC001-018 count/order unchanged; amendments added to existing NEC011-018 acceptance, including1000-object target and all external release gates. NEC011 entry specification and delayed-echo-graph custom-mechanic benchmark recorded in docs/NEC011_FIDELITY_ACCEPTANCE.md. Specification only; runtime/fidelity implementation and verification remain. NEC012 not started. No off-device backup.
+
+
+NEC011 STARTED2026-10-20 after user-requested GitHub push. Verified remote recovery/xp022 at9c1b4ef on private ankitsinghsftc-droid/XACE before implementation. Tracked source/history/evidence through that commit now have an off-device GitHub copy; separate sealed archives/binaries and ignored raw native fixtures remain local-only. First NEC011 increment: typed saved-revision batching and optional host notifications; no approval/publication capability.7 new focused tests plus7 existing host regressions pass. Evidence: docs/evidence/nec011-entry-20261020. UI/watcher integration, installed-engine batching, parent/transform fidelity, input/playback execution and trusted custom executor benchmark remain outstanding. NEC011 INCOMPLETE; NEC012 NOT STARTED.

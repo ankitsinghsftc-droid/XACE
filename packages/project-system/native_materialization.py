@@ -21,6 +21,32 @@ class NativeMaterializationHost:
         self.review=ReconciliationReview(context_provider)
         self._lock=threading.RLock()
 
+    def poll_saved_changes(self):
+        """Optional saved-change notification; existing approval flow stays mandatory."""
+        import json, time
+        from native_saved_changes import SavedChangeBatcher, SavedRevision
+        from native_adoption import digest
+        with self._lock:
+            if not hasattr(self, '_saved_changes'):
+                self._saved_changes = SavedChangeBatcher()
+            try:
+                self._coordinator().require_ready()
+                context = self.review.context_provider()
+                raw = context['native_inventory']
+                source = json.loads(raw)['source']
+                require(source.get('play_mode') is False, 'Stop Play before saved-change review')
+                require(bool(source.get('documents')) and all(d.get('dirty') is False for d in source['documents']), 'Save native documents before review')
+                require(digest(context['current_cgs']) == context['expected_current_cgs_digest'], 'Canonical observation changed')
+                from authoring_transaction_files import sha
+                require(sha(raw) == context['expected_source_digest'], 'Native observation changed')
+                revision = SavedRevision(context['expected_current_cgs_digest'], context['expected_source_digest'], digest(context['current_mapping'].to_dict()))
+                state = self._saved_changes.observe(revision, time.monotonic())
+            except Exception:
+                self._saved_changes.invalidate()
+                raise
+            return dict(schema='xace.native_saved_changes.v1', state=state,
+                        requires_explicit_review=True, can_commit=False)
+
     def _coordinator(self,pair=None,native=None):
         baseline=FileParticipant(self.root,name='verified-baseline',allowed_paths=[MAP,CGS,NATIVE])
         return AuthoringCoordinator(self.root,

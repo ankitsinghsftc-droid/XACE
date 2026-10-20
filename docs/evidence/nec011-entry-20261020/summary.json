@@ -1,0 +1,19 @@
+{
+  "nec011_complete": false,
+  "scope": "Host-only saved-change batching and notification; no UI watcher or automatic publication",
+  "focused_tests": 14,
+  "pre_implementation_github_checkpoint": "9c1b4ef4f1e43f4214a0d7f71a3fff5d7f123217",
+  "github_branch": "https://github.com/ankitsinghsftc-droid/XACE/tree/recovery/xp022",
+  "source_sha256": {
+    "packages/project-system/native_saved_changes.py": "b4a3c1379cdd6fd26514dbb4e1b3fadb9b1e3506e24edb5b35210d41c74fc4af",
+    "packages/project-system/native_materialization.py": "0bd1abad6925de8fc4e5a016a8f505d0784ff41d1522becdb94511c68d4932a9",
+    "packages/project-system/tests/test_native_saved_changes.py": "9f5d6f9694d6805e58883a15811ea9f221a0b88eb5de591d415306496fe4c1d5"
+  },
+  "remaining": [
+    "UI/poll integration and installed-editor batching proof",
+    "structured transform and parented instance runtime fidelity",
+    "native input and animation/audio execution fidelity",
+    "trusted custom executor compilation/admission/replay/distribution benchmark"
+  ],
+  "sealed_baseline_modified": false
+}

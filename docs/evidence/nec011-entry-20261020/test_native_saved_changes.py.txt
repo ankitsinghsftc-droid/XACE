@@ -1,0 +1,12 @@
+test_failed_capture_resets_batch_and_pending_recovery_blocks_notification (test_native_saved_changes.HostNotificationTests.test_failed_capture_resets_batch_and_pending_recovery_blocks_notification) ... ok
+test_notifications_do_not_publish_or_authorize (test_native_saved_changes.HostNotificationTests.test_notifications_do_not_publish_or_authorize) ... ok
+test_burst_coalesces_only_latest_saved_revision (test_native_saved_changes.SavedChangeTests.test_burst_coalesces_only_latest_saved_revision) ... ok
+test_dirty_or_failed_capture_resets_quiet_window (test_native_saved_changes.SavedChangeTests.test_dirty_or_failed_capture_resets_quiet_window) ... ok
+test_invalid_identity_and_clock_never_notify (test_native_saved_changes.SavedChangeTests.test_invalid_identity_and_clock_never_notify) ... ok
+test_restart_requires_fresh_stable_observations (test_native_saved_changes.SavedChangeTests.test_restart_requires_fresh_stable_observations) ... ok
+test_reverting_after_another_notification_is_a_new_change (test_native_saved_changes.SavedChangeTests.test_reverting_after_another_notification_is_a_new_change) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.451s
+
+OK

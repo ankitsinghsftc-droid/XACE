@@ -1,0 +1,12 @@
+test_explicit_apply_commits_verified_pair_and_consumes_review (test_native_materialization_host.HostTests.test_explicit_apply_commits_verified_pair_and_consumes_review) ... ok
+test_incomplete_journal_blocks_apply (test_native_materialization_host.HostTests.test_incomplete_journal_blocks_apply) ... ok
+test_noop_does_not_write_files_or_journal (test_native_materialization_host.HostTests.test_noop_does_not_write_files_or_journal) ... ok
+test_recovery_payload_tampering_refused_before_publication (test_native_materialization_host.HostTests.test_recovery_payload_tampering_refused_before_publication) ... ok
+test_recovery_preserves_independent_native_edit (test_native_materialization_host.HostTests.test_recovery_preserves_independent_native_edit) ... ok
+test_restart_resumes_durable_decision_without_review_memory (test_native_materialization_host.HostTests.test_restart_resumes_durable_decision_without_review_memory) ... ok
+test_stale_and_foreign_approval_cannot_write (test_native_materialization_host.HostTests.test_stale_and_foreign_approval_cannot_write) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.353s
+
+OK
