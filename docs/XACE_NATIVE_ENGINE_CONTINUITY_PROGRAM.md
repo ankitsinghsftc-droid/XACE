@@ -1,3 +1,5 @@
+> Current status2026-10-20: NEC001-010 locally verified within their declared profiles. NEC010 completion commit44cb7bf; evidence docs/evidence/nec010-completion-20261020/summary.json. NEC011 is the next authorized task; stop before NEC012. The approved strategic amendments below retain all18 tasks and previous acceptance. Historical stop/not-started entries remain historical. REL01-05 OPEN; no off-device backup.
+
 > NEC010 is now explicitly authorized and IN PROGRESS (2026-10-16). Current acceptance checklist: docs/NEC010_DURABLE_MATERIALIZATION.md. Earlier stop/not-started entries are historical. NEC011 has not started.
 
 > Current recovery status (2026-10-16): XP016?XP022 and NEC001?NEC009 verified within documented local scope. NEC009 acceptance: docs/NEC009_AUTHORING_TRANSACTIONS.md. NEC010 NOT STARTED; awaiting explicit authorization. REL01?05 remain open; original sealed payloads missing; no off-device backup. Historical statements below are retained as history.
@@ -544,6 +546,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** retain prior verified presentation revision; gameplay-affecting changes use normal candidate approval.
 - **Non-goals:** translating entire animator graphs, terrain physics or trusting arbitrary engine feedback.
 
+- **Approved acceptance amendment (2026-10-20):** Resolve structured-transform and parented-instance blockers for the explicitly admitted profile, with deterministic coordinates, instance identity, snapshot/restore and replay proofs. Keep unsupported profiles refused. Define the trusted custom-gameplay executor contract with reproducible creator-side compilation, source/toolchain/executable identity, declared capabilities and versioned numeric/backend/snapshot/replay compatibility. Distinguish general custom Rust execution from the four fixed generated operations. Design and exercise an unusual-mechanic benchmark beyond those operations; no unrestricted-mechanics claim. Add saved-change batching, explicit review/approval and no-op suppression, preserving concurrent edits. Shipping requirements transfer explicitly to NEC012-018, never count authoring declaration persistence as executable fidelity.
+
 ### NEC-012 — Shared production native-host lifecycle and build contract
 
 - **Purpose:** make native Play/build independent of Builder.
@@ -555,6 +559,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Tests/proofs:** native process lifecycle, incompatible identity, crash/EOF, port collision, repeated Play and no-network startup; parity with existing Player host.
 - **Rollback/failure:** retain prior admitted package; visibly freeze/stop on authority loss, never native fallback.
 - **Non-goals:** new runtime/session stack, in-process ABI mandate or player-side compilation.
+
+- **Approved acceptance amendment (2026-10-20):** Implement admission and distribution of the trusted creator-built executor contract from NEC011. Pin runtime/package/resource/executor/backend/numeric/snapshot identities as one compatible release. Prove unusual-mechanic execution, verification, checkpoint/replay and distribution under its declared profile without a player toolchain. Specify stable per-game/per-user save namespaces outside installation/cache; deterministic save migration or non-destructive refusal. Updates must validate before activation and retain a working release on failure.
 
 ### NEC-013 — Unity production Play and Windows build integration
 
@@ -568,6 +574,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** cancel build on stale/cooked binding mismatch; preserve previous release and journal failed staging.
 - **Non-goals:** every Unity backend/platform/version or MonoBehaviour gameplay translation.
 
+- **Approved acceptance amendment (2026-10-20):** Unity build receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove required cooked resources, relocation and incompatible saves/refused updates in the real supported build.
+
 ### NEC-014 — Godot production Play and Windows export integration
 
 - **Purpose:** support the developer's Godot game as well as XACE Player.
@@ -579,6 +587,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Tests/proofs:** real editor/exported executable, resource path relocation, packed resource lookup, offline input/world/event parity.
 - **Rollback/failure:** reject partial resource/package export; preserve prior export and owned process boundary.
 - **Non-goals:** replace the user's game with the reference Player or enable arbitrary downloaded scripts.
+
+- **Approved acceptance amendment (2026-10-20):** Godot export receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove packed resource lookup, relocation and incompatible saves/refused updates in the real supported export.
 
 ### NEC-015 — Unreal production Play and packaged-build integration
 
@@ -592,6 +602,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** fail cook/stage on missing dependencies, preserve prior build and clean only owned processes/artifacts.
 - **Non-goals:** arbitrary Blueprint gameplay conversion, console support or all engine plugins.
 
+- **Approved acceptance amendment (2026-10-20):** Unreal cook/package receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove cooked resource lookup, relocation and incompatible saves/refused updates in the real supported package.
+
 ### NEC-016 — Offline distribution, continuity archive and detach
 
 - **Purpose:** make ownership and continued use concrete.
@@ -603,6 +615,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Tests/proofs:** archive integrity/redaction/relocation, actual clean restore, modified adapter conflict, release update failure and save-version refusal/migration.
 - **Rollback/failure:** missing essential material blocks a completeness claim; detach failure preserves native files and archive; old release remains launchable.
 - **Non-goals:** runtime-free native source export or redistribution of unlicensed third-party content.
+
+- **Approved acceptance amendment (2026-10-20):** Define explicit two-developer clone/fork/branch/merge/rebase/recovery behavior using existing identity maps, reconciliation and journals; preserve both conflicting versions and require review. Archive executor source/build inputs and protected checkpoint references. Exercise failed/interrupted updates, prior-release rollback and save migration/refusal without losing the original save. No automatic history cleanup.
 
 ### NEC-017 — Installed-engine adoption, conflict and crash certification
 
@@ -616,6 +630,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** failed profile remains unsupported; diagnostics and last known-good project/package retained; no marker-scan substitute.
 - **Non-goals:** claim coverage for unspecified versions, bigger worlds or unsupported geometry.
 
+- **Approved acceptance amendment (2026-10-20):** Remove the current128-bound-object reconciliation ceiling for the1,000-object program target; do not reduce the target. Certify real two-developer branch/merge/recovery in installed editors. Measure saved-change batching, no-op suppression, repeated edits/rebuilds, latency, memory/disk use, retained history and recovery correctness at the declared scale. Include unusual-mechanic state/replay and all shipping compatibility/update/save failure cells. Retention must respect protected references and explicit cleanup authorization.
+
 ### NEC-018 — Clean-machine shipping and private-alpha gate
 
 - **Purpose:** substantiate the complete product promise before exposing it.
@@ -627,6 +643,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Tests/proofs:** clean VM/PC manifests, process/network capture, state/event hashes, signed release identities, walkthrough and failure logs; maintain separate online-session evidence.
 - **Rollback/failure:** no three-engine alpha claim on partial results; retain prior release and publish blocked matrix cells. A separately authorized single-engine pilot must be labeled narrowly.
 - **Non-goals:** the major UX redesign, every commercial release certification, or runtime-free export.
+
+- **Approved acceptance amendment (2026-10-20):** Preserve all clean-machine, signing, first-time tester and external-networking gates (REL01-05). Prove per-game saves, install/update/uninstall independence, failed-update rollback and deterministic save migration or refusal on clean machines. Steam-style packaging is not Steam certification: any Steam claim requires actual Steam installation/update/client-lifecycle evidence. Publish unsupported cells and executor/backend restrictions.
 
 ## 16. Sequence, gates and final recommendation
 

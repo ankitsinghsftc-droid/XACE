@@ -262,3 +262,6 @@ NEC010 closeout continuation2026-10-19: repaired Unreal native proof passes63 co
 
 
 NEC010 COMPLETE within the declared reviewed saved-authoring profile (2026-10-20). Final Unreal owned setup and combined bidirectional input/playback host proofs pass;406 regression tests pass plus the focused structural-refusal addition. Completion evidence: docs/evidence/nec010-completion-20261020/summary.json; acceptance and limitations: docs/NEC010_DURABLE_MATERIALIZATION.md. Source checkpoint ae5c040. All55 protected recovered XP022 files unchanged; original historical sealed payloads remain missing. REL01-05 OPEN. No off-device backup. Next: approved minimal NEC roadmap amendments, then NEC011 only; stop before NEC012.
+
+
+Approved strategic amendments integrated2026-10-20 after NEC010 completion44cb7bf. NEC001-018 count/order unchanged; amendments added to existing NEC011-018 acceptance, including1000-object target and all external release gates. NEC011 entry specification and delayed-echo-graph custom-mechanic benchmark recorded in docs/NEC011_FIDELITY_ACCEPTANCE.md. Specification only; runtime/fidelity implementation and verification remain. NEC012 not started. No off-device backup.
