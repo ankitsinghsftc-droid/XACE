@@ -1,0 +1,18 @@
+[package]
+name = "xace-nec011-echo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+xace-core = { path = "../../packages/core" }
+xace-runtime-core = { path = "../../packages/runtime-core" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+
+[[bin]]
+name = "xace_echo_host"
+path = "src/main.rs"

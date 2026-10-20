@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "cgs_hash": "570659dbafa245d0642422cd7cf2c244ff64bbd9a7583c1fc585fdceb793c254",
+  "plan_hash": "a26b4a029693f9b3bfc481cbd6962cc2e36ae07e708746e3c96f52953f7b2619",
+  "sgc_sha256": "5c8c5fa77d16b35f295d167c4124c74b84b53aa833ed1500b93869b35c289db0",
+  "files": {
+    "game.cgs.json": "e4ec2b0aa756da0cda2bcbc611d3d9434ec7e61728643a511b690cd1e2416f7d",
+    "execution_plan.json": "c2ce4df8631de2c6dbdc9ea073779ddc40cd5961bda52afc0d237c9cdda2c939",
+    "world.json": "6258c762a7325f4b7bce93155bfd8d276701d380ac59d0f3bee4e66d5603a56d",
+    "world.manifest.json": "11695c6aa0aa98234a4cca91c4f83664ed71d312d36e01b55f9733d96e994fd0"
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "metadata": {
+    "name": "NEC011 delayed echo graph",
+    "version": "0.1.0",
+    "schema_version": "0.1.0",
+    "cgs_hash": "570659dbafa245d0642422cd7cf2c244ff64bbd9a7583c1fc585fdceb793c254"
+  },
+  "component_schemas": [
+    {
+      "type_id": 10020,
+      "name": "GCL_ECHO_STATE_V1",
+      "source": "gcl",
+      "defaults": {
+        "data": {
+          "last_tick": null,
+          "next_sequence": 0,
+          "last_input": null,
+          "energy": {},
+          "pending": []
+        }
+      }
+    },
+    {
+      "type_id": 10021,
+      "name": "GCL_ECHO_CONFIG_V1",
+      "source": "gcl",
+      "defaults": {
+        "data": {
+          "schema_version": 1,
+          "nodes": [
+            1,
+            2,
+            3
+          ],
+          "edges": [
+            {
+              "id": 1,
+              "source": 1,
+              "target": 2,
+              "delay": 2,
+              "gain": 1000000,
+              "route": 1
+            },
+            {
+              "id": 2,
+              "source": 2,
+              "target": 3,
+              "delay": 1,
+              "gain": -1000000,
+              "route": 1
+            }
+          ],
+          "threshold": 1000000
+        }
+      }
+    },
+    {
+      "type_id": 10022,
+      "name": "GCL_ECHO_INPUT_V1",
+      "source": "gcl",
+      "defaults": {
+        "data": {
+          "pulse": {
+            "tick": 0,
+            "id": 1,
+            "node": 1,
+            "amplitude": 1000000
+          }
+        }
+      }
+    }
+  ],
+  "global_systems": [],
+  "assets": [],
+  "modes": [
+    {
+      "id": "reference",
+      "is_default": true,
+      "schema_version": "0.1.0",
+      "actors": [
+        {
+          "id": "graph",
+          "actor_type": "WORLD_OBJECT",
+          "control_type": "NONE",
+          "spawn_count": 1,
+          "components": [
+            {
+              "type_id": 1,
+              "name": "COMP_TRANSFORM_V1",
+              "defaults": {
+                "position": {
+                  "x": 0,
+                  "y": 3000000,
+                  "z": 0
+                },
+                "rotation": {
+                  "x": 0,
+                  "y": 0,
+                  "z": 0,
+                  "w": 1000000
+                },
+                "scale": {
+                  "x": 1000000,
+                  "y": 1000000,
+                  "z": 1000000
+                },
+                "parent_entity_id": 0
+              }
+            },
+            {
+              "type_id": 2,
+              "name": "COMP_IDENTITY_V1",
+              "defaults": {
+                "entity_name": "player"
+              }
+            },
+            {
+              "type_id": 10020,
+              "name": "GCL_ECHO_STATE_V1",
+              "defaults": {
+                "data": {
+                  "last_tick": null,
+                  "next_sequence": 0,
+                  "last_input": null,
+                  "energy": {},
+                  "pending": []
+                }
+              }
+            },
+            {
+              "type_id": 10021,
+              "name": "GCL_ECHO_CONFIG_V1",
+              "defaults": {
+                "data": {
+                  "schema_version": 1,
+                  "nodes": [
+                    1,
+                    2,
+                    3
+                  ],
+                  "edges": [
+                    {
+                      "id": 1,
+                      "source": 1,
+                      "target": 2,
+                      "delay": 2,
+                      "gain": 1000000,
+                      "route": 1
+                    },
+                    {
+                      "id": 2,
+                      "source": 2,
+                      "target": 3,
+                      "delay": 1,
+                      "gain": -1000000,
+                      "route": 1
+                    }
+                  ],
+                  "threshold": 1000000
+                }
+              }
+            },
+            {
+              "type_id": 10022,
+              "name": "GCL_ECHO_INPUT_V1",
+              "defaults": {
+                "data": {
+                  "pulse": {
+                    "tick": 0,
+                    "id": 1,
+                    "node": 1,
+                    "amplitude": 1000000
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "systems": [
+        {
+          "id": "nec011.echo_graph.v1",
+          "phase": "Simulation",
+          "reads": [
+            10020,
+            10021,
+            10022
+          ],
+          "writes": [
+            10020
+          ],
+          "depends_on": [],
+          "deterministic": true
+        }
+      ],
+      "rules": [],
+      "ui": {},
+      "world": {
+        "size": {
+          "width": 100000000,
+          "height": 100000000,
+          "depth": 100000000
+        },
+        "gravity": {
+          "x": 0,
+          "y": -9810000,
+          "z": 0
+        },
+        "day_length_ticks": 0,
+        "contract": {
+          "contract_version": 2,
+          "id": "reference.arena",
+          "version": "1.0.0",
+          "numeric_profile": "fixed64_y_up_neg_z_v1",
+          "capability_declarations": [],
+          "objects": [
+            {
+              "id": "graph",
+              "actor_id": "graph",
+              "kind": "anchor",
+              "capabilities": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -10,6 +10,8 @@ Approving records your review. It does not save either project or start the game
 <button id="refresh">Load current changes</button><button id="resolve" disabled>Review choices</button>
 <button id="approve" disabled>Approve reviewed proposal</button><button id="apply" disabled hidden>Apply reviewed changes</button><button id="cancel" disabled>Cancel review</button>
 <p id="status" role="status" aria-live="polite">Load the current saved changes to begin.</p>
+<label><input id="watch-saved" type="checkbox"> Notify me about saved changes</label>
+<p id="saved-status" role="status" aria-live="polite">Monitoring is off. Changes always require review and approval.</p>
 <section id="recovery" hidden aria-label="Interrupted saves"></section>
 <div id="summary"></div><div id="losses"></div><div id="conflicts"></div>
 <details><summary>Technical proposal</summary><pre id="proposal"></pre></details>

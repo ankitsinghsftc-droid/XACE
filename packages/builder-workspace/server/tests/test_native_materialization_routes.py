@@ -48,6 +48,25 @@ class MaterializationRoutes(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(result.json()['state'],'committed')
                 self.assertFalse(restarted.status()['play_build_blocked'])
 
+    async def test_saved_changes_route_is_authenticated_and_never_publishes(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,_=fixtures.HostTests().fixture(root)
+            with patch.dict(os.environ,{'XACE_LAUNCHER_STATE':str(root/'launcher.json')}):
+                app=create_materialization_app(host,project_path=str(root),static_dir=str(root/'no-dist'),model_provider='auto')
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app,client=('127.0.0.1',1234)),base_url='http://127.0.0.1:8765') as c:
+                path='/api/native-reconciliation/saved-changes'
+                self.assertEqual((await c.post(path,json={})).status_code,403)
+                headers={'x-xace-agent-auth':'1'}
+                self.assertEqual((await c.post(path,json={'project':'other'},headers=headers)).status_code,409)
+                response=await c.post(path,json={},headers=headers)
+                self.assertEqual(response.status_code,200,response.text)
+                self.assertEqual(response.json()['state'],'waiting')
+                self.assertFalse(response.json()['can_commit'])
+                self.assertFalse(host.review._sessions)
+                self.assertFalse((root/'.xace/authoring-baseline.native.json').exists())
+                with patch.object(host,'poll_saved_changes',side_effect=OSError('Native capture unavailable')):
+                    self.assertEqual((await c.post(path,json={},headers=headers)).status_code,409)
+
     async def test_wrong_project_cannot_install_host(self):
         with tempfile.TemporaryDirectory() as d:
             host,_=fixtures.HostTests().fixture(Path(d))

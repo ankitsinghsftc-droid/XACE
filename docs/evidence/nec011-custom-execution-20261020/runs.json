@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests",
+      "-p",
+      "test_native_executor_contract.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "sha256": "dd666241aa36caf6333e4460b5c6bb6b021321e78cc5e87e280ebeb32ded5975"
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_native_materialization_routes.py",
+      "-v"
+    ],
+    "returncode": 0,
+    "sha256": "0040b5d2518273ef5f673fe8c8a1df2c31c61e666f28749900b9d28741151012"
+  }
+]

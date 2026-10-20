@@ -1,0 +1,82 @@
+{
+  "schema_version": "0.1.0",
+  "plan_version": 1,
+  "created_tick": 0,
+  "plan_hash": "a26b4a029693f9b3bfc481cbd6962cc2e36ae07e708746e3c96f52953f7b2619",
+  "phases": {
+    "2": {
+      "phase": "Simulation",
+      "groups": [
+        {
+          "group_id": "Simulation_group_0",
+          "phase": "Simulation",
+          "parallel": false,
+          "systems": [
+            "nec011.echo_graph.v1"
+          ],
+          "serialization_constraints": [],
+          "execution_index": 0
+        }
+      ],
+      "total_system_count": 1
+    }
+  },
+  "all_system_ids": [
+    "nec011.echo_graph.v1"
+  ],
+  "compiled_from_cgs_hash": "570659dbafa245d0642422cd7cf2c244ff64bbd9a7583c1fc585fdceb793c254",
+  "adapter_protocol_version": 1,
+  "migration_status": "current",
+  "component_access_sets": {
+    "schema": "xace.sgc.component_access_sets.v1",
+    "by_system": {
+      "nec011.echo_graph.v1": {
+        "reads": [
+          10020,
+          10021,
+          10022
+        ],
+        "writes": [
+          10020
+        ]
+      }
+    },
+    "all_reads": [
+      10020,
+      10021,
+      10022
+    ],
+    "all_writes": [
+      10020
+    ],
+    "component_ids": [
+      10020,
+      10021,
+      10022
+    ]
+  },
+  "system_metadata": {
+    "schema": "xace.sgc.system_metadata.v1",
+    "systems": {
+      "nec011.echo_graph.v1": {
+        "display_name": "nec011.echo_graph.v1",
+        "phase": "Simulation",
+        "depends_on": [],
+        "deterministic": true,
+        "version": {
+          "major": 1,
+          "minor": 0
+        },
+        "description": ""
+      }
+    }
+  },
+  "proof_bundle": {
+    "schema": "xace.sgc.proof_ref.v1",
+    "path": ".xace/proof/sgc/570659dbafa245d0642422cd7cf2c244ff64bbd9a7583c1fc585fdceb793c254",
+    "compiled_from_cgs_hash": "570659dbafa245d0642422cd7cf2c244ff64bbd9a7583c1fc585fdceb793c254",
+    "plan_hash": "a26b4a029693f9b3bfc481cbd6962cc2e36ae07e708746e3c96f52953f7b2619",
+    "input_hash": "4598fd00e1d7c13982214e6fd566d3f1872480a9f2d3a4349fd07ccebda476a7",
+    "validation_hash": "2092f72493cc1ab5074c680447acf7fbeae74a7681b204fc1f1a01ace4e21292"
+  }
+}

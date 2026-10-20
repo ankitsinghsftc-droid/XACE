@@ -95,3 +95,38 @@ byId('approve').onclick=()=>run(async()=>{const result=await request('approve',{
 byId('cancel').onclick=()=>run(async()=>{await request('cancel',{token:review.token});review=null;choices={};for(const id of ['summary','losses','conflicts','proposal'])byId(id).replaceChildren();byId('status').textContent='Review cancelled. Both projects are unchanged.';});
 
 byId('apply').onclick=()=>run(async()=>{if(!approval)throw new Error('Approve the current review first.');const result=await request('apply',{approval,proposal_digest:review.proposal_digest});approval=null;review=null;byId('status').textContent=result.state==='noop'?'Already synchronized. No files changed.':'Changes saved and verified. The active game has not restarted.';byId('proposal').textContent=JSON.stringify(result,null,2);});
+
+// Opt-in serial polling never replaces an open review or its conflict choices.
+let savedPollTimer = null;
+let savedPollBusy = false;
+async function pollSavedChanges() {
+  if (!byId('watch-saved').checked || savedPollBusy) return;
+  savedPollBusy = true;
+  try {
+    const result = await request('saved-changes', {});
+    if (!byId('watch-saved').checked) return;
+    if (result.state === 'review_available') {
+      byId('saved-status').textContent = 'Saved changes are available. Load current changes to review them.';
+      approval = null;
+      byId('apply').disabled = true;
+      byId('approve').disabled = true;
+    } else if (result.state === 'waiting') {
+      byId('saved-status').textContent = 'Waiting for saved changes to settle.';
+    }
+  } catch (error) {
+    if (!byId('watch-saved').checked) return;
+    byId('saved-status').textContent = error.message;
+    approval = null;
+    byId('apply').disabled = true;
+    byId('approve').disabled = true;
+  } finally {
+    savedPollBusy = false;
+    if (byId('watch-saved').checked) savedPollTimer = setTimeout(pollSavedChanges, 2000);
+  }
+}
+byId('watch-saved').onchange = () => {
+  clearTimeout(savedPollTimer);
+  if (byId('watch-saved').checked) pollSavedChanges();
+  else byId('saved-status').textContent = 'Monitoring is off. Changes always require review and approval.';
+};
+window.addEventListener('pagehide', () => { byId('watch-saved').checked = false; clearTimeout(savedPollTimer); });

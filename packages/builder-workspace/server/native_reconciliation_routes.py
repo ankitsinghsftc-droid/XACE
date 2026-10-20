@@ -57,8 +57,12 @@ def install_reconciliation_routes(app, context_provider, *, dev_mode=False, mate
                     value[key]=item
                 return value
             body=json.loads(data,object_pairs_hook=pairs)
-            expected=set() if action=='status' else {'transaction_id','recovery_action'} if action=='recover' else {'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
-            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply','recover','status'}:raise ValueError('Invalid review action')
+            expected=set() if action in {'status','saved-changes'} else {'transaction_id','recovery_action'} if action=='recover' else {'approval','proposal_digest'} if action=='apply' else {'token'} if action=='cancel' else {'token','proposal_digest','resolutions'} if action=='resolve' else {'token','proposal_digest'}
+            if type(body) is not dict or set(body)!=expected or action not in {'cancel','resolve','approve','apply','recover','status','saved-changes'}:raise ValueError('Invalid review action')
+            if action=='saved-changes':
+                if materialization_host is None:raise ValueError('Saved-change monitoring is not configured')
+                result=await asyncio.to_thread(materialization_host.poll_saved_changes)
+                return JSONResponse(result,headers=headers)
             if action=='status':
                 result=await asyncio.to_thread(materialization_host.status) if materialization_host else dict(play_build_blocked=False,pending=[])
                 return JSONResponse(result,headers=headers)
@@ -78,7 +82,7 @@ def install_reconciliation_routes(app, context_provider, *, dev_mode=False, mate
             if action=='resolve':args.append(body['resolutions'])
             result=await asyncio.to_thread(getattr(service,action),*args)
             return JSONResponse(result if result is not None else {'cancelled':True},headers=headers)
-        except (ValueError,TypeError,KeyError) as exc:return JSONResponse({'message':str(exc)},409,headers=headers)
+        except (ValueError,TypeError,KeyError,OSError) as exc:return JSONResponse({'message':str(exc)},409,headers=headers)
 
     app.router.routes[0:0]=router.routes
     app.state.native_reconciliation=service

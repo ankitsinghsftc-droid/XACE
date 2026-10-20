@@ -1,0 +1,9 @@
+test_admission_reuses_package_support_without_execution (test_native_executor_contract.ExecutorAdmissionTests.test_admission_reuses_package_support_without_execution) ... ok
+test_nonreproducible_or_changed_build_refuses (test_native_executor_contract.ExecutorAdmissionTests.test_nonreproducible_or_changed_build_refuses) ... ok
+test_source_paths_and_duplicate_contracts_refuse (test_native_executor_contract.ExecutorAdmissionTests.test_source_paths_and_duplicate_contracts_refuse) ... ok
+test_untrusted_receipt_capability_and_state_mismatch_refuse (test_native_executor_contract.ExecutorAdmissionTests.test_untrusted_receipt_capability_and_state_mismatch_refuse) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.156s
+
+OK
