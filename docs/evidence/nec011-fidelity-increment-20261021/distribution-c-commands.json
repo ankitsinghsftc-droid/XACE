@@ -1,0 +1,54 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\runtime\\xace_runtime.exe",
+      "--cgs",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\game.cgs.json",
+      "--sgc-plan",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\execution_plan.json",
+      "--world",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\world.json",
+      "--world-manifest",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\world.manifest.json",
+      "--ticks",
+      "8",
+      "--tick-rate",
+      "60",
+      "--no-wait",
+      "--no-control",
+      "--port",
+      "0",
+      "--print-every",
+      "1",
+      "--schedule-snapshot-out",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\first-schedule.json"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\runtime\\xace_runtime.exe",
+      "--cgs",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\game.cgs.json",
+      "--sgc-plan",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\execution_plan.json",
+      "--world",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\world.json",
+      "--world-manifest",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\relocated-game\\world.manifest.json",
+      "--ticks",
+      "8",
+      "--tick-rate",
+      "60",
+      "--no-wait",
+      "--no-control",
+      "--port",
+      "0",
+      "--print-every",
+      "1",
+      "--schedule-snapshot-out",
+      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261020\\distribution-c\\second-schedule.json"
+    ],
+    "returncode": 0
+  }
+]

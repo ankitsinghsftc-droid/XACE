@@ -133,6 +133,23 @@ class NativeAdoptionTests(unittest.TestCase):
         self.assertEqual(objects[1]["relationships"][_gde.PARENT_ROLE],[actor_id(mapping,oid(2))])
         self.assertEqual(result["proposed_cgs"]["modes"][0]["actors"][1]["components"][0]["defaults"]["parent_entity_id"],0)
 
+    def test_declared_static_parent_projection_and_provenance(self):
+        from native_instance_transforms import PROFILE
+        for engine in ['unity','godot','unreal']:
+            data,mapping,cgs,selection,choices=inputs(engine)
+            cgs['native_instance_profile']=PROFILE;rehash(cgs)
+            value=json.loads(data);value['objects'][oid(3)]['parent_id']=oid(2)
+            report=plan(canonical(value),mapping,cgs,selection,choices).to_dict()
+            self.assertTrue(report['candidate_valid'],report['losses'])
+            actors=report['proposed_cgs']['modes'][0]['actors']
+            parent,child=[a['components'][0]['defaults'] for a in actors]
+            self.assertEqual(child['position'],{k:v*2 for k,v in parent['position'].items()})
+            self.assertEqual(child['parent_entity_id'],0)
+            records=report['provenance']
+            self.assertTrue(any(r.get('origin')=='declared_static_hierarchy_projection' and r.get('projected_value')==child['position'] for r in records))
+            self.assertTrue(any(r.get('runtime_binding')=='resolved_static_world' for r in records))
+            self.assertTrue(plan(canonical(value),mapping,report['proposed_cgs'],selection,choices).to_dict()['noop'])
+
     def test_missing_transform_is_reported_not_defaulted(self):
         data,mapping,cgs,selection,choices=inputs();value=json.loads(data);del value["objects"][oid(2)]["fields"]["transform.scale"]
         result=plan(canonical(value),mapping,cgs,selection,choices).to_dict();self.assertFalse(result["candidate_valid"])

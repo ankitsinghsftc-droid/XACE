@@ -105,4 +105,28 @@ use super::*;
 fn config()->Config {Config{schema_version:1,nodes:vec![1,2,3],edges:vec![Edge{id:1,source:1,target:2,delay:2,gain:SCALE,route:0},Edge{id:2,source:2,target:3,delay:1,gain:-SCALE,route:1}],threshold:SCALE}}
 #[test] fn delayed_queue_and_threshold_routing_are_deterministic(){let mut c=config();c.edges[0].route=1;let input=Input{tick:0,id:1,node:1,amplitude:SCALE};let (s,e)=step(&c,&State::default(),Some(&input),0).unwrap();assert_eq!(e,vec![(1,SCALE)]);assert_eq!(s.pending[0].due,2);let (s,_)=step(&c,&s,Some(&input),1).unwrap();let snapshot=s.clone();let (s,e)=step(&c,&s,Some(&input),2).unwrap();assert_eq!(e,vec![(2,SCALE)]);let (s,e)=step(&c,&s,None,3).unwrap();assert_eq!(e,vec![(3,-SCALE)]);let (replay,_)=step(&c,&snapshot,Some(&input),2).unwrap();assert_eq!(step(&c,&replay,None,3).unwrap().0,s);}
 #[test] fn invalid_input_and_overflow_preserve_original(){let c=config();let s=State::default();let input=Input{tick:1,id:1,node:1,amplitude:SCALE};assert!(step(&c,&s,Some(&input),0).is_err());assert_eq!(s,State::default());let mut overflow=s.clone();overflow.energy.insert(1,LIMIT);assert!(step(&c,&overflow,Some(&Input{tick:0,..input}),0).is_err());assert_eq!(overflow.energy[&1],LIMIT);}
+#[test] fn simultaneous_arrivals_use_sequence_order_and_sum_once() {
+    let c=config();
+    let original=State{next_sequence:3,pending:vec![Pulse{due:0,node:1,sequence:2,amplitude:SCALE},Pulse{due:0,node:1,sequence:0,amplitude:SCALE},Pulse{due:0,node:1,sequence:1,amplitude:-SCALE}],..State::default()};
+    let (next,events)=step(&c,&original,None,0).unwrap();
+    assert_eq!(events,vec![(1,SCALE)]);assert_eq!(next.energy[&1],SCALE);
+    let mut reordered=original.clone();reordered.pending.reverse();
+    assert_eq!(step(&c,&reordered,None,0).unwrap(),(next,events));
+}
+#[test] fn queue_exhaustion_and_sequence_overflow_refuse_atomically() {
+    let c=config();let input=Input{tick:0,id:1,node:1,amplitude:1};
+    let full=State{next_sequence:4096,pending:(0..4096).map(|sequence|Pulse{due:1,node:1,sequence,amplitude:1}).collect(),..State::default()};
+    let before=full.clone();assert!(step(&c,&full,Some(&input),0).is_err());assert_eq!(full,before);
+    let overflow=State{next_sequence:u64::MAX,..State::default()};
+    assert!(step(&c,&overflow,Some(&input),0).is_err());assert_eq!(overflow.next_sequence,u64::MAX);
+}
+#[test] fn delayed_cycles_remain_bounded_and_replayable() {
+    let c=Config{schema_version:1,nodes:vec![1],edges:vec![Edge{id:1,source:1,target:1,delay:1,gain:SCALE,route:0}],threshold:LIMIT};
+    let input=Input{tick:0,id:1,node:1,amplitude:1};
+    let (mut state,_)=step(&c,&State::default(),Some(&input),0).unwrap();
+    let checkpoint=state.clone();let mut expected=Vec::new();
+    for tick in 1..61 {let (next,event)=step(&c,&state,None,tick).unwrap();assert_eq!(next.pending.len(),1);expected.push((next.clone(),event));state=next;}
+    let mut replay=checkpoint;for (index,expected) in expected.into_iter().enumerate(){let actual=step(&c,&replay,None,index as u64+1).unwrap();assert_eq!(actual,expected);replay=actual.0;}
+}
+
 }

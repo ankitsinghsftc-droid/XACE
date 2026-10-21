@@ -45,6 +45,17 @@ class ExecutorAdmissionTests(unittest.TestCase):
             v=copy.deepcopy(r);mutation(v)
             with self.assertRaises(ValueError):contracts.validate(v)
 
+    def test_real_factory_system_metadata_is_retained(self):
+        import json
+        from playable_package import compiled_artifacts
+        root=Path(__file__).resolve().parents[3]
+        cgs=json.loads((root/'examples/nec011-echo/fixtures/game.cgs.json').read_text())
+        package,_=compiled_artifacts(cgs);r,_,_=fixture();r['systems']=package.to_sgc_input()
+        checked=contracts.validate(r)
+        self.assertEqual(checked['systems'],r['systems'])
+        r['systems'][0]['version']['major']='1'
+        with self.assertRaises(ValueError):contracts.validate(r)
+
     def test_source_paths_and_duplicate_contracts_refuse(self):
         r,_,_=fixture()
         for path in ['../secret','C:/secret','dir\\secret','/absolute']:

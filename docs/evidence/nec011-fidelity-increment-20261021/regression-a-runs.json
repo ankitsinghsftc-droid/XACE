@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "examples/nec011-echo/Cargo.toml",
+      "--offline",
+      "--locked",
+      "--",
+      "--nocapture"
+    ],
+    "returncode": 0
+  }
+]

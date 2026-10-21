@@ -62,7 +62,12 @@ def validate(receipt):
     require(type(systems) is list and systems and all(type(s) is dict and type(s.get('id')) is str for s in systems), 'Executable system census required')
     require([s['id'] for s in systems]==sorted(set(s['id'] for s in systems)), 'Sorted unique system census required')
     for system in systems:
-        require(set(system)=={'id','phase','reads','writes','depends_on','deterministic'}, 'Exact SGC system contract required')
+        required={'id','phase','reads','writes','depends_on','deterministic'}
+        require(required<=set(system)<=required|{'display_name','version','description'}, 'Exact SGC system contract required')
+        for key in ['display_name','description']:
+            if key in system:require(type(system[key]) is str, 'Invalid SGC metadata')
+        if 'version' in system:
+            require(type(system['version']) is dict and set(system['version'])=={'major','minor'} and all(type(v) is int and v>=0 for v in system['version'].values()), 'Invalid SGC system version')
         require(system['deterministic'] is True, 'Uncertified nondeterministic executor')
         for key in ['reads','writes']:
             values=system[key];require(type(values) is list and all(type(v) is int and v>0 for v in values) and values==sorted(set(values)), 'Sorted component access required')

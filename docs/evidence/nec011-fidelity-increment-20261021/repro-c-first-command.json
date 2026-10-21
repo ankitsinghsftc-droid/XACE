@@ -1,0 +1,20 @@
+{
+  "command": [
+    "cargo",
+    "build",
+    "--manifest-path",
+    "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\examples\\nec011-echo\\Cargo.toml",
+    "--bin",
+    "xace_echo_host",
+    "--offline",
+    "--locked",
+    "--target-dir",
+    "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\nec011-repro-repro-c-first"
+  ],
+  "environment": {
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_DEV_INCREMENTAL": "false",
+    "RUSTFLAGS": "-C link-arg=/Brepro -C link-arg=/PDBALTPATH:xace_echo_host.pdb --remap-path-prefix=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace=/xace",
+    "CARGO_TARGET_X86_64_PC_WINDOWS_MSVC_LINKER": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\bin\\Hostx64\\x64\\link.exe"
+  }
+}

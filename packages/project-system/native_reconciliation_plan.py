@@ -17,6 +17,16 @@ from tools.cgs_schema_validate import compute_cgs_hash
 gde=importlib.import_module('gde.src.domain_dsl.typed_operations.native_reconciliation_operations')
 PARENT='xace.authoring_parent.v1'
 TRANSFORMS={'transform.position','transform.rotation','transform.scale'}
+from native_instance_transforms import PROFILE as HIERARCHY_PROFILE, resolve as resolve_hierarchy, localize as localize_hierarchy
+
+def hierarchy_enabled(cgs):
+    value=cgs.get('native_instance_profile')
+    require(value is None or value==HIERARCHY_PROFILE,'Unsupported native instance profile')
+    return value==HIERARCHY_PROFILE
+
+def row_transforms(rows,keys):
+    return {key:dict(**{name:{a:int(v) for a,v in rows[key]['fields']['transform.'+name].items()} for name in ['position','rotation','scale']},parent_entity_id=0) for key in keys}
+
 
 
 def _binding(cgs, binding):
@@ -86,6 +96,12 @@ def _project(cgs,base,mapping):
         parents=obj.get('relationships',{}).get(PARENT,[])
         require(len(parents)<=1 and all(p in by_world for p in parents),'unbound semantic parent')
         rows[key]['parent_id']=by_world[parents[0]] if parents else None
+    if hierarchy_enabled(cgs):
+        keys=sorted(by_world.values())
+        require(all(not rows[k]['deleted'] for k in keys),'Hierarchy deletion needs explicit structural review')
+        local=localize_hierarchy(row_transforms(rows,keys),{k:rows[k]['parent_id'] for k in keys})
+        for key,value in local.items():
+            for name in ['position','rotation','scale']:rows[key]['fields']['transform.'+name]={a:str(v) for a,v in value[name].items()}
     return rows
 
 
@@ -112,6 +128,8 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     require(trusted_project is True,'trusted native extraction required')
     mapping.validate();current_mapping.validate()
     require(mapping.to_dict()==current_mapping.to_dict(),'branch/identity/baseline drift requires explicit identity review')
+    require(current_cgs.get('native_instance_profile')==baseline_cgs.get('native_instance_profile'),'Instance profile changes need explicit re-adoption')
+    hierarchy=hierarchy_enabled(current_cgs)
     saved=mapping.baseline;require(saved is not None,'verified reconciliation baseline required')
     require(saved.mapping_digest==mapping.mapping_digest() and saved.cgs_digest==digest(baseline_cgs)
             and saved.native_snapshot_digest==baseline.sha256,'baseline identity mismatch')
@@ -138,7 +156,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     else:require(accepted_loss_digest is None,'unexpected precision review')
     if not merge['resolved']:block('unresolved_conflict')
     for key,row in merge['merged'].items():
-        if key in bound and row['parent_id'] is not None:block('runtime_parent_binding_required',key)
+        if key in bound and row['parent_id'] is not None and not hierarchy:block('runtime_parent_binding_required',key)
         record=mapping.objects[key]
         if not row['deleted']:
             for reference in [record.scene_id,record.prefab_id]:
@@ -157,6 +175,10 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         elif op['field'] not in TRANSFORMS|{'binding.playback','presentation.asset','input.action'} or not op['value']['present']:block('field_mapping_not_certified',op['object_id'],op['field'])
         elif op['object_id'] not in bound:block('unbound_native_object',op['object_id'],op['field'])
     operations=[]
+    resolved=None
+    if hierarchy:
+        try:resolved=resolve_hierarchy(row_transforms(merge['merged'],bound),{k:merge['merged'][k]['parent_id'] for k in bound})
+        except (ValueError,KeyError,TypeError):block('hierarchy_profile_refused')
     for key in bound:
         desired=merge['merged'][key];current=_binding(current_cgs,mapping.objects[key].world_binding)
         if current is None or desired['deleted']:continue
@@ -164,6 +186,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         if not TRANSFORMS <= set(desired['fields']):block('incomplete_transform',key);continue
         transform={name:{axis:int(value) for axis,value in desired['fields']['transform.'+name].items()} for name in ['position','rotation','scale']}
         transform['parent_entity_id']=0
+        if resolved is not None:transform=resolved[key]
         if next(c['defaults'] for c in actor['components'] if c['type_id']==1)!=transform:
             operations.append(dict(operation_id='reconcile.'+key,kind='set_native_transform',mode_id=mode['id'],actor_id=actor['id'],expected_actor_digest=digest(actor),transform=transform))
     for key in bound:

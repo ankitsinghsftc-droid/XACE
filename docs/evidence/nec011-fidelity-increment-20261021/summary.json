@@ -1,0 +1,85 @@
+{
+  "schema": "xace.nec011.increment.v1",
+  "nec011_complete": false,
+  "project_system_tests": 279,
+  "rust_tests": 7,
+  "records": [
+    {
+      "source": "evidence/nec011/20261020/repro-c/builds.json",
+      "copy": "repro-c-builds.json",
+      "sha256": "f7b172f3410dddf21fb33c4c1524c008f049f8f244fc2d4b84e28562e61076dd"
+    },
+    {
+      "source": "evidence/nec011/20261020/repro-c/source-files.json",
+      "copy": "repro-c-source-files.json",
+      "sha256": "dd437c4ef842d8d3b8095552e6b88fa959b6b2f2e4b077ffbdf2a208576d0846"
+    },
+    {
+      "source": "evidence/nec011/20261020/repro-c/first-command.json",
+      "copy": "repro-c-first-command.json",
+      "sha256": "a3d97db395d05a56951a0e786c2f8bcb00dbbde34cc4574e940ea5a280fe3fc6"
+    },
+    {
+      "source": "evidence/nec011/20261020/repro-c/second-command.json",
+      "copy": "repro-c-second-command.json",
+      "sha256": "1c08dac568d1b9d25f2a9fcd0b0ae3ea421373692abee7ff925baf55a4cb53d7"
+    },
+    {
+      "source": "evidence/nec011/20261020/distribution-c/proof.json",
+      "copy": "distribution-c-proof.json",
+      "sha256": "d334c3045e86fa2eb818b909a2d7fe1ee8d067b0c1c22250f53b20f92fc5b90e"
+    },
+    {
+      "source": "evidence/nec011/20261020/distribution-c/executor-receipt.json",
+      "copy": "distribution-c-executor-receipt.json",
+      "sha256": "20104031257d4213dd48536adde5dc212bf481e760f57b67660836a0282322b3"
+    },
+    {
+      "source": "evidence/nec011/20261020/distribution-c/commands.json",
+      "copy": "distribution-c-commands.json",
+      "sha256": "6ee0f18fbbae9f8002f576fb4b4eb1849f05d32edcf5e7deced8535e39aa15ce"
+    },
+    {
+      "source": "evidence/nec011/20261020/browser-a/proof.json",
+      "copy": "browser-a-proof.json",
+      "sha256": "fd2aa4ef916af1206e4c6caa5436cb030ad727b6473833b37911d7aa62165daa"
+    },
+    {
+      "source": "evidence/nec011/20261020/godot-fidelity-a/proof.json",
+      "copy": "godot-fidelity-a-proof.json",
+      "sha256": "9305fe2086438f4ca109367b3b2a44fa91ffcebe56479e0609661eb6a5d9abae"
+    },
+    {
+      "source": "evidence/nec011/20261020/godot-fidelity-a/sources.json",
+      "copy": "godot-fidelity-a-sources.json",
+      "sha256": "9a190f19800171d541fabb956b068b0e1f05a1430d8719bef3eea4ef9a6b7bf7"
+    },
+    {
+      "source": "evidence/nec011/20261020/godot-fidelity-a/command.json",
+      "copy": "godot-fidelity-a-command.json",
+      "sha256": "67d15b9a69da3360c37f4d24a4e23127dc9bc74f10af3157c5946f64eb3ee542"
+    },
+    {
+      "source": "evidence/nec011/20261020/regression-a/runs.json",
+      "copy": "regression-a-runs.json",
+      "sha256": "872ef6aba11c56cc3b6fadd37baa02a3f32f35d0f298acfb1bd4fb87702d6427"
+    },
+    {
+      "source": "evidence/nec011/20261020/regression-a/0.txt",
+      "copy": "regression-a-0.txt",
+      "sha256": "775736e2dea2d0613c58c841d49a4bdc3a8c65e9e63379db671ac7f7e64b5e1d"
+    },
+    {
+      "source": "evidence/nec011/20261020/regression-a/1.txt",
+      "copy": "regression-a-1.txt",
+      "sha256": "c5802e1d97e88ca5c85a25d302664c57a9524242024e7d2ae4ffaec689065d31"
+    }
+  ],
+  "limitations": [
+    "Static translation hierarchy has normalized-fixture proofs only; native hierarchy and structured executor admission remain open",
+    "Unity native probe pending; Unreal playback not yet exercised",
+    "Benchmark graph creation and rewind are fixture/test-driven; interactive input and retained checkpoint control remain open",
+    "No native shipping or clean-machine certification",
+    "Raw binaries and native projects remain local-only"
+  ]
+}

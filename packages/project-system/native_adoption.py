@@ -142,6 +142,15 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
     existing_actors = _gde.index(existing_mode["actors"])
     existing_objects = _gde.index(contract["objects"])
     registered_assets = _gde.index(current_cgs.get("assets", []))
+    from native_instance_transforms import PROFILE as hierarchy_profile, resolve as resolve_hierarchy
+    declared_profile=current_cgs.get('native_instance_profile')
+    require(declared_profile is None or declared_profile==hierarchy_profile,'Unsupported native instance profile')
+    hierarchy_world=None
+    if declared_profile==hierarchy_profile:
+        try:
+            local={key:dict(**{name:{axis:integer(value) for axis,value in rows[key]['fields']['transform.'+name].items()} for name in ['position','rotation','scale']},parent_entity_id=0) for key in selection}
+            hierarchy_world=resolve_hierarchy(local,{key:rows[key]['parent_id'] for key in selection})
+        except (ValueError,KeyError,TypeError):loss('hierarchy_profile_refused')
     for key in selection:
         choice = choices["objects"][key]
         exact(choice, {"actor_type", "control_type", "components", "semantic_type", "properties", "capabilities", "geometry_profile", "asset_role", "playback"})
@@ -154,11 +163,12 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
         transform = {name: {axis: integer(value) for axis, value in fields["transform."+name].items()}
                      for name in ("position", "rotation", "scale")}
         transform["parent_entity_id"] = 0
+        if hierarchy_world is not None:transform=hierarchy_world[key]
         parent = rows[key]["parent_id"]
         relationships = {}
         if parent is not None:
             # Never smuggle an authoring ID into a runtime EntityID field.
-            loss("runtime_parent_binding_required", key, "parent_id")
+            if hierarchy_world is None:loss("runtime_parent_binding_required", key, "parent_id")
             if parent in selection: relationships[_gde.PARENT_ROLE] = [actor_id(mapping, parent)]
             else: loss("parent_not_selected", key, "parent_id")
         bindings = {}
@@ -194,8 +204,12 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
         obj = dict(id=aid, actor_id=aid, instance_index=0, semantic_type=choice["semantic_type"], properties=copy.deepcopy(choice["properties"]),
                    capabilities=copy.deepcopy(choice["capabilities"]), relationships=relationships, asset_bindings=bindings, geometry_profile=choice["geometry_profile"])
         desired.append((key, actor, obj))
-        for name in sorted(required): provenance.append(dict(target=aid+".components.1."+name[10:], origin="native_capture", object_id=key, field=name, source_value=copy.deepcopy(fields[name])))
-        provenance.append(dict(target=aid+".authoring_parent", origin="native_capture", object_id=key, source_value=parent, runtime_binding="unassigned" if parent else "root"))
+        for name in sorted(required):
+            record=dict(target=aid+".components.1."+name[10:], origin="native_capture", object_id=key, field=name, source_value=copy.deepcopy(fields[name]))
+            if hierarchy_world is not None:
+                record.update(origin="declared_static_hierarchy_projection", profile=hierarchy_profile, projected_value=copy.deepcopy(transform[name[10:]]))
+            provenance.append(record)
+        provenance.append(dict(target=aid+".authoring_parent", origin="native_capture", object_id=key, source_value=parent, runtime_binding=("resolved_static_world" if hierarchy_world is not None else "unassigned") if parent else "root"))
         provenance.append(dict(target=aid+".classification_components_world", origin="explicit_user_choice", object_id=key, source_value=copy.deepcopy(choice)))
         for name in fields:
             if name in required or name == "presentation.asset" or (name == "binding.playback" and choice["playback"] is not None): continue
