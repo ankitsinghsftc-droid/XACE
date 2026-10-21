@@ -16,10 +16,10 @@ public static class NEC011UnityFidelity {
   var audio=AudioClip.Create("tone",8000,1,8000,false);AssetDatabase.CreateAsset(audio,"Assets/Resources/tone.asset");AssetDatabase.SaveAssets();
   EditorApplication.EnterPlaymode();
  }
- static void Changed(PlayModeStateChange state){if(state!=PlayModeStateChange.EnteredPlayMode||String.IsNullOrEmpty(SessionState.GetString(Key,"")))return;EditorApplication.delayCall+=Proof;}
- static void Proof(){try{
+ static void Changed(PlayModeStateChange state){if(state!=PlayModeStateChange.EnteredPlayMode||String.IsNullOrEmpty(SessionState.GetString(Key,"")))return;EditorApplication.update+=Proof;}
+ static void Proof(){EditorApplication.update-=Proof;try{
   var checks=new SortedDictionary<string,object>();
-  var root=new GameObject("Fidelity");root.AddComponent<XaceTransport>();var adapter=root.AddComponent<XaceDeltaApplicator>();
+  var root=new GameObject("Fidelity");root.AddComponent<XaceTransport>().enabled=false;var adapter=root.AddComponent<XaceDeltaApplicator>();
   var actor=new GameObject("Echo");actor.AddComponent<Animation>();
   var map=(Dictionary<ulong,GameObject>)typeof(XaceDeltaApplicator).GetField("entityMap",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(adapter);map.Add(42,actor);
   var method=typeof(XaceDeltaApplicator).GetMethod("ApplyPlaybackCommands",BindingFlags.Instance|BindingFlags.NonPublic);
