@@ -1,0 +1,87 @@
+{
+  "nec011_complete": false,
+  "nec012_started": false,
+  "files": [
+    {
+      "path": "unity-hierarchy-a/proof.json",
+      "sha256": "78da0abf4cb7e769d986607369765ed59447e2e747cb0f192aa440030db8dd07"
+    },
+    {
+      "path": "unity-readiness-a/proof.json",
+      "sha256": "823ba74a1ca7cba6f9048f33f141c33d0276a893ed27712f2c86b17de907d44f"
+    },
+    {
+      "path": "unreal-readiness-a/proof.json",
+      "sha256": "f8ef6d9ff23b3e6bdf9f8d4fc8baeb101230afe159aa274a59522d9b4a60264d"
+    },
+    {
+      "path": "godot-contract-a/proof.json",
+      "sha256": "c69de0571eaf184daed9f832e47f61d9661d40cb1940407f8f1557fde4e79847"
+    },
+    {
+      "path": "echo-player-tests-a/result.json",
+      "sha256": "2c74e89a8dc1e7fff08f83ceec908ee3f375908f36aa446fda5adc0899f3636c"
+    },
+    {
+      "path": "echo-player-tests-a/run.txt",
+      "sha256": "8bbf3efe7d3772f9fc96ec4218a99c6dc26219e5fa7c537318750eb2adefc943"
+    },
+    {
+      "path": "repro-player-a/builds.json",
+      "sha256": "91eb41317f14bf5ba9666d6c63039100dd43fcca6c477528ccbf50e1e44f5bcc"
+    },
+    {
+      "path": "repro-player-a/source-files.json",
+      "sha256": "5a05b530b0c3bc5a3217973ec782da1ccb21d40b31a81cb92c09791fca7e2d1d"
+    },
+    {
+      "path": "distribution-player-a/executor-receipt.json",
+      "sha256": "eb4d71f89558879ced2e847f286e6fad5a6c799dd82af2bd71a3a20e7a59cb49"
+    },
+    {
+      "path": "distribution-player-a/proof.json",
+      "sha256": "d5a3785a22df92b26194044bc1b7177c6eb6b4e02d728f40cb853df31bb849b0"
+    },
+    {
+      "path": "distribution-player-a/interactive-session/proof.json",
+      "sha256": "81867b2edfff32d32dfc199ea81de771cb2d42787c304930f2f0ab16d10f72bb"
+    },
+    {
+      "path": "distribution-player-a/interactive-session/commands.jsonl",
+      "sha256": "2031a7d7c7a809d82281e82dc2bba16326fafa384ea2fdb4c6b2204effa37d45"
+    },
+    {
+      "path": "distribution-player-a/interactive-session/first-stdout.jsonl",
+      "sha256": "77990a1d23ab202a755db3dbbe78e5acd07b8ef9ef9572d971c524b65ad3e0c4"
+    },
+    {
+      "path": "distribution-player-a/interactive-session/second-stdout.jsonl",
+      "sha256": "77990a1d23ab202a755db3dbbe78e5acd07b8ef9ef9572d971c524b65ad3e0c4"
+    },
+    {
+      "path": "regression-c/results.json",
+      "sha256": "c86840c1dd005bdc4c5f0a21de77aa9e05da80e40b0a611a8d9071faf65e833f"
+    },
+    {
+      "path": "regression-c/0.txt",
+      "sha256": "46a56987d457e1a7e0b524d19b503c7538b5a08adb3b787c640720e0aa65bf71"
+    },
+    {
+      "path": "regression-c/1.txt",
+      "sha256": "b998b10b2f9075c143249db332e11175699c8ed57c6bef9bccba9f2f6a63a096"
+    },
+    {
+      "path": "seal-b.json",
+      "sha256": "fc4a1efefd3c9c55657c5c60a54ab9ed62607193f6f24eca2a9e60b20c0842f9"
+    }
+  ],
+  "creator_benchmark_verified": true,
+  "native_shipping_certified": false,
+  "remaining": [
+    "Unreal native hierarchy",
+    "Current native contract regressions",
+    "Native input/profile/resource compatibility readiness integration",
+    "Trusted structured executor/native integration",
+    "Final closeout"
+  ]
+}

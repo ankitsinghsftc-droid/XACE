@@ -34,6 +34,8 @@ def main(out,build):
         command=package_api.runtime_command(installed,support,ticks=8)+['--port','0','--print-every','1','--schedule-snapshot-out',str(out/(name+'-schedule.json'))]
         with (out/(name+'-run.txt')).open('wb') as log:r=subprocess.run(command,cwd=installed,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=45)
         commands.append(dict(command=command,returncode=r.returncode));assert r.returncode==0,'Relocated host failed; inspect retained log'
+    from nec011_echo_session_proof import prove
+    prove(installed/'runtime/xace_runtime.exe',installed/'game.cgs.json',installed/'execution_plan.json',out/'interactive-session')
     (out/'commands.json').write_text(json.dumps(commands,indent=2))
     (out/'proof.json').write_text(json.dumps(dict(ok=True,trusted_receipt_digest=contract.digest(receipt),executable_sha256=exehash,package_content_hash=manifest['package_content_hash'],relocated_executable=True,player_compilation=False,native_engine_shipping=False,clean_machine=False),indent=2))
     print((out/'proof.json').read_text())

@@ -1,0 +1,96 @@
+{
+	"cases": [
+		{
+			"name": "contiguous",
+			"ok": true,
+			"result": "accept"
+		},
+		{
+			"name": "sequence_gap",
+			"ok": true,
+			"result": "recover"
+		},
+		{
+			"name": "late_baseline",
+			"ok": true,
+			"result": "accept"
+		},
+		{
+			"name": "stale_sequence",
+			"ok": true,
+			"result": "drop"
+		},
+		{
+			"name": "reconnect_generation",
+			"ok": true,
+			"result": "accept"
+		},
+		{
+			"name": "stale_generation",
+			"ok": true,
+			"result": "drop"
+		},
+		{
+			"name": "wrong_epoch",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "corrupt_digest",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "corrupt_update",
+			"ok": true,
+			"result": "recover"
+		},
+		{
+			"name": "unsafe_integer",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "duplicate_binding",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "wrong_owner",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "null_stamp",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "duplicate_entity",
+			"ok": true,
+			"result": "reject"
+		},
+		{
+			"name": "parent_cycle",
+			"ok": true,
+			"result": "reject"
+		}
+	],
+	"engine": "godot",
+	"geometry": true,
+	"independent_entity_lifetimes": true,
+	"input_fence": true,
+	"normal": [
+		1.0,
+		0.0,
+		0.0
+	],
+	"ok": true,
+	"position": [
+		6.0,
+		2.0,
+		3.0
+	],
+	"schema": "xace.native_contract_proof.v1",
+	"version": "4.6.3-stable (official)"
+}

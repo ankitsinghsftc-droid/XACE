@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "builds": [
+    {
+      "build_id": "first",
+      "executable_sha256": "cb127fe71c1256a3a8095deb4ab68fe8758d6883a236847f7de13f46c1feb66f",
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\repro-player-a\\first-host.exe"
+    },
+    {
+      "build_id": "second",
+      "executable_sha256": "cb127fe71c1256a3a8095deb4ab68fe8758d6883a236847f7de13f46c1feb66f",
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\repro-player-a\\second-host.exe"
+    }
+  ]
+}

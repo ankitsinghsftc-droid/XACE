@@ -39,11 +39,11 @@ def roundtrip(out,root,gateway,engine,scene_path):
     def apply():
         host=NativeMaterializationHost(root,context,gateway);opened=host.review.open('proof');assert opened['report']['reviewable'],opened['report']['losses'];approval=host.review.approve('proof',opened['token'],opened['proposal_digest']);assert host.apply('proof',approval,approval['proposal_digest'])['state']=='committed'
     # Engine-local child edit through the real native writer.
-    m=IdentityMap.from_dict(load_json(root/MAP));raw=gateway.capture();base=reader.capture(raw,m,enable_writes=True).admit();target=json.loads(raw);target['objects'][oid(3)]['fields']['transform.position']['x']='4'
+    m=IdentityMap.from_dict(load_json(root/MAP));raw=gateway.capture();base=reader.capture(raw,m,enable_writes=True).admit();target=json.loads(raw);axis='y' if engine=='unreal' else 'x';target['objects'][oid(3)]['fields']['transform.position'][axis]='400' if engine=='unreal' else '4'
     desired=reader.capture(canonical(target),m,enable_writes=True).admit();prepared=gateway.prepare('native-child-edit',dict(write_request=json.loads(reader.write_request(raw,base,desired,m))));gateway.commit(prepared);apply()
     cgs=load_json(root/'game.cgs.json');actors={a['id']:a for a in cgs['modes'][0]['actors']};child=actors[actor_id(mapping,oid(3))]['components'][0]['defaults'];assert child['position']['x']==6000000 and child['parent_entity_id']==0
     # Canonical world child edit must preserve native parent and write local space.
-    child['position']['x']=7000000;rehash(cgs);(root/'game.cgs.json').write_bytes(canonical(cgs));apply();final=json.loads(gateway.capture());assert final['objects'][oid(3)]['parent_id']==oid(2);assert final['objects'][oid(3)]['fields']['transform.position']['x']=='5'
+    child['position']['x']=7000000;rehash(cgs);(root/'game.cgs.json').write_bytes(canonical(cgs));apply();final=json.loads(gateway.capture());assert final['objects'][oid(3)]['parent_id']==oid(2);assert final['objects'][oid(3)]['fields']['transform.position'][axis]==('500' if engine=='unreal' else '5')
     repeated=NativeMaterializationHost(root,context,gateway).review.open('proof');assert repeated['report']['noop'] and repeated['report']['reviewable']
     monitor=NativeMaterializationHost(root,context,gateway)
     before={name:(root/name).read_bytes() for name in ['game.cgs.json',scene_path,MAP,CGS,NATIVE]}

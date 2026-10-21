@@ -1,0 +1,43 @@
+   Compiling xace-nec011-echo v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\examples\nec011-echo)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.06s
+     Running unittests src\lib.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\xace_nec011_echo-8af2ec428374d663.exe)
+
+running 6 tests
+test tests::delayed_queue_and_threshold_routing_are_deterministic ... ok
+test tests::simultaneous_arrivals_use_sequence_order_and_sum_once ... ok
+test tests::player_graph_edits_refuse_conflicts_and_dangling_pending_nodes_atomically ... ok
+test tests::invalid_input_and_overflow_preserve_original ... ok
+test tests::delayed_cycles_remain_bounded_and_replayable ... ok
+test tests::queue_exhaustion_and_sequence_overflow_refuse_atomically ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\main.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\xace_echo_host-5761fd8d4c887231.exe)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests\player_session.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\player_session-dce1e253884591c5.exe)
+
+running 3 tests
+test player_creates_graph_sends_pulse_and_rewinds_every_hash_and_event ... ok
+test wrong_tick_and_missing_checkpoint_refuse ... ok
+test expired_rewind_refuses ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.58s
+
+     Running tests\runtime.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\runtime-5affe6ddc8bf28bb.exe)
+
+running 2 tests
+test conflicting_duplicate_input_halts_without_publishing_state ... ok
+test real_sgc_execution_snapshot_rewind_and_replay_match_every_hash_and_event ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests xace_nec011_echo
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

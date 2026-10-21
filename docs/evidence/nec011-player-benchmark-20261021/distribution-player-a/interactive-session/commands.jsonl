@@ -1,0 +1,17 @@
+{"action":"tick","tick":0,"graph":{"tick":0,"id":1,"graph":{"schema_version":1,"nodes":[7,8,9],"edges":[{"id":1,"source":7,"target":8,"delay":2,"gain":1000000,"route":1},{"id":2,"source":8,"target":9,"delay":1,"gain":-1000000,"route":1}],"threshold":1000000}}}
+{"action":"tick","tick":1,"pulse":{"tick":1,"id":1,"node":7,"amplitude":1000000}}
+{"action":"checkpoint","tick":2}
+{"action":"inspect"}
+{"action":"tick","tick":2}
+{"action":"tick","tick":3}
+{"action":"tick","tick":4}
+{"action":"tick","tick":5}
+{"action":"tick","tick":6}
+{"action":"inspect"}
+{"action":"rewind","tick":7}
+{"action":"tick","tick":2}
+{"action":"tick","tick":3}
+{"action":"tick","tick":4}
+{"action":"tick","tick":5}
+{"action":"tick","tick":6}
+{"action":"inspect"}

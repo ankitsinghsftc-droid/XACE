@@ -27,7 +27,23 @@ pub struct Pulse {pub due:u64,pub node:u32,pub sequence:u64,pub amplitude:i64}
 pub struct Input {pub tick:u64,pub id:u64,pub node:u32,pub amplitude:i64}
 #[derive(Clone,Debug,Default,Serialize,Deserialize,PartialEq,Eq)]
 #[serde(deny_unknown_fields)]
-pub struct State {pub last_tick:Option<u64>,pub next_sequence:u64,pub last_input:Option<Input>,pub energy:BTreeMap<u32,i64>,pub pending:Vec<Pulse>}
+pub struct State {#[serde(default)] pub graph:Option<Config>,#[serde(default)] pub last_graph_input:Option<GraphInput>,pub last_tick:Option<u64>,pub next_sequence:u64,pub last_input:Option<Input>,pub energy:BTreeMap<u32,i64>,pub pending:Vec<Pulse>}
+#[derive(Clone,Debug,Serialize,Deserialize,PartialEq,Eq)]
+#[serde(deny_unknown_fields)]
+pub struct GraphInput {pub tick:u64,pub id:u64,pub graph:Config}
+/// Graph edits are timed player inputs, carried in snapshotted state, not CGS mutations.
+pub fn step_with_graph(config:&Config,original:&State,input:Option<&Input>,edit:Option<&GraphInput>,tick:u64)->Result<(State,Vec<(u32,i64)>),XaceError>{
+    let mut candidate=original.clone();
+    if let Some(edit)=edit {
+        if candidate.last_graph_input.as_ref().map(|last|last.id)==Some(edit.id){require(candidate.last_graph_input.as_ref()==Some(edit),"conflicting graph input")?;}
+        else {
+            require(edit.tick==tick && edit.id>0 && candidate.last_graph_input.as_ref().map_or(true,|last|edit.id>last.id),"graph input tick/identity")?;
+            edit.graph.validate()?;
+            candidate.graph=Some(edit.graph.clone());candidate.last_graph_input=Some(edit.clone());
+        }
+    }
+    step(config,&candidate,input,tick)
+}
 impl Config {
     pub fn validate(&self)->Result<(),XaceError>{
         require(self.schema_version==1 && !self.nodes.is_empty() && self.nodes.len()<=64 && self.edges.len()<=256,"graph bounds")?;
@@ -45,6 +61,7 @@ fn enqueue(state:&mut State,due:u64,node:u32,amplitude:i64)->Result<(),XaceError
 }
 /// Pure candidate calculation. Failure leaves the caller's state unchanged.
 pub fn step(config:&Config,original:&State,input:Option<&Input>,tick:u64)->Result<(State,Vec<(u32,i64)>),XaceError>{
+    let config=original.graph.as_ref().unwrap_or(config);
     config.validate()?;
     require(original.last_tick.map_or(true,|last|last.checked_add(1)==Some(tick)),"nonsequential tick")?;
     require(original.pending.len()<=4096 && original.energy.len()<=64,"state bounds")?;
@@ -89,9 +106,9 @@ impl ISystem for EchoSystem {
         for id in ids {
             let config:Row<Config>=serde_json::from_str(ctx.get_component(id,CONFIG)?.ok_or_else(||bad("missing config"))?).map_err(|_|bad("invalid config"))?;
             let state:Row<State>=serde_json::from_str(ctx.get_component(id,STATE)?.ok_or_else(||bad("missing state"))?).map_err(|_|bad("invalid state"))?;
-            #[derive(Deserialize)] #[serde(deny_unknown_fields)] struct InputRow {pulse:Option<Input>}
+            #[derive(Deserialize)] #[serde(deny_unknown_fields)] struct InputRow {pulse:Option<Input>,#[serde(default)] graph:Option<GraphInput>}
             let input:Row<InputRow>=serde_json::from_str(ctx.get_component(id,INPUT)?.ok_or_else(||bad("missing input"))?).map_err(|_|bad("invalid input"))?;
-            let (next,events)=step(&config.data,&state.data,input.data.pulse.as_ref(),ctx.current_tick())?;
+            let (next,events)=step_with_graph(&config.data,&state.data,input.data.pulse.as_ref(),input.data.graph.as_ref(),ctx.current_tick())?;
             ctx.submit_mutation(id,STATE,serde_json::to_string(&serde_json::json!({"data":next})).map_err(|_|bad("state serialization"))?)?;
             for (node,amount) in events {
                 ctx.emit_event(Event::broadcast(id,EventType::Domain("nec011.echo_arrival.v1".into()),ctx.current_tick(),PhaseEnum::Simulation).with_payload("node",node.to_string()).with_payload("amplitude",amount.to_string()))?;
@@ -119,6 +136,16 @@ fn config()->Config {Config{schema_version:1,nodes:vec![1,2,3],edges:vec![Edge{i
     let before=full.clone();assert!(step(&c,&full,Some(&input),0).is_err());assert_eq!(full,before);
     let overflow=State{next_sequence:u64::MAX,..State::default()};
     assert!(step(&c,&overflow,Some(&input),0).is_err());assert_eq!(overflow.next_sequence,u64::MAX);
+}
+#[test] fn player_graph_edits_refuse_conflicts_and_dangling_pending_nodes_atomically(){
+    let c=config();let edit=GraphInput{tick:0,id:1,graph:c.clone()};
+    let (state,_)=step_with_graph(&c,&State::default(),None,Some(&edit),0).unwrap();
+    let before=state.clone();let mut conflict=edit.clone();conflict.graph.threshold+=1;
+    assert!(step_with_graph(&c,&state,None,Some(&conflict),1).is_err());assert_eq!(state,before);
+    let (held,_)=step_with_graph(&c,&state,None,Some(&edit),1).unwrap();assert_eq!(held.graph,Some(c.clone()));
+    let mut queued=held.clone();queued.next_sequence=1;queued.pending.push(Pulse{due:3,node:3,sequence:0,amplitude:1});
+    let mut smaller=c.clone();smaller.nodes=vec![1];smaller.edges.clear();let remove=GraphInput{tick:2,id:2,graph:smaller};
+    let before=queued.clone();assert!(step_with_graph(&c,&queued,None,Some(&remove),2).is_err());assert_eq!(queued,before);
 }
 #[test] fn delayed_cycles_remain_bounded_and_replayable() {
     let c=Config{schema_version:1,nodes:vec![1],edges:vec![Edge{id:1,source:1,target:1,delay:1,gain:SCALE,route:0}],threshold:LIMIT};
