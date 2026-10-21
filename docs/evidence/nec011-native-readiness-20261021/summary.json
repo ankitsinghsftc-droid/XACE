@@ -1,0 +1,64 @@
+{
+  "nec011_complete": false,
+  "nec012_started": false,
+  "files": [
+    {
+      "path": "godot-hierarchy-monitor-c/proof.json",
+      "sha256": "300bcb59ee46dc7ca699fa4453f9f61b40ce8f11dc06cbc436b1f7a76806bd56"
+    },
+    {
+      "path": "unity-fidelity-d/proof.json",
+      "sha256": "17c28aa16d37c045b5f94a466f1a29183b24cc965212aba31e5a1970a012c384"
+    },
+    {
+      "path": "browser-measured-a/proof.json",
+      "sha256": "9d9e2c963b54a0a22d58ceb3203c6e682e209fcb2e7d0842bfea0d57796f84a0"
+    },
+    {
+      "path": "regression-b/result.json",
+      "sha256": "f3d57bf98f67f737ee58f4d43c9cd3abc7d8085c107272f6c9a60fb5925e6ba9"
+    },
+    {
+      "path": "regression-b/run.txt",
+      "sha256": "b03a1fc6345879ac1f8b5485e6c8d23d42679bb85279c58a8fd30c8e6a519458"
+    },
+    {
+      "path": "reference-transform-a/result.json",
+      "sha256": "c365161d39236fe0f1d32937fbc549796b8487d8faf65ed3879b96897c78ea5d"
+    },
+    {
+      "path": "reference-transform-a/run.txt",
+      "sha256": "f7028880e22a7f328ff1941cbbf6f755af6b214b3cc21d9679faea6cc98025cd"
+    },
+    {
+      "path": "godot-readiness-before-a/proof.json",
+      "sha256": "6ce8fed2f956b7f90cc2b15b809a56e37012d08abc93b89f838c2bf4054fde71"
+    },
+    {
+      "path": "godot-readiness-after-a/proof.json",
+      "sha256": "298bcfb292afededc3ae1a90e3691a08fb4de30e0d5bc9b77088bd054335d8e6"
+    },
+    {
+      "path": "unreal-fidelity-f/proof.json",
+      "sha256": "82f07d083cbe579e136da1257c1188a61a882ace62d5644170fcbd550486c719"
+    }
+  ],
+  "verified": [
+    "282 project-system tests",
+    "14 reference structured-runtime tests",
+    "Godot production hierarchy and monitor round trip",
+    "Unity playback with missing Animator refusal",
+    "Measured 390px browser monitor proof",
+    "Godot readiness: three failures reproduced, 12 checks pass after repair"
+  ],
+  "pending": [
+    "Unity and Unreal current readiness proof",
+    "Unity and Unreal native hierarchy",
+    "Input timing and resource compatibility acceptance",
+    "Trusted structured executor native integration",
+    "Player graph creation and rewind benchmark",
+    "Final regressions and closeout"
+  ],
+  "original_xp022_seal_missing": true,
+  "raw_evidence_off_device": false
+}

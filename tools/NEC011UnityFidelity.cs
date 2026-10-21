@@ -8,7 +8,8 @@ using Xace.Adapter.Unity;
 [InitializeOnLoad]
 public static class NEC011UnityFidelity {
  const string Key="NEC011Fidelity";
- static NEC011UnityFidelity(){EditorApplication.playModeStateChanged+=Changed;}
+ static NEC011UnityFidelity(){EditorApplication.update+=AwaitPlay;}
+ static void AwaitPlay(){if(EditorApplication.isPlaying&&!String.IsNullOrEmpty(SessionState.GetString(Key,""))){EditorApplication.update-=AwaitPlay;Proof();}}
  public static void Run(){
   var args=Environment.GetCommandLineArgs();SessionState.SetString(Key,args[Array.IndexOf(args,"-xaceReport")+1]);
   Directory.CreateDirectory("Assets/Resources");
@@ -30,6 +31,9 @@ public static class NEC011UnityFidelity {
   var anim=new XacePlaybackCommand{entity_id=42,binding_id="animation",playback_kind="Animation",semantic_action="echo",asset=new XaceAssetReference{id="echo",status="Linked",asset_type="AnimationClip"}};
   anim.parameters["resource_path"]="echo";apply(anim);checks["animation_applied"]=results[results.Count-1];checks["animation_started"]=actor.GetComponent<Animation>().IsPlaying("echo");
   actor.AddComponent<Animator>();anim.semantic_action="absent";anim.parameters["resource_path"]="absent";apply(anim);checks["missing_controller_refused"]=!results[results.Count-1];
+  actor.GetComponent<AudioSource>().clip=Resources.Load<AudioClip>("tone");audio.parameters["resource_path"]="absent";audio.parameters["xace_binding_status"]="resolved";apply(audio);checks["missing_audio_refused"]=!results[results.Count-1];
+  var status=typeof(XaceDeltaApplicator).GetMethod("SemanticBindingStatus",BindingFlags.Static|BindingFlags.NonPublic);checks["declared_resolved_cannot_hide_failure"]=(string)status.Invoke(null,new object[]{audio,false})=="missing";
+  audio.parameters["xace_binding_status"]="fallback";checks["failed_fallback_blocks"]=(string)status.Invoke(null,new object[]{audio,false})=="missing";
   bool ok=true;foreach(var value in checks.Values)ok&=(bool)value;
   var report=new Dictionary<string,object>{{"ok",ok},{"engine","unity"},{"version",Application.unityVersion},{"checks",checks},{"actual_play_mode",true},{"audible_output_certified",false}};
   var type=typeof(XaceCanonical).Assembly.GetType("Xace.Adapter.Unity.XaceJson");File.WriteAllText(SessionState.GetString(Key,""),(string)type.GetMethod("Serialize",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{report}));SessionState.EraseString(Key);EditorApplication.Exit(ok?0:1);

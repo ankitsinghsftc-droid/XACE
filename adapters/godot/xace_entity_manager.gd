@@ -406,9 +406,9 @@ func _record_asset_binding_status(command: Dictionary, applied: bool, reason: St
 
 func _semantic_binding_status(command: Dictionary, applied: bool) -> String:
 	var declared := _declared_binding_status(command)
-	if not declared.is_empty():
+	if declared in ["unresolved", "unsupported", "missing"]:
 		return declared
-	if _should_use_fallback(command):
+	if applied and _should_use_fallback(command):
 		return "fallback"
 	if applied:
 		return "resolved"
@@ -593,6 +593,8 @@ func _fallback_color(fallback_kind: String) -> Color:
 
 func _try_apply_audio_command(node: Node3D, command: Dictionary) -> bool:
 	var stream: AudioStream = _load_command_resource(command)
+	if stream == null and not _command_resource_path(command).is_empty():
+		return false
 	var player: AudioStreamPlayer3D = _find_child_of_class(node, "AudioStreamPlayer3D") as AudioStreamPlayer3D
 	if player == null and stream != null:
 		player = AudioStreamPlayer3D.new()

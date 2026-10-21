@@ -343,9 +343,9 @@ namespace Xace.Adapter.Unity
         private static string SemanticBindingStatus(XacePlaybackCommand command, bool applied)
         {
             var declared = DeclaredBindingStatus(command);
-            if (!string.IsNullOrEmpty(declared))
+            if (declared == "unresolved" || declared == "unsupported" || declared == "missing")
                 return declared;
-            if (ShouldUseFallback(command))
+            if (applied && ShouldUseFallback(command))
                 return "fallback";
             if (applied)
                 return "resolved";
@@ -428,6 +428,8 @@ namespace Xace.Adapter.Unity
         {
             var source = go.GetComponentInChildren<AudioSource>();
             var clip = LoadCommandResource<AudioClip>(command);
+            if (clip == null && !string.IsNullOrWhiteSpace(CommandResourcePath(command)))
+                return false;
             if (source == null && clip != null)
                 source = go.AddComponent<AudioSource>();
             if (source == null)
@@ -451,8 +453,11 @@ namespace Xace.Adapter.Unity
             var state = CommandParameter(command, "state", CommandParameter(command, "animation", command.semantic_action));
             if (animator != null && !string.IsNullOrWhiteSpace(state))
             {
+                var stateHash = Animator.StringToHash(state.Trim());
+                if (animator.runtimeAnimatorController == null || !animator.HasState(0, stateHash))
+                    return false;
                 var fade = CommandFloat(command, "fade_seconds", 0.05f);
-                animator.CrossFade(state.Trim(), Mathf.Max(0f, fade));
+                animator.CrossFade(stateHash, Mathf.Max(0f, fade), 0);
                 return true;
             }
 

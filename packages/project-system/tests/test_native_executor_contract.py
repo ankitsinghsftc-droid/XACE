@@ -56,6 +56,40 @@ class ExecutorAdmissionTests(unittest.TestCase):
         r['systems'][0]['version']['major']='1'
         with self.assertRaises(ValueError):contracts.validate(r)
 
+    def test_malformed_scheduling_and_shipping_refuse(self):
+        r,_,_=fixture()
+        changes=[lambda v:v['systems'][0].update(phase='Render'),lambda v:v['systems'][0].update(depends_on=[v['systems'][0]['id']]),lambda v:v['compatibility'].update(world_versions=None),lambda v:v['shipping']['required_files'].update({'../escape':'a'*64}),lambda v:v['shipping']['required_files'].update({'runtime/CON.exe':'a'*64}),lambda v:v['shipping']['required_files'].update({'Runtime/XACE_Runtime.exe':v['executable_sha256']})]
+        for change in changes:
+            v=copy.deepcopy(r);change(v)
+            with self.assertRaises(ValueError):contracts.validate(v)
+
+    def test_structured_host_admission_is_pinned_and_rechecked(self):
+        r,raw,package=fixture()
+        with tempfile.TemporaryDirectory() as d:
+            exe=Path(d)/'candidate.exe';exe.write_bytes(raw)
+            def admission(value):return contracts.TrustedExecutor(value,expected_receipt_digest=contracts.digest(value),executable=exe,expected_compatibility=value['compatibility'])
+            with self.assertRaisesRegex(ValueError,'capability'):admission(r).require_structured_transform(package)
+            r['capabilities'].append('native.structured_transform.v1');r['capabilities'].sort()
+            trusted=admission(r);self.assertEqual(trusted.require_structured_transform(package).executable_sha256,contracts.sha(raw))
+            r['capabilities'].clear()  # caller mutation cannot change pinned bytes
+            trusted.require_structured_transform(package)
+            exe.write_bytes(raw+b'changed')
+            with self.assertRaisesRegex(ValueError,'Executable changed'):trusted.require_structured_transform(package)
+
+    def test_reconciliation_keeps_gate_without_exact_host_contract(self):
+        from test_native_reconciliation import refresh
+        from native_reconciliation_plan import plan_reconciliation
+        c=context();c['current_cgs']['modes'][0]['systems']=[dict(id='creator.translation.v1',phase='Simulation',reads=[1],writes=[1],depends_on=[],deterministic=True)];refresh(c)
+        self.assertFalse(plan_reconciliation(**c).to_dict()['reviewable'])
+        package,_=compiled_artifacts(c['current_cgs']);r,raw,_=fixture();r['systems']=package.to_sgc_input();r['capabilities']=['native.structured_transform.v1']
+        with tempfile.TemporaryDirectory() as d:
+            exe=Path(d)/'host.exe';exe.write_bytes(raw)
+            trusted=contracts.TrustedExecutor(r,expected_receipt_digest=contracts.digest(r),executable=exe,expected_compatibility=r['compatibility'])
+            c['trusted_executor']=trusted;result=plan_reconciliation(**c).to_dict()
+            self.assertTrue(result['reviewable'],result['losses']);self.assertEqual(result['identities']['executor_receipt'],contracts.digest(r))
+            exe.write_bytes(raw+b'changed');result=plan_reconciliation(**c).to_dict()
+            self.assertFalse(result['reviewable']);self.assertIn('uncertified_structured_transform_system',[v['code'] for v in result['losses']])
+
     def test_source_paths_and_duplicate_contracts_refuse(self):
         r,_,_=fixture()
         for path in ['../secret','C:/secret','dir\\secret','/absolute']:

@@ -1,0 +1,32 @@
+   Compiling xace-runtime-core v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\runtime-core)
+   Compiling xace-reference-mechanic v0.1.0 (C:\Users\ankit\XACE-Recovery\worktrees\xace\examples\reference-mechanic)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2m 16s
+     Running tests\player_host.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\player_host-d522958b4a4b5a76.exe)
+
+running 3 tests
+test stock_host_rejects_unregistered_package_system ... ok
+test host_access_must_match_compiled_plan_before_tick_zero ... ok
+test ordinary_host_registration_executes_and_restores_package_world ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests\proof.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\proof-133a0fb6340428eb.exe)
+
+running 11 tests
+test corner_contact_uses_stable_world_id_and_only_one_jump ... ok
+test invalid_config_rolls_back_input_and_movement_and_removal_needs_no_core_change ... ok
+test jump_hold_is_not_a_second_edge_and_contact_drives_wall_running ... ok
+test configured_third_attempt_reverses_and_shockwave_changes_other_actor_once ... ok
+test two_chained_jumps_and_disabled_third_attempt_are_real_state_transitions ... ok
+test untagged_surface_never_enables_wall_run_or_jump ... ok
+test fixture_uses_any_declared_capability_without_a_core_name_branch ... ok
+XP005_REPLAY_Disabled=[["d864c9e88bc4fdf74cb6698f38e53c8dffbb14f6926ec19b61e5567a8eb2ff6d",[{"creation_phase":"Simulation","creation_tick":0,"event_id":0,"event_type":{"Domain":"reference.wall_jump.v1"},"is_consumed":false,"payload":{"chain":"1"},"source_entity_id":3,"target_entity_id":0}]],["3811cb5982bd11cd58cf8d38b84259bdfb19e4a270b0603279c307b12cb999cb",[]],["ab72d8e7cb0210521f86e1e56de63dcb5f4dd8649675bf3bf2d4036a0dcee099",[{"creation_phase":"Simulation","creation_tick":2,"event_id":0,"event_type":{"Domain":"reference.wall_jump.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0}]],["ef3c1e5990c4d3ac34198a27287bf91f8a6d62f8fe7facc4dbaaa0588a38844c",[]],["a488c6eb1fbb38c45c6db41b65cebf439e7e88371cd807315bbe4acdf06a5c60",[]],["59f4772cd9350b9132aa9fcd902c6d0bcf419c7e23f7b3017e47af52d48f7b0a",[]],["75bb4c34d7ccf42554b84823090d49e6112565d3f001246a38e2121067aa3008",[{"creation_phase":"Simulation","creation_tick":6,"event_id":0,"event_type":{"Domain":"reference.jump_denied.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0}]],["80bf869f748222dc586bad4b80ba88c537055ec5e5724936d5da1cdc91feb444",[]],["a40caeeb77d464bffe65b4ee5dc5023a05a8710f5b1fa71883399f13fbe47e99",[{"creation_phase":"Simulation","creation_tick":8,"event_id":0,"event_type":{"Domain":"reference.jump_denied.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0}]],["296a9f344a142c42471201ff4a07807045c6e7a3ec26138d0d658013fb10073b",[]]]
+XP005_REPLAY_ReversalShockwave=[["2d60903430df07f66d89d61e9acb0ceab31e15d28c7106c7f2be47b3c7fedd88",[{"creation_phase":"Simulation","creation_tick":0,"event_id":0,"event_type":{"Domain":"reference.wall_jump.v1"},"is_consumed":false,"payload":{"chain":"1"},"source_entity_id":3,"target_entity_id":0}]],["c413c70ea03192f2ecff94294a598b355e5dbbe6df29d0a7cd9d6162a9aa5028",[]],["22f872ae55bf593edac6601a451afe70dd05a7c554cab13d6100f9223fd2e7e8",[{"creation_phase":"Simulation","creation_tick":2,"event_id":0,"event_type":{"Domain":"reference.wall_jump.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0}]],["ce57e6c91bb732834a8bb51ccf99bb2bc67be8cb35913903fa0e42eac110d0c9",[]],["757e72e0e5d139f66a8db66a439f6d45a78cb2f3515f0f8a5dc2dc8f45ad38d9",[]],["f9770c3b9ef0ae0925a32264ab9ee3fef22d48289a2417d32b1172929b6a5f40",[]],["22fc72940bdab6152b91107f0a3787c11ab0d4aa945080718694801b5d45a92a",[{"creation_phase":"Simulation","creation_tick":6,"event_id":0,"event_type":{"Domain":"reference.third_attempt.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0},{"creation_phase":"Simulation","creation_tick":6,"event_id":0,"event_type":{"Domain":"reference.shockwave.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0},{"creation_phase":"Simulation","creation_tick":6,"event_id":0,"event_type":{"Domain":"reference.shockwave_hit.v1"},"is_consumed":false,"payload":{},"source_entity_id":3,"target_entity_id":4}]],["898fdf63a88e3ef3aaf93726e705875565c3cc999e853ee6abb070168786f6d8",[]],["a5e6539cb6a33cc0fec232bfa6e0f607a6884447376fc044feef7a84d2ce8515",[{"creation_phase":"Simulation","creation_tick":8,"event_id":0,"event_type":{"Domain":"reference.jump_denied.v1"},"is_consumed":false,"payload":{"chain":"2"},"source_entity_id":3,"target_entity_id":0}]],["eeed5917cfc427133cf396ea3a44c17b64b0d717b0de422b3db2b9d472e88ccf",[]]]
+test recorded_inputs_replay_identical_hashes_and_events_for_both_configurations ... ok
+test contact_loss_does_not_reset_chain_but_landing_does ... ok
+test migrated_semantic_world_uses_the_same_reference_system_and_tick_results ... ok
+test endurance_route_stays_on_fixture_floor_past_previous_failure_tick has been running for over 60 seconds
+test endurance_route_stays_on_fixture_floor_past_previous_failure_tick ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 118.53s
+

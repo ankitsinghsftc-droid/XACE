@@ -124,7 +124,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
                         current_mapping:IdentityMap, current_cgs:dict, native_inventory:bytes,
                         expected_current_cgs_digest:str, expected_source_digest:str,
                         verify_baseline, trusted_project:bool, resolutions:dict|None=None,
-                        accepted_loss_digest=None) -> MergeProposal:
+                        accepted_loss_digest=None, trusted_executor=None) -> MergeProposal:
     require(trusted_project is True,'trusted native extraction required')
     mapping.validate();current_mapping.validate()
     require(mapping.to_dict()==current_mapping.to_dict(),'branch/identity/baseline drift requires explicit identity review')
@@ -238,8 +238,15 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     candidate=None;native_request=None
     try:
         candidate=gde.preview(batch,current_cgs,validate=factory.compile_portable_cgs).proposed_cgs
-        for system in factory.compile_portable_cgs(candidate).to_sgc_input():
-            if 1 in system.get('reads',[]) or 1 in system.get('writes',[]):block('uncertified_structured_transform_system',field=system['id'])
+        package=factory.compile_portable_cgs(candidate)
+        structured=[system for system in package.to_sgc_input() if 1 in system.get('reads',[]) or 1 in system.get('writes',[])]
+        if structured:
+            from native_executor_contract import TrustedExecutor
+            try:
+                require(type(trusted_executor) is TrustedExecutor,'Trusted structured executor required')
+                trusted_executor.require_structured_transform(package)
+            except (ValueError,OSError):
+                for system in structured:block('uncertified_structured_transform_system',field=system['id'])
     except (ValueError,KeyError,TypeError):block('gde_factory_rejected')
     if not any(r['severity']=='blocking' for r in losses) and merge['native_proposals']:
         target=reader.inventory(native_inventory)
@@ -254,7 +261,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     report=dict(schema='xace.native_reconciliation_plan.v1',preview_only=True,can_commit=False,play_eligible=False,
                 identities=dict(project_id=mapping.project_id,branch_id=mapping.branch_id,namespace_id=mapping.namespace_id,
                                 mapping_digest=mapping.mapping_digest(),baseline=digest(mapping.to_dict()),
-                                current_cgs=digest(current_cgs),native_source=expected_source_digest,policy=digest(policy.description())),
+                                current_cgs=digest(current_cgs),native_source=expected_source_digest,policy=digest(policy.description()),executor_receipt=trusted_executor.receipt_digest if trusted_executor is not None else None),
                 merge=merge,losses=sorted(losses,key=encode),typed_operations=batch,proposed_cgs=candidate,native_write_preview=native_request,
                 reviewable=candidate is not None and not any(r['severity']=='blocking' for r in losses),
                 noop=not operations and not merge['native_proposals'] and not merge['canonical_proposals'])

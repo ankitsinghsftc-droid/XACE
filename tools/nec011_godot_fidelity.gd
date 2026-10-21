@@ -48,6 +48,15 @@ func run() -> void:
     audio.parameters.resource_path = "res://replacement.tres"
     manager.apply_playback_commands([audio])
     checks["replacement_played"] = node.get_node("XaceAudio").stream.resource_path == "res://replacement.tres" and results[-1].applied
+    audio.parameters.resource_path = "res://does-not-exist.tres"
+    audio.parameters.xace_binding_status = "resolved"
+    manager.apply_playback_commands([audio])
+    checks["missing_audio_refused"] = not results[-1].applied
+    checks["declared_resolved_cannot_hide_failure"] = manager._semantic_binding_status(audio, false) == "missing"
+    var absent_entity := audio.duplicate(true)
+    absent_entity.entity_id = 999
+    absent_entity.parameters.xace_binding_status = "fallback"
+    checks["failed_fallback_blocks"] = manager._semantic_binding_status(absent_entity, false) == "missing"
     manager._clear_playback_side_effects()
     checks["reset_stops_animation"] = not player.is_playing()
     var ok := true

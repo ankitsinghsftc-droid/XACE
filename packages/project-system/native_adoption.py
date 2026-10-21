@@ -75,7 +75,7 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
                   selection: list[str], choices: dict, expected_source_digest: str,
                   expected_cgs_digest: str, trusted_project: bool,
                   accepted_loss_digest: str | None = None, gameplay_catalog=None,
-                  native_target: Snapshot | None = None) -> AdoptionPlan:
+                  native_target: Snapshot | None = None, trusted_executor=None) -> AdoptionPlan:
     """Deterministic data-only preview. Blocked plans retain itemized manual work.
 
     Source/CGS freshness is checked before deriving any records. A planner result
@@ -275,10 +275,15 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
         result = _gde.NativeAdoptionExecutor(validate=factory.compile_portable_cgs, gameplay_catalog=gameplay_catalog).execute(batch, current_cgs)
         candidate = result.proposed_cgs; package = factory.compile_portable_cgs(candidate)
         systems = package.to_sgc_input()
-        for system in systems:
-            if 1 in system.get("reads", []) or 1 in system.get("writes", []):
-                loss("uncertified_structured_transform_system", field=system["id"], detail="Native World transforms require a separately verified structured-field executor contract")
-        compiled = dict(cgs_hash=package.cgs_hash, systems=systems,
+        structured=[system for system in systems if 1 in system.get("reads",[]) or 1 in system.get("writes",[])]
+        if structured:
+            from native_executor_contract import TrustedExecutor
+            try:
+                require(type(trusted_executor) is TrustedExecutor,"Trusted structured executor required")
+                trusted_executor.require_structured_transform(package)
+            except (ValueError,OSError):
+                for system in structured:loss("uncertified_structured_transform_system",field=system["id"],detail="Native World transforms require a separately verified structured-field executor contract")
+        compiled = dict(cgs_hash=package.cgs_hash, systems=systems, executor_receipt=trusted_executor.receipt_digest if trusted_executor is not None else None,
                         world=package.world_contract.content() if package.world_contract else None)
     except (ValueError, TypeError, KeyError) as exc:
         loss("gde_factory_rejected", detail=str(exc)[:1024])

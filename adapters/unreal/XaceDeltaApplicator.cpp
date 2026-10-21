@@ -783,11 +783,11 @@ FString UXaceDeltaApplicatorComponent::GetCommandParameter(const FXacePlaybackCo
 FString UXaceDeltaApplicatorComponent::SemanticBindingStatus(const FXacePlaybackCommand& Command, bool bApplied)
 {
 	const FString Declared = DeclaredBindingStatus(Command);
-	if (!Declared.IsEmpty())
+	if (Declared == TEXT("unresolved") || Declared == TEXT("unsupported") || Declared == TEXT("missing"))
 	{
 		return Declared;
 	}
-	if (ShouldUseFallback(Command))
+	if (bApplied && ShouldUseFallback(Command))
 	{
 		return TEXT("fallback");
 	}
