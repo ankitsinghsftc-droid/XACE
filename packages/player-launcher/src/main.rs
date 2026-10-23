@@ -1,6 +1,9 @@
 #![cfg_attr(windows, windows_subsystem = "windows")]
 mod distribution;
 mod job;
+mod lifecycle;
+mod native_release;
+mod native_host;
 mod session;
 use anyhow::{bail, ensure, Context, Result};
 use distribution::{activate, materialize, verified};
@@ -326,7 +329,7 @@ fn main() {
     if let Err(error) = run() {
         let _ = emit(json!({"ok":false,"state":"failed","message":error.to_string()}));
         #[cfg(windows)]
-        if !std::env::args().any(|arg| arg == "--serve") {
+        if !std::env::args().any(|arg| arg == "--serve" || arg == "--native-host") {
             use std::os::windows::ffi::OsStrExt;
             #[link(name = "user32")]
             extern "system" {
@@ -360,6 +363,13 @@ fn run() -> Result<()> {
             .find(|pair| pair[0] == name)
             .map(|pair| pair[1].clone())
     };
+    if args.iter().any(|a| a == "--native-host") {
+        let root = PathBuf::from(value("--source").context("Native release root required")?);
+        let expected = value("--expected").context("Out-of-band native release identity required")?;
+        let history = PathBuf::from(value("--history").context("Persistent native history required")?);
+        let controller = value("--controller").context("Explicit controller required")?.parse()?;
+        return native_host::serve(&root, &expected, &history, controller);
+    }
     let source = PathBuf::from(
         value("--source").unwrap_or(
             std::env::current_exe()?

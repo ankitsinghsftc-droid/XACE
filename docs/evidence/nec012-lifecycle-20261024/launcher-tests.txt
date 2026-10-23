@@ -1,0 +1,16 @@
+
+running 9 tests
+test distribution::tests::rejects_unsafe_paths ... ok
+test distribution::tests::invalid_trust_is_rejected_before_files ... ok
+test lifecycle::tests::invalid_controller_identity_refused_before_spawn ... ok
+test lifecycle::tests::shipping_command_has_no_developer_endpoint_and_preserves_player_slots ... ok
+test session::tests::rejects_expired_public_or_malformed_invites ... ok
+test session::tests::relay_invites_are_versioned_and_validate_routes ... ok
+test session::tests::data_only_inventory_is_bounded_and_extensible ... ok
+test session::tests::live_cache_lease_cannot_be_reclaimed_until_owner_releases_it ... ok
+test session::tests::redemption_is_atomic_scoped_expiring_and_has_no_control_api ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 9.35s
+     Running unittests src\main.rs (C:/Users/ankit/XACE-Recovery/build-output/cargo\debug\deps\xace_player_launcher-cb2b588ad92d9418.exe)

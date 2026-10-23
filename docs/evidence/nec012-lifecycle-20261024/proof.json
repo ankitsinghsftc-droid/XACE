@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "checks": {
+    "offline_without_toolchain_start": true,
+    "collision_fallback": true,
+    "repeated_play_same_owner": true,
+    "explicit_stop": true,
+    "eof_stops_owned_authority": true,
+    "authority_crash_visible_no_fallback": true,
+    "owner_crash_job_cleanup": true,
+    "changed_package_refused_before_spawn": true,
+    "stale_executor": true,
+    "missing_capability": true,
+    "incompatible_snapshot": true,
+    "unrelated_process_survives": true
+  },
+  "source_files": {
+    "packages/player-launcher/src/distribution.rs": "18311dd3a8f17721c98498e4282e66d5411a378581b25dd28f5159404669045b",
+    "packages/player-launcher/src/job.rs": "b0dec308b4820c3d4e957f0f79bf3909dd0bf99d7ee0df008b34b0579eef5f4c",
+    "packages/player-launcher/src/lifecycle.rs": "74993b660b3b222d9a8d29b8652dbfaf35432666d4cf12435df37ad00163dac7",
+    "packages/player-launcher/src/main.rs": "7f62aeecf4fde09fb3cf875b3b8c4bf449c8fc9bbe1c84bbe1802c47b825f043",
+    "packages/player-launcher/src/native_host.rs": "b98224d2569bbe68e80af3c130c6660014aba3e2ff0414a37cc672627e123776",
+    "packages/player-launcher/src/native_release.rs": "f53544d3d21b75860fbee4a4ff7879a27471b034fc595e91c61d396c2e0dd2a2",
+    "packages/player-launcher/src/session.rs": "e1a862978a301d5ac15959ccb30b52bb0818c3bd6551b8053694fafec8e699c4"
+  },
+  "launcher_sha256": "ae85f15238989749b5893fea9953332cb32cfe240681f3d4dca1ec34e2ebded4",
+  "release_sha256": "b1345e58f6aeaa8fd1b68eec17fec11fde3d398b812220f2f6a74770ae5af4f6",
+  "native_engine_build": false,
+  "clean_machine": false,
+  "updates_and_saves_verified": false
+}

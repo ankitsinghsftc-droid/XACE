@@ -45,7 +45,7 @@ pub fn safe_path(value: &str) -> Result<PathBuf> {
     );
     Ok(path)
 }
-fn plain(path: &Path) -> Result<()> {
+pub(crate) fn plain(path: &Path) -> Result<()> {
     let meta = fs::symlink_metadata(path)?;
     ensure!(
         !meta.file_type().is_symlink(),

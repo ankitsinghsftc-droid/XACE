@@ -1,6 +1,6 @@
 //! Reachable private-network invitation and data-only acquisition. No gameplay logic.
 use crate::distribution::{digest, safe_path, FileRecord};
-use crate::job::Job;
+use crate::lifecycle::{Authority, Launch};
 use anyhow::{bail, ensure, Context, Result};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
@@ -10,7 +10,7 @@ use std::{
     io::{Read, Seek, SeekFrom, Write},
     net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener, TcpStream, UdpSocket},
     path::{Path, PathBuf},
-    process::{Child, Command, Stdio},
+    
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Arc, Mutex,
@@ -178,8 +178,7 @@ impl Drop for PendingDirectory {
 
 pub struct Host {
     relay: Option<xace_session_relay::client::HostBridge>,
-    runtime: Child,
-    _job: Job,
+    runtime: Authority,
     stop: Arc<AtomicBool>,
     shared: Arc<Mutex<Shared>>,
     endpoint: SocketAddr,
@@ -194,8 +193,7 @@ impl Drop for Host {
     fn drop(&mut self) {
         self.relay.take();
         self.stop.store(true, Ordering::Release);
-        let _ = self.runtime.kill();
-        let _ = self.runtime.wait();
+        self.runtime.stop();
         if self
             .directory
             .file_name()
@@ -272,61 +270,12 @@ impl Host {
             directory.file_name().unwrap().to_string_lossy()
         ));
         let ids = controllers(root)?;
-        let ids_text = ids.iter().map(u64::to_string).collect::<Vec<_>>().join(",");
-        let peers = (1..=ids.len())
-            .map(|v| v.to_string())
-            .collect::<Vec<_>>()
-            .join(",");
         let pkg = root.join("package");
-        let mut command = Command::new(pkg.join("runtime/xace_runtime.exe"));
-        command
-            .stdin(Stdio::null())
-            .stdout(Stdio::null())
-            .stderr(Stdio::null());
-        for (flag, file) in [
-            ("--cgs", "game.cgs.json"),
-            ("--sgc-plan", "execution_plan.json"),
-            ("--world", "world.json"),
-            ("--world-manifest", "world.manifest.json"),
-            ("--package-manifest", "playable.manifest.json"),
-        ] {
-            command.arg(flag).arg(pkg.join(file));
-        }
-        command
-            .arg("--session-ticket-out")
-            .arg(&ticket)
-            .arg("--session-log")
-            .arg(&log)
-            .args([
-                "--session-controller-id",
-                &ids_text,
-                "--input-lockstep-peer",
-                &peers,
-                "--port",
-                &engine_endpoint.port().to_string(),
-                "--engine-bind",
-                &ip.to_string(),
-                "--no-control",
-                "--live-session",
-                "--no-wait",
-                "--live-engine-accept",
-                "--quiet",
-            ]);
-        #[cfg(windows)]
-        {
-            use std::os::windows::process::CommandExt;
-            command.creation_flags(0x08000000);
-        }
         drop(reserve);
-        let mut runtime = command.spawn()?;
-        let job = match Job::own(&runtime) {
-            Ok(j) => j,
-            Err(e) => {
-                let _ = runtime.kill();
-                let _ = runtime.wait();
-                return Err(e);
-            }
-        };
+        let mut runtime = Authority::start(&Launch {
+            package: &pkg, ticket: &ticket, journal: &log,
+            endpoint: engine_endpoint, controllers: &ids,
+        })?;
         let result = (|| -> Result<(Vec<Grant>, String)> {
             let started = Instant::now();
             let tickets_ready = || {
@@ -393,8 +342,7 @@ impl Host {
         let (grants, descriptor) = match result {
             Ok(r) => r,
             Err(e) => {
-                let _ = runtime.kill();
-                let _ = runtime.wait();
+                runtime.stop();
                 return Err(e);
             }
         };
@@ -411,7 +359,6 @@ impl Host {
         Ok(Self {
             relay: None,
             runtime,
-            _job: job,
             stop,
             shared,
             endpoint,
