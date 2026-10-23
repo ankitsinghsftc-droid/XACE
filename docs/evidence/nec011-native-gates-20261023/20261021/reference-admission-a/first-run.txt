@@ -1,0 +1,25 @@
+[INFO] Loaded 'game.cgs.json': mode='reference' actors=4 entities=4 systems=2 plan_source=PersistedSgc
+XACE Runtime
+  cgs: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261021\reference-admission-a\relocated-game\game.cgs.json
+  port: 0
+  engine_clients: 1
+  control: disabled
+  start_paused: false
+  tick_rate: 60
+  mode: reference
+  schema: 0.1.0
+  cgs_hash: 3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d
+  execution_plan: PersistedSgc version=1 hash=193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c
+  execution_plan_path: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261021\reference-admission-a\relocated-game\execution_plan.json
+  parallel_group_policy: deterministic_sequential worker_threads=false
+  actors: 4 entities: 4 phases: 2
+[ready] headless
+[tick      0]  entities=4     delta_changes=6    
+[tick      1]  entities=4     delta_changes=6    
+[tick      2]  entities=4     delta_changes=6    
+[tick      3]  entities=4     delta_changes=6    
+[tick      4]  entities=4     delta_changes=6    
+[tick      5]  entities=4     delta_changes=6    
+[tick      6]  entities=4     delta_changes=6    
+[tick      7]  entities=4     delta_changes=6    
+[done] ticks=8 elapsed=0.023s rate=350/s alive=4 changes=48 inputs=0

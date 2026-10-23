@@ -214,8 +214,10 @@ def _evaluate_binding_for_engine(
             blocks_handoff=blocks,
         )
 
+    required = parameters.get("xace_binding_required") is True or str(parameters.get("xace_binding_required", "")).strip().lower() in {"true", "1", "yes", "fallback"}
+
     def fallback_or(status: str, reason: str, *issue_codes: str) -> SemanticBindingEngineStatusRecord:
-        if fallback is not None:
+        if fallback is not None and not required:
             return record("fallback", f"{reason} Documented fallback is present.", "DOCUMENTED_FALLBACK_USED", *issue_codes, blocks=False)
         return record(status, reason, *issue_codes)
 

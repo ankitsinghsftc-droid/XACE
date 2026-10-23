@@ -815,6 +815,7 @@ FString UXaceDeltaApplicatorComponent::DeclaredBindingStatus(const FXacePlayback
 
 bool UXaceDeltaApplicatorComponent::ShouldUseFallback(const FXacePlaybackCommand& Command)
 {
+	if (TruthyCommandParameter(Command, TEXT("xace_binding_required")))return false;
 	if (DeclaredBindingStatus(Command) == TEXT("fallback"))
 	{
 		return true;

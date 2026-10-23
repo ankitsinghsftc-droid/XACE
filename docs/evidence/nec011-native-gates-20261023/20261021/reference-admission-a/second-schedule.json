@@ -1,0 +1,925 @@
+{
+  "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+  "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+  "groups": [
+    {
+      "component_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        }
+      },
+      "depends_on": {
+        "EngineInputSystem": []
+      },
+      "execution_index": 0,
+      "group_id": "Input_group_0",
+      "parallel": false,
+      "phase": "Input",
+      "serialization_constraints": [],
+      "systems": [
+        "EngineInputSystem"
+      ]
+    },
+    {
+      "component_access": {
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "depends_on": {
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "execution_index": 0,
+      "group_id": "Simulation_group_0",
+      "parallel": false,
+      "phase": "Simulation",
+      "serialization_constraints": [],
+      "systems": [
+        "reference.traversal.v1"
+      ]
+    }
+  ],
+  "hash_log": [
+    {
+      "tick": 0,
+      "world_hash": "a2f0b1447ba9883d016a0cda12ddad060485e09e842c727669bf2d29753359d3"
+    },
+    {
+      "tick": 1,
+      "world_hash": "bd0e7e27763949bfb1d1c2366e0353c48b602985e445c0fd5b01468ae4fb1bb2"
+    },
+    {
+      "tick": 2,
+      "world_hash": "e9043517e32dc44cbf60aa3b21c6caa50bd1f6b85f5644a8d1e101a540c9a1cf"
+    },
+    {
+      "tick": 3,
+      "world_hash": "696f75546144e5905456fa8debc0a7119ffaef961aa74c3cccee76346b8dab3a"
+    },
+    {
+      "tick": 4,
+      "world_hash": "4884976d3752e7776aa1f15266e923029777dc8f5bbd4cbede3acbc1085e84a1"
+    },
+    {
+      "tick": 5,
+      "world_hash": "8ec800bc8bec674228460135ff5dce39672afdd89f353bdad9f6c5c48c46164e"
+    },
+    {
+      "tick": 6,
+      "world_hash": "78071a94ff27591519caf700499ab45f8121725958260b504e79ecc514fb0ee2"
+    },
+    {
+      "tick": 7,
+      "world_hash": "ec07619d174725896d6946a7dcbe2023df0d77838be56700bd011db2b6a1c815"
+    }
+  ],
+  "latest_world_hash": "ec07619d174725896d6946a7dcbe2023df0d77838be56700bd011db2b6a1c815",
+  "mismatched_ticks": [],
+  "ok": true,
+  "parallel_group_execution_policy": "deterministic_sequential",
+  "parallel_group_worker_threads": false,
+  "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+  "plan_source": "persisted_sgc",
+  "plan_version": 1,
+  "scheduled_system_ids": [
+    "EngineInputSystem",
+    "reference.traversal.v1"
+  ],
+  "schema": "xace.runtime.schedule_snapshot_report.v1",
+  "schema_version": "0.1.0",
+  "snapshot_count": 8,
+  "snapshots": [
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 0
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 1
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 2
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 3
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 4
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 5
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 6
+    },
+    {
+      "cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "compiled_from_cgs_hash": "3191c7a95f587f136fadb50a565cbd2e1d2c8c167d4ad9c19bdac6c4ca47fe5d",
+      "groups": [
+        {
+          "component_access": {
+            "EngineInputSystem": {
+              "reads": [],
+              "writes": [
+                6
+              ]
+            }
+          },
+          "depends_on": {
+            "EngineInputSystem": []
+          },
+          "execution_index": 0,
+          "group_id": "Input_group_0",
+          "parallel": false,
+          "phase": "Input",
+          "serialization_constraints": [],
+          "systems": [
+            "EngineInputSystem"
+          ]
+        },
+        {
+          "component_access": {
+            "reference.traversal.v1": {
+              "reads": [
+                1,
+                4,
+                5,
+                6,
+                10000,
+                10001
+              ],
+              "writes": [
+                1,
+                5,
+                10000
+              ]
+            }
+          },
+          "depends_on": {
+            "reference.traversal.v1": [
+              "EngineInputSystem"
+            ]
+          },
+          "execution_index": 0,
+          "group_id": "Simulation_group_0",
+          "parallel": false,
+          "phase": "Simulation",
+          "serialization_constraints": [],
+          "systems": [
+            "reference.traversal.v1"
+          ]
+        }
+      ],
+      "plan_hash": "193f8a64b6058a50cd139152ef002f03e80f633934f718140cdec52d2dace60c",
+      "plan_version": 1,
+      "scheduled_system_ids": [
+        "EngineInputSystem",
+        "reference.traversal.v1"
+      ],
+      "schema": "xace.runtime.schedule_snapshot.v1",
+      "schema_version": "0.1.0",
+      "source": "persisted_sgc",
+      "system_access": {
+        "EngineInputSystem": {
+          "reads": [],
+          "writes": [
+            6
+          ]
+        },
+        "reference.traversal.v1": {
+          "reads": [
+            1,
+            4,
+            5,
+            6,
+            10000,
+            10001
+          ],
+          "writes": [
+            1,
+            5,
+            10000
+          ]
+        }
+      },
+      "system_dependencies": {
+        "EngineInputSystem": [],
+        "reference.traversal.v1": [
+          "EngineInputSystem"
+        ]
+      },
+      "tick": 7
+    }
+  ],
+  "system_access": {
+    "EngineInputSystem": {
+      "reads": [],
+      "writes": [
+        6
+      ]
+    },
+    "reference.traversal.v1": {
+      "reads": [
+        1,
+        4,
+        5,
+        6,
+        10000,
+        10001
+      ],
+      "writes": [
+        1,
+        5,
+        10000
+      ]
+    }
+  },
+  "system_dependencies": {
+    "EngineInputSystem": [],
+    "reference.traversal.v1": [
+      "EngineInputSystem"
+    ]
+  },
+  "tick_count": 8,
+  "world_seed": 42
+}

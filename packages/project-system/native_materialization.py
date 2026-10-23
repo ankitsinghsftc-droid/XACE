@@ -4,6 +4,7 @@ The configured host supplies trusted fresh native extraction and a pinned native
 writer gateway. No browser request can choose a project path or executable.
 """
 import threading
+from contextlib import contextmanager
 from pathlib import Path
 from authoring_identity import IdentityMap,require
 from authoring_apply import prepare_apply,apply_prepared
@@ -15,11 +16,12 @@ from native_reconciliation_review import ReconciliationReview
 
 
 class NativeMaterializationHost:
-    def __init__(self,root,context_provider,gateway):
+    def __init__(self,root,context_provider,gateway,*,fidelity_gate=None):
         self.root=Path(root).resolve();self.gateway=gateway
         require(callable(gateway.capture),'fresh native capture required')
         self.review=ReconciliationReview(context_provider)
         self._lock=threading.RLock()
+        self._fidelity_gate=fidelity_gate
 
     def poll_saved_changes(self):
         """Optional saved-change notification; existing approval flow stays mandatory."""
@@ -69,6 +71,30 @@ class NativeMaterializationHost:
     def publication_gate(self):
         # Hosting entry points must hold this context through Play/build admission.
         return self._coordinator().publication_gate()
+
+    @contextmanager
+    def player_gate(self):
+        """Fresh native fidelity and authoring checks held through Player start."""
+        from native_fidelity import NativeFidelityGate
+        from native_adoption import digest
+        with self._lock, self.publication_gate():
+            require(type(self._fidelity_gate) is NativeFidelityGate,
+                    'Native Play requires an approved fidelity profile and fresh native probe')
+            context = self.review.context_provider()
+            from authoring_transaction_files import sha
+            source = context['expected_source_digest']
+            require(sha(context['native_inventory']) == source, 'Native observation changed')
+            current = digest(context['current_cgs'])
+            require(current == context['expected_current_cgs_digest'], 'Canonical observation changed')
+            report = self._fidelity_gate.require_ready(current_cgs_digest=current)
+            # A native probe may take time; refuse an intervening external edit.
+            refreshed = self.review.context_provider()
+            require(digest(refreshed['current_cgs']) == current and
+                    refreshed['expected_current_cgs_digest'] == current and
+                    refreshed['expected_source_digest'] == source and
+                    sha(refreshed['native_inventory']) == source,
+                    'Saved source changed during native readiness probe')
+            yield report
 
     def apply(self,principal,approval,expected_proposal_digest):
         """Called only by an explicit apply action after separate review approval."""

@@ -1,0 +1,38 @@
+Log file: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261021\unreal-hierarchy-c\build-ubt.log
+Creating makefile for UnrealEditor (no existing makefile)
+WARNING: Unable to find Visual Studio SDK. Editor integration will be disabled
+UHT compiled-in object format Default
+Parsing headers for UnrealEditor
+  Running Internal UnrealHeaderTool C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261021\unreal-hierarchy-c\project\NEC011.uproject C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261021\unreal-hierarchy-c\project\Intermediate\Build\Win64\UnrealEditor\Development\UnrealEditor.uhtmanifest -WarningsAsErrors -installed
+UHT processed UnrealEditor in 2.636186 seconds (12 files written)
+Building UnrealEditor...
+Using Visual Studio 2022 14.44.35225 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from XACEAuthoring unity file: NEC011HierarchyCommandlet.cpp, XaceAuthoringCommandlet.cpp, XaceAuthoringModule.cpp, XaceAuthoringProofCommandlet.cpp, XaceAuthoringReader.cpp, XaceAuthoringWire.cpp, XaceAuthoringWriter.cpp, XaceNativeSetup.cpp, XaceNativeSetupCommandlet.cpp
+Determining max actions to execute in parallel (14 physical cores, 20 logical cores)
+  Executing up to 14 processes, one per physical core
+  Requested 1.5 GB memory per action, 4.88 GB available: limiting max parallel actions to 3
+Using Unreal Build Accelerator local executor to run 15 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 261021_204011 ----
+UbaServer - Listening on 0.0.0.0:1345
+[1/15] Resource Default.rc2
+[2/15] Compile [x64] SharedPCH.UnrealEd.Cpp20.cpp
+[3/15] Compile [x64] Module.XACEAuthoring.cpp
+[4/15] Compile [x64] XaceAuthoringCommandlet.cpp
+[5/15] Compile [x64] XaceAuthoringModule.cpp
+[6/15] Compile [x64] NEC011HierarchyCommandlet.cpp
+[7/15] Compile [x64] XaceAuthoringWire.cpp
+[8/15] Compile [x64] XaceAuthoringReader.cpp
+[9/15] Compile [x64] XaceAuthoringProofCommandlet.cpp
+[10/15] Compile [x64] XaceNativeSetupCommandlet.cpp
+[11/15] Compile [x64] XaceNativeSetup.cpp
+[12/15] Compile [x64] XaceAuthoringWriter.cpp
+[13/15] Link [x64] UnrealEditor-XACEAuthoring.lib
+[14/15] Link [x64] UnrealEditor-XACEAuthoring.dll
+[15/15] WriteMetadata UnrealEditor.target [NoUba]
+
+Trace written to file C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec011/20261021/unreal-hierarchy-c/build-ubt.uba with size 11.8kb
+Total time in Unreal Build Accelerator local executor: 78.64 seconds
+
+Result: Succeeded
+Total execution time: 139.76 seconds

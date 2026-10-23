@@ -517,6 +517,8 @@ namespace Xace.Adapter.Unity
         {
             if (command == null)
                 return false;
+            if (TruthyParameter(command, "xace_binding_required"))
+                return false;
             if (DeclaredBindingStatus(command) == "fallback")
                 return true;
             if (TruthyParameter(command, "xace_runtime_fallback") || TruthyParameter(command, "xace_fallback_visible") || TruthyParameter(command, "allow_fallback"))

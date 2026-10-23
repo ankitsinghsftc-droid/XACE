@@ -1,0 +1,28 @@
+{
+  "status": "incomplete_checkpoint",
+  "nec012_started": false,
+  "passed": {
+    "project_system": 291,
+    "assets": 208,
+    "native_routes": 14,
+    "unreal_authoring": [
+      63,
+      6,
+      9
+    ],
+    "unreal_contract_cases": 15,
+    "required_resource_refusal": [
+      "godot",
+      "unity",
+      "unreal"
+    ]
+  },
+  "limitations": [
+    "General native input selector to live runtime execution proof remains pending",
+    "Combined native hierarchy and structured executor proof remains pending",
+    "Cosmetic replacement with authority hash comparison remains pending",
+    "Native fidelity gate requires host-provided fresh probe; automatic production probe configuration remains pending",
+    "No native shipping, clean-machine, signing, Steam or unrestricted mechanics certification"
+  ],
+  "off_device": "Pending push; raw binaries and sealed archives local-only"
+}

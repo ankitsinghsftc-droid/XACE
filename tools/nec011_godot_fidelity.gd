@@ -40,6 +40,9 @@ func run() -> void:
     fallback.parameters = {"animation":"absent","allow_fallback":true}
     manager.apply_playback_commands([fallback])
     checks["explicit_cosmetic_fallback"] = results[-1].applied
+    fallback.parameters.xace_binding_required = "true"
+    manager.apply_playback_commands([fallback])
+    checks["required_binding_refuses_fallback"] = not results[-1].applied and manager._semantic_binding_status(fallback,false) != "fallback"
     var replacement := AudioStreamWAV.new()
     replacement.format = sound.format
     replacement.mix_rate = sound.mix_rate
@@ -59,6 +62,33 @@ func run() -> void:
     checks["failed_fallback_blocks"] = manager._semantic_binding_status(absent_entity, false) == "missing"
     manager._clear_playback_side_effects()
     checks["reset_stops_animation"] = not player.is_playing()
+    var collector: Node = load("res://xace_input_collector.gd").new()
+    collector.include_pointer = false
+    collector.emit_idle_movement = true
+    root.add_child(collector)
+    for action in ["move_left","move_right","move_back","move_forward"]:
+        InputMap.add_action(action)
+    Input.action_press("move_right",1.0)
+    var actions: Array = collector.collect_actions(7)
+    var mapped := false
+    for action in actions:
+        if action.action == "move_x": mapped = action.kind == "axis_1d" and action.value == 1.0
+    checks["declared_inputmap_axis_sampled"] = mapped
+    Input.action_release("move_right")
+    checks["same_tick_input_is_stable"] = collector.collect_actions(7) == actions
+    var released: Array = collector.collect_actions(8)
+    var cancelled := false
+    for action in released:
+        if action.action == "move_x": cancelled = action.value == 0.0 and action.phase == "cancelled"
+    checks["next_tick_observes_release"] = cancelled
+    var fixture: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://session-fixture.json"))
+    var session: RefCounted = load("res://xace_native_contract.gd").new()
+    var protocol: Script = load("res://xace_protocol.gd")
+    var packet: Dictionary = protocol.build_input_packet(2,7,1,actions,42,"godot",false,0)
+    var configured: bool = session.configure(JSON.parse_string(fixture.ticket_json),fixture.world_json)
+    checks["mapped_packet_authority_tick"] = configured and session.verify(fixture.baseline) == "accept" and not session.can_send(packet) and session.request(7) and session.can_send(packet)
+    packet.tick = 8
+    checks["mapped_packet_wrong_tick_refused"] = not session.can_send(packet)
     var ok := true
     for value in checks.values(): ok = ok and bool(value)
     var report := {"ok":ok,"checks":checks,"engine":"godot","version":Engine.get_version_info().string,"actual_native_playback":true,"audible_output_certified":false,"runtime_input_certified":false}

@@ -17,6 +17,23 @@ class HostTests(unittest.TestCase):
         (root/'game.cgs.json').write_bytes(encode(ctx['current_cgs']))
         (root/'native.json').write_bytes(ctx['native_inventory'])
         return NativeMaterializationHost(root,lambda:ctx,Gateway(root)),ctx
+    def test_native_source_change_during_fidelity_probe_refuses_launch(self):
+        from native_fidelity import NativeFidelityGate,digest
+        from test_native_fidelity import fixture
+        from authoring_transaction_files import sha
+        with tempfile.TemporaryDirectory() as d:
+            host,ctx=self.fixture(Path(d),False)
+            contract,observation=fixture()
+            contract['identities']['cgs']=digest(ctx['current_cgs'])
+            observation['identities']['cgs']=contract['identities']['cgs']
+            def probe():
+                ctx['native_inventory'] += b' '
+                ctx['expected_source_digest']=sha(ctx['native_inventory'])
+                return observation
+            host._fidelity_gate=NativeFidelityGate(contract,expected_contract_digest=digest(contract),probe=probe)
+            with self.assertRaisesRegex(ValueError,'Saved source changed'):
+                with host.player_gate():self.fail('Changed source launched')
+
     def approve(self,host):
         review=host.review.open('operator')
         return host.review.approve('operator',review['token'],review['proposal_digest'])

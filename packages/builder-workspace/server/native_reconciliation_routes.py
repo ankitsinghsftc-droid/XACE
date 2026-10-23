@@ -103,7 +103,7 @@ class GatedPlayerService:
     def capability(self):return self.service.capability
     def control(self,action,*args):
         if action in {'stop','status'}:return self.service.control(action,*args)
-        with self.host.publication_gate():return self.service.control(action,*args)
+        with self.host.player_gate():return self.service.control(action,*args)
 
 
 def create_materialization_app(host,*,setup_provider=None,**builder_options):

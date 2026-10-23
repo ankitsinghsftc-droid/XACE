@@ -1,0 +1,11 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-required-contract-a\\project\\NEC011.uproject",
+  "-run=XaceNativeContractProof",
+  "-unattended",
+  "-nullrhi",
+  "-nosplash",
+  "-XaceFixture=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+  "-XaceReport=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-required-contract-a\\contract.json",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-required-contract-a\\contract-editor.log"
+]

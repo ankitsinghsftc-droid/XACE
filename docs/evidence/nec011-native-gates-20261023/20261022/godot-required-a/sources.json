@@ -1,0 +1,14 @@
+{
+  "adapters/godot/xace_adapter.gd": "545c48bd838f83eeb5e9c9638be1121585e6af57588c2cfe0a566d9c7c17e7fa",
+  "adapters/godot/xace_canonical_entities.gd": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56",
+  "adapters/godot/xace_console_widget.gd": "09979e1670270a84c49e3125b1522ce2d063c2e197afa1c4bb81d8d50d05b692",
+  "adapters/godot/xace_debug_hud.gd": "da07761fcf70a1d7b22ab064e1f96b2ed571ef74ba42448e535c761a8ddc75a0",
+  "adapters/godot/xace_delta_applicator.gd": "6c14f006910810fd48f50d3c3b0e5bec946319302625de4f0b2acf412890e0c0",
+  "adapters/godot/xace_entity_manager.gd": "2b44ae025d1e58a6a2e294a0a482497c25581994af6c2928154f3ea60f985eeb",
+  "adapters/godot/xace_godot_main.gd": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3",
+  "adapters/godot/xace_input_collector.gd": "018556b795d8fb0a1ef2e1770bce3f92194ae8641baaf73fe1e560ab67c3fa0b",
+  "adapters/godot/xace_native_contract.gd": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185",
+  "adapters/godot/xace_protocol.gd": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655",
+  "adapters/godot/xace_transport.gd": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed",
+  "tools/nec011_godot_fidelity.gd": "a3435a29201c74e10eb3f1b4e1e02a2072ee9c56ef12da8751f8d303afb62c3e"
+}

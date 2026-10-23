@@ -34,6 +34,7 @@ public static class NEC011UnityFidelity {
   actor.GetComponent<AudioSource>().clip=Resources.Load<AudioClip>("tone");audio.parameters["resource_path"]="absent";audio.parameters["xace_binding_status"]="resolved";apply(audio);checks["missing_audio_refused"]=!results[results.Count-1];
   var status=typeof(XaceDeltaApplicator).GetMethod("SemanticBindingStatus",BindingFlags.Static|BindingFlags.NonPublic);checks["declared_resolved_cannot_hide_failure"]=(string)status.Invoke(null,new object[]{audio,false})=="missing";
   audio.parameters["xace_binding_status"]="fallback";checks["failed_fallback_blocks"]=(string)status.Invoke(null,new object[]{audio,false})=="missing";
+  audio.parameters["xace_binding_required"]="true";audio.parameters["allow_fallback"]="true";apply(audio);checks["required_binding_refuses_fallback"]=!results[results.Count-1]&&(string)status.Invoke(null,new object[]{audio,false})=="missing";
   bool ok=true;foreach(var value in checks.Values)ok&=(bool)value;
   var report=new Dictionary<string,object>{{"ok",ok},{"engine","unity"},{"version",Application.unityVersion},{"checks",checks},{"actual_play_mode",true},{"audible_output_certified",false}};
   var type=typeof(XaceCanonical).Assembly.GetType("Xace.Adapter.Unity.XaceJson");File.WriteAllText(SessionState.GetString(Key,""),(string)type.GetMethod("Serialize",BindingFlags.Static|BindingFlags.Public).Invoke(null,new object[]{report}));SessionState.EraseString(Key);EditorApplication.Exit(ok?0:1);

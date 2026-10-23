@@ -483,6 +483,8 @@ func _try_apply_playback_command(node: Node3D, command: Dictionary) -> bool:
 
 
 func _should_use_fallback(command: Dictionary) -> bool:
+	if _truthy_string(_command_parameters(command).get("xace_binding_required", false)):
+		return false
 	if _declared_binding_status(command) == "fallback":
 		return true
 	var parameters: Dictionary = _command_parameters(command)

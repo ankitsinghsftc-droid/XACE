@@ -67,6 +67,30 @@ class MaterializationRoutes(unittest.IsolatedAsyncioTestCase):
                 with patch.object(host,'poll_saved_changes',side_effect=OSError('Native capture unavailable')):
                     self.assertEqual((await c.post(path,json={},headers=headers)).status_code,409)
 
+    async def test_native_player_requires_fresh_fidelity_and_preserves_stop(self):
+        import copy
+        from native_fidelity import NativeFidelityGate,digest
+        from test_native_fidelity import fixture
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);host,ctx=fixtures.HostTests().fixture(root,False)
+            contract,observation=fixture()
+            contract['identities']['cgs']=digest(ctx['current_cgs'])
+            observation['identities']['cgs']=contract['identities']['cgs']
+            with patch.dict(os.environ,{'XACE_LAUNCHER_STATE':str(root/'launcher.json')}):
+                app=create_materialization_app(host,project_path=str(root),static_dir=str(root/'no-dist'),model_provider='auto')
+            headers={'x-xace-agent-auth':'1','x-xace-player-capability':app.state.player_launch.capability}
+            async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app,client=('127.0.0.1',1234)),base_url='http://127.0.0.1:8765',headers=headers) as c:
+                with patch.object(app.state.player_launch,'control',return_value={'state':'started'}) as launch:
+                    response=await c.post('/api/player/play',json={})
+                    self.assertEqual(response.status_code,400);launch.assert_not_called()
+                    host._fidelity_gate=NativeFidelityGate(contract,expected_contract_digest=digest(contract),probe=lambda:copy.deepcopy(observation))
+                    response=await c.post('/api/player/play',json={})
+                    self.assertEqual(response.status_code,200,response.text);launch.assert_called_once();launch.reset_mock()
+                    observation['identities']['input_config']='b'*64
+                    response=await c.post('/api/player/play',json={})
+                    self.assertEqual(response.status_code,400);self.assertIn('mismatch:identities',response.json()['message']);launch.assert_not_called()
+                    self.assertEqual((await c.post('/api/player/stop',json={})).status_code,200)
+
     async def test_wrong_project_cannot_install_host(self):
         with tempfile.TemporaryDirectory() as d:
             host,_=fixtures.HostTests().fixture(Path(d))

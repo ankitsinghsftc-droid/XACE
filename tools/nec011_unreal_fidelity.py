@@ -9,7 +9,7 @@ def main(out,reuse=None):
     plugin=project/'Plugins/XACE'
     for relative,text in old.unreal_generated_plugin_texts().items():
         path=plugin/relative;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text,encoding='utf-8')
-    for name in old.ADAPTER_SOURCE_NAMES:
+    for name in (*old.ADAPTER_SOURCE_NAMES,"XaceNativeContractProofCommandlet.h","XaceNativeContractProofCommandlet.cpp","XaceMixedSessionProof.h"):
         destination=plugin/'Source/XACEAdapter'/('Public' if name.endswith('.h') else 'Private')/name
         destination.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(ROOT/'adapters/unreal'/name,destination)
     stage=dict(plugin_root=plugin,project_file=project_file);sources={}
@@ -34,4 +34,11 @@ def main(out,reuse=None):
     with (out/'run.txt').open('wb') as log:r=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,timeout=240,creationflags=subprocess.CREATE_NO_WINDOW)
     assert r.returncode==0,'Native fidelity proof failed; retained logs'
     report=json.loads((out/'proof.json').read_text());assert report['ok'],report;print(json.dumps(report,indent=2))
+    fixture=ROOT/'adapters/tests/fixtures/xp016-contract-v1.json'
+    command=[str(exe),str(project_file),'-run=XaceNativeContractProof','-unattended','-nullrhi','-nosplash',f'-XaceFixture={fixture}',f'-XaceReport={out/"contract.json"}',f'-abslog={out/"contract-editor.log"}']
+    (out/'contract-command.json').write_text(json.dumps(command,indent=2))
+    with (out/'contract-run.txt').open('wb') as log:r=subprocess.run(command,stdout=log,stderr=subprocess.STDOUT,timeout=240,creationflags=subprocess.CREATE_NO_WINDOW)
+    assert r.returncode==0,'Native contract regression failed; retained logs'
+    report=json.loads((out/'contract.json').read_text(encoding='utf-8-sig'));assert report['ok'],report;print(json.dumps(report,indent=2))
+
 if __name__=='__main__':main(Path(sys.argv[1]).resolve(),Path(sys.argv[2]).resolve() if len(sys.argv)>2 else None)

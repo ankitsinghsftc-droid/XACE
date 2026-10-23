@@ -17,6 +17,7 @@ int32 UXaceAuthoringCommandlet::Main(const FString& Params)
     if(!Config||String(Config,TEXT("engine"))!=TEXT("unreal")||ExpectedRoot!=ProjectRoot||!Config->TryGetArrayField(TEXT("documents"),Documents)||Documents->Num()!=1)return 2;
     const FString Map=(*Documents)[0]->AsString();FFileHelper::LoadFileToString(Text,*Path);auto Command=Parse(Text);const FString Action=String(Command,TEXT("action"));
     FXaceUnrealAuthoring Service;Service.bTrustedProject=true;Object Result;
+    if(!Command)Service.Fail(TEXT("Invalid canonical authoring command"));
     if(Action==TEXT("capture")||Action==TEXT("prepare")){auto World=Service.LoadApprovedMap(Map);if(World)Result=Action==TEXT("capture")?Service.Capture(World,Map):Service.Prepare(World,Map,Json(Child(Command,TEXT("request"))),String(Command,TEXT("transaction_id")));}
     else {auto Prepared=Child(Command,TEXT("prepared"));FString Directory=String(Prepared,TEXT("directory"));if(Action==TEXT("commit"))Result=Service.Commit(Map,Directory,String(Prepared,TEXT("approval_digest")));if(Action==TEXT("recover"))Result=Service.Recover(Map,Directory,FileHash(Directory/TEXT("receipt.json")));}
     auto Report=New();const bool Ok=Result.IsValid()&&Service.Error.IsEmpty();Report->SetBoolField(TEXT("ok"),Ok);Report->SetStringField(TEXT("error"),Service.Error);if(Result)Report->SetObjectField(TEXT("result"),Result);

@@ -1,0 +1,17 @@
+{
+  "XACEAuthoring.uplugin": "d277f7bc8fe54f83625dc8c2ac434625724eea83667bffbb9a80f00968dc7fb3",
+  "Source/XACEAuthoring/XACEAuthoring.Build.cs": "f775edb34b327dcc091273f228f2158e59b6f046b0a092ed23f3529b4d6e7f6b",
+  "Source/XACEAuthoring/Private/XaceAuthoringCommandlet.cpp": "322094dea172ea390723adf9537456385a11e257589b2493daef46a9873fc345",
+  "Source/XACEAuthoring/Private/XaceAuthoringModule.cpp": "08dbc71fa0d492588f90eddb9260bc0ef3f3cd72f000fecfe28afb929bdbcb7f",
+  "Source/XACEAuthoring/Private/XaceAuthoringProofCommandlet.cpp": "ac1d6d6740d66e3d6e3d54b83d59638224234df78bfba8a2ae03df503760207c",
+  "Source/XACEAuthoring/Private/XaceAuthoringReader.cpp": "8b4a533c0e094f0ffec50f5cef96e81540383a1d0ffdcabc9b2444be42ae2084",
+  "Source/XACEAuthoring/Private/XaceAuthoringWire.cpp": "fc2a9fc069f505b3be50e29a0b544e27507b0e8fd30e45a8b0fbc0acb2e165b9",
+  "Source/XACEAuthoring/Private/XaceAuthoringWriter.cpp": "1390870ceef2944ef05f026b642097373fd4f85f378f7bb76064c02686763b50",
+  "Source/XACEAuthoring/Private/XaceNativeSetup.cpp": "c2847288f2793463780b51efbee39931f5d25847e7bc7f11ccca7a305682fc18",
+  "Source/XACEAuthoring/Private/XaceNativeSetupCommandlet.cpp": "9a2357043c801b3339247b67303f1ac81bea0f4e97fe4a1a6adf4974bd4c9161",
+  "Source/XACEAuthoring/Public/XaceAuthoring.h": "84979db924c14104140df1ad5613b547e3de8216f615a6d97cb7d17e5f3ec3ba",
+  "Source/XACEAuthoring/Public/XaceAuthoringBinding.h": "b5930fc7e2431d0ecbc61af89c2bbdc587e4fb5c918807cffa49a2fe1b4fd001",
+  "Source/XACEAuthoring/Public/XaceAuthoringCommandlet.h": "ecea8a00b03421ec8fe70fee6fcb3f87e448daed54cbdf5499e583781c248035",
+  "Source/XACEAuthoring/Public/XaceAuthoringProofCommandlet.h": "4d05adf807c71e3c637b03dd82d7da80e2d9e87550ef3ac2d1187fdbef001d41",
+  "Source/XACEAuthoring/Public/XaceNativeSetupCommandlet.h": "bfe61ec2537c71a3b7a05893619882e02cacaaaf7c2ba12471c024fd0c77fb08"
+}

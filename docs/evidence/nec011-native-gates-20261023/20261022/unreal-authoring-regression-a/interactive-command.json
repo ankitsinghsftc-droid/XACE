@@ -1,0 +1,12 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-authoring-regression-a\\project\\NEC006.uproject",
+  "-unattended",
+  "-nop4",
+  "-nosplash",
+  "-NoSound",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-authoring-regression-a\\interactive-engine.log",
+  "-RenderOffscreen",
+  "-d3d11",
+  "-ExecCmds=XACE.Authoring.Proof interactive"
+]

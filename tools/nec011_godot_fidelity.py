@@ -8,6 +8,7 @@ def main(out):
     sources={}
     for src in sorted((ROOT/'adapters/godot').glob('*.gd')):
         shutil.copyfile(src,project/src.name);sources[src.relative_to(ROOT).as_posix()]=hashlib.sha256(src.read_bytes()).hexdigest()
+    shutil.copyfile(ROOT/'adapters/tests/fixtures/xp016-contract-v1.json',project/'session-fixture.json')
     probe=ROOT/'tools/nec011_godot_fidelity.gd';shutil.copyfile(probe,project/'proof.gd');sources[probe.relative_to(ROOT).as_posix()]=hashlib.sha256(probe.read_bytes()).hexdigest()
     (project/'project.godot').write_text('config_version=5\n[application]\nconfig/name="NEC011 Fidelity Proof"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n')
     exe=Path('C:/Users/ankit/Downloads/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64_console.exe')

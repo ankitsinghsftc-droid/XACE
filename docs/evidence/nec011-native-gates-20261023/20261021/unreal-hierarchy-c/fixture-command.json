@@ -1,0 +1,9 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-hierarchy-c\\project\\NEC011.uproject",
+  "-run=NEC011Hierarchy",
+  "-unattended",
+  "-nullrhi",
+  "-nosplash",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-hierarchy-c\\fixture.log"
+]

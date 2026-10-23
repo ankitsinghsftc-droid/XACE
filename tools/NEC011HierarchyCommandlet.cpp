@@ -10,6 +10,7 @@
 using namespace XaceAuthoringWire;
 UNEC011HierarchyCommandlet::UNEC011HierarchyCommandlet(){IsEditor=true;IsClient=false;IsServer=false;LogToConsole=true;}
 int32 UNEC011HierarchyCommandlet::Main(const FString& Params){
+ if(!Parse(TEXT("{\"Z\":\"upper\",\"a\":\"lower\"}"))||Parse(TEXT("{\"a\":\"lower\",\"Z\":\"upper\"}")))return 5;
  FXaceUnrealAuthoring Service;Service.bTrustedProject=true;auto W=UEditorLoadingAndSavingUtils::NewBlankMap(false);if(!W)return 1;
  auto Identity=[](int32 N,bool Scene){auto O=New();O->SetStringField(TEXT("schema"),TEXT("xace.native_identity.v1"));O->SetStringField(TEXT("namespace_id"),FString::Printf(TEXT("%032x"),100));O->SetStringField(TEXT("authoring_id"),FString::Printf(TEXT("%032x"),N));O->SetStringField(TEXT("kind"),Scene?TEXT("scene"):TEXT("object"));O->SetStringField(TEXT("generation"),TEXT("1"));return O;};
  if(!Service.Enroll(W->GetWorldSettings(),Identity(1,true)))return 2;

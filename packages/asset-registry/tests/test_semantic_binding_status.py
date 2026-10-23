@@ -49,6 +49,17 @@ class SemanticBindingStatusTests(unittest.TestCase):
             unsupported = [record for record in report.records if record.status == "unsupported"]
             self.assertTrue(all("ASSET_TYPE_MISMATCH" in record.issue_codes for record in unsupported))
 
+    def test_required_binding_cannot_be_satisfied_by_documented_fallback(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            asset=_asset_ref('required','AnimationClip','Missing',fallback=True)
+            cgs={'semantic_bindings':{'bindings':[{'binding_id':'required','event_name':'walk','playback_kind':'Animation','asset':asset,'parameters':{'xace_binding_required':'true'}}]}}
+            report=evaluate_semantic_binding_status(cgs,project_root=root)
+            self.assertEqual(len(report.records),3)
+            self.assertTrue(all(r.blocks_runtime and r.blocks_handoff and r.status!='fallback' for r in report.records))
+            cgs['semantic_bindings']['bindings'][0]['parameters']['xace_binding_required']='false'
+            self.assertTrue(all(r.status=='fallback' for r in evaluate_semantic_binding_status(cgs,project_root=root).records))
+
     def test_adapter_status_reports_are_split_by_engine(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

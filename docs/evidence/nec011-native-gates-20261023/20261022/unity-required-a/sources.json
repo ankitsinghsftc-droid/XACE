@@ -1,0 +1,10 @@
+{
+  "adapters/unity/Xace_embedded.cs": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1",
+  "adapters/unity/XaceConsoleWidget.cs": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507",
+  "adapters/unity/XaceDeltaApplicator.cs": "7e5e619ff30a8b89833c7f105bb9b5a24c7ac41525fea7906656d9515e68ac51",
+  "adapters/unity/XaceInputCollector.cs": "f89283d830cdf988ea28b6d7a7b01c85aaa1679eddde922bfd11015a57c90dd2",
+  "adapters/unity/XaceNativeContract.cs": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028",
+  "adapters/unity/XaceRuntimeBootstrap.cs": "a6d0cc769aacfa9f64929dee943797b34f96e6ce128df2b1ce74834abf972791",
+  "adapters/unity/XaceTransport.cs": "5d24be49709508db0e99bcb5578434ba12c334ab9d5a1bc512e7b85acf91e370",
+  "tools/NEC011UnityFidelity.cs": "9ea7e171e627e1f7236bb62f36db9cc6f7b48f9d51333f60d90644ef5b839063"
+}

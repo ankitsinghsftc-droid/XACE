@@ -31,7 +31,7 @@ bool Encode(const TSharedPtr<FJsonValue>& V,FString& Out,int32 Depth,int32& Node
     case EJson::Array: {
         Out+=TEXT("[");bool First=true;for(const auto& Item:V->AsArray()){if(!First)Out+=TEXT(",");First=false;if(!Encode(Item,Out,Depth+1,Nodes))return false;}Out+=TEXT("]");return true; }
     case EJson::Object: {
-        TArray<FString> Keys;V->AsObject()->Values.GetKeys(Keys);Keys.Sort();Out+=TEXT("{");bool First=true;
+        TArray<FString> Keys;V->AsObject()->Values.GetKeys(Keys);Keys.Sort([](const FString& A,const FString& B){return A.Compare(B,ESearchCase::CaseSensitive)<0;});Out+=TEXT("{");bool First=true;
         for(const FString& Key:Keys){if(Key.Len()>256)return false;for(TCHAR C:Key)if(C>127)return false;if(!First)Out+=TEXT(",");First=false;Out+=Quote(Key)+TEXT(":");if(!Encode(V->AsObject()->Values[Key],Out,Depth+1,Nodes))return false;}Out+=TEXT("}");return true; }
     default:return false;
     }
