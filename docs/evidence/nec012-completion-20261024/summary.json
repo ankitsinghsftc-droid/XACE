@@ -1,6 +1,6 @@
 {
   "schema": "xace.nec012.acceptance.v1",
-  "status": "verified_pending_source_checkpoint",
+  "status": "complete_for_declared_shared_service",
   "date": "2026-10-24",
   "scope": "Shared Windows trusted native-host lifecycle/build/save/update contract",
   "source_files": {
@@ -53,5 +53,8 @@
   "retained_failed_attempts": [
     "lifecycle-b: readiness compared gameplay hash to full package hash; corrected against existing runtime contract",
     "player-parity-a: proof expected runtime_pid in repeated Player status; corrected to existing status contract"
-  ]
+  ],
+  "source_commit": "b59b8b8542983af44dadb673ddd6466900a26c29",
+  "acceptance_audit": "audit.json",
+  "next_task": "NEC-013, not started; requires authorization"
 }

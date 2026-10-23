@@ -51,20 +51,20 @@ backend/configuration before shipping; broad manifest ranges are insufficient.
 
 ### 1.2 Current reusable source trace
 
-- **E01 — Project adoption shell: implemented, conversion incomplete.** [project_creator.py](../packages/project-system/project_creator.py), `import_engine_project`, validates an engine inventory, calls template-based `create_project`, and stores `engine_project_path`. [engine_project_inventory.py](../packages/project-system/engine_project_inventory.py) detects all three engine roots and inventories references, with a default per-category limit of 500. This is not complete scene deserialization. [builder_server.py](../packages/builder-workspace/server/builder_server.py), `/api/project/import-engine`, additionally attempts adapter installation and reports that separately.
-- **E02 — Migration preview: partial.** [engine_migration_wizard.py](../packages/project-system/engine_migration_wizard.py), `materialize_manual_migration_draft`, creates reversible preview records. Godot extraction reads node headers; Unity extraction reads `m_Name` lines; Unreal extraction reads textual actor markers or emits a map reference. `_starter_actor_parts` fabricates starter defaults rather than preserving original transforms/gameplay. Binding candidates use preset event associations. Scripts/plugins/input maps become manual-work items. The Builder `/api/project/migration/manual-plan` route is preview-only; no complete migration apply workflow was found. Tests verify records, unchanged source files and reversal, not original-game behavioral equivalence.
-- **E03 — Adapter file lifecycle: implemented foundation.** [adapter_installation.py](../packages/project-system/adapter_installation.py) tracks owned file hashes, backups, install/update transactions, rollback and uninstall conflicts. This is reusable file ownership/recovery infrastructure, not an atomic CGS-plus-native-scene transaction. [adapter_package_versioning.py](../packages/project-system/adapter_package_versioning.py) supplies checksums, runtime dependencies and broad engine version ranges; those ranges are not installed-version certification.
-- **E04 — Assets: useful but separate mechanisms.** [asset_import_workflow.py](../packages/asset-registry/asset_import_workflow.py) scans, copies or links supported files, hashes them and suggests repairs. Types are sometimes inferred from names/extensions. [file_watcher.rs](../packages/asset-runtime/src/hot_reload/file_watcher.rs) and [reload_coordinator.rs](../packages/asset-runtime/src/hot_reload/reload_coordinator.rs) provide watcher/reload primitives; the coordinator skips deleted and unregistered files. No general native authoring reconciliation pipeline was found. [engine_sync_receiver.py](../packages/asset-registry/engine_sync_receiver.py) updates asset-resolution records, not arbitrary CGS authoring.
-- **E05 — Semantic presentation: implemented subsets.** [semantic_binding_status.py](../packages/asset-registry/semantic_binding_status.py), asset preflight, native applicators and [player_presentation.py](../packages/project-system/player_presentation.py) provide typed references, per-engine binding status, fallback/readiness rules and Player presentation validation. They are not native animation graph importers. Required gameplay geometry and cosmetic resource availability must remain distinct.
-- **E06 — Native adapters: runtime presentation exists.** [Unity applicator](../adapters/unity/XaceDeltaApplicator.cs), [Unreal applicator](../adapters/unreal/XaceDeltaApplicator.cpp) and [Godot applicator](../adapters/godot/xace_delta_applicator.gd) mirror entities and supported playback and process rollback cleanup. [Unity runtime bootstrap](../adapters/unity/XaceRuntimeBootstrap.cs) and [editor Play bootstrap](../adapters/unity/Editor/XaceUnityPlayBootstrap.cs) create adapter components; this alone is not a pinned package/runtime launch-and-build pipeline. Native scene authoring and continuous reconciliation remain missing. The generated Godot editor plugin in `builder_server.py` has empty enter/exit hooks.
-- **E07 — Explicit field edit-back: partial.** [entity_inspector.ts](../packages/builder-workspace/src/preview/entity_inspector.ts) sends Builder live preview edits and explicit saves. [state_authority.py](../packages/builder-workspace/server/state_authority.py) permits durable commits only for primitive `set_component_field` values. [ws_message_router.py](../packages/builder-workspace/server/ws_message_router.py), `_handle_engine_edit_commit`, checks accepted preview identity, hashes/schema and adapter sequence, then uses GDE. This does not capture normal native editor activity, and its newer-CGS primitive merge permission is not a three-way same-field conflict algorithm. [project_manifest.py](../packages/project-system/project_manifest.py) declares `bidirectional_editing: False`.
-- **E08 — Mutation authority and recovery: reuse, extend narrowly.** [typed_operation_executor.py](../packages/gde/src/domain_dsl/typed_operations/typed_operation_executor.py) has a closed typed operation grammar and copy-based batch application. [package_authoring.py](../packages/prompt-intelligence/src/typed_operations/package_authoring.py) and [gameplay_catalog.py](../packages/gde/src/domain_dsl/typed_operations/gameplay_catalog.py) support package-driven authoring. [cgs_persistence.py](../packages/builder-workspace/server/cgs_persistence.py) provides locking, atomic writes, snapshots and recovery. Prompt apply in `ws_message_router.py` includes GDE, compilation, persistence, reload and recovery hooks. Optional adapter validation checks connectivity, not durable native-scene equality. The field-edit handler is not equivalent to the full prompt-apply recovery path.
-- **E09 — World Contract: extensible semantics, bounded geometry.** [world_contract_v3.py](../packages/schema-factory/src/world_contract_v3.py) validates project-defined schemas, capabilities, relationships, typed asset roles and actor-instance bindings. It compiles from CGS; compiled `world.json` is not independently authoritative authoring. [profiles.json](../packages/core/src/world/profiles.json) currently registers `world.aabb.v1`. The compiler requires its authoritative boxes to have identity rotation/scale and no parent, with bounded fixed-point coordinates. It does not support arbitrary terrain, mesh collision or engine physics. Do not hide this limitation behind richer native artwork.
-- **E10 — Playable packages: strong foundation.** [playable_package.py](../packages/project-system/playable_package.py) verifies Factory/SGC/world provenance, exact runtime support, bounded archive paths and checksums, and stages installation. The current profile is Windows x64 with a trusted `runtime/xace_runtime.exe`, World v2/v3 and declared executor contracts. Presentation variants are separated from gameplay identity. This is not an arbitrary native project importer or a runtime-independent export.
-- **E11 — Player and local lifecycle: implemented profile.** [apps/xace-player/player.gd](../apps/xace-player/player.gd) loads verified package data and starts/connects to Rust authority; loss freezes gameplay. [player_launch.py](../packages/builder-workspace/server/player_launch.py) validates the installed release and saved-project/package match. [player-launcher](../packages/player-launcher/src/main.rs), [session.rs](../packages/player-launcher/src/session.rs), [distribution.rs](../packages/player-launcher/src/distribution.rs) and [job.rs](../packages/player-launcher/src/job.rs) provide process ownership, admission, installation and session primitives. The current Builder service rejects a stale packaged game and asks for an updated package; it is not yet universal project-specific native build preparation.
-- **E12 — Live authority: preserve the stronger current boundary.** [engine_bridge.rs](../packages/runtime-core/src/engine_bridge.rs), `queue_feedback`, rejects gameplay feedback from admitted live presentation clients. [runtime_orchestrator.rs](../packages/runtime-core/src/runtime_orchestrator.rs) processes allowed feedback at tick start on the other path. Editor proposals must never be smuggled through presentation feedback or weaken live-client authority protections.
-- **E13 — Shipping/exit: mixed maturity.** The Builder handoff route copies adapter sources and metadata. [xp008_player_build.py](../tools/xp008_player_build.py) exports a real Godot Windows Player with a bundled runtime. [CLI build](../packages/cli/src/commands/build.rs), `generate_artifact`, writes adapter configuration JSON; [CLI deploy](../packages/cli/src/commands/deploy.rs) returns not implemented. No complete native gameplay source exporter was found. Preserve the working Player packaging foundation instead of treating the older CLI comments as shipping implementation.
-- **E14 — Actual installed-host evidence now exists.** [XP-022 certification](XP022_ENGINEERING_CERTIFICATION.md) and sealed `native-v2` / `hosts-final` reports prove all three pinned installed readers and mixed sessions, not merely named socket clients. Fifteen conformance vectors per engine and four-host applied projections/events are retained. These do not certify native editor authoring or engine-built shipping. Fresh checks are separately recorded in [NEC-001 evidence](recovery/evidence/nec001-20261015/summary.json).
+- **E01 â€” Project adoption shell: implemented, conversion incomplete.** [project_creator.py](../packages/project-system/project_creator.py), `import_engine_project`, validates an engine inventory, calls template-based `create_project`, and stores `engine_project_path`. [engine_project_inventory.py](../packages/project-system/engine_project_inventory.py) detects all three engine roots and inventories references, with a default per-category limit of 500. This is not complete scene deserialization. [builder_server.py](../packages/builder-workspace/server/builder_server.py), `/api/project/import-engine`, additionally attempts adapter installation and reports that separately.
+- **E02 â€” Migration preview: partial.** [engine_migration_wizard.py](../packages/project-system/engine_migration_wizard.py), `materialize_manual_migration_draft`, creates reversible preview records. Godot extraction reads node headers; Unity extraction reads `m_Name` lines; Unreal extraction reads textual actor markers or emits a map reference. `_starter_actor_parts` fabricates starter defaults rather than preserving original transforms/gameplay. Binding candidates use preset event associations. Scripts/plugins/input maps become manual-work items. The Builder `/api/project/migration/manual-plan` route is preview-only; no complete migration apply workflow was found. Tests verify records, unchanged source files and reversal, not original-game behavioral equivalence.
+- **E03 â€” Adapter file lifecycle: implemented foundation.** [adapter_installation.py](../packages/project-system/adapter_installation.py) tracks owned file hashes, backups, install/update transactions, rollback and uninstall conflicts. This is reusable file ownership/recovery infrastructure, not an atomic CGS-plus-native-scene transaction. [adapter_package_versioning.py](../packages/project-system/adapter_package_versioning.py) supplies checksums, runtime dependencies and broad engine version ranges; those ranges are not installed-version certification.
+- **E04 â€” Assets: useful but separate mechanisms.** [asset_import_workflow.py](../packages/asset-registry/asset_import_workflow.py) scans, copies or links supported files, hashes them and suggests repairs. Types are sometimes inferred from names/extensions. [file_watcher.rs](../packages/asset-runtime/src/hot_reload/file_watcher.rs) and [reload_coordinator.rs](../packages/asset-runtime/src/hot_reload/reload_coordinator.rs) provide watcher/reload primitives; the coordinator skips deleted and unregistered files. No general native authoring reconciliation pipeline was found. [engine_sync_receiver.py](../packages/asset-registry/engine_sync_receiver.py) updates asset-resolution records, not arbitrary CGS authoring.
+- **E05 â€” Semantic presentation: implemented subsets.** [semantic_binding_status.py](../packages/asset-registry/semantic_binding_status.py), asset preflight, native applicators and [player_presentation.py](../packages/project-system/player_presentation.py) provide typed references, per-engine binding status, fallback/readiness rules and Player presentation validation. They are not native animation graph importers. Required gameplay geometry and cosmetic resource availability must remain distinct.
+- **E06 â€” Native adapters: runtime presentation exists.** [Unity applicator](../adapters/unity/XaceDeltaApplicator.cs), [Unreal applicator](../adapters/unreal/XaceDeltaApplicator.cpp) and [Godot applicator](../adapters/godot/xace_delta_applicator.gd) mirror entities and supported playback and process rollback cleanup. [Unity runtime bootstrap](../adapters/unity/XaceRuntimeBootstrap.cs) and [editor Play bootstrap](../adapters/unity/Editor/XaceUnityPlayBootstrap.cs) create adapter components; this alone is not a pinned package/runtime launch-and-build pipeline. Native scene authoring and continuous reconciliation remain missing. The generated Godot editor plugin in `builder_server.py` has empty enter/exit hooks.
+- **E07 â€” Explicit field edit-back: partial.** [entity_inspector.ts](../packages/builder-workspace/src/preview/entity_inspector.ts) sends Builder live preview edits and explicit saves. [state_authority.py](../packages/builder-workspace/server/state_authority.py) permits durable commits only for primitive `set_component_field` values. [ws_message_router.py](../packages/builder-workspace/server/ws_message_router.py), `_handle_engine_edit_commit`, checks accepted preview identity, hashes/schema and adapter sequence, then uses GDE. This does not capture normal native editor activity, and its newer-CGS primitive merge permission is not a three-way same-field conflict algorithm. [project_manifest.py](../packages/project-system/project_manifest.py) declares `bidirectional_editing: False`.
+- **E08 â€” Mutation authority and recovery: reuse, extend narrowly.** [typed_operation_executor.py](../packages/gde/src/domain_dsl/typed_operations/typed_operation_executor.py) has a closed typed operation grammar and copy-based batch application. [package_authoring.py](../packages/prompt-intelligence/src/typed_operations/package_authoring.py) and [gameplay_catalog.py](../packages/gde/src/domain_dsl/typed_operations/gameplay_catalog.py) support package-driven authoring. [cgs_persistence.py](../packages/builder-workspace/server/cgs_persistence.py) provides locking, atomic writes, snapshots and recovery. Prompt apply in `ws_message_router.py` includes GDE, compilation, persistence, reload and recovery hooks. Optional adapter validation checks connectivity, not durable native-scene equality. The field-edit handler is not equivalent to the full prompt-apply recovery path.
+- **E09 â€” World Contract: extensible semantics, bounded geometry.** [world_contract_v3.py](../packages/schema-factory/src/world_contract_v3.py) validates project-defined schemas, capabilities, relationships, typed asset roles and actor-instance bindings. It compiles from CGS; compiled `world.json` is not independently authoritative authoring. [profiles.json](../packages/core/src/world/profiles.json) currently registers `world.aabb.v1`. The compiler requires its authoritative boxes to have identity rotation/scale and no parent, with bounded fixed-point coordinates. It does not support arbitrary terrain, mesh collision or engine physics. Do not hide this limitation behind richer native artwork.
+- **E10 â€” Playable packages: strong foundation.** [playable_package.py](../packages/project-system/playable_package.py) verifies Factory/SGC/world provenance, exact runtime support, bounded archive paths and checksums, and stages installation. The current profile is Windows x64 with a trusted `runtime/xace_runtime.exe`, World v2/v3 and declared executor contracts. Presentation variants are separated from gameplay identity. This is not an arbitrary native project importer or a runtime-independent export.
+- **E11 â€” Player and local lifecycle: implemented profile.** [apps/xace-player/player.gd](../apps/xace-player/player.gd) loads verified package data and starts/connects to Rust authority; loss freezes gameplay. [player_launch.py](../packages/builder-workspace/server/player_launch.py) validates the installed release and saved-project/package match. [player-launcher](../packages/player-launcher/src/main.rs), [session.rs](../packages/player-launcher/src/session.rs), [distribution.rs](../packages/player-launcher/src/distribution.rs) and [job.rs](../packages/player-launcher/src/job.rs) provide process ownership, admission, installation and session primitives. The current Builder service rejects a stale packaged game and asks for an updated package; it is not yet universal project-specific native build preparation.
+- **E12 â€” Live authority: preserve the stronger current boundary.** [engine_bridge.rs](../packages/runtime-core/src/engine_bridge.rs), `queue_feedback`, rejects gameplay feedback from admitted live presentation clients. [runtime_orchestrator.rs](../packages/runtime-core/src/runtime_orchestrator.rs) processes allowed feedback at tick start on the other path. Editor proposals must never be smuggled through presentation feedback or weaken live-client authority protections.
+- **E13 â€” Shipping/exit: mixed maturity.** The Builder handoff route copies adapter sources and metadata. [xp008_player_build.py](../tools/xp008_player_build.py) exports a real Godot Windows Player with a bundled runtime. [CLI build](../packages/cli/src/commands/build.rs), `generate_artifact`, writes adapter configuration JSON; [CLI deploy](../packages/cli/src/commands/deploy.rs) returns not implemented. No complete native gameplay source exporter was found. Preserve the working Player packaging foundation instead of treating the older CLI comments as shipping implementation.
+- **E14 â€” Actual installed-host evidence now exists.** [XP-022 certification](XP022_ENGINEERING_CERTIFICATION.md) and sealed `native-v2` / `hosts-final` reports prove all three pinned installed readers and mixed sessions, not merely named socket clients. Fifteen conformance vectors per engine and four-host applied projections/events are retained. These do not certify native editor authoring or engine-built shipping. Fresh checks are separately recorded in [NEC-001 evidence](recovery/evidence/nec001-20261015/summary.json).
 
 ### 1.3 Confirmed handoff and mandatory amendments
 
@@ -83,7 +83,7 @@ backend/configuration before shipping; broad manifest ranges are insufficient.
 - XP-021 supplies isolated inspection, trusted creator control and a UI shell.
   Native authoring conflicts, proposal approval and recovery flows remain missing.
 - XP-022 seals engineering evidence, the unchanged production host, installed native
-  proofs, unsigned release and local faults. REL-01–05 remain open.
+  proofs, unsigned release and local faults. REL-01â€“05 remain open.
 
 **NEC-007/009/010/011/012 amendment:** structural/world edits use durable authoring
 followed by an explicit stopped-session rebuild and new admission. Only eligible
@@ -103,7 +103,7 @@ conditions; external release claims cannot inherit an unpassed gate.
 
 ### 1.4 Verification and future fixture contract
 
-[NEC-001 audit](NEC001_HANDOFF_AUDIT.md) sections 4–7 and its evidence JSON distinguish
+[NEC-001 audit](NEC001_HANDOFF_AUDIT.md) sections 4â€“7 and its evidence JSON distinguish
 fresh conformance checks from retained editor/soak evidence. No production source
 was changed. The source ZIP, sealed payloads and detailed certification files remain
 unchanged. Only the live master plan has an addendum; NEC records have new identities.
@@ -138,7 +138,7 @@ Separate canonical transform, authored initial placement, render interpolation a
 
 Semantic ownership is also split: event identity/payload/gameplay timing is XACE-owned; native clip/state/resource locator and cosmetic parameters are engine-owned binding data. Bindings selected from XACE are outbound proposals to that owner. Do not automatically rewrite a native controller graph. Keep native locators outside gameplay predicates and canonical gameplay hashes unless a declared gameplay dependency truly changes.
 
-## 4. Import and migration architecture — Workflow B
+## 4. Import and migration architecture â€” Workflow B
 
 1. **Read-only discovery:** reuse E01/E04, report exact engine version, file counts, truncation, plugin/script dependencies, unsupported formats and source hashes. No native project launch, script execution, package installation or source modification occurs during inventory.
 2. **Trusted native extraction:** for data that cannot be safely interpreted offline, offer an explicit isolated-copy editor extraction step after the developer trusts opening that project. Only supported serialized properties become records. An engine may execute project/editor code while loading: do not label editor extraction a no-code sandbox. If unwanted execution cannot be disabled, refuse automatic extraction until the owner accepts that boundary; keep the offline inventory available.
@@ -167,7 +167,7 @@ Native persistent IDs are engine-specific locators, not canonical gameplay seman
 
 Rules: rename/move/reparent preserves identity; duplicate creates a new ID with provenance; prefab definition and each instance remain distinguishable; delete creates a tombstone; undo may restore the same authored object without reusing a destroyed runtime EntityID; copy/paste collisions are detected before linking. Branch/clone conflicts require an explicit namespace/identity resolution. Missing metadata or ambiguous native identities yield an unresolved mapping, never name-based silent reassociation.
 
-## 6. Engine-change capture — Workflow C
+## 6. Engine-change capture â€” Workflow C
 
 Each editor integration emits a bounded normalized **authoring snapshot/delta** after a supported saved edit or explicit capture. It contains schema/version, engine/plugin identity, baseline revision, object/property IDs, before/after hashes, native dependency locators, ownership classification and authoring transaction provenance. No arbitrary code or executable callback is serialized.
 
@@ -187,7 +187,7 @@ Required operation behavior:
 - **Presentation settings:** permitted engine-owned edits reconcile with resource/build readiness; settings affecting gameplay/geometry are reclassified and reviewed.
 - **C#/C++/GDScript/Blueprint changes:** detect dependency/hash drift where possible and flag the affected adoption contracts. Preserve source; do not execute it to infer behavior or silently modify CGS. A reviewed supported translator is an extension, not a default.
 
-## 7. Reconciliation and recovery — Workflow D
+## 7. Reconciliation and recovery â€” Workflow D
 
 ### 7.1 Three-way comparison
 
@@ -215,7 +215,7 @@ Baseline advances only after both canonical artifacts and native saved files hav
 
 Authoring transaction IDs are distinct from session epoch IDs. Only eligible configuration changes to a running game pass through XP-018/019 candidates and activation; structural/world edits require explicit stop, rebuild and new admission. Until then the old runtime continues on its immutable package. Postpublication recovery follows XP-019 history/fencing rules, not authoring before-image restoration. This distinction prevents editing a scene from silently changing a live game.
 
-## 8. Durable XACE-to-engine authoring — Workflow A
+## 8. Durable XACE-to-engine authoring â€” Workflow A
 
 Extend the same engine-specific serializers with allowlisted writers. Write persistent native resources, scene markers, prefab/instance bindings, supported authored placement, input binding assets and semantic presentation mappings through native serialization/editor transactions. Never treat runtime mirror objects as the durable project representation.
 
@@ -225,7 +225,7 @@ New projects get an ordinary native project or an approved integration in an exi
 
 Supported geometry is a real scope gate: preserve terrain or complex meshes as native visuals but do not certify their contacts. Allow an explicit reviewed collision proxy only if the developer accepts its gameplay meaning. A game requiring unsupported canonical geometry needs a separately reviewed backend/profile, not hidden engine physics. Do not make broad geometry development an unbounded prerequisite of this focused program.
 
-## 9. Native-engine Play — Workflow E
+## 9. Native-engine Play â€” Workflow E
 
 One shared native host lifecycle contract serves Unity, Unreal, Godot and Player. Reuse E10/E11 and XP session integration rather than creating three gameplay runtimes.
 
@@ -237,7 +237,7 @@ Editor Play may use local build tools to prepare an explicit new package, but ma
 
 Separate persistent native content from runtime mirror roots. Prevent duplicate spawns, conflicting native physics writes and duplicate input collectors. Native interpolation/animation/audio follows canonical state/events. Test Play/Stop, scene changes, Unity reload configurations, Unreal PIE instances and Godot reruns without leaking runtime processes or reusing another session's credentials. A runtime crash visibly freezes/fails the game; no fallback to native gameplay authority. Builder can be entirely closed.
 
-## 10. Native build and shipping — Workflow F
+## 10. Native build and shipping â€” Workflow F
 
 Creator/CI pipeline: **approved saved revision -> GDE/Factory/SGC/package verification -> admitted runtime build selection -> engine cook/build/export -> stage runtime/package/native resources -> verify installed layout -> sign/package release -> clean-machine proof**.
 
@@ -249,7 +249,7 @@ Pin runtime selection locally with publisher-controlled trust metadata outside u
 
 Offline execution cannot require startup activation, cloud license checks, remote revocation fetches, package downloads or AI calls. Optional update/telemetry failures must not prevent valid installed local play. Network sessions retain their declared connectivity requirements. Runtime redistribution rights, notices and continuing-use terms must be explicitly settled for release; no top-level LICENSE/NOTICE file was found by this audit's file search, so current code presence alone is not distribution permission evidence.
 
-## 11. Continuity and leaving XACE — Workflow G
+## 11. Continuity and leaving XACE â€” Workflow G
 
 Provide an offline, versioned **project continuity archive**, built on existing package/checksum/debug export and XP-020 artifact retention. It is a source/project archive, not a replacement playable format.
 
@@ -270,7 +270,7 @@ Feasible for a deliberately restricted portable gameplay subset, but no matching
 
 Value: native debugging/customization and a stronger exit option. Cost/risk: three compiler backends, source mapping and editable-code conventions, semantic drift, parity certification, and a permanent compatibility burden; potential loss of determinism if replaced with native physics/timing.
 
-**Planning estimate, not a measured commitment:** a bounded single-engine proof for a small closed executor set is roughly 8–12 engineer-weeks after an IR/semantics spike. A supported three-engine source exporter is plausibly 12–24 engineer-months, plus ongoing parity maintenance; arbitrary custom code has no credible fixed estimate. These estimates are architectural judgments, not vendor research or verified delivery dates. An eventual 2–3 week inventory/prototype would refine them.
+**Planning estimate, not a measured commitment:** a bounded single-engine proof for a small closed executor set is roughly 8â€“12 engineer-weeks after an IR/semantics spike. A supported three-engine source exporter is plausibly 12â€“24 engineer-months, plus ongoing parity maintenance; arbitrary custom code has no credible fixed estimate. These estimates are architectural judgments, not vendor research or verified delivery dates. An eventual 2â€“3 week inventory/prototype would refine them.
 
 Recommendation: **post-launch research program, not a blocker for NEC or private alpha.** The pre-alpha anti-lock-in commitment is local pinned runtime continuity, usable native content, complete versioned source/data archive and honest dependency disclosure. Do not market that as runtime-free export.
 
@@ -283,7 +283,7 @@ Recommendation: **post-launch research program, not a blocker for NEC or private
 - Reconciliation writes only declared owned properties/files. Script/source rewriting is opt-in manual work with a diff, not background synchronization.
 - Trusted executors and runtime binaries come from verified build provenance. Arbitrary binaries in an imported project do not become trusted because their hash is in a manifest.
 - Logs/continuity exports redact credentials and restrict absolute-path/personal metadata. Local offline capabilities must not depend on retained authoring/provider credentials.
-- Keep I1–I15 and D1–D15. Runtime feedback, world geometry and input remain in their established deterministic boundaries; editor authoring is a distinct transaction channel.
+- Keep I1â€“I15 and D1â€“D15. Runtime feedback, world geometry and input remain in their established deterministic boundaries; editor authoring is a distinct transaction channel.
 
 ## 14. Real-engine certification strategy
 
@@ -306,20 +306,20 @@ NEC-018 are **not started**. Dependencies refer to completed and verified output
 not merely merged code. Engine-specific tracks may be scheduled concurrently after
 shared contracts stabilize; that is a future scheduling option, not delegation.
 
-### NEC-001 — Freeze the post-XP-022 handoff and supported promise
+### NEC-001 â€” Freeze the post-XP-022 handoff and supported promise
 
 - **Status:** COMPLETE. See [audit](NEC001_HANDOFF_AUDIT.md), [ADR](adr/NEC-001-native-authoring-ownership.md) and [evidence](recovery/evidence/nec001-20261015/summary.json). NEC-002 was subsequently authorized and completed as recorded below.
 - **Purpose:** establish one honest start/release contract.
 - **Problem solved:** the original design used an older checkout; the actual uncommitted XP-022 seal now anchors the handoff. Broad engine ranges still cannot certify a profile.
-- **Reuse:** E01/E03/E09–E14; XP-018–022 contracts and proof matrix.
+- **Reuse:** E01/E03/E09â€“E14; XP-018â€“022 contracts and proof matrix.
 - **Scope:** audit actual XP-022 code; bind evidence; select one pinned version per engine, Windows x64, feature/geometry limits, scale budgets, ownership ADR and required fixture behaviors; assign gaps back to prerequisites.
-- **Dependencies:** sealed XP-022 local engineering profile accepted by the owner instruction for NEC-001, with verified XP-018/019 restrictions. External REL-01–05 remain open.
+- **Dependencies:** sealed XP-022 local engineering profile accepted by the owner instruction for NEC-001, with verified XP-018/019 restrictions. External REL-01â€“05 remain open.
 - **Acceptance:** no assumed API remains an unverified dependency; each promised feature has owner, supported representation and proof target; geometry and code-translation limits visible.
 - **Tests/proofs:** source-to-contract trace and rerun handoff conformance fixtures; inspect real XP proof artifacts.
 - **Rollback/failure:** keep this program blocked at design stage for missing prerequisite profiles; preserve XP implementation priority.
 - **Non-goals:** implement missing XP work inside NEC or claim universal engine/platform support.
 
-### NEC-002 — Persist canonical authoring identities and baselines
+### NEC-002 â€” Persist canonical authoring identities and baselines
 
 - **Status:** COMPLETE. [Contract/completion](NEC002_AUTHORING_IDENTITIES.md) and
   [evidence](recovery/evidence/nec002-20261015/summary.json). Project-side metadata only;
@@ -334,7 +334,7 @@ shared contracts stabilize; that is a future scheduling option, not delegation.
 - **Rollback/failure:** stage metadata changes; restore prior map on failure; never silently regenerate IDs.
 - **Non-goals:** replace runtime EntityID allocation or encode native paths in gameplay.
 
-### NEC-003 — Define normalized native authoring contracts
+### NEC-003 â€” Define normalized native authoring contracts
 
 - **Purpose:** share reconciliation semantics across engines.
 - **Problem solved:** raw editor objects and event callbacks lack comparable ownership/type/coordinate meaning.
@@ -356,7 +356,7 @@ selection is not a materializer or save authorization. Dirty documents require
 save and recapture; opaque critical dependencies block admission. Full native
 reader/writer proofs and GDE adoption/reconciliation remain in their original tasks.
 
-### NEC-004 — Unity editor reader, capture and staged writer
+### NEC-004 â€” Unity editor reader, capture and staged writer
 
 - **Purpose:** operate on real Unity-authored content.
 - **Problem solved:** `m_Name` extraction and runtime bootstrap do not provide durable authoring.
@@ -380,7 +380,7 @@ requests, retained recovery receipts and saved-source reopen requirements.
 No task addition or reorder is needed. NEC-005 was subsequently authorized and
 completed as recorded below.
 
-### NEC-005 — Godot editor reader, capture and staged writer
+### NEC-005 â€” Godot editor reader, capture and staged writer
 
 - **Purpose:** support native Godot development alongside Player.
 - **Problem solved:** node-header parsing and empty editor plugin do not capture persistent content semantics.
@@ -404,7 +404,7 @@ must integrate these boundaries, reviewed adoption and retained native receipts.
 No added/reordered task is needed. NEC-006 was not started at NEC-005 closeout;
 its subsequent completion is recorded below.
 
-### NEC-006 — Unreal editor reader, capture and staged writer
+### NEC-006 â€” Unreal editor reader, capture and staged writer
 
 - **Purpose:** adopt real Unreal maps/content.
 - **Problem solved:** text actor markers cannot migrate native binary maps/assets.
@@ -434,13 +434,13 @@ translation and cross-store automation are outside this proven profile. These li
 must appear in adoption previews and synchronization policy. No tasks are added or
 reordered. At this NEC-006 handoff, NEC-007 had not started; its completion follows.
 
-### NEC-007 — Typed adoption plans and meaningful migration previews
+### NEC-007 â€” Typed adoption plans and meaningful migration previews
 
 - **Purpose:** turn discovery into a usable controlled migration.
 - **Problem solved:** current drafts fabricate defaults and have no complete validated adoption workflow.
 - **Reuse:** E01/E02 preview/manual-work reports, E08 typed grammar/catalog, E09 compiler, E04/E05 readiness.
 - **Scope:** selected-slice import, known component/package mappings, World and binding construction, dependency closure, reviewed legacy behavior disablement plan, per-item loss report and exact native write preview. Extend GDE typed operations for missing create/remove/reparent/binding operations, with contract validation.
-- **Dependencies:** NEC-004–006, NEC-003.
+- **Dependencies:** NEC-004â€“006, NEC-003.
 - **Acceptance:** all mapped values trace to source or explicit user choice; critical unknown dependencies block Play eligibility; rerunning import is idempotent.
 - **Tests/proofs:** three non-trivial native fixtures, rejected unsupported behavior, stale source, no-op import and expected supported gameplay assertions.
 - **Rollback/failure:** preview cannot commit; cancellation preserves originals and current CGS.
@@ -474,7 +474,7 @@ widening admission. Component/system packages are supported here; templates and
 capability materialization are explicitly refused. No task additions or reorder
 are needed. These limits amend later acceptance, not the sealed XP-022 baseline.
 
-### NEC-008 — Three-way reconciliation and conflict proposals
+### NEC-008 â€” Three-way reconciliation and conflict proposals
 
 - **Purpose:** permit continuous work without silent winners.
 - **Problem solved:** primitive edit-back permission is not conflict-aware merging.
@@ -510,7 +510,7 @@ remain blocked until NEC-010/011 prove them. Missing native inventory rows are n
 deletions; explicit enrollment/tombstone workflows remain necessary. No tasks added
 or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
-### NEC-009 — Recoverable authoring transaction coordinator
+### NEC-009 â€” Recoverable authoring transaction coordinator
 
 - **Purpose:** safely commit approved adoption/reconciliation across both stores.
 - **Problem solved:** separate file writes and GDE commits cannot guarantee multi-store recovery.
@@ -522,11 +522,11 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** compensating restores only when source hashes still match; preserve newer work and block mixed-revision Play/build otherwise.
 - **Non-goals:** a second runtime mutation/epoch engine or impossible filesystem-wide atomicity claims.
 
-### NEC-010 — Durable materialization and complete authoring loop
+### NEC-010 â€” Durable materialization and complete authoring loop
 
 - **Purpose:** persist appropriate XACE changes in native projects.
 - **Problem solved:** runtime mirroring disappears at stop and does not maintain native authored documents.
-- **Reuse:** NEC-004–006 staged writers, NEC-009, E03 lifecycle and E09 bindings.
+- **Reuse:** NEC-004â€“006 staged writers, NEC-009, E03 lifecycle and E09 bindings.
 - **Scope:** new-project native setup, owned marker/resources/input/binding writes, scene/prefab preservation, engine-owned change proposals, echo suppression and minimal review/apply UX.
 - **Dependencies:** NEC-009.
 - **Acceptance:** Workflow A/B cycles survive closing/reopening both tools; no-op sync is stable; unknown native properties survive; all source modifications are previewable and audited.
@@ -534,7 +534,7 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Rollback/failure:** failed save leaves baseline unadvanced and uses NEC-009 recovery.
 - **Non-goals:** replace native scene editors or materialize arbitrary runtime snapshots as authored scenes.
 
-### NEC-011 — World, assets, bindings and input fidelity gates
+### NEC-011 â€” World, assets, bindings and input fidelity gates
 
 - **Purpose:** ensure the native game means what CGS says.
 - **Problem solved:** a linked file or visible object can still have wrong geometry, event binding or input semantics.
@@ -548,11 +548,13 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Resolve structured-transform and parented-instance blockers for the explicitly admitted profile, with deterministic coordinates, instance identity, snapshot/restore and replay proofs. Keep unsupported profiles refused. Define the trusted custom-gameplay executor contract with reproducible creator-side compilation, source/toolchain/executable identity, declared capabilities and versioned numeric/backend/snapshot/replay compatibility. Distinguish general custom Rust execution from the four fixed generated operations. Design and exercise an unusual-mechanic benchmark beyond those operations; no unrestricted-mechanics claim. Add saved-change batching, explicit review/approval and no-op suppression, preserving concurrent edits. Shipping requirements transfer explicitly to NEC012-018, never count authoring declaration persistence as executable fidelity.
 
-### NEC-012 — Shared production native-host lifecycle and build contract
+### NEC-012 â€” Shared production native-host lifecycle and build contract
+
+**Status (2026-10-24): COMPLETE for the shared Windows native-host service.** Source b59b8b8; evidence docs/evidence/nec012-completion-20261024/summary.json; contract docs/NEC012_NATIVE_HOST_CONTRACT.md. Actual editor/build integration remains in NEC013-015 as originally assigned; external release gates remain open.
 
 - **Purpose:** make native Play/build independent of Builder.
 - **Problem solved:** adapters alone do not select/verify/own an admitted runtime and game package.
-- **Reuse:** E10/E11 verified package, distribution and process ownership; XP-016–022 admission/epoch contracts.
+- **Reuse:** E10/E11 verified package, distribution and process ownership; XP-016â€“022 admission/epoch contracts.
 - **Scope:** reusable Rust lifecycle/verification service within existing launcher infrastructure, sidecar ownership, package/executor compatibility, local admission/readiness, common engine build receipt and offline policy. Build-time creator tooling may use existing Python; shipped paths may not.
 - **Dependencies:** NEC-001 and NEC-011.
 - **Acceptance:** packaged lifecycle starts only a pinned trusted executable with compatible package, works with Builder closed, kills only owned processes and rejects stale/unsupported executors. No dev control endpoint is exposed to game clients.
@@ -562,7 +564,7 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Implement admission and distribution of the trusted creator-built executor contract from NEC011. Pin runtime/package/resource/executor/backend/numeric/snapshot identities as one compatible release. Prove unusual-mechanic execution, verification, checkpoint/replay and distribution under its declared profile without a player toolchain. Specify stable per-game/per-user save namespaces outside installation/cache; deterministic save migration or non-destructive refusal. Updates must validate before activation and retain a working release on failure.
 
-### NEC-013 — Unity production Play and Windows build integration
+### NEC-013 â€” Unity production Play and Windows build integration
 
 - **Purpose:** ship the actual XACE-powered Unity game.
 - **Problem solved:** adding adapter components does not ensure deployed runtime/resources or safe Editor lifecycle.
@@ -576,7 +578,7 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Unity build receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove required cooked resources, relocation and incompatible saves/refused updates in the real supported build.
 
-### NEC-014 — Godot production Play and Windows export integration
+### NEC-014 â€” Godot production Play and Windows export integration
 
 - **Purpose:** support the developer's Godot game as well as XACE Player.
 - **Problem solved:** exporting the reference Player does not integrate a user's native project.
@@ -590,7 +592,7 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Godot export receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove packed resource lookup, relocation and incompatible saves/refused updates in the real supported export.
 
-### NEC-015 — Unreal production Play and packaged-build integration
+### NEC-015 â€” Unreal production Play and packaged-build integration
 
 - **Purpose:** support real Unreal PIE and shipped games.
 - **Problem solved:** plugin/commandlet success is not a usable packaged native game.
@@ -604,13 +606,13 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Unreal cook/package receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove cooked resource lookup, relocation and incompatible saves/refused updates in the real supported package.
 
-### NEC-016 — Offline distribution, continuity archive and detach
+### NEC-016 â€” Offline distribution, continuity archive and detach
 
 - **Purpose:** make ownership and continued use concrete.
 - **Problem solved:** an adapter handoff or cache backup does not preserve a whole maintainable project.
 - **Reuse:** E03 uninstall/backups, E10 package verification, E11 distribution, XP-020 history, existing support export/save migration contracts.
 - **Scope:** documented versioned archive and restore; source/data/native project/dependency closure; pinned redistributable runtime/notices; no-cloud launch policy; safe detach modes; update/rollback and explicit save compatibility policy.
-- **Dependencies:** NEC-009 and NEC-013–015.
+- **Dependencies:** NEC-009 and NEC-013â€“015.
 - **Acceptance:** independent developer workspace restores project/history and rebuilds using documented prerequisites; shipped game runs after Builder removal and network denial; every unavailable source/asset is listed; detach preserves user modifications.
 - **Tests/proofs:** archive integrity/redaction/relocation, actual clean restore, modified adapter conflict, release update failure and save-version refusal/migration.
 - **Rollback/failure:** missing essential material blocks a completeness claim; detach failure preserves native files and archive; old release remains launchable.
@@ -618,13 +620,13 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Define explicit two-developer clone/fork/branch/merge/rebase/recovery behavior using existing identity maps, reconciliation and journals; preserve both conflicting versions and require review. Archive executor source/build inputs and protected checkpoint references. Exercise failed/interrupted updates, prior-release rollback and save migration/refusal without losing the original save. No automatic history cleanup.
 
-### NEC-017 — Installed-engine adoption, conflict and crash certification
+### NEC-017 â€” Installed-engine adoption, conflict and crash certification
 
 - **Purpose:** prove all development workflows in real tools.
 - **Problem solved:** fixtures and named socket clients cannot establish native editing correctness.
 - **Reuse:** NEC fixtures, XP-017/020/022 proof harnesses, E14 attestation, NEC-009 journals.
-- **Scope:** full A–E/G authoring/continuity loops per engine, both new and non-trivial existing projects, conflict matrix, every journal crash boundary, scale/performance measurement and human review.
-- **Dependencies:** NEC-004–016.
+- **Scope:** full Aâ€“E/G authoring/continuity loops per engine, both new and non-trivial existing projects, conflict matrix, every journal crash boundary, scale/performance measurement and human review.
+- **Dependencies:** NEC-004â€“016.
 - **Acceptance:** all required engine/version cells pass; no silent loss, dual gameplay authority, unresolved critical dependency or mixed-revision success; retain exact evidence.
 - **Tests/proofs:** actual installed editors, real binary assets, authoritative state/event comparisons, native applied projections, file preservation and recovery receipts.
 - **Rollback/failure:** failed profile remains unsupported; diagnostics and last known-good project/package retained; no marker-scan substitute.
@@ -632,11 +634,11 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 - **Approved acceptance amendment (2026-10-20):** Remove the current128-bound-object reconciliation ceiling for the1,000-object program target; do not reduce the target. Certify real two-developer branch/merge/recovery in installed editors. Measure saved-change batching, no-op suppression, repeated edits/rebuilds, latency, memory/disk use, retained history and recovery correctness at the declared scale. Include unusual-mechanic state/replay and all shipping compatibility/update/save failure cells. Retention must respect protected references and explicit cleanup authorization.
 
-### NEC-018 — Clean-machine shipping and private-alpha gate
+### NEC-018 â€” Clean-machine shipping and private-alpha gate
 
 - **Purpose:** substantiate the complete product promise before exposing it.
 - **Problem solved:** development-machine Play does not prove deployability, offline continuity or usability.
-- **Reuse:** NEC-013–017 release artifacts, XP-022 notices/proof retention/performance and the still-open REL-04 signing gate.
+- **Reuse:** NEC-013â€“017 release artifacts, XP-022 notices/proof retention/performance and the still-open REL-04 signing gate.
 - **Scope:** clean-machine installation of all three native engine builds; Builder/toolchain/cloud absence; update/save compatibility and rollback; three external developer walkthroughs covering adoption/reconcile/Play/build/export continuity; publish exact support/loss matrix and honest exit wording.
 - **Dependencies:** NEC-017 and prerequisite XP-022 evidence for claimed profiles.
 - **Acceptance:** all three engine builds pass offline canonical behavior checks and owned-process cleanup; participants finish the supported workflow without terminal repair; no material authority/data-loss/ship-blocking issue; redistribution/continuing-use terms explicitly approved.

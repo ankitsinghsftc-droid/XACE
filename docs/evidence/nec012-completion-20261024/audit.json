@@ -1,0 +1,55 @@
+{
+  "schema": "xace.nec012.acceptance_audit.v1",
+  "ok": true,
+  "source_commit": "b59b8b8",
+  "source_identities": {
+    "packages/player-launcher/src/distribution.rs": {
+      "git_blob": "219b4b067902ad8e9caeed91854e7645e2378195",
+      "git_content_sha256": "f31abfbe48ecfa697fe73ca9a016bd200892a1352646696826992f0e5cda5d37",
+      "tested_checkout_sha256": "b146430b1e5c0764db4bdff387aa30d059086a4ddb4e8ead5e64bc877ba29963"
+    },
+    "packages/player-launcher/src/job.rs": {
+      "git_blob": "ceb264d91d424e47f099fccbac181807e463d621",
+      "git_content_sha256": "6d77ddc87e013788f00504dc12ae0b16623ce87578ef0107f328974797d8e6e7",
+      "tested_checkout_sha256": "b0dec308b4820c3d4e957f0f79bf3909dd0bf99d7ee0df008b34b0579eef5f4c"
+    },
+    "packages/player-launcher/src/lifecycle.rs": {
+      "git_blob": "3b577a17e1c7e874113c8cc31c398be7915c18c0",
+      "git_content_sha256": "bfb6a93dc1e1c8796749dfb7c184632ae52c4c7ff1e47bfde85e58de47d26a83",
+      "tested_checkout_sha256": "045db344861aded18d0bf280acb63b91f0deb666883e7f96ce84ba9b1354260f"
+    },
+    "packages/player-launcher/src/main.rs": {
+      "git_blob": "8a1a8a24e345384876feb17c45152faad5d8c356",
+      "git_content_sha256": "113bd841a986ebbda76af6ab1073b77f1723c7545324a03408096cb3271df2cc",
+      "tested_checkout_sha256": "5c21c48b62248b4de0d82abec362b315a52347457bd8ba65a0df9e8e32dbd632"
+    },
+    "packages/player-launcher/src/native_host.rs": {
+      "git_blob": "976da14e4760fc57a1476e0fc3084c3127c4b84b",
+      "git_content_sha256": "df2d9e3e7793c4b3d6f3122982e7c9caa0bd490cb5b84f5fd62963a2fdbd918f",
+      "tested_checkout_sha256": "265b443c120b567a526afb8af76bdb5964a093ebd8547690fe61e7f422a0575b"
+    },
+    "packages/player-launcher/src/native_release.rs": {
+      "git_blob": "66aca9dc42c675b86d8b05e0629a78f0bc20e1ba",
+      "git_content_sha256": "96f89ec8d8517031f3c3c83a63b78c5b15ac212d70d009b8e83be9ffd024d24a",
+      "tested_checkout_sha256": "7352a859fb746c633c165b240fadac7645e06e28e1b6f385bc19867c57b2273e"
+    },
+    "packages/player-launcher/src/native_storage.rs": {
+      "git_blob": "0a7f2b491b9f56cd12924a3f9d99a64802a41ec4",
+      "git_content_sha256": "f5d7b764091febe4d3ed2a0ac9d8256355cc5776848f1b55536e24e7d8a7047c",
+      "tested_checkout_sha256": "a4dc3358eafcc20c11c66e97ffc2930a87ed7c5e17ebdfe8114e728bc6e8a90e"
+    },
+    "packages/player-launcher/src/session.rs": {
+      "git_blob": "86fc511f0aae856d4a8534cbe80c181646d88b02",
+      "git_content_sha256": "2b223bfd4f46d07070854a79d5f2b9ac419ec8b39f3428cc9e8447f83a657dbe",
+      "tested_checkout_sha256": "fdf62a723ec69a61175c878085f78dd51d1dada1d266eac6d0ac77a26906f94b"
+    }
+  },
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "python_tests": 513,
+  "rust_tests": 11,
+  "lifecycle_checks": 19,
+  "recovered_seal_files_unchanged": 55,
+  "scope": "Shared Windows native-host service; native editor/build certification remains NEC013-015",
+  "clean_machine_certified": false,
+  "steam_certified": false
+}
