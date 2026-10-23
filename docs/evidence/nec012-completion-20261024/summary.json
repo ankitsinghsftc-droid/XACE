@@ -1,0 +1,57 @@
+{
+  "schema": "xace.nec012.acceptance.v1",
+  "status": "verified_pending_source_checkpoint",
+  "date": "2026-10-24",
+  "scope": "Shared Windows trusted native-host lifecycle/build/save/update contract",
+  "source_files": {
+    "packages/player-launcher/src/distribution.rs": "b146430b1e5c0764db4bdff387aa30d059086a4ddb4e8ead5e64bc877ba29963",
+    "packages/player-launcher/src/job.rs": "b0dec308b4820c3d4e957f0f79bf3909dd0bf99d7ee0df008b34b0579eef5f4c",
+    "packages/player-launcher/src/lifecycle.rs": "045db344861aded18d0bf280acb63b91f0deb666883e7f96ce84ba9b1354260f",
+    "packages/player-launcher/src/main.rs": "5c21c48b62248b4de0d82abec362b315a52347457bd8ba65a0df9e8e32dbd632",
+    "packages/player-launcher/src/native_host.rs": "265b443c120b567a526afb8af76bdb5964a093ebd8547690fe61e7f422a0575b",
+    "packages/player-launcher/src/native_release.rs": "7352a859fb746c633c165b240fadac7645e06e28e1b6f385bc19867c57b2273e",
+    "packages/player-launcher/src/native_storage.rs": "a4dc3358eafcc20c11c66e97ffc2930a87ed7c5e17ebdfe8114e728bc6e8a90e",
+    "packages/player-launcher/src/session.rs": "fdf62a723ec69a61175c878085f78dd51d1dada1d266eac6d0ac77a26906f94b"
+  },
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "python_tests": 513,
+  "rust_tests": 11,
+  "lifecycle_checks": 19,
+  "proofs": {
+    "lifecycle": {
+      "file": "lifecycle.json",
+      "sha256": "8efbc873c5424c93917f97ba279a424635a0080f3c465cabe55a6a1bbdd57081"
+    },
+    "updates": {
+      "file": "updates.json",
+      "sha256": "ed97624f06c97f187b2333fe040d2e2fdcd4b7fdd34a4ee2307c1781f9a322ac"
+    },
+    "engine_claims": {
+      "file": "engine_claims.json",
+      "sha256": "9405c2509d28b89e18b111e8231b9bee87729045795787436e308425a2527028"
+    },
+    "player_parity": {
+      "file": "player_parity.json",
+      "sha256": "af50834af05a42c7f716043b89648129da8ecbcc4475d01eda3bff899438dee1"
+    },
+    "echo": {
+      "file": "echo.json",
+      "sha256": "e39641a598e3617598f10e40f04ab0ca2185bcf643cf2dff7dfe5a5ecefce719"
+    }
+  },
+  "seal_manifest": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "original_historical_seal_recovered": false,
+  "protected_recovered_seal_files": 55,
+  "limitations": [
+    "Actual native editor/build integration remains NEC013-015; engine-claim proof uses protocol clients",
+    "Read-only save compatibility admission does not restore a runtime snapshot or implement automatic migration",
+    "Activation and explicit rollback retain releases; no network updater or store installer",
+    "Echo CLI profile is bounded, not unrestricted gameplay or native input-graph mapping",
+    "Clean-machine/signing/external tester/networking and Steam certification remain open",
+    "Raw binaries, fixtures and sealed archive remain local-only"
+  ],
+  "retained_failed_attempts": [
+    "lifecycle-b: readiness compared gameplay hash to full package hash; corrected against existing runtime contract",
+    "player-parity-a: proof expected runtime_pid in repeated Player status; corrected to existing status contract"
+  ]
+}

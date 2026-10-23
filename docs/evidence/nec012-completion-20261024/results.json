@@ -1,0 +1,48 @@
+[
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/project-system/tests"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/asset-registry/tests"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "packages/builder-workspace/server/tests",
+      "-p",
+      "test_native*routes.py"
+    ],
+    "returncode": 0
+  },
+  {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "xace-player-launcher",
+      "--locked",
+      "--offline"
+    ],
+    "returncode": 0
+  }
+]

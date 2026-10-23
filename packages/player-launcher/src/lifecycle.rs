@@ -56,6 +56,9 @@ impl Authority {
         }
     }
     pub fn id(&self) -> u32 { self.child.id() }
+    pub fn listening(&self, endpoint: SocketAddr) -> Result<bool> {
+        owns_listener(self.id(), endpoint)
+    }
     pub fn try_wait(&mut self) -> std::io::Result<Option<ExitStatus>> { self.child.try_wait() }
     pub fn stop(&mut self) { let _ = self.child.kill(); let _ = self.child.wait(); }
 }
@@ -85,3 +88,37 @@ mod tests {
         }
     }
 }
+
+/// Readiness must include the actual owned listener, not just a ticket written
+/// earlier during runtime initialization. This does not consume an engine slot.
+#[cfg(windows)]
+fn owns_listener(pid: u32, endpoint: SocketAddr) -> Result<bool> {
+    #[link(name = "iphlpapi")]
+    extern "system" {
+        fn GetExtendedTcpTable(table: *mut std::ffi::c_void, size: *mut u32,
+            order: i32, family: u32, class: u32, reserved: u32) -> u32;
+    }
+    let std::net::IpAddr::V4(expected_ip) = endpoint.ip() else { return Ok(false); };
+    let mut length = 0u32;
+    let first = unsafe { GetExtendedTcpTable(std::ptr::null_mut(), &mut length, 0, 2, 3, 0) };
+    ensure!(first == 122 || first == 0, "Cannot inspect owned listener: {first}");
+    for _ in 0..3 {
+        ensure!(length >= 4 && length <= 16*1024*1024, "Unexpected listener table size");
+        let mut bytes = vec![0u8; length as usize];
+        let result = unsafe { GetExtendedTcpTable(bytes.as_mut_ptr().cast(), &mut length, 0, 2, 3, 0) };
+        if result == 122 { continue; }
+        ensure!(result == 0 && length as usize <= bytes.len(), "Cannot inspect owned listener: {result}");
+        let count = u32::from_ne_bytes(bytes[..4].try_into().unwrap()) as usize;
+        ensure!(count <= (length as usize - 4)/24, "Invalid listener table");
+        for row in bytes[4..4+count*24].chunks_exact(24) {
+            let fields: Vec<u32> = row.chunks_exact(4).map(|b| u32::from_ne_bytes(b.try_into().unwrap())).collect();
+            if fields[5] == pid && fields[0] == 2
+                && std::net::Ipv4Addr::from(fields[1].to_ne_bytes()) == expected_ip
+                && u16::from_be(fields[2] as u16) == endpoint.port() { return Ok(true); }
+        }
+        return Ok(false);
+    }
+    anyhow::bail!("Listener table changed repeatedly; retry readiness")
+}
+#[cfg(not(windows))]
+fn owns_listener(_: u32, _: SocketAddr) -> Result<bool> { anyhow::bail!("Windows native host required") }

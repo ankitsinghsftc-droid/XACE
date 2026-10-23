@@ -217,7 +217,7 @@ pub fn activate(install: &Path, expected: &str) -> Result<()> {
     replace(&temp, &install.join("active.json"))
 }
 #[cfg(windows)]
-fn replace(source: &Path, target: &Path) -> Result<()> {
+pub(crate) fn replace(source: &Path, target: &Path) -> Result<()> {
     use std::os::windows::ffi::OsStrExt;
     #[link(name = "kernel32")]
     extern "system" {
@@ -233,7 +233,7 @@ fn replace(source: &Path, target: &Path) -> Result<()> {
     Ok(())
 }
 #[cfg(not(windows))]
-fn replace(source: &Path, target: &Path) -> Result<()> {
+pub(crate) fn replace(source: &Path, target: &Path) -> Result<()> {
     fs::rename(source, target)?;
     Ok(())
 }

@@ -4,6 +4,7 @@ mod job;
 mod lifecycle;
 mod native_release;
 mod native_host;
+mod native_storage;
 mod session;
 use anyhow::{bail, ensure, Context, Result};
 use distribution::{activate, materialize, verified};
@@ -329,7 +330,7 @@ fn main() {
     if let Err(error) = run() {
         let _ = emit(json!({"ok":false,"state":"failed","message":error.to_string()}));
         #[cfg(windows)]
-        if !std::env::args().any(|arg| arg == "--serve" || arg == "--native-host") {
+        if !std::env::args().any(|arg| arg == "--serve" || arg == "--native-host" || arg == "--native-verify") {
             use std::os::windows::ffi::OsStrExt;
             #[link(name = "user32")]
             extern "system" {
@@ -363,6 +364,12 @@ fn run() -> Result<()> {
             .find(|pair| pair[0] == name)
             .map(|pair| pair[1].clone())
     };
+    if args.iter().any(|a| a == "--native-verify") {
+        let root = PathBuf::from(value("--source").context("Native release root required")?);
+        let expected = value("--expected").context("Out-of-band native release identity required")?;
+        let admitted = native_release::admit(&root, &expected)?;
+        return emit(json!({"ok":true,"state":"verified","release":admitted.identity,"save_identity":admitted.save_identity()?}));
+    }
     if args.iter().any(|a| a == "--native-host") {
         let root = PathBuf::from(value("--source").context("Native release root required")?);
         let expected = value("--expected").context("Out-of-band native release identity required")?;

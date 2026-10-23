@@ -1,0 +1,49 @@
+{
+  "ok": true,
+  "rust_release_admission": {
+    "ok": true,
+    "release": "db3623caa8dc0b1fc78d0a4c179ee57ad9251aaa97f1d058334a6044620b3ba8",
+    "save_identity": {
+      "compatibility": {
+        "event_schema": "xace.domain_event.v1",
+        "geometry_profiles": [
+          "world.aabb.v1"
+        ],
+        "input_schema": "xace.input_packet.v1",
+        "numeric_profile": "fixed64_y_up_neg_z_v1",
+        "platform": "windows_x64",
+        "replay_schema": "xace.epoch_replay.v1",
+        "runtime_abi": "xace.runtime_executor.v1",
+        "simulation_profile": "fixed64_60hz.v1",
+        "snapshot_schema": "xace.world_snapshot.v1",
+        "world_versions": [
+          2,
+          3
+        ]
+      },
+      "executor_sha256": "cb127fe71c1256a3a8095deb4ab68fe8758d6883a236847f7de13f46c1feb66f",
+      "game_id": "echo-proof",
+      "gameplay_hash": "19d33081b95657a415238e5bfa1419dfa55821a945c37f16a1115862375cba1c",
+      "save_schema": "echo.save.v1"
+    },
+    "state": "verified"
+  },
+  "mechanic": {
+    "ok": true,
+    "executable_sha256": "cb127fe71c1256a3a8095deb4ab68fe8758d6883a236847f7de13f46c1feb66f",
+    "player_graph_created": true,
+    "player_pulse": true,
+    "player_checkpoint_and_rewind": true,
+    "mid_queue_snapshot": true,
+    "every_replayed_hash_and_event_equal": true,
+    "independent_runs_equal": true,
+    "player_compilation": false,
+    "rewind_horizon_ticks": 120,
+    "native_engine_shipping": false
+  },
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "profile": "creator_echo_cli_checkpoint_replay.v1",
+  "native_engine_build": false,
+  "native_input_graph_mapping": false,
+  "clean_machine": false
+}

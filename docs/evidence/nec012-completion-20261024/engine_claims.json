@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "engines": [
+    {
+      "engine": "Unity",
+      "admitted": true,
+      "authoritative_tick": true,
+      "no_developer_control_connection": true
+    },
+    {
+      "engine": "Godot",
+      "admitted": true,
+      "authoritative_tick": true,
+      "no_developer_control_connection": true
+    },
+    {
+      "engine": "Unreal",
+      "admitted": true,
+      "authoritative_tick": true,
+      "no_developer_control_connection": true
+    }
+  ],
+  "actual_native_engine": false,
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb"
+}
