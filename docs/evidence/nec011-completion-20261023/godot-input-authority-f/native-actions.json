@@ -1,0 +1,16 @@
+[
+  {
+    "action": "Jump",
+    "kind": "button",
+    "phase": "started",
+    "secondary_value": 0.0,
+    "value": 1.0
+  },
+  {
+    "action": "move_x",
+    "kind": "axis_1d",
+    "phase": "changed",
+    "secondary_value": 0.0,
+    "value": 0.75
+  }
+]

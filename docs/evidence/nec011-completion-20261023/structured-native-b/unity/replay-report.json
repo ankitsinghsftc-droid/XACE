@@ -1,0 +1,9 @@
+{
+  "schema": "xace.epoch_replay_report.v1",
+  "ok": true,
+  "verified_ticks": 12,
+  "epochs": 0,
+  "first_divergence": null,
+  "presentation_effects_emitted": 0,
+  "end_snapshot_hash": "41484c30205a67a0777b076097bce2dda09a4469c954bc5fcc1f247402cf0eff"
+}

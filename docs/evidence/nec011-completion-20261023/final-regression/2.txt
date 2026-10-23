@@ -1,0 +1,204 @@
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+20:06:59 [asyncio] WARNING: Executing <Task pending name='Task-2' coro=<MaterializationRoutes.test_explicit_apply_route_and_actual_player_gate() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:20> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.859 seconds
+20:06:59 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:06:59 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 200 OK"
+20:06:59 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 409 Conflict"
+20:07:00 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 200 OK"
+20:07:00 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/play "HTTP/1.1 400 Bad Request"
+20:07:00 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/stop "HTTP/1.1 200 OK"
+.C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/recover "HTTP/1.1 403 Forbidden"
+20:07:01 [asyncio] WARNING: Executing <Task pending name='Task-7' coro=<MaterializationRoutes.test_explicit_recovery_route_after_lost_acknowledgement() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:46> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.719 seconds
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/recover "HTTP/1.1 200 OK"
+.C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+20:07:01 [asyncio] WARNING: Executing <Task pending name='Task-12' coro=<MaterializationRoutes.test_native_player_requires_fresh_fidelity_and_preserves_stop() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:84> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.375 seconds
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/play "HTTP/1.1 400 Bad Request"
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/play "HTTP/1.1 200 OK"
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/play "HTTP/1.1 400 Bad Request"
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/player/stop "HTTP/1.1 200 OK"
+.C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/saved-changes "HTTP/1.1 403 Forbidden"
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/saved-changes "HTTP/1.1 409 Conflict"
+20:07:01 [asyncio] WARNING: Executing <Task pending name='Task-17' coro=<MaterializationRoutes.test_saved_changes_route_is_authenticated_and_never_publishes() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_materialization_routes.py:61> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.110 seconds
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/saved-changes "HTTP/1.1 200 OK"
+20:07:01 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/saved-changes "HTTP/1.1 409 Conflict"
+..C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:242: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\builder_server.py:277: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4598: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  return self.router.on_event(event_type)  # ty: ignore[deprecated]
+20:07:04 [asyncio] WARNING: Executing <Task pending name='Task-28' coro=<RouteTests.test_actual_builder_host_extension() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_reconciliation_routes.py:24> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 3.047 seconds
+20:07:05 [asyncio] WARNING: Executing <Task pending name='Task-28' coro=<RouteTests.test_actual_builder_host_extension() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_reconciliation_routes.py:24> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2482> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180, WorkerThread.stop()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.656 seconds
+20:07:06 [asyncio] WARNING: Executing <Task pending name='Task-28' coro=<RouteTests.test_actual_builder_host_extension() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_reconciliation_routes.py:24> wait_for=<Future pending cb=[Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\site-packages\anyio\_backends\_asyncio.py:2482> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180, WorkerThread.stop()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.110 seconds
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/prompt/capability-matrix "HTTP/1.1 200 OK"
+20:07:06 [asyncio] WARNING: Executing <Task finished name='Task-28' coro=<RouteTests.test_actual_builder_host_extension() done, defined at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_reconciliation_routes.py:18> result=None created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.297 seconds
+.20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/resolve "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/cancel "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+.20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+.20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1/api/native-reconciliation "HTTP/1.1 403 Forbidden"
+.20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/resolve "HTTP/1.1 409 Conflict"
+20:07:06 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/apply "HTTP/1.1 409 Conflict"
+.20:07:06 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review "HTTP/1.1 200 OK"
+20:07:07 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-review.js "HTTP/1.1 200 OK"
+.20:07:07 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/api/native-reconciliation "HTTP/1.1 200 OK"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 409 Conflict"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-reconciliation/approve "HTTP/1.1 415 Unsupported Media Type"
+.20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 403 Forbidden"
+20:07:07 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 403 Forbidden"
+20:07:08 [asyncio] WARNING: Executing <Task pending name='Task-65' coro=<SetupRoutes.test_explicit_review_approve_apply_and_local_operator_guards() running at C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\builder-workspace\server\tests\test_native_setup_routes.py:18> wait_for=<Future pending cb=[_chain_future.<locals>._call_check_cancel() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\futures.py:387, Task.task_wakeup()] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:427> cb=[_run_until_complete_cb() at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py:180] created at C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py:100> took 0.391 seconds
+20:07:08 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 200 OK"
+20:07:08 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/approve "HTTP/1.1 200 OK"
+20:07:10 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/apply "HTTP/1.1 200 OK"
+.20:07:10 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/open "HTTP/1.1 409 Conflict"
+20:07:10 [httpx] INFO: HTTP Request: POST http://127.0.0.1:8765/api/native-setup/cancel "HTTP/1.1 409 Conflict"
+20:07:10 [httpx] INFO: HTTP Request: GET http://127.0.0.1:8765/native-setup "HTTP/1.1 200 OK"
+.
+----------------------------------------------------------------------
+Ran 14 tests in 12.038s
+
+OK

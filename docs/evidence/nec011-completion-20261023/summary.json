@@ -1,0 +1,41 @@
+{
+  "schema": "xace.nec011.completion.v1",
+  "status": "complete_for_declared_creator_profile",
+  "date": "2026-10-23",
+  "regression_tests": 513,
+  "native_engines": [
+    "Unity 6000.4.9f1",
+    "Godot 4.6.3",
+    "Unreal 5.7.4"
+  ],
+  "audit": "acceptance-audit/audit.json",
+  "profile_document": "docs/NEC011_FIDELITY_STATUS.md",
+  "source_parent": "0d64ea2433a67d6310bdd195a8f5ce98cfefe30c",
+  "completed": [
+    "Static translation hierarchy authoring round trips and combined structured runtime/replay",
+    "Trusted reproducible creator executor receipt and actual custom graph/rewind benchmark",
+    "Saved-change batching, explicit approval, no-op and recovery gates",
+    "Native playback/replacement and required-resource refusals",
+    "Declared native-event mapping and authority execution/replay through an explicit fixture bridge",
+    "Cosmetic package replacements preserve gameplay identity and all tested world hashes",
+    "Actual Player route refuses missing/stale fidelity or concurrent source changes"
+  ],
+  "limits": [
+    "Creator-side closed-editor saved-authoring profile; no unsaved/open-editor IPC certification",
+    "Static translation-only authoring hierarchy; runtime parent_entity_id remains zero",
+    "Declared event mappings require explicit native callback wiring and release samples",
+    "Authority proof bridges actual native-produced records; physical devices and a new live-native-socket path are not certified",
+    "Host must supply an approved profile and fresh native probe; automatic engine lifecycle/build installation belongs to NEC012-015",
+    "128-object planner ceiling remains for NEC017; 1000-object program threshold unchanged",
+    "No unrestricted mechanics, native shipping, clean machine, signing, Internet or Steam certification"
+  ],
+  "release_gates": "REL01-05 OPEN",
+  "nec012_started": false,
+  "baseline_manifest": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "off_device": "Source/compact evidence to GitHub recovery/xp022; verify final commit. Raw fixtures/binaries/sealed archives remain local-only",
+  "native_probe_checks": {
+    "unity": 17,
+    "godot": 22,
+    "unreal": 12
+  }
+}

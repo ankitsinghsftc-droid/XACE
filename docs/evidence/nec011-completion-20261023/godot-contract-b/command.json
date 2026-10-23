@@ -1,0 +1,11 @@
+[
+  "C:/Users/ankit/Downloads/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64_console.exe",
+  "--headless",
+  "--path",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\godot-contract-b\\project",
+  "--script",
+  "res://tests/native_contract_proof.gd",
+  "--",
+  "--fixture=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+  "--report=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\godot-contract-b\\proof.json"
+]

@@ -1,0 +1,19 @@
+{
+  "AGENT_PROGRESS.md": "d3dff745fc43c0105398906a1d49755991267a45057397447a146b9510b9fdb5",
+  "MASTER_PLAN.md": "88b085843a6a2c873a52d147fe1e80c25f52c06b2e50b9cc53c2de45560e68fc",
+  "adapters/godot/xace_adapter.gd": "4fbf03ca319752441af4ea558543e033e506ecbc8aa98e25adf228416e9c0907",
+  "adapters/godot/xace_input_collector.gd": "a0f3e8fe017c63295235e04823823abbdc113d5a697098b76db814b66b8c338f",
+  "adapters/unity/XaceDeltaApplicator.cs": "4d680094b58a11be0545bef95960bd57121384a5cd8e0070d51d51718b82e9b1",
+  "adapters/unity/XaceInputCollector.cs": "44163eda0667af9deb3bf9ac02e68141d8e5abfa8f94ae7def1daeef9f43476c",
+  "adapters/unreal/XaceInputCollector.cpp": "c16a476175975fbe9a76c961145ddd664da9fbf25f387c9914271ffc759d9207",
+  "adapters/unreal/XaceInputCollector.h": "408d433676f0ee68fac60bd00b09a8215a3bbe51c972e9996902301abfaee124",
+  "docs/NEC011_FIDELITY_ACCEPTANCE.md": "0a6a3176f0ae32c1fa7099ee2d92d487ddcb33721efd15e7d702b95abb8bea40",
+  "docs/NEC011_FIDELITY_STATUS.md": "c7f7109a247b1e77c3216f398369d8bfa84199f3ea4d207d3fa861a84d83b787",
+  "docs/XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md": "58cae80ec2199c69440b59d38a7f34ee75d1e45b22ee041fdceba2b88f5b3b05",
+  "tools/NEC011FidelityCommandlet.cpp": "4ebd3f73e9eb287aaf6b75f825c49bb183ab397155ee68726489309115772d68",
+  "tools/NEC011UnityFidelity.cs": "a7d528cb689bbb0852fed90e0735bebf8368e6ed3d78bcc91c5a7ab1d96c91eb",
+  "tools/nec011_acceptance_audit.py": "c4f66dea3e4ef76fdd548d35dff895fd01f9ab618049039af3d89ebb4be7d7e3",
+  "tools/nec011_godot_fidelity.gd": "feae891bc0a50863a4fa23b688f3d8c86c43199d23687c84676c08f8820d5e7e",
+  "tools/nec011_native_input_authority.py": "359bc85ba583e4194063ef1e35648bd867d870f539045c05434fb66703e24c6f",
+  "tools/nec011_structured_native_proof.py": "ecce96552df5f6b52c5093ff54618cfad4df1c81fc4d5eaec221ea4609bef45b"
+}

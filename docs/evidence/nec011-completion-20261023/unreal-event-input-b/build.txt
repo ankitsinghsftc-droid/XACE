@@ -1,0 +1,62 @@
+Log file: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\build-ubt.log
+Creating makefile for UnrealEditor (no existing makefile)
+WARNING: Unable to find Visual Studio SDK. Editor integration will be disabled
+UHT compiled-in object format Default
+Parsing headers for UnrealEditor
+  Running Internal UnrealHeaderTool C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\NEC011.uproject C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Intermediate\Build\Win64\UnrealEditor\Development\UnrealEditor.uhtmanifest -WarningsAsErrors -installed
+UHT processed UnrealEditor in 3.7738233 seconds (16 files written)
+Building UnrealEditor...
+Using Visual Studio 2022 14.44.35225 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from XACEAdapter unity file: NEC011FidelityCommandlet.cpp, XACEAdapterModule.cpp, XaceConsoleWidget.cpp, XaceDeltaApplicator.cpp, XaceInputCollector.cpp, XaceLiveValidationCommandlet.cpp, XaceNativeContract.cpp, XaceNativeContractProofCommandlet.cpp, XaceTransport.cpp
+Determining max actions to execute in parallel (14 physical cores, 20 logical cores)
+  Executing up to 14 processes, one per physical core
+  Requested 1.5 GB memory per action, 4.25 GB available: limiting max parallel actions to 2
+Using Unreal Build Accelerator local executor to run 15 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 261023_115901 ----
+UbaServer - Listening on 0.0.0.0:1345
+[1/15] Resource Default.rc2
+[2/15] Compile [x64] SharedPCH.UnrealEd.Cpp20.cpp
+[3/15] Compile [x64] NEC011FidelityCommandlet.cpp
+[4/15] Compile [x64] XACEAdapterModule.cpp
+[5/15] Compile [x64] Module.XACEAdapter.cpp
+[6/15] Compile [x64] XaceConsoleWidget.cpp
+[7/15] Compile [x64] XaceInputCollector.cpp
+[8/15] Compile [x64] XaceDeltaApplicator.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(607) : warning C4701: potentially uninitialized local variable 'Size' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(607) : warning C4701: potentially uninitialized local variable 'Offset' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(607) : warning C4701: potentially uninitialized local variable 'Trigger' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+[9/15] Compile [x64] XaceLiveValidationCommandlet.cpp
+[10/15] Compile [x64] XaceNativeContract.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(34) : warning C4701: potentially uninitialized local variable 'Y' used
+   while compiling XaceCanonical::Vector
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(34) : warning C4701: potentially uninitialized local variable 'Z' used
+   while compiling XaceCanonical::Vector
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'Y' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'Z' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'W' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(145) : warning C4701: potentially uninitialized local variable 'Tick' used
+   while compiling FXaceNativeSession::PrepareRuleset
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(73) : warning C4701: potentially uninitialized local variable 'Peer' used
+   while compiling FXaceNativeSession::Configure
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(73) : warning C4701: potentially uninitialized local variable 'Controller' used
+   while compiling FXaceNativeSession::Configure
+[11/15] Compile [x64] XaceNativeContractProofCommandlet.cpp
+[12/15] Compile [x64] XaceTransport.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec011\20261023\unreal-event-input-b\project\Plugins\XACE\Source\XACEAdapter\Private\XaceTransport.cpp(346) : warning C4701: potentially uninitialized local variable 'Tick' used
+   while compiling UXaceTransportComponent::DispatchMessage
+[13/15] Link [x64] UnrealEditor-XACEAdapter.lib
+[14/15] Link [x64] UnrealEditor-XACEAdapter.dll
+[15/15] WriteMetadata UnrealEditor.target [NoUba]
+
+Trace written to file C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec011/20261023/unreal-event-input-b/build-ubt.uba with size 11.0kb
+Total time in Unreal Build Accelerator local executor: 71.44 seconds
+
+Result: Succeeded
+Total execution time: 125.45 seconds

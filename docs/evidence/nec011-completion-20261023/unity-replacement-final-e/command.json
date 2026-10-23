@@ -1,0 +1,12 @@
+[
+  "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe",
+  "-batchmode",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-replacement-final-e\\project",
+  "-executeMethod",
+  "NEC011UnityFidelity.Run",
+  "-xaceReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-replacement-final-e\\proof.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-replacement-final-e\\editor.log"
+]

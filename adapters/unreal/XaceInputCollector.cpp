@@ -63,6 +63,7 @@ void UXaceInputCollectorComponent::OnRuntimeTickSnapshot(const FXaceTickSnapshot
 void UXaceInputCollectorComponent::OnRuntimeHandshake(const FXaceHandshakeAck& Ack)
 {
 	LivePrevious.Reset();
+	NativeSamples.Reset();
 	if (Ack.TickRate > 0)
 	{
 		TickInterval = 1.0f / float(Ack.TickRate);
@@ -132,19 +133,38 @@ void UXaceInputCollectorComponent::FlushTick()
 	ResetAccumulated();
 }
 
+bool UXaceInputCollectorComponent::SubmitNativeAction(const FString& Selector,float Value)
+{
+    if(Selector.IsEmpty() || !FMath::IsFinite(Value) || Value < -1 || Value > 1)return false;
+    bool Declared=false;
+    for(const auto& Binding:LiveBindings)if(Binding.NativeSelector==Selector)Declared=true;
+    if(!Declared)return false;
+    NativeSamples.Add(Selector,Value);return true;
+}
+
+bool UXaceInputCollectorComponent::CollectDeclaredLiveActions(TArray<FXaceInputAction>& Actions)
+{
+    Actions.Reset();if(LiveBindings.Num()>256)return false;
+    TSet<FString> Names;
+    APlayerController* Controller=GetWorld()!=nullptr ? GetWorld()->GetFirstPlayerController() : nullptr;
+    for(const auto& Binding:LiveBindings)
+    {
+        if(Binding.Action.IsEmpty() || Names.Contains(Binding.Action) || (Binding.Kind!=TEXT("axis_1d") && Binding.Kind!=TEXT("button"))){Actions.Reset();return false;}
+        Names.Add(Binding.Action);
+        FXaceInputAction Action;Action.Action=Binding.Action;Action.Kind=Binding.Kind;
+        Action.Value=!Binding.NativeSelector.IsEmpty() ? NativeSamples.FindRef(Binding.NativeSelector) : Controller!=nullptr && Controller->IsLocalController() ? (SafeKey(Controller,Binding.Positive)?1.0f:0.0f)-(SafeKey(Controller,Binding.Negative)?1.0f:0.0f) : 0.0f;
+        if(Binding.Kind==TEXT("button") && Action.Value!=0 && Action.Value!=1){Actions.Reset();return false;}
+        Action.Phase=Action.Value==0 ? TEXT("cancelled") : Binding.Kind==TEXT("button") ? (LivePrevious.FindRef(Binding.Action)==0 ? TEXT("started") : TEXT("performed")) : TEXT("changed");Actions.Add(Action);
+    }
+    Actions.Sort([](const FXaceInputAction& A,const FXaceInputAction& B){return A.Action.Compare(B.Action,ESearchCase::CaseSensitive)<0;});
+    return true;
+}
+
 void UXaceInputCollectorComponent::OnSessionInputTick(int64 Tick)
 {
-	FXaceInputPacket Packet;Packet.Tick=Tick;Packet.PeerId=Transport->Session.PeerId;Packet.PlayerId=Transport->Session.PlayerId;Packet.SequenceId=Transport->NextSequenceId();Packet.DeviceId=TEXT("unreal");Packet.bPredicted=false;
-	APlayerController* Controller=GetWorld()!=nullptr ? GetWorld()->GetFirstPlayerController() : nullptr;
-	for(const auto& Binding:LiveBindings)
-	{
-		if(Binding.Action.IsEmpty() || (Binding.Kind!=TEXT("axis_1d") && Binding.Kind!=TEXT("button")))return;
-		FXaceInputAction Action;Action.Action=Binding.Action;Action.Kind=Binding.Kind;
-		Action.Value=Controller!=nullptr && Controller->IsLocalController() ? (SafeKey(Controller,Binding.Positive)?1.0f:0.0f)-(SafeKey(Controller,Binding.Negative)?1.0f:0.0f) : 0.0f;
-		Action.Phase=Action.Value==0 ? TEXT("cancelled") : Binding.Kind==TEXT("button") ? (LivePrevious.FindRef(Binding.Action)==0 ? TEXT("started") : TEXT("performed")) : TEXT("changed");Packet.Actions.Add(Action);
-	}
-	Packet.Actions.Sort([](const FXaceInputAction& A,const FXaceInputAction& B){return A.Action<B.Action;});
-	if(Transport->SendInputPacket(Packet)){for(const auto& Action:Packet.Actions)LivePrevious.Add(Action.Action,Action.Value);OnInputPacketBuilt.Broadcast(Packet);}
+    FXaceInputPacket Packet;Packet.Tick=Tick;Packet.PeerId=Transport->Session.PeerId;Packet.PlayerId=Transport->Session.PlayerId;Packet.SequenceId=Transport->NextSequenceId();Packet.DeviceId=TEXT("unreal");Packet.bPredicted=false;
+    if(!CollectDeclaredLiveActions(Packet.Actions))return;
+    if(Transport->SendInputPacket(Packet)){for(const auto& Action:Packet.Actions)LivePrevious.Add(Action.Action,Action.Value);OnInputPacketBuilt.Broadcast(Packet);}
 }
 
 void UXaceInputCollectorComponent::ResetAccumulated()

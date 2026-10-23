@@ -20,6 +20,8 @@ namespace Xace.Adapter.Unity
     {
         public string action;
         public string kind = "axis_1d";
+        // Optional explicit native event selector; empty retains physical-key sampling.
+        public string nativeSelector = "";
         public KeyCode positive;
         public KeyCode negative;
     }
@@ -30,6 +32,7 @@ namespace Xace.Adapter.Unity
         [SerializeField] private ulong peerId = 1;
         [SerializeField] private ulong playerId = 1;
         public XaceLiveInputBinding[] liveBindings = new XaceLiveInputBinding[0];
+        private readonly Dictionary<string,float> nativeSamples = new Dictionary<string,float>(StringComparer.Ordinal);
         private readonly Dictionary<string,float> livePrevious = new Dictionary<string,float>(StringComparer.Ordinal);
         [SerializeField] private string deviceId = "unity";
 
@@ -115,28 +118,58 @@ namespace Xace.Adapter.Unity
         private void OnHandshakeAccepted(XaceHandshakeAck ack)
         {
             livePrevious.Clear();
+            nativeSamples.Clear();
             if (ack.tick_rate > 0)
                 tickInterval = 1f / ack.tick_rate;
         }
 
-        private void OnSessionInputTick(ulong tick)
+        // Native Input System callbacks/UI events can submit a named sample. This
+        // only buffers input; it cannot send a packet or mutate gameplay.
+        public bool SubmitNativeAction(string selector, float value)
+        {
+            if (string.IsNullOrEmpty(selector) || float.IsNaN(value) || float.IsInfinity(value) || value < -1 || value > 1) return false;
+            bool declared=false;
+            foreach (var binding in liveBindings)
+                if (binding.nativeSelector == selector) declared=true;
+            if (!declared) return false;
+            nativeSamples[selector]=value;
+            return true;
+        }
+
+        public XaceInputAction[] CollectDeclaredLiveActions()
         {
             var actions=new List<XaceInputAction>();
+            var names=new HashSet<string>(StringComparer.Ordinal);
+            if (liveBindings.Length > 256) throw new FormatException("Too many live input bindings");
             foreach(var binding in liveBindings)
             {
-                if(string.IsNullOrEmpty(binding.action) || (binding.kind!="axis_1d" && binding.kind!="button")) throw new FormatException("Invalid live input binding");
-                float value=Application.isFocused ? (SafeKey(binding.positive)?1:0)-(SafeKey(binding.negative)?1:0) : 0;
+                if(binding == null || string.IsNullOrEmpty(binding.action) || !names.Add(binding.action) || (binding.kind!="axis_1d" && binding.kind!="button")) throw new FormatException("Invalid live input binding");
+                float value;
+                if (!string.IsNullOrEmpty(binding.nativeSelector)) nativeSamples.TryGetValue(binding.nativeSelector,out value);
+                else value=Application.isFocused ? (SafeKey(binding.positive)?1:0)-(SafeKey(binding.negative)?1:0) : 0;
+                if (binding.kind=="button" && value!=0 && value!=1) throw new FormatException("Button input must be zero or one");
                 livePrevious.TryGetValue(binding.action,out var previous);
                 actions.Add(new XaceInputAction{action=binding.action,kind=binding.kind,value=value,phase=value==0?"cancelled":binding.kind=="button"?(previous==0?"started":"performed"):"changed"});
             }
             actions.Sort((a,b)=>string.CompareOrdinal(a.action,b.action));
+            return actions.ToArray();
+        }
+
+        private void OnSessionInputTick(ulong tick)
+        {
+            var actions=CollectDeclaredLiveActions();
             var packet=new XaceInputPacket{tick=tick,peer_id=(ulong)transport.Session.PeerId,player_id=(ulong)transport.Session.PlayerId,
-                sequence_id=transport.NextSequenceId(),actions=actions.ToArray(),device_id="unity",predicted=false};
+                sequence_id=transport.NextSequenceId(),actions=actions,device_id="unity",predicted=false};
             if(transport.SendInputPacket(packet))
             {
                 foreach(var action in actions)livePrevious[action.action]=action.value;
                 OnInputPacketBuilt?.Invoke(packet);
             }
+        }
+
+        private void OnApplicationFocus(bool focused)
+        {
+            if (!focused) nativeSamples.Clear();
         }
 
         private static bool SafeKey(KeyCode key) => key!=KeyCode.None && Input.GetKey(key);

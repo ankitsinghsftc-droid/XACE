@@ -1,0 +1,12 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\ThirdParty\\DotNet\\8.0.412\\win-x64\\dotnet.exe",
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.dll",
+  "UnrealEditor",
+  "Win64",
+  "Development",
+  "-Project=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-replacement-final-b\\project\\NEC011.uproject",
+  "-plugin=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-replacement-final-b\\project\\Plugins\\XACE\\XACE.uplugin",
+  "-nohotreload",
+  "-installed",
+  "-log=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-replacement-final-b\\build-ubt.log"
+]

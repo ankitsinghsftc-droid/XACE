@@ -19,6 +19,6 @@ Creator-side proof: compile the actual Rust mechanic from retained source using 
 
 ## Prerequisite and impact accounting
 
-Current adoption/reconciliation explicitly block parented instances and systems accessing component1. Current generated_system_abi.rs exposes four operations. Removing either refusal without a versioned runtime/executor proof would weaken acceptance. Implementation must identify whether existing runtime contracts can carry the required state and structured access; if a larger prerequisite cannot fit NEC011/012 responsibly, record concrete changed modules, proof impact and an estimate before expanding scope.
+At NEC011 entry, adoption/reconciliation explicitly blocked parented instances and systems accessing component1. Current generated_system_abi.rs exposes four operations. Removing either refusal without a versioned runtime/executor proof would weaken acceptance. Implementation must identify whether existing runtime contracts can carry the required state and structured access; if a larger prerequisite cannot fit NEC011/012 responsibly, record concrete changed modules, proof impact and an estimate before expanding scope.
 
-NEC011 is not complete. No benchmark execution, unrestricted mechanics, native shipping or Steam support is claimed by this specification.
+NEC011 completed for the declared creator profile on 2026-10-23. Acceptance evidence and explicit limits are recorded in `NEC011_FIDELITY_STATUS.md` and `evidence/nec011-completion-20261023/summary.json`. The unusual-mechanic execution benchmark is verified. Unrestricted mechanics, native shipping and Steam certification are not claimed. Required proof cells above remain unchanged.

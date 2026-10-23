@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "executable_sha256": "cb127fe71c1256a3a8095deb4ab68fe8758d6883a236847f7de13f46c1feb66f",
+  "player_graph_created": true,
+  "player_pulse": true,
+  "player_checkpoint_and_rewind": true,
+  "mid_queue_snapshot": true,
+  "every_replayed_hash_and_event_equal": true,
+  "independent_runs_equal": true,
+  "player_compilation": false,
+  "rewind_horizon_ticks": 120,
+  "native_engine_shipping": false
+}

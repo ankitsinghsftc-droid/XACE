@@ -46,7 +46,9 @@ func run() -> void:
     var replacement := AudioStreamWAV.new()
     replacement.format = sound.format
     replacement.mix_rate = sound.mix_rate
-    replacement.data = samples
+    var replacement_samples := samples.duplicate()
+    replacement_samples[0] = 1
+    replacement.data = replacement_samples
     checks["replacement_saved"] = ResourceSaver.save(replacement,"res://replacement.tres") == OK
     audio.parameters.resource_path = "res://replacement.tres"
     manager.apply_playback_commands([audio])
@@ -89,9 +91,20 @@ func run() -> void:
     checks["mapped_packet_authority_tick"] = configured and session.verify(fixture.baseline) == "accept" and not session.can_send(packet) and session.request(7) and session.can_send(packet)
     packet.tick = 8
     checks["mapped_packet_wrong_tick_refused"] = not session.can_send(packet)
+    collector.live_bindings.assign([{"action":"move_x","kind":"axis_1d","native_selector":"MoveRight"},{"action":"Jump","kind":"button","native_selector":"JumpButton"}])
+    var submitted: bool = collector.submit_native_action("MoveRight",0.75) and collector.submit_native_action("JumpButton",1.0)
+    var mapped_live: Array = collector.collect_live_actions(9)
+    checks["native_event_declared_packet_mapping"] = submitted and mapped_live.size() == 2 and mapped_live[0].action == "Jump" and mapped_live[0].value == 1.0 and mapped_live[1].action == "move_x" and mapped_live[1].value == 0.75
+    checks["unknown_nonfinite_input_refused"] = not collector.submit_native_action("undeclared",1.0) and not collector.submit_native_action("MoveRight",NAN)
+    collector.submit_native_action("MoveRight",0.0)
+    collector.submit_native_action("JumpButton",0.0)
+    var cancelled_live: Array = collector.collect_live_actions(10)
+    checks["native_event_release"] = cancelled_live[0].phase == "cancelled" and cancelled_live[1].phase == "cancelled"
+    collector.live_bindings.assign([{"action":"same"},{"action":"same"}])
+    checks["duplicate_input_mapping_refused"] = collector.collect_live_actions(11).is_empty() and not collector.live_input_error.is_empty()
     var ok := true
     for value in checks.values(): ok = ok and bool(value)
-    var report := {"ok":ok,"checks":checks,"engine":"godot","version":Engine.get_version_info().string,"actual_native_playback":true,"audible_output_certified":false,"runtime_input_certified":false}
+    var report := {"ok":ok,"checks":checks,"engine":"godot","version":Engine.get_version_info().string,"actual_native_playback":true,"audible_output_certified":false,"runtime_input_certified":false,"sampled_actions":mapped_live}
     var output := OS.get_cmdline_user_args()[0]
     FileAccess.open(output,FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
     print(JSON.stringify(report))

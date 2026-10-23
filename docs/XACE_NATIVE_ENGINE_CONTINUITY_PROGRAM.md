@@ -1,4 +1,4 @@
-> Current status2026-10-20: NEC001-010 locally verified within their declared profiles. NEC010 completion commit44cb7bf; evidence docs/evidence/nec010-completion-20261020/summary.json. NEC011 is the next authorized task; stop before NEC012. The approved strategic amendments below retain all18 tasks and previous acceptance. Historical stop/not-started entries remain historical. REL01-05 OPEN; no off-device backup.
+> Current status 2026-10-23: NEC001-011 locally verified within declared profiles. NEC011 completion: docs/evidence/nec011-completion-20261023/summary.json; exact supported profile and limits: docs/NEC011_FIDELITY_STATUS.md. NEC012 NOT STARTED: await authorization. All18 tasks, order, approved amendments and previous acceptance retained. REL01-05 OPEN. Tracked checkpoints are backed up to GitHub; raw native fixtures/binaries/sealed archives remain local-only. Earlier status entries are historical.
 
 > NEC010 is now explicitly authorized and IN PROGRESS (2026-10-16). Current acceptance checklist: docs/NEC010_DURABLE_MATERIALIZATION.md. Earlier stop/not-started entries are historical. NEC011 has not started.
 

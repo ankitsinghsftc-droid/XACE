@@ -1,0 +1,37 @@
+{
+	"ok": true,
+	"engine": "unreal",
+	"version": "5.7.4-51494982+++UE5+Release-5.7",
+	"checks":
+	{
+		"animation_started": true,
+		"animation_advanced": true,
+		"audio_started": true,
+		"declared_resolved_cannot_hide_failure": true,
+		"failed_fallback_blocks": true,
+		"required_binding_refuses_fallback": true,
+		"missing_refused": true,
+		"native_event_declared_packet_mapping": true,
+		"unknown_out_of_range_input_refused": true,
+		"native_event_release": true,
+		"duplicate_input_mapping_refused": true
+	},
+	"sampled_actions": [
+		{
+			"action": "Jump",
+			"value": 1,
+			"secondary_value": 0,
+			"kind": "button",
+			"phase": "started"
+		},
+		{
+			"action": "move_x",
+			"value": 0.75,
+			"secondary_value": 0,
+			"kind": "axis_1d",
+			"phase": "changed"
+		}
+	],
+	"binding_report": "{\r\n\t\"schema\": \"xace.adapter.semantic_binding_status_report.v1\",\r\n\t\"engine\": \"unreal\",\r\n\t\"statuses\": [\r\n\t\t\"resolved\",\r\n\t\t\"unresolved\",\r\n\t\t\"unsupported\",\r\n\t\t\"missing\",\r\n\t\t\"fallback\"\r\n\t],\r\n\t\"records\": [\r\n\t\t{\r\n\t\t\t\"schema\": \"xace.adapter.semantic_binding_status_record.v1\",\r\n\t\t\t\"engine\": \"unreal\",\r\n\t\t\t\"binding_id\": \"animation\",\r\n\t\t\t\"status\": \"resolved\",\r\n\t\t\t\"asset_id\": \"\",\r\n\t\t\t\"playback_kind\": \"Animation\",\r\n\t\t\t\"reason\": \"applied\",\r\n\t\t\t\"blocks_runtime\": false,\r\n\t\t\t\"blocks_handoff\": false\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"schema\": \"xace.adapter.semantic_binding_status_record.v1\",\r\n\t\t\t\"engine\": \"unreal\",\r\n\t\t\t\"binding_id\": \"audio\",\r\n\t\t\t\"status\": \"resolved\",\r\n\t\t\t\"asset_id\": \"\",\r\n\t\t\t\"playback_kind\": \"Audio\",\r\n\t\t\t\"reason\": \"applied\",\r\n\t\t\t\"blocks_runtime\": false,\r\n\t\t\t\"blocks_handoff\": false\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"schema\": \"xace.adapter.semantic_binding_status_record.v1\",\r\n\t\t\t\"engine\": \"unreal\",\r\n\t\t\t\"binding_id\": \"missing\",\r\n\t\t\t\"status\": \"missing\",\r\n\t\t\t\"asset_id\": \"\",\r\n\t\t\t\"playback_kind\": \"Animation\",\r\n\t\t\t\"reason\": \"playback_resource_missing\",\r\n\t\t\t\"blocks_runtime\": true,\r\n\t\t\t\"blocks_handoff\": true\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"schema\": \"xace.adapter.semantic_binding_status_record.v1\",\r\n\t\t\t\"engine\": \"unreal\",\r\n\t\t\t\"binding_id\": \"failed-fallback\",\r\n\t\t\t\"status\": \"missing\",\r\n\t\t\t\"asset_id\": \"\",\r\n\t\t\t\"playback_kind\": \"Audio\",\r\n\t\t\t\"reason\": \"entity_missing\",\r\n\t\t\t\"blocks_runtime\": true,\r\n\t\t\t\"blocks_handoff\": true\r\n\t\t},\r\n\t\t{\r\n\t\t\t\"schema\": \"xace.adapter.semantic_binding_status_record.v1\",\r\n\t\t\t\"engine\": \"unreal\",\r\n\t\t\t\"binding_id\": \"required\",\r\n\t\t\t\"status\": \"missing\",\r\n\t\t\t\"asset_id\": \"\",\r\n\t\t\t\"playback_kind\": \"Audio\",\r\n\t\t\t\"reason\": \"playback_resource_missing\",\r\n\t\t\t\"blocks_runtime\": true,\r\n\t\t\t\"blocks_handoff\": true\r\n\t\t}\r\n\t]\r\n}",
+	"audible_output_certified": false
+}

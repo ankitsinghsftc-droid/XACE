@@ -428,6 +428,8 @@ namespace Xace.Adapter.Unity
         {
             var source = go.GetComponentInChildren<AudioSource>();
             var clip = LoadCommandResource<AudioClip>(command);
+            if (clip != null && (clip.length <= 0f || clip.loadState == AudioDataLoadState.Failed))
+                return false;
             if (clip == null && !string.IsNullOrWhiteSpace(CommandResourcePath(command)))
                 return false;
             if (source == null && clip != null)

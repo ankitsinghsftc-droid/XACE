@@ -1,0 +1,48 @@
+{
+	"actual_native_playback": true,
+	"audible_output_certified": false,
+	"checks": {
+		"animation_started": true,
+		"audio_started": true,
+		"both_applied": true,
+		"declared_inputmap_axis_sampled": true,
+		"declared_resolved_cannot_hide_failure": true,
+		"duplicate_input_mapping_refused": true,
+		"explicit_cosmetic_fallback": true,
+		"failed_fallback_blocks": true,
+		"mapped_packet_authority_tick": true,
+		"mapped_packet_wrong_tick_refused": true,
+		"missing_audio_refused": true,
+		"missing_refused": true,
+		"native_event_declared_packet_mapping": true,
+		"native_event_release": true,
+		"next_tick_observes_release": true,
+		"replacement_played": true,
+		"replacement_saved": true,
+		"required_binding_refuses_fallback": true,
+		"reset_stops_animation": true,
+		"resource_saved": true,
+		"same_tick_input_is_stable": true,
+		"unknown_nonfinite_input_refused": true
+	},
+	"engine": "godot",
+	"ok": true,
+	"runtime_input_certified": false,
+	"sampled_actions": [
+		{
+			"action": "Jump",
+			"kind": "button",
+			"phase": "started",
+			"secondary_value": 0.0,
+			"value": 1.0
+		},
+		{
+			"action": "move_x",
+			"kind": "axis_1d",
+			"phase": "changed",
+			"secondary_value": 0.0,
+			"value": 0.75
+		}
+	],
+	"version": "4.6.3-stable (official)"
+}

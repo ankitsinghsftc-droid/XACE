@@ -1,5 +1,6 @@
 #include "NEC011FidelityCommandlet.h"
 #include "XaceTransport.h"
+#include "XaceInputCollector.h"
 #include "XaceDeltaApplicator.h"
 #include "XaceNativeContract.h"
 #include "Engine/World.h"
@@ -10,6 +11,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
+#include "Sound/SoundWave.h"
 #include "Animation/AnimSequence.h"
 #include "Animation/AnimSingleNodeInstance.h"
 #include "Animation/AnimData/IAnimationDataController.h"
@@ -43,7 +45,19 @@ int32 UNEC011FidelityCommandlet::Main(const FString& Params){
  Audio.EntityId=42;Audio.BindingId=TEXT("required");Audio.Parameters[TEXT("resource_path")]=TEXT("/Game/Missing.Missing");Audio.Parameters.Add(TEXT("xace_binding_required"),TEXT("true"));Audio.Parameters.Add(TEXT("allow_fallback"),TEXT("true"));Tick.Tick=5;Tick.PlaybackCommands={Audio};Transport->OnTickSnapshot.Broadcast(Tick);
  const FString BindingReport=Adapter->AssetBindingStatusReportJson();
  const auto Parsed=XaceCanonical::Parse(BindingReport);bool MissingBlocked=false,FallbackBlocked=false,RequiredBlocked=false;for(const auto& Row:Parsed->GetArrayField(TEXT("records"))){const auto Record=Row->AsObject();const auto Id=Record->GetStringField(TEXT("binding_id"));if(Id==TEXT("required"))RequiredBlocked=Record->GetStringField(TEXT("status"))==TEXT("missing")&&Record->GetBoolField(TEXT("blocks_runtime"));if(Id==TEXT("missing"))MissingBlocked=Record->GetStringField(TEXT("status"))==TEXT("missing")&&Record->GetBoolField(TEXT("blocks_runtime"));if(Id==TEXT("failed-fallback"))FallbackBlocked=Record->GetStringField(TEXT("status"))==TEXT("missing")&&Record->GetBoolField(TEXT("blocks_runtime"));}Checks->SetBoolField(TEXT("declared_resolved_cannot_hide_failure"),MissingBlocked);Checks->SetBoolField(TEXT("failed_fallback_blocks"),FallbackBlocked);Checks->SetBoolField(TEXT("required_binding_refuses_fallback"),RequiredBlocked);Checks->SetBoolField(TEXT("missing_refused"),BindingReport.Contains(TEXT("missing"))&&BindingReport.Contains(TEXT("playback_resource_missing")));
- bool Ok=true;for(const auto& Item:Checks->Values)Ok=Ok&&Item.Value->AsBool();auto Report=MakeShared<FJsonObject>();Report->SetBoolField(TEXT("ok"),Ok);Report->SetStringField(TEXT("engine"),TEXT("unreal"));Report->SetStringField(TEXT("version"),FEngineVersion::Current().ToString());Report->SetObjectField(TEXT("checks"),Checks);Report->SetStringField(TEXT("binding_report"),BindingReport);Report->SetBoolField(TEXT("audible_output_certified"),false);
+ auto OriginalSound=LoadObject<USoundBase>(nullptr,TEXT("/Engine/EngineSounds/1kSineTonePing.1kSineTonePing"));auto ReplacementSound=DuplicateObject<USoundWave>(CastChecked<USoundWave>(OriginalSound),CreatePackage(TEXT("/Game/NEC011Audio")),TEXT("Replacement"));ReplacementSound->Volume=0.5f;
+ FXacePlaybackCommand ReplacementAudio;ReplacementAudio.EntityId=42;ReplacementAudio.BindingId=TEXT("audio");ReplacementAudio.PlaybackKind=TEXT("Audio");ReplacementAudio.Asset.Status=TEXT("Linked");ReplacementAudio.Parameters.Add(TEXT("resource_path"),ReplacementSound->GetPathName());Tick.Tick=6;Tick.PlaybackCommands={ReplacementAudio};Transport->OnTickSnapshot.Broadcast(Tick);
+ bool ReplacementPlayed=false;for(TObjectIterator<UAudioComponent> It;It;++It)if(It->GetWorld()==World&&It->Sound==ReplacementSound&&It->IsPlaying())ReplacementPlayed=true;Checks->SetBoolField(TEXT("replacement_played"),ReplacementPlayed);
+ auto Collector=NewObject<UXaceInputCollectorComponent>(Owner);
+ FXaceLiveInputBinding Move;Move.Action=TEXT("move_x");Move.NativeSelector=TEXT("MoveRight");FXaceLiveInputBinding Jump;Jump.Action=TEXT("Jump");Jump.Kind=TEXT("button");Jump.NativeSelector=TEXT("JumpButton");Collector->LiveBindings={Move,Jump};
+ bool Submitted=Collector->SubmitNativeAction(TEXT("MoveRight"),0.75f)&&Collector->SubmitNativeAction(TEXT("JumpButton"),1);
+ TArray<FXaceInputAction> Actions;bool Collected=Collector->CollectDeclaredLiveActions(Actions);
+ Checks->SetBoolField(TEXT("native_event_declared_packet_mapping"),Submitted&&Collected&&Actions.Num()==2&&Actions[0].Action==TEXT("Jump")&&Actions[0].Value==1&&Actions[1].Action==TEXT("move_x")&&Actions[1].Value==0.75f);
+ TArray<TSharedPtr<FJsonValue>> Sampled;for(const auto& Action:Actions)Sampled.Add(MakeShared<FJsonValueObject>(Action.ToJson()));
+ Checks->SetBoolField(TEXT("unknown_out_of_range_input_refused"),!Collector->SubmitNativeAction(TEXT("undeclared"),1)&&!Collector->SubmitNativeAction(TEXT("MoveRight"),2));
+ Collector->SubmitNativeAction(TEXT("MoveRight"),0);Collector->SubmitNativeAction(TEXT("JumpButton"),0);Collected=Collector->CollectDeclaredLiveActions(Actions);Checks->SetBoolField(TEXT("native_event_release"),Collected&&Actions.Num()==2&&Actions[0].Phase==TEXT("cancelled")&&Actions[1].Phase==TEXT("cancelled"));
+ Collector->LiveBindings={Move,Move};Checks->SetBoolField(TEXT("duplicate_input_mapping_refused"),!Collector->CollectDeclaredLiveActions(Actions)&&Actions.Num()==0);
+ bool Ok=true;for(const auto& Item:Checks->Values)Ok=Ok&&Item.Value->AsBool();auto Report=MakeShared<FJsonObject>();Report->SetBoolField(TEXT("ok"),Ok);Report->SetStringField(TEXT("engine"),TEXT("unreal"));Report->SetStringField(TEXT("version"),FEngineVersion::Current().ToString());Report->SetObjectField(TEXT("checks"),Checks);Report->SetArrayField(TEXT("sampled_actions"),Sampled);Report->SetStringField(TEXT("binding_report"),BindingReport);Report->SetBoolField(TEXT("audible_output_certified"),false);
  FFileHelper::SaveStringToFile(XaceCanonical::Json(Report),*ReportPath,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);World->DestroyWorld(false);return Ok?0:1;
 #else
  return 1; // This proof is creator/editor tooling, never shipped gameplay.

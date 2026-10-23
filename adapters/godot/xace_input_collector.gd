@@ -6,12 +6,44 @@ signal actions_collected(tick: int, actions: Array)
 @export var enabled := true
 @export var live_bindings: Array[Dictionary] = []
 var live_previous: Dictionary = {}
+var native_samples: Dictionary = {}
+var live_input_error := ""
+
+func submit_native_action(selector: String, value: float) -> bool:
+	if selector.is_empty() or not is_finite(value) or value < -1.0 or value > 1.0:
+		return false
+	var declared := false
+	for binding in live_bindings:
+		if str(binding.get("native_selector", "")) == selector:
+			declared = true
+	if not declared:
+		return false
+	native_samples[selector] = value
+	return true
 
 func collect_live_actions(_tick: int) -> Array:
 	var actions: Array = []
+	var names := {}
+	live_input_error = ""
+	if live_bindings.size() > 256:
+		live_input_error = "Too many live input bindings"
+		return []
+	for binding in live_bindings:
+		var name := str(binding.get("action", ""))
+		var kind := str(binding.get("kind", "axis_1d"))
+		if name.is_empty() or names.has(name) or kind not in ["axis_1d", "button"]:
+			live_input_error = "Invalid live input binding"
+			return []
+		names[name] = true
+		var sample := float(native_samples.get(str(binding.get("native_selector", "")), 0.0))
+		if kind == "button" and sample != 0.0 and sample != 1.0:
+			live_input_error = "Button input must be zero or one"
+			return []
 	for binding in live_bindings:
 		var value := 0.0
-		if enabled and DisplayServer.window_is_focused():
+		if enabled and not str(binding.get("native_selector", "")).is_empty():
+			value = float(native_samples.get(str(binding.native_selector), 0.0))
+		elif enabled and DisplayServer.window_is_focused():
 			value = float(Input.is_physical_key_pressed(int(binding.get("positive",0)))) - float(Input.is_physical_key_pressed(int(binding.get("negative",0))))
 		var kind := str(binding.get("kind", "axis_1d"))
 		var name := str(binding.action)

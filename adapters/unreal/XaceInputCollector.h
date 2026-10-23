@@ -14,6 +14,7 @@ struct FXaceLiveInputBinding
 	GENERATED_BODY()
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FString Action;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FString Kind = TEXT("axis_1d");
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FString NativeSelector;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey Positive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey Negative;
 };
@@ -49,6 +50,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey SprintKey = EKeys::LeftShift;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="XACE|Input") FKey CrouchKey = EKeys::LeftControl;
 
+	UFUNCTION(BlueprintCallable, Category="XACE") bool SubmitNativeAction(const FString& Selector, float Value);
+	UFUNCTION(BlueprintCallable, Category="XACE") bool CollectDeclaredLiveActions(TArray<FXaceInputAction>& Actions);
 	UFUNCTION(BlueprintCallable, Category="XACE") void FlushNow();
 	UFUNCTION(BlueprintCallable, Category="XACE") void BindTransportNow();
 	UFUNCTION(BlueprintCallable, Category="XACE") int64 GetLatestRuntimeTick() const { return LatestRuntimeTick; }
@@ -64,6 +67,7 @@ private:
 	int64 LatestRuntimeTick = 0;
 	int64 LastSentTick = 0;
 	TMap<FString,float> LivePrevious;
+	TMap<FString,float> NativeSamples;
 	float TickInterval = 1.0f / 60.0f;
 	float TickAccumulator = 0.0f;
 	int32 FramesAccumulated = 0;

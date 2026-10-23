@@ -1,0 +1,16 @@
+[
+  "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe",
+  "-batchmode",
+  "-nographics",
+  "-quit",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-contract-b\\project",
+  "-executeMethod",
+  "Xace.Adapter.Unity.Editor.XaceNativeContractProof.Run",
+  "-xaceFixture",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\adapters\\tests\\fixtures\\xp016-contract-v1.json",
+  "-xaceReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-contract-b\\proof.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unity-contract-b\\editor.log"
+]

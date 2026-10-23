@@ -11,6 +11,8 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 
 ## Current state
 
+Current 2026-10-23: NEC001-011 completed within their documented profiles. NEC012 has not started and requires authorization. Completion: `docs/evidence/nec011-completion-20261023/summary.json`. Earlier active/not-authorized entries below are historical. Tracked checkpoints through 0d64ea2 are confirmed on GitHub; final completion push is recorded in the session. Raw evidence/binaries/sealed archives remain local-only.
+
 | Milestone | Recovery | Fresh verification |
 |---|---|---|
 | Protected workspace / XP-015 baseline | Created; independent objects | Baseline commit/tree checked |
@@ -283,3 +285,6 @@ NEC011 continuation 2026-10-21: Unity real parent hierarchy and saved-change mon
 
 
 NEC011 continuation 2026-10-23: all three real-engine static hierarchy round trips and saved-change monitors pass. Unreal case-sensitive canonical key ordering repaired and verified by 63 authoring,6 cold reopen,9 Undo/Redo checks. Required-resource fallback refusal passes Godot18/Unity9/Unreal7 probes; Unreal15 protocol cases and geometry/input fence pass. Trusted structured reference executor has two identical builds and relocated admission/execution proof. Native Player now requires a pinned approved fidelity contract and fresh host probe; stale config/resource identities, missing configuration and source changes during probing refuse launch, while stop remains available.291 project-system,208 asset,14 native route tests pass. Evidence: docs/evidence/nec011-native-gates-20261023. NEC011 INCOMPLETE: actual declared native input-to-runtime integration, combined structured-native proof, cosmetic replacement/hash proof and final closeout remain. NEC012 not started. This checkpoint awaits GitHub push; raw fixtures/binaries/sealed archives remain local-only.
+
+
+NEC011 COMPLETE for its declared creator profile (2026-10-23). Final evidence docs/evidence/nec011-completion-20261023/summary.json; exact boundaries docs/NEC011_FIDELITY_STATUS.md.513 focused regressions pass; all3 native playback/resource replacement/input mapping probes pass; all3 retained native hierarchies execute with the pinned structured executor and replay12 ticks exactly. Native-produced inputs drive real authority state and replay, with identical gameplay/world hashes across cosmetic-only packages; this explicit fixture bridge does not certify physical devices or a new live-native-socket integration. The real materialization Player route now refuses missing/stale fidelity or source drift. Echo graph creation/checkpoint/rewind, reproducible compilation and relocated execution remain source-pinned and verified. All55 protected recovered XP022 files and1575 source archive entries are unchanged. NEC012 NOT STARTED; stop for authorization. Existing NEC012-018 acceptance/order unchanged, including1000-object certification and external REL01-05 gates. Final source/compact evidence checkpoint will be pushed before completion is reported; raw native fixtures/binaries/sealed archives remain local-only.

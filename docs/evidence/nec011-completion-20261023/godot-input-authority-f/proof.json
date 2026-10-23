@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "engine": "godot",
+  "native_probe_sha256": "2dda9ee71e768207685cf25c7704962cf2f12b498f4afb92166cfc228672c34a",
+  "native_actions_applied_by_authority": true,
+  "structured_position_changed": true,
+  "every_tick_replayed": true,
+  "cosmetic_package_changed": true,
+  "gameplay_hash_unchanged": true,
+  "every_world_hash_unchanged": true,
+  "world_hashes": [
+    "27ebf127e71bd94b92a5c96a16bd0ba3b55c2f2e995da15a5ecc7b119412356c",
+    "417b33f42d03357f476f6a3d3dce4f3aaff1a4a78e76d841008ab929b96c9a1c",
+    "26d51962d3bc383de24b2abde19c177e0d99cd4447c18d86d8d144dd9d8ecc92",
+    "dff04f43a338000dc3d80cdc0358426a7860450a9af1ecf3bde96a619a710d83"
+  ],
+  "physical_device_certified": false,
+  "live_native_socket_certified": false
+}

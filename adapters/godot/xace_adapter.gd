@@ -178,6 +178,7 @@ func _on_handshake_accepted(ack: Dictionary) -> void:
 		player_id = int(transport.native_contract.player_id)
 		if input_collector != null:
 			input_collector.live_previous.clear()
+			input_collector.native_samples.clear()
 		_apply_canonical_hierarchy()
 
 
@@ -191,6 +192,9 @@ func _on_message_received(message: Dictionary) -> void:
 	if str(message.get("msg_type", "")) == "input_tick_request":
 		if transport.native_contract != null and input_collector != null:
 			var actions: Array = input_collector.collect_live_actions(int(message.tick))
+			if not input_collector.live_input_error.is_empty():
+				push_error(input_collector.live_input_error)
+				return
 			send_input_actions(actions, int(message.tick), false)
 		return
 	if delta_applicator != null and delta_applicator.has_method("apply_message"):
