@@ -123,6 +123,13 @@ namespace Xace.Adapter.Unity
             PumpOnce();
         }
 
+        public void ConfigureOwnedLifecycle()
+        {
+            autoConnect = false;
+            reconnect = false;
+            disableLiveValidationFeedback = true;
+        }
+
         public void ConfigureConnection(string newHost, int newPort, string newCgsHash = null)
         {
             if (!string.IsNullOrWhiteSpace(newHost))

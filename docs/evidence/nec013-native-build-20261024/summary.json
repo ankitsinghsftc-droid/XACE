@@ -1,0 +1,50 @@
+{
+  "schema": "xace.nec013.increment.v1",
+  "status": "incomplete",
+  "entry": "fd44458bbd7eb197fa31d594f0c4e6ade75d806b",
+  "proofs": {
+    "client": {
+      "path": "evidence/nec013/20261024/client-b",
+      "report_sha256": "5dd4ffca7fcb19ad59e28e519b085a31229be40fd1003c69d9113a7ae6346a70"
+    },
+    "play": {
+      "path": "evidence/nec013/20261024/play-approved-a",
+      "report_sha256": "42238597db17bf1408eb09e595ca5d54e6f7ce99c8d5437550edd14854b1362b"
+    },
+    "stress": {
+      "path": "evidence/nec013/20261024/play-stress-a",
+      "report_sha256": "5bd93f26c89ab900abeadb907bfbf5521ae2aa9a5aa36af088d2857175059fb1"
+    },
+    "build": {
+      "path": "evidence/nec013/20261024/build-a",
+      "report_sha256": "336cfa094ae0649c8ee468ae7ad7220dc099971475d939e4bd4446898b2bc329"
+    },
+    "player": {
+      "path": "evidence/nec013/20261024/player-b",
+      "report_sha256": "d8c2d784d9622276784d9aa4ef07f2adaa2418031c909a83ee29af9b09fa684d"
+    }
+  },
+  "protected_seal_files": 55,
+  "remaining": [
+    "Fresh native fidelity/resource binding preflight and cooked closure admission",
+    "Live input/animation/audio parity in editor and standalone",
+    "Lifecycle failure/stress expansion and supported scene transition policy",
+    "Actual save/update refusal and rollback in Unity build",
+    "Enforced read-only installation test",
+    "Clean Windows machine without development installation",
+    "Final acceptance and regression closeout"
+  ],
+  "limitations": [
+    "No NEC014 work",
+    "Raw fixtures and binaries local only",
+    "Source approval currently create-once per reviewed project revision",
+    "Same-machine restricted PATH is not clean-machine certification",
+    "Build hook output inventory is not a signature"
+  ],
+  "failures_retained": [
+    "client-a: assertion helper incorrectly read missing error field",
+    "player-a: proof environment SystemRoot case mismatch before player start"
+  ],
+  "regression": "15 Unity protocol cases, geometry and input fence passed",
+  "clean_machine_blocker": "User confirmed no clean machine available on 2026-10-24"
+}

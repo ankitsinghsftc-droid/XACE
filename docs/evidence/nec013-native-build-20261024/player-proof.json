@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "error": "",
+  "unity": "6000.4.9f1",
+  "tick": 12,
+  "entities": 2,
+  "runtime_pid": 26208,
+  "owner_pid": 21496,
+  "native_identity": true,
+  "hierarchy": true,
+  "positions": true,
+  "exit_code": 0,
+  "install_unchanged": true,
+  "clean_machine": false,
+  "acl_readonly": false
+}

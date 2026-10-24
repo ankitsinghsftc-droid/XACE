@@ -1,0 +1,13 @@
+[
+  "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe",
+  "-batchmode",
+  "-nographics",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\play-stress-a\\project",
+  "-executeMethod",
+  "NEC013UnityPlayProof.Run",
+  "-xaceReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\play-stress-a\\proof.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\play-stress-a\\editor.log"
+]

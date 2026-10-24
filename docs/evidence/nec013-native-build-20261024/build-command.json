@@ -1,0 +1,15 @@
+[
+  "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe",
+  "-batchmode",
+  "-nographics",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-a\\project",
+  "-executeMethod",
+  "NEC013UnityBuildProof.Run",
+  "-xaceReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-a\\proof.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-a\\editor.log",
+  "-xaceBuild",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-a\\shipping\\NativeGame.exe"
+]

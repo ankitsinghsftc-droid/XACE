@@ -1,0 +1,633 @@
+{
+    "schema": "xace.unity.build_receipt.v1",
+    "status": "built-not-certified",
+    "error": "",
+    "approval": "822d11f57cdc3f89c341d7694ef9cf3ebcf31fb12f97f71c7e4f181420a23f00",
+    "release": "017d746ad02aa9c1d68b3c5c6fcd92e99a5fa064d1eef9cb1b8eea624ad5e3aa",
+    "launcher": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+    "unity": "6000.4.9f1",
+    "backend": "Mono",
+    "output": "C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/build-a/shipping/NativeGame.exe",
+    "files": [
+        {
+            "path": "D3D12/D3D12Core.dll",
+            "sha256": "625bd40005b1c3708695d5256ecf230d278e6b8edba5a88af70f3d91324f3052"
+        },
+        {
+            "path": "MonoBleedingEdge/EmbedRuntime/MonoPosixHelper.dll",
+            "sha256": "63e320eeefd84c224e64a83b198019a9aa2de88142f3f4a5ba9eb9425f722eb4"
+        },
+        {
+            "path": "MonoBleedingEdge/EmbedRuntime/mono-2.0-bdwgc.dll",
+            "sha256": "be578b6e3bbc3e12a5f749a6aafd8477f1d7ddaa9d66d37bd08aae64b48575b4"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/2.0/Browsers/Compat.browser",
+            "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/2.0/DefaultWsdlHelpGenerator.aspx",
+            "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/2.0/machine.config",
+            "sha256": "e91782a27fa39fc6c1d6ee8b08529f5d35052310d0006034b878eb04b8f2af30"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/2.0/settings.map",
+            "sha256": "49c6160f9d54af4270a3b4e997fc4a8301f79b9e2070118fa46ddbcbbc44f9a2"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/2.0/web.config",
+            "sha256": "cf2b54339e069b9e42f7d6795eecbf562c50c1011f4ca8f65f578fe52d97ff92"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.0/Browsers/Compat.browser",
+            "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.0/DefaultWsdlHelpGenerator.aspx",
+            "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.0/machine.config",
+            "sha256": "e60aec2c5115d65b3acb3c55ea21576dbd770f579166c017125571e46ae560ed"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.0/settings.map",
+            "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.0/web.config",
+            "sha256": "e38bb8cc68fe5b4edecdfd288d094b9e8ced7629039b2a347682aba0d8bd7492"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.5/Browsers/Compat.browser",
+            "sha256": "8a1082057ac5681dcd4e9c227ed7fb8eb42ac1618963b5de3b65739dd77e2741"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.5/DefaultWsdlHelpGenerator.aspx",
+            "sha256": "751861040b69ea63a3827507b7c8da9c7f549dc181c1c8af4b7ca78cc97d710a"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.5/machine.config",
+            "sha256": "ee950004b576fb28dc85f4b0435ed04bf96612de2e8b53be84d07afe85a0de6c"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.5/settings.map",
+            "sha256": "ce1db1ad8a9512073164e3eccdc193f7eda036e1a9733caec4635de21b2865c8"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/4.5/web.config",
+            "sha256": "c4cbddd4fd9347b58cc5a72b36dc4ba1ad2bb699e65869d05cd3fb9865f0d824"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/browscap.ini",
+            "sha256": "4ddd50f31fb968f30bedefc253a46dc3f2890192d05cdaa9e0a64a056eee807e"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/config",
+            "sha256": "5776169973a26a387b8b3e5c0f2301a7ab9a6dd7c7d3efa22a96abc47fbf8662"
+        },
+        {
+            "path": "MonoBleedingEdge/etc/mono/mconfig/config.xml",
+            "sha256": "0c56e34c69124510fa8c19e7b4c2ca6c1c4ff460ae19f798dd0ca035809e396d"
+        },
+        {
+            "path": "NativeGame.exe",
+            "sha256": "a197542ad0d026c5c3bc7aead606b6b0184adad7b4ee3635326c575b25a5b423"
+        },
+        {
+            "path": "NativeGame_Data/Managed/Assembly-CSharp.dll",
+            "sha256": "73d37a13ee717153d20a5a82a10038a8320c815405352c1a48a01310ec717d83"
+        },
+        {
+            "path": "NativeGame_Data/Managed/Mono.Security.dll",
+            "sha256": "9838776992dc44ebe2aff2e9ec52c292024f5464542897aa5d29429a921437b9"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.ComponentModel.Composition.dll",
+            "sha256": "a30fdde214493b540a5a169aa1729ff494d46f519d9c9a036746967c0845e764"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Configuration.dll",
+            "sha256": "223a6629bb9debb0327082da3e525860e734f231274d0f6bb83a164df778b779"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Core.dll",
+            "sha256": "db725196b862d96beefb95bbb6693f892a12dc401b5c044660d13789e45c255d"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Data.DataSetExtensions.dll",
+            "sha256": "1d6f66f38cabd57b3d099804593ce5144e22921871dfdf0d6487a4bc725b9c8b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Data.dll",
+            "sha256": "f1e0909723a04b1b8ba3630593893e1a4683b391349b79697b8958d7e897a68f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Drawing.dll",
+            "sha256": "630aeba7b15de154e6faf86270eaaf6921ab2b5e9dd2273382e3a0df8ed918ad"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.EnterpriseServices.dll",
+            "sha256": "e0bd4c9aa95b3264e2bc5c43404637447de098829be95d5364a50c286651ede1"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.IO.Compression.FileSystem.dll",
+            "sha256": "738c6ea02bb89c69473f8e128f077cb6f7d62b04e7928e0e244ea7a991e65853"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.IO.Compression.dll",
+            "sha256": "11877b20d2c14bb0eb208f3e20f102ddd3c78b8c5d18edcea935dd5960e48449"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Net.Http.dll",
+            "sha256": "31dd2ec15094027cb78457421633e24f8272a5d83792bd02f5c483339fdc948a"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Numerics.dll",
+            "sha256": "5ac2ed1d8235e6e27a7527fc159a852b1391854e35589746276377847228eb62"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Runtime.Serialization.dll",
+            "sha256": "5b7219b02b2724941f532f6806cc6402b7b413be0161f8994364ebb80b045330"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Security.dll",
+            "sha256": "a51236aca52e7f43a5d236667aeee4c29b74f05e70ed4e66f23bd01f1219471d"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.ServiceModel.Internals.dll",
+            "sha256": "10362190426d7f2feb552223ebcec5dea0fb33c2ec2e4b512832ddbad2d3fbea"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Transactions.dll",
+            "sha256": "8a962b8b8a99a111bd765d090cf27605f0e84911354d7b272cd2ef484bd117c7"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Xml.Linq.dll",
+            "sha256": "eee68bc1879f7a5007752aa31db5640a6ec8f5f18aecd40c92d38989758f795b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.Xml.dll",
+            "sha256": "22362d813e444a18592ec32a56731dd4265362bc8b2c2aab76a1816f2d7d679e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/System.dll",
+            "sha256": "c3c900393effd00a0d36f1dfd317ffe0f19744aad0c3d9c0b10e5f4d5a00bdd7"
+        },
+        {
+            "path": "NativeGame_Data/Managed/Unity.Scripting.dll",
+            "sha256": "1068d440d6c7caa01508f18f225c8c3f4c39e46f4f1f8e58ddfd4ee496e9d03e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AIModule.dll",
+            "sha256": "a755bd9a74165bc0c8049c9526c02e0bb519198cb241aeef31e8c576a8b57a17"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AMDModule.dll",
+            "sha256": "c4b904c7b4366bca0dab2a9eb2139435ea081dfb195f9231ebebbbd3a5e8ad3e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ARModule.dll",
+            "sha256": "658ae29dd38c50d98787a0737e13d7c079162a83c1fa7c1c5ae1dfd24112334b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AccessibilityModule.dll",
+            "sha256": "cc173eefc4a1c8cedc7550ff42223cef9cd439c71e097b4c79956b53c0d75239"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AdaptivePerformanceModule.dll",
+            "sha256": "fb56ea61682294f3d3bb56bde1e90d91c1941f1596aff50f7d03cf60f989d393"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AndroidJNIModule.dll",
+            "sha256": "8a2fa08f93fd307d6fd96f601a82edd9df10e8f831e547cad1ebc058633cf54a"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AnimationModule.dll",
+            "sha256": "6759b2f12fdf5e8b0bbd1b0ef1023d171922df353183fd64f64b8110d8e52aea"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AssetBundleModule.dll",
+            "sha256": "21f2dd96ee89c671263d4d7737a9e3d3afba6bce9359ca72f99ad1421ebdc933"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.AudioModule.dll",
+            "sha256": "0f5f50e81d71f7f30194bc887478c10a884081cfd66201346be7b45c40f073b6"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ClothModule.dll",
+            "sha256": "89adc14c445cc92eb9937c43ad2d68d9cb3fece79ac4148a144dab8562252fdb"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ClusterInputModule.dll",
+            "sha256": "0fc4a22d6104c84b9b841e590ae8c6dfab7e3fe5657f65665d3a441607848412"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ClusterRendererModule.dll",
+            "sha256": "799f12c80ff4dcf05528b6e53ea09b5e94f6e85643a07aa5c91d1af2f4a4b884"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ContentLoadModule.dll",
+            "sha256": "273fa3c639151119759d21de3e1f3c1223b008d73e4fcca7358dde00b453558b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.CoreModule.dll",
+            "sha256": "e65d365aba2d80b6da6ee484363a61d7ca79f7964980e451c80579d273ae1c78"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.CrashReportingModule.dll",
+            "sha256": "6117d1e83761b75e6b8f3fcbb99364b9db1e086ef98242b18f08d7e478e699a5"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.DSPGraphModule.dll",
+            "sha256": "fb22b95ada4b82b1b295c3828ca7baaf54c9c55d7f0b8875d9390b25274c6015"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.DirectorModule.dll",
+            "sha256": "7fef74069efc0ebc1899fe8cd5b9a9fda36a299d668134cc5f4e04e4109d5ef9"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.GIModule.dll",
+            "sha256": "525bdbe1861f9292e50efaf4b522c3ee2cfcf4bd4b0bcd4310d62a584cd68997"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.GameCenterModule.dll",
+            "sha256": "6b408f8ca6ce3065aacff2c44d790d16031d79d6ba04d01fc0750333c6278e8a"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.GraphicsStateCollectionSerializerModule.dll",
+            "sha256": "8b3907d64d93781f38228af35fc901322ee0a4abaddc76d1c71b29afdbd43e03"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.GridModule.dll",
+            "sha256": "59a91a3c74e7c4104be4b83d328a14125bcff432172d7497162e62e0dbed2a53"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.HierarchyCoreModule.dll",
+            "sha256": "36826a76936e29f799daa187a135db1564977dc62a3167be01f296a10ea97b67"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.HierarchyModule.dll",
+            "sha256": "a4cd42fdd694934a31cbb31f6b3aa31d50110f8eb5935feb4ba772b308c9c6c2"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.HotReloadModule.dll",
+            "sha256": "45c2bbbaca54feee8643c8a7773161d1d290fb46e3fc3f70a39818af051d618d"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.IMGUIModule.dll",
+            "sha256": "17b39fcb5e44e075fb1aff6d6be14cbb7b27d15b3f12be4b43369feff7532154"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.IdentifiersModule.dll",
+            "sha256": "1b2b746be0a06e5eb3c06e0b895cf139ce855874b74d7aa8cd743370cc9ddfb1"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ImageConversionModule.dll",
+            "sha256": "8f657ebb6a6472e11b0f1eeeb928e695eacd72d8731cc8c556ee3de2855b9fb3"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.InputForUIModule.dll",
+            "sha256": "984200fda36602cb40eaab2fcd2b7b0fb04d495aae476397774c5ead16a2174f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.InputLegacyModule.dll",
+            "sha256": "568dffcbaa703cf6ce2f1c8ae2309a24b2b00a979f734e9d753b6273044fb7af"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.InputModule.dll",
+            "sha256": "c76882fff32cfd23817fb06bf90a409f512bf452d97fa4470a64b72c9bb61515"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.InsightsModule.dll",
+            "sha256": "3b9eacc77e4f53214bb19701692dcb55f74679d63b01964bcdac6eb5ceaf8bb1"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.JSONSerializeModule.dll",
+            "sha256": "3500119dfbfcf7fa7fd2b5faf47c4b75f24301449e97037ea7289bccda88c708"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.LocalizationModule.dll",
+            "sha256": "431b9db0fc8787d9fcd17bf43cfd6c319f976e014d749af4f7a43ecd2fede59c"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.MarshallingModule.dll",
+            "sha256": "478a7ef59b8e93d8f417d3b1dc619a73e962d79258612f4b4512a9632e71848b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.MultiplayerModule.dll",
+            "sha256": "4f84de038bd634ec8ebf4aa565b8a5a60e37e4d783d406ba7f9512780a5c8ac9"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.NVIDIAModule.dll",
+            "sha256": "4e6c946111a6359faab690a8971d194f466debdf750ead887120ac6e6de7c5f5"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ParticleSystemModule.dll",
+            "sha256": "50b6ab7be02b388d4d52a64bee51db403e76d4b535471e2706aa2ab680b19f01"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.PerformanceReportingModule.dll",
+            "sha256": "0076acc9e3390cc64cfa0f1bf64f8cc3249c9dbeb0cc8203a2151e84911775c7"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.Physics2DModule.dll",
+            "sha256": "21aac71e41811236580971b1dd1c3904ad2ffed7ada97603811f4c89a2ce1e77"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.PhysicsBackendPhysXModule.dll",
+            "sha256": "2fd3ffbf440e7f471e6d8c7e30340ace22c6b30d84020437e7905df1c9ac79dd"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.PhysicsModule.dll",
+            "sha256": "b8e95ebe81c50ecaa9b49d2c2e38fa33da40661c51a323558495a1b353948b56"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.PropertiesModule.dll",
+            "sha256": "a19c3c686b16290cb4fc192055a5ca75736f80dccdaf99ed2de29b32ce4b0cfb"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.RenderAs2DModule.dll",
+            "sha256": "d1dbce8e1ac8182ebaba8dc9cb03b36f21474570ec93989da7f66e8aeb9a7c53"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll",
+            "sha256": "607029ba8e6126a899f5cc6b6ec4caa57b8f7403246746892eecf0f043bebc37"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ScreenCaptureModule.dll",
+            "sha256": "4caff00c4c36597c1865287083f61be929f510fd899338c9076444615ce05b43"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ScriptingModule.dll",
+            "sha256": "9ec7c58945a4c053ae671e67206034123fb105227afc077d3063ae80e3733a61"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.ShaderVariantAnalyticsModule.dll",
+            "sha256": "e543892f7f77f8148bf5a1cfee81156888ff710a355c45478689c47511c970d2"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.SharedInternalsModule.dll",
+            "sha256": "256093dbfb3a656edac26012be429ab3727a0ac4ad2bb921b20f923252d4301c"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.SpriteMaskModule.dll",
+            "sha256": "036a1d969bb552e8cbd8a5a08bdc9a6c9cc481ea1968d2e78b15437f3209a02a"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.SpriteShapeModule.dll",
+            "sha256": "517f4d67b6f36a0318a80a0a0da541d6fd6cc68ef46aeb3551a0c52f84612fd2"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.StreamingModule.dll",
+            "sha256": "5137c15d93165e513d7b97373a5c5c470350ac7b040f1370785f2e6890ed821e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.SubstanceModule.dll",
+            "sha256": "334cc413eb85fcd951d571960bc33f1cc45b4e501544465de4cbfd568ac79a7e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.SubsystemsModule.dll",
+            "sha256": "7c616f15782466569fc025befb50efd1b0bd7bb692e2242dc885f26d133fee68"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TLSModule.dll",
+            "sha256": "17d690a9c1d17813611d2433227ab1812526aace8a4f85be9782d8c7552d4659"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TerrainModule.dll",
+            "sha256": "8897af59928551d196e4c0d27aa1f68480478ead99a9b54a460e43f5f0b8118f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TerrainPhysicsModule.dll",
+            "sha256": "f9021c725ff13ce902391510ad2162a6727c6ffd4793186af54e70f3af00dddd"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TextCoreFontEngineModule.dll",
+            "sha256": "73dbda5e8e2766d6d9be89d697a4d10b45a2763c8b0c0480438615627309061f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TextCoreTextEngineModule.dll",
+            "sha256": "84f7c9735a47c5b5a82d98f5426e2227512c2e65966f2f65f157cf5c139063ef"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TextRenderingModule.dll",
+            "sha256": "6e36827c7f80df27f56c5d6898ff35ee28649c3b5f2bc031a6c58f2f4bf103d8"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.TilemapModule.dll",
+            "sha256": "c37d20450ac1b10f506f7516abab4bc9d1f7fb20f2a7b735aea71f7dcac41c3f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UIElementsModule.dll",
+            "sha256": "9a95a6a35d82323a621d75f682536a3398daaf021cf30cfd49d082246cd4c911"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UIModule.dll",
+            "sha256": "171f2b0b5f033a08c6eeeb27c27a2eeaeb0ed9dde09dc35bee938ff27901da19"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UmbraModule.dll",
+            "sha256": "c3d27f50346d2ea58dc213f22adc486f27a5008910f3eaa81583dbe006457552"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityAnalyticsCommonModule.dll",
+            "sha256": "410ce5130d74446cae2b5ea2afb6b51905513ac109155e537f9e5684f079c73e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityAnalyticsModule.dll",
+            "sha256": "169fea49f7cacaa0de91ea565ea5a20a8b77fbd4e9345da3706a432af025f84c"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityConnectModule.dll",
+            "sha256": "028678749d3f83508d735df8abb79a75cc953c87c6801872c7218c576d48893d"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityConsentModule.dll",
+            "sha256": "9a9bec41b56319b61023789554117c39a4a106e2a6ca46496bdbbaff71002b5b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityCurlModule.dll",
+            "sha256": "39c8f131883158f5ea544fc96e4aa4d60d2c305019dbea4d184927b82c6de68e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityWebRequestAssetBundleModule.dll",
+            "sha256": "5689b2dc3c73141a5d5c86b10ecb5d7512c754cf5af4c828484b043fdbc3103d"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityWebRequestAudioModule.dll",
+            "sha256": "2f44396ae6309f9ca4b49dbc30f5f1bb03a6dd1ea526a31a67796d843a7f1f71"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityWebRequestModule.dll",
+            "sha256": "3cd616996e1f418eb3f6f0d0e87af0458bc9f6b63e38b16dc97fed7fe54c057f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityWebRequestTextureModule.dll",
+            "sha256": "1f8daa13e7fb553f97d662e25d2797742fac87275202d1af5900812a22180765"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.UnityWebRequestWWWModule.dll",
+            "sha256": "3b2d5464a533daf73e884af0c827a028cdb93ea0a3fcfa090a38796fa3bc7633"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VFXModule.dll",
+            "sha256": "fe0f1f7f3ba81aeb630e2b41c9a3a7193ae690c81e7cc96256079dd5f2e2b197"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VRModule.dll",
+            "sha256": "e1a388e786c9f347982a10274bd25f17e4af466b1dcc0aedb2d8d49985da1f06"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VectorGraphicsModule.dll",
+            "sha256": "01cdd9b14b06552e10d65d20d55aff87cc8dfe04496ef1b210f43d6112fc2962"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VehiclesModule.dll",
+            "sha256": "13bdb56f98a034ba127d10355ee3a8688c7705643fc471ac819ace41a4ce12d2"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VideoModule.dll",
+            "sha256": "a868f0bdc9c0496666336c6d1b06e46e0c977e2550b48086e1c55f02b999f97e"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.VirtualTexturingModule.dll",
+            "sha256": "37e0e7e7450db8fdc016104a58cb45b7bbc66197ad53b343642361f37606316a"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.WindModule.dll",
+            "sha256": "865a37109564233120e19da31032043644b00d58b37bfc0e40c4a8e4e165a05f"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.XRModule.dll",
+            "sha256": "0d67a64daee7531abdc9d88f74533cc71956799ed407750fc02832676bd614e4"
+        },
+        {
+            "path": "NativeGame_Data/Managed/UnityEngine.dll",
+            "sha256": "be04aff23caa6a4736e490bfe63c910c02b4d6f907a795e359e5f182b34298f9"
+        },
+        {
+            "path": "NativeGame_Data/Managed/mscorlib.dll",
+            "sha256": "eaf6b07fd716403e8fedc054bdd1650142d1dc95d34c01d9485de97b5a0dd84b"
+        },
+        {
+            "path": "NativeGame_Data/Managed/netstandard.dll",
+            "sha256": "6ae62e082dc494a2433984177f60ca4db5fae69b1f360a8b33754172b310b8c5"
+        },
+        {
+            "path": "NativeGame_Data/Resources/unity default resources",
+            "sha256": "96c07875f9764ceaa248eb5715503de54e55fe87166b909330a4ae209a644f70"
+        },
+        {
+            "path": "NativeGame_Data/Resources/unity_builtin_extra",
+            "sha256": "e04c1cb6b54e97c02aafbd52f855bb4916e61c0c6b3b3093eab60869ae2918b1"
+        },
+        {
+            "path": "NativeGame_Data/RuntimeInitializeOnLoads.json",
+            "sha256": "6945e73af0fc32ee5c4eb64ee117cd5b2d3c71406695f28bcd26d1bf0ca73f87"
+        },
+        {
+            "path": "NativeGame_Data/ScriptingAssemblies.json",
+            "sha256": "8e54f60173e48c953b3f638ede737029e0b9c3f80cde3cb3ec72a990c489b6f6"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/executor-receipt.json",
+            "sha256": "e2d359a33b70a8583e142c8e8d36a9fe508ed404dd1cc2e59d3b2f69f9ef5b16"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/native-release.json",
+            "sha256": "017d746ad02aa9c1d68b3c5c6fcd92e99a5fa064d1eef9cb1b8eea624ad5e3aa"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/compiled_schema.json",
+            "sha256": "c743c26fe04ef02a8e9d8d850d169d08a695e9ccfe536a5e5677bee7053ab5d3"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/execution_plan.json",
+            "sha256": "c43202f084d32bb0a79388c252e39d198d082c46bfbd9cecdfbbf8868ed4eb51"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/game.cgs.json",
+            "sha256": "d1820f375c582bf2d8730f3c020116e6e93ebf7aa20dc2c8e9aeb9b59c857cdb"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/playable.manifest.json",
+            "sha256": "62710cdfbeac373f505e63dea66878a9920bd7c1f35649563cf1dad1ebd1b5d0"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/presentation/player/audio.tres",
+            "sha256": "4092de4e2bb1216dc3213645e6e8cfc3708c2f0c022316bae4cf489622e359c1"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/runtime/xace_runtime.exe",
+            "sha256": "4731ab665f73257c2ae472767f438b1294b51db8cea513b56066d952bfbd3de5"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/world.json",
+            "sha256": "0d68395d04b8fd9559cf8f8b5f818a7264e97bf619fdedd60126bc3c23f9ee98"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/package/world.manifest.json",
+            "sha256": "5c9d4eeab53978378e5b0a105f60727ba9504cccf3ff8f41d8297d025287b79c"
+        },
+        {
+            "path": "NativeGame_Data/StreamingAssets/XACERelease/xace-player-launcher.exe",
+            "sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb"
+        },
+        {
+            "path": "NativeGame_Data/app.info",
+            "sha256": "9151c6f3452d8c61d18494aa1a0636fcc3d686ef4d708f07832cb0d96d3bbab2"
+        },
+        {
+            "path": "NativeGame_Data/boot.config",
+            "sha256": "1c1218ae45978ae5eeb3a1c2626851bdc42c3263f040e7eddec642af542ccfb2"
+        },
+        {
+            "path": "NativeGame_Data/globalgamemanagers",
+            "sha256": "4d3c882fe3667051e07460e1570984c1a0bd2c3237948344f337a2fdd100e30d"
+        },
+        {
+            "path": "NativeGame_Data/globalgamemanagers.assets",
+            "sha256": "7c46cb787ab669221bab891afa5c70eee6a6afc6b038ffbb4fa5dc295ff68048"
+        },
+        {
+            "path": "NativeGame_Data/globalgamemanagers.assets.resS",
+            "sha256": "39dd38fcd8dd95d41d6d55fe16a448d29fe2c31d9a162c825c24c6d99a893d7a"
+        },
+        {
+            "path": "NativeGame_Data/level0",
+            "sha256": "74d8bf980cd4fc5c73c6ff13419c827b4981f9b7ce9ca0778aa21688024ba525"
+        },
+        {
+            "path": "NativeGame_Data/resources.assets",
+            "sha256": "58170746a3e0565e164b3f8e9e8b6547ab7c2153522a3bb0c2d14dbb4c8a9439"
+        },
+        {
+            "path": "NativeGame_Data/sharedassets0.assets",
+            "sha256": "9ec5d5629408a51e53a482b6ea2f168d3f45d5166b796d064d2723bfb1dd3da6"
+        },
+        {
+            "path": "NativeGame_Data/sharedassets0.assets.resS",
+            "sha256": "393efe6399536384aa91bdfc4e64f244b4d3e1fbb6a4ff145c483ffee64ccb36"
+        },
+        {
+            "path": "UnityCrashHandler64.exe",
+            "sha256": "0fe83895eec261c405c7e7f007b5df8a88416d9b884e19033e138e6e6b6c2442"
+        },
+        {
+            "path": "UnityPlayer.dll",
+            "sha256": "336180ccc4cddc2905dd764be71810e75bd8c55eae1b86d3a84439e1e847e768"
+        },
+        {
+            "path": "dstorage.dll",
+            "sha256": "cae65787f61514bec6f012f44546e68b19e39d8854a9ab52af813370d44b272a"
+        },
+        {
+            "path": "dstoragecore.dll",
+            "sha256": "cf85b19a92a8276f8baca0db9bbcd60735bad50768deb303d310e84d5f4fdd11"
+        }
+    ]
+}

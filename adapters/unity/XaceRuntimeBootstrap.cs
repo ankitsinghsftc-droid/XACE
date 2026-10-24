@@ -23,10 +23,16 @@ namespace Xace.Adapter.Unity
             root.name = RuntimeObjectName;
             if (Application.isPlaying)
                 Object.DontDestroyOnLoad(root);
+            var profile = Resources.Load<XaceNativeHostProfile>("XaceNativeHost");
             EnsureComponent<XaceTransport>(root);
+            if (profile != null) root.GetComponent<XaceTransport>().ConfigureOwnedLifecycle();
             EnsureComponent<XaceInputCollector>(root);
             EnsureComponent<XaceDeltaApplicator>(root);
             EnsureComponent<XaceConsoleWidget>(root);
+            if (profile != null && root.GetComponent<XaceNativeHost>() == null)
+            {
+                var native = root.AddComponent<XaceNativeHost>(); native.profile = profile;
+            }
             return root;
         }
 

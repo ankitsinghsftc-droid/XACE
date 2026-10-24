@@ -38,6 +38,48 @@ namespace Xace.Adapter.Unity
         public event Action<Dictionary<string, object>> OnFeedbackReady;
         public event Action<XacePlaybackCommand, bool> OnPlaybackCommandApplied;
 
+        private Dictionary<string, GameObject> nativeObjects;
+        public void ConfigureNativeObjects(Dictionary<string, GameObject> objects)
+        {
+            if (entityMap.Count != 0 || objects == null || objects.Count == 0) throw new InvalidOperationException("Configure native objects before admission");
+            var approved = new Dictionary<string, GameObject>(StringComparer.Ordinal);
+            var unique = new HashSet<GameObject>();
+            foreach (var pair in objects)
+            {
+                if (string.IsNullOrWhiteSpace(pair.Key) || pair.Value == null || !pair.Value.scene.IsValid() || !unique.Add(pair.Value)) throw new InvalidOperationException("Distinct explicit native scene bindings required");
+                for (var parent = pair.Value.transform; parent != null; parent = parent.parent)
+                    if (Quaternion.Angle(parent.localRotation, Quaternion.identity) > 0.001f || Vector3.Distance(parent.localScale, Vector3.one) > 0.00001f) throw new InvalidOperationException("Native hierarchy requires approved static translation profile");
+                foreach (var body in pair.Value.GetComponentsInChildren<Rigidbody>(true))
+                    if (!body.isKinematic) throw new InvalidOperationException("Native dynamic physics is not authoritative in this profile");
+                approved.Add(pair.Key, pair.Value);
+            }
+            nativeObjects = approved;
+            collectFeedback = false; sendFeedbackToRuntime = false; sendLiveValidationFeedback = false;
+        }
+        private GameObject NativeObject(ulong entityId)
+        {
+            if (transport == null || !transport.Session.Enabled) throw new InvalidOperationException("Native binding requires admitted session");
+            GameObject result = null;
+            foreach (var binding in transport.Session.World.Bindings)
+            {
+                if (binding.Value != (long)entityId) continue;
+                if (!nativeObjects.TryGetValue(binding.Key, out var candidate) || candidate == null) throw new InvalidOperationException("Native World binding missing: " + binding.Key);
+                if (result != null && result != candidate) throw new InvalidOperationException("Ambiguous native entity binding");
+                result = candidate;
+            }
+            if (result == null) throw new InvalidOperationException("Runtime entity has no approved native binding: " + entityId);
+            return result;
+        }
+        private static void ApplyNativeTransform(GameObject go, SortedDictionary<uint, string> components)
+        {
+            if (!components.TryGetValue(TransformComponent, out var raw)) return;
+            var data = XaceCanonical.Parse(raw);
+            go.transform.position = XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(data, "position")));
+            go.transform.rotation = XaceCanonical.Rotation(XaceCanonical.Object(XaceCanonical.Get(data, "rotation")));
+            go.transform.localScale = XaceCanonical.Vector(XaceCanonical.Object(XaceCanonical.Get(data, "scale")), true);
+        }
+        private static int NativeDepth(Transform node) { int depth = 0; while (node.parent != null) { depth++; node = node.parent; } return depth; }
+
         private readonly Dictionary<ulong, GameObject> entityMap = new Dictionary<ulong, GameObject>();
         private readonly Dictionary<string, GameObject> prefabRegistry = new Dictionary<string, GameObject>(StringComparer.Ordinal);
         private readonly Dictionary<string, XaceAssetReference> assetBindingState = new Dictionary<string, XaceAssetReference>(StringComparer.Ordinal);
@@ -208,6 +250,8 @@ namespace Xace.Adapter.Unity
         private void ApplyEntityList(ulong tick, List<XaceEntityState> entities, bool removeMissing, List<ulong> destroyedIds)
         {
             EnsureSceneRoot();
+            if (nativeObjects != null && entities != null)
+                foreach (var entity in entities) { if (entity == null || entity.id == 0) throw new InvalidOperationException("Invalid native projection entity"); NativeObject(entity.id); }
 
             if (destroyedIds != null)
             {
@@ -228,7 +272,7 @@ namespace Xace.Adapter.Unity
 
                 if (transport != null && transport.Session.Enabled)
                 {
-                    foreach(var entity in entities)
+                    if (nativeObjects == null) foreach(var entity in entities)
                     {
                         var go=GetEntity(entity.id);
                         if(go==null || !entity.components.TryGetValue(TransformComponent,out var raw))continue;
@@ -248,6 +292,12 @@ namespace Xace.Adapter.Unity
                 }
             }
 
+            if (nativeObjects != null && entities != null)
+            {
+                var ordered = new List<XaceEntityState>(entities);
+                ordered.Sort((a, b) => { int order = NativeDepth(GetEntity(a.id).transform).CompareTo(NativeDepth(GetEntity(b.id).transform)); return order != 0 ? order : a.id.CompareTo(b.id); });
+                foreach (var entity in ordered) ApplyNativeTransform(GetEntity(entity.id), entity.components);
+            }
             if (removeMissing)
             {
                 var toRemove = new List<ulong>();
@@ -619,7 +669,7 @@ namespace Xace.Adapter.Unity
         {
             if (!entityMap.TryGetValue(state.id, out var go) || go == null)
             {
-                go = InstantiateForEntity(state);
+                go = nativeObjects != null ? NativeObject(state.id) : InstantiateForEntity(state);
                 entityMap[state.id] = go;
             }
 
@@ -657,6 +707,7 @@ namespace Xace.Adapter.Unity
         {
             if (!entityMap.TryGetValue(entityId, out var go))
                 return;
+            if (go != null && nativeObjects != null) { go.SetActive(false); entityMap.Remove(entityId); return; }
             if (go != null)
             {
                 if (transport != null && transport.Session.Enabled)
@@ -672,7 +723,7 @@ namespace Xace.Adapter.Unity
         {
             if (transport != null && transport.Session.Enabled)
             {
-                ApplyCanonical(go,components);
+                if (nativeObjects == null) ApplyCanonical(go,components);
                 return;
             }
             if (components == null)

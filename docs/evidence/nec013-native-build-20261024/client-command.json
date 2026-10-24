@@ -1,0 +1,23 @@
+[
+  "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe",
+  "-batchmode",
+  "-nographics",
+  "-projectPath",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\project",
+  "-executeMethod",
+  "NEC013UnityHostProof.Run",
+  "-xaceRelease",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\release",
+  "-xaceLauncher",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\xace-player-launcher.exe",
+  "-xaceLauncherHash",
+  "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "-xaceReleaseHash",
+  "017d746ad02aa9c1d68b3c5c6fcd92e99a5fa064d1eef9cb1b8eea624ad5e3aa",
+  "-xaceHistory",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\history",
+  "-xaceReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\proof.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\client-b\\editor.log"
+]

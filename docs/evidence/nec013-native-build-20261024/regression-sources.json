@@ -1,0 +1,17 @@
+{
+  "Assets/XACE/XaceConsoleWidget.cs": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507",
+  "Assets/XACE/XaceDeltaApplicator.cs": "a9ae5d6a1ea343cf0663c4880a79111e9227d7fb5ad55a6dcdeed6b31c4e2a0c",
+  "Assets/XACE/XaceInputCollector.cs": "44163eda0667af9deb3bf9ac02e68141d8e5abfa8f94ae7def1daeef9f43476c",
+  "Assets/XACE/XaceNativeBuild.cs": "676f18685e2e20c011977db0619ef9fe76379a8363952dea252f2f59b793f99b",
+  "Assets/XACE/XaceNativeContract.cs": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028",
+  "Assets/XACE/XaceNativeHost.cs": "986262f0948bebacb7b5219c1a1625c35f8debdc918ca69af3a10b4a9a011dbf",
+  "Assets/XACE/XaceNativeHostClient.cs": "89d15c4ac9a943c4b4b77884f013f6ecfda038123f51878ae9d0da4547f601ca",
+  "Assets/XACE/XaceNativeHostProfile.cs": "112f29b58aad58f6b4fcc990886585251019b137f8295ebfc86820d26d63ac68",
+  "Assets/XACE/XaceNativeSceneBinding.cs": "a2b6d6068087c688eb0f6c93f1e76cf48bcd14e57895e1962e6ff554b3745a2d",
+  "Assets/XACE/XaceRuntimeBootstrap.cs": "ccfd987594e8c1d42a399be40bec168d26595ed82cb51158a25eaa10621156f1",
+  "Assets/XACE/XaceTransport.cs": "2a647d74e5d0e07103024bf6c129f0a368b0779b5fa7afe59ef9441c2ca78e5c",
+  "Assets/XACE/Xace_embedded.cs": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1",
+  "Assets/XACE/Editor/XaceNativeContractProof.cs": "76b0f3f2dabfa372a428aea5d10d9e38e6be74c671fab18e7feb749606767d84",
+  "Packages/manifest.json": "3781e3c8165b686ea48e6e5c5b58276f5bed190c15b5fa614f9e09c25f67de5f",
+  "ProjectSettings/ProjectVersion.txt": "55fd0863aa87afd2b3f95d5cd08f3102a9803e00b9dd1e8a164cecb1b4afdabc"
+}
