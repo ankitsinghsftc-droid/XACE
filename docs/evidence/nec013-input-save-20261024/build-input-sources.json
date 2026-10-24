@@ -1,0 +1,14 @@
+{
+  "adapters/unity/XaceConsoleWidget.cs": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507",
+  "adapters/unity/XaceDeltaApplicator.cs": "a9ae5d6a1ea343cf0663c4880a79111e9227d7fb5ad55a6dcdeed6b31c4e2a0c",
+  "adapters/unity/XaceInputCollector.cs": "44163eda0667af9deb3bf9ac02e68141d8e5abfa8f94ae7def1daeef9f43476c",
+  "adapters/unity/XaceNativeBuild.cs": "1ee2645f7997c843e4213ef03fd37b0eaadb89779eb5f91fcd70f8517780ed5d",
+  "adapters/unity/XaceNativeContract.cs": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028",
+  "adapters/unity/XaceNativeHost.cs": "6d7cab6a14a68f2ed29174a005cc046c64c278d38911864a4c2f8b705326040b",
+  "adapters/unity/XaceNativeHostClient.cs": "89d15c4ac9a943c4b4b77884f013f6ecfda038123f51878ae9d0da4547f601ca",
+  "adapters/unity/XaceNativeHostProfile.cs": "112f29b58aad58f6b4fcc990886585251019b137f8295ebfc86820d26d63ac68",
+  "adapters/unity/XaceNativeSceneBinding.cs": "5c3c6c0101e577a7537b9e1b0e2cdb26e27546248cb1835874a16b5d113d6784",
+  "adapters/unity/XaceRuntimeBootstrap.cs": "ccfd987594e8c1d42a399be40bec168d26595ed82cb51158a25eaa10621156f1",
+  "adapters/unity/XaceTransport.cs": "2a647d74e5d0e07103024bf6c129f0a368b0779b5fa7afe59ef9441c2ca78e5c",
+  "adapters/unity/Xace_embedded.cs": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1"
+}

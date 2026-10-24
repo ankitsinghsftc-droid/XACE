@@ -15,6 +15,10 @@ namespace Xace.Adapter.Unity
             EnsureRuntimeObjectForPlay();
         }
 
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
+        private static void RequireNativeOwnerForExplicitBindings()
+        { if(Object.FindAnyObjectByType<XaceNativeSceneBinding>(FindObjectsInactive.Include)!=null) EnsureRuntimeObjectForPlay(); }
+
         public static GameObject EnsureRuntimeObjectForPlay()
         {
             var transport = Object.FindAnyObjectByType<XaceTransport>();
@@ -25,11 +29,12 @@ namespace Xace.Adapter.Unity
                 Object.DontDestroyOnLoad(root);
             var profile = Resources.Load<XaceNativeHostProfile>("XaceNativeHost");
             EnsureComponent<XaceTransport>(root);
-            if (profile != null) root.GetComponent<XaceTransport>().ConfigureOwnedLifecycle();
+            bool nativeScene=profile!=null || Object.FindAnyObjectByType<XaceNativeSceneBinding>(FindObjectsInactive.Include)!=null;
+            if (nativeScene) root.GetComponent<XaceTransport>().ConfigureOwnedLifecycle();
             EnsureComponent<XaceInputCollector>(root);
             EnsureComponent<XaceDeltaApplicator>(root);
             EnsureComponent<XaceConsoleWidget>(root);
-            if (profile != null && root.GetComponent<XaceNativeHost>() == null)
+            if (nativeScene && root.GetComponent<XaceNativeHost>() == null)
             {
                 var native = root.AddComponent<XaceNativeHost>(); native.profile = profile;
             }

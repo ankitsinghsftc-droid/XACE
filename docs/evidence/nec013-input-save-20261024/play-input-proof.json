@@ -1,0 +1,17 @@
+{
+    "ok": true,
+    "version": "6000.4.9f1",
+    "error": "",
+    "entities": 2,
+    "tick": 12,
+    "native_identity": true,
+    "hierarchy": true,
+    "no_mirrors": true,
+    "projection_positions": true,
+    "process_cleanup": true,
+    "cycles": 3,
+    "domain_reload_disabled": true,
+    "input_moves_authority": true,
+    "runtime_pid": 36736,
+    "owner_pid": 26064
+}

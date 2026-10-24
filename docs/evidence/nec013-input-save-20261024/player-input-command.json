@@ -1,0 +1,9 @@
+[
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-input-b\\relocated game\\NativeGame.exe",
+  "-batchmode",
+  "-nographics",
+  "-xacePlayerReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-input-b\\player.json",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-input-b\\player.log"
+]

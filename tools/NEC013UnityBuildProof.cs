@@ -23,6 +23,7 @@ public static class NEC013UnityBuildProof
             XaceNativeBuild.Validate();
             var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{scene},locationPathName=Arg("-xaceBuild"),target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
             if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Windows build failed: "+report.summary.result);
+            XaceNativeBuild.RequireBuildReceipt(Arg("-xaceBuild"));
             File.WriteAllText(Arg("-xaceReport"),"{\"ok\":true,\"backend\":\"Mono\",\"stale_scene_refused\":true,\"clean_machine\":false}");EditorApplication.Exit(0);
         }
         catch(Exception error){Debug.LogException(error);File.WriteAllText(Arg("-xaceReport"),JsonUtility.ToJson(new Failure{error=error.ToString()},true));EditorApplication.Exit(1);}

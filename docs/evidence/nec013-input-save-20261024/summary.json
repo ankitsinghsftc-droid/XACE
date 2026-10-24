@@ -1,0 +1,28 @@
+{
+  "schema": "xace.nec013.increment.v1",
+  "status": "incomplete",
+  "previous_checkpoint": "073708f",
+  "verified": [
+    "Three Editor cycles with actual timed input moving authority",
+    "World object identity/starting transform preflight",
+    "Cooked package re-admission and explicit XACE build receipt check",
+    "Relocated ACL-read-only installation with denied write probe",
+    "Compatible save admitted-not-restored and incompatible save retained while gameplay continues",
+    "Runtime crash visibly stops/freezes projection and owned processes exit",
+    "17 real Unity playback/resource/input regression checks"
+  ],
+  "invalidated_attempts": {
+    "build-input-a": "Unity BuildResult success concealed failed XACE post-build scene check; not admitted or accepted as successful build",
+    "player-input-a": "Runtime observation only, from unadmitted build-input-a; excluded from release evidence",
+    "player-scene-a": "Native host stopped on reload, but test observer was destroyed; timeout, not accepted"
+  },
+  "pending": [
+    "Required-resource preflight and runtime-driven audio/animation package build underway",
+    "Corrected scene reload observer proof",
+    "Standalone update rejection and rollback",
+    "Native fidelity contract and source approval workflow closeout",
+    "Final native/focused regression audit",
+    "Clean Windows machine (user confirms none available)"
+  ],
+  "backup": "073708f source/compact evidence pushed; this increment not yet pushed; raw fixtures/binaries/seal local only"
+}

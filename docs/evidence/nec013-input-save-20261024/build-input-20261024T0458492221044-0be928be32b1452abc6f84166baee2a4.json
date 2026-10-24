@@ -1,0 +1,12 @@
+{
+    "schema": "xace.unity.build_receipt.v1",
+    "status": "staging",
+    "error": "",
+    "approval": "38792527d5c56a274f600f81424a26cc148983c0bea2938f9c4ede6eeaa0e4b3",
+    "release": "017d746ad02aa9c1d68b3c5c6fcd92e99a5fa064d1eef9cb1b8eea624ad5e3aa",
+    "launcher": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+    "unity": "6000.4.9f1",
+    "backend": "Mono",
+    "output": "C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/build-input-b/shipping/NativeGame.exe",
+    "files": []
+}

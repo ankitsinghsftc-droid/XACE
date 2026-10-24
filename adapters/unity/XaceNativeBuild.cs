@@ -49,9 +49,9 @@ namespace Xace.Adapter.Unity
             var p=Profile();
             return new Approval {unity=Application.unityVersion,game=p.gameId,release=p.releaseSha256,launcher=p.launcherSha256,scenes=Scenes(),files=Inventory()};
         }
-        static void VerifyRelease()
+        static void VerifyRelease(string cookedRelease = null)
         {
-            var p=Profile();string release=p.ResolveRelease(Application.streamingAssetsPath);
+            var p=Profile();string release=cookedRelease ?? p.ResolveRelease(Application.streamingAssetsPath);
             using(var client=new XaceNativeHostClient())
             {
                 // Admission only: no Play, save restoration, or active-release mutation.
@@ -83,12 +83,20 @@ namespace Xace.Adapter.Unity
             using(var stream=new FileStream(ApprovalPath,FileMode.CreateNew,FileAccess.Write))
             using(var writer=new StreamWriter(stream)) writer.Write(JsonUtility.ToJson(Current(),true));
         }
-        public static void Validate()
+        public static void Validate(bool inspectScene = true)
         {
             if(!File.Exists(ApprovalPath)) throw new BuildFailedException("Explicit native source approval required before Play/build");
             if(UnityEngine.SceneManagement.SceneManager.GetActiveScene().isDirty) throw new BuildFailedException("Save and review native scene changes first");
             var approved=JsonUtility.FromJson<Approval>(File.ReadAllText(ApprovalPath));
             if(JsonUtility.ToJson(approved)!=JsonUtility.ToJson(Current())) throw new BuildFailedException("Native source, resource, profile or scene inventory changed since approval");
+            if(inspectScene)
+            {
+            var bindings=new Dictionary<string,GameObject>(StringComparer.Ordinal);
+            foreach(var b in UnityEngine.Object.FindObjectsByType<XaceNativeSceneBinding>(FindObjectsInactive.Include,FindObjectsSortMode.None))
+            {if(string.IsNullOrWhiteSpace(b.worldObjectId)||bindings.ContainsKey(b.worldObjectId))throw new BuildFailedException("Duplicate native scene identity");bindings.Add(b.worldObjectId,b.gameObject);}
+            var p=Profile();XaceNativeSceneBinding.ValidateWorld(File.ReadAllText(Path.Combine(p.ResolveRelease(Application.streamingAssetsPath),"package","world.json")),bindings);
+            }
+            Profile().ValidateRequiredResources(Profile().ResolveRelease(Application.streamingAssetsPath));
             VerifyRelease();
         }
         static string Journal(Receipt value)
@@ -100,6 +108,7 @@ namespace Xace.Adapter.Unity
         public void OnPreprocessBuild(BuildReport report)
         {
             if(!File.Exists(ApprovalPath)&&Resources.Load<XaceNativeHostProfile>("XaceNativeHost")==null) return;
+            SessionState.EraseString("XACE.NativeBuildResult");
             var receipt=new Receipt{status="staging",unity=Application.unityVersion,backend="Mono",output=report.summary.outputPath};
             try
             {
@@ -112,6 +121,15 @@ namespace Xace.Adapter.Unity
             }
             catch(Exception error){receipt.status="refused";receipt.error=error.Message;Journal(receipt);throw;}
         }
+        public static void RequireBuildReceipt(string output)
+        {
+            string path=SessionState.GetString("XACE.NativeBuildResult","");
+            if(string.IsNullOrEmpty(path)||!File.Exists(path))throw new BuildFailedException("XACE build receipt missing; release is not admitted");
+            var receipt=JsonUtility.FromJson<Receipt>(File.ReadAllText(path));
+            if(receipt.status!="built-not-certified"||Path.GetFullPath(receipt.output)!=Path.GetFullPath(output))throw new BuildFailedException("XACE build refused: "+receipt.error);
+            string root=Path.GetDirectoryName(Path.GetFullPath(output));
+            foreach(var item in receipt.files)if(XaceNativeHostClient.FileHash(Path.Combine(root,item.path))!=item.sha256)throw new BuildFailedException("Cooked output changed after verification");
+        }
         public void OnPostprocessBuild(BuildReport report)
         {
             if(string.IsNullOrEmpty(pending)) pending=SessionState.GetString("XACE.NativeBuildJournal","");
@@ -119,15 +137,16 @@ namespace Xace.Adapter.Unity
             var receipt=JsonUtility.FromJson<Receipt>(File.ReadAllText(pending));
             try
             {
-                Validate();
+                Validate(false);
                 if(XaceNativeHostClient.FileHash(ApprovalPath)!=receipt.approval)throw new BuildFailedException("Approval changed during build");
                 string root=Path.GetDirectoryName(Path.GetFullPath(report.summary.outputPath));
                 string release=Profile().ResolveRelease(Path.Combine(root,Path.GetFileNameWithoutExtension(report.summary.outputPath)+"_Data","StreamingAssets"));
                 if(XaceNativeHostClient.FileHash(Path.Combine(release,"native-release.json"))!=receipt.release || XaceNativeHostClient.FileHash(Path.Combine(release,Profile().launcherFile))!=receipt.launcher)throw new BuildFailedException("Cooked release identity mismatch");
+                VerifyRelease(release);
                 receipt.files=Directory.GetFiles(root,"*",SearchOption.AllDirectories).OrderBy(p=>p,StringComparer.Ordinal).Select(p=>new Entry{path=p.Substring(root.Length+1).Replace('\\','/'),sha256=XaceNativeHostClient.FileHash(p)}).ToArray();
-                receipt.status="built-not-certified";Journal(receipt);
+                receipt.status="built-not-certified";SessionState.SetString("XACE.NativeBuildResult",Journal(receipt));
             }
-            catch(Exception error){receipt.status="failed";receipt.error=error.Message;Journal(receipt);throw;}
+            catch(Exception error){receipt.status="failed";receipt.error=error.Message;SessionState.SetString("XACE.NativeBuildResult",Journal(receipt));throw;}
             finally{pending=null;SessionState.EraseString("XACE.NativeBuildJournal");}
         }
     }
