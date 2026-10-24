@@ -1,0 +1,1171 @@
+[Licensing::Module] Trying to connect to existing licensing client channel...
+Built from '6000.4/staging' branch; Version is '6000.4.9f1 (f7258d6eebbe) revision 16197005'; Using compiler version '194234433'; Build Type 'Release'
+OS: 'Windows 11  (10.0.26200) CoreSingleLanguage' Language: 'en' Physical Memory: 16107 MB
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-ankit" at "2026-10-24T16:47:32.5523995Z"
+BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
+System  architecture: x64
+Process architecture: x64
+Date: 2026-10-24T16:47:32Z
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 13716, path: "C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/Resources/Licensing/Client/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.18.1+9fbee8e
+  Session Id:              25c7c8d81d4f493796c572d423946a4d
+  Correlation Id:          3d7241a15f5e79333283f6c0d8a71c44
+  External correlation Id: 8132045264657427127
+  Machine Id:              YQBonFGUkjGlVhw406Knq+W1NCo=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-ankit" (connect: 0.00s, validation: 0.00s, handshake: 0.17s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-ankit-notifications" at "2026-10-24T16:47:32.724014Z"
+[Licensing::Module] Error: Access token is unavailable; failed to update
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: 13469929022274-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+[Licensing::Client] Successfully updated license, isAsync: True, time: 0.00
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] Licensing Background thread has ended after 0.18s
+
+COMMAND LINE ARGUMENTS:
+C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe
+-batchmode
+-nographics
+-projectPath
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project
+-executeMethod
+NEC013UnityPlayProof.Run
+-xaceReport
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\proof.json
+-logFile
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\editor.log
+Successfully changed project path to: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project
+C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/playback-editor-d/project
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gfx=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+Player connection [4236]  Target information:
+
+Player connection [4236]  * "[IP] 172.22.208.1 [Port] 55505 [Flags] 2 [Guid] 3199906043 [EditorId] 3199906043 [Version] 1048832 [Id] WindowsEditor(7,Jarvis) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [4236]  * "[IP] 100.125.34.11 [Port] 55505 [Flags] 2 [Guid] 3199906043 [EditorId] 3199906043 [Version] 1048832 [Id] WindowsEditor(7,Jarvis) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [4236]  * "[IP] 192.168.1.33 [Port] 55505 [Flags] 2 [Guid] 3199906043 [EditorId] 3199906043 [Version] 1048832 [Id] WindowsEditor(7,Jarvis) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+
+Player connection [4236] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [4236] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+[Package Manager] Connected to IPC stream "Upm-8116" after 0.1 seconds.
+[Licensing::Client] Successfully resolved entitlement details
+Library Redirect Path: Library/
+Rebuilding Library because the asset database could not be found!
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Initialize engine version: 6000.4.9f1 (f7258d6eebbe)
+[Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/playback-editor-d/project/Assets
+Forcing GfxDevice: Null
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+NullGfxDevice:
+    Version:  NULL 1.0 [1.0]
+    Renderer: Null Device
+    Vendor:   Unity Technologies
+Initialize mono
+Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/Managed'
+Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
+Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56116
+CodeReloadManager initialized
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+Using cacheserver namespaces - metadata:defaultmetadata, artifacts:defaultartifacts
+ImportWorker Server TCP listen port: 0
+AcceleratorClientConnectionCallback - disconnected - :0
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
+Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
+Registered in 0.001943 seconds.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Package Manager log level set to [2]
+ScheduleIndexationOnStartup MainProcess:False IndexOnStartup:False
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.398 seconds
+Domain Reload Profiling: 5308ms
+	BeginReloadAssembly (447ms)
+		CreateAndSetChildDomain (6ms)
+	RebuildCommonClasses (894ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (60ms)
+	LoadAllAssembliesAndSetupDomain (3497ms)
+		LoadAssemblies (448ms)
+		AnalyzeDomain (3480ms)
+			TypeCache.Refresh (3479ms)
+				TypeCache.ScanAssembly (2728ms)
+	FinalizeReload (400ms)
+		SetupLoadedEditorAssemblies (0ms)
+			InitializePlatformSupportModulesInManaged (42ms)
+			BeforeProcessingInitializeOnLoad (74ms)
+			ProcessInitializeOnLoadAttributes (118ms)
+			ProcessInitializeOnLoadMethodAttributes (100ms)
+[Licensing::Client] Successfully resolved entitlement details
+Application.AssetDatabase Initial Refresh Start
+[Package Manager] Done resolving packages in 6.09 seconds
+[Licensing::Client] Successfully resolved entitlement details
+[Package Manager] Lock file was created
+[Package Manager] Registered 7 packages:
+  Built-in packages:
+    com.unity.modules.particlesystem@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.particlesystem)
+    com.unity.modules.physics@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.physics)
+    com.unity.modules.audio@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.audio)
+    com.unity.modules.animation@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.animation)
+    com.unity.modules.jsonserialize@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.jsonserialize)
+    com.unity.modules.ui@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.ui)
+    com.unity.modules.imgui@1.0.0 (location: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project\Library\PackageCache\com.unity.modules.imgui)
+[Subsystems] No new subsystems found in resolved package list.
+[Package Manager] Done registering packages in 0.00 seconds
+[ScriptCompilation] Requested script compilation because: AssetDatabase observed changes in script compilation related files
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:80
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Production
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec013\20261024\playback-editor-d\project
+info: Microsoft.AspNetCore.Hosting.Diagnostics[1]
+      Request starting HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping - application/grpc -
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[0]
+      Executing endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Routing.EndpointMiddleware[1]
+      Executed endpoint 'gRPC - /UnityILPP.PostProcessing/Ping'
+info: Microsoft.AspNetCore.Hosting.Diagnostics[2]
+      Request finished HTTP/2 POST http://ilpp/UnityILPP.PostProcessing/Ping - 200 - application/grpc 30.3586ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --profile="Library/Bee/backend1.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/playback-editor-d/project
+ExitCode: 4 Duration: 0s46ms
+[             ] Require frontend run.  Library/Bee/1900b0aE.dag couldn't be loaded
+DisplayProgressbar: Compiling Scripts
+Starting: C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\netcorerun\netcorerun.exe "C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\Tools\BuildPipeline\ScriptCompilationBuildProgram.exe" "Library/Bee/1900b0aE.dag.json" "Library/Bee/1900b0aE-inputdata.json" "Library\Bee\buildprogram0.traceevents"
+WorkingDir: C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/playback-editor-d/project
+ExitCode: 0 Duration: 3s271ms
+Starting: C:\Program Files\Unity\Hub\Editor\6000.4.9f1\Editor\Data\Tools\BuildPipeline\bee_backend.exe --ipc --defer-dag-verification --dagfile="Library/Bee/1900b0aE.dag" --continue-on-failure --dagfilejson="Library\Bee\1900b0aE.dag.json" --profile="Library/Bee/backend2.traceevents" ScriptAssemblies
+WorkingDir: C:/Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec013/20261024/playback-editor-d/project
+ExitCode: 0 Duration: 2s966ms
+Finished compiling graph: 162 nodes, 584 flattened edges (574 ToBuild, 4 ToUse), maximum node priority 18
+[  1/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.ShaderCompilationModule.dll_28B3310CF8FEA7C2.mvfrm
+[  2/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TextRenderingModule.dll_80703430E31819C3.mvfrm
+[  3/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.ShaderFoundryModule.dll_75ACE238B36AE4F8.mvfrm
+[  4/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SceneTemplateModule.dll_36CD11F590BB686A.mvfrm
+[  5/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TextCoreTextEngineModule.dll_16B008F52D820D0B.mvfrm
+[  6/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.QuickInstallModule.dll_ACD26BCF9EC3069E.mvfrm
+[  7/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SpriteShapeModule.dll_FE3CB5CA288B6340.mvfrm
+[  8/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SubstanceModule.dll_D98F115AFE1F9854.mvfrm
+[  9/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SafeModeModule.dll_7D4276E10F3BD790.mvfrm
+[ 10/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SceneViewModule.dll_6E5F6789638A8D55.mvfrm
+[ 11/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TextCoreFontEngineModule.dll_CEC7D2839DFE53ED.mvfrm
+[ 12/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.ShaderBuildSettingsModule.dll_422364674B34E5B0.mvfrm
+[ 13/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SketchUpModule.dll_65575C315A6D73A7.mvfrm
+[ 14/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TerrainModule.dll_26BEEEED850B98F9.mvfrm
+[ 15/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.PropertiesModule.dll_9C2B38103B0984E3.mvfrm
+[ 16/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.ProjectAuditorModule.dll_1FE6E5AEB3A03335.mvfrm
+[ 17/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.SpriteMaskModule.dll_581C6B61E98DB621.mvfrm
+[ 18/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.InputModule.dll_BF2E0D586F179743.mvfrm
+[ 19/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.QuickSearchModule.dll_A6B8250D22BC86C9.mvfrm
+[ 20/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.PresetsUIModule.dll_EB15BD6370C0184C.mvfrm
+[ 21/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.MultiplayerModule.dll_6483A4FC2BB0B8AE.mvfrm
+[ 22/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.PlayModeModule.dll_C336689AAE04E6F7.mvfrm
+[ 23/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.PhysicsModule.dll_0C78737EAF4D500B.mvfrm
+[ 24/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.MediaModule.dll_5E4BA2D545AECA88.mvfrm
+[ 25/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.Physics2DModule.dll_94F4FFB20441DA9D.mvfrm
+[ 26/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GridAndSnapModule.dll_25618A814D4A475F.mvfrm
+[ 27/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GridModule.dll_52819D8E8D53BD46.mvfrm
+[ 28/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GraphicsStateCollectionSerializerModule.dll_C784B09D684E598A.mvfrm
+[ 29/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GraphViewModule.dll_2FAF84816E67C047.mvfrm
+[ 30/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GIModule.dll_8CB245AD5E2E5612.mvfrm
+[ 31/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.EmbreeModule.dll_AF96287EE8011F78.mvfrm
+[ 32/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.EditorToolbarModule.dll_132DA13791CEBE32.mvfrm
+[ 33/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.GraphToolkitModule.dll_E9D0023B4DEBC6F0.mvfrm
+[ 34/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.DiagnosticsModule.dll_1BA8A3FFC9E58A70.mvfrm
+[ 35/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.DeviceSimulatorModule.dll_D5674B0178A550A2.mvfrm
+[ 36/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.ClothModule.dll_F973E63EA17F20DE.mvfrm
+[ 37/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.CoreBusinessMetricsModule.dll_B9E817389E7CE368.mvfrm
+[ 38/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.CoreModule.dll_751081A074FF274F.mvfrm
+[ 39/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.AssetComplianceModule.dll_0E425AEFF36134CF.mvfrm
+[ 40/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.BuildProfileModule.dll_CDF31D905D3C986B.mvfrm
+[ 41/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VirtualTexturingModule.dll_73BB529A9567A898.mvfrm
+[ 42/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/Unity.Scripting.dll_79716F5417BEDC42.mvfrm
+[ 43/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.dll_B49786EA1583CDFB.mvfrm
+[ 44/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.AccessibilityModule.dll_DD318B6518390CE2.mvfrm
+[ 45/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityConsentModule.dll_8832464189B31480.mvfrm
+[ 46/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityCurlModule.dll_3151A1DBB8D886DA.mvfrm
+[ 47/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VFXModule.dll_1532AC9C382D9D91.mvfrm
+[ 48/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityConnectModule.dll_B68CAF157CA87E30.mvfrm
+[ 49/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.AdaptivePerformanceModule.dll_39FD1DBE7835B46E.mvfrm
+[ 50/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UIModule.dll_2E582C5C8A43A76F.mvfrm
+[ 51/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TextCoreFontEngineModule.dll_4D274DD6B0FC12B8.mvfrm
+[ 52/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityAnalyticsCommonModule.dll_0885E8246821BF97.mvfrm
+[ 53/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TextCoreTextEngineModule.dll_950F8448407FCBD6.mvfrm
+[ 54/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TLSModule.dll_9454142D61C03424.mvfrm
+[ 55/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.SubstanceModule.dll_8F750243E39F4A39.mvfrm
+[ 56/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TextRenderingModule.dll_0CB126585C109CE8.mvfrm
+[ 57/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.StreamingModule.dll_B2C9EDFA984C4C2B.mvfrm
+[ 58/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.SpriteMaskModule.dll_58CAD8A9EBD1CF6C.mvfrm
+[ 59/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.SpriteShapeModule.dll_040285593AC573C5.mvfrm
+[ 60/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.SharedInternalsModule.dll_CB1749F8E1B3116A.mvfrm
+[ 61/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.RuntimeInitializeOnLoadManagerInitializerModule.dll_1F659670112B014B.mvfrm
+[ 62/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.RenderAs2DModule.dll_DE1167DE1CA7E865.mvfrm
+[ 63/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ShaderVariantAnalyticsModule.dll_9B3BDEE6FC7AD141.mvfrm
+[ 64/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.PropertiesModule.dll_9CD9A5583D4D9E2E.mvfrm
+[ 65/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.PhysicsBackendPhysXModule.dll_D4A09A0196374A32.mvfrm
+[ 66/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.PerformanceReportingModule.dll_6D472AE04E392139.mvfrm
+[ 67/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ScriptingModule.dll_15565970C84C43A0.mvfrm
+[ 68/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.PhysicsModule.dll_FEF32C29145C3750.mvfrm
+[ 69/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.LocalizationModule.dll_87166A6ECB244344.mvfrm
+[ 70/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ParticleSystemModule.dll_90569CE47AF401E0.mvfrm
+[ 71/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.InsightsModule.dll_122001F21D83FE96.mvfrm
+[ 72/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.MarshallingModule.dll_9309F693694B690D.mvfrm
+[ 73/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.MultiplayerModule.dll_6A49748B3DEAC933.mvfrm
+[ 74/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.JSONSerializeModule.dll_C98A06C8906CF091.mvfrm
+[ 75/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.HierarchyModule.dll_1D238B5D2C46FF09.mvfrm
+[ 76/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.InputLegacyModule.dll_7BE6731D1D14F1AC.mvfrm
+[ 77/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.IMGUIModule.dll_9117E50EBF110680.mvfrm
+[ 78/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.IdentifiersModule.dll_C32ADFF4479C09D3.mvfrm
+[ 79/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.InputForUIModule.dll_7250C0332A82D6AE.mvfrm
+[ 80/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.DSPGraphModule.dll_7DAA9ACB05678038.mvfrm
+[ 81/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.HotReloadModule.dll_7F7DBEB023F7B06F.mvfrm
+[ 82/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.GraphicsStateCollectionSerializerModule.dll_D0787D8D354DA2EF.mvfrm
+[ 83/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.GameCenterModule.dll_6F9E6619CA6239F2.mvfrm
+[ 84/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.GridModule.dll_75A270E135592871.mvfrm
+[ 85/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ContentLoadModule.dll_83B7B13F53A5E3A8.mvfrm
+[ 86/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.GIModule.dll_CB20D73CC9AB89DD.mvfrm
+[ 87/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.CrashReportingModule.dll_3D4453980CE27652.mvfrm
+[ 88/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.CoreModule.dll_983154F31D04927A.mvfrm
+[ 89/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp2
+[ 90/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.UnityAdditionalFile.txt
+[ 91/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll.mvfrm.rsp
+[ 92/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.rsp
+[ 93/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.dll_81F34011B7104116.mvfrm
+[ 94/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ClusterInputModule.dll_48C9A01C33A8504B.mvfrm
+[ 95/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ClusterRendererModule.dll_DB140D72E8605E26.mvfrm
+[ 96/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ARModule.dll_EC5753328B1A008C.mvfrm
+[ 97/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AudioModule.dll_58B845A7F8DF729F.mvfrm
+[ 98/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AnimationModule.dll_FE3500AA48C494ED.mvfrm
+[ 99/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.XRModule.dll_757A845749BB467A.mvfrm
+[100/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.VideoModule.dll_B7950DAE89F45D9F.mvfrm
+[101/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.VectorGraphicsModule.dll_6C79717DF10DE41E.mvfrm
+[102/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.VFXModule.dll_09110A48C87D8F8C.mvfrm
+[103/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UnityConnectModule.dll_C92D2B0682207D85.mvfrm
+[104/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UmbraModule.dll_0D60355C5488ED6D.mvfrm
+[105/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UIElementsModule.dll_C708332BBB01DA2B.mvfrm
+[106/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UIToolkitAuthoringModule.dll_021E6710BC84D7AD.mvfrm
+[107/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UIElementsSamplesModule.dll_1CE4CE9515FAB2F2.mvfrm
+[108/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UIBuilderModule.dll_8438319DE120397B.mvfrm
+[109/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.UIAutomationModule.dll_7E940C80F9B0612B.mvfrm
+[110/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TilemapModule.dll_C5BB566E9CC87A02.mvfrm
+[111/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.TreeModule.dll_D2BC76AEFCC4BC8E.mvfrm
+[112/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AssetBundleModule.dll_EAA157FE85233BBB.mvfrm
+[113/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.Graphs.dll_2E52931A817BA281.mvfrm
+[114/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AIModule.dll_32E48E2F2DFCA1C3.mvfrm
+[115/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityWebRequestModule.dll_58A512CD7579B099.mvfrm
+[116/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.WindowsStandalone.Extensions.dll_04E26E5BCCE11641.mvfrm
+[117/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEditor.WebGL.Extensions.dll_22978CA0B11C71D1.mvfrm
+[118/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.XRModule.dll_B3E915E6B5387A45.mvfrm
+[119/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VideoModule.dll_7DC1CA12BB718E44.mvfrm
+[120/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.WindModule.dll_0E80301BAE3B10E3.mvfrm
+[121/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VectorGraphicsModule.dll_279DD3190CFA7829.mvfrm
+[122/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityWebRequestWWWModule.dll_5FD1C9A4303F8842.mvfrm
+[123/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityWebRequestAudioModule.dll_E5437EBED4A3EBD1.mvfrm
+[124/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityWebRequestTextureModule.dll_DA81C13650AE95C6.mvfrm
+[125/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VehiclesModule.dll_F01C32E10D307EB2.mvfrm
+[126/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UmbraModule.dll_D38CF1C086061E12.mvfrm
+[127/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.VRModule.dll_812A52E22BFE2CE7.mvfrm
+[128/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityAnalyticsModule.dll_AFF60DAE271B53DC.mvfrm
+[129/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.rsp2
+[130/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.UnityAdditionalFile.txt
+[131/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll.mvfrm.rsp
+[132/159    0s] WriteText Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.rsp
+[133/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TilemapModule.dll_B8360F1901D76147.mvfrm
+[134/159    0s] MovedFromExtractor-Combine Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll.mvfrm
+[135/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TerrainModule.dll_1939A797EA1A803E.mvfrm
+[136/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UIElementsModule.dll_C7B6A073BD45F376.mvfrm
+[137/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.UnityWebRequestAssetBundleModule.dll_DCE789572B6EFBAD.mvfrm
+[138/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.TerrainPhysicsModule.dll_90D145B79436FC6D.mvfrm
+[139/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.SubsystemsModule.dll_C3783F0BBA19B77F.mvfrm
+[140/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ScreenCaptureModule.dll_E371B44DA4D91CF3.mvfrm
+[141/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.NVIDIAModule.dll_07A74066459E3A26.mvfrm
+[142/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ImageConversionModule.dll_47060B236A85161A.mvfrm
+[143/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.Physics2DModule.dll_4ADAF09AE9C18C82.mvfrm
+[144/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.HierarchyModule.dll_D3097C4611C6B0EE.mvfrm
+[145/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.ClothModule.dll_BFA0A2A2D2FC5183.mvfrm
+[146/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.HierarchyCoreModule.dll_E08D1A66FFDEE8FD.mvfrm
+[147/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AMDModule.dll_95C450C83A8FB8D1.mvfrm
+[148/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.DirectorModule.dll_785939619306AF17.mvfrm
+[149/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AndroidJNIModule.dll_45511BFF04214901.mvfrm
+[150/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AdaptivePerformanceModule.dll_FA8CB274B37B0773.mvfrm
+[151/159    0s] MovedFromExtractor Library/Bee/artifacts/mvdfrm/UnityEngine.AccessibilityModule.dll_69727D8C91319007.mvfrm
+[152/159    0s] MovedFromExtractor-Combine Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll.mvfrm
+[153/159    0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp.dll (+2 others)
+Assets\XACE\XaceNativeHost.cs(52,131): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\XACE\XaceNativeHost.cs(52,41): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+
+Assets\XACE\XaceNativeBuild.cs(95,119): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\XACE\XaceNativeBuild.cs(95,30): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[154/159    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.pdb
+[155/159    0s] Csc Library/Bee/artifacts/1900b0aE.dag/Assembly-CSharp-Editor.dll (+2 others)
+Assets\XACE\Editor\NEC013UnityPlayProof.cs(81,115): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+
+Assets\XACE\Editor\NEC013UnityPlayProof.cs(81,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+[156/159    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.pdb
+[157/159    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp-Editor.dll
+[158/159    0s] CopyFiles Library/ScriptAssemblies/Assembly-CSharp.dll
+*** Tundra build success (2.94 seconds), 158 items updated, 159 evaluated
+Assets\XACE\XaceNativeHost.cs(52,131): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\XACE\XaceNativeHost.cs(52,41): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\XACE\XaceNativeBuild.cs(95,119): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\XACE\XaceNativeBuild.cs(95,30): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+Assets\XACE\Editor\NEC013UnityPlayProof.cs(81,115): warning CS0618: 'FindObjectsSortMode' is obsolete: 'FindObjectsSortMode has been deprecated. Use the FindObjectsByType overloads that do not take a FindObjectsSortMode parameter.'
+Assets\XACE\Editor\NEC013UnityPlayProof.cs(81,26): warning CS0618: 'Object.FindObjectsByType<T>(FindObjectsInactive, FindObjectsSortMode)' is obsolete: 'FindObjectsByType with FindObjectsSortMode parameter has been deprecated. Use FindObjectsByType<T>() or FindObjectsByType<T>(FindObjectsInactive) instead. InstanceID will be replaced in the future with EntityId and previous sort order cannot be maintained.'
+AssetDatabase: script compilation time: 7.273930s
+Begin MonoManager ReloadAssembly
+Total cache size 53680932
+Total cache size after purge 53680932, took 00:00:00.0551902
+Assembly Assembly-CSharp-Editor-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll not valid. Loading of assembly skipped.
+Assembly Assembly-CSharp-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll not valid. Loading of assembly skipped.
+Start importing Assets using Guid(00000000000000001000000000000000) (DefaultImporter) -> (Import Result ID: '07be7ffc84d9ddfaf7a0eb831c795109') in 0.0386989 seconds [static dependencies only]. Details - ImportResultOutputID=30b926a03412fb9f812ec41da9eeb7a2 DependenciesID=c0ade824a0169ac5681665906faf46ef StaticDependenciesID=9150d2cfa9afe7474974e17a1042cb4a 
+Start importing ProjectSettings/InputManager.asset using Guid(00000000000000002000000000000000) (LibraryAssetImporter) -> (Import Result ID: 'f0618dd140ae087f32d937c07be5f372') in 0.0071346 seconds [static dependencies only]. Details - ImportResultOutputID=cd92139355b314af40fe1de5f1f8f95e DependenciesID=af7e2025c6d7b1694d9db2ad7b3766a3 StaticDependenciesID=e28254c95bb625ed156fd4aa6e144f4c 
+Start importing ProjectSettings/TagManager.asset using Guid(00000000000000003000000000000000) (LibraryAssetImporter) -> (Import Result ID: '9c0f67ab99b463734b6356303dd11330') in 0.0019577 seconds [static dependencies only]. Details - ImportResultOutputID=28c8b39e8fe18a0fd7dbf4e83f943962 DependenciesID=31fecaa980761f383981755500995e65 StaticDependenciesID=a44fb0b546e96fb60b4dbafab6148c3c 
+Start importing ProjectSettings/ProjectSettings.asset using Guid(00000000000000004000000000000000) (LibraryAssetImporter) -> (Import Result ID: '6d2f6906ad982a79192ddfd0962dbec5') in 0.0068723 seconds [static dependencies only]. Details - ImportResultOutputID=d3ca6db29495033f6ec6c171ea098da8 DependenciesID=9d8ecea88ef6a88b2dfecf131d0e2016 StaticDependenciesID=779263a42d5d42bf97c081f8dfc0f6ee 
+Start importing ProjectSettings/AudioManager.asset using Guid(00000000000000006000000000000000) (LibraryAssetImporter) -> (Import Result ID: 'feaf174efed840ae1afa34396ca9aeec') in 0.0015306 seconds [static dependencies only]. Details - ImportResultOutputID=c4d7f2660572de865bd8151486c69f5a DependenciesID=8b3dcd75429c27e2d46625a99eb55959 StaticDependenciesID=2de12fb4782f7ffcb9182ec1c7ee0c01 
+Start importing ProjectSettings/TimeManager.asset using Guid(00000000000000007000000000000000) (LibraryAssetImporter) -> (Import Result ID: '3cedd79bf2edf30e345dbe752318c531') in 0.0019091 seconds [static dependencies only]. Details - ImportResultOutputID=26f981bd6e0b9d4dc8cd0f2ecd555556 DependenciesID=d0d34f3ea3a1ccc993593c0bbf3bcada StaticDependenciesID=76630de57178a43aa92dc8a92a4f4e1f 
+Start importing ProjectSettings/DynamicsManager.asset using Guid(00000000000000008000000000000000) (LibraryAssetImporter) -> (Import Result ID: 'a2b2676fc698186845b3f1356bd75473') in 0.0018814 seconds [static dependencies only]. Details - ImportResultOutputID=d295b22bcbe33ba4da04fd3cf9aad1f8 DependenciesID=de7747c42270bdfe89c6322830b62e6f StaticDependenciesID=f4b77cf9a86461b526c1daf46b006efe 
+Start importing ProjectSettings/QualitySettings.asset using Guid(00000000000000009000000000000000) (LibraryAssetImporter) -> (Import Result ID: '1034576e0fa0aba63b0639ee7ad5846d') in 0.0026917 seconds [static dependencies only]. Details - ImportResultOutputID=466ae0066f63be03acd64a7e01d76d9f DependenciesID=03013736a1a80eb54d27a9050716dfb9 StaticDependenciesID=77eb66be9f5ca8cb7ad823f76bcd4f17 
+Start importing ProjectSettings/EditorBuildSettings.asset using Guid(0000000000000000b000000000000000) (LibraryAssetImporter) -> (Import Result ID: 'f9c774582d2c5b4f92956d7e116429d9') in 0.0027347 seconds [static dependencies only]. Details - ImportResultOutputID=d777934f36c664454d62eda103573334 DependenciesID=dd69c90245ab9a0cf4ae3a2b92d863b8 StaticDependenciesID=47103f3414dd69499803c656c360a931 
+Start importing ProjectSettings/EditorSettings.asset using Guid(0000000000000000c000000000000000) (LibraryAssetImporter) -> (Import Result ID: '58ab28a9043868d3dddb3962280984da') in 0.0021451 seconds [static dependencies only]. Details - ImportResultOutputID=cf985170b52c9c582303c52d1d3c1af9 DependenciesID=62cc22db79e948fcfd6fa4d2f235f6a6 StaticDependenciesID=2cc8a69c4af95d8819cef8f51a33c90b 
+Start importing ProjectSettings/NavMeshAreas.asset using Guid(00000000000000004100000000000000) (LibraryAssetImporter) -> (Import Result ID: '3db1278bf370e0083060d7b4f3e8297d') in 0.0024401 seconds [static dependencies only]. Details - ImportResultOutputID=dc4b432744394c0b711126d130b0907c DependenciesID=b76ee59f090fe326a6999c6334b9e8e5 StaticDependenciesID=344df4e9ea4f353f195a913d17f58117 
+Start importing ProjectSettings/Physics2DSettings.asset using Guid(00000000000000005100000000000000) (LibraryAssetImporter) -> (Import Result ID: '786a0ce874cf280368793813a7cccd65') in 0.0027184 seconds [static dependencies only]. Details - ImportResultOutputID=60a9f21390cae772c5464d780d2e2601 DependenciesID=86a87f541999dd854d5a9d23d0abc32a StaticDependenciesID=48bddb7d88cf6b42de75ee3fd81431cb 
+Start importing ProjectSettings/GraphicsSettings.asset using Guid(00000000000000006100000000000000) (LibraryAssetImporter) -> (Import Result ID: '8d1c13038610296a6b48a119f64fc9d0') in 0.003953 seconds [static dependencies only]. Details - ImportResultOutputID=5bd38efc7568c0c855c21a11ad435b27 DependenciesID=c069ad03d5fb60ae47d85ff7c727caca StaticDependenciesID=3923855a58e6cea3edb2010bf79fb1aa 
+Start importing ProjectSettings/ClusterInputManager.asset using Guid(00000000000000007100000000000000) (LibraryAssetImporter) -> (Import Result ID: '2dbe754921b5109dd2c0760c215a42a2') in 0.0029245 seconds [static dependencies only]. Details - ImportResultOutputID=a7656e1436256b108092d067df8d086d DependenciesID=fd546e89d8c39e4be862882f639d5404 StaticDependenciesID=70971caca6031e503a26daa3f03e06ed 
+Start importing ProjectSettings/UnityConnectSettings.asset using Guid(0000000000000000a100000000000000) (LibraryAssetImporter) -> (Import Result ID: '2b7c34bd1332b4edd37e3fb0542c1d80') in 0.0028607 seconds [static dependencies only]. Details - ImportResultOutputID=774300b76df88929d1cf5f28fecd3c40 DependenciesID=bf737031ea2419b7ff5984ccbd00f4a1 StaticDependenciesID=1812acbd01e581c26066d278d95593de 
+Start importing ProjectSettings/PresetManager.asset using Guid(0000000000000000b100000000000000) (LibraryAssetImporter) -> (Import Result ID: '5475a531a08632fcd583e97f593316bf') in 0.0017175 seconds [static dependencies only]. Details - ImportResultOutputID=f468e0319eebf06d8b2420a76ba40394 DependenciesID=8494041f09f64579e7f95879b394322e StaticDependenciesID=2637a1ffaadd794c44d91e3c5521fac3 
+Start importing ProjectSettings/VFXManager.asset using Guid(0000000000000000c100000000000000) (LibraryAssetImporter) -> (Import Result ID: '4a142f6fa371354773f0a8ab13c1d696') in 0.0029061 seconds [static dependencies only]. Details - ImportResultOutputID=bcf2e1070b6635c27f737ef5b84097b4 DependenciesID=88b4bfa2ab18c1e02bba09be0d3a5617 StaticDependenciesID=cabfb429bac2a259d77fcb6114afb714 
+Start importing ProjectSettings/VersionControlSettings.asset using Guid(0000000000000000d100000000000000) (LibraryAssetImporter) -> (Import Result ID: '25d036b6467d73f22e845a27b77db35b') in 0.0017118 seconds [static dependencies only]. Details - ImportResultOutputID=1609d9c76400e144f2730f3537db1b0a DependenciesID=06cc61faa4077a6067addba1f82a88d1 StaticDependenciesID=ed5e44be5031886b75ba35e07d8668a1 
+Start importing ProjectSettings/MemorySettings.asset using Guid(0000000000000000f100000000000000) (LibraryAssetImporter) -> (Import Result ID: '3f05a49ee9bd067f28a692ce00168b58') in 0.0019594 seconds [static dependencies only]. Details - ImportResultOutputID=5b6bd868f732647c0a24325efb69fab3 DependenciesID=ca1dd507b05689ad5dd5852b3b87dade StaticDependenciesID=d3c6e4f859caf173435ca642e894d825 
+Start importing ProjectSettings/MultiplayerManager.asset using Guid(00000000000000000200000000000000) (LibraryAssetImporter) -> (Import Result ID: '16682497ebfb6eeae824f3c67e1a4f0e') in 0.002116 seconds [static dependencies only]. Details - ImportResultOutputID=6122ab174229d3e936d90b3fc3113c01 DependenciesID=120416360367d2a56761811a0f7242be StaticDependenciesID=2f0e881e5c749de357b921f35621183c 
+Start importing Library/BuildInstructions using Guid(00000000000000002300000000000000) (DefaultImporter) -> (Import Result ID: 'eba376fb1611aea0eb4e45e3a09202cb') in 0.0004363 seconds [static dependencies only]. Details - ImportResultOutputID=05826d252c87efae86aca308d202a7aa DependenciesID=e50bf3b0a41b633fa4f0c0ef33f85a62 StaticDependenciesID=0c63b0c35863fa9da8c32b2fe035aaa9 
+Start importing Packages/com.unity.modules.imgui using Guid(c060426bfd6e82575228df6656368eaa) (DefaultImporter) -> (Import Result ID: '230f5546ed919b3c70b20cc33da9f84a') in 0.000382 seconds [static dependencies only]. Details - ImportResultOutputID=851b07ebfcae92c09946614370d33402 DependenciesID=212efae0f851ce6bedead747db0a2441 StaticDependenciesID=af4a024050ecb7dfe38b767f4d4fa12a 
+Start importing Assets/XACE using Guid(f0e490b2348e7e64081c82677abb579f) (DefaultImporter) -> (Import Result ID: '4e591bb50787bfd9c3e8405313c3125e') in 0.0151918 seconds [static dependencies only]. Details - ImportResultOutputID=c0a993164b192be7d1db3f679817d961 DependenciesID=5eaf88260244ce12380b62b9878ec24b StaticDependenciesID=31ed2efa3f489e25a1cfa47320df3c92 
+Start importing Packages/com.unity.modules.animation using Guid(1158e311a3101950348dcecb1bebc42d) (DefaultImporter) -> (Import Result ID: 'f4d780ee8b30609fee94f90d9ce10396') in 0.0005605 seconds [static dependencies only]. Details - ImportResultOutputID=b507f80f0cc676852c0f5b6778d9d32f DependenciesID=a09920416b945ad7e4f27a42decc713c StaticDependenciesID=7ec93f2895cba90e66ee2521ede9f4e3 
+Start importing Assets/StreamingAssets using Guid(24bb8e2d0c52f3648894682163edb31d) (DefaultImporter) -> (Import Result ID: '8ece267e13050fde8cdd1a23862f17f4') in 0.0102433 seconds [static dependencies only]. Details - ImportResultOutputID=a0da82fdac4cc06a94dab033333946c2 DependenciesID=e1d4403a1cd800abe0764e7d6c69c936 StaticDependenciesID=308c5560f2b1020b7aa363ad046af19c 
+Start importing Packages/com.unity.modules.physics using Guid(d6db7caf2e852b75ebb9c6098418179c) (DefaultImporter) -> (Import Result ID: '2bd5496b8f41d4c483b719f895756afa') in 0.0005018 seconds [static dependencies only]. Details - ImportResultOutputID=57d8a8f2862572e56f74082d74acd84d DependenciesID=d3986c56063196094920426040e4357b StaticDependenciesID=699fa226cb636bf1eeed95ae28265d04 
+Start importing Packages/com.unity.modules.particlesystem using Guid(48b10b41f58d5b49717f376cda59eeb8) (DefaultImporter) -> (Import Result ID: 'e03f104f7051f0a69e51841a6cf3e070') in 0.0003586 seconds [static dependencies only]. Details - ImportResultOutputID=59e2c8c34c501156ba5c017b580762f9 DependenciesID=99e2838a11c384eecbda6bf7e06e79b7 StaticDependenciesID=fb50f6efbaaf64fb0922e625f3947288 
+Start importing Packages/com.unity.modules.ui using Guid(39728903e57c60021f80449a8bbc0096) (DefaultImporter) -> (Import Result ID: '87ab1778edf052d220fd06b4f0d3fc1e') in 0.0003306 seconds [static dependencies only]. Details - ImportResultOutputID=d7a8fe94e94a7d18728a55e8d263b5a2 DependenciesID=1dd9b826bc27135f85a05e82b42a33b4 StaticDependenciesID=f8bbebf766fd682096ccc5737aa40f2d 
+Start importing Packages/com.unity.modules.jsonserialize using Guid(fc3a810351931f5e6183e16b9beb5563) (DefaultImporter) -> (Import Result ID: '9a0a0232dfba44afaaff4323220405b4') in 0.0003206 seconds [static dependencies only]. Details - ImportResultOutputID=7c216b0c5fd31e4d02c39141f72207ee DependenciesID=424dd747b95343d8825bb80e8dfb296b StaticDependenciesID=180a8d7ade79db84e0508082e8cefff3 
+Start importing Packages/com.unity.modules.audio using Guid(2d6ba5cbe47e6ad3c87474c56174d4e0) (DefaultImporter) -> (Import Result ID: '5cf24c524012639b84138e73719e11e5') in 0.0003115 seconds [static dependencies only]. Details - ImportResultOutputID=daf1976afa7be36892563d13cb0be07b DependenciesID=7ef93e55127e0348fc0760b97a4ac0ae StaticDependenciesID=9900d88e7b498206e853b21ac07c211a 
+Start importing Assets/StreamingAssets/XACERelease using Guid(c71783fcf2274584b9acbbcfba4a2cc8) (DefaultImporter) -> (Import Result ID: '12430ba1dde552721979bff4a29b82b0') in 0.007427 seconds [static dependencies only]. Details - ImportResultOutputID=131c4e8297dd4630b2007805b7e441e4 DependenciesID=a57dccf70effce4f3b9482d03f457824 StaticDependenciesID=1dbfb8b415054e7c0c3479e7bc087af0 
+Start importing Assets/XACE/Editor using Guid(6dc78196b0f42934aa612e1d13a167ca) (DefaultImporter) -> (Import Result ID: 'dded5e3260b72dea64a09d99fdc49e2c') in 0.0158933 seconds [static dependencies only]. Details - ImportResultOutputID=5cd105e3fd04c5162a8a69c63cba8fb5 DependenciesID=850f5818bf34e1be00b44447e948d0ba StaticDependenciesID=91f50299353b4cc753495129e169a33b 
+Start importing Assets/StreamingAssets/XACERelease/package using Guid(12da95f88583a1041878fd1dcb8897c0) (DefaultImporter) -> (Import Result ID: '68ac00ccf164074f5740c6cf2500fe8a') in 0.0092658 seconds [static dependencies only]. Details - ImportResultOutputID=c9606e87cc8c11773430069ce46efb6a DependenciesID=da1a6fdd6ed7e78c665788d0f725658c StaticDependenciesID=a7b6fd19b1c63895e7a2c3c4ee58cbac 
+Start importing Assets/StreamingAssets/XACERelease/package/runtime using Guid(d568709129888e24a8f9a64a56983e1b) (DefaultImporter) -> (Import Result ID: 'd7ce0fd0a09b5030fabe220f29a1fe82') in 0.0091809 seconds [static dependencies only]. Details - ImportResultOutputID=23021e011044f9cc10bc74da3749e5ab DependenciesID=1c9036200fa706c94010363e54e363b8 StaticDependenciesID=7dcb65902da91a0c82fa54936eab451b 
+Start importing Assets/StreamingAssets/XACERelease/package/presentation using Guid(d92fa248a180f3e45baf970c7222349c) (DefaultImporter) -> (Import Result ID: '09d479853e18933d7729184a56d276da') in 0.0137418 seconds [static dependencies only]. Details - ImportResultOutputID=0e43ea375a5b10b106d5411e101f52fe DependenciesID=bf2a5ffccd006e05a5fd67b4bce99b5f StaticDependenciesID=15dc3acbba133208b4e1d744dbb37e24 
+Start importing Assets/StreamingAssets/XACERelease/package/presentation/player using Guid(a57422458b9942e40900893297152947) (DefaultImporter) -> (Import Result ID: '35e48727480ebc3bb9ce86ee60ee5c42') in 0.0079085 seconds [static dependencies only]. Details - ImportResultOutputID=1a94a554f94b9467e1bdf4f251ef8296 DependenciesID=59e26178e01f0ef3ba86c21eb1e1561f StaticDependenciesID=e943bb2422ab38e8fd223a2cb39e1f92 
+Start importing Packages/com.unity.modules.ui/package.ModuleCompilationTrigger using Guid(51fa60bb2bd1e5bc74e8cc95a7bfd5b7) (DefaultImporter) -> (Import Result ID: 'b852eeef4328136e95162172b7d667f2') in 0.0409098 seconds [static dependencies only]. Details - ImportResultOutputID=c50079973e4a88af9749dba6a913e595 DependenciesID=15a093d6daee02153bbe95cbc8efd8b0 StaticDependenciesID=d18b7a06c127bc8e9680c26fe5735dac 
+Start importing Packages/com.unity.modules.audio/package.ModuleCompilationTrigger using Guid(042dc296246916648e55a43d0eeb2036) (DefaultImporter) -> (Import Result ID: '8d3395c36808ba4fe442e67e26f3cbcf') in 0.0005875 seconds [static dependencies only]. Details - ImportResultOutputID=79b92d092a7e938d3fd7c03ba6e7e14e DependenciesID=f7b170e910d68bd5f74239722e73cf43 StaticDependenciesID=470f92d8aee7cd5dacbb8f1098dc1ba5 
+Start importing Packages/com.unity.modules.jsonserialize/package.ModuleCompilationTrigger using Guid(e6a135e3ea9cb46795d1b0e05ac3e1e5) (DefaultImporter) -> (Import Result ID: '041bd8831b0d160550e4f528890a3790') in 0.0004891 seconds [static dependencies only]. Details - ImportResultOutputID=04e6eb819594b4830a558b276a5756c3 DependenciesID=ca425e30432096aa4fbd59a24ca2baa7 StaticDependenciesID=186a8e069fed39ae4a5104aafb1e5b12 
+Start importing Packages/com.unity.modules.particlesystem/package.ModuleCompilationTrigger using Guid(17f093324b67f5bd57e55b546736750e) (DefaultImporter) -> (Import Result ID: 'b7a120b71398c7f9ac77eaadae8b9a83') in 0.0004164 seconds [static dependencies only]. Details - ImportResultOutputID=d725917aa0b30b2dcdb81ad81e3e66d9 DependenciesID=8bb8f1a5b53f670e35cf02ae7ecc3b37 StaticDependenciesID=d1186b831c877f672f612c845c197a2c 
+Start importing Packages/com.unity.modules.animation/package.ModuleCompilationTrigger using Guid(db8e609a39b9b231fccc54e5fa4cbd1b) (DefaultImporter) -> (Import Result ID: '4ab4a569f69ab2eb48e9932410aa44ed') in 0.0003935 seconds [static dependencies only]. Details - ImportResultOutputID=adaa6e5ddb640ae1aa4881621783c278 DependenciesID=00e01bf5c9f3532ce101d1c0ff0244e0 StaticDependenciesID=a92dc4e3be805f4cb7701dd3b2b3a733 
+Start importing Packages/com.unity.modules.physics/package.ModuleCompilationTrigger using Guid(5c1ee4056d0ac7ad3c5a16597fcaa38a) (DefaultImporter) -> (Import Result ID: 'cac9e79da4894527482b054fae5c024d') in 0.0004063 seconds [static dependencies only]. Details - ImportResultOutputID=7e84f44c9ee6d7567cb045214a4e4402 DependenciesID=101f95293de7cc0d0b962d54b1ebaf1d StaticDependenciesID=ea574778e448a66d43867cf6688c9a3d 
+Start importing Packages/com.unity.modules.imgui/package.ModuleCompilationTrigger using Guid(be13c398521e3c1ad21fb9da30ab2ab6) (DefaultImporter) -> (Import Result ID: '1ea9ee2e50a8be2eae03e775f13e4226') in 0.0004064 seconds [static dependencies only]. Details - ImportResultOutputID=aec4c9c8a45e017694034262611127b0 DependenciesID=aed208ea29f2495c6f63496b0399ac79 StaticDependenciesID=88a26c640c2a45d247eae041e9bcaeb2 
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.391 seconds
+Domain Reload Profiling: 1346ms
+	BeginReloadAssembly (207ms)
+		DisableScriptedObjects (35ms)
+		CreateAndSetChildDomain (39ms)
+	RebuildCommonClasses (30ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (679ms)
+	LoadAllAssembliesAndSetupDomain (28ms)
+		LoadAssemblies (108ms)
+		AnalyzeDomain (7ms)
+			TypeCache.Refresh (4ms)
+	FinalizeReload (392ms)
+		SetupLoadedEditorAssemblies (0ms)
+			InitializePlatformSupportModulesInManaged (23ms)
+			BeforeProcessingInitializeOnLoad (93ms)
+			ProcessInitializeOnLoadAttributes (85ms)
+			ProcessInitializeOnLoadMethodAttributes (47ms)
+			AfterProcessingInitializeOnLoad (6ms)
+		AwakeInstancesAfterBackupRestoration (20ms)
+Start importing Library/BuildPlayer.prefs using Guid(00000000000000005000000000000000) (DefaultImporter) -> (Import Result ID: '4568e6c60e9c102b282fbc882b7f9d0c') in 0.0062582 seconds [static dependencies only]. Details - ImportResultOutputID=c9d0cf2ecfa3f71dff3e93722d4a0d1a DependenciesID=7a3b5c0878618b9a6acd85f7043a384f StaticDependenciesID=db1f0b78f0a340435451b6f76edee113 
+Start importing Assets/StreamingAssets/XACERelease/native-release.json using Guid(d0304ee3d4daa4440af051084e870d58) (DefaultImporter) -> (Import Result ID: '6799e8b2d4be4e1d77273941e7e0613a') in 0.0316144 seconds [static dependencies only]. Details - ImportResultOutputID=71e5d4eb523538e89649691db23ad5ee DependenciesID=d36924868276d7dc82f17f99ea77adb1 StaticDependenciesID=d5916f7c8344e866d359031de5caa758 
+Start importing Assets/StreamingAssets/XACERelease/xace-player-launcher.exe using Guid(293ff7828b418e44290fcc3d3260edf8) (DefaultImporter) -> (Import Result ID: 'a5d925f4e77cf8c47b4a32a7e596b3fa') in 0.0143704 seconds [static dependencies only]. Details - ImportResultOutputID=f26833c5d6797b1fad15c3b33b5f7f53 DependenciesID=b928d5c6d0587d85221c71e62242eeb7 StaticDependenciesID=c3000b9ba2502ad484a09210656ed300 
+Start importing Assets/StreamingAssets/XACERelease/executor-receipt.json using Guid(0c294e3233b258e478f18dd846d5da18) (DefaultImporter) -> (Import Result ID: 'f2d61e5c96bfa9d3f79ba6ce267bdad7') in 0.0139069 seconds [static dependencies only]. Details - ImportResultOutputID=3c4197116e4d9f4a8c917fb1f5a82cf9 DependenciesID=5455a8f22a05f1c1dc161b369885c550 StaticDependenciesID=b7d6c290862ae7ed8b2d3aec691aee3a 
+Start importing Assets/StreamingAssets/XACERelease/package/game.cgs.json using Guid(e0c0d82cb984e354896dc55cd082fe94) (DefaultImporter) -> (Import Result ID: '909098b78b656c56b389001cd4bb7a8f') in 0.0097494 seconds [static dependencies only]. Details - ImportResultOutputID=1d3871ea61107d1ede238ca0d580f7b8 DependenciesID=b877eb97abb6551a240a63b47369e617 StaticDependenciesID=c3f41490d1df57b519a310dc578d7e27 
+Start importing Assets/StreamingAssets/XACERelease/package/compiled_schema.json using Guid(a2a1631f84196df45aaa5554cfd5fdff) (DefaultImporter) -> (Import Result ID: 'd61aa6b53744d90e4dd42704a2cc30d5') in 0.0079526 seconds [static dependencies only]. Details - ImportResultOutputID=7aae5804fc3e602a333807fe0354b035 DependenciesID=b5097f0b487dcb45a484a6ce5ba8204d StaticDependenciesID=b6fbbd61c2738de9aa667343b94dbe35 
+Start importing Assets/StreamingAssets/XACERelease/package/world.json using Guid(b49b7a60d33999e4ea2cc3126a05a0bd) (DefaultImporter) -> (Import Result ID: '241cb68f00c183ed2ac36ea00aa4c4cd') in 0.0110208 seconds [static dependencies only]. Details - ImportResultOutputID=cdf2fc156d917b027a8590a8c86c9572 DependenciesID=951fd1728e45377c2728790102e0bbf7 StaticDependenciesID=0528f798581e3dc2d8fd0233344a6fcb 
+Start importing Assets/StreamingAssets/XACERelease/package/world.manifest.json using Guid(1beecc4f778ca8548aadac09178182d4) (DefaultImporter) -> (Import Result ID: 'd3d020a75474bc78b1e0254386dd77a7') in 0.0106117 seconds [static dependencies only]. Details - ImportResultOutputID=62f6a5d01dc85fb251df660f7b6d3278 DependenciesID=9287a6e148b06ffaeb08c7bcf7ca430e StaticDependenciesID=7c561f71edcdd48707695cc687b9f5df 
+Start importing Assets/StreamingAssets/XACERelease/package/execution_plan.json using Guid(8eb3bd5508a977648be942c865696308) (DefaultImporter) -> (Import Result ID: '7665a697a7da8191b3f76eb556491d0e') in 0.0141621 seconds [static dependencies only]. Details - ImportResultOutputID=872a5780b010cf18f695dbe6b524c836 DependenciesID=d353b720f8301d7e88f47043847324d2 StaticDependenciesID=88e1859122f91e8fc5075b469cf0cf33 
+Start importing Assets/StreamingAssets/XACERelease/package/playable.manifest.json using Guid(2f35e65599a938a4a8fbaf01a716355c) (DefaultImporter) -> (Import Result ID: '04256011169ba3e33ba93df48f95e943') in 0.0184844 seconds [static dependencies only]. Details - ImportResultOutputID=8a8740f50d8f17db9d4bfa8ebf698539 DependenciesID=a1367185ef2d9270a97ace651d9db249 StaticDependenciesID=4d894f5de1f9f5ea97c8f5bc19f731dd 
+Start importing Assets/StreamingAssets/XACERelease/package/runtime/xace_runtime.exe using Guid(4aaf2dce5e072a644bf165137cc680d2) (DefaultImporter) -> (Import Result ID: '896e47ed6eee72a133def40387a2fa14') in 0.0169016 seconds [static dependencies only]. Details - ImportResultOutputID=afeca04d553f00bc28d4cdef69f54fa9 DependenciesID=c9cd9e40e19bb2502e0849952e75862c StaticDependenciesID=11c432593348adf597a3d81ccf1efe8a 
+Start importing Assets/StreamingAssets/XACERelease/package/presentation/player/unity-resources.json using Guid(d3211ee5db14ad945affdeaa3d67cd7b) (DefaultImporter) -> (Import Result ID: '2d8f7fa7d993274e8190919a72e3ccec') in 0.0143024 seconds [static dependencies only]. Details - ImportResultOutputID=3f18217df2570723336dea2b098ed95a DependenciesID=d75dc4bd1b8cfe863d2a51d1ecd2441d StaticDependenciesID=b22d89ca3b9561cf3fe5edda11ed05d7 
+Start importing Packages/com.unity.modules.jsonserialize/package.json using Guid(40bf3cec17fa0b49fe04443c8332d638) (PackageManifestImporter) -> (Import Result ID: '657986e187fdf0af775aa4ca065f8eaf') in 0.0025314 seconds [static dependencies only]. Details - ImportResultOutputID=3b4760847b6a0dd381bd5456287e53fa DependenciesID=d57f06b0cd841d9561f59c4972b41443 StaticDependenciesID=0044decf67eadeb9121e8897272faad4 
+Start importing Packages/com.unity.modules.imgui/package.json using Guid(42fe78c8fe682715a2cb531422e6ccb3) (PackageManifestImporter) -> (Import Result ID: '85521f33d621e308dba2f4cd066e438c') in 0.0020574 seconds [static dependencies only]. Details - ImportResultOutputID=298dd1dddaae29c1f088053fe0846731 DependenciesID=ebf2fbd1709ad9fc0a5dc175ab1332aa StaticDependenciesID=d861cbb383b19eb0e95e634a53653dfc 
+Start importing Packages/com.unity.modules.particlesystem/package.json using Guid(87d720faa37005c08600090e04d8c739) (PackageManifestImporter) -> (Import Result ID: 'c0c519dd10f38ba581030949fd14a5e1') in 0.0017432 seconds [static dependencies only]. Details - ImportResultOutputID=ed5bfac10c8479d506323e5554a23472 DependenciesID=63efccafe6a6002910f5fac3c04b50cb StaticDependenciesID=85e577fda78350adbfebc79639556084 
+Start importing Packages/com.unity.modules.audio/package.json using Guid(e9df95f53f1c1d0c9199e235d6c42b50) (PackageManifestImporter) -> (Import Result ID: 'ab5924f872c9496880efed45a2ace38c') in 0.0042031 seconds [static dependencies only]. Details - ImportResultOutputID=db83459bc72938926e66141b93e3ddc7 DependenciesID=82b594ad0150c3a9066ead5e4e5095c6 StaticDependenciesID=9be8ce995e1b1991e3dccc9aaaa66872 
+Start importing Packages/com.unity.modules.physics/package.json using Guid(1a4266815e998967becf686f9c71f0a6) (PackageManifestImporter) -> (Import Result ID: 'd6fb0f8679e5119b4084c9a140d6b167') in 0.0017924 seconds [static dependencies only]. Details - ImportResultOutputID=944a48e57b519766f252512e43c77c1c DependenciesID=bc1f6e8c3277b6a45e35509fb52215a7 StaticDependenciesID=bffa58b5e1de87f54ebc1e8fe486ca9f 
+Start importing Packages/com.unity.modules.animation/package.json using Guid(7ef8348b8ea834d7e1bc214b07f7fb87) (PackageManifestImporter) -> (Import Result ID: '25e96018f6e03026c3537361fb65c353') in 0.0017482 seconds [static dependencies only]. Details - ImportResultOutputID=47971f375e3c31a10992a55de29dfdff DependenciesID=759ee9cd65e284a11ea695aeb67e32db StaticDependenciesID=82d49d06d223cab0a6bed00714d13520 
+Start importing Packages/com.unity.modules.ui/package.json using Guid(bfd567a3d1631a761bca9e99fa53d86d) (PackageManifestImporter) -> (Import Result ID: 'ba2af468d1cb3da88424c67e542a0195') in 0.0025248 seconds [static dependencies only]. Details - ImportResultOutputID=4923c2d84d239d00c9ec25e980db93f7 DependenciesID=3121e672707453696de56f80383f14eb StaticDependenciesID=c3f4bff2207d1ddcfdd89c56dcf71f43 
+Loading style catalogs (6)
+	StyleSheets/Extensions/base/common.uss
+	UIPackageResources/StyleSheets/Default/Variables/Public/common.uss
+	StyleSheets/Northstar/common.uss
+	StyleSheets/Extensions/fonts/inter.uss
+	StyleSheets/Extensions/base/dark.uss
+	UIPackageResources/StyleSheets/Default/Northstar/Palette/dark.uss
+(Values over 0.050ms)
+Asset Pipeline Refresh (id=ab0010576f464424d8e88492366cf963): Total: 17.385 seconds - Initiated by InitialRefreshV2(ForceSynchronousImport)
+	Summary:
+		Imports: total=62 (actual=62, local cache=0, cache server=0)
+		Asset DB Process Time: managed=9 ms, native=2855 ms
+		Asset DB Callback time: managed=144 ms, native=6136 ms
+		Scripting: domain reloads=1, domain reload time=958 ms, compile time=7276 ms, other=5 ms
+		Project Asset Count: scripts=43, non-scripts=19
+		Asset File Changes: new=75, changed=75, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 6106.900ms
+	ApplyChangesToAssetFolders: 0.331ms
+	Scan: 1966.799ms
+	OnSourceAssetsModified: 0.819ms
+	CategorizeScriptCompilationAssets: 0.082ms
+	ProcessAssetsWithTransientArtifactChanges: 4.516ms
+	CategorizeAssets: 2.722ms
+	CompileScripts: 7275.516ms
+	ImportOutOfDateAssets: 826.501ms (395.200ms without children)
+		ImportManagerImport: 430.311ms (6.212ms without children)
+			UpdateCategorizedAssets: 0.525ms
+		UnloadImportedAssets: 0.270ms
+		OnDemandSchedulerStart: 0.695ms
+	PostProcessAllAssets: 181.129ms
+		VersionControlSettings.HiddenFilePostprocess 1.155ms
+		PostProcessCallbackCreateDeferredMaterials 0.110ms
+		ShaderAssetModifiedCallback 0.081ms
+		RaytracingShaderImportPostprocess 0.072ms
+		ComputeShaderImportPostprocess 0.056ms
+		MonoPostProcessAllAssets: 142.930ms
+			StyleCatalogPostProcessor.OnPostprocessAllAssets 91.153ms
+			AssetPostprocessor.OnPostprocessAllAssets 13.297ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 9.246ms
+			BuilderAssetPostprocessor.OnPostprocessAllAssets 6.221ms
+			SyncVS.PostprocessSyncProject 3.789ms
+			TextAssetPostProcessor.OnPostprocessAllAssets 1.826ms
+			AssetChangedListener.OnPostprocessAllAssets 1.553ms
+			RetainedModeAssetPostprocessor.OnPostprocessAllAssets 1.047ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 0.708ms
+			ArtifactBrowserPostProcessor.OnPostprocessAllAssets 0.498ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.324ms
+			AssetEvents.OnPostprocessAllAssets 0.224ms
+			AudioMixerPostprocessor.OnPostprocessAllAssets 0.218ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.171ms
+			ScenarioDriftAssetsTracker.OnPostprocessAllAssets 0.160ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.137ms
+			SpeedTreePostProcessor.OnPostprocessAllAssets 0.133ms
+			ConfigAssetsTracker.OnPostprocessAllAssets 0.132ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.085ms
+			AudioContainerPostProcessor.OnPostprocessAllAssets 0.059ms
+	PostAssetChangesProfiler: 2.124ms
+	UnloadStreamsBegin: 1.077ms
+	PersistCurrentRevisions: 0.053ms
+	Untracked: 1014.472ms
+
+Application.AssetDatabase Initial Refresh End
+Scanning for USB devices : 0.917ms
+Initializing Unity extensions:
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[MODES] Loading mode Default (0) for mode-current-id-project
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 27 unused Assets / (0.5 MB). Loaded Objects now: 670.
+Memory consumption went from 91.5 MB to 91.0 MB.
+Total: 4.686900 ms (FindLiveObjects: 0.038000 ms CreateObjectMapping: 0.005700 ms MarkObjects: 4.256100 ms  DeleteObjects: 0.183400 ms)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 0 unused Assets / (0 B). Loaded Objects now: 670.
+Memory consumption went from 90.9 MB to 90.9 MB.
+Total: 3.638600 ms (FindLiveObjects: 0.031100 ms CreateObjectMapping: 0.003500 ms MarkObjects: 3.598200 ms  DeleteObjects: 0.004500 ms)
+
+Start importing Assets/Resources using Guid(6ee939faf4a9fed489532667db045d5a) (DefaultImporter) -> (Import Result ID: '4c62d3d616f49fe0dd2e03ac1478d3e0') in 0.0086578 seconds [static dependencies only]. Details - ImportResultOutputID=d502dd42ad1c8b437375e1439c308cdc DependenciesID=fe93a748fbe0044084374a8326df9f27 StaticDependenciesID=bb7ba87936a66ae09e14bb0d2325afce 
+Start importing Assets/Resources/nec013-echo.anim using Guid(51d427f994d8bea4db8dc47b38d671e5) (NativeFormatImporter) -> (Import Result ID: '5150f9ff41b1921781052a90a8252df6') in 0.0026305 seconds [static dependencies only]. Details - ImportResultOutputID=0c4c8d07ac7c49e183274b23564c852a DependenciesID=763ba1c624a161ce6467c8a2456dc1c4 StaticDependenciesID=6d16a429ceffe73d095df596873277dc 
+Asset Pipeline Refresh (id=672b3ec5a6b41da43816436edf854461): Total: 0.048 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Start importing Assets/Resources/nec013-tone.wav using Guid(33887366ae070d644b2f84bfc77b4881) (AudioImporter) -> (Import Result ID: 'dce89805e21b88b837f27d54dc1ba927') in 0.2858386 seconds [static and dynamic dependencies]. Details - ImportResultOutputID=1831a6c6b6a56124047e8a83f17eb8a5 DependenciesID=6598b1a350b98106d2f6234a168f7c6e StaticDependenciesID=bd7675967321674ff10e0eaa4a5212d7 
+(Values over 0.050ms)
+Asset Pipeline Refresh (id=2b88203ab4b61ec4eb2a0cd662561d33): Total: 0.305 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+	Summary:
+		Imports: total=1 (actual=1, local cache=0, cache server=0)
+		Asset DB Process Time: managed=2 ms, native=301 ms
+		Asset DB Callback time: managed=0 ms, native=0 ms
+		Scripting: domain reloads=0, domain reload time=0 ms, compile time=0 ms, other=0 ms
+		Project Asset Count: scripts=44, non-scripts=21
+		Asset File Changes: new=1, changed=1, moved=0, deleted=0
+		Scan Filter Count: 3
+	Scan: 16.953ms
+	OnSourceAssetsModified: 0.051ms
+	ImportOutOfDateAssets: 286.601ms (0.090ms without children)
+		ImportManagerImport: 286.086ms (0.059ms without children)
+		UnloadImportedAssets: 0.204ms
+		OnDemandSchedulerStart: 0.201ms
+	PostProcessAllAssets: 0.339ms
+		MonoPostProcessAllAssets: 0.200ms
+	PostAssetChangesProfiler: 0.229ms
+	Untracked: 0.770ms
+
+Start importing Assets/Resources/XaceNativeHost.asset using Guid(2602dfd043045574aa1cf98ecf972fb6) (NativeFormatImporter) -> (Import Result ID: '243f86e05604b8c678f4f1a8e9d6dac6') in 0.0017726 seconds [static dependencies only]. Details - ImportResultOutputID=588befad59df27a2604e89ac9873d637 DependenciesID=633c5ffd650581e3a2e70e29d90ba0bd StaticDependenciesID=96cafda021b6639dfe49e4885a130695 
+Asset Pipeline Refresh (id=a32861e657ae81b4094fdfd303b5cb7e): Total: 0.024 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Start importing Assets/NativeGame.unity using Guid(03f04aab94cd73d4c8087d218cebf020) (DefaultImporter) -> (Import Result ID: 'cf8f32e6c483c2635d741a874671930e') in 0.0006484 seconds [static dependencies only]. Details - ImportResultOutputID=327513d9571eb25ca88775b5595e642b DependenciesID=ba9243049ec48cc736bd108a3655baea StaticDependenciesID=6be0766f38abb60a9efdffd3e0cc0b51 
+Asset Pipeline Refresh (id=0336ddceb1f4e86498e1e9ee10ee7021): Total: 0.019 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=cd562626b2df49a42a4dcf0bcf95d81d): Total: 0.011 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Start importing ProjectSettings/EditorBuildSettings.asset using Guid(0000000000000000b000000000000000) (LibraryAssetImporter) -> (Import Result ID: 'c3b4fb5b07b419657bdda0bcbfbcedbd') in 0.0017788 seconds [static dependencies only]. Details - ImportResultOutputID=d777934f36c664454d62eda103573334 DependenciesID=39e9b0b4383883d077db805b7c1852e0 StaticDependenciesID=07e7f6e549abea2db3a4642b6fd59174 
+Asset Pipeline Refresh (id=1a9c67ef007df2b4382a17006855a0f2): Total: 0.009 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+Asset Pipeline Refresh (id=a121c2d8a88c19849a15d22ce0e3b12d): Total: 0.006 seconds - Initiated by RefreshV2(NoUpdateAssetOptions)
+Microsoft Media Foundation video decoding to texture disabled: graphics device is Null, only Direct3D 11 and Direct3D 12 (only on desktop) are supported for hardware-accelerated video decoding.
+[Project] Loading completed in 29.493 seconds
+	Project init time: 				25.192 seconds
+		Template init time: 		0.000 seconds
+		Package Manager init time: 		0.112 seconds
+		Asset Database init time: 		0.318 seconds
+		Global illumination init time: 	0.003 seconds
+		Assemblies load time: 			5.858 seconds
+		Unity extensions init time: 	0.000 seconds
+		Asset Database refresh time: 	17.386 seconds
+	Scene opening time: 			3.232 seconds
+##utp:{"type":"ProjectInfo","version":2,"phase":"Immediate","time":1792860481012,"processId":8116,"projectLoad":29.4931826,"projectInit":25.1921521,"templateInit":0.0,"packageManagerInit":0.1119262,"assetDatabaseInit":0.3183819,"globalIlluminationInit":0.0025224,"assembliesLoad":5.8582254,"unityExtensionsInit":0.0004025,"assetDatabaseRefresh":17.3861301,"sceneOpening":3.2324018}
+##utp:{"type":"EditorInfo","version":2,"phase":"Immediate","time":1792860481012,"processId":8116,"editorVersion":"6000.4.9f1 (f7258d6eebbe)","branch":"6000.4/staging","buildType":"Release","platform":"Windows"}
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Assembly Assembly-CSharp-Editor-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll not valid. Loading of assembly skipped.
+Assembly Assembly-CSharp-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll not valid. Loading of assembly skipped.
+Begin MonoManager ReloadAssembly
+Assembly Assembly-CSharp-Editor-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll not valid. Loading of assembly skipped.
+Assembly Assembly-CSharp-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll not valid. Loading of assembly skipped.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.424 seconds
+Domain Reload Profiling: 668ms
+	BeginReloadAssembly (158ms)
+		DisableScriptedObjects (20ms)
+		CreateAndSetChildDomain (30ms)
+	RebuildCommonClasses (30ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (32ms)
+	LoadAllAssembliesAndSetupDomain (13ms)
+		LoadAssemblies (88ms)
+		AnalyzeDomain (5ms)
+			TypeCache.Refresh (3ms)
+	FinalizeReload (425ms)
+		SetupLoadedEditorAssemblies (0ms)
+			InitializePlatformSupportModulesInManaged (22ms)
+			BeforeProcessingInitializeOnLoad (91ms)
+			ProcessInitializeOnLoadAttributes (73ms)
+			ProcessInitializeOnLoadMethodAttributes (48ms)
+			AfterProcessingInitializeOnLoad (5ms)
+		AwakeInstancesAfterBackupRestoration (20ms)
+(Values over 0.050ms)
+Asset Pipeline Refresh (id=3ee0feab20ccae14ca2d6476e7af81bf): Total: 0.727 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=443 ms
+		Asset DB Callback time: managed=16 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=265 ms, compile time=1 ms, other=0 ms
+		Project Asset Count: scripts=44, non-scripts=23
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 1.437ms
+	ApplyChangesToAssetFolders: 0.052ms
+	CategorizeAssets: 0.252ms
+	CompileScripts: 1.338ms
+	ImportOutOfDateAssets: 425.290ms (425.117ms without children)
+		OnDemandSchedulerStart: 0.123ms
+	PostProcessAllAssets: 16.974ms
+		MonoPostProcessAllAssets: 16.969ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 7.180ms
+			SyncVS.PostprocessSyncProject 1.652ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 0.663ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.272ms
+			AssetChangedListener.OnPostprocessAllAssets 0.192ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.151ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.135ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.064ms
+	GenerateScriptTypeHashes: 0.057ms
+	GenerateScriptTypeSerializationHashes: 0.116ms
+	Untracked: 276.191ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            3.345 ms
+	Integration:            31.369 ms
+	Integration of assets:  0.002 ms
+	Thread Wait Time:       0.017 ms
+	Total Operation Time:   34.732 ms
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[Licensing::Client] Successfully resolved entitlement details
+Start Indexing on Editor startup
+ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index
+  at System.Collections.Generic.List`1[T].get_Item (System.Int32 index) [0x00009] in <f713e1c3c5f545ce9b1df47230f4f853>:0 
+  at UnityEditor.Search.SearchDatabase+<EnumerateAll>d__80.MoveNext () [0x00089] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at System.Linq.Enumerable.TryGetFirst[TSource] (System.Collections.Generic.IEnumerable`1[T] source, System.Boolean& found) [0x00045] in <101642b95873440bbf9fec45cfcaa487>:0 
+  at System.Linq.Enumerable.First[TSource] (System.Collections.Generic.IEnumerable`1[T] source) [0x00000] in <101642b95873440bbf9fec45cfcaa487>:0 
+  at UnityEditor.Search.SearchDatabase.GetDefaultSearchDatabase () [0x00005] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at UnityEditor.Search.SearchInit.IndexationOnStartup () [0x0000a] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at UnityEditor.EditorApplication.Internal_CallDelayFunctions () [0x00029] in <d1fb1d0952624d8d8a5f883a28c2a524>:0 
+
+Created GICache directory at C:/Users/ankit/AppData/LocalLow/Unity/Caches/GiCache. Took: 0.011s, timestamps: [30.402 - 30.413]
+[XACE] Unity transport disconnected: reconnect
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:Connect () (at Assets/XACE/XaceTransport.cs:169)
+Xace.Adapter.Unity.XaceNativeHost:Update () (at Assets/XACE/XaceNativeHost.cs:110)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnApplicationQuit () (at Assets/XACE/XaceNativeHost.cs:140)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDisable () (at Assets/XACE/XaceNativeHost.cs:138)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: destroyed
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:OnDestroy () (at Assets/XACE/XaceTransport.cs:159)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDestroy () (at Assets/XACE/XaceNativeHost.cs:139)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+Unloading 1 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.523 ms
+	Integration:            5.313 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.022 ms
+	Total Operation Time:   5.859 ms
+Unloading 3 unused Assets / (47.6 KB). Loaded Objects now: 703.
+Memory consumption went from 89.2 MB to 89.2 MB.
+Total: 5.035000 ms (FindLiveObjects: 0.040400 ms CreateObjectMapping: 0.006700 ms MarkObjects: 4.732700 ms  DeleteObjects: 0.254400 ms)
+
+[UnityConnectServicesConfig] config is NOT valid, switching to default
+Reloading assemblies for play mode.
+Reloading assemblies after forced synchronous recompile.
+Assembly Assembly-CSharp-Editor-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll not valid. Loading of assembly skipped.
+Assembly Assembly-CSharp-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll not valid. Loading of assembly skipped.
+Begin MonoManager ReloadAssembly
+Assembly Assembly-CSharp-Editor-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll not valid. Loading of assembly skipped.
+Assembly Assembly-CSharp-firstpass.dll at Library/ScriptAssemblies/Assembly-CSharp-firstpass.dll not valid. Loading of assembly skipped.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+ScheduleIndexationOnStartup MainProcess:True IndexOnStartup:True
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.476 seconds
+Domain Reload Profiling: 771ms
+	BeginReloadAssembly (199ms)
+		DisableScriptedObjects (20ms)
+		CreateAndSetChildDomain (39ms)
+	RebuildCommonClasses (33ms)
+	RebuildNativeTypeToScriptingClass (12ms)
+	initialDomainReloadingComplete (35ms)
+	LoadAllAssembliesAndSetupDomain (14ms)
+		LoadAssemblies (101ms)
+		AnalyzeDomain (6ms)
+			TypeCache.Refresh (3ms)
+	FinalizeReload (478ms)
+		SetupLoadedEditorAssemblies (0ms)
+			InitializePlatformSupportModulesInManaged (23ms)
+			BeforeProcessingInitializeOnLoad (98ms)
+			ProcessInitializeOnLoadAttributes (85ms)
+			ProcessInitializeOnLoadMethodAttributes (54ms)
+			AfterProcessingInitializeOnLoad (7ms)
+		AwakeInstancesAfterBackupRestoration (24ms)
+(Values over 0.050ms)
+Asset Pipeline Refresh (id=814f2d53fbe5f2e4382ebdb5638edec2): Total: 0.841 seconds - Initiated by StopAssetImportingV2(ForceSynchronousImport | ForceDomainReload)
+	Summary:
+		Imports: total=0 (actual=0, local cache=0, cache server=0)
+		Asset DB Process Time: managed=0 ms, native=500 ms
+		Asset DB Callback time: managed=19 ms, native=0 ms
+		Scripting: domain reloads=1, domain reload time=318 ms, compile time=1 ms, other=0 ms
+		Project Asset Count: scripts=44, non-scripts=23
+		Asset File Changes: new=0, changed=0, moved=0, deleted=0
+		Scan Filter Count: 0
+	InvokePackagesCallback: 1.650ms
+	ApplyChangesToAssetFolders: 0.052ms
+	CategorizeAssets: 0.279ms
+	CompileScripts: 1.472ms
+	ImportOutOfDateAssets: 478.288ms (478.118ms without children)
+		OnDemandSchedulerStart: 0.123ms
+	PostProcessAllAssets: 19.343ms
+		MonoPostProcessAllAssets: 19.338ms
+			WindowAssetPostprocessingWatcher.OnPostprocessAllAssets 8.359ms
+			SyncVS.PostprocessSyncProject 1.680ms
+			SpeedTree9Postprocessor.OnPostprocessAllAssets 0.674ms
+			ReferencedClipsPostProcessor.OnPostprocessAllAssets 0.285ms
+			AssetChangedListener.OnPostprocessAllAssets 0.192ms
+			TerrainToolbarOverlayPostProcessor.OnPostprocessAllAssets 0.161ms
+			AssetDatabaseCallbacks.OnPostprocessAllAssets 0.146ms
+			RenderPipelineGlobalSettingsPostprocessor.OnPostprocessAllAssets 0.069ms
+	GenerateScriptTypeSerializationHashes: 0.056ms
+	Untracked: 330.532ms
+
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.522 ms
+	Integration:            19.421 ms
+	Integration of assets:  0.003 ms
+	Thread Wait Time:       0.033 ms
+	Total Operation Time:   19.979 ms
+[MODES] ModeService[none].Initialize
+[MODES] ModeService[none].LoadModes
+[Licensing::Client] Successfully resolved entitlement details
+Start Indexing on Editor startup
+ArgumentOutOfRangeException: Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index
+  at System.Collections.Generic.List`1[T].get_Item (System.Int32 index) [0x00009] in <f713e1c3c5f545ce9b1df47230f4f853>:0 
+  at UnityEditor.Search.SearchDatabase+<EnumerateAll>d__80.MoveNext () [0x00089] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at System.Linq.Enumerable.TryGetFirst[TSource] (System.Collections.Generic.IEnumerable`1[T] source, System.Boolean& found) [0x00045] in <101642b95873440bbf9fec45cfcaa487>:0 
+  at System.Linq.Enumerable.First[TSource] (System.Collections.Generic.IEnumerable`1[T] source) [0x00000] in <101642b95873440bbf9fec45cfcaa487>:0 
+  at UnityEditor.Search.SearchDatabase.GetDefaultSearchDatabase () [0x00005] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at UnityEditor.Search.SearchInit.IndexationOnStartup () [0x0000a] in <b631299e075044bcab0fe3897a61a98a>:0 
+  at UnityEditor.EditorApplication.Internal_CallDelayFunctions () [0x00029] in <d1fb1d0952624d8d8a5f883a28c2a524>:0 
+
+[XACE] Unity transport disconnected: reconnect
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:Connect () (at Assets/XACE/XaceTransport.cs:169)
+Xace.Adapter.Unity.XaceNativeHost:Update () (at Assets/XACE/XaceNativeHost.cs:110)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnApplicationQuit () (at Assets/XACE/XaceNativeHost.cs:140)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDisable () (at Assets/XACE/XaceNativeHost.cs:138)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: destroyed
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:OnDestroy () (at Assets/XACE/XaceTransport.cs:159)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDestroy () (at Assets/XACE/XaceNativeHost.cs:139)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+Unloading 0 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            1.455 ms
+	Integration:            4.086 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.013 ms
+	Total Operation Time:   5.555 ms
+Unloading 3 unused Assets / (47.6 KB). Loaded Objects now: 704.
+Memory consumption went from 87.5 MB to 87.5 MB.
+Total: 4.323400 ms (FindLiveObjects: 0.041100 ms CreateObjectMapping: 0.005800 ms MarkObjects: 4.228300 ms  DeleteObjects: 0.047300 ms)
+
+Entering Playmode with Reload Domain disabled.
+If you experience any issues, please disable "Enter Play Mode Options" in Editor Settings
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.304 ms
+	Integration:            4.894 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.018 ms
+	Total Operation Time:   5.217 ms
+[XACE] Unity transport disconnected: reconnect
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:Connect () (at Assets/XACE/XaceTransport.cs:169)
+Xace.Adapter.Unity.XaceNativeHost:Update () (at Assets/XACE/XaceNativeHost.cs:110)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+There are no audio listeners in the scene. Please ensure there is always one audio listener in the scene
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnApplicationQuit () (at Assets/XACE/XaceNativeHost.cs:140)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] receive failed: Unable to read data from the transport connection: A blocking operation was interrupted by a call to WSACancelBlockingCall.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+Xace.Adapter.Unity.XaceTransport:Fail (string) (at Assets/XACE/XaceTransport.cs:556)
+Xace.Adapter.Unity.XaceTransport:ReceiveLoop () (at Assets/XACE/XaceTransport.cs:360)
+System.Threading.ThreadHelper:ThreadStart_Context (object)
+System.Threading.ExecutionContext:RunInternal (System.Threading.ExecutionContext,System.Threading.ContextCallback,object,bool)
+System.Threading.ExecutionContext:Run (System.Threading.ExecutionContext,System.Threading.ContextCallback,object,bool)
+System.Threading.ExecutionContext:Run (System.Threading.ExecutionContext,System.Threading.ContextCallback,object)
+System.Threading.ThreadHelper:ThreadStart ()
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 556)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDisable () (at Assets/XACE/XaceNativeHost.cs:138)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: destroyed
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceTransport:OnDestroy () (at Assets/XACE/XaceTransport.cs:159)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+[XACE] Unity transport disconnected: native host stopped
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace ()
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:Log (object)
+Xace.Adapter.Unity.XaceTransport:Disconnect (string) (at Assets/XACE/XaceTransport.cs:208)
+Xace.Adapter.Unity.XaceNativeHost:StopOwned () (at Assets/XACE/XaceNativeHost.cs:133)
+Xace.Adapter.Unity.XaceNativeHost:OnDestroy () (at Assets/XACE/XaceNativeHost.cs:139)
+
+(Filename: Assets/XACE/XaceTransport.cs Line: 208)
+
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0)
+Loaded scene 'Temp/__Backupscenes/0.backup'
+	Deserialize:            0.260 ms
+	Integration:            4.369 ms
+	Integration of assets:  0.001 ms
+	Thread Wait Time:       0.009 ms
+	Total Operation Time:   4.639 ms
+Unloading 3 unused Assets / (47.6 KB). Loaded Objects now: 704.
+Memory consumption went from 87.6 MB to 87.6 MB.
+Total: 14.130700 ms (FindLiveObjects: 0.035900 ms CreateObjectMapping: 0.005400 ms MarkObjects: 4.135100 ms  DeleteObjects: 9.953400 ms)
+
+Start importing ProjectSettings/EditorSettings.asset using Guid(0000000000000000c000000000000000) (LibraryAssetImporter) -> (Import Result ID: '49239808d11dd138800d4839f8838eda') in 0.0055709 seconds [static dependencies only]. Details - ImportResultOutputID=cf985170b52c9c582303c52d1d3c1af9 DependenciesID=0ffaf472c180c480afd4d516b8732217 StaticDependenciesID=d4619f78a10cfecb5164f53e28d89355 
+Asset Pipeline Refresh (id=4d38562e95757cd47a6f800ce19d95b8): Total: 0.046 seconds - Initiated by StopAssetImportingV2(NoUpdateAssetOptions)
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+Input System module state changed to: ShutdownInProgress.
+Input Polling Thread exited.
+Input System module state changed to: Shutdown.
+[Licensing::IpcConnector] LicenseClient-ankit-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-ankit channel disconnected successfully.
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+CodeReloadManager destroyed
+abort_threads: Failed aborting id: 000000000000940C, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 00000000000014E8, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 000000000000940C, mono_thread_manage will ignore it
+
+abort_threads: Failed aborting id: 00000000000014E8, mono_thread_manage will ignore it
+
+debugger-agent: Unable to listen on 3364
+Checking for leaked weakptr:
+  Found no leaked weakptrs.
+[Package Manager] Server process was shutdown
+##utp:{"type":"MemoryLeaks","version":2,"phase":"Immediate","time":1792860496013,"processId":8116,"allocatedMemory":10824213,"memoryLabels":[{"Default":172299},{"Permanent":15276},{"NewDelete":65699},{"Thread":4230344},{"Manager":35149},{"VertexData":8},{"Geometry":816},{"Texture":24},{"Shader":833516},{"Material":24},{"GfxDevice":55320},{"Animation":392},{"Audio":3008},{"FreeType":8},{"FontEngine":736},{"Physics":2090},{"Physics2D":16},{"Serialization":912},{"Input":9880},{"JobScheduler":33024},{"TextLib":216},{"Mono":32},{"ScriptingNativeRuntime":155052},{"BaseObject":1620472},{"Resource":1184},{"Renderer":3008},{"Transform":4685},{"File":1088},{"WebCam":616},{"Culling":32},{"Terrain":11394},{"Wind":24},{"STL":40},{"String":21779},{"StaticString":6718},{"Utility":2673862},{"Curl":2579},{"PoolAlloc":2072},{"AI":80},{"TypeTree":13637},{"ScriptManager":448},{"RuntimeInitializeOnLoadManager":64},{"SpriteAtlas":120},{"GI":7792},{"Director":8320},{"CloudService":9872},{"WebRequest":808},{"VR":48050},{"SceneManager":504},{"Video":64},{"LazyScriptCache":32},{"Camera":17},{"Secure":2377},{"Image":65536},{"SerializationCache":1576},{"APIUpdating":10320},{"Subsystems":336},{"VirtualTexturing":57888},{"StaticSafetyDebugInfo":278528},{"Analytics":648},{"Hierarchy":608},{"CoreStats":13112},{"Identifiers":12960},{"Gui":128},{"EditorUtility":81927},{"VersionControl":4},{"Undo":931},{"AssetDatabase":189832},{"EditorGi":328},{"UnityConnect":37777},{"Upm":1912},{"UpmDiagnostics":8},{"AssetCompliance":64},{"DrivenProperties":72},{"LocalIPC":260},{"ProfilerEditor":9746},{"CoreBusinessMetrics":2941},{"Windowing":456},{"Licensing":776},{"AssetReference":32},{"IPCStream":32}]}

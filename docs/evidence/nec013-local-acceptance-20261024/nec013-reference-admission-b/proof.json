@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "trusted_receipt_digest": "6339cef8f7001dfee300d34cb8c31aead51ce344f54ca5d25d3cd94a003a9c0f",
+  "executable_sha256": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d",
+  "package_content_hash": "1ebc75a2406bc416fa08dd0226e72c8878922ffd21aa82c670dedf95b4186154",
+  "relocated_executable": true,
+  "player_compilation": false,
+  "native_engine_shipping": false,
+  "clean_machine": false
+}

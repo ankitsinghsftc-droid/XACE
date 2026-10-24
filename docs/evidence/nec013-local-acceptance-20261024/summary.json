@@ -1,0 +1,39 @@
+{
+  "schema": "xace.nec013.local_acceptance.v1",
+  "status": "local_declared_profile_verified_clean_machine_blocked",
+  "task_complete": false,
+  "previous_checkpoint": "c987a80",
+  "cases": [
+    "playback-editor-d",
+    "build-preflight-e",
+    "player-final-e",
+    "player-update-final-e",
+    "player-scene-c",
+    "player-crash-a"
+  ],
+  "rust_tests_passed": 22,
+  "rust_tests_filtered": [
+    "endurance_route_stays_on_fixture_floor_past_previous_failure_tick"
+  ],
+  "independent_executor_builds": 2,
+  "executor_sha256": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d",
+  "limitations_document": "docs/NEC013_UNITY_STATUS.md",
+  "mandatory_remaining": [
+    "Same inventoried package on clean offline Windows without XACE/development tools; retain environment and execution evidence"
+  ],
+  "external_release_gates": "signing, first-time tester, external networking, Steam unverified",
+  "invalidated_attempts": {
+    "player-playback-b": "Missing live player presentation variant; headless startup did not exercise ticket creation",
+    "player-update-a": "Same missing presentation variant; excluded",
+    "build-preflight-d": "Editor test assembly could not access internal serializer; fixture corrected in e",
+    "playback-package-a": "Custom event name not accepted by fixed semantic binding catalog; not an unrestricted event extension proof"
+  },
+  "notes": [
+    "Scene reload proves fail-stop, not seamless continuation",
+    "Update retains sentinel bytes; save checks do not restore or migrate gameplay",
+    "AudioSource/Animation execution observed; no human audible-output certification",
+    "Unity Editor search indexing exceptions occurred in c and final d inside UnityEditor.Search; native gameplay assertions and all three cycles passed, logs retained; editor-internal warning remains",
+    "No historical evidence or sealed baseline modified"
+  ],
+  "backup": "Source and compact evidence checkpoint pending push; raw binaries/native fixtures and sealed archives local-only"
+}

@@ -1,0 +1,102 @@
+{
+  "adapters/unity/Xace_embedded.cs": {
+    "checkout_sha256": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1",
+    "git_blob": "34b01d0e19a6086c064713e8b7f86be8b10bdcd5"
+  },
+  "adapters/unity/XaceConsoleWidget.cs": {
+    "checkout_sha256": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507",
+    "git_blob": "05cb22c558735bdb7ce64fa88b4ee63b0d23d157"
+  },
+  "adapters/unity/XaceDeltaApplicator.cs": {
+    "checkout_sha256": "a9ae5d6a1ea343cf0663c4880a79111e9227d7fb5ad55a6dcdeed6b31c4e2a0c",
+    "git_blob": "02e0b7dbbc179347f28c775dbf947786b6993df2"
+  },
+  "adapters/unity/XaceInputCollector.cs": {
+    "checkout_sha256": "44163eda0667af9deb3bf9ac02e68141d8e5abfa8f94ae7def1daeef9f43476c",
+    "git_blob": "e2bd88bf6cf042556027cb6b710146d0f51cf971"
+  },
+  "adapters/unity/XaceNativeBuild.cs": {
+    "checkout_sha256": "5e98124d6a279ef5eeecb9fe9bc5b3045537c45a92233f122824c48f10596991",
+    "git_blob": "51f177f5891b3d3d0876f3f9b94e5f74363eeded"
+  },
+  "adapters/unity/XaceNativeContract.cs": {
+    "checkout_sha256": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028",
+    "git_blob": "d8a0b79af52432c5402e9fdaf09354407267fbef"
+  },
+  "adapters/unity/XaceNativeHost.cs": {
+    "checkout_sha256": "651baa448623040eddcd09c732ed650bde65e79e34137bfe302d64e543931e9b",
+    "git_blob": "91bb507a27ed7ea9df19a776bf5ec9bb0b4efd88"
+  },
+  "adapters/unity/XaceNativeHostClient.cs": {
+    "checkout_sha256": "89d15c4ac9a943c4b4b77884f013f6ecfda038123f51878ae9d0da4547f601ca",
+    "git_blob": "b9251b12926b24156eadc4676a11afda4ca3b9cd"
+  },
+  "adapters/unity/XaceNativeHostProfile.cs": {
+    "checkout_sha256": "b35259ac6c242df9a5aee60ebedc53452055e585e5c3b73160a558242320e962",
+    "git_blob": "2d257f737d3dc6107f6ba0fb7c0c5d20e6c95b69"
+  },
+  "adapters/unity/XaceNativeSceneBinding.cs": {
+    "checkout_sha256": "5c3c6c0101e577a7537b9e1b0e2cdb26e27546248cb1835874a16b5d113d6784",
+    "git_blob": "c1eb050dd39e192b115e2b2bfb1e7dc131a2bd13"
+  },
+  "adapters/unity/XaceRuntimeBootstrap.cs": {
+    "checkout_sha256": "e7c2c1563d988044eba12be526177f3eaf1cd1413579ded266459db052de3380",
+    "git_blob": "a83516792088c832f9b925f368d439e116627375"
+  },
+  "adapters/unity/XaceTransport.cs": {
+    "checkout_sha256": "2a647d74e5d0e07103024bf6c129f0a368b0779b5fa7afe59ef9441c2ca78e5c",
+    "git_blob": "60b2784cb4d49b364f135492201fd8a4eb4bf4af"
+  },
+  "examples/reference-mechanic/src/lib.rs": {
+    "checkout_sha256": "21a2abd4a6b888c95dc632ae33d8fff07e1823b992bfdbb107cea32f05841f99",
+    "git_blob": "9b10231cdbe3a3da40125b527c5a0abdf04025f5"
+  },
+  "examples/reference-mechanic/tests/proof.rs": {
+    "checkout_sha256": "b0298f7462a7d680cc58279e6c17f34907e2185ab6e0cad57a8828f507847159",
+    "git_blob": "db39b849154c1ceb51df58fa798530e16ad33358"
+  },
+  "tools/nec011_reference_admission.py": {
+    "checkout_sha256": "c8eb8cf777a32dfefa3d9d0536cce175b1a072e7bb118e687cb2f981d2537b37",
+    "git_blob": "4bcdda3ca1fd39d583ab0c3fa201e3c9f0858dbd"
+  },
+  "tools/nec013_closeout.py": {
+    "checkout_sha256": "85e2910e64d2e917910b35e5580a59682db72a64c47a7a28d63353b5f662fbfc",
+    "git_blob": "b8db095b145d199125730a27158abd08a5acad04"
+  },
+  "tools/nec013_playback_release.py": {
+    "checkout_sha256": "42e8bc27c36409af04d9fcb25a425f003b9e0f431ef34e7ce8a7ecae19aae0fa",
+    "git_blob": "afbecde98989869e50f4a7693f74576a17db6856"
+  },
+  "tools/nec013_unity_client_proof.py": {
+    "checkout_sha256": "ff300cc5a0f956e702c25188a608285c107c949697e9a65e12e86e2fe9735e73",
+    "git_blob": "d758a8ba20a11ece3a406fed9e1be391115e821f"
+  },
+  "tools/nec013_unity_play_proof.py": {
+    "checkout_sha256": "db6e60e1d182939a98f802ad8ea285c92cde4b04ceb09131021dcaabe538db9b",
+    "git_blob": "1dd97d289608c784b546a64000b335fc05dbb47c"
+  },
+  "tools/nec013_unity_player_proof.py": {
+    "checkout_sha256": "62186f896bb32a42f8af1ede864ac927738aa968cce8ed3322daa44dd4c0d1ba",
+    "git_blob": "d4468ce7d10e247ea8dd70bf1f9392c4415bf5a7"
+  },
+  "tools/nec013_unity_update_proof.py": {
+    "checkout_sha256": "27fae8add9ab29d6390e66061695bea412aa7c3d0fb7f127004e5c19cfa57989",
+    "git_blob": "9c7685c0ece90a4c2e8af47da063dd4329bb8c4b"
+  },
+  "tools/NEC013UnityBuildProof.cs": {
+    "checkout_sha256": "a429c40652879ea7d226c9734123ef1235ce3832e5fdc772f0dc508f9fb57d04",
+    "git_blob": "68a91240048a6aeac7d206b164f77b55a7befed5"
+  },
+  "tools/NEC013UnityHostProof.cs": {
+    "checkout_sha256": "93844c3591810aa9396ee8835324935a2d96c3f6d18678867d92730a83b6d6df",
+    "git_blob": "c0abf065a5d855268d0386e46cb11c611208b98d"
+  },
+  "tools/NEC013UnityPlayerProbe.cs": {
+    "checkout_sha256": "69383309ac0658634f05b8a182251451d6a7e1bea564e61a119da32316655b28",
+    "git_blob": "54abd54853139058d7fb91090186324d44a04456"
+  },
+  "tools/NEC013UnityPlayProof.cs": {
+    "checkout_sha256": "c6a2e0cf225d9756bf64b25f15e675200d2a80734e41d6a23a6bc3ec3a0385e0",
+    "git_blob": "d4fe60dd416398200e38cac5a04aed70ec1df785"
+  }
+}

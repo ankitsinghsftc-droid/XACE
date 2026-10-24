@@ -163,7 +163,24 @@ fn emit(ctx: &mut dyn ISystemContext, id: u64, name: &str, chain: u8) -> Result<
             PhaseEnum::Simulation,
         )
         .with_payload("chain", chain.to_string()),
-    )
+    )?;
+    // Keep the custom gameplay event, and publish the existing presentation
+    // contract for native playback. This does not register arbitrary new names.
+    if matches!(name, "ground_jump" | "wall_jump") {
+        ctx.emit_event(
+            Event::broadcast(
+                id,
+                xace_core::events::semantic_event_registry::domain_event(
+                    xace_core::events::semantic_event_registry::MOVEMENT_JUMP_STARTED,
+                ),
+                ctx.current_tick(),
+                PhaseEnum::Simulation,
+            )
+            .with_payload("actor_entity_id", id.to_string())
+            .with_payload("movement_state", "airborne"),
+        )?;
+    }
+    Ok(())
 }
 struct Row {
     transform: Value,

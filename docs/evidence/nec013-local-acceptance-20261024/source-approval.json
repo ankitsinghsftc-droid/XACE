@@ -1,0 +1,296 @@
+{
+    "schema": "xace.unity.source_approval.v1",
+    "unity": "6000.4.9f1",
+    "game": "nec012-proof",
+    "release": "de5144390fdcc9a7b9892faf48e854c8f1ded31a6f808ce85e41806a96e0a19a",
+    "launcher": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+    "scenes": [
+        "Assets/NativeGame.unity"
+    ],
+    "files": [
+        {
+            "path": "Assets/NativeGame.unity",
+            "sha256": "1fd2951a19eb404999233caad9e22509eaf04b38debfd3343facb2387b9c1acd"
+        },
+        {
+            "path": "Assets/NativeGame.unity.meta",
+            "sha256": "83b3d4106ec68f971e1438bac5e9141bdaba51b06aadfff9220046aa712dfd9d"
+        },
+        {
+            "path": "Assets/Resources.meta",
+            "sha256": "45fa4d4101a392cb9d6030cb5db48d1052694719fcfbdd4fcf0093e8e558bae5"
+        },
+        {
+            "path": "Assets/Resources/XaceNativeHost.asset",
+            "sha256": "4ef07afc13c0bcf422106042fa04a856f9e4da4dd416c791f5e2378c1d092d0f"
+        },
+        {
+            "path": "Assets/Resources/XaceNativeHost.asset.meta",
+            "sha256": "fa8cc65bc5a868b0e964c1504caa6151ff931a7103de87ddb8ea7d7bce5f79b1"
+        },
+        {
+            "path": "Assets/Resources/nec013-echo.anim",
+            "sha256": "0840d65064e6489c89092ecbc051c21aed04443b812e47c706900d82404f2441"
+        },
+        {
+            "path": "Assets/Resources/nec013-echo.anim.meta",
+            "sha256": "3def11f301e25c546a9901bd2b353d9a06de9633f6d05b1ba7466233168b04ed"
+        },
+        {
+            "path": "Assets/Resources/nec013-tone.wav",
+            "sha256": "a87935f7a2a541f42970d0416fcd97d7c1ad0e051d748a5b1814bd5aea6e10ac"
+        },
+        {
+            "path": "Assets/Resources/nec013-tone.wav.meta",
+            "sha256": "7d706c6f15f0dd28535d796ed5bfa43c79e0ee3a13ac7bf7259e1a7dc063c533"
+        },
+        {
+            "path": "Assets/StreamingAssets.meta",
+            "sha256": "4fdda2ce2299dc324c82f47ad05fce15c092c681ec1e6c139323538e045dac55"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease.meta",
+            "sha256": "294cb7f9ad06726355444c78e8a916ef02c5d9ea4d0b961516e47142032383a9"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/executor-receipt.json",
+            "sha256": "6817f890feae456b710a80259e4f107131e6e0ea8e568cc8e860eacceddbe0dd"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/executor-receipt.json.meta",
+            "sha256": "467671f8a9671be731c25ecc6a83d9d893a170982434a3adde45631380115499"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/native-release.json",
+            "sha256": "de5144390fdcc9a7b9892faf48e854c8f1ded31a6f808ce85e41806a96e0a19a"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/native-release.json.meta",
+            "sha256": "b18c0e064e9c23fdd8049d651bd2683622156671e44ea19c84622eef7397555d"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package.meta",
+            "sha256": "d4974bfb986c12ef0665bcd2b0cddb833d21f9411dbb21e9aed5a9602b6e79db"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/compiled_schema.json",
+            "sha256": "56f72d92f093b717e065933aaffb4e7fe6336fc05604393e1e59908f59f6d3c9"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/compiled_schema.json.meta",
+            "sha256": "ef60ad18fadae36fd8ec4b4d69cf10b69e4f105245b1dfb2eaed8af067d7acdf"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/execution_plan.json",
+            "sha256": "0aa48f7a2a5cb97bcf737ebd1d9bf5e2787eb0f49b32a2a515aa2e89d702a3b7"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/execution_plan.json.meta",
+            "sha256": "3031becc4282b42e3f62eed4a4d9e17e985786e288e502f4cefb1fcf94e68e28"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/game.cgs.json",
+            "sha256": "048a2e922dec2552c43dc360ab3e58d66c669ccf409721f97a59225de02ae4dd"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/game.cgs.json.meta",
+            "sha256": "d27149c2ce930b7d1952277567c2da4ea1aed25692ec9b42eccd145a31a10321"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/playable.manifest.json",
+            "sha256": "135aa6632e54fb0ef43925779b5f03520b5ba72438245cc48b88fafe9667ff5d"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/playable.manifest.json.meta",
+            "sha256": "84fddd56117d0fae6ee9a4aeb58321b99e103db3185bd2e723aa6f987efeba2b"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/presentation.meta",
+            "sha256": "cfbcacc941542769b05f8f59559ad1307a466af080a3496bdbf99f3afc524f41"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/presentation/player.meta",
+            "sha256": "96e027ca5ab2dfaabdd6f102e786eacbf2dacf08c3b472339ad0cbcbe9b7e92f"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/presentation/player/unity-resources.json",
+            "sha256": "082fe97bbdbd61b3f00de4a338fec18239a7bb47155bb13af4545e8a37cc1114"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/presentation/player/unity-resources.json.meta",
+            "sha256": "159d1baa5c4754e6b0a8dfaf5b10df014876cf58f1ad60757c4fd9d8f1bbae22"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/runtime.meta",
+            "sha256": "5ac96f0eba76b4116431621cb117b822fdca21e5d33c77108f0d32b1f5562478"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/runtime/xace_runtime.exe",
+            "sha256": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/runtime/xace_runtime.exe.meta",
+            "sha256": "d1e5d83abf9df5c3a3b5f1202d4029e79468bc7407432a38f64f1baa2aa2ef3c"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/world.json",
+            "sha256": "0b6926ecdb8d1df7024ca6f4429f71d59121107321768b28769de7e7bb12ad01"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/world.json.meta",
+            "sha256": "8cb3cb37d17a85ef2cc7e83460b361ce8edb1f21f6f0963d3280222fd6b417d3"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/world.manifest.json",
+            "sha256": "10aa3e36c6bba650c82f002520181af52ecebfe3f05349cd606af41bd4d28032"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/package/world.manifest.json.meta",
+            "sha256": "c4f7543e3c09caa5cb2f20586f85843b5d6f3d970a9bef768e2fd279a3dcf64a"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/xace-player-launcher.exe",
+            "sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb"
+        },
+        {
+            "path": "Assets/StreamingAssets/XACERelease/xace-player-launcher.exe.meta",
+            "sha256": "3eac04f6f05a07fd5b3cf556acb9899408ae6be90e45f1e1334b20db20ed42df"
+        },
+        {
+            "path": "Assets/XACE.meta",
+            "sha256": "f565be21f40d986975358130b3dc33ede09f5a9282ebb6facc37d18d53c131be"
+        },
+        {
+            "path": "Assets/XACE/Editor.meta",
+            "sha256": "a82d1e2dbb91e4cad9727c547ca6dd7d1564891d30bc5e9d40c32aa74ef7a894"
+        },
+        {
+            "path": "Assets/XACE/Editor/NEC013UnityBuildProof.cs",
+            "sha256": "a429c40652879ea7d226c9734123ef1235ce3832e5fdc772f0dc508f9fb57d04"
+        },
+        {
+            "path": "Assets/XACE/Editor/NEC013UnityBuildProof.cs.meta",
+            "sha256": "c621c4da734cfa0250a73db59fb620bf22f5ca9c6473357ae42bb61f390b035f"
+        },
+        {
+            "path": "Assets/XACE/Editor/NEC013UnityPlayProof.cs",
+            "sha256": "c6a2e0cf225d9756bf64b25f15e675200d2a80734e41d6a23a6bc3ec3a0385e0"
+        },
+        {
+            "path": "Assets/XACE/Editor/NEC013UnityPlayProof.cs.meta",
+            "sha256": "799e249acd97410c9465f1222c764c7c481b640b89885d8f64f1b99d4bd86a88"
+        },
+        {
+            "path": "Assets/XACE/NEC013UnityPlayerProbe.cs",
+            "sha256": "69383309ac0658634f05b8a182251451d6a7e1bea564e61a119da32316655b28"
+        },
+        {
+            "path": "Assets/XACE/NEC013UnityPlayerProbe.cs.meta",
+            "sha256": "4bfdb4aee69ebd6838705260dc778a35a3541560f5e85e7c4b5825a82614c4ae"
+        },
+        {
+            "path": "Assets/XACE/XaceConsoleWidget.cs",
+            "sha256": "43d0b7dc924c965bdc06e8821b40c844a13d0eba6c393e04b96e929307096507"
+        },
+        {
+            "path": "Assets/XACE/XaceConsoleWidget.cs.meta",
+            "sha256": "61360e91504bb1a900373c571b8fd17cd15d4cfd4b5550c98156682de7f3e446"
+        },
+        {
+            "path": "Assets/XACE/XaceDeltaApplicator.cs",
+            "sha256": "a9ae5d6a1ea343cf0663c4880a79111e9227d7fb5ad55a6dcdeed6b31c4e2a0c"
+        },
+        {
+            "path": "Assets/XACE/XaceDeltaApplicator.cs.meta",
+            "sha256": "5652ca3cd65ff6eb18c769d6b59295c63640b5256e46061fb7d9a4b676b13f5d"
+        },
+        {
+            "path": "Assets/XACE/XaceInputCollector.cs",
+            "sha256": "44163eda0667af9deb3bf9ac02e68141d8e5abfa8f94ae7def1daeef9f43476c"
+        },
+        {
+            "path": "Assets/XACE/XaceInputCollector.cs.meta",
+            "sha256": "cbcfd12587b3d2c8832da36b234d86d9b15c4c21098b52d067d9a33afc072bfa"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeBuild.cs",
+            "sha256": "5e98124d6a279ef5eeecb9fe9bc5b3045537c45a92233f122824c48f10596991"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeBuild.cs.meta",
+            "sha256": "a2e5986553e823df03c9d7ba984e7d2c0acd01d0ded5b8863735a7e9f6302b21"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeContract.cs",
+            "sha256": "0b5474748f76894ba08cd22d422cf414f3645aa28d5e150f708c796d71eb1028"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeContract.cs.meta",
+            "sha256": "92562faa14587f82ec002d5f5165a2ac780de66e64a4188f9b81c92c6736abe1"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHost.cs",
+            "sha256": "651baa448623040eddcd09c732ed650bde65e79e34137bfe302d64e543931e9b"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHost.cs.meta",
+            "sha256": "aa0a9c58a1fed091ed43d5a11550a15d8ec6d1664fa30f043dfdd93a242acfa1"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHostClient.cs",
+            "sha256": "89d15c4ac9a943c4b4b77884f013f6ecfda038123f51878ae9d0da4547f601ca"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHostClient.cs.meta",
+            "sha256": "8ee7b2b966a63dee570a8e09dc1a7696c2c9dfcfad7c9613048d5f45dd46275f"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHostProfile.cs",
+            "sha256": "b35259ac6c242df9a5aee60ebedc53452055e585e5c3b73160a558242320e962"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeHostProfile.cs.meta",
+            "sha256": "a7029751e3564cbcd1fafae0f2bdcd4ceff74c94e6d1e936c14e8e592a15eb94"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeSceneBinding.cs",
+            "sha256": "5c3c6c0101e577a7537b9e1b0e2cdb26e27546248cb1835874a16b5d113d6784"
+        },
+        {
+            "path": "Assets/XACE/XaceNativeSceneBinding.cs.meta",
+            "sha256": "3ddd488a378dbe5dd4747bde5b3bbd47d67f39f042e0608eff337dee18ca8771"
+        },
+        {
+            "path": "Assets/XACE/XaceRuntimeBootstrap.cs",
+            "sha256": "e7c2c1563d988044eba12be526177f3eaf1cd1413579ded266459db052de3380"
+        },
+        {
+            "path": "Assets/XACE/XaceRuntimeBootstrap.cs.meta",
+            "sha256": "49031f6755e7ae691e6aae2de68738e2e4751d81fa5e7d94091e0231b99e7422"
+        },
+        {
+            "path": "Assets/XACE/XaceTransport.cs",
+            "sha256": "2a647d74e5d0e07103024bf6c129f0a368b0779b5fa7afe59ef9441c2ca78e5c"
+        },
+        {
+            "path": "Assets/XACE/XaceTransport.cs.meta",
+            "sha256": "b13efa8ef47013dc39d08a0a154e3db97d485898c34c936ea818c865359840d9"
+        },
+        {
+            "path": "Assets/XACE/Xace_embedded.cs",
+            "sha256": "8845e18de83b97baeda495d6484ee100fcd9219eda4b5e9728141d1253ac7be1"
+        },
+        {
+            "path": "Assets/XACE/Xace_embedded.cs.meta",
+            "sha256": "b0280b9355e8de1b73bc9dcdadbf3c77b82bd6cc7642fbd633b053394e83145a"
+        },
+        {
+            "path": "Packages/manifest.json",
+            "sha256": "3781e3c8165b686ea48e6e5c5b58276f5bed190c15b5fa614f9e09c25f67de5f"
+        },
+        {
+            "path": "ProjectSettings/ProjectSettings.asset",
+            "sha256": "e4bbe7bd1dd694a6894b84194b41425ccc93e111a86ad08899057e726ec66b5e"
+        }
+    ]
+}

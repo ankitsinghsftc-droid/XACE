@@ -23,10 +23,13 @@ public sealed class NEC013UnityPlayerProbe:MonoBehaviour
         }
         if(!string.IsNullOrEmpty(failureMode)&&host!=null)
         {
+            if(failureMode=="startup"&&host.State=="failed")
+            {Finish(new Result{ok=host.OwnerProcessId==0&&host.RuntimeProcessId==0,error=host.Error,fault=failureMode,authority_stopped=host.OwnerProcessId==0});return;}
             var projection=host.GetComponent<XaceDeltaApplicator>();
             if(failureStage==0&&host.State=="playing"&&projection.CurrentTick>=5)
             {
                 runtimePid=host.RuntimeProcessId;ownerPid=host.OwnerProcessId;failureStage=1;
+                if(failureMode=="smoke"){Finish(new Result{ok=true,unity=Application.unityVersion,tick=projection.CurrentTick,runtime_pid=runtimePid,owner_pid=ownerPid,save_root=host.SaveRoot});return;}
                 if(failureMode=="authority"){using(var process=System.Diagnostics.Process.GetProcessById(runtimePid))process.Kill();}
                 else if(failureMode=="scene")UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(0);
                 else{Finish(new Result{error="Unknown failure mode"});return;}

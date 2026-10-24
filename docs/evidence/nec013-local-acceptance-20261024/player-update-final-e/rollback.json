@@ -1,0 +1,22 @@
+{
+    "ok": true,
+    "error": "",
+    "unity": "6000.4.9f1",
+    "tick": 5,
+    "entities": 0,
+    "runtime_pid": 19324,
+    "owner_pid": 34484,
+    "native_identity": false,
+    "hierarchy": false,
+    "positions": false,
+    "input_moves_authority": false,
+    "save_compatible_not_restored": false,
+    "incompatible_save_retained": false,
+    "save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\user-data\\XACE/NativeGames\\game-nec012-proof\\saves",
+    "fault": "",
+    "authority_stopped": false,
+    "frozen": false,
+    "required_playback": false,
+    "runtime_audio_started": false,
+    "runtime_animation_started": false
+}

@@ -17,6 +17,11 @@ namespace Xace.Adapter.Unity
         public XaceLiveInputBinding[] inputBindings = new XaceLiveInputBinding[0];
         public void ValidateRequiredResources(string release)
         {
+            var manifest=XaceCanonical.Parse(File.ReadAllText(Path.Combine(release,"package","playable.manifest.json")));
+            if(!manifest.TryGetValue("presentation_variants",out var variants)||!XaceCanonical.Object(variants).TryGetValue("player",out var player))throw new InvalidOperationException("Live native player presentation identity missing");
+            string identity=XaceCanonical.Text(XaceCanonical.Object(player),"content_hash");
+            if(identity.Length!=64)throw new InvalidOperationException("Invalid native player presentation identity");
+            foreach(char c in identity)if(!(c>='0'&&c<='9')&&!(c>='a'&&c<='f'))throw new InvalidOperationException("Invalid native player presentation identity");
             var cgs=XaceCanonical.Parse(File.ReadAllText(Path.Combine(release,"package","game.cgs.json")));
             if(!cgs.TryGetValue("semantic_bindings",out var semantic))return;
             foreach(var value in (List<object>)XaceCanonical.Object(semantic)["bindings"])

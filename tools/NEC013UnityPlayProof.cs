@@ -10,7 +10,8 @@ using Xace.Adapter.Unity;
 [InitializeOnLoad]
 public static class NEC013UnityPlayProof
 {
-    [Serializable] public sealed class Report { public bool ok; public string version; public string error; public int entities; public ulong tick; public bool native_identity; public bool hierarchy; public bool no_mirrors; public bool projection_positions; public bool process_cleanup; public int cycles; public bool domain_reload_disabled; public bool input_moves_authority; public int runtime_pid; public int owner_pid; }
+    [Serializable] public sealed class Report { public bool ok; public bool required_playback; public bool runtime_audio_started; public bool runtime_animation_started; public string version; public string error; public int entities; public ulong tick; public bool native_identity; public bool hierarchy; public bool no_mirrors; public bool projection_positions; public bool process_cleanup; public int cycles; public bool domain_reload_disabled; public bool input_moves_authority; public int runtime_pid; public int owner_pid; }
+    static XaceDeltaApplicator observed; static bool audioObserved, animationObserved;
     static string Arg(string key) { var args=Environment.GetCommandLineArgs();int i=Array.IndexOf(args,key);if(i<0)throw new Exception("Missing "+key);return args[i+1]; }
     static NEC013UnityPlayProof(){EditorApplication.update-=Update;EditorApplication.update+=Update;}
     public static void Run()
@@ -71,7 +72,12 @@ public static class NEC013UnityPlayProof
             if(!EditorApplication.isPlaying)return;
             var host=UnityEngine.Object.FindAnyObjectByType<XaceNativeHost>();if(host==null)return;
             if(host.State=="failed")throw new Exception(host.Error);
-            var apply=host.GetComponent<XaceDeltaApplicator>();host.GetComponent<XaceInputCollector>().SubmitNativeAction("proof.move",1);if(host.State!="playing"||apply.CurrentTick<12)return;
+            var apply=host.GetComponent<XaceDeltaApplicator>();
+            if(observed!=apply){observed=apply;audioObserved=false;animationObserved=false;apply.OnPlaybackCommandApplied+=(command,applied)=>{var actor=apply.GetEntity(command.entity_id);if(actor==null)return;if(command.binding_id=="nec013.audio")audioObserved|=applied&&actor.GetComponentInChildren<AudioSource>()!=null&&actor.GetComponentInChildren<AudioSource>().isPlaying;if(command.binding_id=="nec013.animation")animationObserved|=applied&&actor.GetComponentInChildren<Animation>()!=null&&actor.GetComponentInChildren<Animation>().IsPlaying("play");};}
+            host.GetComponent<XaceInputCollector>().SubmitNativeAction("proof.move",1);
+            host.GetComponent<XaceInputCollector>().SubmitNativeAction("proof.jump",apply.CurrentTick%20>=10?1:0);
+            bool required=Resources.Load<AudioClip>("nec013-tone")!=null;
+            if(host.State!="playing"||apply.CurrentTick<12||(required&&(!audioObserved||!animationObserved)))return;
             var bindings=UnityEngine.Object.FindObjectsByType<XaceNativeSceneBinding>(FindObjectsInactive.Include,FindObjectsSortMode.None);
             var report=new Report{ok=true,version=Application.unityVersion,entities=apply.EntityCount,tick=apply.CurrentTick,native_identity=true,hierarchy=false,no_mirrors=true,projection_positions=true,runtime_pid=host.RuntimeProcessId,owner_pid=host.OwnerProcessId};
             foreach(var pair in apply.Entities)
@@ -82,6 +88,7 @@ public static class NEC013UnityPlayProof
             }
             foreach(var b in bindings)if(b.transform.parent!=null&&b.transform.parent.GetComponent<XaceNativeSceneBinding>()!=null){report.hierarchy=true;report.input_moves_authority=b.transform.position.x>7.1f;}
             report.ok=report.entities==2&&bindings.Length==2&&report.native_identity&&report.no_mirrors&&report.projection_positions&&report.hierarchy&&report.input_moves_authority;
+            report.required_playback=required;report.runtime_audio_started=audioObserved;report.runtime_animation_started=animationObserved;
             Finish(report);
         }
         catch(Exception error){UnityEngine.Debug.LogException(error);Finish(new Report{ok=false,error=error.ToString(),version=Application.unityVersion});}

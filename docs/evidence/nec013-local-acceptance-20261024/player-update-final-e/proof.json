@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "actual_unity_players": true,
+  "valid_update": true,
+  "same_per_game_save_namespace": true,
+  "save_sentinel_retained": true,
+  "failed_update_keeps_working_activation": true,
+  "explicit_rollback": true,
+  "previous_receipt_retained": true,
+  "installations_unchanged": true,
+  "process_cleanup": true,
+  "automatic_installer": false,
+  "save_restoration": false,
+  "clean_machine": false
+}

@@ -1,0 +1,25 @@
+# NEC-013 Unity native shipping status
+
+NEC-013 remains INCOMPLETE pending mandatory clean-Windows-machine certification. No NEC-014 work is authorized. Original acceptance is unchanged.
+
+## Declared implementation
+
+Unity 6000.4.9f1, Windows x64 Mono, a saved approved scene with explicit World object IDs, static translation-only parent hierarchy, pinned creator executor and shared NEC-012 Rust host. Input selectors submit timed input to authority; Unity mirrors authoritative transforms without replacing native objects. Required presentation currently supports Resources AudioClip and legacy AnimationClip, with registered semantic events. Missing required resources fail before launch; failed playback stops authority. Animator graphs, arbitrary custom semantic-event registration, dynamic native instance creation, non-translation hierarchy, native gameplay physics and other scripting backends are not certified.
+
+Creator custom Rust gameplay remains supported under the NEC-011 trusted executor contract. The reference executor now additionally emits the registered movement.jump_started presentation event alongside its existing custom jump event. This is a new reproducibly compiled executable identity with fresh admission, not a rewrite of any prior executor receipt. Arbitrary custom event names are still refused by the existing runtime semantic binding catalog. The shipped native profile does not implement the entire Builder fidelity probe UI/receipt workflow: it binds the saved source/resource inventory, explicit required-resource preflight, cooked output inventory and NEC-012 release tuple. Do not equate these narrower shipping checks with arbitrary native resource support.
+
+## Lifecycle and build use
+
+Supply the reviewed package and launcher in StreamingAssets/XACERelease, the XaceNativeHostProfile asset at Resources/XaceNativeHost, explicit XaceNativeSceneBinding identities, and saved enabled scene. Pin launcher/release hashes, controller, and supported native input bindings. Explicitly invoke XaceNativeBuild.RecordApproval() from creator-side Editor tooling after review. It is create-once: retain existing approval/evidence and use a separately reviewed project revision when source changes. Play/build never refresh approval automatically.
+
+Press Play with Builder closed. Stop/quit owns only its launcher/runtime. Reloading the scene fails visibly and stops authority; reopen the approved scene in a new Play session. Seamless multi-scene continuation is not supported. Domain reload disabled is exercised. The current approval workflow is intentionally explicit and is not a complete everyday authoring UI.
+
+Build through the normal Windows x64 Mono Unity pipeline into a fresh empty release directory. Preserve XACEApproval.json and XACEEvidence outside disposable build folders. Require XaceNativeBuild.RequireBuildReceipt(output) after BuildPipeline.BuildPlayer: Unity's Succeeded result alone can survive an exception in a post-build callback. A valid built-not-certified receipt plus its complete cooked inventory is required; it is not a release certificate. Never overwrite an earlier output directory.
+
+Runtime/package/executor compatibility is validated by the shared Rust service. Read-only installations run with writable per-game data at LOCALAPPDATA/XACE/NativeGames/game-<gameId>. Save checks validate envelopes and refuse incompatible bytes; they do not restore gameplay or migrate saves. Updates are explicit side-by-side installations: activation waits for readiness, a failed candidate retains the prior active receipt, and running the retained prior installation explicitly rolls back. There is no automatic installer. Update proof uses a preservation sentinel, not proof of snapshot restoration.
+
+## External test still required
+
+A second clean Windows machine or clean VM without XACE, Rust, Python, Unity Editor or developer dependencies must run the exact inventoried shipping directory offline. Copy the entire output without rebuilding, independently check every file against the build receipt, preserve the receipt and logs in a persistent evidence directory, run NativeGame.exe with -xacePlayerReport <absolute-report.json> -logFile <absolute-log.txt>, and retain exit code, OS identity, installed-software inventory, process cleanup, user-save location and before/after installation hashes. The included probe is an engineering test harness, not a retail game UI. Repeat update/refusal/rollback with retained versions and verify save preservation. Never upload private raw game data without authorization.
+
+Restricted PATH and ACL-read-only runs on the development laptop do not satisfy this requirement. Signing, first-time testers, external networking and Steam certification remain open. Local evidence: docs/evidence/nec013-local-acceptance-20261024/summary.json. Full local evidence closeout is recorded separately; no old evidence is regenerated or replaced. Raw binaries/Unity fixtures and recovered XP-022 sealed archive remain local-only unless separately backed up.

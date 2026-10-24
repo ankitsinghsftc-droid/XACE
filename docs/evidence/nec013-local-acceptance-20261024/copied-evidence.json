@@ -1,0 +1,290 @@
+[
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\command.json",
+    "path": "playback-editor-d/command.json",
+    "sha256": "873eb9be4bc7948d2b1739f83808f0f543b2db4862d8a06c86ea4f3613483bcd",
+    "bytes": 549
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\proof.json",
+    "path": "playback-editor-d/proof.json",
+    "sha256": "37ae169f774cc978cc348c68b4b6c33c06b246b6dcfb3748bfa031079f677788",
+    "bytes": 480
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\proof.json.cycle-1.json",
+    "path": "playback-editor-d/proof.json.cycle-1.json",
+    "sha256": "96dac53deada973b053f92a40097b20f7eec664af78748611be15cd02891d6a3",
+    "bytes": 482
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\proof.json.cycle-2.json",
+    "path": "playback-editor-d/proof.json.cycle-2.json",
+    "sha256": "c580ab2dbd471e4670658e32160de2e474ed1707284f22c0b7d85027e871b4a9",
+    "bytes": 482
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\proof.json.cycle-3.json",
+    "path": "playback-editor-d/proof.json.cycle-3.json",
+    "sha256": "37ae169f774cc978cc348c68b4b6c33c06b246b6dcfb3748bfa031079f677788",
+    "bytes": 480
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\sources.json",
+    "path": "playback-editor-d/sources.json",
+    "sha256": "256d52249d41e6142f1a6286e73398c31270d7813d0674d8e77ac03c3977b81d",
+    "bytes": 1329
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\command.json",
+    "path": "build-preflight-e/command.json",
+    "sha256": "034664d0948ed2dffbffefa026b739d88da3c11138a78b1bfb831d79b83451b4",
+    "bytes": 695
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\proof.json",
+    "path": "build-preflight-e/proof.json",
+    "sha256": "8ccda9d3ea2ded950325ff2b1a771f9af8fdfc210458d40d4d12260b3378d144",
+    "bytes": 144
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\sources.json",
+    "path": "build-preflight-e/sources.json",
+    "sha256": "256d52249d41e6142f1a6286e73398c31270d7813d0674d8e77ac03c3977b81d",
+    "bytes": 1329
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-final-e\\command.json",
+    "path": "player-final-e/command.json",
+    "sha256": "b1072847b21a346e33e1fb1e5cc5e4e2c66a2f3c7b7cbb09c8c7c963a74ce5e2",
+    "bytes": 431
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-final-e\\inventory.json",
+    "path": "player-final-e/inventory.json",
+    "sha256": "86be9b2945dd5f230d75c6d8687037f6e9785437a4b66c43436eb39573c416d5",
+    "bytes": 19747
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-final-e\\player.json",
+    "path": "player-final-e/player.json",
+    "sha256": "dbe7c6c0951f8e4f6544815bb0279b7ffaf7fb84fae6962969f50e5a5a6d5866",
+    "bytes": 683
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-final-e\\proof.json",
+    "path": "player-final-e/proof.json",
+    "sha256": "6b882c3cc2f95b98d3d4b85c30154b622bfdfb9578588085bf480b181f1c90d9",
+    "bytes": 793
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\initial-command.json",
+    "path": "player-update-final-e/initial-command.json",
+    "sha256": "c7f56ce22aa34108757dfd391e899382212317dd6f544db34cefd5d5cc2d4c18",
+    "bytes": 480
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\initial.json",
+    "path": "player-update-final-e/initial.json",
+    "sha256": "337506ac36c9ac029449bec26593be888278f12f23f79ce4d7bddb67ac5d9534",
+    "bytes": 696
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\proof.json",
+    "path": "player-update-final-e/proof.json",
+    "sha256": "f8d293a0d7291e8511f889ee81c624172cd36fa41c434e29c5179d23ed80fbc1",
+    "bytes": 425
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\refused-command.json",
+    "path": "player-update-final-e/refused-command.json",
+    "sha256": "92ece790b2382e41a1c02044b7604b781ecc70c19fa5445de230561f5a58b6fc",
+    "bytes": 490
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\refused.json",
+    "path": "player-update-final-e/refused.json",
+    "sha256": "0111af2d4caec25048b8680eee4d1a052e685a46ae04bc03590eb38ee411e764",
+    "bytes": 560
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\rollback-command.json",
+    "path": "player-update-final-e/rollback-command.json",
+    "sha256": "baaa1666f81bb41641c9bde363632e65db25552a6980a8cee78dccadfa8175c6",
+    "bytes": 482
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\rollback.json",
+    "path": "player-update-final-e/rollback.json",
+    "sha256": "681be47235ff0b09566f6cc474ce3fec6fd1064baeed2bea791f520fa6310571",
+    "bytes": 697
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\update-command.json",
+    "path": "player-update-final-e/update-command.json",
+    "sha256": "5d4378caf3770b61ef7f4b3d743e7bfc094ffc8d944a28a40024323bb419cdac",
+    "bytes": 478
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\update.json",
+    "path": "player-update-final-e/update.json",
+    "sha256": "235e29ce22ec527dcda26c5cfb3746468fc99a7c3786d6da6adb4b75ff2cd7bc",
+    "bytes": 697
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-scene-c\\command.json",
+    "path": "player-scene-c/command.json",
+    "sha256": "41ce82cf457a83d1bb448fe26178bbeca31de62c202e7da23004adcefcf1dcf0",
+    "bytes": 462
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-scene-c\\inventory.json",
+    "path": "player-scene-c/inventory.json",
+    "sha256": "621524a3cff407854ff7f18899622b0d461648edd1313febb8f5ce94be83f83e",
+    "bytes": 19628
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-scene-c\\player.json",
+    "path": "player-scene-c/player.json",
+    "sha256": "41c8c81bbe10e7c94e74e3d8e7b203f0ee7e3a63412ac24c7367360cd86cd136",
+    "bytes": 604
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-scene-c\\proof.json",
+    "path": "player-scene-c/proof.json",
+    "sha256": "840c618ee04a7d4ccf4e7e9b06f5065cf65f8cb5a872ea12302956658f17aa87",
+    "bytes": 715
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-crash-a\\command.json",
+    "path": "player-crash-a/command.json",
+    "sha256": "7cd06721533a542fc5c6116b8356253878567d6f8deae4892cf3daff99dc3768",
+    "bytes": 466
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-crash-a\\inventory.json",
+    "path": "player-crash-a/inventory.json",
+    "sha256": "551430fb0219a65271072d4670c6e81ff410e06d15176941cbc0c8a42ff90cc2",
+    "bytes": 19628
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-crash-a\\player.json",
+    "path": "player-crash-a/player.json",
+    "sha256": "e69674adfaa5996bceb59b33e4376b5b2abf2e51a491d4b676e7e560e3c7d93f",
+    "bytes": 565
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-crash-a\\proof.json",
+    "path": "player-crash-a/proof.json",
+    "sha256": "88fbc552dbf4089f2b8d659c02523c615ba5816670d4d559cd1fe21a739454d3",
+    "bytes": 679
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\project\\XACEEvidence\\builds\\20261024T1648574862878-f6a6bf70b48046fb87f4c14b7b48471c.json",
+    "path": "build-receipts/20261024T1648574862878-f6a6bf70b48046fb87f4c14b7b48471c.json",
+    "sha256": "8cd0ec7ff2a136b8fa37cba9e9cf0b13179a8f51aa48884f96aae33b791ba35d",
+    "bytes": 535
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\project\\XACEEvidence\\builds\\20261024T1650429462711-ce87a5c6b48d455186036938aee2e0f5.json",
+    "path": "build-receipts/20261024T1650429462711-ce87a5c6b48d455186036938aee2e0f5.json",
+    "sha256": "e37e59659de5f48efe5bf4e5073a0721f5781974f2c5598c32615cb38b07d5e5",
+    "bytes": 29499
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\build-preflight-e\\project\\XACEApproval.json",
+    "path": "source-approval.json",
+    "sha256": "5e03da6204b8851d8f895aeae0ddc8739a8b00f5d33d5fddbc83260059c9763a",
+    "bytes": 13061
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\reference-tests-a\\tests.log",
+    "path": "reference-tests.log",
+    "sha256": "a7cd3d17758668348757f9a6b6408b0f4e1cfb4dadcb753efcf16f91128b2293",
+    "bytes": 11804
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-editor-d\\editor.log",
+    "path": "editor-final.log",
+    "sha256": "29e1137959d3786d57ec723c07b960f638aec6382595d84a2461ef6c18f60664",
+    "bytes": 114744
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\builds.json",
+    "path": "nec013-reference-presentation-a/builds.json",
+    "sha256": "51d0461c44b2295ac83d420c238599c2eac40beabc252f4d5a2941f2e35dbc23",
+    "bytes": 604
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\first-command.json",
+    "path": "nec013-reference-presentation-a/first-command.json",
+    "sha256": "c10501dded8b653d86eefbe01f21b9835f42a5a6e274a358b6ed2e79dd71d3a0",
+    "bytes": 836
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\second-command.json",
+    "path": "nec013-reference-presentation-a/second-command.json",
+    "sha256": "ca8ac25a321e7496966c2a50c5cc497c3adc0c40b10a0c5d14b0edaba3200623",
+    "bytes": 837
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\source-files.json",
+    "path": "nec013-reference-presentation-a/source-files.json",
+    "sha256": "436cff83c80263cdff55c3d3a3067dfdcc2d3e24697b96ff2166f4d81f7015be",
+    "bytes": 33539
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-admission-b\\commands.json",
+    "path": "nec013-reference-admission-b/commands.json",
+    "sha256": "d761fe69f666426634224b1e1643be954fc3cb713d9c7f75e3bc0e21d072c0ca",
+    "bytes": 2494
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-admission-b\\executor-receipt.json",
+    "path": "nec013-reference-admission-b/executor-receipt.json",
+    "sha256": "6817f890feae456b710a80259e4f107131e6e0ea8e568cc8e860eacceddbe0dd",
+    "bytes": 37864
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-admission-b\\first-schedule.json",
+    "path": "nec013-reference-admission-b/first-schedule.json",
+    "sha256": "c510cfda786fe53706f04d7e3c929317a244fd1c7c30af6f4fdedd0498359e4f",
+    "bytes": 22572
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-admission-b\\proof.json",
+    "path": "nec013-reference-admission-b/proof.json",
+    "sha256": "633d064ba6af60694b26743cb226965cc579f11e214e2af1a4e2dddd88686054",
+    "bytes": 430
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-admission-b\\second-schedule.json",
+    "path": "nec013-reference-admission-b/second-schedule.json",
+    "sha256": "c510cfda786fe53706f04d7e3c929317a244fd1c7c30af6f4fdedd0498359e4f",
+    "bytes": 22572
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-closeout-seal-a.json",
+    "path": "seal-integrity.json",
+    "sha256": "bd2b9d605f114e895f0b19fce9d91657dbf87ce681bf1745f3967a5f69214c8e",
+    "bytes": 18532
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-package-c\\release\\native-release.json",
+    "path": "release/native-release.json",
+    "sha256": "de5144390fdcc9a7b9892faf48e854c8f1ded31a6f808ce85e41806a96e0a19a",
+    "bytes": 758
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-package-c\\release\\executor-receipt.json",
+    "path": "release/executor-receipt.json",
+    "sha256": "6817f890feae456b710a80259e4f107131e6e0ea8e568cc8e860eacceddbe0dd",
+    "bytes": 37864
+  },
+  {
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\playback-package-c\\release\\package\\playable.manifest.json",
+    "path": "release/package/playable.manifest.json",
+    "sha256": "135aa6632e54fb0ef43925779b5f03520b5ba72438245cc48b88fafe9667ff5d",
+    "bytes": 2761
+  }
+]

@@ -540,3 +540,24 @@ fn migrated_semantic_world_uses_the_same_reference_system_and_tick_results() {
         }
     }
 }
+
+#[test]
+fn reference_jumps_publish_registered_presentation_contract() {
+    let mut h = Host::new(ThirdAttempt::Disabled);
+    let mut custom = 0;
+    let mut standard = 0;
+    for frame in script() {
+        let result = h.step(frame).unwrap();
+        for event in result.emitted_events {
+            let name = xace_core::events::semantic_event_registry::event_type_semantic_name(&event.event_type).unwrap_or("");
+            if matches!(name, "reference.ground_jump.v1" | "reference.wall_jump.v1") { custom += 1; }
+            if name == xace_core::events::semantic_event_registry::MOVEMENT_JUMP_STARTED {
+                standard += 1;
+                assert_eq!(event.payload.get("actor_entity_id"), Some(&h.player.to_string()));
+                assert_eq!(event.payload.get("movement_state").map(String::as_str), Some("airborne"));
+            }
+        }
+    }
+    assert!(custom > 0);
+    assert_eq!(standard, custom);
+}

@@ -15,3 +15,6 @@ Required acceptance (no criteria removed):
 - Retain source/binary identities, fresh native and focused regression evidence, and immutable XP022 baseline. Stop before NEC014.
 
 Entry findings: existing Unity BeforeSceneLoad bootstrap creates an auto-connecting transport without owned host/package admission. Existing applicator spawns mirrors and reparents live entities. Existing native authoring metadata is separate from adapter assembly and has no shipping Play/build integration. NEC012 supplies the owned Rust service, release admission, per-game save identity and readiness-gated activation/rollback. Clean-machine access is not currently evidenced.
+
+
+Local verification update 2026-10-24: see docs/evidence/nec013-local-acceptance-20261024/summary.json and NEC013_UNITY_STATUS.md. Local declared-profile checks pass; the mandatory clean-machine test remains blocked. This does not mark NEC013 complete or change the criteria above.

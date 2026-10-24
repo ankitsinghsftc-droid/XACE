@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "builds": [
+    {
+      "build_id": "first",
+      "executable_sha256": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d",
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\first-host.exe"
+    },
+    {
+      "build_id": "second",
+      "executable_sha256": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d",
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261024\\nec013-reference-presentation-a\\second-host.exe"
+    }
+  ]
+}

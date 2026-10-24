@@ -566,6 +566,9 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 ### NEC-013 — Unity production Play and Windows build integration
 
+**Status (2026-10-24): local declared Unity/Windows Mono profile verified; NEC013 remains INCOMPLETE pending mandatory clean-machine certification.** Evidence docs/evidence/nec013-local-acceptance-20261024/summary.json; limitations and handoff docs/NEC013_UNITY_STATUS.md. Acceptance below is unchanged; NEC014 not started.
+
+
 - **Purpose:** ship the actual XACE-powered Unity game.
 - **Problem solved:** adding adapter components does not ensure deployed runtime/resources or safe Editor lifecycle.
 - **Reuse:** Unity bootstrap/applicator/input, NEC-012 verifier/lifecycle, NEC-011 binding receipt.

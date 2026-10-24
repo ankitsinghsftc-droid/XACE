@@ -1,0 +1,20 @@
+{
+    "ok": true,
+    "required_playback": true,
+    "runtime_audio_started": true,
+    "runtime_animation_started": true,
+    "version": "6000.4.9f1",
+    "error": "",
+    "entities": 2,
+    "tick": 12,
+    "native_identity": true,
+    "hierarchy": true,
+    "no_mirrors": true,
+    "projection_positions": true,
+    "process_cleanup": true,
+    "cycles": 3,
+    "domain_reload_disabled": true,
+    "input_moves_authority": true,
+    "runtime_pid": 3748,
+    "owner_pid": 37412
+}

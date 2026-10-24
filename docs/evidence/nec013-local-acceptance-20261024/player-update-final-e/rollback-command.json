@@ -1,0 +1,11 @@
+[
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\version-a\\NativeGame.exe",
+  "-batchmode",
+  "-nographics",
+  "-xacePlayerReport",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\rollback.json",
+  "-xaceFailure",
+  "smoke",
+  "-logFile",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec013\\20261024\\player-update-final-e\\rollback.log"
+]
