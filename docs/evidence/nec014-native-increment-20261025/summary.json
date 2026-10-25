@@ -1,0 +1,34 @@
+{
+  "schema": "xace.nec014.increment.v1",
+  "status": "incomplete",
+  "entry": "9d16fb6",
+  "verified": [
+    "9 actual Godot owner lifecycle checks",
+    "Native scene identity/hierarchy and authoritative input at tick12",
+    "Explicit source approval and packed export preflight stamp",
+    "Actual Windows export packed runtime-driven audio/animation",
+    "Compatible save admitted-not-restored and incompatible save retained",
+    "ACL-read-only export update/refusal/explicit rollback",
+    "22 Godot fidelity checks and existing Player lifecycle regression",
+    "Recovered XP022 protected seal unchanged"
+  ],
+  "pending": [
+    "Existing-project preservation versus new-project fixtures and actual Editor Play certification",
+    "Expanded lifecycle faults/editor Stop and source/resource/export refusal matrix",
+    "Final source-bound acceptance audit and release handoff"
+  ],
+  "limitations": [
+    "Godot standard Windows x64 only; static translation hierarchy",
+    "No automatic save restoration/migration or automatic updater",
+    "Export hook emits a refusal stamp; creator wrapper is required for a checked cooked receipt",
+    "Initial b playback export reported shutdown resource warning; not reproduced in d/update-c; not established fixed",
+    "Clean-machine/signing/tester/network/Steam gates remain unverified",
+    "NEC013 clean-machine gate remains open; NEC015 not started"
+  ],
+  "failed_attempts": {
+    "play-a": "Node.owner name collision; retained timeout",
+    "play-b": "Proof used missing stats method; corrected tick observer",
+    "update-readonly-a/b": "PowerShell ACL module unavailable; equivalent .NET ACL proof c passed"
+  },
+  "backup": "This checkpoint pending push; raw binaries/fixtures/seal local-only"
+}

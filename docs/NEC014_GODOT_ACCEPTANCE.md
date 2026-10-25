@@ -1,0 +1,9 @@
+# NEC-014 Godot production Play and Windows export
+
+ACTIVE; entry 9d16fb60cb613504b2974206904a8955ad40c494, recovery/xp022. User authorized NEC014 while NEC013 clean-machine gate remains open. No previous gate is waived.
+
+Target installed Godot4.6.3 stable, Windows x64 standard GDScript export, native project's own scene/UI. Reuse NEC012 Rust admission/lifecycle and existing Godot session transport; no new gameplay authority, player-side compiler, Builder or cloud dependency.
+
+Required: explicit approved native object bindings, preserved scene hierarchy/presentation, timed input and runtime-driven playback; source/resource/release preflight; normal editor Play and export hooks; pinned cooked resource/package/executor tuple and receipts; failed staging retained, prior exports untouched. Prove packed resource resolution, relocated read-only installation, stable per-game saves, incompatible-save refusal, failed-update retention and explicit rollback. Both existing and new project fixtures must retain their own main scenes. Test owned cleanup on normal exit/editor Stop/crash, authority loss without fallback, and existing Player regressions. Keep platform/profile limitations explicit; do not infer clean-machine, signing, networking or Steam certification.
+
+Work sequence: bounded inherited-pipe client and actual Godot lifecycle proof; native scene projection and Play preflight; explicit source approvals/export integration; installed export parity and failures; regression/evidence/checkpoint. NEC015 requires further authorization. Unique source/evidence stays outside disposable directories. Recovered XP022 seal is immutable.

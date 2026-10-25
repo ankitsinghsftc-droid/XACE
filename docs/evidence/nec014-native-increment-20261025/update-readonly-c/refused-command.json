@@ -1,0 +1,7 @@
+[
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\update-readonly-c\\bad-candidate\\NativeGame.exe",
+  "--headless",
+  "--",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\update-readonly-c\\refused.json",
+  "--expect-refusal"
+]

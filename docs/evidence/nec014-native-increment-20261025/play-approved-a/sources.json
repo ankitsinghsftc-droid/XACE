@@ -1,0 +1,18 @@
+{
+  "proof.gd": "b97ee38054b3ca551a4af7de69d982d6617bb7a42cf7fcdb4c8ce70e51fc6a59",
+  "xace_adapter.gd": "4fbf03ca319752441af4ea558543e033e506ecbc8aa98e25adf228416e9c0907",
+  "xace_canonical_entities.gd": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56",
+  "xace_console_widget.gd": "09979e1670270a84c49e3125b1522ce2d063c2e197afa1c4bb81d8d50d05b692",
+  "xace_debug_hud.gd": "da07761fcf70a1d7b22ab064e1f96b2ed571ef74ba42448e535c761a8ddc75a0",
+  "xace_delta_applicator.gd": "6c14f006910810fd48f50d3c3b0e5bec946319302625de4f0b2acf412890e0c0",
+  "xace_entity_manager.gd": "2b44ae025d1e58a6a2e294a0a482497c25581994af6c2928154f3ea60f985eeb",
+  "xace_godot_main.gd": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3",
+  "xace_input_collector.gd": "a0f3e8fe017c63295235e04823823abbdc113d5a697098b76db814b66b8c338f",
+  "xace_native_approval.gd": "560540fb292c267e9b70dce6b11c3d598b42e3127c94b6d8fef92f8aec2eb47a",
+  "xace_native_contract.gd": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185",
+  "xace_native_host.gd": "94a3accd7f25c2861b90a8ac6ac05a33eeba9355662974afbedd48cc198cc1e0",
+  "xace_native_host_client.gd": "6fea27cd597fea835d44392f18a798a8723cb923ad00535758fbf5372873a1d7",
+  "xace_native_scene_entities.gd": "f7fa73e731bb484341e99357688c107be44d2a5f0331f9844bf06724d54f30db",
+  "xace_protocol.gd": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655",
+  "xace_transport.gd": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed"
+}

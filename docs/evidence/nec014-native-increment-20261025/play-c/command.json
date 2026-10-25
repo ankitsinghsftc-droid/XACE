@@ -1,0 +1,10 @@
+[
+  "C:/Users/ankit/Downloads/Godot_v4.6.3-stable_win64.exe/Godot_v4.6.3-stable_win64_console.exe",
+  "--headless",
+  "--path",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261024\\play-c\\project",
+  "--script",
+  "res://proof.gd",
+  "--",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261024\\play-c\\config.json"
+]

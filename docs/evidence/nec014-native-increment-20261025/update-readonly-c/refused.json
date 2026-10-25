@@ -1,0 +1,14 @@
+{
+	"animation_started": false,
+	"audio_started": false,
+	"error": "Native release identity mismatch",
+	"exported": true,
+	"incompatible_save_retained": false,
+	"native_scene": "res://NativeGame.tscn",
+	"ok": true,
+	"owner_pid": 0,
+	"runtime_pid": 0,
+	"save_compatible_not_restored": false,
+	"save_root": "",
+	"tick": 0
+}
