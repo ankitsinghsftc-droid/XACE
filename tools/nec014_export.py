@@ -1,6 +1,6 @@
 """Create-only native Godot export, using the developer main scene and approved preset."""
 from pathlib import Path
-import hashlib,json,shutil,subprocess,sys
+import hashlib,json,os,shutil,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def inventory(root):
@@ -33,8 +33,14 @@ def export(project,out,godot):
    src=(source/name).resolve();dst=(target/name).resolve();assert src.is_relative_to(source.resolve()) and dst.is_relative_to(target.resolve())
    dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(src,dst)
   args=[str(target/'xace-player-launcher.exe'),'--native-host','--source',str(target),'--expected',profile['release_sha256'],'--history',str(out/'admission-history'),'--controller',str(profile['controller_id'])]
-  admitted=subprocess.run(args,input='',capture_output=True,text=True,timeout=30,creationflags=subprocess.CREATE_NO_WINDOW)
+  isolated_env=dict(os.environ);isolated_env['LOCALAPPDATA']=str(out/'preflight-user-data')
+  admitted=subprocess.run(args,env=isolated_env,input='',capture_output=True,text=True,timeout=30,creationflags=subprocess.CREATE_NO_WINDOW)
   assert admitted.returncode==0 and json.loads(admitted.stdout.splitlines()[0])['state']=='stopped','Cooked native package refused'
+  probe=[str(shipping/'NativeGame.exe'),'--headless','--','--xace-native-preflight',str(out/'packed-preflight.json')]
+  (out/'packed-preflight-command.json').write_text(json.dumps(probe,indent=2),encoding='utf-8')
+  with (out/'packed-preflight.log').open('wb') as log:checked=subprocess.run(probe,env=isolated_env,stdout=log,stderr=subprocess.STDOUT,timeout=45,creationflags=subprocess.CREATE_NO_WINDOW)
+  checked_proof=json.loads((out/'packed-preflight.json').read_text(encoding='utf-8'))
+  assert checked.returncode==0 and checked_proof.get('schema')=='xace.godot.native_preflight.v1' and checked_proof.get('ok') and checked_proof.get('packed') and checked_proof.get('authority_started') is False,'Cooked native scene/resources refused'
   receipt.update(status='built-not-certified',release_sha256=profile['release_sha256'],launcher_sha256=profile['launcher_sha256'],files={p.relative_to(shipping).as_posix():sha(p) for p in sorted(shipping.rglob('*')) if p.is_file()},clean_machine=False)
  except Exception as error:
   receipt.update(status='failed',error=str(error));raise

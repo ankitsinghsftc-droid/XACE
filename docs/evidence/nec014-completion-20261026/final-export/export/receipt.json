@@ -1,0 +1,25 @@
+{
+  "schema": "xace.godot.native_export.v1",
+  "status": "built-not-certified",
+  "approval_sha256": "6046f3a5415f437312063aaba3e2e72518296b33116ce1cfaaf5b2e3e00e4226",
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\export-final-g\\project",
+  "godot_sha256": "63b3b2208819714c9677fbfdd8217c5b7dee8ecf5f383502e826bc9e2227ff5a",
+  "release_sha256": "b239e5507743857e0c0f0bcb2ba5b8aec0ab60a4676b67f8491a185b93ce9cbe",
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "files": {
+    "NativeGame.exe": "91724f15024a3a545e28ccd83134403d31ce2323a38e51c95e4dfa282f732ab6",
+    "NativeGame.pck": "1db6c47fd2ae6a065b070c7d20785ccad5e71f89638f23ff31b295d45aec5aab",
+    "release/executor-receipt.json": "6817f890feae456b710a80259e4f107131e6e0ea8e568cc8e860eacceddbe0dd",
+    "release/native-release.json": "b239e5507743857e0c0f0bcb2ba5b8aec0ab60a4676b67f8491a185b93ce9cbe",
+    "release/package/compiled_schema.json": "631ede8a54404b3a693005c4588b2fccaf48c26b3a7c1f907a79f0bf428e70ee",
+    "release/package/execution_plan.json": "d854759f382b48daf04f8034de2e87150b9ccaf07416736d3abfc59b121bd3e2",
+    "release/package/game.cgs.json": "c7a05214ef4dc60a4d6c53a15ce881801c7aee126a1707f335f492bd806da121",
+    "release/package/playable.manifest.json": "302b8d6f132726bd8a557b3e98ae9ec4ed06296b574582d6acedafd951965612",
+    "release/package/presentation/player/native-bindings.json": "16a599c08dcc65b180c673016d28933f9b227001dba639ad61c21db7620d548a",
+    "release/package/runtime/xace_runtime.exe": "1ebd23b90c64f40c76fd19bb97abe053b1befa92e4c677bcabbe98ad458bab9d",
+    "release/package/world.json": "0b6926ecdb8d1df7024ca6f4429f71d59121107321768b28769de7e7bb12ad01",
+    "release/package/world.manifest.json": "5e54ee2346819278ec739863331daae009c95c8412b5edc2317c04d4f33b2cea",
+    "release/xace-player-launcher.exe": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb"
+  },
+  "clean_machine": false
+}

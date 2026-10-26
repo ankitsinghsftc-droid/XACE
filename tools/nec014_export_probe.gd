@@ -2,6 +2,8 @@ extends Node3D
 var deadline := 0
 var done := false
 var subscribed := false
+var fault_tick := -1
+var fault_frames := 0
 var audio_started := false
 var animation_started := false
 var save_stage := 0
@@ -13,7 +15,14 @@ func _ready() -> void: deadline=Time.get_ticks_msec()+30000
 func _process(_delta: float) -> void:
 	if done: return
 	var host := $NativeHost
-	if host.state == "failed": finish("--expect-refusal" in OS.get_cmdline_user_args(),host.error);return
+	if host.state == "failed":
+		if "--fault" in OS.get_cmdline_user_args():
+			if fault_tick<0: fault_tick=host.adapter._last_runtime_tick
+			if fault_tick!=host.adapter._last_runtime_tick: finish(false,"Projection advanced after authority loss");return
+			fault_frames+=1
+			if fault_frames>=20: finish(true,host.error)
+			return
+		finish("--expect-refusal" in OS.get_cmdline_user_args(),host.error);return
 	if Time.get_ticks_msec()>deadline: finish(false,"Export Play timeout");return
 	if host.manager != null and not subscribed:
 		subscribed=true
@@ -26,6 +35,10 @@ func _process(_delta: float) -> void:
 	host.collector.submit_native_action("proof.move",1.0)
 	host.collector.submit_native_action("proof.jump",1.0 if host.adapter._last_runtime_tick%20>=10 else 0.0)
 	if host.adapter._last_runtime_tick < 12 or (ResourceLoader.exists("res://tone.tres") and not (audio_started and animation_started)): return
+	if "--fault" in OS.get_cmdline_user_args() or "--hold" in OS.get_cmdline_user_args():
+		var ready := OS.get_cmdline_user_args()[0]+".ready.json"
+		if not FileAccess.file_exists(ready): FileAccess.open(ready,FileAccess.WRITE).store_string(JSON.stringify({"runtime_pid":host.runtime_pid,"owner_pid":host.host_client.pid,"godot_pid":OS.get_process_id(),"tick":host.adapter._last_runtime_tick}))
+		return
 	if "--smoke" in OS.get_cmdline_user_args(): finish(true,"");return
 	if save_stage==0:
 		DirAccess.make_dir_recursive_absolute(host.save_root)
@@ -58,7 +71,7 @@ func _process(_delta: float) -> void:
 func finish(ok: bool,why: String) -> void:
 	done=true
 	var host := $NativeHost
-	var report := {"ok":ok,"error":why,"native_scene":scene_file_path,"runtime_pid":host.runtime_pid,"owner_pid":host.host_client.pid if host.host_client!=null else 0,"tick":host.adapter._last_runtime_tick if host.adapter!=null else 0,"exported":not OS.has_feature("editor"),"audio_started":audio_started,"animation_started":animation_started,"save_compatible_not_restored":compatible,"incompatible_save_retained":incompatible,"save_root":host.save_root}
+	var report := {"ok":ok,"error":why,"fault_frozen_frames":fault_frames,"native_scene":scene_file_path,"runtime_pid":host.runtime_pid,"owner_pid":host.host_client.pid if host.host_client!=null else 0,"tick":host.adapter._last_runtime_tick if host.adapter!=null else 0,"exported":not OS.has_feature("editor"),"audio_started":audio_started,"animation_started":animation_started,"save_compatible_not_restored":compatible,"incompatible_save_retained":incompatible,"save_root":host.save_root}
 	host.stop()
 	FileAccess.open(OS.get_cmdline_user_args()[0],FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
 	get_tree().quit(0 if ok else 1)

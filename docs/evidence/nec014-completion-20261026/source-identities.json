@@ -1,0 +1,178 @@
+{
+  "adapters/godot/authoring/authoring_command.gd": {
+    "sha256": "cf471d3a60111707fbec37c2298c2e012bef07aad8c984abd39e12bfea45e322",
+    "git_blob": "4fe51185965747a98cf8511fa4358a7ca9dbd79a"
+  },
+  "adapters/godot/authoring/authoring_plugin.gd": {
+    "sha256": "7cba50cac32edd7537c6c7ca057591bbb4f53447b218c4192cfadcb4b076fe4a",
+    "git_blob": "ade821e72a9de65c4401f494b98f38394ee40955"
+  },
+  "adapters/godot/authoring/authoring_preservation.gd": {
+    "sha256": "5ce2dd0d2f209fee4ce9eda00e4f33f3fa15d4f8683a4bc788d865315b5cf9fb",
+    "git_blob": "32df0da04d69ee0d3881aae3990df3b8feac16f3"
+  },
+  "adapters/godot/authoring/authoring_reader.gd": {
+    "sha256": "0e85680180dab49c3162f0aab4ff9a037c2ef470c41e4355387dcedb01af23d7",
+    "git_blob": "7987f376e918adb514af4c0d418f0fd2e4582a8e"
+  },
+  "adapters/godot/authoring/authoring_wire.gd": {
+    "sha256": "86fe218868ec3ba09ed40d99a2a14d2c82dabf99a16ca6308f382038245eec9e",
+    "git_blob": "6af956d3abe08bc6836658331c3a324ea4e22798"
+  },
+  "adapters/godot/authoring/authoring_writer.gd": {
+    "sha256": "bd0b212dec87d6bf00c08681157c72adb46d9fd8a7788c2e7b293ec88661191f",
+    "git_blob": "e540fce35ac54878fcc79eb09d08a7b220193771"
+  },
+  "adapters/godot/authoring/native_proof.gd": {
+    "sha256": "54fa9bf1190bc2eb7c6e4d00e9e3a1dff27bba84707737d167ddb8d13c2ac5a4",
+    "git_blob": "4e3c47e7d43d26a18b21ef6ceecd4c1ea60d32df"
+  },
+  "adapters/godot/authoring/native_setup.gd": {
+    "sha256": "19da3b8977cb9cb36f6ca349b028ca2289d3030dee4cb7e6946a040d86f2087c",
+    "git_blob": "65598f76433556f8c2f9428bdcd15ced7567219e"
+  },
+  "adapters/godot/authoring/native_setup_entry.gd": {
+    "sha256": "4fb81e35d4b18a18af636d9f17d54c3b147cb95738565ba1389096d64158493c",
+    "git_blob": "395a8e7d94e749f6eb364a5b324955079e256f4a"
+  },
+  "adapters/godot/authoring/runtime_privilege_proof.gd": {
+    "sha256": "a12ca77a1be9f387787870b371c12589100405add88569b8aaad50ff88e93cd6",
+    "git_blob": "94e6caed29079b7a061ab469d846e68ad2c6e576"
+  },
+  "adapters/godot/native_export/export_hook.gd": {
+    "sha256": "d3c5fdcffadca250af4d40739993217aad0bf4d1961fcfe2811e153f715cb98f",
+    "git_blob": "45dfe7b8cb818f84ed71a969bf3de75c665fc9a8"
+  },
+  "adapters/godot/native_export/plugin.cfg": {
+    "sha256": "2230f4ace22e28b5f3dd6e6e856bb12a0b2fc1b66822796d7057b828fb0155d5",
+    "git_blob": "c8b4a415ab1bf8703e94ce92b5ede68058c66e11"
+  },
+  "adapters/godot/native_export/plugin.gd": {
+    "sha256": "366c2fa011b8c2012500ca760d9ae5c5254a3525ad3d586ff569298cd28bd3b5",
+    "git_blob": "495f2107d3e28310be3806d347d0c54c008ea70f"
+  },
+  "adapters/godot/tests/mixed_session_proof.gd": {
+    "sha256": "c722ff4b70bcf015cd451829e3b383caf78ccc58f80fd9df9d8f3d5c62be48af",
+    "git_blob": "f7d97e49605540f2767a48c377bfbd5c04ada1e1"
+  },
+  "adapters/godot/tests/native_contract_proof.gd": {
+    "sha256": "3d516576af346e3023d48cd477d7d88bcb52a17f9eca22780515bbc33bd43336",
+    "git_blob": "6641c62069c5523a45aa87856f2b768398d26150"
+  },
+  "adapters/godot/tests/native_live_proof.gd": {
+    "sha256": "b9af6e9247628f97003c0ef826e22ba099e9e77b61f34636a104dd6cd9dab89b",
+    "git_blob": "45b7731951833f76bd9fae6b9a490df965bf72dd"
+  },
+  "adapters/godot/xace_adapter.gd": {
+    "sha256": "4fbf03ca319752441af4ea558543e033e506ecbc8aa98e25adf228416e9c0907",
+    "git_blob": "e1bc425a79cd2f44abbd2cc948bbf1d28fb573ed"
+  },
+  "adapters/godot/xace_canonical_entities.gd": {
+    "sha256": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56",
+    "git_blob": "a29e583fbb3685bfac7df32111544776920c4967"
+  },
+  "adapters/godot/xace_console_widget.gd": {
+    "sha256": "09979e1670270a84c49e3125b1522ce2d063c2e197afa1c4bb81d8d50d05b692",
+    "git_blob": "6f310d10c09c129b22724d1b87cd6e86206599e7"
+  },
+  "adapters/godot/xace_debug_hud.gd": {
+    "sha256": "da07761fcf70a1d7b22ab064e1f96b2ed571ef74ba42448e535c761a8ddc75a0",
+    "git_blob": "50d50b0ecd37715ffda78c937e5e12446cd3a0a6"
+  },
+  "adapters/godot/xace_delta_applicator.gd": {
+    "sha256": "6c14f006910810fd48f50d3c3b0e5bec946319302625de4f0b2acf412890e0c0",
+    "git_blob": "525d212dbba37940b2826a5a1cca8912388486f6"
+  },
+  "adapters/godot/xace_entity_manager.gd": {
+    "sha256": "2b44ae025d1e58a6a2e294a0a482497c25581994af6c2928154f3ea60f985eeb",
+    "git_blob": "ee9dbed1b37cbb4dd63024980ea07e34298cc3b5"
+  },
+  "adapters/godot/xace_godot_main.gd": {
+    "sha256": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3",
+    "git_blob": "88405391cf40168fa70793f32d8a414a24b6786b"
+  },
+  "adapters/godot/xace_input_collector.gd": {
+    "sha256": "a0f3e8fe017c63295235e04823823abbdc113d5a697098b76db814b66b8c338f",
+    "git_blob": "cf660696f2cfdce757ec599852218dcd3afdeb17"
+  },
+  "adapters/godot/xace_native_approval.gd": {
+    "sha256": "560540fb292c267e9b70dce6b11c3d598b42e3127c94b6d8fef92f8aec2eb47a",
+    "git_blob": "bc2b68032d39324a0394cb902c1360c02b326153"
+  },
+  "adapters/godot/xace_native_contract.gd": {
+    "sha256": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185",
+    "git_blob": "d11052d1365fdc996c619aa54f9095aa1216bc68"
+  },
+  "adapters/godot/xace_native_host.gd": {
+    "sha256": "16861250d6664bc70a36ef524cb35bb93992343bb234cbd42b9bf63c0c6c9029",
+    "git_blob": "3d684839a234c6d4b7d57fcbc9b80c600fa12e71"
+  },
+  "adapters/godot/xace_native_host_client.gd": {
+    "sha256": "6fea27cd597fea835d44392f18a798a8723cb923ad00535758fbf5372873a1d7",
+    "git_blob": "66b278713ad2f6254325ed3a52ee2f84044b6f25"
+  },
+  "adapters/godot/xace_native_preflight.gd": {
+    "sha256": "9b90e24bb27afb80fbf4a3c4b843f8426d8effc54a223f2150a87a255d1abffa",
+    "git_blob": "6a40d343213bca233d6830464c02ecf5d9baa14a"
+  },
+  "adapters/godot/xace_native_scene_entities.gd": {
+    "sha256": "f7fa73e731bb484341e99357688c107be44d2a5f0331f9844bf06724d54f30db",
+    "git_blob": "88ddf1e7adc2f1ae204880b837c6c494513ff538"
+  },
+  "adapters/godot/xace_protocol.gd": {
+    "sha256": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655",
+    "git_blob": "b701f81e5e69049c70a1e1b9f5cda16c4c4bd53f"
+  },
+  "adapters/godot/xace_transport.gd": {
+    "sha256": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed",
+    "git_blob": "e054eb425bf501c6d8ec82ca8f107113dc981997"
+  },
+  "tools/nec014_editor_play_proof.py": {
+    "sha256": "6ee1bbb41e1a1e7a1df4cd2df27f5f274d015158f6c586934dcff18ca437e5e9",
+    "git_blob": "c2161a23a318b5fb69743e219cb432469bf7f4cb"
+  },
+  "tools/nec014_existing_fault_proof.py": {
+    "sha256": "2a152ee057068b4fd12e7166472da35429bc77bb4451e20d994d34a4ec2f953e",
+    "git_blob": "a717c60916a64f315caf0931ace3514f55d6f741"
+  },
+  "tools/nec014_export.py": {
+    "sha256": "044ba0a97e51fec5fa20a611e45e5f64d72f0c663b3645c02fbdc69642393a9f",
+    "git_blob": "f8ef79e15901f3abafc99ddb16dcdd63271e9fb5"
+  },
+  "tools/nec014_export_probe.gd": {
+    "sha256": "91bd5d936b1d0c63b9b72e3cb892a26b6f92548a824a9bb8e564f5ff930ce96e",
+    "git_blob": "fb9294e814f5359f08cd7e2ff5c1ff57a14993da"
+  },
+  "tools/nec014_export_proof.py": {
+    "sha256": "d2845872d2c4792b85ba8331690feea297e2c37388bde554d02effd32feb37c6",
+    "git_blob": "b4aed65c7135294c6ac7f556eabb2913d1bc398c"
+  },
+  "tools/nec014_godot_client.gd": {
+    "sha256": "dc1d08581eac59d3cea1fed7e487dae52c0087d0b4e992e9bf43f16d236cdd6a",
+    "git_blob": "446d129d7955a592fc58fde8f9daafc233c70084"
+  },
+  "tools/nec014_godot_client.py": {
+    "sha256": "0935b93d7925a9fc1d4de0892ef9b209c6be384856063d60bc03a2a05e2110ee",
+    "git_blob": "3c8edaccef6aadaeff09bd935110b1d3d38cbe59"
+  },
+  "tools/nec014_godot_play.gd": {
+    "sha256": "b97ee38054b3ca551a4af7de69d982d6617bb7a42cf7fcdb4c8ce70e51fc6a59",
+    "git_blob": "a5ea2b29388a40019b4cde9dcb841e411cf215e5"
+  },
+  "tools/nec014_godot_play.py": {
+    "sha256": "9b99ae2b6b275edde96e4a4e480e56a7684d0fc24259c33b89e61c62acb76a82",
+    "git_blob": "7ad939dd0b3028456fe40256d453ea4d5ed87e4c"
+  },
+  "tools/nec014_playback_release.py": {
+    "sha256": "0376ac41de28131f6cc6558488dc842568a2551d305a6be94c9801a36d1ee262",
+    "git_blob": "2efa117686b1b14cb62e3fecbad17e8695ddcbcb"
+  },
+  "tools/nec014_refusal_proof.py": {
+    "sha256": "ff350d3c917ccfeba6d47cb7951226fe8a5e9f1af7255eaee2f815e0a68537c7",
+    "git_blob": "b94867011f4627891666bbe7c181bc44be07da62"
+  },
+  "tools/nec014_update_proof.py": {
+    "sha256": "29acaa8e123246ca5588f73610676e811b1a9653ad3248eed65488424d240fed",
+    "git_blob": "4ae5b3831cd97c5954e97ac5b3c02a501d3e9397"
+  }
+}

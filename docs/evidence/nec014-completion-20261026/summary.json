@@ -1,0 +1,63 @@
+{
+  "schema": "xace.nec014.completion.v1",
+  "status": "complete-for-declared-local-profile",
+  "entry": "9d16fb60cb613504b2974206904a8955ad40c494",
+  "prior_checkpoint": "96eec3a95301362a781b8eccb6746c344f35a850",
+  "profile": "Godot4.6.3 stable standard GDScript Windows x64; approved static translation native hierarchy",
+  "verified": [
+    "final-export",
+    "existing-project",
+    "readonly-update",
+    "refusals",
+    "editor-play",
+    "9 inherited-pipe lifecycle checks",
+    "22 Godot fidelity checks",
+    "existing Player regression",
+    "55 protected seal files and1575 archive entries unchanged"
+  ],
+  "unchanged_prior_regression_sources": {
+    "adapters/godot/xace_adapter.gd": "4fbf03ca319752441af4ea558543e033e506ecbc8aa98e25adf228416e9c0907",
+    "adapters/godot/xace_canonical_entities.gd": "5dd6cc8be6321bb9afae8d287bd0d3ceb8109c54694bd12f76a47ddcf7a9ea56",
+    "adapters/godot/xace_console_widget.gd": "09979e1670270a84c49e3125b1522ce2d063c2e197afa1c4bb81d8d50d05b692",
+    "adapters/godot/xace_debug_hud.gd": "da07761fcf70a1d7b22ab064e1f96b2ed571ef74ba42448e535c761a8ddc75a0",
+    "adapters/godot/xace_delta_applicator.gd": "6c14f006910810fd48f50d3c3b0e5bec946319302625de4f0b2acf412890e0c0",
+    "adapters/godot/xace_entity_manager.gd": "2b44ae025d1e58a6a2e294a0a482497c25581994af6c2928154f3ea60f985eeb",
+    "adapters/godot/xace_godot_main.gd": "532ff47a42fbe72eb50a83061f7d194c834676f9860b5b6ac18af7542e5507b3",
+    "adapters/godot/xace_input_collector.gd": "a0f3e8fe017c63295235e04823823abbdc113d5a697098b76db814b66b8c338f",
+    "adapters/godot/xace_native_approval.gd": "560540fb292c267e9b70dce6b11c3d598b42e3127c94b6d8fef92f8aec2eb47a",
+    "adapters/godot/xace_native_contract.gd": "978bf842855e0cbd2119070038f2f9353bbf835115fba441de598d9501393185",
+    "adapters/godot/xace_native_host_client.gd": "6fea27cd597fea835d44392f18a798a8723cb923ad00535758fbf5372873a1d7",
+    "adapters/godot/xace_native_scene_entities.gd": "f7fa73e731bb484341e99357688c107be44d2a5f0331f9844bf06724d54f30db",
+    "adapters/godot/xace_protocol.gd": "64d095ee2e5bf237ef3f55a97a4b84a4b2392b2dc7dba6ffa531e7246415d655",
+    "adapters/godot/xace_transport.gd": "9e7a85f59b3253396fc41e36639e4d0826ac9e80b4e32bb32e027b005fa245ed",
+    "adapters/godot/native_export/export_hook.gd": "d3c5fdcffadca250af4d40739993217aad0bf4d1961fcfe2811e153f715cb98f",
+    "adapters/godot/native_export/plugin.cfg": "2230f4ace22e28b5f3dd6e6e856bb12a0b2fc1b66822796d7057b828fb0155d5",
+    "adapters/godot/native_export/plugin.gd": "366c2fa011b8c2012500ca760d9ae5c5254a3525ad3d586ff569298cd28bd3b5",
+    "tools/nec014_export_proof.py": "d2845872d2c4792b85ba8331690feea297e2c37388bde554d02effd32feb37c6",
+    "tools/nec014_godot_client.gd": "dc1d08581eac59d3cea1fed7e487dae52c0087d0b4e992e9bf43f16d236cdd6a",
+    "tools/nec014_godot_client.py": "0935b93d7925a9fc1d4de0892ef9b209c6be384856063d60bc03a2a05e2110ee",
+    "tools/nec014_godot_play.gd": "b97ee38054b3ca551a4af7de69d982d6617bb7a42cf7fcdb4c8ce70e51fc6a59",
+    "tools/nec014_godot_play.py": "9b99ae2b6b275edde96e4a4e480e56a7684d0fc24259c33b89e61c62acb76a82",
+    "tools/nec014_playback_release.py": "0376ac41de28131f6cc6558488dc842568a2551d305a6be94c9801a36d1ee262",
+    "tools/nec014_update_proof.py": "29acaa8e123246ca5588f73610676e811b1a9653ad3248eed65488424d240fed"
+  },
+  "required_external_release_gates_open": true,
+  "clean_machine": false,
+  "nec013": "incomplete: mandatory clean-machine test unavailable",
+  "nec015": "not started",
+  "limitations": [
+    "Explicit native binding and source approval required; no arbitrary native gameplay conversion",
+    "Static translation hierarchy; dynamic spawn/despawn/reparenting and other simulation backends not certified",
+    "Required AudioStream and AnimationPlayer profile, fixed semantic event catalog; physical device tests not claimed",
+    "Save envelopes checked only: no game-state restoration, automatic migration or updater",
+    "Creator export wrapper required: EditorExportPlugin refusal stamp alone cannot cancel Godot export",
+    "Restricted PATH on this development machine is not clean-machine or network-isolation certification",
+    "Initial playback-b shutdown warning retained, not reproduced in final exports; no general fix claim"
+  ],
+  "excluded_attempts": {
+    "export-preflight-e": "Export template ignored --script; regular gameplay ran. Invalid preflight, excluded. Synthetic test save envelopes created under laptop LOCALAPPDATA/XACE/NativeGames/game-nec012-proof/saves retained; later checks use isolated LOCALAPPDATA and require distinct schema/authority_started=false.",
+    "existing-fault-a": "Fixture indentation parse error, owned Godot processes stopped; original logs retained.",
+    "existing-fault-b": "Fixture assumed console wrapper PID equals Godot PID; fixed to use fresh owned marker. Failed evidence retained."
+  },
+  "backup": "Source and compact evidence included in completion commit; verify remote identity after push. Raw binaries/fixtures and recovered sealed archive remain local-only."
+}

@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "actual_godot_export": true,
+  "acl_readonly": true,
+  "valid_update": true,
+  "failed_update_retains_activation": true,
+  "explicit_rollback": true,
+  "sentinel_retained": true,
+  "compatible_save_not_restored": true,
+  "incompatible_save_retained": true,
+  "installations_unchanged": true,
+  "process_cleanup": true,
+  "clean_machine": false
+}

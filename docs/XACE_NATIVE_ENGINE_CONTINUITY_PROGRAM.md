@@ -583,6 +583,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 ### NEC-014 — Godot production Play and Windows export integration
 
+**Status (2026-10-26): COMPLETE for the declared local Godot4.6.3 standard Windows x64 profile.** New and preserved native scenes, actual Editor lifecycle, packed export, read-only update/save/refusal/rollback and Player regression verified. Evidence docs/evidence/nec014-completion-20261026/summary.json; limitations docs/NEC014_GODOT_STATUS.md. NEC013 clean-machine gate and all external release gates remain open; NEC015 not started. Acceptance below is unchanged.
+
 - **Purpose:** support the developer's Godot game as well as XACE Player.
 - **Problem solved:** exporting the reference Player does not integrate a user's native project.
 - **Reuse:** shared Godot adapter, E11 and `xp008_player_build.py`, NEC-012 lifecycle, NEC-005 editor integration.

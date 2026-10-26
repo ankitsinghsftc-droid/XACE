@@ -1,0 +1,33 @@
+{
+  "smoke": {
+    "ok": true,
+    "process_cleanup": true,
+    "unrelated_process_survives": true
+  },
+  "fault": {
+    "ok": true,
+    "process_cleanup": true,
+    "unrelated_process_survives": true
+  },
+  "parent-crash": {
+    "ok": true,
+    "process_cleanup": true,
+    "unrelated_process_survives": true
+  },
+  "editor-stop": {
+    "ok": true,
+    "process_cleanup": true,
+    "unrelated_process_survives": true
+  },
+  "existing_project_export": {
+    "ok": true,
+    "main_scene": "res://Fixture/World.tscn",
+    "installation_unchanged": true,
+    "process_cleanup": true
+  },
+  "ok": true,
+  "original_source_unchanged": true,
+  "existing_scene_bytes_unchanged": true,
+  "scene_sha256": "5fba87b8906a0c0b6269203c6105eb7141dcd14697b077e793973e25fa02acfb",
+  "profile": "static translation hierarchy; existing NEC011 authoring fixture; explicit settings/observer additions"
+}

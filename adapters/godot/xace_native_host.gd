@@ -1,5 +1,7 @@
 extends Node
 # Opt-in node in the developer's own scene; no replacement Player UI.
+var preflight_only := false
+var _preflight_report := ""
 @export var profile_path := "res://xace-native-profile.json"
 var state := "stopped"
 var error := ""
@@ -21,6 +23,14 @@ var _deadline := 0
 var _closing := false
 
 func _ready() -> void:
+	var arguments := OS.get_cmdline_user_args()
+	var preflight_index := arguments.find("--xace-native-preflight")
+	if preflight_index>=0:
+		if preflight_index+1>=arguments.size() or not arguments[preflight_index+1].is_absolute_path() or FileAccess.file_exists(arguments[preflight_index+1]):
+			get_tree().quit(2)
+			return
+		_preflight_report=arguments[preflight_index+1]
+		preflight_only=true
 	if OS.has_feature("editor"):
 		var approval_issue: String = load(_base().path_join("xace_native_approval.gd")).validate()
 		if not approval_issue.is_empty(): fail(approval_issue);return
@@ -51,6 +61,10 @@ func _ready() -> void:
 	var resources_issue := validate_resources()
 	if not resources_issue.is_empty(): fail(resources_issue);return
 	add_child(manager)
+	if preflight_only:
+		state="preflight-ready"
+		complete_preflight(true,"")
+		return
 	host_client = load(_base().path_join("xace_native_host_client.gd")).new()
 	var local := OS.get_environment("LOCALAPPDATA")
 	if not local.is_absolute_path(): fail("Absolute per-user data directory required");return
@@ -123,13 +137,18 @@ func connect_session(result: Dictionary) -> void:
 	transport.connect_to_runtime()
 
 func fail(why: String) -> void:
+	if manager != null and not manager.is_inside_tree():
+		manager.free()
+		manager=null
 	error = why
 	state = "failed"
 	push_error("[XACE] "+why)
 	stop()
+	complete_preflight(false,why)
 func stop() -> void:
 	if _closing: return
 	_closing = true
+	if state != "failed": state="stopped"
 	if transport != null: transport.disconnect_from_runtime("native host_client stopped")
 	if host_client != null: host_client.close()
 func _exit_tree() -> void: stop()
@@ -165,3 +184,8 @@ func check_save(slot: String) -> bool:
 	save_status="checking"
 	save_error=""
 	return true
+
+func complete_preflight(ok: bool,issue: String) -> void:
+	if _preflight_report.is_empty(): return
+	FileAccess.open(_preflight_report,FileAccess.WRITE).store_string(JSON.stringify({"schema":"xace.godot.native_preflight.v1","ok":ok,"error":issue,"packed":not OS.has_feature("editor"),"authority_started":host_client!=null}))
+	get_tree().quit(0 if ok else 1)

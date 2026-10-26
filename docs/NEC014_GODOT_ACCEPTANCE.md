@@ -1,6 +1,6 @@
 # NEC-014 Godot production Play and Windows export
 
-ACTIVE; entry 9d16fb60cb613504b2974206904a8955ad40c494, recovery/xp022. User authorized NEC014 while NEC013 clean-machine gate remains open. No previous gate is waived.
+COMPLETE for the declared local profile, 2026-10-26; evidence docs/evidence/nec014-completion-20261026/summary.json and limitations docs/NEC014_GODOT_STATUS.md. External release gates remain open. Original acceptance below is unchanged. Entry 9d16fb60cb613504b2974206904a8955ad40c494, recovery/xp022. User authorized NEC014 while NEC013 clean-machine gate remains open. No previous gate is waived.
 
 Target installed Godot4.6.3 stable, Windows x64 standard GDScript export, native project's own scene/UI. Reuse NEC012 Rust admission/lifecycle and existing Godot session transport; no new gameplay authority, player-side compiler, Builder or cloud dependency.
 

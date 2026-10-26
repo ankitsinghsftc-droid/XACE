@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "stale_source_refused": true,
+  "prior_output_preserved": true,
+  "cooked_missing_audio_refused": true,
+  "no_authority_for_preflight": true,
+  "original_source_unchanged": true,
+  "failed_staging_retained": true
+}

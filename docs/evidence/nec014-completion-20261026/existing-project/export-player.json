@@ -1,0 +1,15 @@
+{
+	"animation_started": false,
+	"audio_started": false,
+	"error": "",
+	"exported": true,
+	"fault_frozen_frames": 0,
+	"incompatible_save_retained": false,
+	"native_scene": "res://Fixture/World.tscn",
+	"ok": true,
+	"owner_pid": 3584,
+	"runtime_pid": 39864,
+	"save_compatible_not_restored": false,
+	"save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\existing-fault-export-d\\user-data\\XACE/NativeGames\\game-nec012-proof\\saves",
+	"tick": 12
+}
