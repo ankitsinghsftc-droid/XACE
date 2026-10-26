@@ -1,0 +1,30 @@
+{
+  "status": "incomplete",
+  "native_client": {
+    "ok": true,
+    "checks": 15,
+    "scope": "Actual UE5.7 process: pinned launcher refusal, admission,3 Play cycles, repeated Play same runtime, Stop, EOF owner/runtime cleanup"
+  },
+  "compiled_not_behavior_verified": [
+    "Native host component",
+    "Explicit existing-actor projection"
+  ],
+  "unverified_test_changes": "Current NEC015HostProofCommandlet.cpp adds actor projection assertions not included in client-c; tested-commandlet.cpp preserves exact passing version.",
+  "remaining": [
+    "Actor projection behavioral proof",
+    "Real PIE, two-instance ownership and scene transitions",
+    "Source approval, native resource gates and cook/package integration",
+    "Windows packaged playback/input/world/save/update/rollback and Player regressions",
+    "Mandatory clean-machine launch unavailable"
+  ],
+  "resource_blocker": {
+    "ssd_free_bytes": 3582808064,
+    "runner_minimum_free_bytes": 4294967296,
+    "action": "No further large build launched. No cleanup performed; user storage guidance needed."
+  },
+  "historical_failures": {
+    "client-a": "Owned UBA build stopped after queued/no progress under memory pressure",
+    "client-b": "Two shared-reference serialization compile errors, corrected in source and client-c"
+  },
+  "backup": "Source/compact evidence checkpoint pending push; raw artifacts and seal remain local-only"
+}

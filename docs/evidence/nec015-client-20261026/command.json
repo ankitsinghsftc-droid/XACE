@@ -1,0 +1,13 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\NEC015.uproject",
+  "-run=NEC015HostProof",
+  "-unattended",
+  "-nullrhi",
+  "-nosplash",
+  "-Launcher=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\xace-player-launcher.exe",
+  "-Release=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\release",
+  "-History=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\history",
+  "-Report=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\proof.json",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\editor.log"
+]

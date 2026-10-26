@@ -33,7 +33,7 @@ bool FXaceNativeHostClient::Send(const FString& Command,const FString& Slot)
     if(Command!=TEXT("play")&&Command!=TEXT("stop")&&Command!=TEXT("verify")&&Command!=TEXT("status")&&Command!=TEXT("check-save")){Error=TEXT("Unsupported host command");return false;}
     if(Command==TEXT("check-save")){if(Slot.IsEmpty()||Slot.Len()>64)return false;for(TCHAR C:Slot)if(!((C>='a'&&C<='z')||(C>='A'&&C<='Z')||(C>='0'&&C<='9')||C=='-'||C=='_'))return false;}
     auto Row=MakeShared<FJsonObject>();Row->SetStringField(TEXT("action"),Command);if(Command==TEXT("check-save"))Row->SetStringField(TEXT("slot"),Slot);
-    FString Line;auto Writer=TJsonWriterFactory<TCHAR,TCondensedJsonPrintPolicy<TCHAR>>::Create(&Line);FJsonSerializer::Serialize(Row.ToSharedRef(),Writer);Line+=TEXT("\n");
+    FString Line;auto Writer=TJsonWriterFactory<TCHAR,TCondensedJsonPrintPolicy<TCHAR>>::Create(&Line);FJsonSerializer::Serialize(Row,Writer);Line+=TEXT("\n");
     FTCHARToUTF8 Bytes(*Line);int32 Written=0;
     if(Bytes.Length()>8192||!FPlatformProcess::WritePipe(Write,reinterpret_cast<const uint8*>(Bytes.Get()),Bytes.Length(),&Written)||Written!=Bytes.Length()){Error=TEXT("Native command pipe failed");return false;}return true;
 }

@@ -1,0 +1,23 @@
+{
+  "Source/XACEAdapter/XACEAdapter.Build.cs": "9cb1bbd67bc8316ce62fefc3b4303321bba6254791babb6182fe21dacf0b1160",
+  "Source/XACEAdapter/Private/NEC015HostProofCommandlet.cpp": "0a159fa48ad0bf28755b5b24f27310cc812c0d3663599546848f2a4c1d69f8b4",
+  "Source/XACEAdapter/Private/XACEAdapterModule.cpp": "3649ddbd8e3f4318463da82308684137ee117d97412805f4ee5a2fb431cf2438",
+  "Source/XACEAdapter/Private/XaceConsoleWidget.cpp": "c67a0dfeda2d4bd9c3d5c9925c3c89d0968785a2ea652f437e5c3b9df933bb36",
+  "Source/XACEAdapter/Private/XaceDeltaApplicator.cpp": "7dc88ca875dabf4a9562a9da1de7df1254ceb0e9cb15a08c1c0fd01155d9e322",
+  "Source/XACEAdapter/Private/XaceInputCollector.cpp": "c16a476175975fbe9a76c961145ddd664da9fbf25f387c9914271ffc759d9207",
+  "Source/XACEAdapter/Private/XaceLiveValidationCommandlet.cpp": "126b6738ba8fa1c38fc28272d694e5a807bce90cc4899035ec915de2c8aebd05",
+  "Source/XACEAdapter/Private/XaceNativeContract.cpp": "1cb4ee682cf72aa053ff581e2e09aee8964370414f8b5674d2a95c8a87cf5fa8",
+  "Source/XACEAdapter/Private/XaceNativeHost.cpp": "c7e158f9a73620b38506ff7b326f0d4a67f4ec0e7cf739788cdc2c201e94d05b",
+  "Source/XACEAdapter/Private/XaceNativeHostClient.cpp": "8902d92f027b2fe2a3e8bdf641027b4d5118aec61142562aaf999f777e23b38e",
+  "Source/XACEAdapter/Private/XaceTransport.cpp": "d8e4cd85e512e47ab99bf9239a80e2c40a653444615350348097c2b4b22146a5",
+  "Source/XACEAdapter/Public/NEC015HostProofCommandlet.h": "661be0879150983c09a9975222699de969eed7ad0c3b6875c46fd8b467f46dd5",
+  "Source/XACEAdapter/Public/XACEAdapterModule.h": "47f37ee3f10d16e5b04134b50525d5960607f999674db02225ea034e42db9866",
+  "Source/XACEAdapter/Public/XaceConsoleWidget.h": "4279c9eead2d7c61fca048d7e230646ac1da6622f84b66b48b863a535e189529",
+  "Source/XACEAdapter/Public/XaceDeltaApplicator.h": "7927342005eaea84c004ba6bc75cfe80d854b4c096cb0ca855e17864f857cbb2",
+  "Source/XACEAdapter/Public/XaceInputCollector.h": "408d433676f0ee68fac60bd00b09a8215a3bbe51c972e9996902301abfaee124",
+  "Source/XACEAdapter/Public/XaceLiveValidationCommandlet.h": "9c050eb3e675b1be2bead08d947ab63055861a944617499bb7619264559fe053",
+  "Source/XACEAdapter/Public/XaceNativeContract.h": "5c0f2f69723d4826fb5cf12504d8dda1ed7676a2c0d422050f32763651fcb688",
+  "Source/XACEAdapter/Public/XaceNativeHost.h": "e3082ff80662f9582b0c77f74a2e5fff9993be4efe46c3b0d540a72bdac62e78",
+  "Source/XACEAdapter/Public/XaceNativeHostClient.h": "09030997122d95e4ca93f778b8a65a2d1bcdef7068d2f657b7aa50ac15b5c19e",
+  "Source/XACEAdapter/Public/XaceTransport.h": "307f6758a71fb6d870459ff5fd117caa9ba233cf46bb024c45503dbcbf99fdd1"
+}
