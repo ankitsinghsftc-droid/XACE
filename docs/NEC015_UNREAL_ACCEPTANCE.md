@@ -1,0 +1,9 @@
+# NEC-015 Unreal production Play and packaged build
+
+ACTIVE 2026-10-26; entry bd40177ac9b052e8dfa834ea9dad8462c11e73a8, recovery/xp022. Installed UE5.7 Windows x64. No previous gate waived; NEC013 clean-machine test remains open and NEC015 also requires clean-machine launch. User has no clean machine available.
+
+Reuse NEC012 pinned Rust owner-pipe host, package/executor admission, save compatibility and release activation; reuse Unreal native contract, transport, applicator and authoring mapping. Gameplay remains authoritative in Rust. Explicit approved existing actor bindings must preserve native scene/presentation; no forced Player map/UI.
+
+Required verification: real PIE and packaged Windows gameplay/input/World/events with native content; two PIE instances cannot compete for a session; normal Stop/scene transition/crash/authority-loss cleanup touches only owned processes; stale source/profile, missing cooked resources and incompatible package/executor tuples refuse Play/build. Retain failed staging and prior packages. Prove cooked lookup and relocation, read-only installation, per-game writable saves, incompatible-save refusal, failed-update retention and explicit rollback. Keep Player and native protocol/fidelity regressions green. Pin actual tested sources/binaries and preserve recovered XP022 seal. Clean-machine, signing, tester, external networking and Steam gates cannot be inferred from this development laptop.
+
+Sequence: typed inherited-pipe client and native lifecycle proof; explicit actor binding and PIE host; source approval/cook/package checks; native packaged parity/failures/save/update proofs; regressions and evidence closeout. Unique source/evidence in persistent recovery workspace only. No cleanup. Check SSD capacity before large builds. Stop before NEC016; no authorization for it.

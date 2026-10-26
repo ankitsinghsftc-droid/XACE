@@ -1,0 +1,20 @@
+{
+  "status": "incomplete-unverified-checkpoint",
+  "entry": "bd40177ac9b052e8dfa834ea9dad8462c11e73a8",
+  "implemented_pending_verification": [
+    "Typed Windows inherited-pipe client",
+    "Explicit opt-in existing-actor projection",
+    "Native host component with owned lifecycle and shared transport/input"
+  ],
+  "verification": "client-a UBA stalled before compiler progress under memory pressure; stopped only owned dotnet18508. client-b retries non-UBA single-action build. No passing NEC015 evidence yet.",
+  "remaining": [
+    "Compile and fix native implementation",
+    "Real PIE and two-instance ownership proof",
+    "Creator source approval and cooked resource/admission gates",
+    "Real Windows package, native playback/input/world and scene transitions",
+    "Save/update/rollback and relocation/read-only proofs",
+    "Player/native regressions and baseline seal verification",
+    "Mandatory clean-machine launch unavailable"
+  ],
+  "backup": "Pending checkpoint/push. Original logs/baseline untouched; raw artifacts local-only."
+}

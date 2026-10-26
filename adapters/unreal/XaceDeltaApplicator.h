@@ -62,6 +62,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="XACE") int64 GetCurrentTick() const { return CurrentTick; }
 	UFUNCTION(BlueprintCallable, Category="XACE") FString AssetBindingStatusReportJson() const;
 	UFUNCTION(BlueprintCallable, Category="XACE") void BindTransportNow();
+	// Opt-in existing actors. Validate before connecting; never spawn/reparent them.
+	bool BindNativeActors(const TMap<FString,AActor*>& Objects,const TSharedPtr<FJsonObject>& World,FString& Error);
+	FString NativeProjectionError;
 
 protected:
 	virtual void BeginPlay() override;
@@ -76,6 +79,8 @@ private:
 
 	UPROPERTY() UXaceTransportComponent* Transport = nullptr;
 	UPROPERTY() TMap<int64, AActor*> EntityActors;
+	UPROPERTY() TMap<FString,AActor*> NativeObjects;
+	bool bNativeProjection = false;
 	UPROPERTY() TMap<FString, TSubclassOf<AActor>> ActorRegistry;
 	UPROPERTY() TArray<UActorComponent*> PlaybackSpawnedComponents;
 	UPROPERTY() TMap<FString, FXaceAssetReference> AssetBindingState;

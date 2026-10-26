@@ -83,6 +83,29 @@ void UXaceDeltaApplicatorComponent::RegisterActorClass(const FString& ActorId, T
 	}
 }
 
+bool UXaceDeltaApplicatorComponent::BindNativeActors(const TMap<FString,AActor*>& Objects,const TSharedPtr<FJsonObject>& World,FString& Error)
+{
+    const TArray<TSharedPtr<FJsonValue>>* Rows=nullptr;
+    if(bNativeProjection||EntityActors.Num()!=0||!World.IsValid()||!World->TryGetArrayField(TEXT("objects"),Rows)||Rows->Num()!=Objects.Num()){Error=TEXT("Native binding count/state invalid");return false;}
+    TSet<AActor*> Seen;
+    for(const auto& Value:*Rows){
+        const auto Object=Value->AsObject();if(!Object.IsValid()){Error=TEXT("Invalid native World");return false;}
+        AActor* const* Found=Objects.Find(GetString(Object,TEXT("id"),TEXT("")));AActor* Actor=Found?*Found:nullptr;FVector Position;
+        if(!IsValid(Actor)||Actor->GetWorld()!=GetWorld()||Seen.Contains(Actor)||!Actor->GetRootComponent()||!XaceCanonical::Vector(GetObject(GetObject(Object,TEXT("transform")),TEXT("position")),Position)||!Actor->GetActorLocation().Equals(Position,.001)){Error=TEXT("Native identity/position invalid");return false;}
+        Seen.Add(Actor);
+        if(!Actor->GetActorQuat().Equals(FQuat::Identity)||!Actor->GetActorScale3D().Equals(FVector::OneVector)){Error=TEXT("Only translation native pose supported");return false;}
+        TArray<UPrimitiveComponent*> Components;Actor->GetComponents(Components);for(auto Component:Components)if(Component->IsSimulatingPhysics()||Component->GetCollisionEnabled()!=ECollisionEnabled::NoCollision){Error=TEXT("Native authoritative collision/physics unsupported");return false;}
+        FString Nearest;for(AActor* Parent=Actor->GetAttachParentActor();Parent;Parent=Parent->GetAttachParentActor()){
+            if(!Parent->GetActorQuat().Equals(FQuat::Identity)||!Parent->GetActorScale3D().Equals(FVector::OneVector)){Error=TEXT("Only translation parents supported");return false;}
+            for(const auto& Pair:Objects)if(Pair.Value==Parent&&Nearest.IsEmpty())Nearest=Pair.Key;
+        }
+        const auto Relations=GetObject(Object,TEXT("relationships"));const TArray<TSharedPtr<FJsonValue>>* Parents=nullptr;
+        if(Relations.IsValid())Relations->TryGetArrayField(TEXT("xace.authoring_parent.v1"),Parents);
+        if((Nearest.IsEmpty()&&Parents&&Parents->Num()!=0)||(!Nearest.IsEmpty()&&(!Parents||Parents->Num()!=1||(*Parents)[0]->AsString()!=Nearest))){Error=TEXT("Native parent differs");return false;}
+    }
+    NativeObjects=Objects;bNativeProjection=true;bCreateDebugActors=false;return true;
+}
+
 AActor* UXaceDeltaApplicatorComponent::GetEntityActor(int64 EntityId) const
 {
 	if (AActor* const* Found = EntityActors.Find(EntityId))
@@ -261,6 +284,7 @@ void UXaceDeltaApplicatorComponent::ApplyEntityList(int64 Tick, const TArray<FXa
 			if(const auto Raw=Entity.Components.Find(1))
 			{
 				int64 Parent=0;XaceCanonical::Integer(XaceCanonical::Parse(*Raw),TEXT("parent_entity_id"),Parent);
+				if(bNativeProjection)continue;
 				if(Parent==0)Actor->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 				else Actor->AttachToActor(GetEntityActor(Parent),FAttachmentTransformRules::KeepRelativeTransform);
 			}
@@ -275,6 +299,12 @@ void UXaceDeltaApplicatorComponent::ApplyEntityList(int64 Tick, const TArray<FXa
 			if(Marker->WorldObjects.Num()==1){Marker->CanonicalObjectId=Id;Marker->WorldSemanticsJson=XaceCanonical::Json(Object);}
 		}
 	}
+    if(bNativeProjection){
+        TArray<int64> Order;EntityActors.GetKeys(Order);
+        auto Depth=[](AActor* A){int32 N=0;for(auto P=A->GetAttachParentActor();P;P=P->GetAttachParentActor())++N;return N;};
+        Order.Sort([&](int64 A,int64 B){int32 DA=Depth(EntityActors[A]),DB=Depth(EntityActors[B]);return DA==DB?A<B:DA<DB;});
+        for(int64 Id:Order)for(const auto& Entity:Entities)if(Entity.EntityId==Id)ApplyCanonical(EntityActors[Id],Entity.Components);
+    }
 	OnSnapshotApplied.Broadcast(Tick, EntityActors.Num());
 }
 
@@ -484,6 +514,7 @@ void UXaceDeltaApplicatorComponent::DestroyEntity(int64 EntityId)
 	AActor* Actor = GetEntityActor(EntityId);
 	if (Actor != nullptr)
 	{
+		if(bNativeProjection){NativeProjectionError=TEXT("Native destruction profile unsupported");return;}
 		Actor->Destroy();
 	}
 	EntityActors.Remove(EntityId);
@@ -491,6 +522,10 @@ void UXaceDeltaApplicatorComponent::DestroyEntity(int64 EntityId)
 
 AActor* UXaceDeltaApplicatorComponent::SpawnActorForEntity(const FXaceEntityState& State)
 {
+	if(bNativeProjection){
+        if(Transport)for(const auto& Pair:Transport->Session.Bindings)if(Pair.Value==State.EntityId){if(AActor* const* Found=NativeObjects.Find(Pair.Key))return *Found;}
+        NativeProjectionError=TEXT("Runtime entity has no approved native actor");return nullptr;
+    }
 	UWorld* World = GetWorld();
 	if (World == nullptr)
 	{
@@ -577,6 +612,11 @@ void UXaceDeltaApplicatorComponent::ApplyComponents(AActor* Actor, UXaceEntityMa
 
 void UXaceDeltaApplicatorComponent::ApplyCanonical(AActor* Actor,const TMap<int32,FString>& Components)
 {
+    if(bNativeProjection){
+        if(const auto Raw=Components.Find(1)){FVector Position;if(XaceCanonical::Vector(GetObject(XaceCanonical::Parse(*Raw),TEXT("position")),Position))Actor->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);else NativeProjectionError=TEXT("Invalid native pose");}
+        return;
+    }
+
 	if(Actor->GetRootComponent()==nullptr)
 	{
 		auto Root=NewObject<USceneComponent>(Actor,TEXT("CanonicalRoot"));Actor->SetRootComponent(Root);Root->RegisterComponent();Actor->AddInstanceComponent(Root);
