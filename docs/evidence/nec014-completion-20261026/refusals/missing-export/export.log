@@ -1,0 +1,82 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (19 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[   5% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  10% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  15% ] [90m[1mupdate_scripts_classes[22m | XaceAdapter[39m[0m
+[  20% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  25% ] [90m[1mupdate_scripts_classes[22m | XaceConsoleWidget[39m[0m
+[  30% ] [90m[1mupdate_scripts_classes[22m | XaceDebugHUD[39m[0m
+[  35% ] [90m[1mupdate_scripts_classes[22m | XaceDeltaApplicator[39m[0m
+[  40% ] [90m[1mupdate_scripts_classes[22m | XaceEntityManager[39m[0m
+[  45% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | XaceInputCollector[39m[0m
+[  55% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  60% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  65% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  70% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  75% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  80% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
+[  85% ] [90m[1mupdate_scripts_classes[22m | XaceProtocol[39m[0m
+[  90% ] [90m[1mupdate_scripts_classes[22m | XaceTransport[39m[0m
+[92m[ DONE ][39m [1mupdate_scripts_classes[22m
+[0m
+[   0% ] [90m[1msavepack[22m | Started Packing (102 steps)[39m[0m
+[   1% ] [90m[1msavepack[22m | Storing File: res://xace-export-preflight.json[39m[0m
+[   1% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/export_hook.gdc[39m[0m
+[   5% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/plugin.gdc[39m[0m
+[  10% ] [90m[1msavepack[22m | Storing File: res://xace_godot_main.gdc[39m[0m
+[  14% ] [90m[1msavepack[22m | Storing File: res://xace_native_preflight.gdc[39m[0m
+[  19% ] [90m[1msavepack[22m | Storing File: res://xace_native_host_client.gdc[39m[0m
+[  23% ] [90m[1msavepack[22m | Storing File: res://xace_native_host.gdc[39m[0m
+[  28% ] [90m[1msavepack[22m | Storing File: res://xace_native_contract.gdc[39m[0m
+[  32% ] [90m[1msavepack[22m | Storing File: res://xace_native_approval.gdc[39m[0m
+[  36% ] [90m[1msavepack[22m | Storing File: res://xace_input_collector.gdc[39m[0m
+[  40% ] [90m[1msavepack[22m | Storing File: res://xace_protocol.gdc[39m[0m
+[  45% ] [90m[1msavepack[22m | Storing File: res://xace_native_scene_entities.gdc[39m[0m
+[  50% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-1df3fa0cb6e38f6ef966a829ccea650d-NativeGame.scn[39m[0m
+[  54% ] [90m[1msavepack[22m | Storing File: res://probe.gdc[39m[0m
+[  59% ] [90m[1msavepack[22m | Storing File: res://xace_transport.gdc[39m[0m
+[  63% ] [90m[1msavepack[22m | Storing File: res://xace-native-profile.json[39m[0m
+[  67% ] [90m[1msavepack[22m | Storing File: res://XACEApproval.json[39m[0m
+[  71% ] [90m[1msavepack[22m | Storing File: res://xace_adapter.gdc[39m[0m
+[  76% ] [90m[1msavepack[22m | Storing File: res://xace_canonical_entities.gdc[39m[0m
+[  80% ] [90m[1msavepack[22m | Storing File: res://xace_console_widget.gdc[39m[0m
+[  85% ] [90m[1msavepack[22m | Storing File: res://xace_debug_hud.gdc[39m[0m
+[  89% ] [90m[1msavepack[22m | Storing File: res://xace_delta_applicator.gdc[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_entity_manager.gdc[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/export_hook.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/plugin.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_godot_main.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_preflight.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_host_client.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_host.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_contract.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_approval.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_input_collector.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_protocol.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_native_scene_entities.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://NativeGame.tscn.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://probe.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_transport.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_adapter.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_canonical_entities.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_console_widget.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_debug_hud.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_delta_applicator.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://xace_entity_manager.gd.remap[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://.godot/global_script_class_cache.cfg[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://.godot/uid_cache.bin[39m[0m
+[  94% ] [90m[1msavepack[22m | Storing File: res://project.binary[39m[0m
+[92m[ DONE ][39m [1msavepack[22m
+[0m

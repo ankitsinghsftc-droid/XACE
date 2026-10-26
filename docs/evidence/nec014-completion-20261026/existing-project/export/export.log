@@ -1,0 +1,81 @@
+Godot Engine v4.6.3.stable.official.7d41c59c4 - https://godotengine.org
+
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Started Project initialization (5 steps)[39m[0m
+[   0% ] [90m[1mfirst_scan_filesystem[22m | Scanning file structure...[39m[0m
+[  16% ] [90m[1mfirst_scan_filesystem[22m | Loading global class names...[39m[0m
+[  33% ] [90m[1mfirst_scan_filesystem[22m | Verifying GDExtensions...[39m[0m
+[  50% ] [90m[1mfirst_scan_filesystem[22m | Creating autoload scripts...[39m[0m
+[  66% ] [90m[1mfirst_scan_filesystem[22m | Initializing plugins...[39m[0m
+[  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
+[92m[ DONE ][39m [1mfirst_scan_filesystem[22m
+[0m
+[   0% ] [90m[1msavepack[22m | Started Packing (102 steps)[39m[0m
+[   1% ] [90m[1msavepack[22m | Storing File: res://xace-export-preflight.json[39m[0m
+[   1% ] [90m[1msavepack[22m | Storing File: res://addons/stop_proof/plugin.gdc[39m[0m
+[   4% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_command.gdc[39m[0m
+[   7% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_plugin.gdc[39m[0m
+[  10% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_preservation.gdc[39m[0m
+[  13% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_reader.gdc[39m[0m
+[  16% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_wire.gdc[39m[0m
+[  19% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_writer.gdc[39m[0m
+[  22% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/native_setup.gdc[39m[0m
+[  25% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/native_setup_entry.gdc[39m[0m
+[  28% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/export_hook.gdc[39m[0m
+[  31% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/plugin.gdc[39m[0m
+[  33% ] [90m[1msavepack[22m | Storing File: res://.godot/exported/133200997/export-c574fa6a7f009af104c40547f6922927-World.scn[39m[0m
+[  36% ] [90m[1msavepack[22m | Storing File: res://xace_input_collector.gdc[39m[0m
+[  39% ] [90m[1msavepack[22m | Storing File: res://xace_native_scene_entities.gdc[39m[0m
+[  42% ] [90m[1msavepack[22m | Storing File: res://xace_native_preflight.gdc[39m[0m
+[  45% ] [90m[1msavepack[22m | Storing File: res://xace_native_host_client.gdc[39m[0m
+[  48% ] [90m[1msavepack[22m | Storing File: res://xace_native_host.gdc[39m[0m
+[  51% ] [90m[1msavepack[22m | Storing File: res://xace_native_contract.gdc[39m[0m
+[  54% ] [90m[1msavepack[22m | Storing File: res://xace_native_approval.gdc[39m[0m
+[  57% ] [90m[1msavepack[22m | Storing File: res://xace_transport.gdc[39m[0m
+[  60% ] [90m[1msavepack[22m | Storing File: res://xace_protocol.gdc[39m[0m
+[  63% ] [90m[1msavepack[22m | Storing File: res://game.cgs.json[39m[0m
+[  66% ] [90m[1msavepack[22m | Storing File: res://observer.gdc[39m[0m
+[  68% ] [90m[1msavepack[22m | Storing File: res://probe.gdc[39m[0m
+[  71% ] [90m[1msavepack[22m | Storing File: res://xace-native-profile.json[39m[0m
+[  74% ] [90m[1msavepack[22m | Storing File: res://XACEApproval.json[39m[0m
+[  77% ] [90m[1msavepack[22m | Storing File: res://xace_adapter.gdc[39m[0m
+[  80% ] [90m[1msavepack[22m | Storing File: res://xace_canonical_entities.gdc[39m[0m
+[  83% ] [90m[1msavepack[22m | Storing File: res://xace_console_widget.gdc[39m[0m
+[  86% ] [90m[1msavepack[22m | Storing File: res://xace_debug_hud.gdc[39m[0m
+[  89% ] [90m[1msavepack[22m | Storing File: res://xace_delta_applicator.gdc[39m[0m
+[  92% ] [90m[1msavepack[22m | Storing File: res://xace_entity_manager.gdc[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_godot_main.gdc[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/stop_proof/plugin.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_command.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_plugin.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_preservation.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_reader.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_wire.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/authoring_writer.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/native_setup.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_authoring/native_setup_entry.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/export_hook.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://addons/xace_native_shipping/plugin.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://Fixture/World.tscn.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_input_collector.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_scene_entities.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_preflight.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_host_client.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_host.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_contract.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_native_approval.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_transport.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_protocol.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://observer.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://probe.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_adapter.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_canonical_entities.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_console_widget.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_debug_hud.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_delta_applicator.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_entity_manager.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://xace_godot_main.gd.remap[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://.godot/global_script_class_cache.cfg[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://.godot/uid_cache.bin[39m[0m
+[  95% ] [90m[1msavepack[22m | Storing File: res://project.binary[39m[0m
+[92m[ DONE ][39m [1msavepack[22m
+[0m

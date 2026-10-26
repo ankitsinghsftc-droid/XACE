@@ -1,0 +1,7 @@
+[
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\refusal-a\\missing-export\\shipping\\NativeGame.exe",
+  "--headless",
+  "--",
+  "--xace-native-preflight",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec014\\20261025\\refusal-a\\missing-export\\packed-preflight.json"
+]
