@@ -28,6 +28,7 @@ public:
  UPROPERTY() UXaceDeltaApplicatorComponent* Projection=nullptr;
  UPROPERTY() UXaceInputCollectorComponent* Input=nullptr;
  UFUNCTION(BlueprintCallable,Category="XACE|Native") void Stop();
+ uint32 OwnerProcessId() const { return Client.ProcessId; }
 protected:
  virtual void BeginPlay() override;
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;

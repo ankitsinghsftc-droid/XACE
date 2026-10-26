@@ -1,0 +1,30 @@
+{
+	"ok": true,
+	"error": "",
+	"actual_pie": true,
+	"cycles": [
+		{
+			"tick": 12,
+			"owner_pid": 9080,
+			"runtime_pid": 36308,
+			"native_identity": true,
+			"authoritative_input": true
+		},
+		{
+			"tick": 12,
+			"owner_pid": 24784,
+			"runtime_pid": 20228,
+			"native_identity": true,
+			"authoritative_input": true
+		},
+		{
+			"tick": 12,
+			"owner_pid": 41020,
+			"runtime_pid": 29028,
+			"native_identity": true,
+			"authoritative_input": true
+		}
+	],
+	"map_sha256": "c123081030e85bc5dbc9d9695a718eb940ff5557e4c0a3412fae17a24cddba74",
+	"packaged_build": false
+}

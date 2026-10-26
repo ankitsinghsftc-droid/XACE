@@ -1,5 +1,6 @@
 #include "XaceNativeHostClient.h"
 #include "Misc/FileHelper.h"
+#include "HAL/FileManager.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
@@ -13,8 +14,13 @@ FString Quote(const FString& S) { FString Result=TEXT("\"");int32 Slashes=0;for(
 }
 FString FXaceNativeHostClient::FileHash(const FString& Path)
 {
-    TArray<uint8> Bytes;if(!FFileHelper::LoadFileToArray(Bytes,*Path))return TEXT("");
-    uint8 Digest[SHA256_DIGEST_LENGTH];return SHA256(Bytes.GetData(),Bytes.Num(),Digest)?BytesToHex(Digest,SHA256_DIGEST_LENGTH).ToLower():TEXT("");
+    TUniquePtr<FArchive> Reader(IFileManager::Get().CreateFileReader(*Path));if(!Reader)return TEXT("");
+    SHA256_CTX Context;if(SHA256_Init(&Context)!=1)return TEXT("");TArray<uint8> Buffer;Buffer.SetNumUninitialized(1024*1024);
+    while(Reader->Tell()<Reader->TotalSize()){
+        const int64 Count=FMath::Min<int64>(Buffer.Num(),Reader->TotalSize()-Reader->Tell());Reader->Serialize(Buffer.GetData(),Count);
+        if(Reader->IsError()||SHA256_Update(&Context,Buffer.GetData(),Count)!=1)return TEXT("");
+    }
+    uint8 Digest[SHA256_DIGEST_LENGTH];return SHA256_Final(Digest,&Context)==1?BytesToHex(Digest,SHA256_DIGEST_LENGTH).ToLower():TEXT("");
 }
 bool FXaceNativeHostClient::Start(const FString& Launcher,const FString& LauncherHash,const FString& Release,const FString& ReleaseHash,const FString& History,uint64 Controller)
 {

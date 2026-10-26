@@ -1,0 +1,19 @@
+{
+  "status": "incomplete",
+  "verified": [
+    "19 actual Unreal lifecycle and native actor projection checks",
+    "Actual PIE3 cycles, native identity and authoritative movement, saved map unchanged, owner/runtime Stop cleanup"
+  ],
+  "remaining": [
+    "Source approval and cooked resource/package gates",
+    "Two-instance isolation, failure/scene-transition matrix",
+    "Native playback and packaged Windows proof",
+    "Save/update/rollback and regressions",
+    "Mandatory clean-machine unavailable"
+  ],
+  "unverified_current_changes": [
+    "Fail closed on declared/runtime unsupported rotation/scale",
+    "Streaming file SHA256; newer than passing PIE binaries"
+  ],
+  "backup": "Checkpoint/push follows; raw fixtures/binaries/seal local-only"
+}

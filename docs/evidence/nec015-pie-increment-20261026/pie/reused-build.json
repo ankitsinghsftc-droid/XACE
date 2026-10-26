@@ -1,0 +1,8 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a",
+  "files": {
+    "Binaries/Win64/UnrealEditor-XACEAdapter.dll": "b1c3fde872b853175369832b3da5742683a7c6f1c9f81b66af86c75b2367681f",
+    "Binaries/Win64/UnrealEditor-XACEAdapter.pdb": "46c02024bf16d7eb95fba8e9e085ec211185cb71fd99e9095b283a94616cdf26",
+    "Binaries/Win64/UnrealEditor.modules": "6a81e6566b7c19eb68f051ddc50fb7b95a61a107aae2705d0a020b228d008511"
+  }
+}

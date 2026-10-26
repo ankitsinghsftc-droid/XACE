@@ -93,6 +93,8 @@ bool UXaceDeltaApplicatorComponent::BindNativeActors(const TMap<FString,AActor*>
         AActor* const* Found=Objects.Find(GetString(Object,TEXT("id"),TEXT("")));AActor* Actor=Found?*Found:nullptr;FVector Position;
         if(!IsValid(Actor)||Actor->GetWorld()!=GetWorld()||Seen.Contains(Actor)||!Actor->GetRootComponent()||!XaceCanonical::Vector(GetObject(GetObject(Object,TEXT("transform")),TEXT("position")),Position)||!Actor->GetActorLocation().Equals(Position,.001)){Error=TEXT("Native identity/position invalid");return false;}
         Seen.Add(Actor);
+        FVector DeclaredScale;FQuat DeclaredRotation;auto Declared=GetObject(Object,TEXT("transform"));
+        if(!XaceCanonical::Vector(GetObject(Declared,TEXT("scale")),DeclaredScale,true)||!XaceCanonical::Rotation(GetObject(Declared,TEXT("rotation")),DeclaredRotation)||!DeclaredScale.Equals(FVector::OneVector)||!DeclaredRotation.Equals(FQuat::Identity)){Error=TEXT("Declared native pose profile unsupported");return false;}
         if(!Actor->GetActorQuat().Equals(FQuat::Identity)||!Actor->GetActorScale3D().Equals(FVector::OneVector)){Error=TEXT("Only translation native pose supported");return false;}
         TArray<UPrimitiveComponent*> Components;Actor->GetComponents(Components);for(auto Component:Components)if(Component->IsSimulatingPhysics()||Component->GetCollisionEnabled()!=ECollisionEnabled::NoCollision){Error=TEXT("Native authoritative collision/physics unsupported");return false;}
         FString Nearest;for(AActor* Parent=Actor->GetAttachParentActor();Parent;Parent=Parent->GetAttachParentActor()){
@@ -613,7 +615,11 @@ void UXaceDeltaApplicatorComponent::ApplyComponents(AActor* Actor, UXaceEntityMa
 void UXaceDeltaApplicatorComponent::ApplyCanonical(AActor* Actor,const TMap<int32,FString>& Components)
 {
     if(bNativeProjection){
-        if(const auto Raw=Components.Find(1)){FVector Position;if(XaceCanonical::Vector(GetObject(XaceCanonical::Parse(*Raw),TEXT("position")),Position))Actor->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);else NativeProjectionError=TEXT("Invalid native pose");}
+        if(const auto Raw=Components.Find(1)){
+            auto Data=XaceCanonical::Parse(*Raw);FVector Position,Scale;FQuat Rotation;
+            if(!XaceCanonical::Vector(GetObject(Data,TEXT("position")),Position)||!XaceCanonical::Vector(GetObject(Data,TEXT("scale")),Scale,true)||!XaceCanonical::Rotation(GetObject(Data,TEXT("rotation")),Rotation)||!Scale.Equals(FVector::OneVector)||!Rotation.Equals(FQuat::Identity)){NativeProjectionError=TEXT("Unsupported native pose change");return;}
+            Actor->SetActorLocation(Position,false,nullptr,ETeleportType::TeleportPhysics);
+        }
         return;
     }
 

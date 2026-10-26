@@ -1,0 +1,9 @@
+{
+	"ok": true,
+	"checks": 19,
+	"error": "",
+	"owner_pid": 21908,
+	"runtime_pid": 7116,
+	"full_pie": false,
+	"packaged_build": false
+}
