@@ -1,0 +1,9 @@
+{
+	"schema": "xace.unreal.native_preflight.v1",
+	"ok": true,
+	"error": "",
+	"authority_started": false,
+	"package_admitted": true,
+	"verifier_pid": 29268,
+	"cooked": true
+}

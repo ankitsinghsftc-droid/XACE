@@ -39,7 +39,8 @@ def main(game,out,mode):
  runtime=game/'NEC015/release/package/runtime/xace_runtime.exe';owner=game/'NEC015/release/xace-player-launcher.exe';engine=game/'NEC015/Binaries/Win64/NEC015.exe'
  assert all(p.is_file() and find(p) is None for p in [runtime,owner,engine]),'Installation is already in use'
  out.mkdir(parents=True);env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data');env['PATH']=str(Path(os.environ['SystemRoot'])/'System32')
- cmd=[str(game/'NEC015.exe'),'-d3d11','-RenderOffscreen','-unattended','-ExecCmds=t.MaxFPS 1','-XaceExpectRefusal',f'-XaceNativeReport={out/"player.json"}',f'-abslog={out/"engine.log"}']
+ cmd=[str(game/'NEC015.exe'),'-d3d11','-RenderOffscreen','-unattended','-ExecCmds=t.MaxFPS 1','-XaceExpectRefusal','-XaceAwaitFault',f'-XaceNativeReport={out/"player.json"}',f'-abslog={out/"engine.log"}']
+ if mode=='runtime':cmd.append('-XaceMeasureFreeze')
  (out/'command.json').write_text(json.dumps(cmd),encoding='utf-8');ids={}
  with (out/'run.log').open('xb') as stream:
   proc=subprocess.Popen(cmd,env=env,stdout=stream,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
@@ -50,9 +51,13 @@ def main(game,out,mode):
      pid=find(exe)
      if pid:ids[name]=pid
    ready=any(b'baseline_verified' in p.read_bytes() for p in (out/'user-data/XACE/NativeHistory').rglob('authority.jsonl'))
-   if len(ids)==3 and ready:break
+   native_ready=out/'player.json.ready.json'
+   if len(ids)==3 and ready and native_ready.exists():
+    native=json.loads(native_ready.read_text(encoding='utf-8-sig'))
+    assert native['native_motion'] and native['tick']>=12 and native['runtime_pid']==ids['runtime']
+    break
    time.sleep(.05)
-  assert len(ids)==3 and ready,'No verified live native session before fault'
+  assert len(ids)==3 and ready and (out/'player.json.ready.json').exists(),'No verified live native session before fault'
   (out/'owned-processes.json').write_text(json.dumps(ids,indent=2),encoding='utf-8')
   terminate(ids[mode],runtime if mode=='runtime' else engine)
   proc.wait(timeout=45)
@@ -60,7 +65,7 @@ def main(game,out,mode):
   while time.monotonic()<end and not all(gone(pid) for pid in ids.values()):time.sleep(.1)
   assert all(gone(pid) for pid in ids.values()),'Owned process leaked after fault'
  if mode=='runtime':
-  result=json.loads((out/'player.json').read_text(encoding='utf-8-sig'));assert result['ok'] and result['error'] and result['runtime_pid']==ids['runtime'],result
- proof=dict(ok=True,actual_packaged_game=True,fault=mode,verified_owned_pids=ids,baseline_before_fault=True,owned_cleanup=True,projection_freeze_measured=False,clean_machine=False)
+  result=json.loads((out/'player.json').read_text(encoding='utf-8-sig'));assert result['ok'] and result['error'] and result['runtime_pid']==ids['runtime'] and result['projection_freeze_measured'],result
+ proof=dict(ok=True,actual_packaged_game=True,fault=mode,verified_owned_pids=ids,baseline_before_fault=True,owned_cleanup=True,projection_freeze_measured=mode=='runtime',clean_machine=False)
  (out/'proof.json').write_text(json.dumps(proof,indent=2),encoding='utf-8');print(json.dumps(proof))
 if __name__=='__main__':main(Path(sys.argv[1]),Path(sys.argv[2]),sys.argv[3])

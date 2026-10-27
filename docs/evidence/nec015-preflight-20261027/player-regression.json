@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "existing_player_ready": true,
+  "capability_refusal": true,
+  "repeated_play_same_player": true,
+  "stop_and_eof_owned_cleanup": true,
+  "original_zip_sha256": "86c9adce5c7be056107c3836331a73f841eb901e4231b46d523627b89b8553eb",
+  "new_launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "original_seal_modified": false,
+  "clean_machine": false
+}

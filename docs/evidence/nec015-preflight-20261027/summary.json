@@ -1,0 +1,28 @@
+{
+  "status": "incomplete",
+  "verified": [
+    "Rust admission preflight without gameplay authority",
+    "two PIE worlds distinct and duplicate owner refused",
+    "distinct native-build update/ACL read-only/failed-update retention/rollback",
+    "missing packaged World, missing required audio and changed package metadata refused",
+    "existing Player lifecycle regression"
+  ],
+  "partial": [
+    "source-refusal-c all four receipts correct; missing case timed out during engine shutdown under memory pressure, no full pass"
+  ],
+  "pending": [
+    "package-j dirty asset refusal and lifecycle observer verification",
+    "scene reload and measured projection freeze",
+    "creator checked build wrapper actual verification",
+    "final regression, source pins, seal and closeout",
+    "mandatory clean machine unavailable"
+  ],
+  "important_boundary": "Unreal graceful refusal may return exit code zero: successful admission receipt is mandatory. Test field checked_wrapper_exit_code is computed receipt-gate decision, not an observed separate wrapper process.",
+  "failed_attempts": [
+    "package-refusal-a missing main pak prevented engine startup before host",
+    "package-refusal-b/c incorrectly assumed nonzero Unreal refusal exit",
+    "source-refusal-b same exit-code assumption",
+    "source-refusal-c missing case shutdown timeout retained"
+  ],
+  "backup": "Raw fixtures/binaries/seal local-only; source and compact evidence checkpoint pending push."
+}

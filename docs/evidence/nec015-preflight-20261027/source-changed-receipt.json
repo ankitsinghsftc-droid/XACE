@@ -1,0 +1,9 @@
+{
+	"schema": "xace.unreal.native_preflight.v1",
+	"ok": false,
+	"error": "Native source changed: NEC015.uproject",
+	"authority_started": false,
+	"package_admitted": false,
+	"verifier_pid": 0,
+	"cooked": false
+}

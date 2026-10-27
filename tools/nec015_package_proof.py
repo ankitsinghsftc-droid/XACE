@@ -44,7 +44,7 @@ def main(out,resume=None):
    (priv/(stem+'.cpp')).write_text('#if WITH_EDITOR\n'+original+'\n#else\n#include "'+stem+'.h"\n'+cls+'::'+cls+'(){}\nint32 '+cls+'::Main(const FString&){return 1;}\n#endif\n',encoding='utf-8')
   shutil.copyfile(ROOT/'adapters/unreal/XaceMixedSessionProof.h',pub/'XaceMixedSessionProof.h')
   module=priv/'XACEAdapterModule.cpp';module.write_text(module.read_text(encoding='utf-8').replace('#include "NEC015PIEProof.h"','#include "NEC015PIEProof.h"\n#include "NEC015PackagedProof.h"').replace(' NEC015PIE::Start();\n#endif',' NEC015PIE::Start();\n#else\n NEC015Packaged::Start();\n#endif'),encoding='utf-8')
-  descriptor=project/'NEC015.uproject';data=json.loads(descriptor.read_text(encoding='utf-8'));data['Modules']=[dict(Name='NEC015',Type='Runtime',LoadingPhase='Default')];descriptor.write_text(json.dumps(data,indent=2),encoding='utf-8')
+  descriptor=project/'NEC015.uproject';data=json.loads(descriptor.read_text(encoding='utf-8'));data['Modules']=[dict(Name='NEC015',Type='Runtime',LoadingPhase='Default')];data.setdefault('Plugins',[]).append(dict(Name='AndroidFileServer',Enabled=False));descriptor.write_text(json.dumps(data,indent=2),encoding='utf-8')
   game_source=project/'Source/NEC015';game_source.mkdir(parents=True)
   (game_source/'NEC015.Build.cs').write_text('using UnrealBuildTool; public class NEC015 : ModuleRules { public NEC015(ReadOnlyTargetRules Target) : base(Target) { PCHUsage=PCHUsageMode.UseExplicitOrSharedPCHs; PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine" }); } }',encoding='utf-8')
   (game_source/'NEC015.cpp').write_text('#include "Modules/ModuleManager.h"\nIMPLEMENT_PRIMARY_GAME_MODULE(FDefaultGameModuleImpl, NEC015, "NEC015");\n',encoding='utf-8')

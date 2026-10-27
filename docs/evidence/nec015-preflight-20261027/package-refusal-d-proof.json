@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "cases": {
+    "missing-packaged-world": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Cooked file mismatch: release/package/world.json",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 0,
+      "cooked": true,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    },
+    "missing-required-audio": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Required native audio missing",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 0,
+      "cooked": true,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    },
+    "incompatible-package": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Native refused: Release file identity changed: playable.manifest.json",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 21892,
+      "cooked": true,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    }
+  },
+  "receipt_reissued_only_for_controlled_fault_fixture": true
+}

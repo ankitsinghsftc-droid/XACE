@@ -1,4 +1,4 @@
-﻿"""Refuse damaged cooked content and incompatible package metadata before Play."""
+"""Refuse damaged cooked content and incompatible package metadata before Play."""
 from pathlib import Path
 import json,os,shutil,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
@@ -10,11 +10,11 @@ def main(source,out):
  assert source.is_relative_to(ROOT/'evidence/nec015') and out.is_relative_to(ROOT/'evidence/nec015') and not out.exists()
  assert json.loads((source.parent.parent/'proof.json').read_text())['ok']
  out.mkdir(parents=True);results={}
- for case in ['missing-cooked-content','missing-required-audio','incompatible-package']:
+ for case in ['missing-packaged-world','missing-required-audio','incompatible-package']:
   dest=out/case;game=dest/'installation';shutil.copytree(source,game);base=game/'NEC015'
   receipt=base/'XACEBuild.json';record=json.loads(receipt.read_text())
-  if case=='missing-cooked-content':
-   pak=next((base/'Content/Paks').glob('*.pak'));pak.rename(dest/('preserved-'+pak.name))
+  if case=='missing-packaged-world':
+   world=base/'release/package/world.json';world.rename(dest/'preserved-world.json')
    expected='Cooked file mismatch:'
   else:
    relative='release/package/game.cgs.json' if case=='missing-required-audio' else 'release/package/playable.manifest.json'
@@ -27,11 +27,13 @@ def main(source,out):
    path.write_text(json.dumps(data,sort_keys=True,separators=(',',':')),encoding='utf-8')
    record['files'][relative]=sha(path);receipt.write_text(json.dumps(record,indent=2),encoding='utf-8')
   env=dict(os.environ);env['LOCALAPPDATA']=str(dest/'user-data');env['PATH']=str(Path(os.environ['SystemRoot'])/'System32')
-  cmd=[str(game/'NEC015.exe'),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativePreflight={dest/"preflight.json"}',f'-abslog={dest/"engine.log"}']
+  cmd=[str(game/'NEC015/Binaries/Win64/NEC015.exe'),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativePreflight={dest/"preflight.json"}',f'-abslog={dest/"engine.log"}']
   (dest/'command.json').write_text(json.dumps(cmd),encoding='utf-8')
   with (dest/'run.log').open('xb') as stream:r=subprocess.run(cmd,env=env,stdout=stream,stderr=subprocess.STDOUT,timeout=120,creationflags=subprocess.CREATE_NO_WINDOW)
   proof=json.loads((dest/'preflight.json').read_text(encoding='utf-8-sig'))
-  assert r.returncode!=0 and not proof['ok'] and not proof['authority_started'] and not proof['package_admitted'] and expected in proof['error'],proof
+  proof['engine_exit_code']=r.returncode
+  proof['checked_wrapper_exit_code']=0 if r.returncode==0 and proof.get('ok') and proof.get('package_admitted') else 1
+  assert proof['checked_wrapper_exit_code']==1 and not proof['ok'] and not proof['authority_started'] and not proof['package_admitted'] and expected in proof['error'],proof
   if proof['verifier_pid']:assert gone(proof['verifier_pid'])
   if case=='incompatible-package':assert proof['verifier_pid']>0,'Must exercise Rust admission beyond cooked hash gate'
   results[case]=proof

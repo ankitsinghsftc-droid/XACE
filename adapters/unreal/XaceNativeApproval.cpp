@@ -8,6 +8,8 @@
 #if WITH_EDITOR
 #include "Editor.h"
 #include "Engine/World.h"
+#include "UObject/UObjectIterator.h"
+#include "UObject/Package.h"
 #endif
 namespace {
 bool Inventory(TMap<FString,FString>& Files,FString& Error){
@@ -21,6 +23,7 @@ bool Read(const FString& Name,TSharedPtr<FJsonObject>& Object,FString& Error){FS
 bool Dirty(FString& Error){
 #if WITH_EDITOR
  if(GEditor){auto World=GEditor->GetEditorWorldContext().World();if(World&&World->GetOutermost()->IsDirty()){Error=TEXT("Save and review native map changes before Play");return true;}}
+ if(GEditor)for(TObjectIterator<UPackage> It;It;++It)if(It->GetName().StartsWith(TEXT("/Game/"))&&!It->HasAnyPackageFlags(PKG_PlayInEditor)&&It->IsDirty()){Error=TEXT("Save and review native asset changes before Play: ")+It->GetName();return true;}
 #endif
  return false;
 }
