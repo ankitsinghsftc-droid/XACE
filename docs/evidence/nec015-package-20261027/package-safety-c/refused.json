@@ -1,0 +1,10 @@
+{
+	"ok": true,
+	"error": "Cooked file mismatch: release/native-release.json",
+	"packaged": true,
+	"audio": false,
+	"animation": false,
+	"owner_pid": 0,
+	"runtime_pid": 0,
+	"tick": 0
+}

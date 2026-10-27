@@ -1,0 +1,26 @@
+{
+  "status": "INCOMPLETE",
+  "passed": [
+    "full native Editor and Windows game build/cook/archive",
+    "cooked preflight without authority",
+    "packaged native input/audio/animation/process cleanup",
+    "installed-marker relocation and ACL-read-only installation unchanged",
+    "corrupted candidate refused before authority with activation retained",
+    "same-version path rollback and save sentinel preservation",
+    "actual runtime loss and game crash owned cleanup"
+  ],
+  "not_proven": [
+    "distinct-version update and save migration/refusal",
+    "packaged save compatibility",
+    "source/cooked resource refusal matrix",
+    "projection freeze/scene transition",
+    "native fidelity and Player final regressions",
+    "mandatory clean-machine test unavailable"
+  ],
+  "failed_preserved": [
+    "package-e stale cached plugin-only graph; package-f regenerated graph",
+    "safety-a PowerShell ACL module unavailable",
+    "safety-b engine crash config wrote into installation; safety-c installed-build marker fixes"
+  ],
+  "backup": "source and compact evidence checkpoint pending push; raw binaries/fixtures/seal local-only"
+}

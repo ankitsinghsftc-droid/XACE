@@ -29,7 +29,7 @@ def main(out,resume=None):
   (out/'reused-build.json').write_text(json.dumps(dict(path=str(resume),sources=recorded),indent=2),encoding='utf-8')
   env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
   if (project/'Source/NEC015Editor.Target.cs').exists():
-   cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'NEC015Editor','Win64','Development',f'-Project={uproject}','-nohotreload','-installed','-NoUBA','-MaxParallelActions=1',f'-log={out/"editor-build-ubt.log"}']
+   cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'NEC015Editor','Win64','Development',f'-Project={uproject}','-nohotreload','-installed','-NoUBTMakefiles','-NoUBA','-MaxParallelActions=1',f'-log={out/"editor-build-ubt.log"}']
    (out/'editor-build-command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8');run(cmd,out/'editor-build.log',env,900)
  else:
   shutil.copytree(source,project,ignore=shutil.ignore_patterns('Binaries','Intermediate','Saved','DerivedDataCache','XACEApproval.json'))
@@ -50,11 +50,13 @@ def main(out,resume=None):
   (config/'DefaultGame.ini').write_text('[/Script/UnrealEd.ProjectPackagingSettings]\nbUsePakFile=True\nbUseIoStore=False\n+MapsToCook=(FilePath="/Game/NativeProof")\n+DirectoriesToAlwaysCook=(Path="/Game")\n+DirectoriesToAlwaysCook=(Path="/Engine/EngineSounds")\n',encoding='utf-8')
   env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data');uproject=project/'NEC015.uproject'
   sources={p.relative_to(project).as_posix():sha(p) for p in project.rglob('*') if p.is_file()};(out/'source-identities.json').write_text(json.dumps(sources,indent=2),encoding='utf-8')
-  cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'NEC015Editor','Win64','Development',f'-Project={uproject}','-nohotreload','-installed','-NoUBA','-MaxParallelActions=1',f'-log={out/"editor-build-ubt.log"}']
+  cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'NEC015Editor','Win64','Development',f'-Project={uproject}','-nohotreload','-installed','-NoUBTMakefiles','-NoUBA','-MaxParallelActions=1',f'-log={out/"editor-build-ubt.log"}']
   (out/'editor-build-command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8');run(cmd,out/'editor-build.log',env,900)
  cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/AutomationTool/AutomationTool.dll'),'BuildCookRun',f'-project={uproject}','-nop4','-unattended','-utf8output','-platform=Win64','-clientconfig=Development','-build','-cook','-stage','-pak','-archive',f'-archivedirectory={out/"archive"}','-map=/Game/NativeProof','-nocompileeditor','-skipbuildeditor','-nodebuginfo','-UbtArgs=-NoUBA -MaxParallelActions=1']
  (out/'package-command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8');run(cmd,out/'package.log',env,3600)
  windows=out/'archive/Windows';game=windows/'NEC015';assert game.is_dir();shutil.copytree(project/'release',game/'release')
+ marker=windows/'Engine/Build/InstalledProjectBuild.txt';marker.parent.mkdir(parents=True,exist_ok=True)
+ if not marker.exists():marker.write_text('NEC015 installed native game\n',encoding='utf-8')
  version=json.loads((source/'XACEApproval.json').read_text(encoding='utf-8-sig'))['unreal']
  (game/'XACEBuild.json').write_text(json.dumps(dict(schema='xace.unreal.cooked_files.v1',unreal=version,files={p.relative_to(game).as_posix():sha(p) for p in game.rglob('*') if p.is_file()}),indent=2),encoding='utf-8')
  exe=windows/'NEC015.exe';assert exe.exists();env['PATH']=str(Path(os.environ['SystemRoot'])/'System32')

@@ -1,0 +1,22 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\ThirdParty\\DotNet\\8.0.412\\win-x64\\dotnet.exe",
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\DotNET\\AutomationTool\\AutomationTool.dll",
+  "BuildCookRun",
+  "-project=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\NEC015.uproject",
+  "-nop4",
+  "-unattended",
+  "-utf8output",
+  "-platform=Win64",
+  "-clientconfig=Development",
+  "-build",
+  "-cook",
+  "-stage",
+  "-pak",
+  "-archive",
+  "-archivedirectory=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-f\\archive",
+  "-map=/Game/NativeProof",
+  "-nocompileeditor",
+  "-skipbuildeditor",
+  "-nodebuginfo",
+  "-UbtArgs=-NoUBA -MaxParallelActions=1"
+]

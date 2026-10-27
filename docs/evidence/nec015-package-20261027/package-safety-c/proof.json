@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "actual_unreal_package": true,
+  "relocation": true,
+  "acl_readonly": true,
+  "failed_candidate_retains_activation": true,
+  "explicit_path_rollback": true,
+  "save_sentinel_preserved": true,
+  "installations_unchanged": true,
+  "process_cleanup": true,
+  "clean_machine": false,
+  "distinct_gameplay_version_update": false,
+  "save_compatibility_tested": false,
+  "installed_build_marker": true
+}

@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "error": "",
+  "packaged": true,
+  "audio": true,
+  "animation": true,
+  "owner_pid": 20616,
+  "runtime_pid": 36568,
+  "tick": 12,
+  "clean_machine": false,
+  "process_cleanup": true
+}

@@ -1,0 +1,10 @@
+{
+	"ok": true,
+	"error": "Native refused: ",
+	"packaged": true,
+	"audio": false,
+	"animation": false,
+	"owner_pid": 32444,
+	"runtime_pid": 33640,
+	"tick": 0
+}
