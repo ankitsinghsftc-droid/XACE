@@ -3,7 +3,7 @@ from pathlib import Path
 import hashlib,json,os,shutil,subprocess,sys
 import unreal_vertical_slice_certification as old
 ROOT=Path(__file__).resolve().parents[1]
-def main(out,reuse=None):
+def main(out,reuse=None,two=False):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec015') and not out.exists();assert shutil.disk_usage(ROOT).free>4*1024**3,'Insufficient SSD reserve; no cleanup'
  project=out/'project';project.mkdir(parents=True);uproject=project/'NEC015.uproject';uproject.write_text(json.dumps(dict(FileVersion=3,EngineAssociation='5.7',Plugins=[dict(Name='XACE',Enabled=True)])),encoding='utf-8')
  plugin=project/'Plugins/XACE'
@@ -28,9 +28,10 @@ def main(out,reuse=None):
  release=project/'release';shutil.copytree(ROOT/'evidence/nec015/20261026/playback-package-a/release',release)
  launcher=release/'xace-player-launcher.exe';shutil.copyfile(ROOT/'evidence/nec012/20261024/lifecycle-listener-final/xace-player-launcher.exe',launcher)
  cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(uproject),'-unattended','-d3d11','-nosplash','-RenderOffscreen','-stdout','-FullStdOutLogOutput',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
+ if two:cmd.append('-XaceTwoPIE')
  env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
  (out/'command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8')
  with (out/'run.txt').open('wb') as log:r=subprocess.run(cmd,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=300,creationflags=subprocess.CREATE_NO_WINDOW)
  assert r.returncode==0,'UE client proof failed; logs retained'
  proof=json.loads((out/'proof.json').read_text(encoding='utf-8-sig'));assert proof['ok'];print(json.dumps(proof))
-if __name__=='__main__':main(Path(sys.argv[1]),Path(sys.argv[2]).resolve() if len(sys.argv)>2 else None)
+if __name__=='__main__':main(Path(sys.argv[1]),Path(sys.argv[2]).resolve() if len(sys.argv)>2 and sys.argv[2]!='--two' else None,'--two' in sys.argv)

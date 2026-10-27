@@ -1,6 +1,7 @@
 #pragma once
 #if WITH_EDITOR
 #include "Editor.h"
+#include "Settings/LevelEditorPlaySettings.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonSerializer.h"
 #include "FileHelpers.h"
@@ -25,10 +26,12 @@
 #include "Sound/SoundBase.h"
 #include "UObject/UObjectIterator.h"
 namespace NEC015PIE {
+static bool TwoPIE=false;static TArray<uint32> InstancePids;
 static FString Report,MapHash,BadPath,BadHash;static int32 SavePhase=0;static bool AudioSeen=false,AnimationSeen=false;static int32 Stage=0,Cycles=0;static double Deadline=0;static uint32 OwnerPid=0,RuntimePid=0;static TArray<TSharedPtr<FJsonValue>> Results;
 static bool Gone(uint32 Id){auto P=FPlatformProcess::OpenProcess(Id);bool R=!P.IsValid()||!FPlatformProcess::IsProcRunning(P);if(P.IsValid())FPlatformProcess::CloseProc(P);return R;}
-static bool Finish(bool Ok,const FString& Error){auto R=MakeShared<FJsonObject>();R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("actual_pie"),true);R->SetArrayField(TEXT("cycles"),Results);R->SetStringField(TEXT("map_sha256"),MapHash);R->SetBoolField(TEXT("packaged_build"),false);FString Text;FJsonSerializer::Serialize(R,TJsonWriterFactory<>::Create(&Text));FFileHelper::SaveStringToFile(Text,*Report);if(GEditor&&GEditor->PlayWorld)GEditor->RequestEndPlayMap();FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);return false;}
-static void Launch(){SavePhase=0;AudioSeen=false;AnimationSeen=false;FRequestPlaySessionParams Params;Params.bAllowOnlineSubsystem=false;Params.WorldType=EPlaySessionWorldType::PlayInEditor;Params.SessionDestination=EPlaySessionDestinationType::InProcess;GEditor->RequestPlaySession(Params);Stage=1;Deadline=FPlatformTime::Seconds()+60;}
+static bool Finish(bool Ok,const FString& Error){auto R=MakeShared<FJsonObject>();R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("actual_pie"),true);R->SetBoolField(TEXT("two_instances"),TwoPIE);R->SetArrayField(TEXT("cycles"),Results);R->SetStringField(TEXT("map_sha256"),MapHash);R->SetBoolField(TEXT("packaged_build"),false);FString Text;FJsonSerializer::Serialize(R,TJsonWriterFactory<>::Create(&Text));FFileHelper::SaveStringToFile(Text,*Report);if(GEditor&&GEditor->PlayWorld)GEditor->RequestEndPlayMap();FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);return false;}
+static void Launch(){SavePhase=0;AudioSeen=false;AnimationSeen=false;FRequestPlaySessionParams Params;Params.bAllowOnlineSubsystem=false;Params.WorldType=EPlaySessionWorldType::PlayInEditor;Params.SessionDestination=EPlaySessionDestinationType::InProcess;if(TwoPIE){auto Settings=GetMutableDefault<ULevelEditorPlaySettings>();Settings->SetPlayNetMode(PIE_Standalone);Settings->SetRunUnderOneProcess(true);Settings->SetPlayNumberOfClients(2);}
+GEditor->RequestPlaySession(Params);Stage=1;Deadline=FPlatformTime::Seconds()+60;}
 static bool Tick(float){
  if(!GIsRunning||!GEditor)return true;
  if(Deadline>0&&FPlatformTime::Seconds()>Deadline)return Finish(false,TEXT("PIE proof deadline"));
@@ -44,6 +47,18 @@ static bool Tick(float){
   for(const auto& Value:Definition->GetArrayField(TEXT("objects"))){auto Object=Value->AsObject();const TArray<TSharedPtr<FJsonValue>>* Parents=nullptr;if(Object->GetObjectField(TEXT("relationships"))->TryGetArrayField(TEXT("xace.authoring_parent.v1"),Parents)&&Parents->Num()==1)Host->NativeObjects[Object->GetStringField(TEXT("id"))]->AttachToActor(Host->NativeObjects[(*Parents)[0]->AsString()],FAttachmentTransformRules::KeepWorldTransform);}
   if(!UEditorLoadingAndSavingUtils::SaveMap(World,TEXT("/Game/NativeProof")))return Finish(false,TEXT("Map save failed"));MapHash=FXaceNativeHostClient::FileHash(FPaths::ProjectContentDir()/TEXT("NativeProof.umap"));FString ApprovalError;if(!XaceNativeApproval::RecordSavedSource(ApprovalError))return Finish(false,ApprovalError);Launch();return true;
  }
+ if(Stage==1&&TwoPIE){
+  TArray<UXaceNativeHostComponent*> Hosts;
+  for(const auto& Context:GEngine->GetWorldContexts())if(Context.WorldType==EWorldType::PIE&&Context.World())for(TActorIterator<AActor> It(Context.World());It;++It)if(auto H=It->FindComponentByClass<UXaceNativeHostComponent>())Hosts.Add(H);
+  if(Hosts.Num()!=2)return true;
+  for(auto H:Hosts){if(H->State==TEXT("failed"))return Finish(false,H->Error);if(H->State!=TEXT("playing"))return true;H->Input->SubmitNativeAction(TEXT("proof.move"),1);if(H->Projection->GetCurrentTick()<12)return true;}
+  if(Hosts[0]->OwnerProcessId()==Hosts[1]->OwnerProcessId()||Hosts[0]->RuntimePid==Hosts[1]->RuntimePid)return Finish(false,TEXT("PIE authority processes shared"));
+  auto Extra=Hosts[0]->GetWorld()->SpawnActor<AActor>();auto Duplicate=NewObject<UXaceNativeHostComponent>(Extra);Extra->AddInstanceComponent(Duplicate);Duplicate->RegisterComponent();
+  if(Duplicate->State!=TEXT("failed")||Duplicate->OwnerProcessId()!=0||Duplicate->Error!=TEXT("Another native host owns this world"))return Finish(false,TEXT("Duplicate world owner not refused"));
+  for(auto H:Hosts){auto R=MakeShared<FJsonObject>();R->SetNumberField(TEXT("owner_pid"),H->OwnerProcessId());R->SetNumberField(TEXT("runtime_pid"),H->RuntimePid);R->SetNumberField(TEXT("tick"),H->Projection->GetCurrentTick());R->SetBoolField(TEXT("duplicate_refused"),true);Results.Add(MakeShared<FJsonValueObject>(R));InstancePids.Add(H->OwnerProcessId());InstancePids.Add(uint32(H->RuntimePid));}
+  GEditor->RequestEndPlayMap();Stage=3;return true;
+ }
+ if(Stage==3&&!GEditor->PlayWorld){for(auto P:InstancePids)if(!Gone(P))return true;return Finish(true,TEXT(""));}
  if(Stage==1&&GEditor->PlayWorld){
   UXaceNativeHostComponent* Host=nullptr;for(TActorIterator<AActor> It(GEditor->PlayWorld);It;++It)if(auto H=It->FindComponentByClass<UXaceNativeHostComponent>()){Host=H;break;}
   if(!Host)return Finish(false,TEXT("PIE native host missing"));if(Host->State==TEXT("failed"))return Finish(false,Host->Error);if(Host->State!=TEXT("playing"))return true;
@@ -63,6 +78,6 @@ static bool Tick(float){
  if(Stage==2&&!GEditor->PlayWorld){if(!Gone(OwnerPid)||!Gone(RuntimePid))return true;if(MapHash!=FXaceNativeHostClient::FileHash(FPaths::ProjectContentDir()/TEXT("NativeProof.umap")))return Finish(false,TEXT("PIE changed saved map"));if(++Cycles==3)return Finish(true,TEXT(""));Launch();}
  return true;
 }
-static void Start(){if(FParse::Value(FCommandLine::Get(),TEXT("XacePIEReport="),Report)){Deadline=FPlatformTime::Seconds()+120;FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateStatic(&Tick));}}
+static void Start(){if(FParse::Value(FCommandLine::Get(),TEXT("XacePIEReport="),Report)){TwoPIE=FParse::Param(FCommandLine::Get(),TEXT("XaceTwoPIE"));Deadline=FPlatformTime::Seconds()+120;FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateStatic(&Tick));}}
 }
 #endif

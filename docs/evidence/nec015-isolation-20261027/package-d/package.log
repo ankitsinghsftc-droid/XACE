@@ -1,0 +1,224 @@
+Starting AutomationTool...
+Parsing command line: BuildCookRun -project=C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject -nop4 -unattended -utf8output -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive -archivedirectory=C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\archive -map=/Game/NativeProof -nocompileeditor -skipbuildeditor -nodebuginfo -UbtArgs="-NoUBA -MaxParallelActions=1"
+Initializing script modules...
+Total script module initialization time: 0.52 s.
+Using C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe
+Executing commands...
+Setting up ProjectParams for C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject
+********** BUILD COMMAND STARTED **********
+Running: C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\ThirdParty\DotNet\8.0.412\win-x64\dotnet.exe "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" NEC015 Win64 Development -Project=C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject  -remoteini="C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project"  -NoUBA -MaxParallelActions=1  -log="C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\UBA-NEC015-Win64-Development.txt"
+Log file: C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\UBA-NEC015-Win64-Development.txt
+Creating makefile for NEC015 (no existing makefile)
+UHT compiled-in object format Default
+Parsing headers for NEC015
+  Running Internal UnrealHeaderTool C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Intermediate\Build\Win64\NEC015\Development\NEC015.uhtmanifest -WarningsAsErrors -installed
+UHT processed NEC015 in 2.275233 seconds (14 files written)
+Building NEC015...
+Using Visual Studio 2022 14.44.35225 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+[Adaptive Build] Excluded from XACEAdapter unity file: XACEAdapterModule.cpp, XaceConsoleWidget.cpp, XaceDeltaApplicator.cpp, XaceInputCollector.cpp, XaceLiveValidationCommandlet.cpp, XaceNativeApproval.cpp, XaceNativeContract.cpp, XaceNativeHost.cpp, XaceNativeHostClient.cpp, XaceTransport.cpp
+Executing up to 1 actions based on MaxProcessorCount override
+Using Parallel executor to run 21 action(s)
+------ Building 21 action(s) started ------
+[1/21] Compile [x64] SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.cpp
+[2/21] Resource Default.rc2
+[3/21] Compile [x64] NEC015.cpp
+[4/21] Compile [x64] Module.XACEAdapter.cpp
+[5/21] Compile [x64] XACEAdapterModule.cpp
+[6/21] Compile [x64] XaceConsoleWidget.cpp
+[7/21] Compile [x64] XaceDeltaApplicator.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(653) : warning C4701: potentially uninitialized local variable 'Size' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(653) : warning C4701: potentially uninitialized local variable 'Offset' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceDeltaApplicator.cpp(653) : warning C4701: potentially uninitialized local variable 'Trigger' used
+   while compiling UXaceDeltaApplicatorComponent::ApplyCanonical
+[8/21] Compile [x64] XaceInputCollector.cpp
+[9/21] Compile [x64] XaceLiveValidationCommandlet.cpp
+[10/21] Compile [x64] XaceNativeApproval.cpp
+[11/21] Compile [x64] XaceNativeContract.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(34) : warning C4701: potentially uninitialized local variable 'Y' used
+   while compiling XaceCanonical::Vector
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(34) : warning C4701: potentially uninitialized local variable 'Z' used
+   while compiling XaceCanonical::Vector
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'Y' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'Z' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(38) : warning C4701: potentially uninitialized local variable 'W' used
+   while compiling XaceCanonical::Rotation
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(145) : warning C4701: potentially uninitialized local variable 'Tick' used
+   while compiling FXaceNativeSession::PrepareRuleset
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(73) : warning C4701: potentially uninitialized local variable 'Peer' used
+   while compiling FXaceNativeSession::Configure
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceNativeContract.cpp(73) : warning C4701: potentially uninitialized local variable 'Controller' used
+   while compiling FXaceNativeSession::Configure
+[12/21] Compile [x64] XaceNativeHost.cpp
+[13/21] Compile [x64] XaceNativeHostClient.cpp
+[14/21] Compile [x64] XaceTransport.cpp
+C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Plugins\XACE\Source\XACEAdapter\Private\XaceTransport.cpp(346) : warning C4701: potentially uninitialized local variable 'Tick' used
+   while compiling UXaceTransportComponent::DispatchMessage
+[15/21] Link [x64] NEC015.exe
+   Creating library C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Binaries\Win64\NEC015.lib and object C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\Binaries\Win64\NEC015.exp
+[16/21] Copy D3D12Core.dll
+[17/21] Copy d3d12SDKLayers.dll
+[18/21] Copy DirectML.dll
+[19/21] Copy tbb12.dll
+[20/21] Copy tbbmalloc.dll
+[21/21] WriteMetadata NEC015.target
+
+Total time in Parallel executor: 174.08 seconds
+
+Result: Succeeded
+Total execution time: 186.50 seconds
+Took 186.77s to run dotnet.exe, ExitCode=0
+No build products were made
+Build command time: 187.08 s
+********** BUILD COMMAND COMPLETED **********
+********** COOK COMMAND STARTED **********
+HasMapsToCook /Game/NativeProof
+Params.HasMapsToCook /Game/NativeProof
+Running UnrealEditor Cook for project C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject
+Commandlet log file is C:\Program Files\Epic Games\UE_5.7\Engine\Programs\AutomationTool\Saved\Cook-2026.10.27-10.05.17.txt
+Running: C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\Win64\UnrealEditor-Cmd.exe "C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject" -run=Cook -Map=/Game/NativeProof -TargetPlatform=Windows  -unversioned -fileopenlog -abslog="C:\Program Files\Epic Games\UE_5.7\Engine\Programs\AutomationTool\Saved\Cook-2026.10.27-10.05.17.txt" -stdout -CrashForUAT -unattended -NoLogTimes
+LogInit: Display: Running engine for game: NEC015
+LogCore: Display: Requested channels: 'cpu,gpu,frame,log,bookmark,screenshot,region'
+LogTrace: Display: Control listening on port 1985
+LogCsvProfiler: Display: Metadata set : platform="Windows"
+LogCsvProfiler: Display: Metadata set : config="Development"
+LogCsvProfiler: Display: Metadata set : buildversion="++UE5+Release-5.7-CL-51494982"
+LogCsvProfiler: Display: Metadata set : engineversion="5.7.4-51494982+++UE5+Release-5.7"
+LogCsvProfiler: Display: Metadata set : enginereleaseversion="5.7.4"
+LogCsvProfiler: Display: Metadata set : os="Windows 11 (25H2) [10.0.26200.9711] "
+LogCsvProfiler: Display: Metadata set : cpu="GenuineIntel|12th Gen Intel(R) Core(TM) i7-12650HX"
+LogCsvProfiler: Display: Metadata set : pgoenabled="0"
+LogCsvProfiler: Display: Metadata set : pgoprofilingenabled="0"
+LogCsvProfiler: Display: Metadata set : ltoenabled="0"
+LogCsvProfiler: Display: Metadata set : asan="0"
+LogCsvProfiler: Display: Metadata set : mergedmodules="0"
+LogCsvProfiler: Display: Metadata set : commandline="" C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-d\project\NEC015.uproject -run=Cook -Map=/Game/NativeProof -TargetPlatform=Windows -unversioned -fileopenlog -abslog="C:\Program Files\Epic Games\UE_5.7\Engine\Programs\AutomationTool\Saved\Cook-2026.10.27-10.05.17.txt" -stdout -CrashForUAT -unattended -NoLogTimes""
+LogCsvProfiler: Display: Metadata set : loginid="847b1d1b6aaf483c89591f1f8a89173b"
+LogCsvProfiler: Display: Metadata set : llm="0"
+LogCsvProfiler: Display: Metadata set : systemresolution.resx="1280"
+LogCsvProfiler: Display: Metadata set : systemresolution.resy="720"
+LogAudio: Display: Audio Device Manager not initializing due to all audio being disabled. If this is not intentional, please check command line arguments for "-nosound".
+LogAssetRegistry: Display: No AssetDiscovery cache present at ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/CachedAssetRegistryDiscovery.bin. AssetRegistry discovery of files will be uncached.
+LogConfig: Display: Loading VulkanPC ini files took 0.07 seconds
+LogConfig: Display: Loading Mac ini files took 0.08 seconds
+LogConfig: Display: Loading IOS ini files took 0.09 seconds
+LogConfig: Display: Loading Windows ini files took 0.09 seconds
+LogConfig: Display: Loading VisionOS ini files took 0.10 seconds
+LogConfig: Display: Loading TVOS ini files took 0.10 seconds
+LogConfig: Display: Loading Unix ini files took 0.10 seconds
+LogConfig: Display: Loading Android ini files took 0.11 seconds
+LogConfig: Display: Loading Linux ini files took 0.12 seconds
+RenderDocPlugin: Display: RenderDoc plugin will not be loaded. Use '-AttachRenderDoc' on the cmd line or enable 'renderdoc.AutoAttach' in the plugin settings.
+LogHAL: Display: Platform has ~ 16 GB [16890322944 / 17179869184 / 16], which maps to Larger [LargestMinGB=32, LargerMinGB=12, DefaultMinGB=8, SmallerMinGB=6, SmallestMinGB=0)
+LogCsvProfiler: Display: Metadata set : extradevelopmentmemorymb="0"
+LogTextureFormatASTC: Display: ASTCEnc version 5.0.1 library loaded
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatASTC
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatDXT
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatETC2
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatIntelISPCTexComp
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatUncompressed
+LogTextureFormatOodle: Display: Oodle Texture TFO init; latest sdk version = 2.9.14
+LogTextureFormatOodle: Display: Oodle Texture loading DLL: oo2tex_win64_2.9.14.dll
+LogTextureFormatOodle: Display: Oodle Texture loading DLL: oo2tex_win64_2.9.5.dll
+LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatOodle
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTC'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXT'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_OpenXR'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'AndroidClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTCClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXTClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2Client'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_OpenXRClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_Multi'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_MultiClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'IOS'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'IOSClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Linux'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxEditor'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxServer'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Mac'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacEditor'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacServer'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'TVOS'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'TVOSClient'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'Windows'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsEditor'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsServer'
+LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsClient'
+LogTargetPlatformManager: Display: Building Assets For Windows
+LogAudioDebug: Display: Lib vorbis DLL was dynamically loaded.
+LogObj: Display: Attempting to load config data for Default__SlateThemeManager before the Class has been constructed/registered/linked (likely during module loading or early startup). This will result in the load silently failing and should be fixed.
+LogCsvProfiler: Display: Metadata set : verbatimrhiname="Null"
+LogCsvProfiler: Display: Metadata set : rhiname="Null"
+LogCsvProfiler: Display: Metadata set : rhifeaturelevel="SM6"
+LogCsvProfiler: Display: Metadata set : shaderplatform="PCD3D_SM6"
+LogDerivedDataCache: Display: Memory: Max Cache Size: -1 MB
+LogDerivedDataCache: Display: ../../../Engine/DerivedDataCache/Compressed.ddp: Opened pak cache for reading. (1729 MiB)
+LogZenServiceInstance: Display: Launching zen utility 'C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/zen.exe service status'.
+LogZenServiceInstance: Display: Launching zen utility 'C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/zen.exe service status'.
+LogZenServiceInstance: Display: Read zen version cache file from 'C:/Users/ankit/AppData/Local/UnrealEngine/5.7/Saved/Zen/zen.version', version: '5.7.6-202510061608-windows-x64-release-9a1ebb9'
+LogZenServiceInstance: Display: Read zen version cache file from 'C:/Users/ankit/AppData/Local/UnrealEngine/Common/Zen/Install/zen.version', version: '5.7.6-202510061608-windows-x64-release-9a1ebb9'
+LogZenServiceInstance: Display: Installed service at 'C:/Users/ankit/AppData/Local/UnrealEngine/Common/Zen/Install/zenserver.exe' is up to date
+LogZenServiceInstance: Display: Launching executable 'C:/Users/ankit/AppData/Local/UnrealEngine/Common/Zen/Install/zenserver.exe', working dir 'C:/Users/ankit/AppData/Local/UnrealEngine/Common/Zen/Install', data dir 'C:/Users/ankit/AppData/Local/UnrealEngine/Common/Zen/Data', args '--port 8558 --data-dir C:\Users\ankit\AppData\Local\UnrealEngine\Common\Zen\Data --http asio --gc-cache-duration-seconds 1209600 --gc-interval-seconds 21600 --gc-low-diskspace-threshold 2147483648 --cache-bucket-limit-overwrites --quiet --http-forceloopback --owner-pid 41740  --child-id Zen_41740_Startup'
+LogZenServiceInstance: Display: Unreal Zen Storage Server HTTP service at http://[::1]:8558 status: OK!.
+LogDerivedDataCache: Display: ZenLocal: Using ZenServer HTTP service at [::1] with namespace ue.ddc status: OK!.
+LogDerivedDataCache: Display: C:/Users/ankit/AppData/Local/UnrealEngine/Common/DerivedDataCache: Performance: Latency=0.20ms. RandomReadSpeed=16.95MBs, RandomWriteSpeed=71.18MBs. Assigned SpeedClass 'Local'
+LogUbaHorde: Display: UBA/Horde Configuration [Uba.Provider.Horde]: Not Enabled
+LogShaderCompilers: Display: No distributed shader compiler controller found
+LogShaderCompilers: Display: Using 17 local workers for shader compilation
+LogShaderCompilers: Display: Compiling shader autogen file: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM6/AutogenShaderHeaders.ush
+LogShaderCompilers: Display: Failed to delete old shader autogen file: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM6/AutogenShaderHeaders.ush
+LogShaderCompilers: Display: Shader autogen file written: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM6/AutogenShaderHeaders.ush
+LogEditorDomain: Display: EditorDomain is Disabled
+LogAssetRegistry: Display: AssetDataGatherer spent 0.000s loading caches ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/CachedAssetRegistry_*.bin.
+LogDeviceProfileManager: Display: Deviceprofile LinuxArm64Editor not found.
+LogDeviceProfileManager: Display: Deviceprofile LinuxArm64 not found.
+LogCsvProfiler: Display: Metadata set : deviceprofile="WindowsEditor"
+LogStreaming: Display: FlushAsyncLoading(1): 1 QueuedPackages, 0 AsyncPackages
+LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/DefaultTextMaterialOpaque is adding a dynamic import to package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/PowerToRoughness (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/DefaultTextMaterialOpaque is adding a dynamic import to package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/Functions/Engine_MaterialFunctions01/Shading/ConvertFromDiffSpec (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: WaitingForIo) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/DefaultLightFunctionMaterial is adding a dynamic import to package /Engine/EngineMaterials/DefaultPostProcessMaterial because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultPostProcessMaterial (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/DefaultDeferredDecalMaterial is adding a dynamic import to package /Engine/EngineMaterials/DefaultLightFunctionMaterial because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultLightFunctionMaterial (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/WorldGridMaterial is adding a dynamic import to package /Engine/EngineMaterials/DefaultDeferredDecalMaterial because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/DefaultDeferredDecalMaterial (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/WorldGridMaterial (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogStreaming: Display: Package /Engine/EngineMaterials/DefaultTextMaterialOpaque is adding a dynamic import to package /Engine/EngineMaterials/WorldGridMaterial because of a recursive sync load
+LogStreaming: Display: Flushing package /Engine/EngineMaterials/WorldGridMaterial (state: DeferredPostLoad) recursively from another package /Engine/EngineMaterials/DefaultTextMaterialOpaque (state: CreateLinkerLoadExports) will result in a partially loaded package to avoid a deadlock.
+LogTextureEncodingSettings: Display: Texture Encode Speed: Final (cook).
+LogTextureEncodingSettings: Display: Oodle Texture Encode Speed settings: Fast: RDO Off Lambda=0, Effort=Normal Final: RDO Off Lambda=0, Effort=Normal
+LogTextureEncodingSettings: Display: Shared linear texture encoding: Disabled
+LogMeshReduction: Display: Using QuadricMeshReduction for automatic static mesh reduction
+LogMeshReduction: Display: Using SkeletalMeshReduction for automatic skeletal mesh reduction
+LogMeshReduction: Display: Using ProxyLODMeshReduction for automatic mesh merging
+LogMeshReduction: Display: No distributed automatic mesh merging module available
+LogShaderCompilers: Display: Compiling shader autogen file: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM5/AutogenShaderHeaders.ush
+LogShaderCompilers: Display: Failed to delete old shader autogen file: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM5/AutogenShaderHeaders.ush
+LogShaderCompilers: Display: Shader autogen file written: ../../../../../../Users/ankit/XACE-Recovery/worktrees/xace/evidence/nec015/20261027/package-d/project/Intermediate/ShaderAutogen/PCD3D_SM5/AutogenShaderHeaders.ush
+LogVirtualization: Display: VirtualizationSystem name found in ini file: None
+LogVirtualization: Display: FNullVirtualizationSystem mounted, virtualization will be disabled
+LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize started...
+LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize took 9.120 ms
+LogMetaSound: Display: MetaSound Page Target Initialized to 'Default'
+LogAudio: Display: Registering Engine Module Parameter Interfaces...
+LogShaderCompilers: Display: Shaders left to compile 0
+Took 28.06s to run UnrealEditor-Cmd.exe, ExitCode=1
+Cook failed.
+(see C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\Log.txt for full exception trace)
+AutomationTool executed for 0h 3m 38s
+AutomationTool exiting with ExitCode=25 (Error_UnknownCookFailure)

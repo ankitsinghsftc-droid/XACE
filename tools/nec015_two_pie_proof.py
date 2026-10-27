@@ -1,0 +1,27 @@
+"""Run two native PIE worlds using byte-pinned previously compiled fixture binaries."""
+from pathlib import Path
+import hashlib,json,os,shutil,subprocess,sys
+ROOT=Path(__file__).resolve().parents[1]
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def main(out,build):
+ out=out.resolve();build=build.resolve()
+ assert out.is_relative_to(ROOT/'evidence/nec015') and not out.exists()
+ assert build.is_relative_to(ROOT/'evidence/nec015')
+ assert 'Result: Succeeded' in (build/'editor-build.log').read_text(encoding='utf-8')
+ assert 'XaceTwoPIE' in (build/'project/Plugins/XACE/Source/XACEAdapter/Public/NEC015PIEProof.h').read_text(encoding='utf-8'),'Binary fixture does not implement two-world proof'
+ expected=json.loads((build/'source-identities.json').read_text(encoding='utf-8'))
+ assert all(sha(build/'project'/k)==v for k,v in expected.items()),'Built source changed'
+ project=out/'project';project.mkdir(parents=True)
+ shutil.copytree(build/'project/Plugins',project/'Plugins',ignore=shutil.ignore_patterns('Intermediate','Saved'))
+ shutil.copytree(build/'project/release',project/'release')
+ descriptor=project/'NEC015.uproject';descriptor.write_text(json.dumps(dict(FileVersion=3,EngineAssociation='5.7',Plugins=[dict(Name='XACE',Enabled=True)])),encoding='utf-8')
+ pins={p.relative_to(project).as_posix():sha(p) for p in project.rglob('*') if p.is_file()}
+ (out/'reused-build.json').write_text(json.dumps(dict(build=str(build),built_source=expected,fixture_files=pins),indent=2),encoding='utf-8')
+ engine=Path('C:/Program Files/Epic Games/UE_5.7/Engine')
+ cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(descriptor),'-unattended','-d3d11','-nosplash','-RenderOffscreen','-XaceTwoPIE',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
+ env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
+ (out/'command.json').write_text(json.dumps(cmd),encoding='utf-8')
+ with (out/'run.txt').open('xb') as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=240,creationflags=subprocess.CREATE_NO_WINDOW)
+ assert r.returncode==0,'Two PIE test failed; evidence retained'
+ proof=json.loads((out/'proof.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['two_instances'];print(json.dumps(proof))
+if __name__=='__main__':main(Path(sys.argv[1]),Path(sys.argv[2]))

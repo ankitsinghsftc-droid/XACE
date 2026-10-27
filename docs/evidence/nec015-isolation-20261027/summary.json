@@ -1,0 +1,26 @@
+{
+  "status": "INCOMPLETE",
+  "passed": [
+    "two actual PIE worlds with distinct owner/runtime processes",
+    "same-world duplicate host refused before spawning authority",
+    "all four owned PIDs gone after Stop",
+    "16 Unreal authoring regression tests",
+    "recovered XP022 seal integrity"
+  ],
+  "excluded": [
+    "two-pie-a used old observer; not isolation evidence",
+    "package-b archive missing runtime plugin",
+    "package-c missing Editor target",
+    "package-d cook missing game Editor module"
+  ],
+  "remaining": [
+    "corrected full Editor build and packaged launch",
+    "source/profile/cooked refusal matrix",
+    "fault/scene/crash tests",
+    "relocation/read-only/save/update/rollback",
+    "native fidelity/Player final regression",
+    "mandatory clean-machine test unavailable"
+  ],
+  "storage": "approximately 3 GiB free; further packaging below 4 GiB verified-incremental precheck; no cleanup performed",
+  "backup": "raw fixtures/binaries and sealed archive remain local-only"
+}

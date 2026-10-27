@@ -1,0 +1,22 @@
+{
+	"ok": true,
+	"error": "",
+	"actual_pie": true,
+	"two_instances": true,
+	"cycles": [
+		{
+			"owner_pid": 32316,
+			"runtime_pid": 35480,
+			"tick": 16,
+			"duplicate_refused": true
+		},
+		{
+			"owner_pid": 25416,
+			"runtime_pid": 23856,
+			"tick": 12,
+			"duplicate_refused": true
+		}
+	],
+	"map_sha256": "a2f18d1c27a0c82ab73bfff6e232f42eb29f15731cf6ab3a1865599b1f33113f",
+	"packaged_build": false
+}

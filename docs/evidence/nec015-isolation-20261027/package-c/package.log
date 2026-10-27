@@ -1,0 +1,11 @@
+Starting AutomationTool...
+Parsing command line: BuildCookRun -project=C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-c\project\NEC015.uproject -nop4 -unattended -utf8output -platform=Win64 -clientconfig=Development -build -cook -stage -pak -archive -archivedirectory=C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-c\archive -map=/Game/NativeProof -nocompileeditor -skipbuildeditor -nodebuginfo -UbtArgs="-NoUBA -MaxParallelActions=1"
+Initializing script modules...
+Total script module initialization time: 0.62 s.
+Using C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\MSBuild.exe
+Executing commands...
+Setting up ProjectParams for C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec015\20261027\package-c\project\NEC015.uproject
+Editor target not found!
+(see C:\Users\ankit\AppData\Roaming\Unreal Engine\AutomationTool\Logs\C+Program+Files+Epic+Games+UE_5.7\Log.txt for full exception trace)
+AutomationTool executed for 0h 0m 2s
+AutomationTool exiting with ExitCode=1 (Error_Unknown)

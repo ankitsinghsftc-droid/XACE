@@ -11,6 +11,7 @@
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+namespace { TMap<TWeakObjectPtr<UWorld>,TWeakObjectPtr<UXaceNativeHostComponent>> NativeWorldOwners; }
 UXaceNativeHostComponent::UXaceNativeHostComponent(){PrimaryComponentTick.bCanEverTick=true;}
 void UXaceNativeHostComponent::BeginPlay()
 {
@@ -18,6 +19,8 @@ void UXaceNativeHostComponent::BeginPlay()
  if(FParse::Value(FCommandLine::Get(),TEXT("XaceNativePreflight="),PreflightReport)){
   if(FPaths::IsRelative(PreflightReport)||FPaths::FileExists(PreflightReport)){PreflightReport.Empty();Closing=true;FPlatformMisc::RequestExitWithStatus(false,2);return;}
  }
+ auto& Owner=NativeWorldOwners.FindOrAdd(GetWorld());
+ if(Owner.IsValid()&&Owner.Get()!=this){Fail(TEXT("Another native host owns this world"));return;}Owner=this;
  FString ApprovalError;
 #if WITH_EDITOR
  if(!XaceNativeApproval::ValidateSource(ApprovalError)){Fail(ApprovalError);return;}
@@ -73,7 +76,7 @@ void UXaceNativeHostComponent::Connection(bool Connected){if(!Connected&&State==
 void UXaceNativeHostComponent::Protocol(const FString& Why){if(!Closing)Fail(Why);}
 void UXaceNativeHostComponent::Playback(const FXacePlaybackCommand&,bool Applied){if(!Applied&&!Closing)Fail(TEXT("Required native playback failed"));}
 void UXaceNativeHostComponent::Fail(const FString& Why){Error=Why;State=TEXT("failed");UE_LOG(LogTemp,Error,TEXT("XACE native: %s"),*Why);Stop();FinishPreflight(false);}
-void UXaceNativeHostComponent::Stop(){if(Closing)return;Closing=true;if(State!=TEXT("failed"))State=TEXT("stopped");if(Transport)Transport->DisconnectFromRuntime(TEXT("Native owner stopped"));Client.Close();}
+void UXaceNativeHostComponent::Stop(){if(Closing)return;Closing=true;if(auto Owner=NativeWorldOwners.Find(GetWorld()))if(Owner->Get()==this)NativeWorldOwners.Remove(GetWorld());if(State!=TEXT("failed"))State=TEXT("stopped");if(Transport)Transport->DisconnectFromRuntime(TEXT("Native owner stopped"));Client.Close();}
 void UXaceNativeHostComponent::EndPlay(const EEndPlayReason::Type Reason){Stop();Super::EndPlay(Reason);}
 
 bool UXaceNativeHostComponent::CheckSave(const FString& Slot){if(State!=TEXT("playing")||SavePending)return false;if(!Client.Send(TEXT("check-save"),Slot)){SaveError=Client.Error;return false;}SavePending=true;SaveDeadline=FPlatformTime::Seconds()+20;SaveStatus=TEXT("checking");SaveError.Empty();return true;}
