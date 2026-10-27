@@ -71,7 +71,7 @@ def main(out,resume=None):
  (game/'XACEBuild.json').write_text(json.dumps(dict(schema='xace.unreal.cooked_files.v1',unreal=version,files={p.relative_to(game).as_posix():sha(p) for p in game.rglob('*') if p.is_file()}),indent=2),encoding='utf-8')
  exe=windows/'NEC015.exe';assert exe.exists();env['PATH']=str(Path(os.environ['SystemRoot'])/'System32')
  cmd=[str(exe),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativePreflight={out/"preflight.json"}',f'-abslog={out/"preflight-engine.log"}'];(out/'preflight-command.json').write_text(json.dumps(cmd),encoding='utf-8');run(cmd,out/'preflight.log',env,120)
- proof=json.loads((out/'preflight.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['cooked'] and not proof['authority_started'],proof
+ proof=json.loads((out/'preflight.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['cooked'] and proof['package_admitted'] and not proof['authority_started'] and gone(proof['verifier_pid']),proof
  cmd=[str(exe),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativeReport={out/"player.json"}',f'-abslog={out/"player-engine.log"}'];(out/'player-command.json').write_text(json.dumps(cmd),encoding='utf-8');run(cmd,out/'player.log',env,120)
  proof=json.loads((out/'player.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['packaged'] and proof['save_compatible_not_restored'] and proof['incompatible_save_retained'] and gone(proof['owner_pid']) and gone(proof['runtime_pid']);proof.update(clean_machine=False,process_cleanup=True)
  (out/'proof.json').write_text(json.dumps(proof,indent=2),encoding='utf-8');print(json.dumps(proof))

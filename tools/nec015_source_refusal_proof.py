@@ -16,7 +16,7 @@ def main(source,out):
   env=dict(os.environ);env['LOCALAPPDATA']=str(caseout/'user-data');(caseout/'command.json').write_text(json.dumps(cmd),encoding='utf-8')
   with (caseout/'run.log').open('xb') as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=120,creationflags=subprocess.CREATE_NO_WINDOW)
   result=json.loads((caseout/'preflight.json').read_text(encoding='utf-8-sig'));assert not result['authority_started'] and not result['cooked'],result
-  if case=='approved':assert result['ok'] and r.returncode==0,result
+  if case=='approved':assert result['ok'] and result['package_admitted'] and r.returncode==0,result
   else:assert not result['ok'] and r.returncode!=0 and 'Native source' in result['error'],result
   results[case]=result
  (out/'proof.json').write_text(json.dumps(dict(ok=True,actual_native_uncooked_preflight=True,cases=results,dirty_editor_case=False),indent=2),encoding='utf-8');print(json.dumps(results))

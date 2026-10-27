@@ -18,7 +18,7 @@ void UXaceNativeHostComponent::BeginPlay()
 {
  Super::BeginPlay();
  if(FParse::Value(FCommandLine::Get(),TEXT("XaceNativePreflight="),PreflightReport)){
-  if(FPaths::IsRelative(PreflightReport)||FPaths::FileExists(PreflightReport)){PreflightReport.Empty();Closing=true;FPlatformMisc::RequestExitWithStatus(false,2);return;}
+  if(FPaths::IsRelative(PreflightReport)||FPaths::FileExists(PreflightReport)){PreflightReport.Empty();Closing=true;FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([](float){if(!GIsRunning)return true;FPlatformMisc::RequestExitWithStatus(false,2);return false;}));return;}
  }
  auto& Owner=NativeWorldOwners.FindOrAdd(GetWorld());
  if(Owner.IsValid()&&Owner.Get()!=this){Fail(TEXT("Another native host owns this world"));return;}Owner=this;
@@ -36,12 +36,11 @@ void UXaceNativeHostComponent::BeginPlay()
  Projection=NewObject<UXaceDeltaApplicatorComponent>(GetOwner());
  FString Issue;if(!Projection->BindNativeActors(NativeObjects,XaceCanonical::Parse(WorldJson),Issue)){Fail(Issue);return;}
  if(!ValidateResources(Issue)){Fail(Issue);return;}
- if(!PreflightReport.IsEmpty()){State=TEXT("preflight-ready");Closing=true;FinishPreflight(true);return;}
- Projection->bSendLiveValidationFeedback=false;Projection->RegisterComponent();GetOwner()->AddInstanceComponent(Projection);
+ if(PreflightReport.IsEmpty()){Projection->bSendLiveValidationFeedback=false;Projection->RegisterComponent();GetOwner()->AddInstanceComponent(Projection);}
  const FString Local=FPlatformMisc::GetEnvironmentVariable(TEXT("LOCALAPPDATA"));
  if(Local.IsEmpty()||FPaths::IsRelative(Local)){Fail(TEXT("Absolute per-user directory required"));return;}
  if(!Client.Start(Release/TEXT("xace-player-launcher.exe"),LauncherSha256,Release,ReleaseSha256,Local/TEXT("XACE/NativeHistory"),uint64(ControllerId))){Fail(Client.Error);return;}
- State=TEXT("verifying");Deadline=FPlatformTime::Seconds()+20;
+ VerificationPid=Client.ProcessId;State=TEXT("verifying");Deadline=FPlatformTime::Seconds()+20;
 }
 void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
@@ -55,7 +54,8 @@ void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorC
   if(Schema==TEXT("xace.native_host.ready.v1")){
    const TSharedPtr<FJsonObject>* Identity=nullptr;FString Actual;
    if(State!=TEXT("verifying")||!Row->TryGetObjectField(TEXT("save_identity"),Identity)||!(*Identity)->TryGetStringField(TEXT("game_id"),Actual)||Actual!=GameId||!Row->TryGetStringField(TEXT("save_root"),SaveRoot)){Fail(TEXT("Native game/save identity mismatch"));return;}
-   SaveIdentityJson=XaceCanonical::Json(*Identity);
+   SaveIdentityJson=XaceCanonical::Json(*Identity);AdmissionVerified=true;
+   if(!PreflightReport.IsEmpty()){Stop();State=TEXT("preflight-ready");FinishPreflight(true);return;}
    if(!Client.Send(TEXT("play"))){Fail(Client.Error);return;}State=TEXT("starting");continue;
   }
   const TSharedPtr<FJsonObject>* Result=nullptr;if(!Row->TryGetObjectField(TEXT("result"),Result))continue;
@@ -95,4 +95,4 @@ bool UXaceNativeHostComponent::ValidateResources(FString& Issue)
  return true;
 }
 
-void UXaceNativeHostComponent::FinishPreflight(bool Ok){if(PreflightReport.IsEmpty())return;auto R=MakeShared<FJsonObject>();R->SetStringField(TEXT("schema"),TEXT("xace.unreal.native_preflight.v1"));R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("authority_started"),Client.ProcessId!=0);R->SetBoolField(TEXT("cooked"),FPlatformProperties::RequiresCookedData());FFileHelper::SaveStringToFile(XaceCanonical::Json(R),*PreflightReport,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Ok](float){if(!GIsRunning)return true;FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);return false;}));}
+void UXaceNativeHostComponent::FinishPreflight(bool Ok){if(PreflightReport.IsEmpty())return;auto R=MakeShared<FJsonObject>();R->SetStringField(TEXT("schema"),TEXT("xace.unreal.native_preflight.v1"));R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("authority_started"),RuntimePid!=0);R->SetBoolField(TEXT("package_admitted"),AdmissionVerified);R->SetNumberField(TEXT("verifier_pid"),VerificationPid);R->SetBoolField(TEXT("cooked"),FPlatformProperties::RequiresCookedData());FFileHelper::SaveStringToFile(XaceCanonical::Json(R),*PreflightReport,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Ok](float){if(!GIsRunning)return true;FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);return false;}));}

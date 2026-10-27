@@ -45,6 +45,8 @@ private:
  void FinishPreflight(bool Ok);
  double Deadline=0;
  bool Closing=false;
+ bool AdmissionVerified=false;
+ uint32 VerificationPid=0;
  bool SavePending=false;
  double SaveDeadline=0;
  bool ValidateResources(FString& Issue);
