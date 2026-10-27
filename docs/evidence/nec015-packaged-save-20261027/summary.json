@@ -1,0 +1,11 @@
+{
+  "status": "INCOMPLETE",
+  "passed": "package-g compatible-save admitted-not-restored and incompatible-game save refused/preserved with ongoing gameplay",
+  "unverified_changes": [
+    "deferred uncooked preflight exit",
+    "same-game save-schema mismatch fixture",
+    "integrated fidelity/contract commandlets"
+  ],
+  "failed_preserved": "source-refusal-a returned approved receipt but uncooked process failed to exit within120s; excluded from passed source-refusal matrix",
+  "current_run": "package-h"
+}

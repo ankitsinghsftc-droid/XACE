@@ -6,6 +6,7 @@
 #include "Misc/FileHelper.h"
 #include "HAL/PlatformMisc.h"
 #include "HAL/PlatformProperties.h"
+#include "Containers/Ticker.h"
 #include "GameFramework/Actor.h"
 #include "Sound/SoundBase.h"
 #include "Animation/AnimationAsset.h"
@@ -94,4 +95,4 @@ bool UXaceNativeHostComponent::ValidateResources(FString& Issue)
  return true;
 }
 
-void UXaceNativeHostComponent::FinishPreflight(bool Ok){if(PreflightReport.IsEmpty())return;auto R=MakeShared<FJsonObject>();R->SetStringField(TEXT("schema"),TEXT("xace.unreal.native_preflight.v1"));R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("authority_started"),Client.ProcessId!=0);R->SetBoolField(TEXT("cooked"),FPlatformProperties::RequiresCookedData());FFileHelper::SaveStringToFile(XaceCanonical::Json(R),*PreflightReport,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);}
+void UXaceNativeHostComponent::FinishPreflight(bool Ok){if(PreflightReport.IsEmpty())return;auto R=MakeShared<FJsonObject>();R->SetStringField(TEXT("schema"),TEXT("xace.unreal.native_preflight.v1"));R->SetBoolField(TEXT("ok"),Ok);R->SetStringField(TEXT("error"),Error);R->SetBoolField(TEXT("authority_started"),Client.ProcessId!=0);R->SetBoolField(TEXT("cooked"),FPlatformProperties::RequiresCookedData());FFileHelper::SaveStringToFile(XaceCanonical::Json(R),*PreflightReport,FFileHelper::EEncodingOptions::ForceUTF8WithoutBOM);FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateLambda([Ok](float){if(!GIsRunning)return true;FPlatformMisc::RequestExitWithStatus(false,Ok?0:1);return false;}));}

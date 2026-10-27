@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "error": "",
+  "packaged": true,
+  "audio": true,
+  "animation": true,
+  "save_compatible_not_restored": true,
+  "incompatible_save_retained": true,
+  "owner_pid": 27348,
+  "runtime_pid": 23984,
+  "tick": 219,
+  "clean_machine": false,
+  "process_cleanup": true
+}

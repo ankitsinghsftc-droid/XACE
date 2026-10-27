@@ -38,6 +38,11 @@ def main(out,resume=None):
    if p.suffix in ['.h','.cpp'] and (pub/p.name if p.suffix=='.h' else priv/p.name).exists():shutil.copyfile(p,(pub if p.suffix=='.h' else priv)/p.name)
   shutil.copyfile(ROOT/'tools/NEC015PackagedProof.h',pub/'NEC015PackagedProof.h')
   shutil.copyfile(ROOT/'tools/NEC015PIEProof.h',pub/'NEC015PIEProof.h')
+  for stem,folder,cls in [('NEC011FidelityCommandlet','tools','UNEC011FidelityCommandlet'),('XaceNativeContractProofCommandlet','adapters/unreal','UXaceNativeContractProofCommandlet')]:
+   shutil.copyfile(ROOT/folder/(stem+'.h'),pub/(stem+'.h'))
+   original=(ROOT/folder/(stem+'.cpp')).read_text(encoding='utf-8')
+   (priv/(stem+'.cpp')).write_text('#if WITH_EDITOR\n'+original+'\n#else\n#include "'+stem+'.h"\n'+cls+'::'+cls+'(){}\nint32 '+cls+'::Main(const FString&){return 1;}\n#endif\n',encoding='utf-8')
+  shutil.copyfile(ROOT/'adapters/unreal/XaceMixedSessionProof.h',pub/'XaceMixedSessionProof.h')
   module=priv/'XACEAdapterModule.cpp';module.write_text(module.read_text(encoding='utf-8').replace('#include "NEC015PIEProof.h"','#include "NEC015PIEProof.h"\n#include "NEC015PackagedProof.h"').replace(' NEC015PIE::Start();\n#endif',' NEC015PIE::Start();\n#else\n NEC015Packaged::Start();\n#endif'),encoding='utf-8')
   descriptor=project/'NEC015.uproject';data=json.loads(descriptor.read_text(encoding='utf-8'));data['Modules']=[dict(Name='NEC015',Type='Runtime',LoadingPhase='Default')];descriptor.write_text(json.dumps(data,indent=2),encoding='utf-8')
   game_source=project/'Source/NEC015';game_source.mkdir(parents=True)
@@ -52,6 +57,11 @@ def main(out,resume=None):
   sources={p.relative_to(project).as_posix():sha(p) for p in project.rglob('*') if p.is_file()};(out/'source-identities.json').write_text(json.dumps(sources,indent=2),encoding='utf-8')
   cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'NEC015Editor','Win64','Development',f'-Project={uproject}','-nohotreload','-installed','-NoUBTMakefiles','-NoUBA','-MaxParallelActions=1',f'-log={out/"editor-build-ubt.log"}']
   (out/'editor-build-command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8');run(cmd,out/'editor-build.log',env,900)
+ if (project/'Plugins/XACE/Source/XACEAdapter/Public/NEC011FidelityCommandlet.h').exists():
+  for commandlet,name,extra in [('NEC011Fidelity','fidelity',['-AllowCommandletAudio']),('XaceNativeContractProof','contract',[f'-XaceFixture={ROOT/"adapters/tests/fixtures/xp016-contract-v1.json"}'])]:
+   cmd=[str(ENGINE/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(uproject),f'-run={commandlet}','-unattended','-nullrhi','-nosplash',f'-XaceReport={out/(name+".json")}',f'-abslog={out/(name+"-engine.log")}']+extra
+   (out/(name+'-command.json')).write_text(json.dumps(cmd),encoding='utf-8');run(cmd,out/(name+'.log'),env,240)
+   assert json.loads((out/(name+'.json')).read_text(encoding='utf-8-sig'))['ok']
  cmd=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/AutomationTool/AutomationTool.dll'),'BuildCookRun',f'-project={uproject}','-nop4','-unattended','-utf8output','-platform=Win64','-clientconfig=Development','-build','-cook','-stage','-pak','-archive',f'-archivedirectory={out/"archive"}','-map=/Game/NativeProof','-nocompileeditor','-skipbuildeditor','-nodebuginfo','-UbtArgs=-NoUBA -MaxParallelActions=1']
  (out/'package-command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8');run(cmd,out/'package.log',env,3600)
  windows=out/'archive/Windows';game=windows/'NEC015';assert game.is_dir();shutil.copytree(project/'release',game/'release')
@@ -63,6 +73,6 @@ def main(out,resume=None):
  cmd=[str(exe),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativePreflight={out/"preflight.json"}',f'-abslog={out/"preflight-engine.log"}'];(out/'preflight-command.json').write_text(json.dumps(cmd),encoding='utf-8');run(cmd,out/'preflight.log',env,120)
  proof=json.loads((out/'preflight.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['cooked'] and not proof['authority_started'],proof
  cmd=[str(exe),'-d3d11','-RenderOffscreen','-unattended',f'-XaceNativeReport={out/"player.json"}',f'-abslog={out/"player-engine.log"}'];(out/'player-command.json').write_text(json.dumps(cmd),encoding='utf-8');run(cmd,out/'player.log',env,120)
- proof=json.loads((out/'player.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['packaged'] and gone(proof['owner_pid']) and gone(proof['runtime_pid']);proof.update(clean_machine=False,process_cleanup=True)
+ proof=json.loads((out/'player.json').read_text(encoding='utf-8-sig'));assert proof['ok'] and proof['packaged'] and proof['save_compatible_not_restored'] and proof['incompatible_save_retained'] and gone(proof['owner_pid']) and gone(proof['runtime_pid']);proof.update(clean_machine=False,process_cleanup=True)
  (out/'proof.json').write_text(json.dumps(proof,indent=2),encoding='utf-8');print(json.dumps(proof))
 if __name__=='__main__':main(Path(sys.argv[1]),Path(sys.argv[2]) if len(sys.argv)>2 else None)

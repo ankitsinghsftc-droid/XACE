@@ -1,0 +1,14 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\ThirdParty\\DotNet\\8.0.412\\win-x64\\dotnet.exe",
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.dll",
+  "NEC015Editor",
+  "Win64",
+  "Development",
+  "-Project=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\NEC015.uproject",
+  "-nohotreload",
+  "-installed",
+  "-NoUBTMakefiles",
+  "-NoUBA",
+  "-MaxParallelActions=1",
+  "-log=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\editor-build-ubt.log"
+]
