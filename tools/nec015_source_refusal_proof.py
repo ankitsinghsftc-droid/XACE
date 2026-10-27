@@ -12,7 +12,7 @@ def main(source,out):
   elif case=='added':(project/'unapproved-source.txt').write_text('unapproved',encoding='utf-8')
   elif case=='missing':
    p=project/'release/package/world.json';assert p.is_relative_to(caseout);p.rename(caseout/'preserved-world.json')
-  cmd=['C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/UnrealEditor-Cmd.exe',str(project/'NEC015.uproject'),'/Game/NativeProof','-game','-unattended','-d3d11','-RenderOffscreen',f'-XaceNativePreflight={caseout/"preflight.json"}',f'-abslog={caseout/"engine.log"}']
+  cmd=['C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/UnrealEditor-Cmd.exe',str(project/'NEC015.uproject'),'/Game/NativeProof','-game','-unattended','-nocef','-d3d11','-RenderOffscreen',f'-XaceNativePreflight={caseout/"preflight.json"}',f'-abslog={caseout/"engine.log"}']
   env=dict(os.environ);env['LOCALAPPDATA']=str(caseout/'user-data');(caseout/'command.json').write_text(json.dumps(cmd),encoding='utf-8')
   with (caseout/'run.log').open('xb') as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=120,creationflags=subprocess.CREATE_NO_WINDOW)
   result=json.loads((caseout/'preflight.json').read_text(encoding='utf-8-sig'));assert not result['authority_started'] and not result['cooked'],result

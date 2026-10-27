@@ -12,7 +12,7 @@
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
-namespace { TMap<TWeakObjectPtr<UWorld>,TWeakObjectPtr<UXaceNativeHostComponent>> NativeWorldOwners; }
+namespace { TMap<TWeakObjectPtr<UWorld>,TWeakObjectPtr<UXaceNativeHostComponent>> NativeWorldOwners; TWeakObjectPtr<UXaceNativeHostComponent> NativeStartingOwner; }
 UXaceNativeHostComponent::UXaceNativeHostComponent(){PrimaryComponentTick.bCanEverTick=true;}
 void UXaceNativeHostComponent::BeginPlay()
 {
@@ -39,12 +39,22 @@ void UXaceNativeHostComponent::BeginPlay()
  if(PreflightReport.IsEmpty()){Projection->bSendLiveValidationFeedback=false;Projection->RegisterComponent();GetOwner()->AddInstanceComponent(Projection);}
  const FString Local=FPlatformMisc::GetEnvironmentVariable(TEXT("LOCALAPPDATA"));
  if(Local.IsEmpty()||FPaths::IsRelative(Local)){Fail(TEXT("Absolute per-user directory required"));return;}
- if(!Client.Start(Release/TEXT("xace-player-launcher.exe"),LauncherSha256,Release,ReleaseSha256,Local/TEXT("XACE/NativeHistory"),uint64(ControllerId))){Fail(Client.Error);return;}
- VerificationPid=Client.ProcessId;State=TEXT("verifying");Deadline=FPlatformTime::Seconds()+20;
+ State=TEXT("queued");Deadline=FPlatformTime::Seconds()+20;
 }
 void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
  Super::TickComponent(Delta,Type,Tick);if(Closing)return;
+ // Activation updates one per-game release-state folder. Serialize startup in this
+ // engine process; release the lease at handshake/Stop, never serialize gameplay.
+ if(State==TEXT("queued")){
+  if(FPlatformTime::Seconds()>Deadline){Fail(TEXT("Native startup queue timeout"));return;}
+  if(NativeStartingOwner.IsValid()&&NativeStartingOwner.Get()!=this)return;
+  NativeStartingOwner=this;
+  const FString Local=FPlatformMisc::GetEnvironmentVariable(TEXT("LOCALAPPDATA"));
+  if(!Client.Start(Release/TEXT("xace-player-launcher.exe"),LauncherSha256,Release,ReleaseSha256,Local/TEXT("XACE/NativeHistory"),uint64(ControllerId))){Fail(Client.Error);return;}
+  VerificationPid=Client.ProcessId;State=TEXT("verifying");Deadline=FPlatformTime::Seconds()+20;
+ }
+
  if(SavePending&&FPlatformTime::Seconds()>SaveDeadline){Fail(TEXT("Save check timeout"));return;}
  if(Projection&&!Projection->NativeProjectionError.IsEmpty()){Fail(Projection->NativeProjectionError);return;}
  TArray<TSharedPtr<FJsonObject>> Rows;if(!Client.Poll(Rows)){Fail(Client.Error.IsEmpty()?TEXT("Native owner unavailable"):Client.Error);return;}
@@ -72,12 +82,12 @@ void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorC
  }
  if(State!=TEXT("playing")&&FPlatformTime::Seconds()>Deadline)Fail(TEXT("Native readiness timeout"));
 }
-void UXaceNativeHostComponent::Handshake(const FXaceHandshakeAck& Ack){if(!Ack.bAccepted){Fail(TEXT("Native handshake rejected"));return;}State=TEXT("playing");}
+void UXaceNativeHostComponent::Handshake(const FXaceHandshakeAck& Ack){if(!Ack.bAccepted){Fail(TEXT("Native handshake rejected"));return;}State=TEXT("playing");if(NativeStartingOwner.Get()==this)NativeStartingOwner.Reset();}
 void UXaceNativeHostComponent::Connection(bool Connected){if(!Connected&&State==TEXT("playing")&&!Closing)Fail(TEXT("Native authority connection lost"));}
 void UXaceNativeHostComponent::Protocol(const FString& Why){if(!Closing)Fail(Why);}
 void UXaceNativeHostComponent::Playback(const FXacePlaybackCommand&,bool Applied){if(!Applied&&!Closing)Fail(TEXT("Required native playback failed"));}
 void UXaceNativeHostComponent::Fail(const FString& Why){Error=Why;State=TEXT("failed");UE_LOG(LogTemp,Error,TEXT("XACE native: %s"),*Why);Stop();FinishPreflight(false);}
-void UXaceNativeHostComponent::Stop(){if(Closing)return;Closing=true;if(auto Owner=NativeWorldOwners.Find(GetWorld()))if(Owner->Get()==this)NativeWorldOwners.Remove(GetWorld());if(State!=TEXT("failed"))State=TEXT("stopped");if(Transport)Transport->DisconnectFromRuntime(TEXT("Native owner stopped"));Client.Close();}
+void UXaceNativeHostComponent::Stop(){if(Closing)return;Closing=true;if(NativeStartingOwner.Get()==this)NativeStartingOwner.Reset();if(auto Owner=NativeWorldOwners.Find(GetWorld()))if(Owner->Get()==this)NativeWorldOwners.Remove(GetWorld());if(State!=TEXT("failed"))State=TEXT("stopped");if(Transport)Transport->DisconnectFromRuntime(TEXT("Native owner stopped"));Client.Close();}
 void UXaceNativeHostComponent::EndPlay(const EEndPlayReason::Type Reason){Stop();Super::EndPlay(Reason);}
 
 bool UXaceNativeHostComponent::CheckSave(const FString& Slot){if(State!=TEXT("playing")||SavePending)return false;if(!Client.Send(TEXT("check-save"),Slot)){SaveError=Client.Error;return false;}SavePending=true;SaveDeadline=FPlatformTime::Seconds()+20;SaveStatus=TEXT("checking");SaveError.Empty();return true;}

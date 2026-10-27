@@ -1,0 +1,20 @@
+{
+  "status": "incomplete",
+  "verified": [
+    "package-j packaged gameplay, admission and compatible/incompatible save checks"
+  ],
+  "excluded": [
+    "two-pie-d assertions passed but embedded Chromium shutdown crashed",
+    "two-pie-e concurrent release activation refused one world and shutdown crashed"
+  ],
+  "fix_pending": "Serialize startup until handshake/Stop within Unreal process; gameplay remains independent. New Editor build running in build-wrapper-a.",
+  "pending": [
+    "Repeated two-world startup",
+    "source refusal with clean shutdown",
+    "scene transition and measured projection freeze",
+    "creator checked-build route",
+    "final source-bound regression/seal/acceptance",
+    "mandatory clean-machine gate unavailable"
+  ],
+  "backup": "Raw evidence/binaries/seal local-only; source checkpoint pending push."
+}

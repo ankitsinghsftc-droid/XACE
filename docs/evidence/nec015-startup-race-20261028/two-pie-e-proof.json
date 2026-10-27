@@ -1,0 +1,11 @@
+{
+	"ok": false,
+	"error": "Native refused: Another install owns this folder, or it is not writable. Retry after it finishes.",
+	"actual_pie": true,
+	"dirty_map_refused": true,
+	"dirty_asset_refused": true,
+	"two_instances": true,
+	"cycles": [],
+	"map_sha256": "96a1f24fb750746e0e4b3213ff754af3119a3621d5c2b5b76e139e6a81bf5361",
+	"packaged_build": false
+}

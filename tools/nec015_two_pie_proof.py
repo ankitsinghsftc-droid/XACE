@@ -17,11 +17,11 @@ def main(out,build):
  project=out/'project';project.mkdir(parents=True)
  shutil.copytree(build/'project/Plugins',project/'Plugins',ignore=shutil.ignore_patterns('Intermediate','Saved'))
  shutil.copytree(build/'project/release',project/'release')
- descriptor=project/'NEC015.uproject';descriptor.write_text(json.dumps(dict(FileVersion=3,EngineAssociation='5.7',Plugins=[dict(Name='XACE',Enabled=True)])),encoding='utf-8')
+ descriptor=project/'NEC015.uproject';descriptor.write_text(json.dumps(dict(FileVersion=3,EngineAssociation='5.7',Plugins=[dict(Name='XACE',Enabled=True),dict(Name='AndroidFileServer',Enabled=False)])),encoding='utf-8')
  pins={p.relative_to(project).as_posix():sha(p) for p in project.rglob('*') if p.is_file()}
  (out/'reused-build.json').write_text(json.dumps(dict(build=str(build),built_source=expected,fixture_files=pins,not_reused_config_drift=changed),indent=2),encoding='utf-8')
  engine=Path('C:/Program Files/Epic Games/UE_5.7/Engine')
- cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(descriptor),'-unattended','-d3d11','-nosplash','-RenderOffscreen','-XaceTwoPIE',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
+ cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(descriptor),'-unattended','-nocef','-d3d11','-nosplash','-RenderOffscreen','-XaceTwoPIE',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
  env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
  (out/'command.json').write_text(json.dumps(cmd),encoding='utf-8')
  with (out/'run.txt').open('xb') as f:r=subprocess.run(cmd,env=env,stdout=f,stderr=subprocess.STDOUT,timeout=240,creationflags=subprocess.CREATE_NO_WINDOW)
