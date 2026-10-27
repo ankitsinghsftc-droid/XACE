@@ -1,0 +1,12 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\NEC015.uproject",
+  "-unattended",
+  "-d3d11",
+  "-nosplash",
+  "-RenderOffscreen",
+  "-stdout",
+  "-FullStdOutLogOutput",
+  "-XacePIEReport=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\proof.json",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\editor.log"
+]

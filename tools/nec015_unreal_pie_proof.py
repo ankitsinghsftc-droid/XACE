@@ -9,7 +9,7 @@ def main(out,reuse=None):
  plugin=project/'Plugins/XACE'
  for rel,text in old.unreal_generated_plugin_texts().items():
   p=plugin/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8')
- for name in [*old.ADAPTER_SOURCE_NAMES,'XaceNativeHostClient.h','XaceNativeHostClient.cpp','XaceNativeHost.h','XaceNativeHost.cpp','NEC015PIEProof.h']:
+ for name in [*old.ADAPTER_SOURCE_NAMES,'XaceNativeHostClient.h','XaceNativeHostClient.cpp','XaceNativeHost.h','XaceNativeHost.cpp','XaceNativeApproval.h','XaceNativeApproval.cpp','NEC015PIEProof.h']:
   source=ROOT/('tools' if name.startswith('NEC') else 'adapters/unreal')/name;dest=plugin/'Source/XACEAdapter'/('Public' if name.endswith('.h') else 'Private')/name;shutil.copyfile(source,dest)
  module=plugin/'Source/XACEAdapter/Private/XACEAdapterModule.cpp'
  module.write_text(module.read_text(encoding='utf-8').replace('#include "XACEAdapterModule.h"','#include "XACEAdapterModule.h"\n#include "NEC015PIEProof.h"').replace('void FXACEAdapterModule::StartupModule()\n{','void FXACEAdapterModule::StartupModule()\n{\n#if WITH_EDITOR\n NEC015PIE::Start();\n#endif'),encoding='utf-8')
@@ -25,9 +25,9 @@ def main(out,reuse=None):
  else:
   with (out/'build.txt').open('wb') as log:r=subprocess.run(cmd,stdout=log,stderr=subprocess.STDOUT,timeout=900,creationflags=subprocess.CREATE_NO_WINDOW)
   assert r.returncode==0,'UE compilation failed; logs retained'
- release=project/'release';shutil.copytree(ROOT/'evidence/nec012/20261024/engine-claims-listener-final/Unreal/release',release)
+ release=project/'release';shutil.copytree(ROOT/'evidence/nec015/20261026/playback-package-a/release',release)
  launcher=release/'xace-player-launcher.exe';shutil.copyfile(ROOT/'evidence/nec012/20261024/lifecycle-listener-final/xace-player-launcher.exe',launcher)
- cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(uproject),'-unattended','-d3d11','-nosplash','-RenderOffscreen','-NoSound','-stdout','-FullStdOutLogOutput',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
+ cmd=[str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(uproject),'-unattended','-d3d11','-nosplash','-RenderOffscreen','-stdout','-FullStdOutLogOutput',f'-XacePIEReport={out/"proof.json"}',f'-abslog={out/"editor.log"}']
  env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
  (out/'command.json').write_text(json.dumps(cmd,indent=2),encoding='utf-8')
  with (out/'run.txt').open('wb') as log:r=subprocess.run(cmd,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=300,creationflags=subprocess.CREATE_NO_WINDOW)

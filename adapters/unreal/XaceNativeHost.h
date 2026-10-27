@@ -23,6 +23,10 @@ public:
  UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString State=TEXT("stopped");
  UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString Error;
  UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString SaveRoot;
+ UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString SaveIdentityJson;
+ UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString SaveStatus=TEXT("unchecked");
+ UPROPERTY(BlueprintReadOnly,Category="XACE|Native") FString SaveError;
+ UFUNCTION(BlueprintCallable,Category="XACE|Native") bool CheckSave(const FString& Slot);
  UPROPERTY(BlueprintReadOnly,Category="XACE|Native") int64 RuntimePid=0;
  UPROPERTY() UXaceTransportComponent* Transport=nullptr;
  UPROPERTY() UXaceDeltaApplicatorComponent* Projection=nullptr;
@@ -37,8 +41,13 @@ private:
  FXaceNativeHostClient Client;
  FString Release;
  FString WorldJson;
+ FString PreflightReport;
+ void FinishPreflight(bool Ok);
  double Deadline=0;
  bool Closing=false;
+ bool SavePending=false;
+ double SaveDeadline=0;
+ bool ValidateResources(FString& Issue);
  void Fail(const FString& Why);
  UFUNCTION() void Handshake(const FXaceHandshakeAck& Ack);
  UFUNCTION() void Connection(bool Connected);

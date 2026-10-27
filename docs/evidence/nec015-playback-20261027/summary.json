@@ -1,0 +1,19 @@
+{
+  "status": "INCOMPLETE",
+  "verified": [
+    "three approved real PIE cycles",
+    "three real PIE audio/animation/input/native-identity/save-check cycles",
+    "package-a editor build"
+  ],
+  "unverified": [
+    "packaged launch",
+    "two simultaneous PIE instances",
+    "fault and approval refusal matrix",
+    "relocation/read-only/update/rollback",
+    "final regression and seal checks",
+    "clean-machine launch"
+  ],
+  "package_a_failure": "cmd quoting prevented RunUAT launch; no cook occurred",
+  "package_b": "retry underway using source-verified unchanged editor build and direct AutomationTool invocation",
+  "backup": "raw binaries/fixtures/seal local-only; this compact checkpoint pending push"
+}

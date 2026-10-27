@@ -9,8 +9,9 @@ def main(out):
  plugin=project/'Plugins/XACE'
  for rel,text in old.unreal_generated_plugin_texts().items():
   p=plugin/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(text,encoding='utf-8')
- for name in [*old.ADAPTER_SOURCE_NAMES,'XaceNativeHostClient.h','XaceNativeHostClient.cpp','XaceNativeHost.h','XaceNativeHost.cpp','NEC015HostProofCommandlet.h','NEC015HostProofCommandlet.cpp']:
+ for name in [*old.ADAPTER_SOURCE_NAMES,'XaceNativeHostClient.h','XaceNativeHostClient.cpp','XaceNativeHost.h','XaceNativeHost.cpp','XaceNativeApproval.h','XaceNativeApproval.cpp','NEC015HostProofCommandlet.h','NEC015HostProofCommandlet.cpp']:
   source=ROOT/('tools' if name.startswith('NEC') else 'adapters/unreal')/name;dest=plugin/'Source/XACEAdapter'/('Public' if name.endswith('.h') else 'Private')/name;shutil.copyfile(source,dest)
+ buildcs=plugin/'Source/XACEAdapter/XACEAdapter.Build.cs';buildcs.write_text(buildcs.read_text(encoding='utf-8').replace('PCHUsage =','if (Target.bBuildEditor) PrivateDependencyModuleNames.AddRange(new string[] { "UnrealEd" });\n        PCHUsage ='),encoding='utf-8')
  files={p.relative_to(plugin).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in (plugin/'Source').rglob('*') if p.is_file()};(out/'sources.json').write_text(json.dumps(files,indent=2),encoding='utf-8')
  engine=Path('C:/Program Files/Epic Games/UE_5.7/Engine')
  cmd=[str(engine/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(engine/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'UnrealEditor','Win64','Development',f'-Project={uproject}',f'-plugin={plugin/"XACE.uplugin"}','-nohotreload','-installed','-NoUBA','-MaxParallelActions=1',f'-log={out/"build-ubt.log"}']

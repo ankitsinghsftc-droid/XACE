@@ -1,0 +1,39 @@
+{
+	"ok": true,
+	"error": "",
+	"actual_pie": true,
+	"cycles": [
+		{
+			"tick": 52,
+			"owner_pid": 42084,
+			"runtime_pid": 20376,
+			"native_identity": true,
+			"audio": true,
+			"animation": true,
+			"save_checks": true,
+			"authoritative_input": true
+		},
+		{
+			"tick": 36,
+			"owner_pid": 34016,
+			"runtime_pid": 34708,
+			"native_identity": true,
+			"audio": true,
+			"animation": true,
+			"save_checks": true,
+			"authoritative_input": true
+		},
+		{
+			"tick": 17,
+			"owner_pid": 37208,
+			"runtime_pid": 24496,
+			"native_identity": true,
+			"audio": true,
+			"animation": true,
+			"save_checks": true,
+			"authoritative_input": true
+		}
+	],
+	"map_sha256": "7cca7adaf8e3bbb93a1072ed63f1519936f2417eb390e45b8de1dfd8c9d155be",
+	"packaged_build": false
+}
