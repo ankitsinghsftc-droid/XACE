@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "optimized_python": true,
+  "synthetic_fixture": true,
+  "no_engine_launched": true,
+  "refusals": {
+    "stale": "Native source/resource approval stale",
+    "inside-project": "Fresh persistent output outside project required"
+  }
+}

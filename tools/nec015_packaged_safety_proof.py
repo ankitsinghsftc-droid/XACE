@@ -4,13 +4,14 @@ import base64,json,os,shutil,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.nec015_package_proof import sha
 from tools.nec013_unity_player_proof import gone
+from tools.nec015_artifact import verified
 
 def inventory(root):return {p.relative_to(root).as_posix():sha(p) for p in sorted(root.rglob('*')) if p.is_file()}
 def main(source,out,update=None):
  source=source.resolve();out=out.resolve();assert source.is_relative_to(ROOT/'evidence/nec015') and out.is_relative_to(ROOT/'evidence/nec015') and not out.exists()
- assert json.loads((source.parent.parent/'proof.json').read_text())['ok']
+ verified(source)
  update=update.resolve() if update else source
- assert update.is_relative_to(ROOT/'evidence/nec015') and json.loads((update.parent.parent/'proof.json').read_text())['ok']
+ assert update.is_relative_to(ROOT/'evidence/nec015');verified(update)
  distinct=sha(source/'NEC015/Binaries/Win64/NEC015.exe')!=sha(update/'NEC015/Binaries/Win64/NEC015.exe')
  assert shutil.disk_usage(ROOT).free>6*1024**3
  out.mkdir(parents=True);first=out/'version-a';second=out/'version-b';bad=out/'bad-candidate'

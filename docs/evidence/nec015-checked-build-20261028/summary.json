@@ -1,0 +1,17 @@
+{
+  "status": "incomplete-final-packaged-checks-running",
+  "verified": [
+    "Three repeated startup-fixed two-world PIE runs with clean shutdown",
+    "Dirty map/asset and four saved-source cases",
+    "Actual checked creator Game build/cook/archive and source/cooked admission",
+    "16 Unreal authoring regressions",
+    "55 protected recovered XP022 files and1575 archived entries unchanged"
+  ],
+  "pending": [
+    "Final exact-artifact update/refusal/scene/fault checks",
+    "Final native regression and acceptance closeout",
+    "Mandatory clean-machine test unavailable"
+  ],
+  "failed_build_preserved": "checked-build-a correctly refused generated EditorOpenOrder.log drift; exact generated log excluded after installed-source confirmation; checked-build-b passes",
+  "backup": "Source/compact checkpoint pending push; raw binaries/fixtures/seal local-only."
+}

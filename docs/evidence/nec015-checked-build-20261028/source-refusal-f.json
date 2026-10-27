@@ -1,0 +1,51 @@
+{
+  "ok": true,
+  "actual_native_uncooked_preflight": true,
+  "cases": {
+    "approved": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": true,
+      "error": "",
+      "authority_started": false,
+      "package_admitted": true,
+      "verifier_pid": 31312,
+      "cooked": false,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 0
+    },
+    "changed": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Native source changed: NEC015.uproject",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 0,
+      "cooked": false,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    },
+    "added": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Native source inventory changed",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 0,
+      "cooked": false,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    },
+    "missing": {
+      "schema": "xace.unreal.native_preflight.v1",
+      "ok": false,
+      "error": "Native source inventory changed",
+      "authority_started": false,
+      "package_admitted": false,
+      "verifier_pid": 0,
+      "cooked": false,
+      "engine_exit_code": 0,
+      "checked_wrapper_exit_code": 1
+    }
+  },
+  "dirty_editor_case": false
+}

@@ -4,11 +4,12 @@ import json,os,shutil,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.nec015_package_proof import sha,run
 from tools.nec013_unity_player_proof import gone
+from tools.nec015_artifact import verified
 
 def main(source,out):
  source=source.resolve();out=out.resolve()
  assert source.is_relative_to(ROOT/'evidence/nec015') and out.is_relative_to(ROOT/'evidence/nec015') and not out.exists()
- assert json.loads((source.parent.parent/'proof.json').read_text())['ok']
+ verified(source)
  out.mkdir(parents=True);results={}
  for case in ['missing-packaged-world','missing-required-audio','incompatible-package']:
   dest=out/case;game=dest/'installation';shutil.copytree(source,game);base=game/'NEC015'

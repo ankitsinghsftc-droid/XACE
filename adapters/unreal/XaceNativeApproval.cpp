@@ -14,7 +14,7 @@
 namespace {
 bool Inventory(TMap<FString,FString>& Files,FString& Error){
  FString Root=FPaths::ConvertRelativePathToFull(FPaths::ProjectDir());FPaths::NormalizeDirectoryName(Root);Root+=TEXT("/");TArray<FString> Paths;IFileManager::Get().FindFilesRecursive(Paths,*Root,TEXT("*"),true,false);Paths.Sort();
- for(const FString& Path:Paths){FString Rel=Path;if(!FPaths::MakePathRelativeTo(Rel,*Root)||Rel.StartsWith(TEXT("../"))){Error=TEXT("Source inventory escapes project");return false;}TArray<FString> Parts;Rel.ParseIntoArray(Parts,TEXT("/"));bool Skip=Rel==TEXT("XACEApproval.json")||Rel==TEXT("XACEBuild.json")||Rel==TEXT("Build/Windows/FileOpenOrder/CookerOpenOrder.log");for(const auto& Part:Parts)if(Part==TEXT("Binaries")||Part==TEXT("Intermediate")||Part==TEXT("Saved")||Part==TEXT("DerivedDataCache")||Part==TEXT("XACEEvidence")||Part==TEXT(".git"))Skip=true;if(Skip)continue;
+ for(const FString& Path:Paths){FString Rel=Path;if(!FPaths::MakePathRelativeTo(Rel,*Root)||Rel.StartsWith(TEXT("../"))){Error=TEXT("Source inventory escapes project");return false;}TArray<FString> Parts;Rel.ParseIntoArray(Parts,TEXT("/"));bool Skip=Rel==TEXT("XACEApproval.json")||Rel==TEXT("XACEBuild.json")||Rel==TEXT("Build/Windows/FileOpenOrder/CookerOpenOrder.log")||Rel==TEXT("Build/Windows/FileOpenOrder/EditorOpenOrder.log");for(const auto& Part:Parts)if(Part==TEXT("Binaries")||Part==TEXT("Intermediate")||Part==TEXT("Saved")||Part==TEXT("DerivedDataCache")||Part==TEXT("XACEEvidence")||Part==TEXT(".git"))Skip=true;if(Skip)continue;
   FString Hash=FXaceNativeHostClient::FileHash(Path);if(Hash.Len()!=64){Error=TEXT("Source cannot be hashed: ")+Rel;return false;}Files.Add(Rel,Hash);
  }
  return !Files.IsEmpty();
