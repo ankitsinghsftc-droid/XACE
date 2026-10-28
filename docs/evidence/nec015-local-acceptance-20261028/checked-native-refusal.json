@@ -1,0 +1,7 @@
+{
+  "ok": true,
+  "actual_native_process": true,
+  "zero_exit_does_not_bypass_receipt": true,
+  "wrapper_rejected": true,
+  "owned_verifier_cleanup": true
+}

@@ -1,3 +1,5 @@
+> Current 2026-10-28: NEC015 local declared-profile verification complete; mandatory clean-machine gate remains open. NEC016 not started. Current status overrides historical status statements below; task order and acceptance criteria are unchanged.
+
 > Current status 2026-10-23: NEC001-011 locally verified within declared profiles. NEC011 completion: docs/evidence/nec011-completion-20261023/summary.json; exact supported profile and limits: docs/NEC011_FIDELITY_STATUS.md. NEC012 NOT STARTED: await authorization. All18 tasks, order, approved amendments and previous acceptance retained. REL01-05 OPEN. Tracked checkpoints are backed up to GitHub; raw native fixtures/binaries/sealed archives remain local-only. Earlier status entries are historical.
 
 > NEC010 is now explicitly authorized and IN PROGRESS (2026-10-16). Current acceptance checklist: docs/NEC010_DURABLE_MATERIALIZATION.md. Earlier stop/not-started entries are historical. NEC011 has not started.
@@ -598,6 +600,8 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 - **Approved acceptance amendment (2026-10-20):** Godot export receipts must bind the NEC012 runtime/package/resource/executor compatibility tuple, per-game writable save namespace and rollback-safe release update contract. Prove packed resource lookup, relocation and incompatible saves/refused updates in the real supported export.
 
 ### NEC-015 — Unreal production Play and packaged-build integration
+
+**Status (2026-10-28): local declared-profile implementation and verification complete; NEC015 remains INCOMPLETE pending mandatory clean-Windows-machine launch.** Evidence: [local acceptance](evidence/nec015-local-acceptance-20261028/summary.json). Boundaries: [Unreal status](NEC015_UNREAL_STATUS.md). Acceptance below is unchanged; NEC016 has not started.
 
 - **Purpose:** support real Unreal PIE and shipped games.
 - **Problem solved:** plugin/commandlet success is not a usable packaged native game.

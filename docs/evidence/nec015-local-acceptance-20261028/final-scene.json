@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "error": "",
+  "packaged": true,
+  "projection_freeze_measured": false,
+  "scene_transition_verified": true,
+  "previous_owner_pid": 15900,
+  "previous_runtime_pid": 32444,
+  "audio": true,
+  "animation": true,
+  "save_compatible_not_restored": true,
+  "incompatible_save_retained": true,
+  "incompatible_save_schema_refused": true,
+  "owner_pid": 17932,
+  "runtime_pid": 32480,
+  "tick": 187,
+  "old_and_new_owned_cleanup": true,
+  "seamless_state_continuity": false,
+  "clean_machine": false
+}

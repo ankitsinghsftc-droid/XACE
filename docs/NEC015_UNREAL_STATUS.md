@@ -1,6 +1,6 @@
 # NEC-015 Unreal native Play and Windows packaging
 
-Status: INCOMPLETE. Final local verification is in progress. Mandatory clean-Windows-machine verification remains unavailable; no prior acceptance criterion is waived. NEC-016 has not started.
+Status (2026-10-28): local declared-profile implementation and verification are complete. NEC-015 remains INCOMPLETE solely pending mandatory clean-Windows-machine launch. No acceptance criterion is waived. NEC-016 has not started. Final local evidence: [acceptance summary](evidence/nec015-local-acceptance-20261028/summary.json).
 
 ## Declared profile
 
@@ -13,7 +13,7 @@ Supported bindings are static, translation-only hierarchies with identity rotati
 1. Compile the project's native Editor target with the XACE adapter module. Configure UXaceNativeHostComponent with reviewed native actor mappings, timed input bindings, relative release path, game identity and pinned release/launcher hashes.
 2. Save and review source. Explicitly call XaceNativeApproval::RecordSavedSource in the Editor integration. Approval is create-only; preserve an earlier approval outside the source tree before approving another revision. Unsaved maps/assets and stale inventories refuse Play. The integration currently exposes the C++ approval API, not a new general authoring UI.
 3. Use tools/nec015_build.py with the .uproject path, a fresh persistent output directory outside the project, the installed Engine directory and the native /Game map path. The wrapper requires the precompiled Editor module, checks source admission without starting gameplay, runs the normal Game build/cook/stage/archive, then checks cooked admission and source stability before issuing its success receipt. Failed staging is retained.
-4. A successful Unreal process exit alone is insufficient: graceful native refusals can return zero. Require receipt.json with status built-not-certified and review its pinned artifact files. Do not distribute a failed staging directory. The final supported wrapper verification is still pending at this draft.
+4. A successful Unreal process exit alone is insufficient: graceful native refusals can return zero. Require receipt.json with status built-not-certified and review its pinned artifact files. Do not distribute a failed staging directory. The supported wrapper passed actual source admission, Game compilation/cook/archive, cooked admission and approval-stability verification.
 
 Approval excludes generated Binaries, Intermediate, Saved, DerivedDataCache and the two exact generated Windows FileOpenOrder logs, plus receipt/evidence metadata. Authored build settings remain checked. No approval is inferred from Play or compilation. Tests that synthesize approval are explicitly labeled fixtures.
 
@@ -27,6 +27,6 @@ Map reload ends the previous authority and starts a fresh session; it is not sea
 
 ## Evidence and preservation
 
-Passing and failed attempts remain under persistent evidence/nec015. Earlier checkpoints are in docs/evidence/nec015-*. Final source-bound receipts and acceptance disposition will be added after the remaining tests. The protected XP-022 baseline is the recovered seal, not recreated original historical evidence. Current integrity verification preserves all 55 protected files and 1,575 archived source entries.
+Passing and failed attempts remain under persistent evidence/nec015. Earlier checkpoints are in docs/evidence/nec015-*. Final source-bound receipts and acceptance disposition are recorded in docs/evidence/nec015-local-acceptance-20261028. Three repeated startup-fixed two-world runs, 16 authoring regressions, 12 fidelity checks, 15 protocol cases plus geometry/input fence and existing Player parity pass. Final package update/refusal/save/scene/fault checks pass. The protected XP-022 baseline is the recovered seal, not recreated original historical evidence. Current integrity verification preserves all 55 protected files and 1,575 archived source entries.
 
 Clean-machine, signing, first-time tester, external networking and Steam gates remain open. Source and compact evidence are checkpointed to recovery/xp022; raw native binaries, fixtures and the recovered sealed archive remain local-only and need off-device backup.

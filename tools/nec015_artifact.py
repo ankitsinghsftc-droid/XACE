@@ -7,5 +7,7 @@ def verified(source):
  if (root/'receipt.json').is_file():
   receipt=json.loads((root/'receipt.json').read_text(encoding='utf-8'))
   assert receipt['schema']=='xace.unreal.native_build.v1' and receipt['status']=='built-not-certified'
-  assert receipt['files'] and all((source/name).resolve().is_relative_to(source) and (source/name).is_file() and sha(source/name)==value for name,value in receipt['files'].items()),'Checked artifact changed'
+  files=[p for p in sorted(source.rglob('*')) if p.is_file()]
+  assert all(p.resolve().is_relative_to(source) for p in files),'Artifact link escapes root'
+  assert receipt['files'] and {p.relative_to(source).as_posix():sha(p) for p in files}==receipt['files'],'Checked artifact changed'
  else:assert json.loads((root/'proof.json').read_text(encoding='utf-8'))['ok']

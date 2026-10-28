@@ -11,7 +11,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 
 ## Current state
 
-Current 2026-10-23: NEC001-011 completed within their documented profiles. NEC012 has not started and requires authorization. Completion: `docs/evidence/nec011-completion-20261023/summary.json`. Earlier active/not-authorized entries below are historical. Tracked checkpoints through 0d64ea2 are confirmed on GitHub; final completion push is recorded in the session. Raw evidence/binaries/sealed archives remain local-only.
+Current 2026-10-28: NEC001-012 and NEC014 completed within documented profiles. NEC013 and NEC015 local implementation verified; mandatory clean-machine gates remain open. NEC016 has not started and is not authorized. Latest local acceptance: docs/evidence/nec015-local-acceptance-20261028/summary.json. Earlier entries below are historical. Source/compact evidence is backed up to GitHub through70011be; final closeout push follows. Raw fixtures/binaries/sealed archives remain local-only.
 
 | Milestone | Recovery | Fresh verification |
 |---|---|---|
@@ -352,3 +352,6 @@ NEC015 continuation 2026-10-28: package-j packaged gameplay/save/admission passe
 
 
 NEC015 checked-build milestone 2026-10-28: startup fix passes three repeated two-world native PIE runs with clean shutdown; dirty map/asset and all four saved-source cases pass. Actual creator wrapper checked-build-b passes source admission, Game build/cook/archive, stable approval and cooked no-authority admission. checked-build-a retained as failed (generated EditorOpenOrder.log drift); only exact generated Editor/Cooker order logs excluded after engine-source confirmation.16 authoring regressions and recovered XP022 integrity55/1575 pass. Final exact-artifact update/refusal/scene/fault and native regression checks running; task INCOMPLETE. Evidence docs/evidence/nec015-checked-build-20261028. User authorized regenerable-cache removal without losing work; package-j/h two PCH files each removed with receipts, all code/binaries/evidence retained. Mandatory clean machine unavailable; no NEC016. Checkpoint pending push; raw binaries/fixtures/seal local-only.
+
+
+NEC015 local declared-profile implementation and verification closed 2026-10-28; task remains INCOMPLETE solely pending mandatory clean-Windows-machine launch (unavailable). Three repeated startup-fixed two-world PIE runs, dirty/saved-source gates, checked creator build/cook, exact-artifact input/audio/animation/save, read-only update/refusal/rollback, scene restart, measured authority-loss freeze and game-crash cleanup pass.16 authoring,12 native fidelity,15 protocol plus geometry/input fence and existing Player regressions pass. All55 recovered XP022 protected files and1575 archived entries unchanged. Evidence docs/evidence/nec015-local-acceptance-20261028/summary.json; exact boundaries docs/NEC015_UNREAL_STATUS.md. Clean-machine/signing/tester/network/Steam gates remain open; NEC016 NOT STARTED. Source/compact evidence will be pushed and remote-verified; raw binaries/fixtures/seal remain local-only.

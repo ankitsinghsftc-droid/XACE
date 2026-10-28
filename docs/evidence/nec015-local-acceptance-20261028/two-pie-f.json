@@ -1,0 +1,24 @@
+{
+	"ok": true,
+	"error": "",
+	"actual_pie": true,
+	"dirty_map_refused": true,
+	"dirty_asset_refused": true,
+	"two_instances": true,
+	"cycles": [
+		{
+			"owner_pid": 20780,
+			"runtime_pid": 22816,
+			"tick": 111,
+			"duplicate_refused": true
+		},
+		{
+			"owner_pid": 26124,
+			"runtime_pid": 9260,
+			"tick": 12,
+			"duplicate_refused": true
+		}
+	],
+	"map_sha256": "d31637d23e5cc26e16991441b2f0534d6c7dfaf5bd37c215d9a3f79b35cb5fbf",
+	"packaged_build": false
+}

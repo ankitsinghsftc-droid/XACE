@@ -1,0 +1,98 @@
+{
+  "source_checkpoint_before_closeout": "70011bee61249d3b8d1e3ece110cb13d178760b4",
+  "compiled_native_sources_match_checkout": true,
+  "files": {
+    "adapters/unreal/XaceNativeHost.cpp": {
+      "checkout_sha256": "805f11d13c4c7c733f3cad08471972b102766c76dfb8df2cf71491a7eb427187",
+      "git_blob": "bbc0e06efb2cb58f00c39cc105cacf56656f114c"
+    },
+    "adapters/unreal/XaceNativeHost.h": {
+      "checkout_sha256": "66c55b2138ad4c3b7d99c2f4688c3134e08b3f985a6b2cbdae57a3edf1810c33",
+      "git_blob": "059295f1003bb58e08cbc13bbdfe83db31d285ef"
+    },
+    "adapters/unreal/XaceNativeHostClient.cpp": {
+      "checkout_sha256": "f10117c077ddcc9d81ca7801af89c97a88863aa6387f20d6e430b628230947d8",
+      "git_blob": "7c1cb3bd1b35724d5a776336e434533891ac95c7"
+    },
+    "adapters/unreal/XaceNativeHostClient.h": {
+      "checkout_sha256": "09030997122d95e4ca93f778b8a65a2d1bcdef7068d2f657b7aa50ac15b5c19e",
+      "git_blob": "82d025156236c8ef219ec1bf72e70dc9bdfe84c0"
+    },
+    "adapters/unreal/XaceNativeApproval.cpp": {
+      "checkout_sha256": "2e02cbfa33f64d77fb9d32ec596334d04eea6c6ae5d7884f1feb02ab31acfcb2",
+      "git_blob": "090e711fa7b06f83677ccb4522fcedb0b9c90115"
+    },
+    "adapters/unreal/XaceNativeApproval.h": {
+      "checkout_sha256": "490713781b89776f3ac0dff1bf39771d580d0890aad374d4394ecad14e1ba43c",
+      "git_blob": "22a578abe232686669392278a4f372b8a63cb932"
+    },
+    "adapters/unreal/XaceDeltaApplicator.cpp": {
+      "checkout_sha256": "ce6fcb06449e8664b3684dcd29cd6c26f58109445897f394c40d44f5b86f038d",
+      "git_blob": "878c759c71b9d5ce27e8b8c9994ce6db9742342f"
+    },
+    "adapters/unreal/XaceDeltaApplicator.h": {
+      "checkout_sha256": "7927342005eaea84c004ba6bc75cfe80d854b4c096cb0ca855e17864f857cbb2",
+      "git_blob": "8b5751e387504deabbd059cffda526f5b103b058"
+    },
+    "adapters/unreal/XaceTransport.cpp": {
+      "checkout_sha256": "d8e4cd85e512e47ab99bf9239a80e2c40a653444615350348097c2b4b22146a5",
+      "git_blob": "ce2316304e8846c311aa713d83a1d1abeaf2566a"
+    },
+    "adapters/unreal/XaceTransport.h": {
+      "checkout_sha256": "307f6758a71fb6d870459ff5fd117caa9ba233cf46bb024c45503dbcbf99fdd1",
+      "git_blob": "19bb4aeb506b0d2237be894e50a0e557ed6c146f"
+    },
+    "adapters/unreal/XaceNativeContract.cpp": {
+      "checkout_sha256": "1cb4ee682cf72aa053ff581e2e09aee8964370414f8b5674d2a95c8a87cf5fa8",
+      "git_blob": "36da08303dc1d040c2fa424f4baf5a146fa8883c"
+    },
+    "adapters/unreal/XaceNativeContract.h": {
+      "checkout_sha256": "5c0f2f69723d4826fb5cf12504d8dda1ed7676a2c0d422050f32763651fcb688",
+      "git_blob": "3efff621236862261fe61cb726cf41150cc4e0fa"
+    },
+    "adapters/unreal/XaceInputCollector.cpp": {
+      "checkout_sha256": "c16a476175975fbe9a76c961145ddd664da9fbf25f387c9914271ffc759d9207",
+      "git_blob": "df82a6ea745c06d3b3eb140230fb8e0eaf83d265"
+    },
+    "adapters/unreal/XaceInputCollector.h": {
+      "checkout_sha256": "408d433676f0ee68fac60bd00b09a8215a3bbe51c972e9996902301abfaee124",
+      "git_blob": "762f68ef392e1150e2066df9ae97c59df70319f8"
+    },
+    "tools/nec015_artifact.py": {
+      "checkout_sha256": "e2871fc96542df7ed787562cd9643429d8076e7b8a8396949a4ab92a56554260"
+    },
+    "tools/nec015_build.py": {
+      "checkout_sha256": "cc435c279a6523b9049567a93c676f3802d9fca35847679e94493e6bafbd3f5b"
+    },
+    "tools/nec015_package_proof.py": {
+      "checkout_sha256": "eedaca5b6ce30a6f390cd90891976496f42a9e47372ca8b48e5007feb6920d49"
+    },
+    "tools/nec015_packaged_fault_proof.py": {
+      "checkout_sha256": "8abccfb64000d6f08d379a72b0363f7061c703ce948af1b9301d711e7635827d"
+    },
+    "tools/nec015_packaged_refusal_proof.py": {
+      "checkout_sha256": "611e1a6473201bb34d3226f61929fabacbab810dc0675861e45d187df1a66444"
+    },
+    "tools/nec015_packaged_safety_proof.py": {
+      "checkout_sha256": "eac37651bdc29de5a70c2e15aceadc1d08d229afe3a754399c1b928c21e4df5b"
+    },
+    "tools/nec015_playback_release.py": {
+      "checkout_sha256": "6479a428fcce81c734a906ec4381672845e4fe7f5130cea132631f869874997f"
+    },
+    "tools/nec015_scene_proof.py": {
+      "checkout_sha256": "c3ec1fbba5f91470cb031bd6e644186370f11f158892aec519d071768c9e5ad7"
+    },
+    "tools/nec015_source_refusal_proof.py": {
+      "checkout_sha256": "c84c82a6d81e5b937b90f40dd5eb17a7ed3de891b84e7e926c50a99dab0d098f"
+    },
+    "tools/nec015_two_pie_proof.py": {
+      "checkout_sha256": "09fb733b7dabf1b4ab01d93d2a627d8018d7d2953e60289c80f971f2619aea53"
+    },
+    "tools/nec015_unreal_client_proof.py": {
+      "checkout_sha256": "93fe67d462407c32b60ab57b983a44f0be14f101a11e10cad8a107038425e4d3"
+    },
+    "tools/nec015_unreal_pie_proof.py": {
+      "checkout_sha256": "59a80dd14c7b0577fa4be5066e15e251075f879fddab71c240cfe84542410317"
+    }
+  }
+}

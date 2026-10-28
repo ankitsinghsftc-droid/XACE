@@ -1,6 +1,8 @@
 # NEC-015 Unreal production Play and packaged build
 
-ACTIVE 2026-10-26; entry bd40177ac9b052e8dfa834ea9dad8462c11e73a8, recovery/xp022. Installed UE5.7 Windows x64. No previous gate waived; NEC013 clean-machine test remains open and NEC015 also requires clean-machine launch. User has no clean machine available.
+Local acceptance verified 2026-10-28; NEC015 remains INCOMPLETE pending the mandatory clean-machine test. See [evidence](evidence/nec015-local-acceptance-20261028/summary.json) and [scope](NEC015_UNREAL_STATUS.md). Acceptance below is unchanged.
+
+Started 2026-10-26; entry bd40177ac9b052e8dfa834ea9dad8462c11e73a8, recovery/xp022. Installed UE5.7 Windows x64. No previous gate waived; NEC013 clean-machine test remains open and NEC015 also requires clean-machine launch. User has no clean machine available.
 
 Reuse NEC012 pinned Rust owner-pipe host, package/executor admission, save compatibility and release activation; reuse Unreal native contract, transport, applicator and authoring mapping. Gameplay remains authoritative in Rust. Explicit approved existing actor bindings must preserve native scene/presentation; no forced Player map/UI.
 

@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "actual_packaged_game": true,
+  "fault": "runtime",
+  "verified_owned_pids": {
+    "engine": 32352,
+    "owner": 18680,
+    "runtime": 4500
+  },
+  "baseline_before_fault": true,
+  "owned_cleanup": true,
+  "projection_freeze_measured": true,
+  "clean_machine": false
+}

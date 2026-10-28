@@ -1,0 +1,55 @@
+{
+  "schema": "xace.nec015.local_acceptance.v1",
+  "date": "2026-10-28",
+  "task_status": "incomplete_external_gate",
+  "local_declared_profile_verified": true,
+  "profile": "UE5.7.4 Windows x64 D3D11 native Editor/Development package; static translation hierarchy",
+  "remaining_mandatory_gate": "Clean Windows machine launch unavailable; no gate waived",
+  "verified": [
+    "Three repeated independent two-world PIE runs, duplicate-owner refusal and clean shutdown",
+    "Dirty map/asset and changed/added/missing saved-source refusals",
+    "Checked creator source preflight, Game build/cook/archive, stable approval and cooked admission",
+    "Actual native input/audio/animation/save checks without Builder",
+    "Read-only relocation, distinct native-build update, refused candidate retention and explicit rollback",
+    "Compatible save admission without restoration; incompatible same-game save-schema refusal without modification",
+    "Scene reload retires prior authority and starts independent new authority",
+    "Measured frozen projection after runtime loss and owned cleanup after runtime/game crash",
+    "Actual creator wrapper refuses failed native receipt despite zero Unreal exit",
+    "Complete final shipping inventory/hashes unchanged",
+    "16 Unreal authoring tests, existing Player lifecycle regression",
+    "12 native fidelity checks and 15 protocol cases plus geometry/input fence",
+    "Recovered XP022 seal:55 protected files and1575 archived source entries unchanged"
+  ],
+  "limitations": [
+    "No clean-machine/signing/tester/external-networking/Steam certification",
+    "Static native transform/profile and fixed registered presentation catalog only",
+    "No arbitrary Blueprint gameplay conversion or unrestricted game-mechanic claim",
+    "Map reload restarts gameplay; no seamless state continuity",
+    "Save admission does not restore or automatically migrate gameplay",
+    "Update proof changes native binary, not gameplay-schema version; explicit selection rather than automatic installer",
+    "Editor proofs disable unused CEF; previous shutdown crashes retained, no general CEF fix claimed",
+    "Concurrent startup serialization is scoped to one Unreal process; unrestricted independent installations sharing one save namespace not certified",
+    "Raw native fixtures/binaries/recovered seal remain local-only"
+  ],
+  "failed_attempts": [
+    "Earlier package module/target/cache failures retained",
+    "Source-refusal-c correct receipt but engine-shutdown timeout excluded",
+    "two-pie-d Chromium shutdown crash excluded",
+    "two-pie-e shared activation-lock race; repaired and three subsequent repetitions pass",
+    "checked-build-a refused generated EditorOpenOrder.log; exact generated-log exclusions corrected and checked-build-b passes"
+  ],
+  "evidence": {
+    "final-update": "evidence\\nec015\\20261028\\final-update\\proof.json",
+    "final-refusals": "evidence\\nec015\\20261028\\final-refusals\\proof.json",
+    "final-scene": "evidence\\nec015\\20261028\\final-scene\\proof.json",
+    "final-runtime-loss": "evidence\\nec015\\20261028\\final-runtime-loss\\proof.json",
+    "final-game-crash": "evidence\\nec015\\20261028\\final-game-crash\\proof.json",
+    "checked-native-refusal": "evidence\\nec015\\20261028\\checked-native-refusal\\proof.json",
+    "build-guards": "evidence\\nec015\\20261028\\build-guards\\proof.json"
+  },
+  "shipping_directory": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261028\\checked-build-b\\shipping\\Windows",
+  "sealed_manifest": "C:/Users/ankit/XACE-Recovery/baselines/xp022-recovered-20261015/baseline.json",
+  "sealed_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "nec016_started": false,
+  "backup": "Source/compact evidence checkpoint will be pushed and remote identity checked; raw fixtures/binaries/seal local-only."
+}
