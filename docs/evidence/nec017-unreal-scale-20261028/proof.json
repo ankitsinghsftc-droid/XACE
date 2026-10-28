@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "objects": 1000,
+  "timings_seconds": {
+    "build": 105.08807440000237,
+    "create": 25.50575120000576,
+    "reload": 7.190578899986576
+  },
+  "full_nec017_certification": false,
+  "real_editor": true,
+  "created_native_binary_map": true,
+  "cold_capture_identical": true,
+  "existing_content_preserved": true,
+  "exact_transform": true
+}

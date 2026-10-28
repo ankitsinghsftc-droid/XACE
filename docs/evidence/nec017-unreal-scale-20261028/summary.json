@@ -1,0 +1,19 @@
+{
+  "schema": "xace.nec017.native_scale_checkpoint.v1",
+  "task_complete": false,
+  "object_target": 1000,
+  "native_create_cold_reopen_passed": [
+    "godot",
+    "unity",
+    "unreal"
+  ],
+  "real_native_binary_map": true,
+  "source_checkpoint": "b455143",
+  "repeated_edit_proof": "running: evidence/nec017/20261028/godot-repeat-a",
+  "remaining": [
+    "repeated edits/rebuild resources and recovery",
+    "two-developer branches/merge/recovery",
+    "full conflict/crash and gameplay shipping matrices"
+  ],
+  "raw_binaries_off_device": false
+}
