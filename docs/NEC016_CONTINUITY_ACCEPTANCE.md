@@ -1,3 +1,5 @@
+> Current: NEC016 local engineering complete 2026-10-28; exact private-profile notice inventory/archive gap closed. User explicitly deferred clean-machine certification. Public redistribution/continuing-use approval remains an NEC018 release gate, not a prerequisite to internal NEC017 certification. Earlier unavailable-notices assertions were overbroad and are superseded by docs/evidence/nec016-notices-closeout-20261028/summary.json. No historical evidence rewritten or public shipping certification claimed. NEC017 now authorized and starting; NEC018 not started.
+
 # NEC-016 offline distribution, continuity archive and detach
 
 Started 2026-10-28 at8bb9e3c on recovery/xp022, explicitly authorized. NEC013/015 local profiles are verified but their mandatory clean-machine gates remain open. No earlier acceptance is waived; NEC017 is not authorized.

@@ -1,3 +1,5 @@
+> Current 2026-10-28: NEC016 local engineering complete; clean-machine and final public-release gates deferred/open. NEC017 authorized and starting. See evidence/nec016-notices-closeout-20261028/summary.json. Previous status lines are historical. Acceptance criteria remain unchanged.
+
 > Current 2026-10-28: NEC016 authorized and IN PROGRESS; NEC017 not started. NEC013/015 clean-machine gates remain open. Task order and acceptance unchanged.
 
 > Current 2026-10-28: NEC015 local declared-profile verification complete; mandatory clean-machine gate remains open. NEC016 not started. Current status overrides historical status statements below; task order and acceptance criteria are unchanged.

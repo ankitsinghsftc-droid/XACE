@@ -5,3 +5,6 @@ docs/evidence/nec011-player-benchmark-20261021/** -text
 
 # Preserve byte-pinned NEC016 native proof files across checkout platforms.
 docs/evidence/nec016-firewall-verified-20261028/* -text
+
+# Byte-preserved supplied attribution and notice closure proof.
+docs/evidence/nec016-notices-closeout-20261028/** -text

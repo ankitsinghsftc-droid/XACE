@@ -1,0 +1,26 @@
+{
+  "schema": "xace.nec016.local_closeout.v1",
+  "local_engineering_complete": true,
+  "full_public_release_certified": false,
+  "clean_machine": "deferred by user; remains mandatory for release",
+  "notice_scope": "pinned Godot Windows private engineering fixture; 80 normal/build dependency packages, 162 supplied notice files",
+  "declared_archive_closure_complete": true,
+  "public_redistribution_terms": "NEC018 owner approval gate; no new license granted",
+  "correction": "Previous unavailable-notices assertion was overbroad: XP010 already generated notices, omitted from the NEC016 fixture. Fresh exact closure inventory and archive now supply them. Public-rights approval was incorrectly treated as a prerequisite to starting NEC017; roadmap assigns that gate to NEC018.",
+  "prior_verified": [
+    "318 project-system tests",
+    "exact restored executor rebuild and Godot export/gameplay",
+    "actual firewall-denied native gameplay",
+    "failed/interrupted updates, rollback, save refusal",
+    "protected XP022 seal unchanged"
+  ],
+  "focused_continuity_tests": 32,
+  "evidence": "evidence/nec016/20261028/notice-archive-a",
+  "source_files": {
+    "tools/continuity_notices.py": "ea4225f512671343936a889e50324cf9a2b83ed2093403a32da5d25ba69ba865",
+    "tools/nec016_notice_archive_proof.py": "27b030473ec1aa197883b10df519bf79c66b98824dcbb3d136143ee4c5e96c74",
+    "packages/project-system/tests/test_continuity_notices.py": "d68f9a19059234ca20ba468dae8bbf0813c2bfba4b218ec562e6dc8b7113b841"
+  },
+  "nec017_authorized": true,
+  "raw_binary_archives_off_device": false
+}
