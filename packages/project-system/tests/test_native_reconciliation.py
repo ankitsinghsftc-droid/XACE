@@ -221,4 +221,43 @@ class ReviewTests(unittest.TestCase):
         self.assertEqual(before,encode([c['current_cgs'],c['mapping'].to_dict()]))
 
 
+class FreshApprovalBoundaryTests(unittest.TestCase):
+    def test_single_fresh_capture_per_boundary_and_no_cross_call_cache(self):
+        c=context();engine_edit(c);calls=[]
+        def provide():calls.append(1);return c
+        service=ReconciliationReview(provide);opened=service.open('alice');approval=service.approve('alice',opened['token'],opened['proposal_digest'])
+        calls.clear();first,observed=service.approved_context('alice',approval)
+        self.assertEqual(len(calls),1);self.assertEqual(first.sha256,approval['proposal_digest'])
+        observed['current_cgs']['metadata']['cgs_hash']='changed copy'
+        self.assertNotEqual(c['current_cgs']['metadata']['cgs_hash'],'changed copy')
+        engine_edit(c,value='9')
+        with self.assertRaises(ValueError):service.verify_approval('alice',approval)
+        self.assertEqual(len(calls),2)
+
+    def test_expiration_during_fresh_capture_refuses_without_extending_lifetime(self):
+        from unittest.mock import patch
+        c=context();engine_edit(c);clock=[100.0];slow=[False]
+        def provide():
+            if slow[0]:clock[0]+=901
+            return c
+        with patch('native_reconciliation_review.time.monotonic',side_effect=lambda:clock[0]):
+            service=ReconciliationReview(provide);opened=service.open('alice')
+            approval=service.approve('alice',opened['token'],opened['proposal_digest'])
+            before=encode([c['current_cgs'],c['mapping'].to_dict()]);slow[0]=True
+            with self.assertRaisesRegex(ValueError,'expired'):
+                service.approved_context('alice',approval)
+            self.assertEqual(before,encode([c['current_cgs'],c['mapping'].to_dict()]))
+            self.assertEqual(service._sessions[opened['token']]['created'],100.0)
+
+    def test_resolved_conflict_still_requires_original_and_signed_choice(self):
+        c=context();engine_edit(c);xace_edit(c);service=ReconciliationReview(lambda:c);opened=service.open('alice')
+        conflict=opened['report']['merge']['conflicts'][0]
+        resolved=service.resolve('alice',opened['token'],opened['proposal_digest'],{conflict['id']:'engine'})
+        approval=service.approve('alice',resolved['token'],resolved['proposal_digest'])
+        self.assertEqual(service.approved_context('alice',approval)[0].sha256,resolved['proposal_digest'])
+        altered=copy.deepcopy(approval);altered['principal']='bob'
+        with self.assertRaises(ValueError):service.verify_approval('bob',altered)
+        engine_edit(c,value='8')
+        with self.assertRaises(ValueError):service.approved_context('alice',approval)
+
 if __name__=='__main__':unittest.main()

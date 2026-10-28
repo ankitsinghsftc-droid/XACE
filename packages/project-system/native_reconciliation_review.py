@@ -61,26 +61,38 @@ class ReconciliationReview:
             receipt['signature']=hmac.new(self._key,encode(receipt),hashlib.sha256).hexdigest()
             return receipt
 
-    def verify_approval(self,principal,receipt):
+    def _verified_context(self,principal,receipt):
+        """One fresh immutable host capture per validation boundary.
+
+        Validate both the original review and resolved proposal against the same
+        capture. Nothing is cached across calls; the coordinator still invokes
+        this again before and after staging, then checks participant before-images.
+        """
         require(type(receipt) is dict,'invalid approval')
         unsigned=copy.deepcopy(receipt);signature=unsigned.pop('signature',None)
         require(type(signature) is str and hmac.compare_digest(signature,hmac.new(self._key,encode(unsigned),hashlib.sha256).hexdigest()),'invalid approval signature')
+        session=self._sessions.get(receipt['session'])
+        require(session is not None and hmac.compare_digest(session['principal'],principal),'unknown review session')
+        require(time.monotonic()-session['created']<=self.lifetime,'review expired; refresh')
+        require(receipt['principal']==principal and receipt['proposal_digest']==session['plan'].sha256,'approval principal/proposal mismatch')
+        context=copy.deepcopy(self.context_provider())
+        require(type(context) is dict and 'resolutions' not in context,'host owns reconciliation context')
+        origin=plan_reconciliation(**context)
+        require(origin.payload==session['original'].payload,'review inputs changed; refresh')
+        context['resolutions']=copy.deepcopy(session['resolutions'])
+        fresh=plan_reconciliation(**context) if session['resolutions'] else origin
+        require(fresh.payload==session['plan'].payload and fresh.to_dict()['reviewable'],'approval no longer current')
+        require(time.monotonic()-session['created']<=self.lifetime,'review expired; refresh')
+        return fresh,context
+
+    def verify_approval(self,principal,receipt):
         with self._lock:
-            session=self._get(principal,receipt['session'])
-            require(receipt['principal']==principal and receipt['proposal_digest']==session['plan'].sha256,'approval principal/proposal mismatch')
-            fresh=self._plan(session['resolutions'])
-            require(fresh.payload==session['plan'].payload and fresh.to_dict()['reviewable'],'approval no longer current')
-            return fresh
+            return self._verified_context(principal,receipt)[0]
 
     def approved_context(self,principal,receipt):
         """Host-only fresh inputs for explicit publication; never browser data."""
         with self._lock:
-            plan=self.verify_approval(principal,receipt)
-            session=self._get(principal,receipt['session'])
-            context=copy.deepcopy(self.context_provider())
-            context['resolutions']=copy.deepcopy(session['resolutions'])
-            require(plan_reconciliation(**context).payload==plan.payload,'approved inputs changed')
-            return plan,context
+            return self._verified_context(principal,receipt)
 
     def cancel(self,principal,token):
         # Cancellation works even after source drift and never changes either store.

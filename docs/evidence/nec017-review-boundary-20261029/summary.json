@@ -1,0 +1,29 @@
+{
+  "task": "NEC-017",
+  "complete": false,
+  "source_sha256": {
+    "packages/project-system/native_reconciliation_review.py": "bd02ffcb7c732518ccb1ed1e92f84617d4823f90d0d351a3fc800516e2400f31",
+    "packages/project-system/tests/test_native_reconciliation.py": "636199fd6f7eb7867d0ab174cc3712ec9ae02e6d6cc8021f68cea4906723bf93",
+    "tools/nec017_godot_repeated.py": "9d173bf0d8d5e918d81975551a931e44b82460ee1940c947df2c6c45370e9350",
+    "tools/nec017_process_metrics.py": "37febdf02839113eb09aa6a8e570633c262116105d54a3922e588668dbc33b16",
+    "tools/nec017_godot_scale.py": "22e9706078aaf768b78874d2b1ace957476c5473869d84fb18531fd2aa45de11"
+  },
+  "regression": {
+    "passed": 327,
+    "note": "Before addition of the focused expiry test; unchanged production implementation."
+  },
+  "focused_passed": 28,
+  "change": "One fresh trusted capture per approval-validation boundary; no cache across boundaries; original and resolved proposal both revalidated; expiry rechecked after capture/planning.",
+  "native_verification": "Repeated real Godot 1000-object runs b/c still in progress; no completed performance or repeated-edit certification.",
+  "failed_run": {
+    "path": "evidence/nec017/20261028/godot-repeat-a",
+    "result": "Review expired during staging; transaction aborted. Intrusive tracemalloc instrumentation replaced; no approval lifetime extension."
+  },
+  "pending": [
+    "Repeated editing/performance/history/resource native proofs",
+    "Two independent developer branch/merge/rebase/recovery certification",
+    "Full native conflict and crash matrix",
+    "Final acceptance matrix and regression closeout"
+  ],
+  "backup": "Source/compact evidence checkpoint push pending; raw native fixtures and recovered seal local-only."
+}

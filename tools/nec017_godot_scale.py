@@ -31,7 +31,7 @@ func run() -> void:
 	get_tree().quit(0 if not result.is_empty() else 1)
 '''
 
-def main(out):
+def main(out,count=1000):
     assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists()
     project=out/'godot-project';addon=project/'addons/xace_authoring';addon.mkdir(parents=True)
     for p in (ROOT/'adapters/godot/authoring').iterdir():
@@ -43,7 +43,7 @@ def main(out):
     sys.path.insert(0,str(ROOT/'packages/project-system/tests'))
     from test_native_scale import scaled
     from test_native_adoption import plan as adoption_plan
-    data,mapping,initial,selected,choices=scaled('godot',1000)
+    data,mapping,initial,selected,choices=scaled('godot',count)
     cgs=adoption_plan(data,mapping,initial,selected,choices).to_dict()['proposed_cgs']
     timings={};env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
     plan=plan_setup(cgs,engine='godot',namespace_id='a'*32,project_id='native-setup-proof',branch_id='b'*32,mode_id=cgs['modes'][0]['id'])
@@ -62,10 +62,10 @@ def main(out):
         assert result['result'].get('inventory'),result
         data=canonical(result['result']['inventory']);mapping=prepare_identity_map(data,project_id='native-setup-proof',branch_id='b'*32)
         verified_mapping,verified_rows=verify_setup(plan,cgs,data)
-        assert len([r for r in verified_mapping.objects.values() if r.world_binding])==1000 and verified_rows
+        assert len([r for r in verified_mapping.objects.values() if r.world_binding])==count and verified_rows
         if phase=='create':before=data
         else:assert before==data and result['result']['existing_refused'] and result['result']['unchanged']
         (out/(phase+'.json')).write_text(json.dumps(result,indent=2)+'\n')
-    (out/'proof.json').write_text(json.dumps(dict(ok=True,objects=1000,timings_seconds=timings,full_nec017_certification=False,real_editor=True,created_native_scene=True,cold_capture_identical=True,existing_content_preserved=True,exact_transform=True),indent=2)+'\n')
+    (out/'proof.json').write_text(json.dumps(dict(ok=True,objects=count,timings_seconds=timings,full_nec017_certification=False,real_editor=True,created_native_scene=True,cold_capture_identical=True,existing_content_preserved=True,exact_transform=True),indent=2)+'\n')
     print((out/'proof.json').read_text())
-if __name__=='__main__':main(Path(sys.argv[1]).resolve())
+if __name__=='__main__':main(Path(sys.argv[1]).resolve(),int(sys.argv[2]) if len(sys.argv)>2 else 1000)

@@ -1,13 +1,17 @@
 """NEC017 actual1,000-object repeated authoring through production host."""
 from pathlib import Path
-import copy,json,shutil,sys,time,tracemalloc
+import copy,json,shutil,sys,time
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.nec010_playback_host_proof import NativeEditorGateway,NativeMaterializationHost,IdentityMap,WorldBinding,canonical,sha,load_json,TransactionRequest,file_change,ACTIVATION,SavedPair,MAP,CGS,NATIVE,verify_baseline_receipts,Snapshot,digest,rehash
 from tools.nec014_export_proof import GODOT
 import godot_authoring as reader
+import native_editor_gateway as gateway_module
+from tools.nec017_process_metrics import instrument_gateway,current_memory
 
 def main(out):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();root=out/'project';root.mkdir(parents=True)
+ native_samples=[];instrument_gateway(gateway_module,native_samples)
+ (out/'source-pins.json').write_bytes(canonical({str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in list((ROOT/'packages/project-system').glob('*.py'))+[Path(__file__),ROOT/'tools/nec017_process_metrics.py']}))
  source=ROOT/'evidence/nec017/20261028/godot-scale-a';shutil.copytree(source/'godot-project/XACEGenerated',root/'XACEGenerated');shutil.copytree(ROOT/'adapters/godot/authoring',root/'addons/xace_authoring')
  shutil.copyfile(ROOT/'adapters/godot/xace_protocol.gd',root/'xace_protocol.gd')
  (root/'project.godot').write_text('config_version=5\n[application]\nconfig/name="NEC017 Repeated1000"\n[editor_plugins]\nenabled=PackedStringArray("res://addons/xace_authoring/plugin.cfg")\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n')
@@ -21,9 +25,13 @@ def main(out):
  def context():
   current=load_json(root/'game.cgs.json');m=IdentityMap.from_dict(load_json(root/MAP));native=gateway.capture()
   return dict(baseline=Snapshot((root/NATIVE).read_bytes()),baseline_cgs=load_json(root/CGS),mapping=m,current_mapping=copy.deepcopy(m),current_cgs=current,native_inventory=native,expected_current_cgs_digest=digest(current),expected_source_digest=sha(native),verify_baseline=lambda b:verify_baseline_receipts(root,b),trusted_project=True)
+ def timed(label,operation):
+  started=time.perf_counter();cpu=time.process_time();count=len(native_samples);result=operation()
+  with (out/'phases.jsonl').open('a') as log:log.write(json.dumps(dict(phase=label,seconds=time.perf_counter()-started,cpu_seconds=time.process_time()-cpu,native_calls=len(native_samples)-count))+'\n')
+  return result
  def apply():
-  h=NativeMaterializationHost(root,context,gateway);opened=h.review.open('developer-a');assert opened['report']['reviewable'],opened['report']['losses'];approval=h.review.approve('developer-a',opened['token'],opened['proposal_digest']);assert h.apply('developer-a',approval,approval['proposal_digest'])['state']=='committed'
- key=sorted(setup['bindings'])[0];actor_id=setup['bindings'][key]['actor_id'];samples=[];tracemalloc.start()
+  h=NativeMaterializationHost(root,context,gateway);opened=timed('review-open',lambda:h.review.open('developer-a'));assert opened['report']['reviewable'],opened['report']['losses'];approval=timed('review-approve',lambda:h.review.approve('developer-a',opened['token'],opened['proposal_digest']));assert timed('apply',lambda:h.apply('developer-a',approval,approval['proposal_digest']))['state']=='committed'
+ key=sorted(setup['bindings'])[0];actor_id=setup['bindings'][key]['actor_id'];samples=[]
  for n in range(3):
   started=time.perf_counter();m=IdentityMap.from_dict(load_json(root/MAP));raw=gateway.capture();base=reader.capture(raw,m,enable_writes=True).admit();target=json.loads(raw);target['objects'][key]['fields']['transform.position']['x']=str(10+n)
   desired=reader.capture(canonical(target),m,enable_writes=True).admit();prepared=gateway.prepare('repeated-native-'+str(n),dict(write_request=json.loads(reader.write_request(raw,base,desired,m))));gateway.commit(prepared);apply()
@@ -32,7 +40,7 @@ def main(out):
   final=json.loads(gateway.capture());assert final['objects'][key]['fields']['transform.position']['x']==str(20+n)
   h=NativeMaterializationHost(root,context,gateway);noop=h.review.open('developer-a');assert noop['report']['noop'] and noop['report']['reviewable']
   protected={name:(root/name).read_bytes() for name in ['game.cgs.json','XACEGenerated/World.tscn',MAP,CGS,NATIVE]};states=[h.poll_saved_changes()['state'] for _ in range(3)];assert states==['waiting','review_available','unchanged'];assert protected=={name:(root/name).read_bytes() for name in protected}
-  files=[p for p in (root/'.xace').rglob('*') if p.is_file()];sample=dict(cycle=n,seconds=time.perf_counter()-started,history_files=len(files),history_bytes=sum(p.stat().st_size for p in files),python_peak_tracemalloc_bytes=tracemalloc.get_traced_memory()[1]);samples.append(sample);(out/'progress.json').write_bytes(canonical(dict(samples=samples,complete=False)));print(json.dumps(sample),flush=True)
- result=dict(ok=True,objects=1000,cycles=3,engine='godot',real_editor=True,production_review_apply=True,bidirectional_supported_field=True,no_op_and_saved_batching=True,samples=samples,history_retained=True,automatic_cleanup=False,child_native_process_peak_memory_measured=False,full_nec017_certification=False)
+  files=[p for p in (root/'.xace').rglob('*') if p.is_file()];sample=dict(cycle=n,seconds=time.perf_counter()-started,history_files=len(files),history_bytes=sum(p.stat().st_size for p in files),python_process_memory=current_memory(),native_process_samples=list(native_samples));samples.append(sample);(out/'progress.json').write_bytes(canonical(dict(samples=samples,complete=False)));print(json.dumps(sample),flush=True)
+ result=dict(ok=True,objects=1000,cycles=3,engine='godot',real_editor=True,production_review_apply=True,bidirectional_supported_field=True,no_op_and_saved_batching=True,samples=samples,history_retained=True,automatic_cleanup=False,child_native_process_peak_memory_measured=True,full_nec017_certification=False)
  (out/'proof.json').write_bytes(canonical(result));print(json.dumps(result),flush=True)
 if __name__=='__main__':main(Path(sys.argv[1]))
