@@ -2,3 +2,6 @@
 docs/evidence/nec011-fidelity-increment-20261021/** -text
 docs/evidence/nec011-native-readiness-20261021/** -text
 docs/evidence/nec011-player-benchmark-20261021/** -text
+
+# Preserve byte-pinned NEC016 native proof files across checkout platforms.
+docs/evidence/nec016-firewall-verified-20261028/* -text
