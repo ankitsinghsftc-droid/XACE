@@ -1,0 +1,9 @@
+{
+  "schema": "xace.remote_checkpoint.v1",
+  "commit": "a9bb1ec0d6afd33f79730e7d6486afbb6edfa81b",
+  "remote": "https://github.com/ankitsinghsftc-droid/XACE.git",
+  "ref": "refs/heads/recovery/xp022",
+  "ls_remote_verified": true,
+  "source_and_compact_evidence_backed_up": true,
+  "raw_native_fixtures_binaries_archives_off_device": false
+}

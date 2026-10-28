@@ -619,7 +619,7 @@ or reordered. NEC-009 through NEC-018 are NOT STARTED.
 
 ### NEC-016 — Offline distribution, continuity archive and detach
 
-**Status (2026-10-28): IN PROGRESS, explicitly authorized.** [Acceptance and source reconciliation](NEC016_CONTINUITY_ACCEPTANCE.md). No completion claim; earlier external gates remain open.
+**Status (2026-10-28): IN PROGRESS, explicitly authorized.** [Acceptance and source reconciliation](NEC016_CONTINUITY_ACCEPTANCE.md). No completion claim; earlier external gates remain open. Verified checkpoint a9bb1ec:318 project-system tests; independent exact executor rebuild and Godot export/gameplay, archive/detach preservation, update/rollback/save refusal. [Evidence](evidence/nec016-continuity-20261028/summary.json). Actual firewall-denial launch awaits successful UAC; public redistribution closure explicitly incomplete.
 
 - **Purpose:** make ownership and continued use concrete.
 - **Problem solved:** an adapter handoff or cache backup does not preserve a whole maintainable project.
