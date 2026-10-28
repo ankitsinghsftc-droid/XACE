@@ -51,5 +51,6 @@
   "sealed_manifest": "C:/Users/ankit/XACE-Recovery/baselines/xp022-recovered-20261015/baseline.json",
   "sealed_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
   "nec016_started": false,
-  "backup": "Source/compact evidence checkpoint will be pushed and remote identity checked; raw fixtures/binaries/seal local-only."
+  "backup": "Source and compact local-acceptance evidence pushed to GitHub and remote identity verified at53344c0; raw fixtures/binaries/recovered seal remain local-only.",
+  "verified_source_evidence_checkpoint": "53344c0d547af763722fedb1502f25859e1285d4"
 }

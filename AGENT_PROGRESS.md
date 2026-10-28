@@ -11,7 +11,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 
 ## Current state
 
-Current 2026-10-28: NEC001-012 and NEC014 completed within documented profiles. NEC013 and NEC015 local implementation verified; mandatory clean-machine gates remain open. NEC016 has not started and is not authorized. Latest local acceptance: docs/evidence/nec015-local-acceptance-20261028/summary.json. Earlier entries below are historical. Source/compact evidence is backed up to GitHub through70011be; final closeout push follows. Raw fixtures/binaries/sealed archives remain local-only.
+Current 2026-10-28: NEC001-012 and NEC014 completed within documented profiles. NEC013 and NEC015 local implementation verified; mandatory clean-machine gates remain open. NEC016 has not started and is not authorized. Latest local acceptance: docs/evidence/nec015-local-acceptance-20261028/summary.json. Earlier entries below are historical. Source/compact local-acceptance checkpoint53344c0 is pushed to GitHub and its remote identity verified. Raw fixtures/binaries/sealed archives remain local-only.
 
 | Milestone | Recovery | Fresh verification |
 |---|---|---|
@@ -355,3 +355,6 @@ NEC015 checked-build milestone 2026-10-28: startup fix passes three repeated two
 
 
 NEC015 local declared-profile implementation and verification closed 2026-10-28; task remains INCOMPLETE solely pending mandatory clean-Windows-machine launch (unavailable). Three repeated startup-fixed two-world PIE runs, dirty/saved-source gates, checked creator build/cook, exact-artifact input/audio/animation/save, read-only update/refusal/rollback, scene restart, measured authority-loss freeze and game-crash cleanup pass.16 authoring,12 native fidelity,15 protocol plus geometry/input fence and existing Player regressions pass. All55 recovered XP022 protected files and1575 archived entries unchanged. Evidence docs/evidence/nec015-local-acceptance-20261028/summary.json; exact boundaries docs/NEC015_UNREAL_STATUS.md. Clean-machine/signing/tester/network/Steam gates remain open; NEC016 NOT STARTED. Source/compact evidence will be pushed and remote-verified; raw binaries/fixtures/seal remain local-only.
+
+
+NEC015 local-acceptance source/evidence checkpoint 53344c0d547af763722fedb1502f25859e1285d4 pushed and remote-verified on recovery/xp022. Tracked implementation tree clean at verification; raw native fixtures/binaries/recovered seal remain local-only. Mandatory clean-machine gate unchanged; NEC016 not started.
