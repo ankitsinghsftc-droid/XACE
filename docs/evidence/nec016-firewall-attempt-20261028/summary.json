@@ -1,0 +1,23 @@
+{
+  "schema": "xace.nec016.firewall_attempt.v1",
+  "task_complete": false,
+  "network_connection_denial_observed": true,
+  "gameplay_under_denial_verified": false,
+  "first_attempt": "UAC granted; connection denied; harness stopped on unsuccessful exit check; rules removed",
+  "retry": "UAC canceled; retry did not start",
+  "remaining_nec016_firewall_rules": 0,
+  "harness_change": "Use direct ProcessStartInfo and record actual exit code; fresh run-name parameter; parse checked, elevated retry unverified",
+  "harness_sha256": "d51a26c797dedd017ae61767ee0e81b5035191f655b41fb73089faff9a82099a",
+  "raw_evidence": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-a\\firewall-run",
+  "next_action": "User readiness for another UAC prompt required; run firewall-run-b once approved",
+  "evidence_hashes": {
+    "active-rules.json": "933a646b7d23bc68e5033d1168fac889cc643a7ca54db296bbc30b977436b12d",
+    "baseline.json": "5600310585371cbec48d4f58bb3de7ecd02c0c6972fde5d6ff641e1e9ea88a95",
+    "created-rule-names.json": "bd5711d5f3368ec8b483c9fcdb8a5ce550bda690e637c2e0c9aebe030200a169",
+    "denied.json": "105104291b679d9460b7cae0d7bdbfee81cbb0fab6cb7745c55cafd1d531f0dd",
+    "denied.json.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "denied.json.stdout.txt": "b16651cbedbab0a7b519f9e5b498eea40cb33bfb72252e264a7f4c2412765d58",
+    "executables.json": "45eecd422cfa6aec3d59e763f048b911753774f83c3e21e2f22c9db28de65603",
+    "result.json": "79de30fefb9ce043523ef1b8349f117e751f9cb67cddcfef310101748c13413a"
+  }
+}

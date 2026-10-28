@@ -1,9 +1,10 @@
-param([Parameter(Mandatory=$true)][string]$ProofRoot)
+param([Parameter(Mandatory=$true)][string]$ProofRoot,[string]$RunName="firewall-run")
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath($ProofRoot)
 $allowed='C:\Users\ankit\XACE-Recovery\worktrees\xace\evidence\nec016\'
 if(-not $root.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Unexpected proof root'}
-$run=Join-Path $root 'firewall-run'
+if($RunName -notmatch '^firewall-run(-[a-z0-9]+)?$'){throw 'Invalid run name'}
+$run=Join-Path $root $RunName
 if(Test-Path -LiteralPath $run){throw 'Fresh proof directory required'}
 New-Item -ItemType Directory -Path $run | Out-Null
 $game=Join-Path $root 'build\shipping\NativeGame.exe'
@@ -14,11 +15,22 @@ $rules=@();$result=@{ok=$false;network_denied=$false;clean_machine=$false;rules_
 function Run-Native([string]$output,[string]$data,[bool]$probe){
  $env:LOCALAPPDATA=Join-Path $run $data
  $env:PATH=Join-Path $env:SystemRoot 'System32'
- $args=@('--headless','--',(Join-Path $run $output))
- if($probe){$args+='--network-probe'}
- $process=Start-Process -FilePath $game -ArgumentList $args -WindowStyle Hidden -RedirectStandardOutput (Join-Path $run ($output+'.stdout.txt')) -RedirectStandardError (Join-Path $run ($output+'.stderr.txt')) -PassThru
+ $nativeArgs=@('--headless','--',(Join-Path $run $output))
+ if($probe){$nativeArgs+='--network-probe'}
+ $info=[Diagnostics.ProcessStartInfo]::new()
+ $info.FileName=$game
+ $info.Arguments=($nativeArgs | ForEach-Object {'"'+$_+'"'}) -join ' '
+ $info.UseShellExecute=$false;$info.CreateNoWindow=$true
+ $info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
+ $process=[Diagnostics.Process]::Start($info)
+ $stdout=$process.StandardOutput.ReadToEndAsync();$stderr=$process.StandardError.ReadToEndAsync()
  if(-not $process.WaitForExit(60000)){throw 'Native proof timeout; process preserved for diagnosis'}
- if($process.ExitCode -ne 0){throw 'Native proof exited nonzero'}
+ [IO.File]::WriteAllText((Join-Path $run ($output+'.stdout.txt')),$stdout.Result)
+ [IO.File]::WriteAllText((Join-Path $run ($output+'.stderr.txt')),$stderr.Result)
+ $exitCode=$process.ExitCode
+ @{exit_code=$exitCode;arguments=$nativeArgs;pid=$process.Id} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $run ($output+'.process.json'))
+ $process.Dispose()
+ if($exitCode -ne 0){throw "Native proof exited with code $exitCode"}
  return (Get-Content -Raw -LiteralPath (Join-Path $run $output) | ConvertFrom-Json)
 }
 try {
@@ -28,8 +40,8 @@ try {
  $pins | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $run 'executables.json')
  foreach($program in $programs){
   $name='XACE-NEC016-'+[Guid]::NewGuid().ToString('N')
-  New-NetFirewallRule -Name $name -DisplayName $name -Direction Outbound -Program $program -Action Block -Profile Any -Enabled True -RemoteAddress @('0.0.0.0-126.255.255.255','128.0.0.0-255.255.255.255','::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff') | Out-Null
   $rules+=$name
+  New-NetFirewallRule -Name $name -DisplayName $name -Direction Outbound -Program $program -Action Block -Profile Any -Enabled True -RemoteAddress @('0.0.0.0-126.255.255.255','128.0.0.0-255.255.255.255','::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff') | Out-Null
  }
  $rules | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $run 'created-rule-names.json')
  $records=foreach($name in $rules){$rule=Get-NetFirewallRule -Name $name;[PSCustomObject]@{name=$name;enabled=[string]$rule.Enabled;action=[string]$rule.Action;direction=[string]$rule.Direction;program=($rule | Get-NetFirewallApplicationFilter).Program;remote=($rule | Get-NetFirewallAddressFilter).RemoteAddress}}
