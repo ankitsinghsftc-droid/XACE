@@ -15,3 +15,15 @@ NEC017 scale checkpoint2026-10-28: bound-object admission raised128->1000 across
 NEC017 Unreal native1,000-object create/cold-reopen passed after a fresh source build (105.1s build,25.5s create,7.2s reopen). All3 engines now pass the initial scale setup/reopen/overwrite-refusal cell. Evidence docs/evidence/nec017-unreal-scale-20261028. Repeated production authoring proof is running in evidence/nec017/20261028/godot-repeat-a; full NEC017 certification remains incomplete.
 
 NEC017 review-boundary checkpoint 2026-10-29:327 project-system regressions and28 focused review tests pass. Replaced redundant recaptures within each approval-validation boundary with one fresh trusted snapshot; original/resolved plans, principal/signature, expiry and inter-boundary refresh remain required. Added expiry-during-capture refusal test. Actual1000-object repeated-edit run-a expired safely during staging and is retained; lower-overhead runs b/c remain in progress, not passing evidence. Initial scale setup/reopen passes all3 engines, but repeated performance, full conflicts/crashes and independent developer collaboration remain incomplete. Evidence docs/evidence/nec017-review-boundary-20261029. No NEC018. Raw fixtures/binaries/seal local-only; checkpoint push pending.
+
+## Collaboration reconciliation finding (2026-10-29)
+
+A raw copy of an active authoring workspace is not an executable collaboration fork. Native host configuration and participant receipts bind absolute workspace roots. The coordinator correctly rejects mismatched roots. Do not rewrite existing journals or remove identity/history to bypass this guard.
+
+The remaining branch certification needs an explicitly reviewed new-workspace baseline: preserve the ancestor source, mapping, baseline and journal history unchanged; retain namespace/object IDs; assign a distinct branch ID; freshly capture the new native workspace and verify its CGS projection; establish only the new active baseline through the coordinator. Pending recovery must be resolved or explicitly preserved before a fork can be admitted. A copied historical receipt is provenance, not permission to execute an old root-bound transaction.
+
+This workflow remains unimplemented/unverified. Required negative cases include stale source/approval, pending recovery, foreign namespace, existing destination, interrupted initialization and preservation of both conflicting branch versions. The installed-editor branch/merge/rebase/recovery proof cannot be replaced by the existing Python identity-fork tests.
+
+## Active native recovery proof
+
+`tools/nec017_godot_crash.py` exercises actual child-process exit at all14 coordinator journal boundaries, with a fresh two-object native fixture per case and production NativeMaterializationHost recovery. Run: `evidence/nec017/20261029/godot-crash-a`. First intent-durable case passed; the full matrix is not yet verified. This small recovery fixture does not certify scale, binary-asset conflicts or two-developer collaboration. All prior failures and source identities remain retained.
