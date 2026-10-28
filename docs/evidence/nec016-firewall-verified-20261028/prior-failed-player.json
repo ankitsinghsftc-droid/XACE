@@ -1,0 +1,15 @@
+{
+	"animation_started": true,
+	"audio_started": true,
+	"error": "Export identity/input mismatch",
+	"exported": true,
+	"fault_frozen_frames": 0,
+	"incompatible_save_retained": false,
+	"native_scene": "res://NativeGame.tscn",
+	"ok": false,
+	"owner_pid": 21756,
+	"runtime_pid": 29392,
+	"save_compatible_not_restored": true,
+	"save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-a\\firewall-run-b\\player-data\\XACE/NativeGames\\game-nec012-proof\\saves",
+	"tick": 89
+}

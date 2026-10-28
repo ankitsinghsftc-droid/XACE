@@ -1,0 +1,47 @@
+[
+    {
+        "name":  "XACE-NEC016-351a1d704be14e82a9db97c2e08c20c4",
+        "enabled":  "True",
+        "action":  "Block",
+        "direction":  "Outbound",
+        "program":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\build\\shipping\\NativeGame.exe",
+        "remote":  {
+                       "value":  [
+                                     "0.0.0.0-126.255.255.255",
+                                     "128.0.0.0-255.255.255.255",
+                                     "::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+                                 ],
+                       "Count":  3
+                   }
+    },
+    {
+        "name":  "XACE-NEC016-39a52e42d65b491685b0aead6ce6f212",
+        "enabled":  "True",
+        "action":  "Block",
+        "direction":  "Outbound",
+        "program":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\build\\shipping\\release\\xace-player-launcher.exe",
+        "remote":  {
+                       "value":  [
+                                     "0.0.0.0-126.255.255.255",
+                                     "128.0.0.0-255.255.255.255",
+                                     "::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+                                 ],
+                       "Count":  3
+                   }
+    },
+    {
+        "name":  "XACE-NEC016-991af03432fb4003871581877044b512",
+        "enabled":  "True",
+        "action":  "Block",
+        "direction":  "Outbound",
+        "program":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\build\\shipping\\release\\package\\runtime\\xace_runtime.exe",
+        "remote":  {
+                       "value":  [
+                                     "0.0.0.0-126.255.255.255",
+                                     "128.0.0.0-255.255.255.255",
+                                     "::2-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff"
+                                 ],
+                       "Count":  3
+                   }
+    }
+]

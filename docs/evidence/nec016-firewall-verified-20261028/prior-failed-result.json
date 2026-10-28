@@ -1,0 +1,7 @@
+{
+    "clean_machine":  false,
+    "error":  "Native proof exited with code 1",
+    "ok":  false,
+    "network_denied":  false,
+    "rules_removed":  true
+}

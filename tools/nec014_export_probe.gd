@@ -47,9 +47,15 @@ func _process(_delta: float) -> void:
 		var good_path: String = host.save_root.path_join("slot-nec014-compatible.json")
 		bad_path=host.save_root.path_join("slot-nec014-incompatible.json")
 		if FileAccess.file_exists(good_path) or FileAccess.file_exists(bad_path): finish(false,"Proof refuses existing saves");return
-		FileAccess.open(good_path,FileAccess.WRITE).store_string(JSON.stringify(envelope))
+		var good_file := FileAccess.open(good_path,FileAccess.WRITE)
+		good_file.store_string(JSON.stringify(envelope))
+		good_file.flush()
+		good_file.close()
 		identity.game_id="wrong-game"
-		FileAccess.open(bad_path,FileAccess.WRITE).store_string(JSON.stringify(envelope))
+		var bad_file := FileAccess.open(bad_path,FileAccess.WRITE)
+		bad_file.store_string(JSON.stringify(envelope))
+		bad_file.flush()
+		bad_file.close()
 		bad_hash=FileAccess.get_sha256(bad_path)
 		host.check_save("nec014-compatible")
 		save_stage=1
@@ -71,7 +77,7 @@ func _process(_delta: float) -> void:
 func finish(ok: bool,why: String) -> void:
 	done=true
 	var host := $NativeHost
-	var report := {"ok":ok,"error":why,"fault_frozen_frames":fault_frames,"native_scene":scene_file_path,"runtime_pid":host.runtime_pid,"owner_pid":host.host_client.pid if host.host_client!=null else 0,"tick":host.adapter._last_runtime_tick if host.adapter!=null else 0,"exported":not OS.has_feature("editor"),"audio_started":audio_started,"animation_started":animation_started,"save_compatible_not_restored":compatible,"incompatible_save_retained":incompatible,"save_root":host.save_root}
+	var report := {"ok":ok,"error":why,"fault_frozen_frames":fault_frames,"native_scene":scene_file_path,"runtime_pid":host.runtime_pid,"owner_pid":host.host_client.pid if host.host_client!=null else 0,"tick":host.adapter._last_runtime_tick if host.adapter!=null else 0,"exported":not OS.has_feature("editor"),"audio_started":audio_started,"animation_started":animation_started,"save_compatible_not_restored":compatible,"incompatible_save_retained":incompatible,"save_root":host.save_root,"save_status":host.save_status,"save_error":host.save_error,"expected_incompatible_hash":bad_hash,"observed_incompatible_hash":FileAccess.get_sha256(bad_path) if not bad_path.is_empty() else ""}
 	host.stop()
 	FileAccess.open(OS.get_cmdline_user_args()[0],FileAccess.WRITE).store_string(JSON.stringify(report,"\t"))
 	get_tree().quit(0 if ok else 1)

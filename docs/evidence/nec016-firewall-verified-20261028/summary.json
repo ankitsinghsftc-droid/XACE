@@ -1,0 +1,43 @@
+{
+  "schema": "xace.nec016.offline_native_proof.v1",
+  "ok": true,
+  "task_complete": false,
+  "profile": "Godot4.6.3 Windows x64 private engineering fixture; external network denied, loopback IPC retained",
+  "network_denied": true,
+  "baseline_connected": true,
+  "unblocked_control_connected": true,
+  "gameplay_under_denial": true,
+  "save_compatibility_and_original_preservation": true,
+  "installation_unchanged": true,
+  "owned_processes_gone": true,
+  "temporary_rules_remaining": 0,
+  "builder_absent_from_artifact": true,
+  "builder_uninstalled_from_machine": false,
+  "clean_machine": false,
+  "raw_evidence": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\firewall-run",
+  "source_files": {
+    "tools/nec014_export_probe.gd": "3a8f987e22699e7d2ff34493571f5abb40b77df007a121f0a179ee6b69c11414",
+    "tools/nec016_network_build.py": "3f081725639cead18475157cb495860be7978fcd94173cf5e697b2c90c712017",
+    "tools/nec016_firewall_proof.ps1": "d51a26c797dedd017ae61767ee0e81b5035191f655b41fb73089faff9a82099a"
+  },
+  "repair": "Synthetic save probe now explicitly flushes/closes files before hashing; detailed status/hash diagnostics added. Prior exact failure mechanism was not recorded, so no runtime bug cause is claimed.",
+  "remaining_gates": [
+    "Complete public redistribution notices/licensing closure; diagnostic continuity archive remains incomplete",
+    "Inherited clean-machine and external release gates remain open"
+  ],
+  "evidence_files": {
+    "active-rules.json": "da6546f2ab8f4bf7abfb632a4a5b9cb8b6d831346c5931810266cded55bf0b27",
+    "baseline.json": "b7ee344e4de1f47ed151ed64814c9691365bd093c197a4aca3966e18f4cad5b4",
+    "created-rule-names.json": "7f821ad7bdafcd0b2f459664b82d4e91889a9bf36c65b16af222a62f864cc6a0",
+    "denied.json": "0db2f269ce185783b75272f8c110e735387c0cd21d3adcf878b78efe0e9f91db",
+    "denied.json.process.json": "3fca8ffe04186b96ea4ac3ce7909641a465f81e9d72d8dde5f4e99a2603388b3",
+    "executables.json": "ba2ebb1e28dd3b9e99f82605695e19c3bd4117d7cc2689559928a21c16f0797a",
+    "local-gameplay.json": "6bb5e58f67dba3dcb850979fb6622b527c0e3f5991492447a0ad152a400504c5",
+    "player.json": "491307fa5d84c7aa7ebf8630b4e29f2e004e133cb3a34b1c3421760460947135",
+    "player.json.process.json": "69e3cd9d0a6cc574441f1f273c1fab8a9e64004a4a0c517beee309406019777e",
+    "prior-failed-player.json": "7796ef40e44656b021e00662cb0a50174566a77d948c6f142e9f80240859aba3",
+    "prior-failed-player.json.process.json": "af04f40c2e441ec4c9203793d309e4940023cb59ea7ba82a15d070e7ba5d00cc",
+    "prior-failed-result.json": "b871302b8ee8bf0c1a57737713392b2da7881ec581bf4d711a53441f11d15a50",
+    "result.json": "725b39541822ca4bb4b6e947736a9607568fee696766fffc8e33327215a18621"
+  }
+}

@@ -7,7 +7,7 @@ from tools.nec014_export_proof import GODOT
 def main(out):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec016')
  project=out/'project';shutil.copytree(ROOT/'evidence/nec016/20261028/restore-c/independent/payload/native',project,ignore=shutil.ignore_patterns('.godot'))
- p=project/'probe.gd';s=p.read_text();s=s.replace('var deadline := 0','var continuity_network := false\nvar continuity_tcp := StreamPeerTCP.new()\nvar deadline := 0')
+ p=project/'probe.gd';s=(ROOT/'tools/nec014_export_probe.gd').read_text();s=s.replace('var deadline := 0','var continuity_network := false\nvar continuity_tcp := StreamPeerTCP.new()\nvar deadline := 0')
  s=s.replace('func _ready() -> void: deadline=Time.get_ticks_msec()+30000','''func _ready() -> void:
     deadline=Time.get_ticks_msec()+30000
     continuity_network="--network-probe" in OS.get_cmdline_user_args()

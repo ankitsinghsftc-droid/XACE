@@ -1,0 +1,19 @@
+{
+	"animation_started": true,
+	"audio_started": true,
+	"error": "",
+	"expected_incompatible_hash": "e8819aa46477bddbe93049142e71bf39a7141c825d7dda9872b316bdb96bd621",
+	"exported": true,
+	"fault_frozen_frames": 0,
+	"incompatible_save_retained": true,
+	"native_scene": "res://NativeGame.tscn",
+	"observed_incompatible_hash": "e8819aa46477bddbe93049142e71bf39a7141c825d7dda9872b316bdb96bd621",
+	"ok": true,
+	"owner_pid": 35780,
+	"runtime_pid": 11244,
+	"save_compatible_not_restored": true,
+	"save_error": "Save requires a different gameplay/executor profile; original retained, explicit migration required",
+	"save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\local-gameplay-data\\XACE/NativeGames\\game-nec012-proof\\saves",
+	"save_status": "refused",
+	"tick": 89
+}

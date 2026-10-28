@@ -1,0 +1,10 @@
+{
+    "pid":  8596,
+    "arguments":  [
+                      "--headless",
+                      "--",
+                      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-b\\firewall-run\\denied.json",
+                      "--network-probe"
+                  ],
+    "exit_code":  0
+}

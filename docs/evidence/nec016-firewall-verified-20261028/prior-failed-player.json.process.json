@@ -1,0 +1,9 @@
+{
+    "pid":  13728,
+    "arguments":  [
+                      "--headless",
+                      "--",
+                      "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec016\\20261028\\network-a\\firewall-run-b\\player.json"
+                  ],
+    "exit_code":  1
+}
