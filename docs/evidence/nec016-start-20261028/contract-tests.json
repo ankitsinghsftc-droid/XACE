@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "exit_code": 0,
+  "command": [
+    "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "packages/project-system/tests",
+    "-p",
+    "test_continuity_contract.py",
+    "-v"
+  ]
+}

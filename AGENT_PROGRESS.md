@@ -11,7 +11,7 @@ Recovery started 2026-10-12. This file overrides historical completion claims in
 
 ## Current state
 
-Current 2026-10-28: NEC001-012 and NEC014 completed within documented profiles. NEC013 and NEC015 local implementation verified; mandatory clean-machine gates remain open. NEC016 has not started and is not authorized. Latest local acceptance: docs/evidence/nec015-local-acceptance-20261028/summary.json. Earlier entries below are historical. Source/compact local-acceptance checkpoint53344c0 is pushed to GitHub and its remote identity verified. Raw fixtures/binaries/sealed archives remain local-only.
+Current 2026-10-28: NEC001-012 and NEC014 completed within documented profiles. NEC013 and NEC015 local implementation verified; mandatory clean-machine gates remain open. NEC016 is explicitly authorized and IN PROGRESS; acceptance docs/NEC016_CONTINUITY_ACCEPTANCE.md. NEC017 is not authorized. Latest local acceptance: docs/evidence/nec015-local-acceptance-20261028/summary.json. Earlier entries below are historical. Source/compact local-acceptance checkpoint53344c0 is pushed to GitHub and its remote identity verified. Raw fixtures/binaries/sealed archives remain local-only.
 
 | Milestone | Recovery | Fresh verification |
 |---|---|---|
@@ -358,3 +358,9 @@ NEC015 local declared-profile implementation and verification closed 2026-10-28;
 
 
 NEC015 local-acceptance source/evidence checkpoint 53344c0d547af763722fedb1502f25859e1285d4 pushed and remote-verified on recovery/xp022. Tracked implementation tree clean at verification; raw native fixtures/binaries/recovered seal remain local-only. Mandatory clean-machine gate unchanged; NEC016 not started.
+
+
+NEC016 STARTED 2026-10-28 at8bb9e3c, explicitly authorized after NEC015 local closeout. Acceptance docs/NEC016_CONTINUITY_ACCEPTANCE.md. First reconcile and reuse package/adaptor/history/native storage code; whole-project closure/restore/detach not yet implemented or certified. User-authorized cleanup removed only six obsolete NEC015 PCH caches (14498856832 bytes) with guards and receipts; no source/binary/progress/evidence removed. Source backup8bb9e3c verified on GitHub; raw evidence/binaries/seal remain local-only. NEC013/015 mandatory clean-machine gates remain open; NEC017 not started.
+
+
+NEC016 initial contracts verified:10 focused tests pass for relocation-stable inventory, explicit missing essential dependencies/roles, protected checkpoint tamper refusal, deliberate credential omission, safe paths/limits and source preservation. Typed closure inventory implemented; declared completeness never implies rebuild certification. Streaming archive/restore, detach, actual independent rebuild/offline launch/update proofs remain unimplemented/unverified. Evidence docs/evidence/nec016-start-20261028. Source checkpoint pending push; raw fixtures/binaries/seal local-only.
