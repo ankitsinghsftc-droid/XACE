@@ -11,7 +11,7 @@ from pathlib import Path,PurePosixPath
 SCHEMA='xace.continuity_archive.v1'
 ROLES=frozenset({'project-source','native-project','executor-source','runtime','history','notices'})
 RESERVED={'CON','PRN','AUX','NUL',*(f'COM{i}' for i in range(1,10)),*(f'LPT{i}' for i in range(1,10))}
-SECRET_NAMES={'.env','.npmrc','.pypirc','id_rsa','id_ed25519','credentials.json','session-ticket.json'}
+SECRET_NAMES={'.env','.npmrc','.pypirc','id_rsa','id_ed25519','credentials.json','session-ticket.json','native-ticket.json','ticket.json'}
 class ContinuityError(ValueError):pass
 
 def require(value,message):

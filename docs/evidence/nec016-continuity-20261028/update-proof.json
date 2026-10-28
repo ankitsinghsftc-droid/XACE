@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "valid_cosmetic_update": true,
+  "same_save_identity_and_namespace": true,
+  "previous_receipt_retained": true,
+  "admitted_but_unready_update_refused": true,
+  "working_pointer_unchanged_on_failure": true,
+  "explicit_rollback_to_retained_release": true,
+  "failure": {
+    "message": "Authority exited before readiness",
+    "ok": false,
+    "state": "refused"
+  },
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "full_installer": false
+}

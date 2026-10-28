@@ -1,0 +1,39 @@
+{
+  "ok": true,
+  "checks": {
+    "changed_native_resource_refused": true,
+    "save_admission_and_non_destructive_refusal": true,
+    "save_slot_traversal_refused": true,
+    "offline_without_toolchain_start": true,
+    "collision_fallback": true,
+    "repeated_play_same_owner": true,
+    "explicit_stop": true,
+    "eof_stops_owned_authority": true,
+    "authority_crash_visible_no_fallback": true,
+    "owner_crash_job_cleanup": true,
+    "failed_start_retains_active": true,
+    "changed_package_refused_before_spawn": true,
+    "stale_executor": true,
+    "missing_capability": true,
+    "incompatible_snapshot": true,
+    "source_inventory_mismatch": true,
+    "online_creator_recipe": true,
+    "nondeterministic_executor": true,
+    "unrelated_process_survives": true
+  },
+  "source_files": {
+    "packages/player-launcher/src/distribution.rs": "b146430b1e5c0764db4bdff387aa30d059086a4ddb4e8ead5e64bc877ba29963",
+    "packages/player-launcher/src/job.rs": "b0dec308b4820c3d4e957f0f79bf3909dd0bf99d7ee0df008b34b0579eef5f4c",
+    "packages/player-launcher/src/lifecycle.rs": "045db344861aded18d0bf280acb63b91f0deb666883e7f96ce84ba9b1354260f",
+    "packages/player-launcher/src/main.rs": "5c21c48b62248b4de0d82abec362b315a52347457bd8ba65a0df9e8e32dbd632",
+    "packages/player-launcher/src/native_host.rs": "265b443c120b567a526afb8af76bdb5964a093ebd8547690fe61e7f422a0575b",
+    "packages/player-launcher/src/native_release.rs": "7352a859fb746c633c165b240fadac7645e06e28e1b6f385bc19867c57b2273e",
+    "packages/player-launcher/src/native_storage.rs": "a4dc3358eafcc20c11c66e97ffc2930a87ed7c5e17ebdfe8114e728bc6e8a90e",
+    "packages/player-launcher/src/session.rs": "fdf62a723ec69a61175c878085f78dd51d1dada1d266eac6d0ac77a26906f94b"
+  },
+  "launcher_sha256": "3145b9bf94b404af896250f4253e246b86606dff7d43c2bc160f5c78449154bb",
+  "release_sha256": "a5d3d2b6bf2ead7bb5bdc9f607dd1506024bbabec5a3151337ed7176763e4458",
+  "native_engine_build": false,
+  "clean_machine": false,
+  "updates_and_saves_verified": false
+}

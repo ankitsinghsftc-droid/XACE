@@ -1,0 +1,68 @@
+{
+  "schema": "xace.nec016.continuity_checkpoint.v1",
+  "task_complete": false,
+  "source_parent": "dc3234064bf8828e4366500b535a68b477e89eaf",
+  "source_files": {
+    "packages/project-system/adapter_installation.py": "90ef9c232aa03fbcff93d40e3fe6e1ccd4e565fa14953b83453eb9f620b0a032",
+    "packages/project-system/continuity_contract.py": "d611f0403b25769c85586c99d74876635d909a3606228e261458681b42bf87c6",
+    "packages/project-system/continuity_archive.py": "619eb15839f663277a5bf9c2746fc7c59f4a0e84519bb559204229f2e40a5f4a",
+    "packages/project-system/continuity_detach.py": "caf51fe532363b830051f311c59ff49c2b3730ddbca379f528003bfc71192bfd",
+    "packages/project-system/tests/test_continuity_contract.py": "6c3d48dd7ee7a962cf171a9f84149a8f2462329ac3e629e3e0238968c29fde9a",
+    "packages/project-system/tests/test_continuity_archive.py": "2ef91e054e9910486fedecf7699e0ec309232ba56852d9cb52872b65e87f7382",
+    "packages/project-system/tests/test_continuity_detach.py": "cbc178b53fcc5131db63001553ebd64ef4cbb2f13af1f924b70d683aa63a1086",
+    "tools/continuity.py": "74e65cd2a3dd90fc3d0535b326dd9d3c5238e1e7a594b5621547e555e075c6cf",
+    "tools/nec016_restore_proof.py": "c3ee1c0fe552f0c68068e2efa5c2920e617654facd1449b284272d16e97e384d",
+    "tools/nec016_update_save_proof.py": "d3d3ef0a2a3903ab8219f4f2b1c008d822dc5c197be95c973247e1dab1e050b0",
+    "tools/nec016_network_build.py": "e2acb1002d22a9b954598d90c1fe9c584946097bbe7a5ca0cf66ab036714caad",
+    "tools/nec016_firewall_proof.ps1": "fe8f004c1f89ffbdf1ebdf0e2d0e32256e411d9afe260adbf5d08ba48bac6f44",
+    "tools/nec016_network_probe.gd": "82befc4712963c696d0c2580f446451730a161c50c90dc2ae7390e2be9e0ac7c"
+  },
+  "tests": {
+    "full_project_system": 318,
+    "focused_continuity": 27,
+    "existing_project_system": 11,
+    "passed": true
+  },
+  "native_restore": {
+    "path": "evidence/nec016/20261028/restore-c",
+    "executor_exact": true,
+    "native_rebuilt": true,
+    "gameplay_verified": true,
+    "declared_closure_complete": false
+  },
+  "seal": {
+    "ok": true,
+    "protected_files": 55,
+    "source_archive_entries": 1575,
+    "baseline_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc"
+  },
+  "pending": [
+    "Actual network-denial launch: UAC was canceled; retry readiness requested. No firewall rules were created.",
+    "Complete public redistribution notices/licensing closure unavailable: diagnostic archive explicitly incomplete.",
+    "Prior mandatory clean-machine gates remain open; this laptop is not a clean-machine proof."
+  ],
+  "limitations": [
+    "No runtime-free gameplay export",
+    "Native saves use exact compatibility refusal, not automatic migration",
+    "Real two-developer installed-editor certification remains NEC017",
+    "Builder absent from exported artifact; Builder installation was not destructively removed from this laptop"
+  ],
+  "failures_preserved": [
+    "restore-a and restore-b: Windows long-path failure; fixed and tested in restore-c",
+    "network-a/before.json: exported release ignored external --script and ran normal probe; refused pre-existing test saves. Replaced with embedded probe and isolated LOCALAPPDATA.",
+    "First UAC elevation canceled; no network denial claim"
+  ],
+  "backup": {
+    "source_and_compact_evidence": "pending checkpoint push",
+    "raw_fixtures_binaries_archives": "local-only"
+  },
+  "evidence_files": {
+    "focused-0.txt": "b4f9bb60cf2164a14011c8a05e5791a94a4b8b3192e836966be40c0ae4defd9b",
+    "focused-1.txt": "f2790ca9f8feef83b81b4f7938d42d326c235582ae6ccd08be41e45fb002e31f",
+    "lifecycle-proof.json": "8efbc873c5424c93917f97ba279a424635a0080f3c465cabe55a6a1bbdd57081",
+    "regression.txt": "28bc8781a7a2031b2d2bac8e64f507fc8566460f62d0643890d9318a1102a2bc",
+    "restore-proof.json": "4f82ecea27b42b4197b00da3665ce7742f341344c6744eaea7b36a32bc785d15",
+    "update-proof.json": "ed97624f06c97f187b2333fe040d2e2fdcd4b7fdd34a4ee2307c1781f9a322ac",
+    "update-save-proof.json": "78ea4db4329bb5aa189ea775932e5d72ccb8b48c2cf3a134bec6ee2c2ab207ba"
+  }
+}

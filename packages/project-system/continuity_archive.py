@@ -125,6 +125,11 @@ def restore_archive(archive_path:Path,expected_sha256:str,destination:Path,limit
     destination=Path(destination).absolute();parents_plain(destination.parent)
     require(destination.parent.is_dir() and not destination.exists(),'restore destination must be new')
     require(shutil.disk_usage(destination.parent).free>sum(v['size'] for v in value['files'])+MANIFEST_LIMIT+2*1024**3,'insufficient restore disk reserve')
+    # Use the Windows extended-length namespace for nested real project paths.
+    # Portable archive names were validated above; this changes IO addressing only.
+    if os.name == 'nt' and not str(destination).startswith('\\\\?\\'):
+        raw = str(destination)
+        destination = Path('\\\\?\\UNC\\' + raw[2:] if raw.startswith('\\\\') else '\\\\?\\' + raw)
     destination.mkdir(exist_ok=False)
     (destination/'restore.started.json').write_bytes(canonical(dict(schema='xace.continuity_restore_started.v1',archive_sha256=expected_sha256)))
     with zipfile.ZipFile(archive_path) as archive:

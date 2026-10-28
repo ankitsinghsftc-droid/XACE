@@ -367,3 +367,8 @@ NEC016 initial contracts verified:10 focused tests pass for relocation-stable in
 
 
 NEC016 archive core implemented 2026-10-28:19 distinct focused tests pass. Versioned streaming archive/verification and create-only restore refuse tampering/unsafe paths/links/false completeness, preserve interrupted output and enforce disk reserves. No payload execution and no existing-project overwrite. Known credential names require explicit omission; not exhaustive secret detection. Actual native closure/rebuild, detach/collaboration integration and network-denied/update/save proofs remain pending; NEC016 INCOMPLETE. Evidence docs/evidence/nec016-archive-20261028. Source checkpoint pending push; raw fixtures/binaries/seal local-only.
+
+
+## NEC016 continuity checkpoint ? 2026-10-28
+
+Implemented streaming archive/restore CLI, digest-reviewed independent detach modes, conflict preflight and retained uninstall before-images/history. Fixed real Windows long-path restore failure. 318 project-system tests and27 focused continuity tests pass. Restored pinned executor rebuilt byte-identically; restored Godot game rebuilt and passed native gameplay/save refusal/cleanup. Fresh failed/interrupted update and rollback proofs pass. Protected XP022 seal unchanged (55 files/1575 source entries). Evidence: docs/evidence/nec016-continuity-20261028/summary.json; workflow: docs/NEC016_CONTINUITY_WORKFLOW.md. NEC016 remains incomplete: actual network-denial UAC retry pending, public redistribution notices/rights closure unavailable, inherited clean-machine gates open. Diagnostic archive explicitly incomplete. NEC017 not started. Raw evidence/binaries/archive remain local-only; source checkpoint push pending.

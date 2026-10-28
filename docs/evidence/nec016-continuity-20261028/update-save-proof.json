@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "interrupted_before_readiness_preserves_active": true,
+  "old_release_still_launchable": true,
+  "update_proof": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec012\\nec016-update-save-a-update\\proof.json",
+  "lifecycle_proof": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec012\\nec016-update-save-a-lifecycle\\proof.json",
+  "save_policy": "exact compatibility admission; incompatible original preserved; automatic migration not implemented",
+  "automatic_migration": false
+}

@@ -443,11 +443,21 @@ def uninstall_adapter(
     """
 
     key = _engine_key(engine_type)
+    # Resolve only after rejecting links, including aliases of the project root.
+    original_root = Path(engine_project_root).absolute()
+    original_destination = Path(destination).absolute() if destination is not None else _default_destination(original_root, key)
+    for candidate in (original_root, original_destination, original_destination / ADAPTER_BACKUP_DIR,
+                      original_destination / ADAPTER_ENGINE_INSTALL_MANIFEST):
+        for part in (candidate, *candidate.parents):
+            if part.is_symlink() or (part.exists() and getattr(part.lstat(), "st_file_attributes", 0) & 0x400):
+                raise AdapterInstallationError("Linked uninstall paths are forbidden.")
     engine_root = Path(engine_project_root).resolve()
     install_root = Path(destination).resolve() if destination is not None else _default_destination(engine_root, key)
     _validate_destination(engine_root, install_root)
     manifest_path = install_root / ADAPTER_ENGINE_INSTALL_MANIFEST
     manifest = _read_manifest(manifest_path)
+    if manifest_path.exists() and not manifest:
+        raise AdapterInstallationError("Invalid install manifest; uninstall refused.")
     if not manifest:
         return {
             "ok": True,
@@ -460,41 +470,85 @@ def uninstall_adapter(
             "conflicts": [],
         }
 
-    owned = _owned_file_map(manifest, key, install_root)
+    # Removal requires recorded ownership, never a hash inferred from current bytes.
+    records = manifest.get("owned_files")
+    if not isinstance(records, list) or not records:
+        raise AdapterInstallationError("Uninstall requires a hashed ownership manifest; preserve legacy files for review.")
+    owned = {}
+    for record in records:
+        if not isinstance(record, dict):
+            raise AdapterInstallationError("Invalid ownership record.")
+        rel = _normalise_relative_path(str(record.get("path") or ""))
+        digest = record.get("sha256")
+        if rel in owned or not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise AdapterInstallationError("Invalid or duplicate hashed ownership record.")
+        if rel == ADAPTER_ENGINE_INSTALL_MANIFEST or rel.startswith(ADAPTER_BACKUP_DIR + "/"):
+            raise AdapterInstallationError("Ownership cannot include recovery metadata.")
+        owned[rel] = record
     removed: list[str] = []
     missing: list[str] = []
     preserved: list[str] = []
     conflicts: list[dict[str, Any]] = []
-    for target_relative, record in sorted(owned.items(), key=lambda item: item[0].count("/"), reverse=True):
+    candidates = []
+    recovery = None
+    # Preflight the entire set before removing anything. A conflict preserves
+    # clean siblings as well as modified files and their historical before-images.
+    for target_relative, record in sorted(owned.items()):
+        raw = install_root / target_relative
+        for part in (raw, *raw.parents):
+            if part == install_root.parent:
+                break
+            if part.exists() and (part.is_symlink() or getattr(part.lstat(), "st_file_attributes", 0) & 0x400):
+                raise AdapterInstallationError("Linked adapter paths cannot be uninstalled.")
         target = _resolve_under(install_root, target_relative)
         current = _file_state(target)
         if not current["exists"]:
+            if target.exists():
+                raise AdapterInstallationError("Owned adapter path is not a regular file.")
             missing.append(target_relative)
             continue
-        expected_hash = record.get("sha256")
-        if expected_hash and current.get("sha256") != expected_hash:
+        expected_hash = record["sha256"]
+        if current.get("sha256") != expected_hash:
             conflicts.append({
                 "path": target_relative,
                 "reason": "XACE_OWNED_FILE_MODIFIED_BY_USER",
                 "expected_sha256": expected_hash,
                 "current_sha256": current.get("sha256"),
             })
-            preserved.append(target_relative)
-            continue
-        target.unlink()
-        removed.append(target_relative)
-
+        candidates.append((target_relative, target, current))
     if conflicts:
-        preserved.extend(_remaining_user_files(install_root, set(owned)))
+        preserved.extend(rel for rel, _, _ in candidates)
     else:
-        if manifest_path.exists():
+        # Preserve recovery history permanently. Removal of history is a separate,
+        # explicitly authorized operation, never a side effect of uninstall.
+        for rel, target, before in candidates:
+            if _file_state(target) != before:
+                raise AdapterInstallationError("Adapter changed after uninstall preflight.")
+        recovery = install_root / ADAPTER_BACKUP_DIR / ("uninstall-" + uuid.uuid4().hex)
+        recovery.mkdir(parents=True, exist_ok=False)
+        shutil.copy2(manifest_path, recovery / ADAPTER_ENGINE_INSTALL_MANIFEST)
+        for rel, target, before in candidates:
+            _backup_file(target, recovery / "files", rel)
+            if _file_state(target) != before or _file_state(recovery / "files" / rel) != before:
+                raise AdapterInstallationError("Adapter changed while preserving uninstall recovery.")
+        try:
+            for rel, target, before in candidates:
+                if _file_state(target) != before:
+                    raise AdapterInstallationError("Adapter changed during uninstall.")
+                target.unlink()
+                removed.append(rel)
             manifest_path.unlink()
-        backups = install_root / ADAPTER_BACKUP_DIR
-        if backups.exists():
-            shutil.rmtree(backups)
-        preserved.extend(_remaining_user_files(install_root, set(owned)))
+        except Exception:
+            # Restore only absent paths, never overwrite a concurrent creator edit.
+            # All before-images remain durable even if restoration itself fails.
+            for rel in removed:
+                target = install_root / rel
+                if not target.exists():
+                    with target.open("xb") as output:
+                        output.write((recovery / "files" / rel).read_bytes())
+            raise
+    preserved.extend(_remaining_user_files(install_root, set(owned)))
 
-    _remove_empty_dirs(install_root, install_root)
     return {
         "ok": not conflicts,
         "schema": ADAPTER_UNINSTALL_REPORT_SCHEMA,
@@ -503,6 +557,8 @@ def uninstall_adapter(
         "engine_project_path": str(engine_root),
         "destination_path": str(install_root),
         "manifest_path": str(manifest_path),
+        "recovery_path": str(recovery) if recovery is not None else None,
+        "backup_history_preserved": True,
         "removed": removed,
         "missing": missing,
         "preserved": sorted(set(preserved)),

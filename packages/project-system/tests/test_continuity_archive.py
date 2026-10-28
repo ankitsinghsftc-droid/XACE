@@ -1,4 +1,4 @@
-import copy,dataclasses,hashlib,json,os,stat,sys,unittest,zipfile
+import copy,dataclasses,hashlib,json,os,shutil,stat,sys,unittest,zipfile
 from pathlib import Path
 from unittest.mock import patch
 import test_continuity_contract as fixture
@@ -81,5 +81,37 @@ class ContinuityArchiveTests(unittest.TestCase):
         with patch('continuity_archive.shutil.disk_usage',return_value=Disk(10,9,1)):
             with self.assertRaisesRegex(ContinuityError,'disk reserve'):create_archive(self.request,path)
         self.assertFalse(path.exists())
+
+
+    @unittest.skipUnless(os.name=='nt','Windows long-path regression')
+    def test_restore_deep_windows_workspace(self):
+        archive,receipt=self.make_archive()
+        parent=self.base/('a'*80)/('b'*80);parent.mkdir(parents=True)
+        destination=parent/('c'*40)
+        restored=restore_archive(archive,receipt['archive_sha256'],destination)
+        extended=Path('\\\\?\\'+str(destination.absolute()))
+        self.assertTrue(destination.absolute().is_relative_to(self.base.absolute()))
+        self.addCleanup(shutil.rmtree,extended)
+        self.assertTrue((extended/'restore.receipt.json').is_file())
+        self.assertEqual(restored['files'],len(inventory(self.request).manifest['files']))
+
+    def test_restored_identity_history_reopens_and_forks_without_rewriting_original(self):
+        import test_authoring_identity as identities
+        from authoring_identity import IdentityDraft
+        from authoring_identity_store import AuthoringIdentityStore
+        from continuity_contract import SourceRoot
+        fixture_store=identities.StoreTests();fixture_store.setUp();self.addCleanup(fixture_store.tearDown)
+        request=dataclasses.replace(self.request,roots=self.request.roots+(SourceRoot('authoring','history',fixture_store.root),))
+        archive,receipt=self.make_archive(request=request)
+        destination=self.base/'restored-identity';restore_archive(archive,receipt['archive_sha256'],destination)
+        restored=AuthoringIdentityStore(destination/'payload/authoring')
+        self.assertEqual(restored.load(),fixture_store.store.load())
+        self.assertEqual(restored.history(fixture_store.first),fixture_store.store.history(fixture_store.first))
+        draft=IdentityDraft(restored.load().mapping);draft.fork(identities.oid(201))
+        revision=restored.commit(restored.prepare(draft.snapshot(),expected_revision=fixture_store.current,journal_ref='nec016:explicit-fork',operation='fork'))
+        self.assertNotEqual(revision,fixture_store.current)
+        self.assertEqual(restored.history(fixture_store.current),fixture_store.store.load())
+        self.assertEqual(fixture_store.store.load().mapping.branch_id,identities.oid(200))
+        self.assertEqual(restored.load().mapping.branch_id,identities.oid(201))
 
 if __name__=='__main__':unittest.main()
