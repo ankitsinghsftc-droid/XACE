@@ -1,0 +1,25 @@
+{
+  "status": "incomplete",
+  "verified": [
+    "19 distinct focused continuity-contract/archive/restore tests",
+    "Deterministic streaming archive bytes and hash-bound verification",
+    "Create-only restore, retained interrupted output, no payload execution",
+    "Essential omissions/unavailable dependencies block declared completeness",
+    "Traversal/links/tampering/false completeness/source drift/disk reserve refusals"
+  ],
+  "not_yet_verified": [
+    "Actual native project dependency closure and independent rebuild",
+    "Full secret-redaction review and archive UX integration",
+    "Detach with modified adapter conflict preservation",
+    "Collaboration clone/fork/branch/merge/rebase/recovery contract integration",
+    "Actual no-Builder/network-denied shipping and interrupted update/save proofs"
+  ],
+  "limitations": [
+    "Known sensitive filenames require deliberate omission; this is not an exhaustive secret detector",
+    "Declared closure review is not semantic dependency discovery or rebuild certification",
+    "Archive identity is caller-pinned integrity, not a signature",
+    "Failed/partial archives and restores are retained; existing destinations refuse",
+    "Original clean-machine/signing/tester/network/Steam gates remain open"
+  ],
+  "backup": "Source/compact evidence checkpoint pending push; raw fixtures/binaries/seal local-only."
+}

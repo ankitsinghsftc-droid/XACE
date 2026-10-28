@@ -23,4 +23,4 @@ Started 2026-10-28 at8bb9e3c on recovery/xp022, explicitly authorized. NEC013/01
 
 Focused adversarial archive/restore and detach tests, real independent workspace restore/rebuild, native package isolation/network-denial proof and existing regression suites. Pin source, archive and restored-file identities. Use persistent paths outside disposable build directories. Failures and partial checkpoints are retained and labeled. Stop before NEC017.
 
-Status: contracts and source-closure inventory implementation in progress; no NEC016 acceptance claim yet.
+Status: typed closure inventory and streaming archive/verification/create-only restore core implemented;19 distinct focused tests pass. Actual native closure/rebuild, detach/collaboration integration and offline/update/save proofs remain pending. No NEC016 acceptance claim yet. Evidence: docs/evidence/nec016-archive-20261028.

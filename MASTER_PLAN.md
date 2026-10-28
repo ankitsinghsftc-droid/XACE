@@ -2025,3 +2025,6 @@ NEC016 STARTED 2026-10-28 at8bb9e3c, explicitly authorized after NEC015 local cl
 
 
 NEC016 initial contracts verified:10 focused tests pass for relocation-stable inventory, explicit missing essential dependencies/roles, protected checkpoint tamper refusal, deliberate credential omission, safe paths/limits and source preservation. Typed closure inventory implemented; declared completeness never implies rebuild certification. Streaming archive/restore, detach, actual independent rebuild/offline launch/update proofs remain unimplemented/unverified. Evidence docs/evidence/nec016-start-20261028. Source checkpoint pending push; raw fixtures/binaries/seal local-only.
+
+
+NEC016 archive core implemented 2026-10-28:19 distinct focused tests pass. Versioned streaming archive/verification and create-only restore refuse tampering/unsafe paths/links/false completeness, preserve interrupted output and enforce disk reserves. No payload execution and no existing-project overwrite. Known credential names require explicit omission; not exhaustive secret detection. Actual native closure/rebuild, detach/collaboration integration and network-denied/update/save proofs remain pending; NEC016 INCOMPLETE. Evidence docs/evidence/nec016-archive-20261028. Source checkpoint pending push; raw fixtures/binaries/seal local-only.
