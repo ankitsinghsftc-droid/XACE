@@ -5,6 +5,7 @@ for semantic roles, extra component values, mode settings and package selection.
 Native captures and identity maps are supplied by the trusted editor host.
 """
 from __future__ import annotations
+from native_authoring_limits import MAX_BOUND_OBJECTS
 import copy
 import hashlib
 import importlib
@@ -89,7 +90,7 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
     inspected = reader.capture(native_inventory, mapping, enable_writes=True)
     inspection = parse(inspected.payload); rows = inspection["normalized"]
     require(type(selection) is list and selection and selection == sorted(set(selection))
-            and len(selection) <= 128, "select 1..128 unique sorted native objects")
+            and len(selection) <= MAX_BOUND_OBJECTS, "select 1..1000 unique sorted native objects")
     require(all(k in rows and mapping.objects[k].kind not in {"scene", "prefab_definition"}
                 and not rows[k]["deleted"] for k in selection), "select live native instances")
     exact(choices, {"mode_id", "new_mode", "world_contract", "objects", "packages", "legacy_dispositions"})

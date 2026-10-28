@@ -1,0 +1,3 @@
+{"engine": "godot", "objects": 1000, "planning_seconds": 4.754543699993519, "inventory_bytes": 652820, "native_editor_certified": false}
+{"engine": "unity", "objects": 1000, "planning_seconds": 4.881498100003228, "inventory_bytes": 654809, "native_editor_certified": false}
+{"engine": "unreal", "objects": 1000, "planning_seconds": 5.007043099991279, "inventory_bytes": 648829, "native_editor_certified": false}

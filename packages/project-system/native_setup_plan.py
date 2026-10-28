@@ -4,6 +4,7 @@ The initial setup profile admits explicit, single-instance root World objects.
 Native serialization happens in a registered editor factory. Captured native
 identities and exact canonical transforms must match this plan before review.
 """
+from native_authoring_limits import MAX_BOUND_OBJECTS
 import copy
 from dataclasses import dataclass
 from authoring_identity import canonical,digest,opaque_id,require,WorldBinding
@@ -29,7 +30,7 @@ def plan_setup(cgs,*,engine,namespace_id,project_id,branch_id,mode_id,playback_b
     modes=[m for m in cgs['modes'] if m['id']==mode_id]
     require(len(modes)==1,'select one existing mode')
     mode=modes[0];objects=mode.get('world',{}).get('contract',{}).get('objects',[])
-    require(0<len(objects)<=128,'setup requires1..128 explicit World objects')
+    require(0<len(objects)<=MAX_BOUND_OBJECTS,'setup requires1..1000 explicit World objects')
     playback_bindings={} if playback_bindings is None else copy.deepcopy(playback_bindings)
     require(type(playback_bindings) is dict and set(playback_bindings)<={o['id'] for o in objects},'explicit setup playback World bindings required')
     require(all(type(v) is str for v in playback_bindings.values()) and len(set(playback_bindings.values()))==len(playback_bindings),'ambiguous setup playback binding')

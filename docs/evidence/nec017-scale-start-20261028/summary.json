@@ -1,0 +1,43 @@
+{
+  "schema": "xace.nec017.scale_checkpoint.v1",
+  "task_complete": false,
+  "object_target": 1000,
+  "shared_planners": [
+    "godot",
+    "unity",
+    "unreal"
+  ],
+  "native_create_cold_reopen_passed": [
+    "godot",
+    "unity"
+  ],
+  "unreal": "fresh compilation running",
+  "regression_tests": 325,
+  "source_files": {
+    "packages/project-system/native_authoring_limits.py": "4c127abcf0a925a4203d2695733757c72a612c17976c0fe347629f7c2f88fe4e",
+    "packages/project-system/native_adoption.py": "b2997ec57ac0c38faa8922a3bc9b63a9001d7ed26f1e4d38b25b0190bed5837e",
+    "packages/project-system/native_setup_plan.py": "e4029b017e1f52fe9d98f511f66824ebd2b7eed324f111f5884632c4b584146f",
+    "packages/project-system/native_reconciliation_plan.py": "6fbfbca270c415a95db7ae71b88ab8a0720654cd82903acdd78bedbf7441983c",
+    "packages/gde/src/domain_dsl/typed_operations/native_adoption_operations.py": "6e028b43c78e84c00acf4da6e55a7fb1bc7b8475d3d1b822bc064399718c52ae",
+    "adapters/godot/authoring/native_setup.gd": "c5c6c33e061ba05786cd8c38d38cfdfe12e68193edbff9eafa913192bbe52965",
+    "adapters/unity/Authoring/Editor/UnityNativeSetup.cs": "b226ccd20e8a10c12e6bab2e42505a091864cde0bda050f50e6a540fe2d8ae04",
+    "adapters/unreal/Authoring/Source/XACEAuthoring/Private/XaceNativeSetup.cpp": "41f399337729a6b269ec6dfefd244671ece522a24dac4b88465895873bcd4649",
+    "packages/project-system/tests/test_native_scale.py": "cafe69040212e298c5f9ea826c161ce4b654f69275b34ab5866c1e4ba9064058",
+    "tools/nec017_godot_scale.py": "93012984ddbe60f9d44308e14a6f044b097b2c8a15194caa680fabb461552df5",
+    "tools/nec017_unity_scale.py": "2730ffefb8ae1d6693b281af6951b8419fe03365c084c07467a0b3a6ac10c6be",
+    "tools/nec017_unreal_scale.py": "f5b746964849afc15f9792bd6589049efac9ba8e0b97fb3d7c1792ad0cf2088e"
+  },
+  "pending": [
+    "Unreal native1,000-object proof",
+    "Repeated editing/rebuild/peak resources/history and recovery measurement",
+    "Real two-developer branch/merge/rebase/recovery certification",
+    "Full installed-engine conflict and journal crash matrix",
+    "Unusual mechanic and shipping failure matrix"
+  ],
+  "prior_failures": [
+    "scale-a discovered GDE512-operation ceiling",
+    "scale-b test read wrong result-schema level; corrected; production planner succeeded"
+  ],
+  "release_gates": "clean-machine deferred by user, public rights approval remains NEC018; no gates waived",
+  "raw_evidence_off_device": false
+}

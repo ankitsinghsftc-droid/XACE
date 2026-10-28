@@ -1,0 +1,7 @@
+test_above_declared_profile_refuses_adoption (test_native_scale.NativeScaleTests.test_above_declared_profile_refuses_adoption) ... ok
+test_thousand_object_adoption_setup_and_noop_reconciliation (test_native_scale.NativeScaleTests.test_thousand_object_adoption_setup_and_noop_reconciliation) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 15.439s
+
+OK

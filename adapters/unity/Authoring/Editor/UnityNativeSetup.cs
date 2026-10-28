@@ -40,7 +40,7 @@ namespace Xace.Authoring.Editor
             Need(Text(approval,"digest")==approvedDigest && Path.GetFullPath(Text(approval,"stage_root"))==Path.GetFullPath("."),"Foreign setup stage");
             UnityAuthoringReader.AssetPath(ScenePath);Need(!Directory.Exists("Assets/XACEGenerated"),"Existing generated content must not be replaced");
             var sceneId=AuthoringJson.Obj(spec["scene"]);string ns=Text(sceneId,"namespace_id");
-            var rows=spec["objects"] as List<object>;Need(rows!=null && rows.Count>0 && rows.Count<=128,"Setup object limit");
+            var rows=spec["objects"] as List<object>;Need(rows!=null && rows.Count>0 && rows.Count<=1000,"Setup object limit");
             var seen=new HashSet<string>{Text(sceneId,"authoring_id")};
             var first=SceneManager.GetSceneAt(0);
             bool emptyStartup=SceneManager.sceneCount==1 && first.path=="" && first.rootCount==0 && !first.isDirty;

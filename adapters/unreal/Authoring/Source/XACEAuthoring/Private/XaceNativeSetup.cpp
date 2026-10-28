@@ -21,7 +21,7 @@ FXaceUnrealAuthoring::Object FXaceUnrealAuthoring::CreateSetup(const Object& Spe
     const FString Map=TEXT("/Game/XACEGenerated/World");const FString Directory=FPaths::ProjectContentDir()/TEXT("XACEGenerated");
     if(IFileManager::Get().DirectoryExists(*Directory))return Fail(TEXT("Existing generated content must not be replaced")),nullptr;
     auto Scene=Child(Spec,TEXT("scene"));const TArray<TSharedPtr<FJsonValue>>* Rows=nullptr;
-    if(!ValidateMetadata(Scene)||String(Scene,TEXT("kind"))!=TEXT("scene")||!Spec->TryGetArrayField(TEXT("objects"),Rows)||Rows->IsEmpty()||Rows->Num()>128)return Fail(TEXT("Explicit scene and object identities required")),nullptr;
+    if(!ValidateMetadata(Scene)||String(Scene,TEXT("kind"))!=TEXT("scene")||!Spec->TryGetArrayField(TEXT("objects"),Rows)||Rows->IsEmpty()||Rows->Num()>1000)return Fail(TEXT("Explicit scene and object identities required")),nullptr;
     TSet<FString> Seen;Seen.Add(String(Scene,TEXT("authoring_id")));
     for(const auto& Value:*Rows){auto Row=Value->AsObject();auto Identity=Child(Row,TEXT("identity"));auto F=Child(Row,TEXT("fields"));FString Name=String(Row,TEXT("name"));
         if(!Row||Row->Values.Num()!=3||!ValidateMetadata(Identity)||String(Identity,TEXT("namespace_id"))!=String(Scene,TEXT("namespace_id"))||String(Identity,TEXT("kind"))!=TEXT("object")||Seen.Contains(String(Identity,TEXT("authoring_id")))||Name.IsEmpty()||Name.Len()>128||!F||(F->Values.Num()<3||F->Values.Num()>6)||!F->HasField(TEXT("transform.position"))||!F->HasField(TEXT("transform.rotation"))||!F->HasField(TEXT("transform.scale")))return Fail(TEXT("Invalid setup object")),nullptr;

@@ -19,7 +19,7 @@ func create(spec: Dictionary, approved_digest: String) -> Dictionary:
 	if reader.wire.digest(spec) != approved_digest: return fail("Setup differs from approved native stage request")
 	if spec.size() != 3 or not spec.has_all(["schema", "scene", "objects"]) or spec.schema != "xace.godot_native_setup.v1": return fail("Invalid setup request")
 	if not spec.scene is Dictionary or not reader.metadata(spec.scene) or spec.scene.kind != "scene": return fail("Explicit scene identity required")
-	if not spec.objects is Array or spec.objects.is_empty() or spec.objects.size() > 128: return fail("Select one to128 native objects")
+	if not spec.objects is Array or spec.objects.is_empty() or spec.objects.size() > 1000: return fail("Select one to1000 native objects")
 	if not FileAccess.file_exists("res://.xace/native-setup-approved.json"): return fail("Registered setup stage authorization required")
 	var approval: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://.xace/native-setup-approved.json"))
 	if not approval is Dictionary or approval.get("digest") != approved_digest or approval.get("stage_root") != ProjectSettings.globalize_path("res://").trim_suffix("/"): return fail("Foreign setup stage")

@@ -3,6 +3,7 @@
 No baseline is established here. The caller supplies a verified NEC-002 baseline
 and an out-of-band receipt verifier. Native documents are never written.
 """
+from native_authoring_limits import MAX_BOUND_OBJECTS
 import copy
 import hashlib
 import importlib
@@ -143,7 +144,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     before=load_snapshot(baseline.payload,mapping,policy).to_dict()['inspection']['normalized']
     require(_project(baseline_cgs,before,mapping)==before,'baseline canonical/native projection disagrees')
     bound=[k for k,r in mapping.objects.items() if r.world_binding]
-    require(0<len(bound)<=128,'select 1..128 verified instance bindings')
+    require(0<len(bound)<=MAX_BOUND_OBJECTS,'select 1..1000 verified instance bindings')
     inspection=reader.capture(native_inventory,current_mapping,enable_writes=True)
     observed=parse(inspection.payload);engine=observed['normalized']
     xace=_project(current_cgs,before,mapping)

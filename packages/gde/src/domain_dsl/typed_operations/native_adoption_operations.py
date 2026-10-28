@@ -13,6 +13,9 @@ from .typed_operation_executor import TypedOperationExecutor, TypedOperationExec
 
 SCHEMA = "xace.native_adoption_operations.v1"
 PARENT_ROLE = "xace.authoring_parent.v1"
+# Up to four materialization operations per1,000 native instances plus declarations.
+# The independent16MiB batch bound and all atomic validation remain unchanged.
+MAX_ADOPTION_OPERATIONS = 4096
 
 
 def encode(value):
@@ -67,7 +70,7 @@ class NativeAdoptionExecutor:
         exact(batch, {"schema", "expected_cgs_digest", "operations"})
         require(batch["schema"] == SCHEMA and batch["expected_cgs_digest"] == digest(current), "stale adoption CGS")
         ops = batch["operations"]
-        require(type(ops) is list and len(ops) <= 512, "adoption operation limit")
+        require(type(ops) is list and len(ops) <= MAX_ADOPTION_OPERATIONS, "adoption operation limit")
         encode(batch); proposed = copy.deepcopy(current); ids = set()
         for op in ops:
             require(type(op) is dict, "invalid operation")
