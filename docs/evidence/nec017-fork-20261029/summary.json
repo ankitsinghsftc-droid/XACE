@@ -1,0 +1,21 @@
+{
+  "task": "NEC-017",
+  "task_complete": false,
+  "scope": "Explicit clean-source reviewed workspace fork, Godot installed editor, ancestor history preservation, new active baseline, dirty-source refusal, cold reopen no-op.",
+  "native_fork_verified": true,
+  "project_system_tests": 335,
+  "focused_refusal_tests": 5,
+  "source_sha256": {
+    "packages/project-system/native_workspace_fork.py": "6cb248154dc061a75bafc666df4812824ff0136fd0839ffd36b8c1ba02006fa1",
+    "tools/nec017_godot_fork.py": "fab1ae250963adf69f5417e3d528605b1a8c44f5cfa3ddc0ae0c8c8fee77e36e",
+    "packages/project-system/tests/test_native_workspace_fork.py": "62aa270ec7f03dd9d01566ff1f5cc338c3d1bf2f095f4dad0bf35d96b46aeb0e"
+  },
+  "remaining": "Two-developer Git branch/merge/rebase/recovery and full all-engine conflict/scale certification remain open.",
+  "failed_attempts": [
+    "fork-a live OS lock read refusal",
+    "fork-b dirty source refusal",
+    "fork-c Windows long-path failure; retained incomplete destination"
+  ],
+  "notes": "Fork source workspace native captures add diagnostic logs, without rewriting old source or journals. Live cgs.write.lock is explicitly excluded from ancestor archive. No imported receipt is executed. Original seal untouched.",
+  "raw_evidence_off_device": false
+}
