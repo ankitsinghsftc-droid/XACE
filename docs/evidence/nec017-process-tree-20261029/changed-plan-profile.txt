@@ -1,0 +1,53 @@
+         71694113 function calls (68769680 primitive calls) in 61.889 seconds
+
+   Ordered by: cumulative time
+   List reduced from 388 to 45 due to restriction <45>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.077    0.077   61.657   61.657 native_reconciliation_plan.py:124(plan_reconciliation)
+       55    8.365    0.152   26.589    0.483 native_authoring_contract.py:25(bounded)
+        1    0.013    0.013   21.894   21.894 godot_authoring.py:88(write_request)
+        4    0.009    0.002   19.080    4.770 native_authoring_contract.py:308(load_snapshot)
+       30    0.005    0.000   17.664    0.589 native_authoring_contract.py:46(parse)
+        7    0.340    0.049   16.181    2.312 native_authoring_contract.py:164(inspect_capture)
+        7    0.000    0.000   12.560    1.794 native_authoring_contract.py:149(admit)
+2303821/303825    6.027    0.000   11.278    0.000 copy.py:128(deepcopy)
+        3    0.013    0.004   11.262    3.754 godot_authoring.py:72(capture)
+692824/680824    2.517    0.000   10.480    0.000 {built-in method builtins.all}
+305286/24038    1.988    0.000   10.046    0.000 copy.py:227(_deepcopy_dict)
+        4    0.072    0.018    8.703    2.176 portable_compilation.py:20(compile_portable_cgs)
+  1211975    2.547    0.000    8.457    0.000 {built-in method builtins.any}
+       27    0.844    0.031    7.293    0.270 authoring_identity.py:139(validate)
+        4    0.001    0.000    7.122    1.780 schema_factory.py:129(compile)
+65253/21113    0.173    0.000    6.951    0.000 copy.py:201(_deepcopy_list)
+        4    0.014    0.003    6.719    1.680 world_contract.py:79(compile_world)
+       12    0.008    0.001    6.254    0.521 authoring_identity.py:199(mapping_digest)
+   153296    0.484    0.000    5.972    0.000 authoring_identity.py:33(token)
+  7978661    4.693    0.000    5.861    0.000 native_authoring_contract.py:39(<genexpr>)
+        1    0.001    0.001    5.113    5.113 native_authoring_contract.py:356(writable_fields)
+        7    0.006    0.001    4.206    0.601 native_authoring_contract.py:140(losses)
+    28000    0.366    0.000    4.170    0.000 native_authoring_values.py:51(normalize)
+  5969184    3.076    0.000    3.997    0.000 authoring_identity.py:35(<genexpr>)
+        1    0.073    0.073    3.770    3.770 native_reconciliation.py:72(reconcile_records)
+    27000    0.084    0.000    3.769    0.000 authoring_identity.py:89(validate)
+    12119    0.025    0.000    3.678    0.000 dataclasses.py:1263(asdict)
+  2464402    2.844    0.000    3.663    0.000 native_authoring_contract.py:34(<genexpr>)
+303921/12119    1.472    0.000    3.639    0.000 dataclasses.py:1287(_asdict_inner)
+        5    0.053    0.011    3.213    0.643 godot_authoring.py:30(inventory)
+        5    0.000    0.000    2.990    0.598 native_authoring_contract.py:132(to_dict)
+        1    0.005    0.005    2.960    2.960 native_reconciliation_operations.py:10(preview)
+       12    0.021    0.002    2.902    0.242 authoring_identity.py:202(<dictcomp>)
+        8    0.010    0.001    2.571    0.321 world_contract.py:87(without_display_enums)
+      126    0.009    0.000    2.414    0.019 __init__.py:183(dumps)
+      126    0.002    0.000    2.404    0.019 encoder.py:183(encode)
+      126    2.377    0.019    2.377    0.019 encoder.py:205(iterencode)
+     5000    1.176    0.000    2.321    0.000 native_reconciliation_plan.py:33(_binding)
+   654832    1.152    0.000    2.231    0.000 {method 'extend' of 'list' objects}
+ 12594607    2.089    0.000    2.089    0.000 {built-in method builtins.ord}
+       98    0.004    0.000    1.933    0.020 authoring_identity.py:53(canonical)
+    21000    0.079    0.000    1.909    0.000 native_authoring_values.py:84(<listcomp>)
+       36    0.001    0.000    1.906    0.053 __init__.py:299(loads)
+       36    0.001    0.000    1.902    0.053 decoder.py:332(decode)
+       36    0.531    0.015    1.901    0.053 decoder.py:343(raw_decode)
+
+

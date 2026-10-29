@@ -1,0 +1,11 @@
+{
+  "task": "NEC-017",
+  "complete": false,
+  "source_sha256": "23d8551598a5db5ca8871b5b5c4e1b790b0ee053baa8cb703a4ed130e9237256",
+  "correction": "Godot console executable is a wrapper. Earlier repeat-b/c memory records cover wrapper only, not the editor child; not accepted as full native resource evidence.",
+  "verified": "32MiB child allocation and actual Godot create/reopen child editor peaks observed in new fixtures.",
+  "limitations": "100ms descendant discovery and aggregate working-set sampling can miss short-lived processes; no 1000-object resource certification.",
+  "native_repeated": "Both b/c passed one full bidirectional cycle then failed a later capture with 240-second timeout. Three-cycle requirement FAILED; preserve logs. Concurrent timings are not controlled comparisons.",
+  "crash": "All14 durable boundaries passed on real Godot two-object fixtures through production host, actual child process exit73, idempotent recovery, canonical preservation and verified baseline.",
+  "backup": "Checkpoint push pending; raw test workspaces and recovered XP022 baseline remain local-only."
+}

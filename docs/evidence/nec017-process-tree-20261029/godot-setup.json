@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "objects": 2,
+  "timings_seconds": {
+    "create": 9.929485699991346,
+    "reload": 9.035100799999782
+  },
+  "full_nec017_certification": false,
+  "real_editor": true,
+  "created_native_scene": true,
+  "cold_capture_identical": true,
+  "existing_content_preserved": true,
+  "exact_transform": true
+}

@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "samples": [
+    {
+      "seconds": 2.4264322000090033,
+      "returncode": 0,
+      "pid": 26016,
+      "peak_working_set_bytes": 12447744,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 7274496,
+      "descendants": [
+        {
+          "pid": 32616,
+          "parent_pid": 26016,
+          "executable": "python.exe",
+          "peak_working_set_bytes": 43827200,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 39256064
+        }
+      ],
+      "descendant_sampled_peak_working_set_bytes": 43823104,
+      "memory_scope": "root kernel peak plus observed descendant kernel peaks; aggregate descendant working set sampled at 100ms, not guaranteed whole-tree peak"
+    }
+  ]
+}

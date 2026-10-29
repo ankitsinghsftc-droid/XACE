@@ -1,0 +1,62 @@
+{
+  "ok": true,
+  "samples": [
+    {
+      "seconds": 9.92811459999939,
+      "returncode": 0,
+      "pid": 18536,
+      "peak_working_set_bytes": 7270400,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1318912,
+      "descendants": [
+        {
+          "pid": 26196,
+          "parent_pid": 18536,
+          "executable": "conhost.exe",
+          "peak_working_set_bytes": 8499200,
+          "working_set_bytes": 36864,
+          "peak_pagefile_bytes": 1286144
+        },
+        {
+          "pid": 32156,
+          "parent_pid": 18536,
+          "executable": "Godot_v4.6.3-stable_win64.exe",
+          "peak_working_set_bytes": 636620800,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 566554624
+        }
+      ],
+      "descendant_sampled_peak_working_set_bytes": 644616192,
+      "memory_scope": "root kernel peak plus observed descendant kernel peaks; aggregate descendant working set sampled at 100ms, not guaranteed whole-tree peak"
+    },
+    {
+      "seconds": 9.033491299996967,
+      "returncode": 0,
+      "pid": 34284,
+      "peak_working_set_bytes": 7274496,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1323008,
+      "descendants": [
+        {
+          "pid": 25416,
+          "parent_pid": 34284,
+          "executable": "conhost.exe",
+          "peak_working_set_bytes": 8503296,
+          "working_set_bytes": 36864,
+          "peak_pagefile_bytes": 1277952
+        },
+        {
+          "pid": 27828,
+          "parent_pid": 34284,
+          "executable": "Godot_v4.6.3-stable_win64.exe",
+          "peak_working_set_bytes": 645074944,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 575430656
+        }
+      ],
+      "descendant_sampled_peak_working_set_bytes": 653070336,
+      "memory_scope": "root kernel peak plus observed descendant kernel peaks; aggregate descendant working set sampled at 100ms, not guaranteed whole-tree peak"
+    }
+  ],
+  "scale_certified": false
+}
