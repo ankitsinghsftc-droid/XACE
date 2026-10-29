@@ -1,0 +1,53 @@
+{
+  "task": "NEC-017",
+  "task_complete": false,
+  "engine": "Godot4.6.3",
+  "objects": 1000,
+  "cycles_passed": 3,
+  "reviewed_applies": 6,
+  "no_op_and_saved_batching_passed": true,
+  "samples": [
+    {
+      "cycle": 0,
+      "seconds": 324.3003447999945,
+      "history_files": 227,
+      "history_bytes": 74290527,
+      "python_process_memory": {
+        "peak_pagefile_bytes": 209489920,
+        "peak_working_set_bytes": 217370624,
+        "working_set_bytes": 166150144
+      },
+      "observed_editor_peak_working_set_bytes": 669667328
+    },
+    {
+      "cycle": 1,
+      "seconds": 334.86011840001447,
+      "history_files": 410,
+      "history_bytes": 132776702,
+      "python_process_memory": {
+        "peak_pagefile_bytes": 240951296,
+        "peak_working_set_bytes": 248434688,
+        "working_set_bytes": 196091904
+      },
+      "observed_editor_peak_working_set_bytes": 670085120
+    },
+    {
+      "cycle": 2,
+      "seconds": 347.7443320999737,
+      "history_files": 593,
+      "history_bytes": 191262877,
+      "python_process_memory": {
+        "peak_pagefile_bytes": 244056064,
+        "peak_working_set_bytes": 252301312,
+        "working_set_bytes": 203481088
+      },
+      "observed_editor_peak_working_set_bytes": 670085120
+    }
+  ],
+  "history_retained": true,
+  "automatic_cleanup": false,
+  "source_scope": "Exact launch-time source-pins.json. Run began before the separately verified text-validation optimization; no claim this native run exercised that later change.",
+  "resource_scope": "Observed editor-process kernel peaks; aggregate descendant working set sampled100ms; no guarantee of catching every short-lived descendant.",
+  "remaining": "Other engine repeated-scale and crash matrices; branch/merge/rebase/recovery; full conflict matrix and final acceptance audit.",
+  "raw_evidence_off_device": false
+}
