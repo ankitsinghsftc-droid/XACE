@@ -1,0 +1,18 @@
+{
+  "calls": [
+    {
+      "run": "godot-repeat-b",
+      "command_created_utc": "2026-10-28T23:18:32.092614+00:00",
+      "completed_cycles": 1,
+      "full_three_cycles_passed": false
+    },
+    {
+      "run": "godot-repeat-c",
+      "command_created_utc": "2026-10-28T22:17:52.394527+00:00",
+      "completed_cycles": 1,
+      "full_three_cycles_passed": false
+    }
+  ],
+  "observation": "Button or Lid sleep shortly after timed-out capture launch; later hibernation and wake. Sleep interruption explains elapsed timeout, not a demonstrated native capture defect. Original failed evidence retained.",
+  "retry": "Fresh isolated optimized run with corrected process-tree telemetry; no concurrent profiling."
+}

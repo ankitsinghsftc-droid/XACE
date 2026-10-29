@@ -30,9 +30,12 @@ def require(condition: bool, message: str) -> None:
         raise IdentityError(message)
 
 
+_CONTROL_CHARACTERS = re.compile(r"[\x00-\x1f]")
+
+
 def token(value: Any, label: str, maximum: int = 256) -> None:
     require(type(value) is str and 0 < len(value) <= maximum
-            and all(ord(c) >= 32 for c in value), f"invalid {label}")
+            and _CONTROL_CHARACTERS.search(value) is None, f"invalid {label}")
 
 
 def opaque_id(value: Any) -> None:

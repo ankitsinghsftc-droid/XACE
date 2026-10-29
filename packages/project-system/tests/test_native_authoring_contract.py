@@ -20,6 +20,25 @@ from native_authoring_contract import (SCHEMA, AuthoringPolicy, FieldPolicy, Sna
                                        parse, writable_fields)
 
 
+class TextValidationBoundaryTests(unittest.TestCase):
+    def test_all_surrogates_refused_and_unicode_scalar_boundaries_accepted(self):
+        from native_authoring_contract import bounded
+        for code in range(0xD800,0xE000):
+            with self.assertRaises(IdentityError):bounded({'value':'prefix'+chr(code)+'suffix'})
+        for value in ['ASCII', '\u0000', '\u001f', '\u007f', '\u0080', '\ud7ff', '\ue000', '\uffff', '\U00010000', '\U0010ffff', 'x'*4096]:
+            bounded({'value':value})
+        with self.assertRaises(IdentityError):bounded({'value':'x'*4097})
+
+    def test_identity_token_controls_and_size_contract_unchanged(self):
+        from authoring_identity import token
+        for code in range(32):
+            with self.assertRaises(IdentityError):token('prefix'+chr(code)+'suffix','test')
+        for value in [' ', '\u007f', '\u0080', '\ud7ff', '\ue000', '\U0010ffff', 'x'*256]:
+            token(value,'test')
+        for value in ['', 'x'*257, None, 42, True]:
+            with self.assertRaises(IdentityError):token(value,'test')
+
+
 def oid(n):
     return f"{n:032x}"
 

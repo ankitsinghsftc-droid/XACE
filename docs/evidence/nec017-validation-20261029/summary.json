@@ -1,0 +1,20 @@
+{
+  "task": "NEC-017",
+  "complete": false,
+  "source_sha256": {
+    "packages/project-system/authoring_identity.py": "d9129a60f1f6123c9295e2ce9360b769b88dd8e31520301030a3c4537276df6a",
+    "packages/project-system/native_authoring_contract.py": "e16ec0497f442340c54845398dc9b37477d5d6a59feaa64425289356768eb473",
+    "packages/project-system/tests/test_native_authoring_contract.py": "11f1231f90bc65816214d33d0f0dded2fa0d71da7e668eababd68b1d2f3215be"
+  },
+  "regression_passed": 330,
+  "focused_contract_and_identity_passed": 54,
+  "optimization": "Compiled character-range searches replace per-character Python loops; same control/surrogate restrictions, exhaustive surrogate and control-character boundary tests.",
+  "performance_scope": "Microbenchmark only; no end-to-end speedup claim.",
+  "native_retry": {
+    "path": "evidence/nec017/20261029/godot-repeat-d",
+    "status": "running",
+    "source_identity": "Launch-time source-pins.json; started before text-validation optimization and does not verify that later production change."
+  },
+  "sleep": "Windows Button or Lid sleep shortly after failed capture start, followed by hibernation. Prior b/c failed records retained.",
+  "backup": "Checkpoint push pending; raw fixtures and recovered baseline local-only."
+}

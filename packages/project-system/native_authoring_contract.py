@@ -7,6 +7,7 @@ and the NEC-002 identity map are mandatory out-of-band inputs on every load.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -20,6 +21,7 @@ DELTA_SCHEMA = "xace.native_authoring_delta.v1"
 MAX_EDGES = 40_000
 MAX_DEPTH = 24
 MAX_FIELDS = 64
+_SURROGATES = re.compile(r"[\ud800-\udfff]")
 
 
 def bounded(value: Any) -> None:
@@ -36,7 +38,7 @@ def bounded(value: Any) -> None:
         elif type(item) is list:
             pending.extend((v, depth + 1) for v in item)
         elif type(item) is str:
-            require(len(item) <= 4096 and not any(0xD800 <= ord(c) <= 0xDFFF for c in item),
+            require(len(item) <= 4096 and _SURROGATES.search(item) is None,
                     "oversized text or unpaired surrogate")
         elif item is not None and type(item) is not bool:
             raise IdentityError("wire numbers must be decimal strings")
