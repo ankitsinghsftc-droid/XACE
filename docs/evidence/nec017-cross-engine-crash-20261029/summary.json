@@ -1,0 +1,21 @@
+{
+  "task": "NEC-017",
+  "complete": false,
+  "native_crash_boundaries": {
+    "godot": 14,
+    "unity": 14,
+    "unreal": 14
+  },
+  "unity_repeated": {
+    "objects": 1000,
+    "cycles": 3,
+    "reviewed_applies": 6,
+    "passed": true
+  },
+  "project_system_regressions": 340,
+  "additional_focused_merge_approval_tests": 5,
+  "branch_contract": "Implemented immutable Git-blob-pinned sibling transform contribution and explicit GDE/coordinator merge; native branch merge/crash proof in progress, not certified.",
+  "unreal_repeated": "Running, not yet certified",
+  "limitations": "Byte-exact Git checkpoint profile; standard Git text normalization currently refuses rather than asserting byte provenance. Transform-only sibling merge; unsupported canonical/native work is reported/refused. No external human certification.",
+  "raw_evidence_off_device": false
+}
