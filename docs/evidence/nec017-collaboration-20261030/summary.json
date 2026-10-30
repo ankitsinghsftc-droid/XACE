@@ -1,0 +1,21 @@
+{
+  "status": "incomplete",
+  "verified_receipts": {
+    "evidence\\nec017\\20261029\\godot-branch-merge-a\\proof.json": "d285c40b8db0e879b3f80eb957d0b58d797d91babfa4b7c5f04cb83662426370",
+    "evidence\\nec017\\20261029\\unity-branch-merge-a\\proof.json": "1ad2beacfd345678d8abcc9fda41111fd48d9f1fab86f1479a53bc1116709e67",
+    "evidence\\nec017\\20261029\\godot-rebase-a\\proof.json": "b25b0dcf5e3fb0edb7ebd7e713648ff750f6ec80bf9ec20cb2497a7c5b45f1da",
+    "evidence\\nec017\\20261029\\unreal-repeat-a\\proof.json": "daec7e5bb6a35e5c7845e56f5fbb674e7a5bc7821e95737608209bb3bf81b32a",
+    "evidence\\nec017\\20261029\\scale-recovery-a\\proof.json": "10ca30ee188ff857ba0aca9b247e9c059b82904addb93455b17723a8d1b6d6be",
+    "evidence\\nec017\\20261030\\regression-b\\stderr.txt": "54b41c9572b186af192358b8f48aca160785e218de2b3b49d60b49f216da3e40",
+    "evidence\\nec017\\20261030\\carry-forward-a\\seal.json": "a865f38ad848752a2cd0580c71ffd13bafa15ed02c8e47392fe22a55cfe286ac",
+    "evidence\\nec017\\20261030\\carry-forward-a\\receipts.json": "944bb1744eecd5f477fef78e633dab11cb49a6e21a466f67102c6bc634733b7e"
+  },
+  "remaining": [
+    "Unreal branch merge after package-path repair",
+    "Unity and Unreal rebase",
+    "30 warm 100-edit batches per engine within latency budget",
+    "Repeated native builds at scale",
+    "Complete existing-project and conflict acceptance matrix"
+  ],
+  "backup": "Pending checkpoint push; raw evidence and recovered seal remain local-only"
+}

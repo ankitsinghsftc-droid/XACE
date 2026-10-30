@@ -1,0 +1,96 @@
+{
+  "ok": true,
+  "scope": "Historical receipt integrity only; not a fresh native run or complete source compatibility audit",
+  "receipts": [
+    {
+      "path": "evidence/nec011/20261021/distribution-player-a/interactive-session/proof.json",
+      "sha256": "81867b2edfff32d32dfc199ea81de771cb2d42787c304930f2f0ab16d10f72bb",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261022/unreal-authoring-regression-a/summary.json",
+      "sha256": "11a075378951a7c8ebc13b66653d35279ba13d2fdee6773f552f3789be4ddcf8",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/distribution-player-a/proof.json",
+      "sha256": "d5a3785a22df92b26194044bc1b7177c6eb6b4e02d728f40cb853df31bb849b0",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/browser-measured-a/proof.json",
+      "sha256": "9d9e2c963b54a0a22d58ceb3203c6e682e209fcb2e7d0842bfea0d57796f84a0",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/godot-hierarchy-monitor-c/proof.json",
+      "sha256": "300bcb59ee46dc7ca699fa4453f9f61b40ce8f11dc06cbc436b1f7a76806bd56",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/unity-hierarchy-a/proof.json",
+      "sha256": "78da0abf4cb7e769d986607369765ed59447e2e747cb0f192aa440030db8dd07",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/unreal-hierarchy-c/proof.json",
+      "sha256": "b9a51f972ca948f27550d56fcfdf5cc2e6a2560519daaeafae1fc3ad5693e055",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/structured-native-b/proof.json",
+      "sha256": "b5701532220ec404ece8bfb97886653b64d3e5fd6d2c5a694a0ab5958cf3594d",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/godot-event-input-b/proof.json",
+      "sha256": "2dda9ee71e768207685cf25c7704962cf2f12b498f4afb92166cfc228672c34a",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unity-replacement-final-e/proof.json",
+      "sha256": "65ec4bf7868a41fc6ec831d2933459d2f858a4c30e776eaf6f4341f9b60d586f",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unreal-replacement-final-b/proof.json",
+      "sha256": "1df1ed8ffa9e6dcd3de7af5fa660d2b8fe7d47fd63d2ad1ce2ab9b0dfd607aae",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/godot-contract-b/proof.json",
+      "sha256": "c69de0571eaf184daed9f832e47f61d9661d40cb1940407f8f1557fde4e79847",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unity-contract-b/proof.json",
+      "sha256": "318b31ec531320bd4b27d2c286990b969a41336172bc64852d819171e181b361",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unreal-replacement-final-b/contract.json",
+      "sha256": "ef09cf887f5575f79e7afb7d35177c49c35030c20e51628f8440e25d97c243d4",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/godot-input-authority-f/proof.json",
+      "sha256": "7f25b87cdbbe8f1bb2e9bf1a75a2699c933d293c5483c2ef3cbd5061de842dbd",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unity-input-authority-b/proof.json",
+      "sha256": "7118fe3096408b3f58f9c3d59920c8d32abbbbe86727ea3b4ad0cc566a123969",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261023/unreal-input-authority-a/proof.json",
+      "sha256": "83efbd2b076441ba6e56d8571ad9de90578a6f0c9a00dc0e8d3b74023f4fb6ff",
+      "historical": true
+    },
+    {
+      "path": "evidence/nec011/20261021/reference-admission-a/proof.json",
+      "sha256": "5eb31423a263f60cd253e94fd3fbf7cf7dafa5b36c8e5ce00713efb36da24597",
+      "historical": true
+    }
+  ]
+}

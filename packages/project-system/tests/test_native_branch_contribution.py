@@ -28,6 +28,15 @@ class ContributionTests(unittest.TestCase):
   from tools.world_extensibility_proof import rehash
   value=contribution();value['cgs']['metadata']['name']='Unmerged game work';rehash(value['cgs']);data=canonical(value)
   with self.assertRaisesRegex(ValueError,'non-transform'):decode_contribution(data,sha(data))
+ def test_unreal_package_document_is_confined_and_other_assets_are_not_exempt(self):
+  from native_branch_contribution import contribution_documents
+  from native_editor_gateway import NativeEditorGateway
+  with scratch() as d:
+   gateway=object.__new__(NativeEditorGateway);gateway.root=Path(d);gateway.engine='unreal';gateway.documents=['/Game/Maps/World']
+   self.assertEqual(contribution_documents(gateway),{'game.cgs.json','Content/Maps/World.umap'})
+   for invalid in ['/Engine/Maps/World','/Game/../Foreign','/Game//World','/Game/Maps/../../Foreign']:
+    gateway.documents=[invalid]
+    with self.assertRaises(ValueError):contribution_documents(gateway)
  def test_git_blob_not_just_claimed_commit(self):
   with scratch() as d:
    root=Path(d);path=root/'source.txt';path.write_bytes(b'checked in')

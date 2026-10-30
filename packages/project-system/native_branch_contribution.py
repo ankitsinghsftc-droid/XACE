@@ -70,6 +70,17 @@ def verify_git_checkpoint(root,checkpoint,files):
         require(hashlib.new(algorithm,blob).hexdigest()==tree[name][2],'uncommitted native source differs from checkpoint')
     require(git('rev-parse','HEAD').decode().strip()==checkpoint,'source Git HEAD changed during capture')
 
+def contribution_documents(gateway):
+    """Map declared engine documents to confined source files, never mount paths."""
+    result={'game.cgs.json'}
+    for document in gateway.documents:
+        if gateway.engine=='unreal':
+            require(type(document) is str and document.startswith('/Game/'),'unsupported Unreal document mount')
+            document='Content/'+document[len('/Game/'):]+'.umap'
+        result.add(gateway._path(document).relative_to(gateway.root).as_posix())
+    return result
+
+
 def capture_contribution(host,principal,checkpoint):
     token(principal,'principal');require(type(checkpoint) is str and len(checkpoint) in {40,64} and all(c in '0123456789abcdef' for c in checkpoint),'explicit Git checkpoint required')
     with host.publication_gate():
@@ -78,7 +89,7 @@ def capture_contribution(host,principal,checkpoint):
         require(without_transforms(cgs)==without_transforms(base),'non-transform canonical contribution is unsupported; preserve and review separately')
         base_rows=snapshot.to_dict()['inspection']['normalized']
         require(without_native_transforms(rows)==without_native_transforms(base_rows),'non-transform native contribution is unsupported')
-        documents={host.gateway._path(p).relative_to(host.root).as_posix() for p in host.gateway.documents}|{'game.cgs.json'}
+        documents=contribution_documents(host.gateway)
         require({p:h for p,h in files.items() if p not in documents}=={p:h for p,h in origin['files'].items() if p not in documents},'additional native source changes require separate review')
         verify_git_checkpoint(host.root,checkpoint,files)
         value=dict(schema=SCHEMA,principal=principal,checkpoint=checkpoint,engine=mapping.engine,project_id=mapping.project_id,namespace_id=mapping.namespace_id,branch_id=mapping.branch_id,mapping=mapping.to_dict(),cgs=cgs,rows=rows,files=files,ancestor=dict(mapping=m.to_dict(),cgs=base,snapshot=json.loads(snapshot.payload)),profile='native.sibling_transform_merge.v1')
