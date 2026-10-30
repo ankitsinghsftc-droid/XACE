@@ -1,3 +1,5 @@
+> Current2026-10-30: NEC017 INCOMPLETE. All-engine1000-object repeated edits/recovery pass;346 regressions pass. Remaining native collaboration,30-batch latency/rebuild and complete fixture acceptance checks tracked in docs/NEC017_CERTIFICATION.md. NEC018 not started.
+
 > Current 2026-10-29: NEC017 IN PROGRESS. All three installed engines pass initial 1,000-object setup/reopen;327 shared regressions and28 focused review tests pass. Repeated editing, native conflict/crash and independent-developer certification remain open. See docs/NEC017_CERTIFICATION.md. NEC018 not started.
 
 > Current: NEC016 local engineering complete 2026-10-28; exact private-profile notice inventory/archive gap closed. User explicitly deferred clean-machine certification. Public redistribution/continuing-use approval remains an NEC018 release gate, not a prerequisite to internal NEC017 certification. Earlier unavailable-notices assertions were overbroad and are superseded by docs/evidence/nec016-notices-closeout-20261028/summary.json. No historical evidence rewritten or public shipping certification claimed. NEC017 now authorized and starting; NEC018 not started.
