@@ -1,0 +1,24 @@
+{
+  "status": "incomplete",
+  "proofs": {
+    "evidence\\nec017\\20261030\\regression-e\\stderr.txt": "6d851273313cf264d77fe883b8ad4080a258f7834e951cda3863dd461ba8c7e8",
+    "evidence\\nec017\\20261030\\profile-batch-a\\profile.txt": "a078c3617ea2842183552e0544ec941db532f95922f8085acb56835b4c91dcee",
+    "evidence\\nec017\\20261030\\profile-batch-b\\profile.txt": "bdcfb8b2ffd7703e39a831ecf5685f8dcf69988c10b5cf7646aa6f4888f8bb9b",
+    "evidence\\nec017\\20261030\\unity-rebase-a\\proof.json": "9c4825a28ca296de050bec51d172f5c2c57341136a309dd064e328738801d6d7"
+  },
+  "changes": [
+    "One immutable snapshot validation per write batch with per-field checks",
+    "One parse per inspection admission",
+    "Repeated immutable string checks shared only within a bounded traversal",
+    "32MiB call-local memo for structural JSON validation only; no map/policy/capture/approval cache"
+  ],
+  "verification": "349 shared tests pass",
+  "performance": "Initial planner-only samples improved from59-68s to about5-6s; two-second budget NOT met; concurrent diagnostic timings are not controlled certification",
+  "pending": [
+    "Native100-edit bidirectional proof",
+    "Unreal branch/rebase",
+    "30-batch measured acceptance and rebuilds",
+    "Full existing-project/conflict matrix"
+  ],
+  "backup": "Checkpoint push pending; raw evidence local-only"
+}

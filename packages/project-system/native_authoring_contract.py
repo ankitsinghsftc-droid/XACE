@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import json
 import re
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -28,25 +30,61 @@ def bounded(value: Any) -> None:
     """Reject ambiguous numbers, excessive nesting and oversized values before use."""
     pending = [(value, 0)]
     count = 0
+    # Equal immutable strings have identical validity. Memoization is limited to
+    # this traversal; every occurrence still counts toward depth/node limits.
+    keys, texts = set(), set()
     while pending:
         item, depth = pending.pop()
         count += 1
-        require(depth <= MAX_DEPTH and count <= 1_000_000, "authoring structure limit")
-        if type(item) is dict:
-            require(all(type(k) is str and len(k) <= 256 and k.isascii() for k in item), "invalid JSON key")
+        if depth > MAX_DEPTH or count > 1_000_000:
+            raise IdentityError("authoring structure limit")
+        kind = type(item)
+        if kind is dict:
+            for key in item:
+                if type(key) is not str:
+                    raise IdentityError("invalid JSON key")
+                if key not in keys:
+                    if len(key) > 256 or not key.isascii():
+                        raise IdentityError("invalid JSON key")
+                    keys.add(key)
             pending.extend((v, depth + 1) for v in item.values())
-        elif type(item) is list:
+        elif kind is list:
             pending.extend((v, depth + 1) for v in item)
-        elif type(item) is str:
-            require(len(item) <= 4096 and _SURROGATES.search(item) is None,
-                    "oversized text or unpaired surrogate")
-        elif item is not None and type(item) is not bool:
+        elif kind is str:
+            if item not in texts:
+                if len(item) > 4096 or _SURROGATES.search(item) is not None:
+                    raise IdentityError("oversized text or unpaired surrogate")
+                texts.add(item)
+        elif item is not None and kind is not bool:
             raise IdentityError("wire numbers must be decimal strings")
     canonical(value)  # Enforce the same 16 MiB bound in memory and on disk.
 
 
+_validated_payloads = ContextVar('native_authoring_validated_payloads', default=None)
+
+
+@contextmanager
+def wire_validation_session():
+    """Bounded call-local memo of structural JSON validation, never map/policy trust.
+
+    Bytes are immutable; decoded objects are new on every parse. No capture,
+    approval, schema or filesystem verification is memoized.
+    """
+    state = {'bytes': 0, 'payloads': set()}
+    token = _validated_payloads.set(state)
+    try:
+        yield
+    finally:
+        _validated_payloads.reset(token)
+
+
 def parse(data: bytes) -> dict:
     require(type(data) is bytes and len(data) <= MAX_BYTES, "authoring payload byte limit")
+
+    state = _validated_payloads.get()
+    cache_key = (MAX_DEPTH, MAX_BYTES, data)
+    if state is not None and cache_key in state['payloads']:
+        return json.loads(data.decode("utf-8"))
 
     def pairs(rows):
         result = {}
@@ -61,6 +99,9 @@ def parse(data: bytes) -> dict:
         raise IdentityError("malformed authoring JSON") from exc
     bounded(value)
     require(type(value) is dict, "expected authoring object")
+    if state is not None and state['bytes'] + len(data) <= 32 * 1024 * 1024:
+        state['payloads'].add(cache_key)
+        state['bytes'] += len(data)
     return value
 
 
@@ -149,15 +190,16 @@ class Inspection:
         return digest(parse(self.payload))
 
     def admit(self, accepted_loss_digest: str | None = None) -> Snapshot:
-        losses = self.losses
+        inspection = parse(self.payload)
+        losses = inspection["losses"]
         if accepted_loss_digest is not None:
             digest_id(accepted_loss_digest)
         require(not any(r["severity"] == "blocking" for r in losses), "snapshot has blocking losses")
         if any(r["severity"] == "review" for r in losses):
-            require(accepted_loss_digest == self.loss_digest, "precision loss requires bound review")
+            require(accepted_loss_digest == digest(inspection), "precision loss requires bound review")
         else:
             require(accepted_loss_digest is None, "unexpected loss acknowledgement")
-        envelope = {"schema": SNAPSHOT_SCHEMA, "inspection": parse(self.payload),
+        envelope = {"schema": SNAPSHOT_SCHEMA, "inspection": inspection,
                     "accepted_loss_digest": accepted_loss_digest}
         bounded(envelope)
         return Snapshot(canonical(envelope))
@@ -355,20 +397,30 @@ def apply_delta(base: Snapshot, data: bytes, mapping: IdentityMap, policy: Autho
     return target
 
 
-def writable_fields(snapshot: Snapshot, object_id: str, fields: list[str],
-                    mapping: IdentityMap, policy: AuthoringPolicy) -> dict:
-    """Return an allowlisted canonical proposal, NOT a native write authorization.
+def writable_fields_batch(snapshot: Snapshot, selections: dict[str, list[str]],
+                          mapping: IdentityMap, policy: AuthoringPolicy) -> dict:
+    """Validate one immutable snapshot per call, then every selected write field.
 
-    NEC-009 must still check approval, current native hashes, CGS and save receipts.
-    NEC-004/005/006 must denormalize and stage verified editor writes.
+    Returns proposals only; approval, fresh capture and publication CAS are unchanged.
+    No verified snapshot is cached across calls or exposed as a trusted input.
     """
+    require(type(selections) is dict, "invalid write selections")
     verified = load_snapshot(snapshot.payload, mapping, policy).to_dict()
     rows = verified["inspection"]["normalized"]
-    require(object_id in rows and not rows[object_id]["deleted"], "unknown/deleted write target")
-    require(type(fields) is list and all(type(k) is str for k in fields)
-            and len(fields) == len(set(fields)), "invalid write field selection")
-    for path in fields:
-        rule = policy.fields.get(path)
-        require(rule is not None and rule.write and path in rows[object_id]["fields"],
-                "field is not allowlisted for native write")
-    return {k: rows[object_id]["fields"][k] for k in sorted(fields)}
+    result = {}
+    for object_id, fields in selections.items():
+        require(object_id in rows and not rows[object_id]["deleted"], "unknown/deleted write target")
+        require(type(fields) is list and all(type(k) is str for k in fields)
+                and len(fields) == len(set(fields)), "invalid write field selection")
+        for path in fields:
+            rule = policy.fields.get(path)
+            require(rule is not None and rule.write and path in rows[object_id]["fields"],
+                    "field is not allowlisted for native write")
+        result[object_id] = {k: rows[object_id]["fields"][k] for k in sorted(fields)}
+    return result
+
+
+def writable_fields(snapshot: Snapshot, object_id: str, fields: list[str],
+                    mapping: IdentityMap, policy: AuthoringPolicy) -> dict:
+    """Return an allowlisted proposal, never a native write authorization."""
+    return writable_fields_batch(snapshot, {object_id: fields}, mapping, policy)[object_id]

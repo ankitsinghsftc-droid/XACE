@@ -9,7 +9,7 @@ from __future__ import annotations
 from authoring_identity import (IdentityMap, NativeLocator, ObjectRecord, associate,
                                 canonical, digest, exact, require, token)
 from native_authoring_contract import (SCHEMA, AuthoringPolicy, FieldPolicy, Snapshot,
-    core_fields, inspect_capture, load_snapshot, parse, writable_fields)
+    core_fields, inspect_capture, load_snapshot, parse, writable_fields_batch)
 from native_authoring_values import integer
 
 ENGINE_VERSION = "6000.4.9f1"
@@ -110,7 +110,9 @@ def write_request(native_inventory: bytes, base: Snapshot, target: Snapshot, map
         changed = [k for k in new["fields"] if new["fields"][k] != old["fields"][k]]
         if changed:
             edits.append(dict(document=observed["objects"][key]["path_hint"], authoring_id=key,
-                              fields=writable_fields(target,key,changed,mapping,configured)))
+                              fields=changed))
     require(bool(edits), "No native write changes")
+    selected=writable_fields_batch(target,{edit["authoring_id"]:edit["fields"] for edit in edits},mapping,configured)
+    for edit in edits:edit["fields"]=selected[edit["authoring_id"]]
     return canonical(dict(schema="xace.unity_authoring_write_request.v1",
                           expected_inventory_digest=digest(observed), edits=edits))

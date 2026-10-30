@@ -216,6 +216,53 @@ class SnapshotTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             FieldPolicy("text", owner="native", write=True).validate()
 
+    def test_wire_validation_memo_is_call_local_and_returns_independent_values(self):
+        from unittest.mock import patch
+        import native_authoring_contract as contract
+        data=b'{"items":["original"]}'
+        with patch.object(contract,'bounded',wraps=contract.bounded) as validate:
+            with contract.wire_validation_session():
+                first=contract.parse(data);first['items'][0]='mutated'
+                self.assertEqual(contract.parse(data),{'items':['original']})
+                self.assertEqual(validate.call_count,1)
+                for invalid in [b'{"x":"a","x":"b"}',b'{"number":1}']:
+                    with self.assertRaises(ValueError):contract.parse(invalid)
+            count=validate.call_count;contract.parse(data)
+            self.assertEqual(validate.call_count,count+1)
+        self.assertIsNone(contract._validated_payloads.get())
+        with self.assertRaises(RuntimeError):
+            with contract.wire_validation_session():raise RuntimeError('scope exit')
+        self.assertIsNone(contract._validated_payloads.get())
+
+    def test_repeated_strings_still_count_toward_structure_limits(self):
+        from native_authoring_contract import bounded, MAX_DEPTH
+        bounded({'same':['repeated']*100})
+        with self.assertRaisesRegex(ValueError,'structure limit'):
+            bounded(['repeated']*1_000_000)
+        nested='repeated'
+        for _ in range(MAX_DEPTH+1):nested=[nested]
+        with self.assertRaisesRegex(ValueError,'structure limit'):bounded(nested)
+        with self.assertRaisesRegex(ValueError,'invalid JSON key'):bounded({'same':'valid',chr(233):'invalid key'})
+
+    def test_batch_validates_once_but_never_caches_or_partially_accepts(self):
+        from unittest.mock import patch
+        import native_authoring_contract as contract
+        mapping, policy, capture = fixture()
+        capture['objects'][oid(2)]['fields']['transform.position']=vec('1')
+        enabled = replace(policy,fields=dict(policy.fields, **{"transform.position":FieldPolicy("position",write=True)}))
+        snapshot = inspect_capture(capture,mapping,enabled).admit()
+        choices={oid(2):["transform.position"]}
+        with patch.object(contract,'load_snapshot',wraps=contract.load_snapshot) as load:
+            first=contract.writable_fields_batch(snapshot,choices,mapping,enabled)
+            self.assertEqual(load.call_count,1)
+            first[oid(2)]["transform.position"]["x"]='999'
+            second=contract.writable_fields_batch(snapshot,choices,mapping,enabled)
+            self.assertEqual(load.call_count,2)
+            self.assertNotEqual(first,second)
+        for invalid in [{oid(2):["native.label"]},{oid(2):["transform.position","transform.position"]},{oid(999):["transform.position"]}]:
+            with self.assertRaises(ValueError):contract.writable_fields_batch(snapshot,invalid,mapping,enabled)
+        with self.assertRaises(ValueError):contract.writable_fields_batch(snapshot,choices,mapping,policy)
+
     def test_writes_require_out_of_band_pinned_capability(self):
         mapping, policy, capture = fixture()
         capture["objects"][oid(2)]["fields"]["transform.position"] = vec("1")

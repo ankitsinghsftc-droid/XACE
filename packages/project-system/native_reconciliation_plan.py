@@ -10,7 +10,7 @@ import importlib
 from decimal import Decimal
 
 from authoring_identity import IdentityMap, canonical, require
-from native_authoring_contract import Snapshot, load_snapshot, parse
+from native_authoring_contract import Snapshot, load_snapshot, parse, wire_validation_session
 from native_reconciliation import reconcile_records, MergeProposal
 from native_adoption import bridge, digest, encode, factory, _asset_source
 from tools.cgs_schema_validate import compute_cgs_hash
@@ -121,6 +121,7 @@ def _native_transform(engine,field,value):
     return {k:format(v,'f') if v else '0' for k,v in zip(axes,n)}
 
 
+@wire_validation_session()
 def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:IdentityMap,
                         current_mapping:IdentityMap, current_cgs:dict, native_inventory:bytes,
                         expected_current_cgs_digest:str, expected_source_digest:str,

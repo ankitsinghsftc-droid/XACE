@@ -1,0 +1,73 @@
+         523938045 function calls (518389290 primitive calls) in 253.184 seconds
+
+   Ordered by: cumulative time
+   List reduced from 438 to 65 due to restriction <65>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.033    0.033  253.312  253.312 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_reconciliation_plan.py:124(plan_reconciliation)
+        1    0.105    0.105  235.301  235.301 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\godot_authoring.py:88(write_request)
+      100    0.120    0.001  229.065    2.291 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:358(writable_fields)
+      104    0.197    0.002  207.558    1.996 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:310(load_snapshot)
+      755   72.413    0.096  165.319    0.219 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:27(bounded)
+      430    0.042    0.000  120.449    0.280 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:48(parse)
+      107    2.793    0.026   93.673    0.875 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:166(inspect_capture)
+      107    0.003    0.000   86.969    0.813 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:151(admit)
+9291062/9276062    8.791    0.000   39.690    0.000 {built-in method builtins.all}
+ 47099272   23.888    0.000   30.431    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:36(<genexpr>)
+      107    0.075    0.001   29.937    0.280 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:142(losses)
+      105    0.000    0.000   29.803    0.284 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:134(to_dict)
+   428107    2.478    0.000   27.274    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_values.py:51(normalize)
+ 11798664   10.178    0.000   19.901    0.000 {method 'extend' of 'list' objects}
+      441    0.006    0.000   18.344    0.042 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\__init__.py:299(loads)
+      441    0.005    0.000   18.331    0.042 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py:332(decode)
+      441    4.351    0.010   18.323    0.042 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\decoder.py:343(raw_decode)
+      113    0.045    0.000   17.500    0.155 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:202(mapping_digest)
+   108505    0.223    0.000   17.155    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:56(canonical)
+   109544    0.242    0.000   16.789    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\__init__.py:183(dumps)
+   109544    0.143    0.000   16.490    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\encoder.py:183(encode)
+   109544   15.929    0.000   15.929    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\json\encoder.py:205(iterencode)
+  5558067   11.762    0.000   13.905    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:51(pairs)
+   114021    0.105    0.000   13.141    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\dataclasses.py:1263(asdict)
+2351463/114021    5.206    0.000   12.979    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\dataclasses.py:1287(_asdict_inner)
+   321000    0.511    0.000   12.953    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_values.py:84(<listcomp>)
+      113    0.086    0.001   12.792    0.113 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:205(<dictcomp>)
+  1070000    2.135    0.000   12.442    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_values.py:27(decimal)
+112147211   11.501    0.000   11.501    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:28(require)
+   321000    0.979    0.000    9.323    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_values.py:99(<listcomp>)
+  2140000    5.250    0.000    9.028    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\fractions.py:62(__new__)
+ 47099272    8.585    0.000    8.585    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:37(<genexpr>)
+ 26373127    8.427    0.000    8.427    0.000 {method 'search' of 're.Pattern' objects}
+4566679/2047164    4.935    0.000    8.216    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\copy.py:128(deepcopy)
+      230    3.032    0.013    7.947    0.035 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:142(validate)
+ 66752975    5.586    0.000    5.586    0.000 {built-in method builtins.len}
+  1070000    0.784    0.000    4.938    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\fractions.py:357(forward)
+381956/28641    0.937    0.000    4.708    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\copy.py:227(_deepcopy_dict)
+ 40868931    4.375    0.000    4.375    0.000 {method 'pop' of 'list' objects}
+  1070000    2.176    0.000    4.009    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\fractions.py:484(_mul)
+        1    0.002    0.002    3.997    3.997 C:\Users\ankit\XACE-Recovery\worktrees\xace\tools\nec017_warm_planner.py:25(<lambda>)
+        1    0.006    0.006    3.995    3.995 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_saved_pair.py:61(verify_baseline_receipts)
+        5    0.035    0.007    3.971    0.794 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\schema-factory\src\portable_compilation.py:20(compile_portable_cgs)
+        3    0.006    0.002    3.741    1.247 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\godot_authoring.py:72(capture)
+  1816318    1.195    0.000    3.615    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\re\__init__.py:168(fullmatch)
+ 38089551    3.503    0.000    3.503    0.000 {method 'isascii' of 'str' objects}
+  1070000    2.520    0.000    3.406    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_values.py:42(quantize)
+79314/24139    0.081    0.000    3.355    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\copy.py:201(_deepcopy_list)
+        5    0.000    0.000    3.214    0.643 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\schema-factory\src\schema_factory.py:129(compile)
+ 13723357    2.426    0.000    3.087    0.000 {built-in method builtins.isinstance}
+        5    0.007    0.001    3.025    0.605 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\schema-factory\src\world_contract.py:79(compile_world)
+  1484832    1.682    0.000    2.671    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:36(token)
+   352145    0.983    0.000    1.609    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\dataclasses.py:1233(fields)
+  2465484    0.797    0.000    1.522    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\dataclasses.py:1251(_is_dataclass_instance)
+  9408016    1.459    0.000    1.459    0.000 {method 'values' of 'dict' objects}
+        1    0.022    0.022    1.405    1.405 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_reconciliation.py:72(reconcile_records)
+  1816318    0.959    0.000    1.402    0.000 C:\Users\ankit\AppData\Local\Programs\Python\Python311\Lib\re\__init__.py:272(_compile)
+   463693    0.371    0.000    1.323    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:41(opaque_id)
+       10    0.006    0.001    1.189    0.119 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\schema-factory\src\world_contract.py:87(without_display_enums)
+   413141    0.254    0.000    1.164    0.000 {built-in method builtins.sorted}
+  5567543    1.137    0.000    1.137    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_authoring_contract.py:39(<genexpr>)
+   230000    0.287    0.000    1.136    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\authoring_identity.py:92(validate)
+     6000    0.569    0.000    1.127    0.000 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\project-system\native_reconciliation_plan.py:33(_binding)
+        1    0.002    0.002    1.109    1.109 C:\Users\ankit\XACE-Recovery\worktrees\xace\packages\gde\src\domain_dsl\typed_operations\native_reconciliation_operations.py:10(preview)
+ 10022456    1.064    0.000    1.064    0.000 {method 'get' of 'dict' objects}
+
+
