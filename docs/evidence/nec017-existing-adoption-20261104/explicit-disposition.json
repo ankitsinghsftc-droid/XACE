@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "original_unchanged": true,
+  "only_original_document_changed": "Game/World.tscn",
+  "review": {
+    "scope": "Original NEC017 test content only; copied destination",
+    "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\godot-existing-seed-b",
+    "source_files": {
+      "create_fixture.gd": "3e3ec5ea1bc1ede9936c8e1c8acf53a4b0e46de6fd33ee7c5682255a491b85e1",
+      "fixture-created.json": "7b69329f4194c2568878e1bc78b5baa157b6f15576cb98dd580565470423f0f2",
+      "project.godot": "c3a6cd5a2cde5c887c7928c8c8f4d81ef1b6705c6df94865aac2b6b2f4fca5b9",
+      "Game/Annex.tscn": "d476f9ae2816ca4a56bb69927dd49dc72a293861ca64b12e775c524c702c4c6d",
+      "Game/Crate.tscn": "4ed0c468cb328ffd6764a1e0c34a4f927d959e37f70d64ce636f032c6f3cfd4a",
+      "Game/CrateMaterial.res": "c84108421ad80f60eff9188ad75bf48645c2c63dfb021d0b737c301999cc839e",
+      "Game/CrateMesh.res": "dc1039387b12bba8b31f809b76239d4518451f847109193a2558a0e0949d3b13",
+      "Game/Move.res": "261721918b0a2a15ea3e50232788161cbff8324fd99024041bd1647cabf77e5f",
+      "Game/NativeScore.gd": "4fccf3a2c816d1b50460b534fdf8fff5027c71bd49762953d6d8d95730cb8a44",
+      "Game/Tone.res": "c6fd610e3c7700ab923cb5f39b234aca53508337054adeaae3c5aa36e4afe781",
+      "Game/World.tscn": "9ae4a60e8658dec5ff938f7a5e7f0e47ea1cd2a1c1aeeb1a1bbe019f6dcb70fb"
+    },
+    "changes": [
+      {
+        "document": "Game/World.tscn",
+        "node": "NativeAudio",
+        "action": "remove_native_authority"
+      },
+      {
+        "document": "Game/World.tscn",
+        "node": "NativeAnimation",
+        "action": "remove_native_authority"
+      },
+      {
+        "document": "Game/World.tscn",
+        "node": "UnsupportedCriticalScore",
+        "action": "remove_native_authority"
+      }
+    ],
+    "preserve_native_files": true,
+    "automatic_gameplay_conversion": false
+  },
+  "native": {
+    "after": "eb193544e9a002a4b685a6f43d738b1145da18bd4bdf30cad584d7cd97d74f8d",
+    "automatic_gameplay_conversion": false,
+    "before": "9ae4a60e8658dec5ff938f7a5e7f0e47ea1cd2a1c1aeeb1a1bbe019f6dcb70fb",
+    "dispositions": [
+      {
+        "action": "remove_native_authority_from_copied_fixture",
+        "class": "AudioStreamPlayer3D",
+        "path": "NativeAudio",
+        "script": ""
+      },
+      {
+        "action": "remove_native_authority_from_copied_fixture",
+        "class": "AnimationPlayer",
+        "path": "NativeAnimation",
+        "script": ""
+      },
+      {
+        "action": "remove_native_authority_from_copied_fixture",
+        "class": "Node3D",
+        "path": "UnsupportedCriticalScore",
+        "script": "res://Game/NativeScore.gd"
+      }
+    ],
+    "native_resources_and_script_files_retained": true,
+    "ok": true,
+    "original_project_preserved_externally": true
+  },
+  "full_adoption_verified": false
+}

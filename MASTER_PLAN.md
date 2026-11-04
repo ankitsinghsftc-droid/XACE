@@ -1,3 +1,5 @@
+> Current2026-11-04 continuation: NEC017 INCOMPLETE.355+127 tests pass; Godot50-instance native adoption/saved-pair/cold no-op pass after explicit fixture disposition. Latency and remaining native workflow/build certification stay open. See docs/evidence/nec017-existing-adoption-20261104.
+
 > Current2026-11-04: NEC017 INCOMPLETE. All-engine branch/rebase/recovery and100-edit native batches pass;352 shared tests pass. Latency budget, full existing-project workflows, repeated builds and final acceptance remain open. See docs/evidence/nec017-continuation-20261104/summary.json. NEC018 not started.
 
 > Current2026-10-30: NEC017 INCOMPLETE. All-engine1000-object repeated edits/recovery pass;346 regressions pass. Remaining native collaboration,30-batch latency/rebuild and complete fixture acceptance checks tracked in docs/NEC017_CERTIFICATION.md. NEC018 not started.

@@ -294,6 +294,13 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
         native_writes.append(json.loads(reader.write_request(native_inventory, base, native_target, mapping)))
     scope_dispositions = [dict(object_id=k, disposition="adopt" if k in selection else "required_native_dependency" if k in scope else "excluded_native",
                               native_unchanged=True) for k in sorted(rows)]
+    # A selected subset may compile while the full captured scene still contains
+    # unsupported native authority. Exclusion from conversion is not disablement.
+    # Keep candidate semantics, but expose the same full-capture admission gate
+    # that SavedPair must enforce before publishing any baseline.
+    saved_pair_losses = [copy.deepcopy(r) for r in inspection["losses"] if r["severity"] == "blocking"]
+    if any(r["severity"] == "review" for r in inspection["losses"]) and accepted_loss_digest != inspected.loss_digest:
+        saved_pair_losses.append(dict(code="unreviewed_full_capture_precision", object_id="", field="", severity="blocking", detail="Full saved-pair capture requires bound precision review"))
     report = dict(schema=SCHEMA, preview_only=True, can_commit=False, play_eligible=False,
                   eligibility_reason="Preview only; coordinator, native readiness and activation gates remain required",
                   source_digest=expected_source_digest, source=copy.deepcopy(inspection["capture"]["source"]),
@@ -303,6 +310,8 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
                   accepted_loss_digest=accepted_loss_digest, selected=selection, dependency_closure=scope,
                   dispositions=scope_dispositions, legacy_disablement_plan=manual,
                   losses=sorted(losses, key=encode), provenance=provenance,
+                  saved_pair_losses=sorted(saved_pair_losses, key=encode),
+                  saved_pair_eligible=candidate is not None and not saved_pair_losses and not any(r["severity"] == "blocking" for r in losses),
                   typed_operations=batch, proposed_cgs=candidate, compiled=compiled,
                   native_write_preview=native_writes, noop=not operations and not native_writes,
                   candidate_valid=candidate is not None and not any(r["severity"] == "blocking" for r in losses))

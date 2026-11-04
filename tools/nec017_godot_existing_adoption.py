@@ -11,7 +11,8 @@ selected=sorted(row['id'] for row in enrollment['objects'] if row['document']=='
 choices=choices_for(selected)
 for key in selected:choices['objects'][key]['asset_role']='project.visual.v1'
 cgs=inputs('godot')[2];before=canonical(cgs);approved=plan(raw,mapping,cgs,selected,choices).to_dict();(out/'supported-preview.json').write_bytes(canonical(approved));assert approved['candidate_valid'],approved['losses'];assert canonical(cgs)==before
+assert not approved['saved_pair_eligible'] and approved['saved_pair_losses'], 'Excluded critical native behavior must still block full saved pair'
 critical=next(row['id'] for row in enrollment['objects'] if row['node_path']=='UnsupportedCriticalScore');blocked=plan(raw,mapping,cgs,[critical],choices_for([critical])).to_dict();(out/'unsupported-preview.json').write_bytes(canonical(blocked));assert not blocked['candidate_valid'] and not blocked['play_eligible'];assert any(row['severity']=='blocking' for row in blocked['losses'])
 assert (source/'project/existing-native.json').read_bytes()==raw
-result=dict(ok=True,selected_objects=50,actual_native_enrolled_objects=len(enrollment['objects']),source_inventory_sha256=hashlib.sha256(raw).hexdigest(),preview_preserves_source_and_cgs=True,supported_preview_valid=True,unsupported_critical_script_refused=True,scope='Preview only; no saved-pair commit, native Play, build or continuity certification')
+result=dict(ok=True,selected_objects=50,actual_native_enrolled_objects=len(enrollment['objects']),source_inventory_sha256=hashlib.sha256(raw).hexdigest(),preview_preserves_source_and_cgs=True,supported_preview_valid=True,full_saved_pair_eligible=False,full_saved_pair_blockers=approved['saved_pair_losses'],unsupported_critical_script_refused=True,scope='Preview only; no saved-pair commit, native Play, build or continuity certification')
 (out/'proof.json').write_bytes(canonical(result));print(json.dumps(result))

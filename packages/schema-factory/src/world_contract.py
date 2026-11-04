@@ -85,11 +85,15 @@ def compile_world(cgs: dict[str, Any], blueprints: BlueprintRegistry, source_cgs
     validate_source(source_cgs)
     # Portable normalization may change display enums only, never world/source data.
     def without_display_enums(value):
-        value = copy.deepcopy(value)
-        for item in value.get("modes", []):
-            for actor in item.get("actors", []):
-                actor.pop("actor_type", None); actor.pop("control_type", None)
-        return value
+        # Comparison-only projection: detach the edited containers, and retain
+        # all other values read-only. No input actor or world data is changed.
+        result = dict(value)
+        if "modes" in value:
+            result["modes"] = [dict(item, actors=[
+                {key: field for key, field in actor.items() if key not in {"actor_type", "control_type"}}
+                for actor in item.get("actors", [])]) if "actors" in item else dict(item)
+                for item in value["modes"]]
+        return result
     require(without_display_enums(cgs) == without_display_enums(source_cgs), "world projection differs from source CGS")
     mode, contract = selected[0]
     if contract.get("contract_version") == 3:

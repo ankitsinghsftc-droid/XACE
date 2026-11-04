@@ -124,7 +124,14 @@ class NativeAdoptionTests(unittest.TestCase):
         del choices["objects"][oid(3)]
         result=plan(canonical(value),mapping,cgs,[oid(2)],choices).to_dict();self.assertFalse(result["candidate_valid"])
         value["objects"][oid(2)]["dependencies"]=[]
-        self.assertTrue(plan(canonical(value),mapping,cgs,[oid(2)],choices).to_dict()["candidate_valid"])
+        subset=plan(canonical(value),mapping,cgs,[oid(2)],choices).to_dict()
+        self.assertTrue(subset["candidate_valid"])
+        self.assertFalse(subset["saved_pair_eligible"])
+        self.assertTrue(any(r['object_id']==oid(3) for r in subset['saved_pair_losses']))
+        value["objects"][oid(3)]["opaque"]=[]
+        admitted=plan(canonical(value),mapping,cgs,[oid(2)],choices).to_dict()
+        self.assertTrue(admitted["saved_pair_eligible"])
+        self.assertEqual(admitted["saved_pair_losses"],[])
 
     def test_parent_is_not_fabricated_runtime_entity_id(self):
         data,mapping,cgs,selection,choices=inputs();value=json.loads(data);value["objects"][oid(3)]["parent_id"]=oid(2)

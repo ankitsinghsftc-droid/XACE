@@ -26,6 +26,7 @@ def prepare_apply(plan,*,context:dict,transaction_id:str,project_root:Path):
     report=plan.to_dict()
     if report['schema']=='xace.native_adoption_plan.v1':
         verify_plan(plan,**context);require(report['candidate_valid'],'adoption is blocked')
+        require(report['saved_pair_eligible'],'full native capture blocks saved-pair publication; inspect saved_pair_losses')
         native=report['native_write_preview'];require(len(native)<=1,'multiple native write requests require separate participant profile')
         native=native[0] if native else None
     elif report['schema']=='xace.native_reconciliation_plan.v1':

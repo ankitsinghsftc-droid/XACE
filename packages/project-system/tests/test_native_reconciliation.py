@@ -276,3 +276,42 @@ class FreshApprovalBoundaryTests(unittest.TestCase):
         with self.assertRaises(ValueError):service.approved_context('alice',approval)
 
 if __name__=='__main__':unittest.main()
+
+
+class ProjectionIsolationTests(unittest.TestCase):
+    def test_merge_and_projection_do_not_change_inputs_or_alias_result(self):
+        from native_reconciliation_plan import _project
+        for engine in ['godot','unity','unreal']:
+            c=context(engine)
+            import importlib
+            reader=importlib.import_module(engine+'_authoring')
+            base=reader.capture(c['native_inventory'],c['mapping'],enable_writes=True).admit().to_dict()['inspection']['normalized']
+            original=canonical(base); original_cgs=canonical(c['current_cgs'])
+            projected=_project(c['current_cgs'],base,c['mapping'])
+            self.assertEqual(canonical(base),original)
+            self.assertEqual(canonical(c['current_cgs']),original_cgs)
+            changed=copy.deepcopy(projected)
+            key=next(k for k,r in c['mapping'].objects.items() if r.world_binding)
+            changed[key]['fields']['transform.position']['x']='9000000'
+            proposal=reconcile_records(base,projected,changed,reader.policy(enable_writes=True))
+            self.assertEqual(canonical(base),original)
+            self.assertEqual(canonical(projected),original)
+            result=proposal.to_dict()
+            result['merged'][key]['fields']['transform.position']['x']='123'
+            self.assertEqual(proposal.to_dict()['merged'][key]['fields']['transform.position']['x'],'9000000')
+            self.assertEqual(canonical(base),original)
+
+
+class CanonicalHashIsolationTests(unittest.TestCase):
+    def test_hash_matches_prior_algorithm_and_preserves_nested_input(self):
+        from tools.cgs_schema_validate import compute_cgs_hash,canonical_json,normalise_floats
+        for engine in ['godot','unity','unreal']:
+            cgs=context(engine)['current_cgs']
+            for n in range(12):
+                value=copy.deepcopy(cgs)
+                value['metadata']['test_nested']={'cgs_hash':'keep nested', 'list':[n+0.123456789, None, True, {'value':str(n)}]}
+                before=copy.deepcopy(value)
+                expected=copy.deepcopy(value);expected['metadata'].pop('cgs_hash',None)
+                expected=hashlib.sha256(canonical_json(normalise_floats(expected)).encode('utf-8')).hexdigest()
+                self.assertEqual(compute_cgs_hash(value),expected)
+                self.assertEqual(value,before)

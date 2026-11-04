@@ -81,13 +81,14 @@ def reconcile_records(base:dict, xace:dict, engine:dict, policy:AuthoringPolicy,
     require(set(base)==set(xace)==set(engine),'scope change requires explicit enrollment; absence is not deletion')
     # Ordering in dictionaries and dependency/opaque inventories has no merge meaning.
     def ordered(rows):
-        value=copy.deepcopy(rows)
-        for row in value.values():
-            row['dependencies'].sort(key=canonical);row['opaque'].sort(key=lambda o:o['id'])
-        return value
+        # Input field values are read-only. Only the ordering containers change;
+        # the merged rows below detach every container before writing it.
+        return {key:dict(row,dependencies=sorted(row['dependencies'],key=canonical),
+                         opaque=sorted(row['opaque'],key=lambda o:o['id']))
+                for key,row in rows.items()}
     base,xace,engine=map(ordered,[base,xace,engine])
     inputs=digest(dict(base=base,xace=xace,engine=engine,policy=policy.description()))
-    merged=copy.deepcopy(base);conflicts=[];decisions=[];losses=[]
+    merged={key:dict(row) for key,row in base.items()};conflicts=[];decisions=[];losses=[]
 
     def blocked(code,key,field=''):
         losses.append(dict(code=code,object_id=key,field=field,severity='blocking'))

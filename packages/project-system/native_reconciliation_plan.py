@@ -107,7 +107,9 @@ def _presentation(cgs,obj,engine,previous):
 
 
 def _project(cgs,base,mapping):
-    rows=copy.deepcopy(base)
+    # Projection replaces whole field values; it never mutates their internals.
+    # Detach rows and field maps, leaving unchanged dependencies read-only.
+    rows={key:dict(row,fields=dict(row['fields'])) for key,row in base.items()}
     binding_index=_binding_index(cgs)
     by_world={r.world_binding.world_object_id:k for k,r in mapping.objects.items() if r.world_binding}
     for key,record in mapping.objects.items():
@@ -207,8 +209,10 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         previous=_binding(baseline_cgs,mapping.objects[key].world_binding,baseline_bindings)
         current=_binding(current_cgs,mapping.objects[key].world_binding,current_bindings)
         if previous is not None and current is not None:
-            old_object,new_object=copy.deepcopy(previous[2]),copy.deepcopy(current[2])
-            for obj in [old_object,new_object]:obj.get('relationships',{}).pop(PARENT,None)
+            old_object,new_object=dict(previous[2]),dict(current[2])
+            for obj in [old_object,new_object]:
+                if 'relationships' in obj:
+                    obj['relationships']={k:v for k,v in obj['relationships'].items() if k!=PARENT}
             if 'presentation.asset' in before[key]['fields'] and len(old_object.get('asset_bindings',{}))==1 and set(old_object['asset_bindings'])==set(new_object.get('asset_bindings',{})):
                 old_object.pop('asset_bindings');new_object.pop('asset_bindings')
             if old_object!=new_object:block('unprojected_canonical_world_change',key)

@@ -583,10 +583,12 @@ def check_hash(
 
 
 def compute_cgs_hash(cgs: dict[str, Any]) -> str:
-    stripped = copy.deepcopy(cgs)
+    # Only the root metadata key is removed. normalise_floats below constructs
+    # fresh nested containers, so copying the entire CGS first is redundant.
+    stripped = dict(cgs)
     metadata = stripped.get("metadata")
     if isinstance(metadata, dict):
-        metadata.pop("cgs_hash", None)
+        stripped["metadata"] = {key: value for key, value in metadata.items() if key != "cgs_hash"}
     canonical = canonical_json(normalise_floats(stripped)).encode("utf-8")
     return hashlib.sha256(canonical).hexdigest()
 

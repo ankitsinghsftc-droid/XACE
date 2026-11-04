@@ -68,6 +68,25 @@ def setup(root,engine='unity',kind='reconcile'):
 
 
 class ApplyTests(unittest.TestCase):
+    def test_excluded_critical_behavior_blocks_before_project_io(self):
+        from test_native_adoption import inputs,plan,oid
+        from authoring_identity import canonical
+        for engine in ['godot','unity','unreal']:
+            data,mapping,cgs,selected,choices=inputs(engine)
+            raw=json.loads(data)
+            raw['objects'][oid(3)]['opaque']=[dict(id='script',sha256='b'*64,critical=True,reason='native gameplay')]
+            selected=[oid(2)];choices['objects']={oid(2):choices['objects'][oid(2)]}
+            data=canonical(raw)
+            proposal=plan(data,mapping,cgs,selected,choices)
+            self.assertTrue(proposal.to_dict()['candidate_valid'])
+            context=dict(native_inventory=data,mapping=mapping,current_cgs=cgs,selection=selected,choices=choices,
+                         expected_source_digest=sha(data),expected_cgs_digest=digest(cgs),trusted_project=True)
+            with tempfile.TemporaryDirectory() as directory:
+                root=Path(directory)
+                with self.assertRaisesRegex(ValueError,'full native capture blocks'):
+                    prepare_apply(proposal,context=context,transaction_id='blocked',project_root=root)
+                self.assertEqual(list(root.iterdir()),[])
+
     def test_real_gde_apply_baseline_and_reconciliation_receipt_all_profiles(self):
         for engine in ['unity','godot','unreal']:
             for kind in ['adopt','reconcile']:

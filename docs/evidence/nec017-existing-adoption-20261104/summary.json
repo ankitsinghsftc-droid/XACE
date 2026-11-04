@@ -1,0 +1,59 @@
+{
+  "status": "INCOMPLETE",
+  "project_system_tests": 355,
+  "schema_factory_tests": 127,
+  "changes": [
+    "Pure projection/hash copy reductions with canonical equivalence and input-isolation tests",
+    "Full native saved-pair blockers shown before adoption apply; excluded critical behavior is not disabled",
+    "Real independent Godot 50-instance adoption published and reopened through GDE/coordinator after explicit native disposition"
+  ],
+  "planner_p95_seconds": {
+    "godot": 2.1332537,
+    "unity": 2.4298734,
+    "unreal": 2.2650541
+  },
+  "latency_pass": false,
+  "planner_only": true,
+  "limits": [
+    "No complete existing-game conversion claim",
+    "Godot editing continuation running in godot-existing-publish-b",
+    "Existing Unity/Unreal fixtures, native Play/build/continuity, repeated scale builds and full acceptance audit remain open",
+    "Clean-machine and external shipping gates retained",
+    "Original sealed XP022 payloads still missing; recovered seal not changed",
+    "Raw evidence and recovered seal are local-only"
+  ],
+  "files": {
+    "regression.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\verification-e\\0.log",
+      "sha256": "4b4d68441d67a69595e21655a6162662786a23b4da68416a38bf115c0b20aafb"
+    },
+    "schema-factory.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\verification-e\\1.log",
+      "sha256": "82dc93727d8e3539c44eb554829b2ebb4a06e43744f868a3e39071293bd3e8f5"
+    },
+    "planner.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\verification-e\\warm-planner\\measurement.json",
+      "sha256": "26eaf5dc74af5042b4204342997622728f3d3412c736b150901a55dd8d3661b7"
+    },
+    "source-stability.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\verification-e\\source-stability.json",
+      "sha256": "fa4ce8446f6e84fa21f044fc63fd360da61b89dd3af3bbd6a60ab0fb2867ebe9"
+    },
+    "source-pins.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\verification-e\\source-pins.json",
+      "sha256": "93379553569bdfceea559fd6313744164c3260ee13627968c24a87e48f2622c8"
+    },
+    "blocked-preview.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\godot-existing-preview-c\\proof.json",
+      "sha256": "59d8abadf30b20e0cdb288b3343445e62a943cb674e24f104eda1e744f94c75d"
+    },
+    "explicit-disposition.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\godot-existing-supported-c\\proof.json",
+      "sha256": "29c0eed0d6c4668e9b2c4e8ef3cf4e0662883a47cf1fce705c981580e38fa776"
+    },
+    "native-adoption.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\godot-existing-publish-a\\proof.json",
+      "sha256": "22617543b23c379c60aa0311ab76d6c800688934c997e0fb81b0a259bccc8eb7"
+    }
+  }
+}
