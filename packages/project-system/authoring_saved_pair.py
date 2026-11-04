@@ -9,7 +9,7 @@ from pathlib import Path
 
 from authoring_identity import IdentityMap,Baseline,require
 from native_adoption import bridge,digest,encode,factory
-from native_reconciliation_plan import _project
+from native_reconciliation_plan import _project,compile_preview_cgs
 from tools.cgs_schema_validate import compute_cgs_hash
 from authoring_transaction_files import FileParticipant,load_json,confined
 from authoring_apply import file_change
@@ -81,6 +81,6 @@ def verify_baseline_receipts(root,baseline):
     cgs=load_json(confined(root,CGS));rows=snapshot.to_dict()['inspection']['normalized']
     require(decision==dict(mapping=without_baseline.to_dict(),cgs_digest=digest(cgs),normalized_digest=digest(rows)),'baseline differs from approved saved-pair contract')
     require(cgs['metadata']['cgs_hash']==compute_cgs_hash(cgs),'baseline CGS hash invalid')
-    factory.compile_portable_cgs(cgs)
+    compile_preview_cgs(cgs)
     require(_project(cgs,rows,mapping)==rows,'baseline canonical/native projection disagrees')
     return True

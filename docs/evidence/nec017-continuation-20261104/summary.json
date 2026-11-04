@@ -1,0 +1,38 @@
+{
+  "status": "incomplete",
+  "receipts": {
+    "evidence\\nec017\\20261030\\unreal-branch-merge-b\\proof.json": "eb18ac666ef9a891897e4a417680339ae3cb2fead8f391367e9aa2be902a6917",
+    "evidence\\nec017\\20261030\\unreal-rebase-a\\proof.json": "679a60ae47ef125109ed5ba809857efcfaeb718ded29c3d982dd4ff9deb83edd",
+    "evidence\\nec017\\20261030\\native-batches-b\\godot\\proof.json": "d98e6acb1ccdd569755ecff0f873925fb4b2be71301936816f3691531ef18148",
+    "evidence\\nec017\\20261030\\native-batches-c\\proof.json": "e055aa7bcf3028491a152dae7cd6c44080bd36569bb7046f7d56d47ea009d15c",
+    "evidence\\nec017\\20261104\\verification-b\\0.log": "7703bb2f98ac39d7b793912c7adfec06011d13be5330bee4c36d74a5d98ac346",
+    "evidence\\nec017\\20261104\\verification-b\\warm-planner\\measurement.json": "8907f568e15e3a1ae9dd32287198992ce2b0d91bb9069d5c5834653c8df71c6b",
+    "evidence\\nec017\\20261104\\godot-regression-a\\proof.json": "c7a9eeb5fef9894a2944b27592fc5f22ed8046989618df0aca09054d7b91f64d",
+    "evidence\\nec017\\20261104\\godot-existing-enroll-d\\proof.json": "7c6dbd97f3f25f7b093916bd4577a520b97e514ebaef1002197ad9296d507a50",
+    "evidence\\nec017\\20261104\\godot-existing-preview-b\\proof.json": "24c5d98ea16fe3d4ce0e928512620a1d322bc457cb027da2a2733834e791e5fe",
+    "evidence\\nec017\\20261104\\cache-cleanup-a\\result.json": "37f2bdea13b48ea9becb64ef48d7c2b24d6c179706c8b4c195d55f361642fb7a"
+  },
+  "verified": [
+    "All-engine independent local branch merge/conflict/recovery and rebase",
+    "All-engine1000-object100-edit bidirectional pair",
+    "352 regressions before latest compilation-sharing change",
+    "Godot native run/reload/Play/privilege regressions",
+    "Independent Godot two-scene50-instance enrollment and adoption preview; critical script refused"
+  ],
+  "remaining": [
+    "Current compilation-sharing full verification running",
+    "Two-second latency budget still failed in latest completed measurements",
+    "Existing-project full apply/Play/build/continuity; Unity/Unreal independent fixtures",
+    "Repeated builds and complete fault/support matrix",
+    "Final source/evidence/seal audit"
+  ],
+  "limitations": [
+    "Preview does not certify durable adoption or whole-game migration",
+    "Godot material override rejected; mesh-surface material preview supported",
+    "Translated Godot scene root rejected; identity Node3D root verified",
+    "Local developer principals are not external human usability evidence",
+    "Clean-machine/signing/external tester/network/Steam gates remain open"
+  ],
+  "cleanup": "Only two obsolete package-g PCH caches removed,4497014632 bytes; source/binaries/logs/Git/seals preserved",
+  "backup": "This checkpoint pending push; raw evidence and recovered seal local-only"
+}

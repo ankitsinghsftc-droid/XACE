@@ -216,6 +216,24 @@ class SnapshotTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             FieldPolicy("text", owner="native", write=True).validate()
 
+    def test_inspection_reuse_binds_full_capture_map_and_policy(self):
+        from unittest.mock import patch
+        import native_authoring_contract as contract
+        mapping, policy, capture=fixture()
+        with patch.object(contract,'_inspect_capture',wraps=contract._inspect_capture) as validate:
+            with contract.wire_validation_session():
+                original=inspect_capture(capture,mapping,policy)
+                self.assertEqual(inspect_capture(copy.deepcopy(capture),mapping,policy),original)
+                self.assertEqual(validate.call_count,1)
+                changed=copy.deepcopy(capture);changed['source']['engine_version']='untrusted'
+                with self.assertRaises(ValueError):inspect_capture(changed,mapping,policy)
+                foreign=copy.deepcopy(mapping);foreign.branch_id='f'*32
+                with self.assertRaises(ValueError):inspect_capture(capture,foreign,policy)
+                restricted=replace(policy,engine_version='untrusted')
+                with self.assertRaises(ValueError):inspect_capture(capture,mapping,restricted)
+            count=validate.call_count;inspect_capture(capture,mapping,policy)
+            self.assertEqual(validate.call_count,count+1)
+
     def test_wire_validation_memo_is_call_local_and_returns_independent_values(self):
         from unittest.mock import patch
         import native_authoring_contract as contract

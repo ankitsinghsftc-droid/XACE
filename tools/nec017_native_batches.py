@@ -4,11 +4,12 @@ import sys,importlib,copy,json,time,shutil
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.nec010_playback_host_proof import canonical,sha,load_json,IdentityMap,MAP,verify_baseline_receipts,rehash
 
-def main(out):
+def main(out,engines=None):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();out.mkdir(parents=True)
  (out/'source-pins.json').write_bytes(canonical({str(p.relative_to(ROOT)):sha(p.read_bytes()) for p in [Path(__file__),*sorted((ROOT/'packages/project-system').glob('*.py'))]}))
  cases=[]
- for engine in ['godot','unity','unreal']:
+ engines=engines or ['godot','unity','unreal'];assert engines and len(set(engines))==len(engines) and set(engines)<={'godot','unity','unreal'}
+ for engine in engines:
   assert shutil.disk_usage(ROOT).free>4*1024**3,'4GiB reserve required; no cleanup'
   module=importlib.import_module('tools.nec017_'+engine+'_crash');module.SEED=ROOT/'evidence/nec017/20261028'/(engine+'-scale-a');case=out/engine;root=module.fixture(case);g=module.gateway(root);h=module.host(root,g)
   c=load_json(root/'.xace/authoring-baseline.cgs.json');assert len(c['modes'][0]['actors'])==1000
@@ -26,4 +27,4 @@ def main(out):
   assert h.review.open('batch-developer')['report']['noop'];m=IdentityMap.from_dict(load_json(root/MAP));assert verify_baseline_receipts(root,m.baseline)
   result=dict(ok=True,engine=engine,objects=1000,edits_per_batch=100,outward_seconds=outward,inward_seconds=inward,reopened_noop=True,scope='One actual bidirectional 100-edit pair; not 30-batch latency or build certification');cases.append(result);(case/'proof.json').write_bytes(canonical(result));print(json.dumps(result),flush=True)
  (out/'proof.json').write_bytes(canonical(dict(ok=True,cases=cases)))
-if __name__=='__main__':main(Path(sys.argv[1]))
+if __name__=='__main__':main(Path(sys.argv[1]),sys.argv[2:] or None)

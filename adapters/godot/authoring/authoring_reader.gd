@@ -214,9 +214,10 @@ func capture(paths: Array, discovery: bool = false) -> Dictionary:
 			fail("scene instantiate failed")
 			return {}
 		var root_meta: Variant = root.get_meta(META, {})
-		if root_meta.get("kind") == "scene" and root.get_class() != "Node":
+		var neutral_root: bool = root.get_class() == "Node" or (root.get_class() == "Node3D" and root.transform == Transform3D.IDENTITY)
+		if root_meta.get("kind") == "scene" and not neutral_root:
 			root.free()
-			fail("scene metadata root must be a neutral Node; transformed roots require explicit modeling")
+			fail("scene metadata root must be a neutral Node or identity Node3D; transformed roots require explicit modeling")
 			return {}
 		var scene_id: Variant = root_meta.get("authoring_id") if root_meta.get("kind") == "scene" else null
 		for node in nodes(root):

@@ -41,6 +41,20 @@ def fixture(engine="godot"):
 
 
 class ContractTests(unittest.TestCase):
+    def test_serialization_matches_dataclass_contract_and_has_no_aliases(self):
+        from dataclasses import asdict
+        from authoring_identity import SCHEMA
+        mapping=fixture();mapping.objects[oid(5)].world_binding=WorldBinding('world.object','actor',0)
+        expected={'schema':SCHEMA,**asdict(mapping)}
+        self.assertEqual(canonical(mapping.to_dict()),canonical(expected))
+        expected_digest=digest(dict(namespace_id=mapping.namespace_id,engine=mapping.engine,
+                                    objects={key:asdict(row) for key,row in sorted(mapping.objects.items())}))
+        self.assertEqual(mapping.mapping_digest(),expected_digest)
+        value=mapping.to_dict();value['objects'][oid(5)]['world_binding']['actor_id']='changed'
+        value['objects'][oid(5)]['locator']['object_id']='changed'
+        self.assertEqual(mapping.to_dict(),expected)
+
+
     def test_all_engines_persist_identity_not_duplicate_names(self):
         for engine in ("unity", "unreal", "godot"):
             mapping = fixture(engine)

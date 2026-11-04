@@ -7,6 +7,8 @@ from native_authoring_limits import MAX_BOUND_OBJECTS
 import copy
 import hashlib
 import importlib
+from contextlib import contextmanager
+from contextvars import ContextVar
 from decimal import Decimal
 
 from authoring_identity import IdentityMap, canonical, require
@@ -20,6 +22,31 @@ PARENT='xace.authoring_parent.v1'
 TRANSFORMS={'transform.position','transform.rotation','transform.scale'}
 from native_instance_transforms import PROFILE as HIERARCHY_PROFILE, resolve as resolve_hierarchy, localize as localize_hierarchy
 
+_compiled_previews = ContextVar('native_authoring_compiled_previews', default=None)
+
+
+@contextmanager
+def compilation_session():
+    state={'bytes':0,'packages':{}}
+    token=_compiled_previews.set(state)
+    try:
+        yield
+    finally:
+        _compiled_previews.reset(token)
+
+
+def compile_preview_cgs(value):
+    """Pure compilation reuse for identical bytes, only inside one preview call."""
+    state=_compiled_previews.get()
+    if state is None:return factory.compile_portable_cgs(value)
+    identity=encode(value)
+    if identity in state['packages']:return state['packages'][identity]
+    package=factory.compile_portable_cgs(value)
+    if state['bytes']+len(identity)<=32*1024*1024:
+        state['packages'][identity]=package;state['bytes']+=len(identity)
+    return package
+
+
 def hierarchy_enabled(cgs):
     value=cgs.get('native_instance_profile')
     require(value is None or value==HIERARCHY_PROFILE,'Unsupported native instance profile')
@@ -30,15 +57,24 @@ def row_transforms(rows,keys):
 
 
 
-def _binding(cgs, binding):
-    found=[]
+def _binding_index(cgs):
+    result={}
     for mode in cgs['modes']:
+        actors={}
+        for actor in mode['actors']:
+            actors.setdefault(actor['id'],[]).append(actor)
         for obj in mode.get('world',{}).get('contract',{}).get('objects',[]):
-            if obj['id']==binding.world_object_id:
-                require(obj['actor_id']==binding.actor_id and obj['instance_index']==binding.instance_index,'World binding identity changed')
-                actors=[a for a in mode['actors'] if a['id']==binding.actor_id]
-                require(len(actors)==1 and actors[0]['spawn_count']==1 and binding.instance_index==0,'ambiguous actor instance')
-                found.append((mode,actors[0],obj))
+            result.setdefault(obj['id'],[]).append((mode,actors.get(obj['actor_id'],[]),obj))
+    return result
+
+
+def _binding(cgs, binding, index=None):
+    entries=(_binding_index(cgs) if index is None else index).get(binding.world_object_id,[])
+    found=[]
+    for mode,actors,obj in entries:
+        require(obj['actor_id']==binding.actor_id and obj['instance_index']==binding.instance_index,'World binding identity changed')
+        require(len(actors)==1 and actors[0]['spawn_count']==1 and binding.instance_index==0,'ambiguous actor instance')
+        found.append((mode,actors[0],obj))
     require(len(found)<=1,'ambiguous World binding');return found[0] if found else None
 
 
@@ -72,11 +108,12 @@ def _presentation(cgs,obj,engine,previous):
 
 def _project(cgs,base,mapping):
     rows=copy.deepcopy(base)
+    binding_index=_binding_index(cgs)
     by_world={r.world_binding.world_object_id:k for k,r in mapping.objects.items() if r.world_binding}
     for key,record in mapping.objects.items():
         if not record.world_binding:continue
         require(key in rows,'bound object outside capture')
-        found=_binding(cgs,record.world_binding)
+        found=_binding(cgs,record.world_binding,binding_index)
         if found is None:
             rows[key]=dict(generation=rows[key]['generation'],deleted=True,parent_id=None,fields={},dependencies=[],opaque=[]);continue
         mode,actor,obj=found
@@ -122,12 +159,14 @@ def _native_transform(engine,field,value):
 
 
 @wire_validation_session()
+@compilation_session()
 def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:IdentityMap,
                         current_mapping:IdentityMap, current_cgs:dict, native_inventory:bytes,
                         expected_current_cgs_digest:str, expected_source_digest:str,
                         verify_baseline, trusted_project:bool, resolutions:dict|None=None,
                         accepted_loss_digest=None, trusted_executor=None) -> MergeProposal:
     require(trusted_project is True,'trusted native extraction required')
+
     mapping.validate();current_mapping.validate()
     require(mapping.to_dict()==current_mapping.to_dict(),'branch/identity/baseline drift requires explicit identity review')
     require(current_cgs.get('native_instance_profile')==baseline_cgs.get('native_instance_profile'),'Instance profile changes need explicit re-adoption')
@@ -140,11 +179,12 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     require(hashlib.sha256(native_inventory).hexdigest()==expected_source_digest,'stale native source')
     for cgs in [baseline_cgs,current_cgs]:
         require(cgs.get('metadata',{}).get('cgs_hash')==compute_cgs_hash(cgs),'invalid CGS hash')
-        factory.compile_portable_cgs(cgs)
+        compile_preview_cgs(cgs)
     reader=bridge(mapping.engine);policy=reader.policy(enable_writes=True)
     before=load_snapshot(baseline.payload,mapping,policy).to_dict()['inspection']['normalized']
     require(_project(baseline_cgs,before,mapping)==before,'baseline canonical/native projection disagrees')
     bound=[k for k,r in mapping.objects.items() if r.world_binding]
+    baseline_bindings=_binding_index(baseline_cgs);current_bindings=_binding_index(current_cgs)
     require(0<len(bound)<=MAX_BOUND_OBJECTS,'select 1..1000 verified instance bindings')
     inspection=reader.capture(native_inventory,current_mapping,enable_writes=True)
     observed=parse(inspection.payload);engine=observed['normalized']
@@ -164,8 +204,8 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
             for reference in [record.scene_id,record.prefab_id]:
                 if reference and merge['merged'][reference]['deleted']:block('implicit_dependency_deleted',key)
     for key in bound:
-        previous=_binding(baseline_cgs,mapping.objects[key].world_binding)
-        current=_binding(current_cgs,mapping.objects[key].world_binding)
+        previous=_binding(baseline_cgs,mapping.objects[key].world_binding,baseline_bindings)
+        current=_binding(current_cgs,mapping.objects[key].world_binding,current_bindings)
         if previous is not None and current is not None:
             old_object,new_object=copy.deepcopy(previous[2]),copy.deepcopy(current[2])
             for obj in [old_object,new_object]:obj.get('relationships',{}).pop(PARENT,None)
@@ -182,7 +222,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
         try:resolved=resolve_hierarchy(row_transforms(merge['merged'],bound),{k:merge['merged'][k]['parent_id'] for k in bound})
         except (ValueError,KeyError,TypeError):block('hierarchy_profile_refused')
     for key in bound:
-        desired=merge['merged'][key];current=_binding(current_cgs,mapping.objects[key].world_binding)
+        desired=merge['merged'][key];current=_binding(current_cgs,mapping.objects[key].world_binding,current_bindings)
         if current is None or desired['deleted']:continue
         mode,actor,_=current
         if not TRANSFORMS <= set(desired['fields']):block('incomplete_transform',key);continue
@@ -194,7 +234,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     for key in bound:
         desired=merge['merged'][key];native_action=desired.get('fields',{}).get('input.action')
         if native_action is None:continue
-        found=_binding(current_cgs,mapping.objects[key].world_binding)
+        found=_binding(current_cgs,mapping.objects[key].world_binding,current_bindings)
         if found is None:continue
         mode,_,obj=found
         binding=gde.native_input_bindings.for_object(current_cgs,mode['id'],obj['id'],mapping.engine)
@@ -206,7 +246,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     for key in bound:
         desired=merge['merged'][key];native_asset=desired.get('fields',{}).get('presentation.asset')
         if native_asset is None:continue
-        found=_binding(current_cgs,mapping.objects[key].world_binding)
+        found=_binding(current_cgs,mapping.objects[key].world_binding,current_bindings)
         if found is None:continue
         mode,_,obj=found
         if not obj.get('asset_bindings'):
@@ -239,8 +279,8 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
     batch=dict(schema=gde.SCHEMA,expected_cgs_digest=digest(current_cgs),operations=operations)
     candidate=None;native_request=None
     try:
-        candidate=gde.preview(batch,current_cgs,validate=factory.compile_portable_cgs).proposed_cgs
-        package=factory.compile_portable_cgs(candidate)
+        candidate=gde.preview(batch,current_cgs,validate=compile_preview_cgs).proposed_cgs
+        package=compile_preview_cgs(candidate)
         structured=[system for system in package.to_sgc_input() if 1 in system.get('reads',[]) or 1 in system.get('writes',[])]
         if structured:
             from native_executor_contract import TrustedExecutor

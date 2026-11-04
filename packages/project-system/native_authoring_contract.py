@@ -65,12 +65,13 @@ _validated_payloads = ContextVar('native_authoring_validated_payloads', default=
 
 @contextmanager
 def wire_validation_session():
-    """Bounded call-local memo of structural JSON validation, never map/policy trust.
+    """Bounded call-local memo of byte-identical validation inputs.
 
-    Bytes are immutable; decoded objects are new on every parse. No capture,
-    approval, schema or filesystem verification is memoized.
+    Bytes are immutable; decoded objects are new on every parse. Native editor
+    invocations, approvals and filesystem verification are never memoized.
+    Inspection reuse includes complete capture, map and policy bytes in its key.
     """
-    state = {'bytes': 0, 'payloads': set()}
+    state = {'bytes': 0, 'payloads': set(), 'inspections': {}}
     token = _validated_payloads.set(state)
     try:
         yield
@@ -206,6 +207,24 @@ class Inspection:
 
 
 def inspect_capture(capture: dict, mapping: IdentityMap, policy: AuthoringPolicy) -> Inspection:
+    state = _validated_payloads.get()
+    if state is None:
+        return _inspect_capture(capture, mapping, policy)
+    # Reuse only complete byte-identical inputs within this planner invocation.
+    # Changed maps/policies/captures get a different key and full validation.
+    key = (MAX_DEPTH, MAX_BYTES, MAX_FIELDS, MAX_EDGES, MAX_OBJECTS,
+           canonical(capture), canonical(mapping.to_dict()), canonical(policy.description()))
+    if key in state['inspections']:
+        return state['inspections'][key]
+    result = _inspect_capture(capture, mapping, policy)
+    size = sum(len(value) for value in key if type(value) is bytes) + len(result.payload)
+    if state['bytes'] + size <= 32 * 1024 * 1024:
+        state['inspections'][key] = result
+        state['bytes'] += size
+    return result
+
+
+def _inspect_capture(capture: dict, mapping: IdentityMap, policy: AuthoringPolicy) -> Inspection:
     """Pure inspection. Malformed framing rejects; semantic loss is itemized.
 
     No caller input is changed, no baseline advances, and no project files are opened.

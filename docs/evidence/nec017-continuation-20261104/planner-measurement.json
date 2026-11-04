@@ -1,0 +1,36 @@
+{
+  "scope": "Planner lower bound only; excludes editor capture and review service",
+  "results": [
+    {
+      "engine": "godot",
+      "objects": 1000,
+      "batches": 30,
+      "changed_objects": 100,
+      "p95_planner_seconds": 2.5639007999852765,
+      "planner_only_within_2s": false,
+      "capture_receipt": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261029\\godot-repeat-d\\project\\.xace\\native-authoring-calls\\c9d1038dbd654993a6a4e40444ce5162\\result.json",
+      "capture_sha256": "4410cb28440be05f83fd06639be7a922878d2adf1e137fa7fb8f7a2a479c0428"
+    },
+    {
+      "engine": "unity",
+      "objects": 1000,
+      "batches": 30,
+      "changed_objects": 100,
+      "p95_planner_seconds": 2.8089908999972977,
+      "planner_only_within_2s": false,
+      "capture_receipt": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261029\\unity-repeat-a\\project\\.xace\\native-authoring-calls\\81350fcb5f4c4583824dcb57b7f42f5c\\result.json",
+      "capture_sha256": "cc11b2599b8aaa5dd996a96b3d3160527ee189247bdf74c0b8f2b5b5d2432c86"
+    },
+    {
+      "engine": "unreal",
+      "objects": 1000,
+      "batches": 30,
+      "changed_objects": 100,
+      "p95_planner_seconds": 2.5590095999941695,
+      "planner_only_within_2s": false,
+      "capture_receipt": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261029\\unreal-repeat-a\\project\\.xace\\native-authoring-calls\\d2e23715440b43ed842d6df52467cfd1\\result.json",
+      "capture_sha256": "f2ef4a6236604a50c94bf519cbcaf2394d472b68c30f5ac40d9bf7852e135a8d"
+    }
+  ],
+  "certifies_capture_to_review": false
+}

@@ -48,6 +48,21 @@ def rows():
     return b,copy.deepcopy(b),copy.deepcopy(b),importlib.import_module('unity_authoring').policy(enable_writes=True)
 
 
+class CompilationBoundaryTests(unittest.TestCase):
+    def test_equal_cgs_compiles_once_per_call_and_changed_cgs_is_revalidated(self):
+        from unittest.mock import patch
+        import native_reconciliation_plan as planner
+        c=context()
+        with patch.object(planner.factory,'compile_portable_cgs',wraps=planner.factory.compile_portable_cgs) as compile_cgs:
+            first=plan_reconciliation(**c).to_dict();self.assertTrue(first['noop'])
+            self.assertEqual(compile_cgs.call_count,1)
+            self.assertEqual(plan_reconciliation(**c).to_dict(),first)
+            self.assertEqual(compile_cgs.call_count,2)
+            xace_edit(c)
+            changed=plan_reconciliation(**c).to_dict();self.assertTrue(changed['reviewable']);self.assertFalse(changed['noop'])
+            self.assertGreaterEqual(compile_cgs.call_count,4)
+
+
 class MergeTests(unittest.TestCase):
     def test_deterministic_merge_corpus(self):
         b,x,e,p=rows()

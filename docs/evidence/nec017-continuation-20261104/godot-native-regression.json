@@ -1,0 +1,21 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "phase": "run",
+      "returncode": 0
+    },
+    {
+      "phase": "reload",
+      "returncode": 0
+    },
+    {
+      "phase": "play",
+      "returncode": 0
+    },
+    {
+      "phase": "privilege",
+      "returncode": 0
+    }
+  ]
+}

@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--phase', choices=['run', 'reload', 'play', 'privilege'], default='run')
     args = parser.parse_args()
     out = args.out.resolve()
-    if not out.is_relative_to(ROOT/'recovery-evidence/20261016/nec005'):
+    if not any(out.is_relative_to(parent) for parent in [ROOT/'recovery-evidence/20261016/nec005',ROOT/'evidence/nec017']):
         raise ValueError('Output must be under recovery-evidence/20261016/nec005')
     out.mkdir(parents=True, exist_ok=True)
     project = out/'godot-project'

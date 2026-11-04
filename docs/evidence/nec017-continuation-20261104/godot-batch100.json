@@ -1,0 +1,1 @@
+{"edits_per_batch":100,"engine":"godot","inward_seconds":135.80573799999547,"objects":1000,"ok":true,"outward_seconds":164.653535200021,"reopened_noop":true,"scope":"One actual bidirectional 100-edit pair; not 30-batch latency or build certification"}

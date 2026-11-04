@@ -113,6 +113,18 @@ class ObjectRecord:
     provenance: str = ""
 
 
+def _record_dict(record: ObjectRecord) -> dict:
+    # Validated records contain immutable scalar values and these two typed
+    # nested records. Build fresh dictionaries without generic deep-copy walks.
+    value = {name: getattr(record, name) for name in ObjectRecord.__dataclass_fields__}
+    loc = record.locator
+    value['locator'] = dict(engine=loc.engine, document_id=loc.document_id, object_id=loc.object_id)
+    binding = record.world_binding
+    value['world_binding'] = None if binding is None else dict(world_object_id=binding.world_object_id,
+        actor_id=binding.actor_id, instance_index=binding.instance_index)
+    return value
+
+
 @dataclass(frozen=True)
 class Baseline:
     """References to NEC-003 snapshots, not a claim that they were reconciled."""
@@ -202,11 +214,14 @@ class IdentityMap:
     def mapping_digest(self) -> str:
         self.validate()
         return digest({"namespace_id": self.namespace_id, "engine": self.engine,
-                       "objects": {key: asdict(row) for key, row in sorted(self.objects.items())}})
+                       "objects": {key: _record_dict(row) for key, row in sorted(self.objects.items())}})
 
     def to_dict(self) -> dict[str, Any]:
         self.validate()
-        return {"schema": SCHEMA, **asdict(self)}
+        return dict(schema=SCHEMA, project_id=self.project_id, namespace_id=self.namespace_id,
+                    branch_id=self.branch_id, engine=self.engine,
+                    objects={key: _record_dict(row) for key,row in self.objects.items()},
+                    baseline=None if self.baseline is None else asdict(self.baseline))
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> IdentityMap:

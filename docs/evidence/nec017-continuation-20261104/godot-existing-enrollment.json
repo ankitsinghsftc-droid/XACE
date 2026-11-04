@@ -1,0 +1,387 @@
+{
+  "ok": true,
+  "phase": "discovery and explicit enrollment only",
+  "enrollment": {
+    "explicit_fixture_enrollment": true,
+    "full_adoption_verified": false,
+    "neutral_node3d_root_captured": true,
+    "objects": [
+      {
+        "document": "res://Game/Crate.tscn",
+        "id": "00000000000000000000000000000001",
+        "kind": "prefab_definition",
+        "node_path": "."
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000002",
+        "kind": "scene",
+        "node_path": "."
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000003",
+        "kind": "prefab_instance",
+        "node_path": "Crate0"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000004",
+        "kind": "prefab_instance",
+        "node_path": "Crate1"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000005",
+        "kind": "prefab_instance",
+        "node_path": "Crate2"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000006",
+        "kind": "prefab_instance",
+        "node_path": "Crate3"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000007",
+        "kind": "prefab_instance",
+        "node_path": "Crate4"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000008",
+        "kind": "prefab_instance",
+        "node_path": "Crate5"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000009",
+        "kind": "prefab_instance",
+        "node_path": "Crate6"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000a",
+        "kind": "prefab_instance",
+        "node_path": "Crate7"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000b",
+        "kind": "prefab_instance",
+        "node_path": "Crate8"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000c",
+        "kind": "prefab_instance",
+        "node_path": "Crate9"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000d",
+        "kind": "prefab_instance",
+        "node_path": "Crate10"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000e",
+        "kind": "prefab_instance",
+        "node_path": "Crate11"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000000f",
+        "kind": "prefab_instance",
+        "node_path": "Crate12"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000010",
+        "kind": "prefab_instance",
+        "node_path": "Crate13"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000011",
+        "kind": "prefab_instance",
+        "node_path": "Crate14"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000012",
+        "kind": "prefab_instance",
+        "node_path": "Crate15"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000013",
+        "kind": "prefab_instance",
+        "node_path": "Crate16"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000014",
+        "kind": "prefab_instance",
+        "node_path": "Crate17"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000015",
+        "kind": "prefab_instance",
+        "node_path": "Crate18"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000016",
+        "kind": "prefab_instance",
+        "node_path": "Crate19"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000017",
+        "kind": "prefab_instance",
+        "node_path": "Crate20"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000018",
+        "kind": "prefab_instance",
+        "node_path": "Crate21"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000019",
+        "kind": "prefab_instance",
+        "node_path": "Crate22"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001a",
+        "kind": "prefab_instance",
+        "node_path": "Crate23"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001b",
+        "kind": "prefab_instance",
+        "node_path": "Crate24"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001c",
+        "kind": "prefab_instance",
+        "node_path": "Crate25"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001d",
+        "kind": "prefab_instance",
+        "node_path": "Crate26"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001e",
+        "kind": "prefab_instance",
+        "node_path": "Crate27"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000001f",
+        "kind": "prefab_instance",
+        "node_path": "Crate28"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000020",
+        "kind": "prefab_instance",
+        "node_path": "Crate29"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000021",
+        "kind": "prefab_instance",
+        "node_path": "Crate30"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000022",
+        "kind": "prefab_instance",
+        "node_path": "Crate31"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000023",
+        "kind": "prefab_instance",
+        "node_path": "Crate32"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000024",
+        "kind": "prefab_instance",
+        "node_path": "Crate33"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000025",
+        "kind": "prefab_instance",
+        "node_path": "Crate34"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000026",
+        "kind": "prefab_instance",
+        "node_path": "Crate35"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000027",
+        "kind": "prefab_instance",
+        "node_path": "Crate36"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000028",
+        "kind": "prefab_instance",
+        "node_path": "Crate37"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000029",
+        "kind": "prefab_instance",
+        "node_path": "Crate38"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002a",
+        "kind": "prefab_instance",
+        "node_path": "Crate39"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002b",
+        "kind": "prefab_instance",
+        "node_path": "Crate40"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002c",
+        "kind": "prefab_instance",
+        "node_path": "Crate41"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002d",
+        "kind": "prefab_instance",
+        "node_path": "Crate42"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002e",
+        "kind": "prefab_instance",
+        "node_path": "Crate43"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000002f",
+        "kind": "prefab_instance",
+        "node_path": "Crate44"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000030",
+        "kind": "prefab_instance",
+        "node_path": "Crate45"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000031",
+        "kind": "prefab_instance",
+        "node_path": "Crate46"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000032",
+        "kind": "prefab_instance",
+        "node_path": "Crate47"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000033",
+        "kind": "prefab_instance",
+        "node_path": "Crate48"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000034",
+        "kind": "prefab_instance",
+        "node_path": "Crate49"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000035",
+        "kind": "object",
+        "node_path": "North"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000036",
+        "kind": "object",
+        "node_path": "South"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000037",
+        "kind": "object",
+        "node_path": "NativeAudio"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000038",
+        "kind": "object",
+        "node_path": "NativeAnimation"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "00000000000000000000000000000039",
+        "kind": "object",
+        "node_path": "UnsupportedCriticalScore"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000003a",
+        "kind": "object",
+        "node_path": "North/DuplicateDisplayName"
+      },
+      {
+        "document": "res://Game/World.tscn",
+        "id": "0000000000000000000000000000003b",
+        "kind": "object",
+        "node_path": "South/DuplicateDisplayName"
+      },
+      {
+        "document": "res://Game/Annex.tscn",
+        "id": "0000000000000000000000000000003c",
+        "kind": "scene",
+        "node_path": "."
+      },
+      {
+        "document": "res://Game/Annex.tscn",
+        "id": "0000000000000000000000000000003d",
+        "kind": "prefab_instance",
+        "node_path": "Crate"
+      }
+    ],
+    "ok": true,
+    "original_scene_hashes": {
+      "res://Game/Annex.tscn": "d476f9ae2816ca4a56bb69927dd49dc72a293861ca64b12e775c524c702c4c6d",
+      "res://Game/Crate.tscn": "4ed0c468cb328ffd6764a1e0c34a4f927d959e37f70d64ce636f032c6f3cfd4a",
+      "res://Game/World.tscn": "9ae4a60e8658dec5ff938f7a5e7f0e47ea1cd2a1c1aeeb1a1bbe019f6dcb70fb"
+    },
+    "rejected_preview_preserved": true,
+    "translated_scene_root_refused": true
+  },
+  "original_fixture_preserved": true,
+  "adoption_verified": false
+}

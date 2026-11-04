@@ -1,0 +1,16 @@
+﻿[
+    {
+        "path":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.pch",
+        "classification":  "Generated obsolete Unreal precompiled-header compiler cache",
+        "deleted":  true,
+        "modified":  "2026-10-27T09:56:30.0584077Z",
+        "bytes":  2416574360
+    },
+    {
+        "path":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.pch",
+        "classification":  "Generated obsolete Unreal precompiled-header compiler cache",
+        "deleted":  true,
+        "modified":  "2026-10-27T09:59:25.2039768Z",
+        "bytes":  2080440272
+    }
+]
