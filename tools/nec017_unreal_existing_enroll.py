@@ -1,4 +1,4 @@
-﻿"""Real production discovery/enrollment/cold capture on a new independent fixture copy.
+"""Real production discovery/enrollment/cold capture on a new independent fixture copy.
 Test commandlet is fixture-only; no production plugin sources are changed.
 """
 from pathlib import Path
@@ -8,7 +8,8 @@ EDITOR=Path('C:/Program Files/Epic Games/UE_5.7/Engine/Binaries/Win64/UnrealEdit
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
 def main(out,source):
  out=out.resolve();source=source.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert source.is_relative_to(ROOT/'evidence/nec017')
- assert shutil.disk_usage(ROOT).free>8*1024**3,'Need8GiB for fresh proof build; no cleanup performed'
+ reuse=Path(sys.argv[3]).resolve() if len(sys.argv)>3 else None
+ assert shutil.disk_usage(ROOT).free>(4 if reuse else 8)*1024**3,'Insufficient headroom; no cleanup performed'
  manifest=json.loads((source/'pre-adoption-manifest.json').read_bytes());project=out/'project';project.mkdir(parents=True);(project/'.xace').mkdir()
  for name,expected in manifest['files'].items():
   original=source/'project'/name;assert sha(original)==expected
@@ -22,16 +23,26 @@ def main(out,source):
  uproject=project/'NEC017Existing.uproject';config=json.loads(uproject.read_bytes());config['Plugins'].append(dict(Name='XACEAuthoring',Enabled=True));uproject.write_text(json.dumps(config,indent=2))
  (project/'NEC017.enroll-approved').write_text(sha(project/'Content/World.umap'))
  (out/'explicit-enrollment-review.json').write_text(json.dumps(dict(source=str(source),source_manifest_sha256=sha(source/'pre-adoption-manifest.json'),scope='New fixture copy, World map only',action='Enroll all discovered native identities through production Enroll API',gameplay_conversion=False),indent=2))
- engine=EDITOR.parents[2]
- command=[str(engine/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(engine/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'UnrealEditor','Win64','Development',f'-Project={uproject}',f'-plugin={plugin/"XACEAuthoring.uplugin"}','-nohotreload','-installed','-NoUBA','-MaxParallelActions=1','-NoUBTMakefiles',f'-log={out/"build-ubt.log"}']
- (out/'build-command.json').write_text(json.dumps(command,indent=2))
- with (out/'build.log').open('wb') as log:
-  proc=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW);started=time.monotonic()
-  while proc.poll() is None:
-   if shutil.disk_usage(ROOT).free<2*1024**3 or time.monotonic()-started>900:
-    proc.terminate();raise RuntimeError('Build reserve/timeout reached; files retained')
-   time.sleep(1)
- assert proc.returncode==0,'Build failed; retained logs'
+ if reuse is not None:
+  assert reuse.is_relative_to(ROOT/'evidence/nec017')
+  assert json.loads((reuse/'proof.json').read_bytes())['production_enrollment']
+  original_plugin=reuse/'project/Plugins/XACEAuthoring'
+  for path in (plugin/'Source').rglob('*'):
+   if path.is_file():assert sha(path)==sha(original_plugin/path.relative_to(plugin)),str(path)
+  assert sha(plugin/'XACEAuthoring.uplugin')==sha(original_plugin/'XACEAuthoring.uplugin')
+  shutil.copytree(original_plugin/'Binaries',plugin/'Binaries')
+  (out/'reused-build.json').write_text(json.dumps(dict(source=str(reuse),fresh_compilation=False,binaries={p.relative_to(plugin).as_posix():sha(p) for p in (plugin/'Binaries').rglob('*') if p.is_file()}),indent=2))
+ else:
+  engine=EDITOR.parents[2]
+  command=[str(engine/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(engine/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'UnrealEditor','Win64','Development',f'-Project={uproject}',f'-plugin={plugin/"XACEAuthoring.uplugin"}','-nohotreload','-installed','-NoUBA','-MaxParallelActions=1','-NoUBTMakefiles',f'-log={out/"build-ubt.log"}']
+  (out/'build-command.json').write_text(json.dumps(command,indent=2))
+  with (out/'build.log').open('wb') as log:
+   proc=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW);started=time.monotonic()
+   while proc.poll() is None:
+    if shutil.disk_usage(ROOT).free<2*1024**3 or time.monotonic()-started>900:
+     proc.terminate();raise RuntimeError('Build reserve/timeout reached; files retained')
+    time.sleep(1)
+  assert proc.returncode==0,'Build failed; retained logs'
  for phase in ['enroll','cold']:
   command=[str(EDITOR),str(uproject),'-run=NEC017Existing','-unattended','-nop4','-nosplash','-NullRHI','-nocef','-NoShaderCompile','-stdout','-FullStdOutLogOutput',f'-abslog={out/(phase+"-editor.log")}']+(['-ColdReopen'] if phase=='cold' else [])
   (out/(phase+'-command.json')).write_text(json.dumps(command,indent=2))

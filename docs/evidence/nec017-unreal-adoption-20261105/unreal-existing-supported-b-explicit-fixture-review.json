@@ -1,0 +1,8 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-seed-c",
+  "action": "Disable native collision on static fixture objects; remove SpawnMarker and UnsupportedCritical native-authority actors from World COPY only",
+  "preserve_original": true,
+  "preserve_assets": true,
+  "automatic_gameplay_conversion": false,
+  "physics_preserved": false
+}

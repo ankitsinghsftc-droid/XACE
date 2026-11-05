@@ -1,0 +1,7 @@
+﻿{
+    "scope":  "Single generated PCH from completed test build; original sources, compiled binaries, logs, receipts, Git and seals retained",
+    "path":  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-enroll-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+    "sha256":  "D230FBB28DDFEEA9E552BD104997EA0261216ABF61AED48BEC8AE2F2B82C1E3E",
+    "bytes":  2416508928,
+    "authorization":  "User authorized cleanup of disposable caches with no work/progress loss"
+}

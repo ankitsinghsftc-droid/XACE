@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "native_enrolled_objects": 57,
+  "selected_static_mesh_objects": 50,
+  "original_preserved": true,
+  "other_scene_assets_preserved": true,
+  "cold_capture_identical": true,
+  "production_enrollment": true,
+  "fixture_only_wrapper": true,
+  "full_adoption_verified": false
+}

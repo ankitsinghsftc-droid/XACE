@@ -1,0 +1,38 @@
+{
+  "status": "INCOMPLETE",
+  "passed": [
+    "Original independent Unreal fixture enrollment57 identities and unchanged cold capture",
+    "Original native physics/Blueprint content refused before canonical publication",
+    "Explicit static-authoring disposition in copy, cold verified",
+    "55 native identities,50 adopted objects, real GDE/coordinator saved pair",
+    "Both transform edit directions, source/other map/assets preservation and cold no-op"
+  ],
+  "failed_retained": {
+    "unreal-existing-preview-b": "Native runtime collision setter alone did not persist desired collision profile; fixed by native NoCollision profile and mandatory separate cold readback",
+    "unreal-existing-publish-a": "900-second approval expired during a native call spanning Windows sleep; failed run retained. Fresh retry passed unchanged expiry"
+  },
+  "evidence": {
+    "evidence/nec017/20261105/unreal-existing-enroll-a/proof.json": "fca51f563b45dba62a17675fb790009e932f8f7a8a2995879beb051a51a5be70",
+    "evidence/nec017/20261105/unreal-existing-enroll-a/source-pins.json": "6232a66a55cfa61d1e49656d876de18836582aaf8131e3c476ae4755d0ad5da0",
+    "evidence/nec017/20261105/unreal-existing-preview-a/proof.json": "8be52705640da3358956ca8fbb84038657d5cf7df487b14f9282b13ca541bbdf",
+    "evidence/nec017/20261105/unreal-existing-supported-b/proof.json": "e464247e7d29ea02ac25e9fe618f311baa8a5c377cef24abd510a0df8b991fea",
+    "evidence/nec017/20261105/unreal-existing-supported-b/explicit-fixture-review.json": "602779f0183a5ff0f4af2c8a0592ae418b570092f3dede6ba60096e928c6eb37",
+    "evidence/nec017/20261105/unreal-existing-enroll-c/proof.json": "98e66634035ffa973a339a1515ba63c8b5a714792391fc5105a07806b0b7c34b",
+    "evidence/nec017/20261105/unreal-existing-enroll-c/reused-build.json": "b900b2539a995faaea06c3a75e9c3b7c2ec087776210a73d2b320a6bda320a72",
+    "evidence/nec017/20261105/unreal-existing-enroll-c/source-pins.json": "6879b79bcbe4671e10d2243f66244ce2486f3aaf964ff3efe646c33a94f9d386",
+    "evidence/nec017/20261105/unreal-existing-preview-c/proof.json": "0c1848f479983469701fb9a0b241065e1df93b08f9cb145444569b7eb4d75c1e",
+    "evidence/nec017/20261105/unreal-existing-publish-b/proof.json": "73ffde042d6386accb90f93fcea60294fa85e25176aa28f2eb999724ff92873d",
+    "evidence/nec017/20261105/unreal-existing-publish-b/editing-proof.json": "cb7793e72b9793eaae37f9ba0ac5dbdb525687457334924af366e7aaa2e8ccad",
+    "evidence/nec017/20261105/unreal-existing-publish-b-launch/power-events.json": "d8156c1730c029720552d3bcd4518a1cfadd2361d4081ef6cedb2940cf63de10",
+    "evidence/nec017/20261105/cache-cleanup-b/target.json": "0b0d38da9fcfd51c224068776bd2040aca94a9bd67ed58cb29b1ddc54d5b7883",
+    "evidence/nec017/20261105/cache-cleanup-b/result.json": "6ee2df792f6ef3226e2ddbd19c7c898f390521ea505e1b8ccfca07334c431eb5"
+  },
+  "scope": "Approved World map static-authoring profile only; other native map/resources preserved, not translated; no native Play/build/continuity claim",
+  "remaining": [
+    "Original-derived Unity complete supported-profile workflow",
+    "Gameplay/Play/build/continuity all-engine existing fixtures",
+    "Actual capture-to-review/repeated-build target and final acceptance audit"
+  ],
+  "raw_evidence_backed_up_off_device": false,
+  "nec018_started": false
+}

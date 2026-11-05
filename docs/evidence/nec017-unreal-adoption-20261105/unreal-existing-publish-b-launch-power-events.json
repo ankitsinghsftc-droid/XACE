@@ -1,0 +1,38 @@
+﻿[
+    {
+        "TimeCreated":  "\/Date(1793889955625)\/",
+        "ProviderName":  "Microsoft-Windows-Power-Troubleshooter",
+        "Id":  1,
+        "Message":  "The system has returned from a low power state.\r\n\r\nSleep Time: ‎2026‎-‎11‎-‎05T11:08:24.485626100Z\r\nWake Time: ‎2026‎-‎11‎-‎05T14:45:54.587703400Z\r\n\r\nWake Source: Unknown"
+    },
+    {
+        "TimeCreated":  "\/Date(1793876906532)\/",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  107,
+        "Message":  "The system has resumed from sleep."
+    },
+    {
+        "TimeCreated":  "\/Date(1793876905548)\/",
+        "ProviderName":  "Microsoft-Windows-Power-Troubleshooter",
+        "Id":  1,
+        "Message":  "The system has returned from a low power state.\r\n\r\nSleep Time: ‎2026‎-‎11‎-‎05T11:08:24.485626100Z\r\nWake Time: ‎2026‎-‎11‎-‎05T11:08:24.485626100Z\r\n\r\nWake Source: S4 Doze to Hibernate"
+    },
+    {
+        "TimeCreated":  "\/Date(1793876904943)\/",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  42,
+        "Message":  "The system is entering sleep.\r\n\r\nSleep Reason: Hibernate from Sleep - Fixed Timeout"
+    },
+    {
+        "TimeCreated":  "\/Date(1793873271261)\/",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  107,
+        "Message":  "The system has resumed from sleep."
+    },
+    {
+        "TimeCreated":  "\/Date(1793873270279)\/",
+        "ProviderName":  "Microsoft-Windows-Kernel-Power",
+        "Id":  42,
+        "Message":  "The system is entering sleep.\r\n\r\nSleep Reason: Button or Lid"
+    }
+]

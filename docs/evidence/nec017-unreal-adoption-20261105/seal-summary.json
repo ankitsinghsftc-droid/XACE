@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "original_seal": false,
+  "baseline_manifest_sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+  "source_archive_entries": 1575,
+  "release_certified": false,
+  "protected_files": 55
+}

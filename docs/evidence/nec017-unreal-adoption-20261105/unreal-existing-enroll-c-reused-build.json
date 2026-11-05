@@ -1,0 +1,9 @@
+{
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-enroll-a",
+  "fresh_compilation": false,
+  "binaries": {
+    "Binaries/Win64/UnrealEditor-XACEAuthoring.dll": "e2ac34f7586d7a150002335f81bf8a5822881f48e068ec8be5f70b533b7e2b13",
+    "Binaries/Win64/UnrealEditor-XACEAuthoring.pdb": "9b039d07ed35a07e5d88a5bde3118b54daeb5b82afaa628a5727fc44b034648e",
+    "Binaries/Win64/UnrealEditor.modules": "9e6cf52ce3e6c8577ec604884903e534b9f2973c536a3a1a825e6577aa89b5b5"
+  }
+}

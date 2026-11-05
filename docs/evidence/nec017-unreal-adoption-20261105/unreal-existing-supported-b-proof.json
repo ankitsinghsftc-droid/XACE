@@ -1,0 +1,348 @@
+{
+  "ok": true,
+  "original_preserved": true,
+  "only_native_content_changed": "Content/World.umap",
+  "native": {
+    "ok": true,
+    "changes": [
+      {
+        "actor": "Crate0",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate1",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate2",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate3",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate4",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate5",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate6",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate7",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate8",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate9",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate10",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate11",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate12",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate13",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate14",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate15",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate16",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate17",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate18",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate19",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate20",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate21",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate22",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate23",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate24",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate25",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate26",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate27",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate28",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate29",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate30",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate31",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate32",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate33",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate34",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate35",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate36",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate37",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate38",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate39",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate40",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate41",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate42",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate43",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate44",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate45",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate46",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate47",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate48",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "Crate49",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "North",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "South",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "SpawnMarker",
+        "action": "remove_native_authority_in_copy",
+        "native_class": "/Script/Engine.PlayerStart"
+      },
+      {
+        "actor": "UnsupportedCritical",
+        "action": "remove_native_authority_in_copy",
+        "native_class": "/Game/UnsupportedCritical.UnsupportedCritical_C"
+      },
+      {
+        "actor": "DuplicateDisplayName",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      },
+      {
+        "actor": "DuplicateDisplayName",
+        "action": "disable_native_collision_in_copy",
+        "before": "<CollisionEnabled.QUERY_AND_PHYSICS: 3>",
+        "after": "<CollisionEnabled.NO_COLLISION: 0>"
+      }
+    ],
+    "automatic_gameplay_conversion": false,
+    "geometry_behavior_preserved": false
+  },
+  "automatic_gameplay_conversion": false,
+  "full_adoption_verified": false
+}

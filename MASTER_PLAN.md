@@ -1,3 +1,5 @@
+> NEC017 remaining mandatory work and permitted deferrals: docs/NEC017_REMAINING_ACCEPTANCE.md. User requested prioritizing essential gates; no acceptance waiver inferred and no NEC018 started.
+
 > NEC017 2026-11-05 native profile update: Unity root collider and Godot static-material adoption/edit-loop proofs PASS; task remains INCOMPLETE. See docs/evidence/nec017-native-profiles-20261105 and docs/NEC017_PROFILE_BOUNDARIES.md.
 
 > Current NEC017 profile boundaries and remaining acceptance: docs/NEC017_PROFILE_BOUNDARIES.md. Task remains incomplete; no historical seal/evidence changed.
