@@ -1,0 +1,10 @@
+{
+  "ok": true,
+  "scope": "Focused Unity unparented AABB capture and GDE/Factory preview; no whole-project, saved-pair, gameplay or shipping claim",
+  "native_objects": 50,
+  "compiled_geometry_objects": 50,
+  "explicit_exact_component_choices": true,
+  "mismatched_choice_refused": true,
+  "source_unchanged": true,
+  "source_sha256": "d75f551e535819b75046b7b04b7e39e39534d75883fc5fb4b9fafb9238d619da"
+}

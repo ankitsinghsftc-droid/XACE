@@ -32,7 +32,10 @@ def main(out,source):
  enrollment=load(root/'existing-enrollment.json')
  selected=sorted(r['id'] for r in enrollment['objects'] if r['document']=='res://Game/World.tscn' and r['node_path'] in ['Crate'+str(n) for n in range(50)]);assert len(selected)==50
  choices=choices_for(selected)
- for key in selected:choices['objects'][key]['asset_role']='project.visual.v1'
+ for key in selected:
+  choices['objects'][key]['asset_role']='project.visual.v1'
+  if 'presentation.material' in json.loads(raw)['objects'][key]['fields']:
+   choices['objects'][key]['material_role']='project.material.v1'
  cgs=inputs('godot')[2];(root/'game.cgs.json').write_bytes(canonical(cgs))
  def adoption_context():
   raw=gateway.capture()

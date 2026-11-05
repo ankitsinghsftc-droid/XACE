@@ -154,7 +154,7 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
         except (ValueError,KeyError,TypeError):loss('hierarchy_profile_refused')
     for key in selection:
         choice = choices["objects"][key]
-        exact(choice, {"actor_type", "control_type", "components", "semantic_type", "properties", "capabilities", "geometry_profile", "asset_role", "playback"})
+        exact(choice, {"actor_type", "control_type", "components", "semantic_type", "properties", "capabilities", "geometry_profile", "asset_role", "playback"} | ({"material_role"} if "material_role" in choice else set()))
         fields = rows[key]["fields"]; aid = actor_id(mapping, key)
         require(type(choice["components"]) is list, "explicit component records required")
         require(all(c.get("type_id") != 1 for c in choice["components"]), "native transform cannot be overridden")
@@ -184,6 +184,20 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
             provenance.append(dict(target="assets."+asset["id"], origin="native_capture", object_id=key, field="presentation.asset", source_value=copy.deepcopy(ref)))
             if ref["status"] != "LINKED": loss("asset_not_ready", key, "presentation.asset")
         else: require(choice["asset_role"] is None, "presentation role has no native asset")
+        material = fields.get("presentation.material")
+        material_role = choice.get("material_role")
+        mapped_material = False
+        if material_role is not None:
+            require(material is not None and material["asset_type"] == "MATERIAL", "explicit material role needs a captured material")
+            require(material_role != choice["asset_role"], "mesh and material roles must be distinct")
+            asset = dict(id=material["asset_id"], asset_type="MATERIAL", status=material["status"],
+                         source=_asset_source(mapping.engine, material["resolved_path"]) if material["status"] == "LINKED" else "")
+            require(asset["id"] not in assets or assets[asset["id"]] == asset, "ambiguous native material")
+            assets[asset["id"]] = asset
+            bindings[material_role] = {k:asset[k] for k in ("id", "asset_type", "status")}
+            mapped_material = True
+            provenance.append(dict(target=aid+".asset_bindings."+material_role, origin="native_capture_and_explicit_material_role", object_id=key, source_value=copy.deepcopy(material), synchronization="static_reference_only_changes_require_separate_certification"))
+            if material["status"] != "LINKED": loss("material_not_ready", key, "presentation.material")
         playback = fields.get("binding.playback")
         if choice["playback"] is not None:
             require(playback is not None, "playback choice has no captured binding")
@@ -212,8 +226,17 @@ def plan_adoption(native_inventory: bytes, mapping: IdentityMap, current_cgs: di
             provenance.append(record)
         provenance.append(dict(target=aid+".authoring_parent", origin="native_capture", object_id=key, source_value=parent, runtime_binding=("resolved_static_world" if hierarchy_world is not None else "unassigned") if parent else "root"))
         provenance.append(dict(target=aid+".classification_components_world", origin="explicit_user_choice", object_id=key, source_value=copy.deepcopy(choice)))
+        from native_authoring_geometry import FIELDS as collision_fields, require_adoption_match
+        mapped_collision = False
+        if any(name in fields for name in collision_fields) or choice["geometry_profile"] is not None:
+            try:
+                require_adoption_match(fields, parent, choice)
+                mapped_collision = True
+                provenance.append(dict(target=aid+".components.4", origin="native_capture_and_explicit_collider_choice", object_id=key, source_value={k:fields[k] for k in sorted(collision_fields)}))
+            except (ValueError, KeyError, TypeError) as exc:
+                loss("collider_mapping_not_certified", key, "collision", detail=str(exc)[:1024])
         for name in fields:
-            if name in required or name == "presentation.asset" or (name == "binding.playback" and choice["playback"] is not None): continue
+            if name in required or name == "presentation.asset" or (name == "binding.playback" and choice["playback"] is not None) or (mapped_collision and name in collision_fields) or (mapped_material and name == "presentation.material"): continue
             if name.startswith("native."): loss("native_owned_retained", key, name, "info")
             else: loss("unmapped_native_field", key, name, "blocking", "No gameplay behavior is inferred; retain native and review separately")
     for aid, asset in sorted(assets.items()):

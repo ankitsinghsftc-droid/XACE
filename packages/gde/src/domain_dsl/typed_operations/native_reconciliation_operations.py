@@ -30,7 +30,8 @@ def preview(batch, current, *, validate):
             objects=index(modes[op['mode_id']].get('world',{}).get('contract',{}).get('objects',[]))
             require(op['object_id'] in objects,'unknown World object');obj=objects[op['object_id']]
             require(digest(obj)==op['expected_object_digest'],'stale World object')
-            require(set(obj['asset_bindings'])=={op['role']},'explicit single presentation role required')
+            require(op['role'] in obj['asset_bindings'] and obj['asset_bindings'][op['role']]['asset_type']=='MESH'
+                    and sum(ref['asset_type']=='MESH' for ref in obj['asset_bindings'].values())==1,'explicit single mesh role required')
             ref=op['asset'];exact(ref,{'id','asset_type','status'})
             asset=index(proposed.get('assets',[])).get(ref['id'])
             require(asset is not None and ref=={k:asset[k] for k in ['id','asset_type','status']} and ref['asset_type']=='MESH' and ref['status']=='LINKED','registered linked mesh required')

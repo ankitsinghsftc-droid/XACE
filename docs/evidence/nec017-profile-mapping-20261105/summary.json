@@ -1,0 +1,55 @@
+{
+  "status": "INCOMPLETE",
+  "project_system_tests": 363,
+  "schema_factory_tests": 127,
+  "implemented": [
+    "Explicit exact unparented AABB collider adoption using supported Unity capture",
+    "Explicit static material_role registration; material edits still refused",
+    "Supported mesh edits preserve independently bound material roles"
+  ],
+  "planner_p95_seconds": {
+    "godot": 1.8275911,
+    "unity": 2.0187583,
+    "unreal": 1.8038619
+  },
+  "capture_to_review_certified": false,
+  "pending": [
+    "Native saved-pair proofs for new profiles",
+    "Full all-engine existing-project workflows, latency, repeated builds and final acceptance"
+  ],
+  "raw_evidence_off_device": false,
+  "files": {
+    "regression.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-c\\0.log",
+      "sha256": "de0132f4686a78fc833bdbd689fb2231373f062b7bf84a8e701521ac04715aaf"
+    },
+    "schema-factory.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-c\\1.log",
+      "sha256": "82dc93727d8e3539c44eb554829b2ebb4a06e43744f868a3e39071293bd3e8f5"
+    },
+    "planner.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-c\\warm-planner\\measurement.json",
+      "sha256": "97a6e62b087bdb100e8fdbe458d3f9753faefbdb60e87de08d924ed2e3faf800"
+    },
+    "source-stability.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-c\\source-stability.json",
+      "sha256": "fa4ce8446f6e84fa21f044fc63fd360da61b89dd3af3bbd6a60ab0fb2867ebe9"
+    },
+    "source-pins.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-c\\source-pins.json",
+      "sha256": "d99348439575abd516ed03afde19d0cbe171b97fa4a9cbe076b0aa546aab4ba7"
+    },
+    "unity-enrollment.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unity-existing-enroll-a\\proof.json",
+      "sha256": "f9a357113ef932bd1a05c8998865004b802bd340264a989dfca09fbb983c0a94"
+    },
+    "unity-existing-refusal.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unity-existing-preview-a\\proof.json",
+      "sha256": "fd43417c0581f10ea656d411e438edec3c16680ce41c4c627162f18a1903c289"
+    },
+    "unity-root-collider-preview.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unity-root-collider-preview-a\\proof.json",
+      "sha256": "fb8f3d77cfeb1e651aa50351b2f32d9c52d98ee413cf35684d51a82deb19a153"
+    }
+  }
+}

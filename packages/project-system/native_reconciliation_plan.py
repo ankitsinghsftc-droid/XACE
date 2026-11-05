@@ -89,12 +89,13 @@ def _playback(cgs,binding_id,engine):
     return dict(binding_id=binding_id,event_name=binding['event_name'],playback_kind=binding['playback_kind'],asset=dict(asset_id=asset['id'],asset_type=asset['asset_type'],status='LINKED',resolved_path=path))
 
 
-def _presentation(cgs,obj,engine,previous):
+def _presentation(cgs,obj,engine,previous,asset_type="MESH"):
     roles=obj.get('asset_bindings',{})
-    require(len(roles)==1,'explicit single presentation role required')
-    ref=next(iter(roles.values()));assets=[a for a in cgs.get('assets',[]) if a['id']==ref['id']]
+    matches=[ref for ref in roles.values() if ref.get('asset_type')==asset_type]
+    require(len(matches)==1,'explicit single role per presentation asset type required')
+    ref=matches[0];assets=[a for a in cgs.get('assets',[]) if a['id']==ref['id']]
     require(len(assets)==1,'registered presentation asset required');asset=assets[0]
-    require(ref=={k:asset[k] for k in ['id','asset_type','status']} and ref['asset_type']=='MESH' and ref['status']=='LINKED','linked mesh presentation profile required')
+    require(ref=={k:asset[k] for k in ['id','asset_type','status']} and ref['asset_type']==asset_type and ref['status']=='LINKED','linked presentation profile required')
     source=asset.get('source');require(type(source) is str,'saved native mesh source required')
     if previous['asset_id']==ref['id']:path=previous['resolved_path']
     elif engine=='godot':path='res://'+source
@@ -103,7 +104,7 @@ def _presentation(cgs,obj,engine,previous):
         require(source.startswith('Content/') and source.endswith('.uasset'),'Unreal project mesh package required')
         package=source[len('Content/'):-len('.uasset')];path='/Game/'+package+'.'+package.rsplit('/',1)[-1]
     require(_asset_source(engine,path)==source,'registered mesh source differs')
-    return dict(asset_id=ref['id'],asset_type='MESH',status='LINKED',resolved_path=path)
+    return dict(asset_id=ref['id'],asset_type=asset_type,status='LINKED',resolved_path=path)
 
 
 def _project(cgs,base,mapping):
@@ -125,12 +126,18 @@ def _project(cgs,base,mapping):
         for name in ['position','rotation','scale']:
             require(all(type(v) is int for v in value[name].values()),'structured fixed-point transform required')
             rows[key]['fields']['transform.'+name]={axis:str(v) for axis,v in value[name].items()}
+        if obj.get('geometry_profile') is not None:
+            from native_authoring_geometry import FIELDS as collision_fields, project_collider
+            require(collision_fields <= set(rows[key]['fields']),'canonical geometry has no native collider')
+            rows[key]['fields'].update(project_collider(actor['components'],obj['geometry_profile']))
         input_binding=gde.native_input_bindings.for_object(cgs,mode['id'],obj['id'],mapping.engine)
         if input_binding:
             require('input.action' in rows[key]['fields'],'native input selector enrollment required')
             rows[key]['fields']['input.action']=input_binding['native_actions'][mapping.engine]
         if 'presentation.asset' in rows[key]['fields'] and obj.get('asset_bindings'):
             rows[key]['fields']['presentation.asset']=_presentation(cgs,obj,mapping.engine,rows[key]['fields']['presentation.asset'])
+        if 'presentation.material' in rows[key]['fields'] and any(ref.get('asset_type')=='MATERIAL' for ref in obj.get('asset_bindings',{}).values()):
+            rows[key]['fields']['presentation.material']=_presentation(cgs,obj,mapping.engine,rows[key]['fields']['presentation.material'],'MATERIAL')
         if 'binding.playback' in rows[key]['fields']:
             rows[key]['fields']['binding.playback']=_playback(cgs,rows[key]['fields']['binding.playback']['binding_id'],mapping.engine)
         parents=obj.get('relationships',{}).get(PARENT,[])
@@ -213,8 +220,10 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
             for obj in [old_object,new_object]:
                 if 'relationships' in obj:
                     obj['relationships']={k:v for k,v in obj['relationships'].items() if k!=PARENT}
-            if 'presentation.asset' in before[key]['fields'] and len(old_object.get('asset_bindings',{}))==1 and set(old_object['asset_bindings'])==set(new_object.get('asset_bindings',{})):
-                old_object.pop('asset_bindings');new_object.pop('asset_bindings')
+            if 'presentation.asset' in before[key]['fields'] and set(old_object.get('asset_bindings',{}))==set(new_object.get('asset_bindings',{})):
+                mesh_roles=[role for role,ref in old_object.get('asset_bindings',{}).items() if ref.get('asset_type')=='MESH']
+                if len(mesh_roles)==1 and new_object['asset_bindings'][mesh_roles[0]].get('asset_type')=='MESH':
+                    for obj in [old_object,new_object]:obj['asset_bindings']={k:v for k,v in obj['asset_bindings'].items() if k!=mesh_roles[0]}
             if old_object!=new_object:block('unprojected_canonical_world_change',key)
     for op in merge['canonical_proposals']+merge['native_proposals']:
         if op['kind']!='set_field':block('structural_materialization_requires_coordinator',op['object_id'])
@@ -261,7 +270,7 @@ def plan_reconciliation(*, baseline:Snapshot, baseline_cgs:dict, mapping:Identit
             if projected==native_asset:continue
             asset=next(a for a in current_cgs.get('assets',[]) if a['id']==native_asset['asset_id'])
             require(asset['asset_type']==native_asset['asset_type']=='MESH' and asset['status']==native_asset['status']=='LINKED' and asset.get('source')==_asset_source(mapping.engine,native_asset['resolved_path']),'unregistered native mesh')
-            operations.append(dict(operation_id='presentation.'+key,kind='set_native_presentation',mode_id=mode['id'],object_id=obj['id'],expected_object_digest=digest(obj),role=next(iter(obj['asset_bindings'])),asset={k:asset[k] for k in ['id','asset_type','status']}))
+            operations.append(dict(operation_id='presentation.'+key,kind='set_native_presentation',mode_id=mode['id'],object_id=obj['id'],expected_object_digest=digest(obj),role=next(role for role,ref in obj['asset_bindings'].items() if ref['asset_type']=='MESH'),asset={k:asset[k] for k in ['id','asset_type','status']}))
         except (ValueError,KeyError,StopIteration):block('presentation_mapping_not_certified',key)
     for key in bound:
         desired=merge['merged'][key]

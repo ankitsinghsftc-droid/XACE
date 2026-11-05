@@ -1,0 +1,26 @@
+{
+  "ok": true,
+  "scope": "Actual-native unsupported-profile refusal only; not successful adoption",
+  "selected_objects": 51,
+  "enrolled_objects": 64,
+  "source_sha256": "e65cc7185fa2c8faacb13218ba9b816a5899bbf58be7c6d6627f2223670f353f",
+  "candidate_valid": false,
+  "saved_pair_eligible": false,
+  "loss_counts": {
+    "native_owned_retained:native.name": 51,
+    "retained_native:component:0:UnityEngine.MeshFilter": 51,
+    "retained_native:component:1:UnityEngine.BoxCollider": 51,
+    "retained_native:component:2:UnityEngine.MeshRenderer": 51,
+    "retained_native:native.gameobject": 53,
+    "retained_native:native.transform": 53,
+    "unmapped_native_field:collision.offset": 50,
+    "unmapped_native_field:collision.profile": 50,
+    "unmapped_native_field:collision.shape": 50,
+    "unmapped_native_field:collision.size": 50,
+    "unmapped_native_field:collision.trigger": 50,
+    "unmapped_native_field:presentation.material": 50,
+    "unsupported_geometry:collision": 50
+  },
+  "full_capture_blockers": 54,
+  "source_unchanged": true
+}
