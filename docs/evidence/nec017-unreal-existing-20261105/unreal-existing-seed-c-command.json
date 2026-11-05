@@ -1,0 +1,15 @@
+[
+  "C:\\Program Files\\Epic Games\\UE_5.7\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe",
+  "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-seed-c\\project\\NEC017Existing.uproject",
+  "-run=pythonscript",
+  "-script=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-seed-c\\native-fixture-script.py",
+  "-unattended",
+  "-nop4",
+  "-nosplash",
+  "-NullRHI",
+  "-nocef",
+  "-NoShaderCompile",
+  "-stdout",
+  "-FullStdOutLogOutput",
+  "-abslog=C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-seed-c\\editor.log"
+]

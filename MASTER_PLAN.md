@@ -1,3 +1,7 @@
+> NEC017 2026-11-05 native profile update: Unity root collider and Godot static-material adoption/edit-loop proofs PASS; task remains INCOMPLETE. See docs/evidence/nec017-native-profiles-20261105 and docs/NEC017_PROFILE_BOUNDARIES.md.
+
+> Current NEC017 profile boundaries and remaining acceptance: docs/NEC017_PROFILE_BOUNDARIES.md. Task remains incomplete; no historical seal/evidence changed.
+
 > Current2026-11-05: NEC017 INCOMPLETE.356+127 tests pass; Godot existing-project adoption and bidirectional edits pass; Unity independent fixture created. Full workflows, latency/repeated builds and final audit remain. See docs/evidence/nec017-continuation-20261105.
 
 > Current2026-11-04 continuation: NEC017 INCOMPLETE.355+127 tests pass; Godot50-instance native adoption/saved-pair/cold no-op pass after explicit fixture disposition. Latency and remaining native workflow/build certification stay open. See docs/evidence/nec017-existing-adoption-20261104.

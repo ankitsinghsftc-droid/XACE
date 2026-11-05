@@ -1,0 +1,23 @@
+{
+  "status": "INCOMPLETE",
+  "source_commit": "d4ad30858ebf247f43304c20f61dd1e1280e829e",
+  "proofs": {
+    "evidence\\nec017\\20261105\\unity-collider-publish-a\\proof.json": "db5f25b017733dce02e98745852966186985326209021d82f6e775e992a8d1a1",
+    "evidence\\nec017\\20261105\\unity-collider-publish-a\\editing-proof.json": "cb7793e72b9793eaae37f9ba0ac5dbdb525687457334924af366e7aaa2e8ccad",
+    "evidence\\nec017\\20261105\\godot-material-publish-a\\proof.json": "22617543b23c379c60aa0311ab76d6c800688934c997e0fb81b0a259bccc8eb7",
+    "evidence\\nec017\\20261105\\godot-material-publish-a\\editing-proof.json": "cb7793e72b9793eaae37f9ba0ac5dbdb525687457334924af366e7aaa2e8ccad"
+  },
+  "passed": [
+    "Unity 50 root BOX collider adoption and bidirectional transform edit loop",
+    "Godot 50 prefab instances with explicit static material roles: adoption and bidirectional transform edit loop",
+    "Original fixtures/resources/other scenes preserved; cold no-op"
+  ],
+  "limitations": [
+    "No whole original Unity project adoption; parented physics and critical native behavior remain blocked",
+    "Godot manual native-authority disposition explicitly recorded in a copy",
+    "No material-reference or collider-dimension edit certification",
+    "Existing-project Play/build/continuity, full capture-to-review timing, repeated builds and final acceptance matrix remain open",
+    "Raw fixtures, binaries and recovered XP022 seal local-only"
+  ],
+  "nec018_started": false
+}

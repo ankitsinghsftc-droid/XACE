@@ -1,0 +1,26 @@
+{
+  "status": "INCOMPLETE",
+  "independent_fixture_creation": true,
+  "cold_native_readback": true,
+  "proofs": {
+    "evidence/nec017/20261105/unreal-existing-seed-c/proof.json": "45b6b27921202a7d89a390bb5321a231add997cc84033b9005194bb00a6308ed",
+    "evidence/nec017/20261105/unreal-existing-seed-c/pre-adoption-manifest.json": "6e11c293b870d9397928113dcee9ceb1dfa2e91c3a8f662762d443fe3fa23b29",
+    "evidence/nec017/20261105/unreal-existing-seed-c/source-pins.json": "48587e50d00c068c6750073f32aa15afef19b426360a63df82c93a5ffa889b3b",
+    "evidence/nec017/20261105/unreal-existing-seed-c/command.json": "aedb3fc40d87e7fc298ae01a4b236a1ca6664d3ee3b133e13cec8ca334f5b8e6",
+    "evidence/nec017/20261105/unreal-existing-readback-a/proof.json": "3bf1f6dce0e84801032eb5a17e65fb8e12ef64fb610d2b5cd332a5417f357a25",
+    "evidence/nec017/20261105/unreal-existing-readback-a/command.json": "2ee8183151768a10ba2a56dfe54e72a7ce50d23c9a51e2b432ef7292aee12208"
+  },
+  "failed_attempts": {
+    "unreal-existing-seed-a": "Unreal array JSON serialization and missing Bink decoder in commandlet",
+    "unreal-existing-seed-b": "Missing Bink decoder; retained nonzero result"
+  },
+  "correction": "Explicit native decoder module load; JSON list conversion; assert actual hierarchy and cold-read native files",
+  "native_enrollment": "Fresh test-wrapper compilation running in unreal-existing-enroll-a; NOT yet verified",
+  "limitations": [
+    "No adoption/Play/build/continuity claim",
+    "Supported behavior mapping remains unverified",
+    "Engine-derived basic mesh/material licensing retained; not public distribution certification",
+    "Raw native assets and logs local-only"
+  ],
+  "nec018_started": false
+}

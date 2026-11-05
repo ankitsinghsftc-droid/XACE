@@ -1,0 +1,37 @@
+{
+  "files": {
+    "Content/Annex.umap": "c45e2c021d3f3efcf6a7baeef456de1a1413620b151b425a9652b65adab1977a",
+    "Content/Crate.uasset": "9ba9ec1a741af53ef6bc911c607247c9179e6da3744ed0781a740a0428e01246",
+    "Content/CrateMaterial.uasset": "15c9af46d423ac384dc556198da2a38c0d5fed664642904a0110efe70c7ecb87",
+    "Content/CrateMesh.uasset": "8f0fa374c95b0a05c72b8ed4136e5cf4d9b22f165c13c29f09075c443b07e007",
+    "Content/Move.uasset": "2da17c580fed76b5cd1152d279873d9de1a9da7083e379dd29332d7b53648b31",
+    "Content/Tone.uasset": "4f04eb05d93b2c8090b28de70008f87adf2e1d26cdb6a2bd2c20dac1149436e1",
+    "Content/UnsupportedCritical.uasset": "54dc1f741e5dae28a9c49d7ad29517640726fd186fa02fe7ea86b4a6f2051586",
+    "Content/World.umap": "bfb6f5d146a26d3a6787de5805f8c1bdf0c5508ca24a25d13806aa9ac133492a",
+    "Config/DefaultEngine.ini": "f0696e7edefa557597537577b52252790a72eab2bf0e4915d0973cd31a0c43d0",
+    "Config/DefaultInput.ini": "b67229e3048b098084e0ad5cf48845a86f0c2b45671eb0f3a253cd772488d6cb",
+    "SourceContent/Tone.wav": "f270f97d97fc819d0dcd35f3d05381edfcb349c94054b074e7ade455f2c4a8c5",
+    "NEC017Existing.uproject": "66082d85cc9e210ad83f6c57d8c52cc3ea4885b05e96fa42e94523bd97c20f30"
+  },
+  "fixture": {
+    "ok": true,
+    "phase": "independent native creation only",
+    "authored_static_mesh_objects": 50,
+    "prefab_instances": 2,
+    "scenes": [
+      "Content/World.umap",
+      "Content/Annex.umap"
+    ],
+    "prefab": "Content/Crate.uasset",
+    "animation": "Content/Move.uasset",
+    "audio": [
+      "/Game/Tone.Tone"
+    ],
+    "unsupported_dependency": "Content/UnsupportedCritical.uasset",
+    "xace_enrolled": false,
+    "adoption_verified": false,
+    "supported_behavior_mapping_verified": false,
+    "license": "Original arrangement and tone; mesh/material derived from installed Unreal Engine basic content, subject to Unreal license; no public redistribution certification",
+    "engine": "5.7.4-51494982+++UE5+Release-5.7"
+  }
+}

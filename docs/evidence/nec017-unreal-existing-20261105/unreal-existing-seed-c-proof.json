@@ -1,0 +1,27 @@
+{
+  "ok": true,
+  "seconds": 8.169874800019898,
+  "real_native_binary_assets": true,
+  "fixture": {
+    "ok": true,
+    "phase": "independent native creation only",
+    "authored_static_mesh_objects": 50,
+    "prefab_instances": 2,
+    "scenes": [
+      "Content/World.umap",
+      "Content/Annex.umap"
+    ],
+    "prefab": "Content/Crate.uasset",
+    "animation": "Content/Move.uasset",
+    "audio": [
+      "/Game/Tone.Tone"
+    ],
+    "unsupported_dependency": "Content/UnsupportedCritical.uasset",
+    "xace_enrolled": false,
+    "adoption_verified": false,
+    "supported_behavior_mapping_verified": false,
+    "license": "Original arrangement and tone; mesh/material derived from installed Unreal Engine basic content, subject to Unreal license; no public redistribution certification",
+    "engine": "5.7.4-51494982+++UE5+Release-5.7"
+  },
+  "full_nec017_certification": false
+}

@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "native": {
+    "ok": true,
+    "static_mesh_objects": 50,
+    "prefab_instances": 2,
+    "scenes": 2,
+    "native_mesh_material": true,
+    "duplicate_labels_and_parentage": true,
+    "animation_keyframes": true,
+    "audio_resource": true,
+    "spawn_marker": true,
+    "critical_dependency": true,
+    "xace_enrolled": false,
+    "adoption_verified": false
+  },
+  "original_preserved": true,
+  "cold_native_content_unchanged": true,
+  "physical_input_declaration": true,
+  "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unreal-existing-seed-c",
+  "full_nec017_certification": false
+}
