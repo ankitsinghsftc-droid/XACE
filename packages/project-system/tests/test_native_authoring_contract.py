@@ -216,6 +216,31 @@ class SnapshotTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             FieldPolicy("text", owner="native", write=True).validate()
 
+    def test_snapshot_reuse_is_call_local_and_revalidates_changed_inputs(self):
+        import native_authoring_contract as contract
+        from unittest.mock import patch
+        mapping,policy,capture=fixture()
+        snapshot=inspect_capture(capture,mapping,policy).admit()
+        with patch.object(contract,'inspect_capture',wraps=contract.inspect_capture) as check:
+            with contract.wire_validation_session():
+                self.assertEqual(load_snapshot(snapshot.payload,mapping,policy),snapshot)
+                self.assertEqual(load_snapshot(snapshot.payload,mapping,policy),snapshot)
+                self.assertEqual(check.call_count,1)
+                changed=copy.deepcopy(mapping);changed.branch_id='d'*32
+                with self.assertRaises(ValueError):load_snapshot(snapshot.payload,changed,policy)
+                changed=copy.deepcopy(policy);changed.fields['transform.position']=FieldPolicy('position',read=False)
+                with self.assertRaises(ValueError):load_snapshot(snapshot.payload,mapping,changed)
+                malformed=snapshot.to_dict();malformed['inspection']['normalized'][oid(2)]['fields']['transform.position']=vec('999')
+                with self.assertRaises(ValueError):load_snapshot(canonical(malformed),mapping,policy)
+                with patch.object(contract,'MAX_DEPTH',1):
+                    with self.assertRaises(ValueError):load_snapshot(snapshot.payload,mapping,policy)
+                value=load_snapshot(snapshot.payload,mapping,policy).to_dict();value['schema']='changed'
+                self.assertEqual(load_snapshot(snapshot.payload,mapping,policy).to_dict()['schema'],contract.SNAPSHOT_SCHEMA)
+            calls=check.call_count
+            load_snapshot(snapshot.payload,mapping,policy)
+            self.assertEqual(check.call_count,calls+1)
+        self.assertIsNone(contract._validated_payloads.get())
+
     def test_inspection_reuse_binds_full_capture_map_and_policy(self):
         from unittest.mock import patch
         import native_authoring_contract as contract

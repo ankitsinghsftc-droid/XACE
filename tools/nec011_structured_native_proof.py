@@ -13,7 +13,7 @@ from tools.cgs_schema_validate import compute_cgs_hash
 import playable_package as packages
 
 def main(out):
-    assert out.is_relative_to(ROOT/'evidence/nec011') and not out.exists();out.mkdir(parents=True)
+    assert any(out.is_relative_to(ROOT/p) for p in ['evidence/nec011','evidence/nec017']) and not out.exists();out.mkdir(parents=True)
     build=ROOT/'evidence/nec011/20261021/reference-admission-a'
     receipt=json.loads((build/'executor-receipt.json').read_bytes())
     exe=build/'relocated-game/runtime/xace_runtime.exe'

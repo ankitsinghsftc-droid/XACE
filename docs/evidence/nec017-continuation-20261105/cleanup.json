@@ -1,0 +1,6 @@
+{
+    "scope":  "Only regenerable obsolete build-wrapper-a PCH files; no source, executable, log, Git or sealed artifact removed",
+    "free_bytes":  9102614528,
+    "removed_files":  2,
+    "removed_bytes":  4497014648
+}

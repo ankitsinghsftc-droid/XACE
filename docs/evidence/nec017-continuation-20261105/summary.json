@@ -1,0 +1,65 @@
+{
+  "status": "INCOMPLETE",
+  "project_system_tests": 356,
+  "schema_factory_tests": 127,
+  "source_stable": true,
+  "godot_existing_adoption_bidirectional_edits_and_cold_noop": true,
+  "unity_independent_native_fixture_only": true,
+  "structured_runtime_replay_matches_prior_all_engines": true,
+  "latency_certified": false,
+  "latency_limitation": "Planner-only run overlaps Unity startup; not controlled or capture-to-review certification",
+  "failures_retained": [
+    "verification-g malformed test fixture corrected",
+    "unity-existing-seed-a nonexistent optional package removed from fresh retry"
+  ],
+  "remaining": [
+    "Complete full native existing-project workflow in each engine, including Play/build/continuity",
+    "Meet and certify 30 native 100-edit batch latency target at 1000 objects",
+    "Repeated native builds and complete shipping/fault compatibility matrix",
+    "Final source/evidence/acceptance audit"
+  ],
+  "clean_machine_gate": "user-deferred, mandatory for release",
+  "raw_evidence_off_device": false,
+  "files": {
+    "regression.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-a\\0.log",
+      "sha256": "07c428677678cea578bb1a721fa488298543cc043b0dc3c747301c12f4ff4184"
+    },
+    "schema-factory.txt": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-a\\1.log",
+      "sha256": "efa466eb03387e7327995db32580595d3495c34f35d95b218f7aae8ae7d34bbe"
+    },
+    "planner.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-a\\warm-planner\\measurement.json",
+      "sha256": "9e9eba85d106c6a4a0e539fe5995dc4a35a0be3f6ea32d3763b36387f0bef660"
+    },
+    "source-stability.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-a\\source-stability.json",
+      "sha256": "fa4ce8446f6e84fa21f044fc63fd360da61b89dd3af3bbd6a60ab0fb2867ebe9"
+    },
+    "source-pins.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\verification-a\\source-pins.json",
+      "sha256": "ff60301e9bfdb1f8cbfcea0e21106c4ff8a92d165fec7f39acc965487294de24"
+    },
+    "godot-existing-editing.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\godot-existing-publish-b\\editing-proof.json",
+      "sha256": "cb7793e72b9793eaae37f9ba0ac5dbdb525687457334924af366e7aaa2e8ccad"
+    },
+    "structured-replay.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\structured-replay-a\\proof.json",
+      "sha256": "b5701532220ec404ece8bfb97886653b64d3e5fd6d2c5a694a0ab5958cf3594d"
+    },
+    "carry-forward.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261104\\carry-forward-b\\proof.json",
+      "sha256": "b5af4fb4adc3aa9b0b8ebe2c02af1b8db7701f2774bb901170a9705599fb5e62"
+    },
+    "cleanup.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\cache-cleanup-a\\result.json",
+      "sha256": "da0e9f679582e2e625cc30c20e6274c7b8386c12fa4e9df72e7ca711153de046"
+    },
+    "unity-fixture.json": {
+      "source": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261105\\unity-existing-seed-b\\project\\fixture-created.json",
+      "sha256": "adea65a3d426e0f9b0894b7ed80eb587334a7d83eaa27067571967798990f3f9"
+    }
+  }
+}

@@ -28,35 +28,36 @@ _SURROGATES = re.compile(r"[\ud800-\udfff]")
 
 def bounded(value: Any) -> None:
     """Reject ambiguous numbers, excessive nesting and oversized values before use."""
-    pending = [(value, 0)]
+    # Queue containers rather than allocating a (value, depth) tuple for each
+    # scalar. Every value still counts, including repeated immutable strings.
+    pending = [([value], 0)]
     count = 0
-    # Equal immutable strings have identical validity. Memoization is limited to
-    # this traversal; every occurrence still counts toward depth/node limits.
     keys, texts = set(), set()
     while pending:
-        item, depth = pending.pop()
-        count += 1
-        if depth > MAX_DEPTH or count > 1_000_000:
-            raise IdentityError("authoring structure limit")
-        kind = type(item)
-        if kind is dict:
-            for key in item:
-                if type(key) is not str:
-                    raise IdentityError("invalid JSON key")
-                if key not in keys:
-                    if len(key) > 256 or not key.isascii():
+        values, depth = pending.pop()
+        for item in values:
+            count += 1
+            if depth > MAX_DEPTH or count > 1_000_000:
+                raise IdentityError("authoring structure limit")
+            kind = type(item)
+            if kind is dict:
+                for key in item:
+                    if type(key) is not str:
                         raise IdentityError("invalid JSON key")
-                    keys.add(key)
-            pending.extend((v, depth + 1) for v in item.values())
-        elif kind is list:
-            pending.extend((v, depth + 1) for v in item)
-        elif kind is str:
-            if item not in texts:
-                if len(item) > 4096 or _SURROGATES.search(item) is not None:
-                    raise IdentityError("oversized text or unpaired surrogate")
-                texts.add(item)
-        elif item is not None and kind is not bool:
-            raise IdentityError("wire numbers must be decimal strings")
+                    if key not in keys:
+                        if len(key) > 256 or not key.isascii():
+                            raise IdentityError("invalid JSON key")
+                        keys.add(key)
+                pending.append((item.values(), depth + 1))
+            elif kind is list:
+                pending.append((item, depth + 1))
+            elif kind is str:
+                if item not in texts:
+                    if len(item) > 4096 or _SURROGATES.search(item) is not None:
+                        raise IdentityError("oversized text or unpaired surrogate")
+                    texts.add(item)
+            elif item is not None and kind is not bool:
+                raise IdentityError("wire numbers must be decimal strings")
     canonical(value)  # Enforce the same 16 MiB bound in memory and on disk.
 
 
@@ -71,7 +72,7 @@ def wire_validation_session():
     invocations, approvals and filesystem verification are never memoized.
     Inspection reuse includes complete capture, map and policy bytes in its key.
     """
-    state = {'bytes': 0, 'payloads': set(), 'inspections': {}}
+    state = {'bytes': 0, 'payloads': set(), 'inspections': {}, 'snapshots': {}}
     token = _validated_payloads.set(state)
     try:
         yield
@@ -369,6 +370,17 @@ def _inspect_capture(capture: dict, mapping: IdentityMap, policy: AuthoringPolic
 
 
 def load_snapshot(data: bytes, mapping: IdentityMap, policy: AuthoringPolicy) -> Snapshot:
+    require(type(data) is bytes and len(data) <= MAX_BYTES, "authoring payload byte limit")
+    state = _validated_payloads.get()
+    key = None
+    if state is not None:
+        # The entire immutable snapshot (including precision acknowledgement),
+        # validated map, policy and limits identify this call-local result.
+        # Native capture and receipt/file freshness remain the host's checks.
+        key = (MAX_DEPTH, MAX_BYTES, MAX_FIELDS, MAX_EDGES, MAX_OBJECTS,
+               data, canonical(mapping.to_dict()), canonical(policy.description()))
+        if key in state['snapshots']:
+            return state['snapshots'][key]
     envelope = parse(data)
     exact(envelope, {"schema", "inspection", "accepted_loss_digest"})
     require(envelope["schema"] == SNAPSHOT_SCHEMA, "unsupported snapshot schema")
@@ -378,6 +390,11 @@ def load_snapshot(data: bytes, mapping: IdentityMap, policy: AuthoringPolicy) ->
     require(verified.payload == canonical(inspection), "snapshot policy/normalization/loss evidence mismatch")
     result = verified.admit(envelope["accepted_loss_digest"])
     require(result.payload == data, "snapshot must use canonical JSON bytes")
+    if state is not None:
+        size = sum(len(value) for value in key if type(value) is bytes) + len(result.payload)
+        if state['bytes'] + size <= 32 * 1024 * 1024:
+            state['snapshots'][key] = result
+            state['bytes'] += size
     return result
 
 
