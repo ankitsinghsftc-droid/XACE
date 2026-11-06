@@ -1,0 +1,46 @@
+{
+  "files": [
+    {
+      "source": "evidence/nec017/20261106/verification-d/result.json",
+      "copy": "0-result.json",
+      "sha256": "5bf54fd0100d945721a9a25f8e1be8b45c8ab36fab56450c8a128d59118f75c0"
+    },
+    {
+      "source": "evidence/nec017/20261106/verification-d/source-pins.json",
+      "copy": "1-source-pins.json",
+      "sha256": "e1ff00763bb136455d6a8b778d0fa2ca71c63ed85aad50e69c775bc6c5cca433"
+    },
+    {
+      "source": "evidence/nec017/20261106/verification-d/source-stability.json",
+      "copy": "2-source-stability.json",
+      "sha256": "fa4ce8446f6e84fa21f044fc63fd360da61b89dd3af3bbd6a60ab0fb2867ebe9"
+    },
+    {
+      "source": "evidence/nec017/20261106/existing-execution-b/proof.json",
+      "copy": "3-proof.json",
+      "sha256": "f17a422b4aea8252ac16318838c74b5f6adc52f6cae1f35554fea48b009ad590"
+    },
+    {
+      "source": "evidence/nec017/20261106/existing-execution-b/source-pins.json",
+      "copy": "4-source-pins.json",
+      "sha256": "09ea52e1108934215a70abe4d133e618767efbbbea69aa55e9d2d81403af08f1"
+    },
+    {
+      "source": "evidence/nec017/20261106/native-review-latency-c/measurement.json",
+      "copy": "5-measurement.json",
+      "sha256": "d3fc8aa90a97972f1ea99366ff3ed31ceb166c519ac590fd5f820923ae38b01b"
+    },
+    {
+      "source": "evidence/nec017/20261105/native-review-latency-a/godot/measurement.json",
+      "copy": "6-measurement.json",
+      "sha256": "98f01355dec6cb10f4c8260680cd3fffd8bc8e1b7286f08f94120d3fd8620401"
+    },
+    {
+      "source": "evidence/nec017/20261105/unity-existing-publish-b/editing-proof.json",
+      "copy": "7-editing-proof.json",
+      "sha256": "20d2e2cb46671b5596113dff1ac21705e8f9f6421187a5cb9a4ed32b8d2bc107"
+    }
+  ],
+  "full_nec017_complete": false,
+  "raw_evidence_off_device": false
+}

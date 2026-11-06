@@ -191,14 +191,18 @@ def verify_files(files,support):
         data=files[record["path"]]
         require(type(record["size"]) is int and record["size"]==len(data) and record["sha256"]==digest(data),"artifact checksum mismatch: "+record["path"])
     cgs=parse(files["game.cgs.json"])
-    # Native file resolution belongs to packaged presentation resources, never
-    # an absolute creator-machine path or a repository-relative dependency.
+    # Native source names require a versioned binding to exact packaged bytes;
+    # they never grant access to creator-machine or repository files.
+    from native_package_resources import verify_catalogs
+    native_resources = verify_catalogs(cgs, files)
     for asset in cgs.get("assets", []):
         for key in ("source", "path", "file_path", "resolved_path"):
             value=asset.get(key)
             if value:
                 safe_path(value)
-                require(value.startswith("presentation/") and value in files,"asset location must reference a packaged presentation resource")
+                require((value.startswith("presentation/") and value in files) or
+                        (key == "source" and (asset["id"], value) in native_resources),
+                        "asset location must reference a packaged presentation resource")
 
     package,expected_files=compiled_artifacts(cgs)
     for name,data in expected_files.items():require(files[name]==data,"artifact differs from authoritative Factory projection: "+name)

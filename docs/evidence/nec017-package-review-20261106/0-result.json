@@ -1,0 +1,32 @@
+{
+  "commands_succeeded": true,
+  "results": [
+    {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "packages/project-system/tests",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    {
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "packages/schema-factory/src/tests",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "returncode": 0
+    }
+  ],
+  "performance_acceptance": "Not rerun: regressions-only mode"
+}

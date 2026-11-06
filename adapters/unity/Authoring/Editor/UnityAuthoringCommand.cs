@@ -22,7 +22,12 @@ namespace Xace.Authoring.Editor
                 AuthoringJson.Need(AuthoringJson.Text(config,"engine")=="unity" && Path.GetFullPath(AuthoringJson.Text(config,"root"))==Path.GetFullPath("."),"Foreign authoring host");
                 var documents=((List<object>)config["documents"]).Cast<string>().ToArray();var scope=new AuthoringScope(documents);
                 var command=AuthoringJson.Obj(AuthoringJson.Parse(File.ReadAllText(path)));string action=AuthoringJson.Text(command,"action");object value;
-                foreach(var doc in documents.Where(d=>d.EndsWith(".unity")))EditorSceneManager.OpenScene(doc,OpenSceneMode.Single);
+                // Preserve every approved scene in multi-document capture/staging.
+                bool firstScene=true;
+                foreach(var doc in documents.Where(d=>d.EndsWith(".unity"))) {
+                    EditorSceneManager.OpenScene(doc,firstScene?OpenSceneMode.Single:OpenSceneMode.Additive);
+                    firstScene=false;
+                }
                 if(action=="capture")value=UnityAuthoringReader.Capture(scope);
                 else if(action=="prepare") {var write=UnityAuthoringWriter.PrepareRequest(scope,AuthoringJson.Encode(command["request"]));value=UnityAuthoringReader.Map("directory",write.Directory,"receipt",write.Journal,"approval_digest",write.ApprovalDigest);}
                 else {
