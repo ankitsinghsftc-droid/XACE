@@ -2,13 +2,15 @@
 Each engine uses a new1000-object fixture; no apply or original fixture mutation.
 """
 from pathlib import Path
-import importlib,json,sys,time,platform,shutil
+import importlib,json,sys,time,platform,shutil,os,math
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
 from tools.nec010_playback_host_proof import canonical,sha,load_json,rehash
 
 def main(out):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();out.mkdir(parents=True)
- pins={p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in [Path(__file__),*sorted((ROOT/'packages/project-system').glob('*.py'))]}
+ count=int(os.environ.get('NEC017_REVIEW_SAMPLES','3'));assert count in [3,30]
+ sources=[Path(__file__),*sorted((ROOT/'packages/project-system').glob('*.py')),*sorted((ROOT/'adapters').rglob('*.gd')),*sorted((ROOT/'adapters').rglob('*.cs')),*sorted((ROOT/'adapters').rglob('*.cpp')),*sorted((ROOT/'adapters').rglob('*.h'))]
+ pins={p.relative_to(ROOT).as_posix():sha(p.read_bytes()) for p in sources}
  (out/'source-pins.json').write_bytes(canonical(pins));cases=[]
  engines=sys.argv[2:] or ['godot','unity','unreal'];assert engines and set(engines)<={'godot','unity','unreal'} and len(set(engines))==len(engines)
  for engine in engines:
@@ -34,7 +36,7 @@ def main(out):
   g.capture=measured_capture
   base=load_json(root/'.xace/authoring-baseline.cgs.json');assert len(base['modes'][0]['actors'])==1000
   samples=[]
-  for n in range(3):
+  for n in range(count):
    c=load_json(root/'.xace/authoring-baseline.cgs.json')
    for actor in c['modes'][0]['actors'][:100]:actor['components'][0]['defaults']['position']['x']=(41+n)*1000000
    rehash(c);(root/'game.cgs.json').write_bytes(canonical(c));capture_samples.clear()
@@ -44,8 +46,8 @@ def main(out):
    row=dict(batch=n,full_capture_to_review_seconds=elapsed,native_capture_seconds=capture_samples[0],other_review_seconds=elapsed-capture_samples[0]);samples.append(row)
    with (case/'samples.jsonl').open('a',encoding='utf-8') as log:log.write(json.dumps(row)+'\n')
    print(json.dumps(dict(engine=engine,**row)),flush=True)
-  result=dict(engine=engine,objects=1000,edits=100,samples=samples,fixture_setup_seconds_excluded=setup_seconds,minimum_seconds=min(r['full_capture_to_review_seconds'] for r in samples),maximum_seconds=max(r['full_capture_to_review_seconds'] for r in samples),editor_process_start_included=True,import_compile_time_subtracted=False,p95_certified=False)
+  result=dict(engine=engine,objects=1000,edits=100,samples=samples,fixture_setup_seconds_excluded=setup_seconds,minimum_seconds=min(r['full_capture_to_review_seconds'] for r in samples),maximum_seconds=max(r['full_capture_to_review_seconds'] for r in samples),editor_process_start_included=True,import_compile_time_subtracted=False,p95_certified=False,sample_count=count,measured_p95_seconds=sorted(r['full_capture_to_review_seconds'] for r in samples)[math.ceil(.95*count)-1],speed_target_deferred=True)
   cases.append(result);(case/'measurement.json').write_bytes(canonical(result))
  assert all(sha((ROOT/p).read_bytes())==v for p,v in pins.items())
- (out/'measurement.json').write_bytes(canonical(dict(scope='Three actual saved CGS100-edit capture/review samples per engine; decision measurement, not30-batch p95 certification',cases=cases,os=platform.platform(),processor=platform.processor(),source_stable=True,p95_certified=False)))
+ (out/'measurement.json').write_bytes(canonical(dict(scope='Actual saved CGS100-edit capture/review samples; startup included; speed target deferred; no apply/build timing claim',sample_count_per_engine=count,cases=cases,os=platform.platform(),processor=platform.processor(),source_stable=True,p95_certified=False)))
 if __name__=='__main__':main(Path(sys.argv[1]))
