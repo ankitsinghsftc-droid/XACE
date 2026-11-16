@@ -47,9 +47,9 @@ public static class NEC017ExistingBuild {
  }catch(Exception error){Debug.LogException(error);EditorApplication.Exit(1);}}
 }
 '''
-def main(out):
+def main(out,source=None,package_base=None):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert shutil.disk_usage(ROOT).free>4*1024**3;out.mkdir(parents=True)
- source=ROOT/'evidence/nec017/20261105/unity-existing-publish-b/project';before={folder:inventory(source/folder) for folder in ['Assets','Packages','ProjectSettings']};project=out/'project'
+ source=Path(source).resolve() if source is not None else ROOT/'evidence/nec017/20261105/unity-existing-publish-b/project';assert source.is_relative_to(ROOT/'evidence/nec017');before={folder:inventory(source/folder) for folder in ['Assets','Packages','ProjectSettings']};project=out/'project'
  for name in before:shutil.copytree(source/name,project/name)
  # Explicit reviewed runtime prerequisites in this copied project; originals remain untouched.
  manifest_path=project/'Packages/manifest.json';manifest=json.loads(manifest_path.read_bytes());added={}
@@ -66,7 +66,7 @@ def main(out):
  probe=(ROOT/'tools/NEC013UnityPlayerProbe.cs').read_text(encoding='utf-8').replace('NEC013UnityPlayerProbe','NEC017UnityPlayerProbe').replace('r.entities==2','r.entities==51').replace('r.input_moves_authority=go.transform.position.x>7.1f','if(go.name=="Crate0")r.input_moves_authority=go.transform.position.x>18.1f')
  probe=probe.replace('var go=pair.Value;', 'var go=pair.Value; if(go.name.StartsWith("Crate")) r.native_identity &= go.GetComponent<MeshFilter>()!=null && go.GetComponent<MeshFilter>().sharedMesh!=null && go.GetComponent<MeshRenderer>()!=null && go.GetComponent<MeshRenderer>().sharedMaterial!=null;')
  (runtime/'NEC017UnityPlayerProbe.cs').write_text(probe,encoding='utf-8')
- base=ROOT/'evidence/nec017/20261106/existing-execution-b/unity';files=pp.read_archive((base/'game.xacepkg').read_bytes());cgs=json.loads(files['game.cgs.json']);compiled,_=pp.compiled_artifacts(cgs)
+ base=Path(package_base).resolve() if package_base is not None else ROOT/'evidence/nec017/20261106/existing-execution-b/unity';assert base.is_relative_to(ROOT/'evidence/nec017');files=pp.read_archive((base/'game.xacepkg').read_bytes());cgs=json.loads(files['game.cgs.json']);compiled,_=pp.compiled_artifacts(cgs)
  receipt_path=ROOT/'evidence/nec011/20261021/reference-admission-a/executor-receipt.json';receipt=json.loads(receipt_path.read_bytes());exe=base/'relocated/runtime/xace_runtime.exe';support=admit(receipt,expected_receipt_digest=digest(receipt),executable=exe,required_capabilities=['native.structured_transform.v1'],expected_compatibility=receipt['compatibility'],package=compiled)
  presentation={p:data for p,data in files.items() if p.startswith('presentation/')};presentation['presentation/player/settings.json']=pp.encode(dict(schema='xace.player.controls.v1',controller_id=1,instructions='D/A move',bindings=[dict(action='move_x',positive=68,negative=65,kind='axis_1d')]))
  archive=pp.build_package(cgs,files['execution_plan.json'],exe.read_bytes(),support,package_id='nec017.existing.unity',version='0.1.0',presentation_files=presentation);(out/'game.xacepkg').write_bytes(archive)

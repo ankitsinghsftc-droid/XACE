@@ -47,9 +47,9 @@ func finish(ok: bool,issue: String) -> void:
  FileAccess.open(OS.get_cmdline_user_args()[0],FileAccess.WRITE).store_string(JSON.stringify(result))
  get_tree().quit(0 if ok else 1)
 '''
-def main(out):
+def main(out,source=None,package_base=None):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert shutil.disk_usage(ROOT).free>4*1024**3
- out.mkdir(parents=True);source=ROOT/'evidence/nec017/20261105/godot-material-publish-a/project';before=inventory(source)
+ out.mkdir(parents=True);source=Path(source).resolve() if source is not None else ROOT/'evidence/nec017/20261105/godot-material-publish-a/project';assert source.is_relative_to(ROOT/'evidence/nec017');before=inventory(source)
  project=out/'project';shutil.copytree(source,project,ignore=shutil.ignore_patterns('.godot','.git','.xace','XACEApproval.json'))
  native={p.relative_to(project).as_posix():sha(p) for p in (project/'Game').rglob('*') if p.is_file()}
  for p in (ROOT/'adapters/godot').glob('*.gd'):shutil.copyfile(p,project/p.name)
@@ -60,7 +60,7 @@ def main(out):
  settings=settings.replace('enabled=PackedStringArray("res://addons/xace_native_shipping/plugin.cfg")','enabled=PackedStringArray("res://addons/xace_native_shipping/plugin.cfg","res://addons/nec017_editor_proof/plugin.cfg")')
  settings+='\n[editor]\nrun/main_run_args='+json.dumps('--headless -- '+str(out/'editor-player.json'))+'\n'
  (project/'project.godot').write_text(settings+'\n[autoload]\nNEC017Observer="*res://nec017_probe.gd"\n',encoding='utf-8')
- base=ROOT/'evidence/nec017/20261106/existing-execution-b/godot';files=pp.read_archive((base/'game.xacepkg').read_bytes());cgs=json.loads(files['game.cgs.json'])
+ base=Path(package_base).resolve() if package_base is not None else ROOT/'evidence/nec017/20261106/existing-execution-b/godot';assert base.is_relative_to(ROOT/'evidence/nec017');files=pp.read_archive((base/'game.xacepkg').read_bytes());cgs=json.loads(files['game.cgs.json'])
  receipt_path=ROOT/'evidence/nec011/20261021/reference-admission-a/executor-receipt.json';receipt=json.loads(receipt_path.read_bytes());exe=base/'relocated/runtime/xace_runtime.exe'
  compiled,_=pp.compiled_artifacts(cgs);support=admit(receipt,expected_receipt_digest=digest(receipt),executable=exe,required_capabilities=['native.structured_transform.v1'],expected_compatibility=receipt['compatibility'],package=compiled)
  presentation={p:data for p,data in files.items() if p.startswith('presentation/')}

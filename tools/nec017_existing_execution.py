@@ -13,15 +13,17 @@ import playable_package as packages
 from native_package_resources import prepare_resources
 
 def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
-def main(out):
+def main(out,sources=None):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();out.mkdir(parents=True)
  build=ROOT/'evidence/nec011/20261021/reference-admission-a';receipt=json.loads((build/'executor-receipt.json').read_bytes());exe=build/'relocated-game/runtime/xace_runtime.exe'
  trusted=TrustedExecutor(receipt,expected_receipt_digest=digest(receipt),executable=exe,expected_compatibility=receipt['compatibility'])
  reference=json.loads((ROOT/'examples/reference-mechanic/fixtures/player/game.cgs.json').read_bytes())
  sgc=Path('C:/Users/ankit/XACE-Recovery/build-output/cargo/debug/xace-system-graph-compiler.exe');cases={}
  pins={p.relative_to(ROOT).as_posix():sha(p) for p in [Path(__file__),*sorted((ROOT/'packages/project-system').glob('*.py'))]};(out/'source-pins.json').write_bytes(canonical(pins))
- for engine,folder in [('godot','godot-material-publish-a'),('unity','unity-existing-publish-b'),('unreal','unreal-existing-publish-b')]:
-  source=ROOT/'evidence/nec017/20261105'/folder;assert json.loads((source/'editing-proof.json').read_bytes())['ok'];root=source/'project'
+ defaults=[('godot','godot-material-publish-a'),('unity','unity-existing-publish-b'),('unreal','unreal-existing-publish-b')]
+ for engine,folder in defaults:
+  if sources is not None and engine not in sources:continue
+  source=(Path(sources[engine]).resolve() if sources is not None else ROOT/'evidence/nec017/20261105'/folder);assert source.is_relative_to(ROOT/'evidence/nec017');assert json.loads((source/('authoring-proof.json' if sources is not None else 'editing-proof.json')).read_bytes())['ok'];root=source/'project'
   original=IdentityMap.from_dict(json.loads((root/MAP).read_bytes()));assert verify_baseline_receipts(root,original.baseline)
   selected=sorted(k for k,r in original.objects.items() if r.world_binding);assert len(selected)==(51 if engine=='unity' else 50)
   captures=[p for p in (root/'.xace/native-authoring-calls').glob('*/result.json') if json.loads((p.parent/'command.json').read_bytes())['action']=='capture']
