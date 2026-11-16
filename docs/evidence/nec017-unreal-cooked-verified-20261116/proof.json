@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "cases": {
+    "relocated": {
+      "report": {
+        "objects": 50,
+        "tick": 30,
+        "native_identity": true,
+        "exact_projection": true,
+        "mesh_material_retained": true,
+        "static_objects_unchanged": true,
+        "authoritative_input": true,
+        "process_cleanup": true,
+        "static_root_refused": false,
+        "ok": true,
+        "error": "",
+        "runtime_pid": 41396,
+        "owner_pid": 16812,
+        "packaged": true
+      },
+      "exit_code": 0,
+      "installation_unchanged": true
+    },
+    "tampered": {
+      "report": {
+        "static_root_refused": false,
+        "ok": false,
+        "error": "Cooked file mismatch: release/package/presentation/unreal/Content/CrateMesh.uasset",
+        "runtime_pid": 0,
+        "owner_pid": 0,
+        "packaged": true
+      },
+      "exit_code": 0,
+      "installation_unchanged": true
+    }
+  },
+  "original_source_unchanged": true,
+  "clean_machine": false,
+  "physical_resource_integrity_verified": true,
+  "refusal_verdict_requires_structured_report": true,
+  "nonzero_exit_alone_not_required": true,
+  "full_nec017_complete": false
+}

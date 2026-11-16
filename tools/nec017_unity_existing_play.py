@@ -32,6 +32,7 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using Xace.Adapter.Unity;
 public static class NEC017ExistingBuild {
+ [Serializable]public sealed class Outcome{public bool ok=true;public bool clean_machine=false;}
  static string Arg(string name){var args=Environment.GetCommandLineArgs();return args[Array.IndexOf(args,name)+1];}
  public static void Run(){try{
   PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
@@ -39,7 +40,7 @@ public static class NEC017ExistingBuild {
   AssetDatabase.SaveAssets();XaceNativeBuild.RecordApproval();XaceNativeBuild.Validate();
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Game/World.unity"},locationPathName=Arg("-xaceBuild"),target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Build failed");
-  XaceNativeBuild.RequireBuildReceipt(Arg("-xaceBuild"));File.WriteAllText(Arg("-xaceReport"),"{\"ok\":true,\"clean_machine\":false}");EditorApplication.Exit(0);
+  XaceNativeBuild.RequireBuildReceipt(Arg("-xaceBuild"));File.WriteAllText(Arg("-xaceReport"),JsonUtility.ToJson(new Outcome()));EditorApplication.Exit(0);
  }catch(Exception error){Debug.LogException(error);EditorApplication.Exit(1);}}
 }
 '''
@@ -47,6 +48,12 @@ def main(out):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert shutil.disk_usage(ROOT).free>5*1024**3;out.mkdir(parents=True)
  source=ROOT/'evidence/nec017/20261105/unity-existing-publish-b/project';before={folder:inventory(source/folder) for folder in ['Assets','Packages','ProjectSettings']};project=out/'project'
  for name in before:shutil.copytree(source/name,project/name)
+ # Explicit reviewed runtime prerequisites in this copied project; originals remain untouched.
+ manifest_path=project/'Packages/manifest.json';manifest=json.loads(manifest_path.read_bytes());added={}
+ for module in ['imgui','particlesystem']:
+  key='com.unity.modules.'+module
+  if key not in manifest['dependencies']:manifest['dependencies'][key]='1.0.0';added[key]='1.0.0'
+ manifest_path.write_bytes(pp.encode(manifest));(out/'explicit-runtime-modules.json').write_bytes(pp.encode(dict(added=added,scope='Copied native runtime integration only',original_manifest_unchanged=True)))
  runtime=project/'Assets/XACE';(runtime/'Editor').mkdir(parents=True)
  for p in (ROOT/'adapters/unity').glob('*.cs'):shutil.copyfile(p,runtime/p.name)
  play=(ROOT/'tools/NEC013UnityPlayProof.cs').read_text(encoding='utf-8');start=play.index('    public static void Setup()');end=play.index('    static bool Gone',start);play=play[:start]+SETUP+play[end:]
