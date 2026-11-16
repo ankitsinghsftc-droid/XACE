@@ -1,4 +1,5 @@
 #include "XaceAuthoring.h"
+#include "HAL/FileManager.h"
 #include "XaceAuthoringBinding.h"
 #include "GameFramework/InputSettings.h"
 #include "Sound/SoundWave.h"

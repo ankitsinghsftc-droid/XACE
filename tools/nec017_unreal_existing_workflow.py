@@ -22,6 +22,12 @@ def main(engine,out):
  for name in source_files:
   target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,target)
  addons=root/'Plugins/XACEAuthoring'
+ revisions={}
+ for current in (ROOT/'adapters/unreal/Authoring').rglob('*'):
+  if current.is_file():
+   target=addons/current.relative_to(ROOT/'adapters/unreal/Authoring');assert target.exists()
+   if sha(target.read_bytes())!=sha(current.read_bytes()):revisions[target.relative_to(root).as_posix()]=dict(before=sha(target.read_bytes()),after=sha(current.read_bytes()));shutil.copyfile(current,target)
+ (out/'explicit-source-revision.json').write_bytes(canonical(dict(scope='New private fixture only; direct include fixes before compilation',changes=revisions,original_source_changed=False)))
  shutil.copyfile(ROOT/'tools/NEC017ExistingMutationsCommandlet.h',addons/'Source/XACEAuthoring/Public/NEC017ExistingMutationsCommandlet.h');shutil.copyfile(ROOT/'tools/NEC017ExistingMutationsCommandlet.cpp',addons/'Source/XACEAuthoring/Private/NEC017ExistingMutationsCommandlet.cpp')
  reader=importlib.import_module('unreal_authoring');documents=['/Game/World'];env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data');uproject=root/'NEC017Existing.uproject'
  command=[str(ENGINE/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(ENGINE/'Binaries/DotNET/UnrealBuildTool/UnrealBuildTool.dll'),'UnrealEditor','Win64','Development',f'-Project={uproject}',f'-plugin={addons/"XACEAuthoring.uplugin"}','-installed','-nohotreload','-NoPCH','-NoUBA','-MaxParallelActions=1','-NoUBTMakefiles'];run(command,out,'editor-build',env,1800)

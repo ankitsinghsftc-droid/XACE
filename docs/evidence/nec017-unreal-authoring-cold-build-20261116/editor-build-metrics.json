@@ -1,0 +1,238 @@
+{
+  "seconds": 86.27639849996194,
+  "returncode": 0,
+  "root_memory": {
+    "peak_working_set_bytes": 2623762432,
+    "working_set_bytes": 569344,
+    "peak_pagefile_bytes": 2771152896
+  },
+  "descendants": [
+    {
+      "pid": 41388,
+      "parent_pid": 36064,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8507392,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1286144
+    },
+    {
+      "pid": 14616,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 438992896,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 441335808
+    },
+    {
+      "pid": 37236,
+      "parent_pid": 14616,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1282048
+    },
+    {
+      "pid": 42660,
+      "parent_pid": 14616,
+      "executable": "vctip.exe",
+      "peak_working_set_bytes": 61104128,
+      "working_set_bytes": 28672,
+      "peak_pagefile_bytes": 39796736
+    },
+    {
+      "pid": 27904,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 625688576,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 629833728
+    },
+    {
+      "pid": 6216,
+      "parent_pid": 27904,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1282048
+    },
+    {
+      "pid": 19880,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 625930240,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 631386112
+    },
+    {
+      "pid": 33052,
+      "parent_pid": 19880,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8343552,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1282048
+    },
+    {
+      "pid": 29976,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 367366144,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 368250880
+    },
+    {
+      "pid": 25756,
+      "parent_pid": 29976,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8343552,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 36824,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 369319936,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 370053120
+    },
+    {
+      "pid": 39276,
+      "parent_pid": 36824,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8351744,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1282048
+    },
+    {
+      "pid": 7032,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 1165357056,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1175158784
+    },
+    {
+      "pid": 4332,
+      "parent_pid": 7032,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 30320,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 1191735296,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1203240960
+    },
+    {
+      "pid": 19460,
+      "parent_pid": 30320,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1273856
+    },
+    {
+      "pid": 35228,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 302002176,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 301047808
+    },
+    {
+      "pid": 35544,
+      "parent_pid": 35228,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 37460,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 1017126912,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1024712704
+    },
+    {
+      "pid": 36220,
+      "parent_pid": 37460,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8364032,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1302528
+    },
+    {
+      "pid": 32200,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 995033088,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1002401792
+    },
+    {
+      "pid": 18856,
+      "parent_pid": 32200,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 31852,
+      "parent_pid": 36064,
+      "executable": "cl.exe",
+      "peak_working_set_bytes": 364445696,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 365588480
+    },
+    {
+      "pid": 35356,
+      "parent_pid": 31852,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 36896,
+      "parent_pid": 36064,
+      "executable": "link.exe",
+      "peak_working_set_bytes": 470519808,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 388718592
+    },
+    {
+      "pid": 6140,
+      "parent_pid": 36896,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 39236,
+      "parent_pid": 36064,
+      "executable": "dotnet.exe",
+      "peak_working_set_bytes": 72060928,
+      "working_set_bytes": 49152,
+      "peak_pagefile_bytes": 69570560
+    },
+    {
+      "pid": 31508,
+      "parent_pid": 39236,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8519680,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1298432
+    }
+  ],
+  "sampled_descendant_peak_bytes": 1242701824,
+  "sampling_ms": 100,
+  "aggregate_peak_exact": false
+}

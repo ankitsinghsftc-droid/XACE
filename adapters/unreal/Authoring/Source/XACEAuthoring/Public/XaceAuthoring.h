@@ -1,5 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
+#include "UObject/WeakObjectPtr.h"
 #include "Dom/JsonObject.h"
 
 class AActor;

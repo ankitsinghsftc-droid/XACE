@@ -1,0 +1,12 @@
+{
+  "compile_passed": true,
+  "source_scope": "Unreal authoring module only; two direct includes, no declaration/control-flow changes",
+  "editor_build_log_sha256": "4c02aaae8c1568ec94a0012783c586ea0875ddd3e0e9492f27a37807f7e33102",
+  "no_pch": true,
+  "compiler_workers": 1,
+  "workflow_complete": false,
+  "files": {
+    "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Public\\XaceAuthoring.h": "804282943e468d7a4852ed126d9a8099f40ea500cf2a23754baa9a6e3461702f",
+    "adapters\\unreal\\Authoring\\Source\\XACEAuthoring\\Private\\XaceAuthoringReader.cpp": "0ade2b01dbda38add8eef0330b707d8a1e944df12567678dff473570076a8a31"
+  }
+}
