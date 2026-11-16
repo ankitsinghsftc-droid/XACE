@@ -1,0 +1,1371 @@
+{
+  "scope": "Only generated cpp.obj/h.obj files in old October NEC015 Intermediate trees; sources/binaries/PDBs/assets/logs/receipts retained",
+  "files": [
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155683,
+      "sha256": "00569baa2cd83d3c4cfb6cd4243c9db368b9dd4b227fb68234a14a051c2136c1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155683,
+      "sha256": "278c2b3555377c809dd8626ee1e598f7608ffdfa85cc9ac53f9b9f7d2d1abd1d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3258741,
+      "sha256": "4260da33fe6158512fae8c16b1c25533c3d1acb72bd834472466f013821f3bcd"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 54630,
+      "sha256": "758479b690f7c5e3235ad1590782ad0f999010e65b2d04ff0ad33c5ed91b7510"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923286,
+      "sha256": "c454ea996162dde9d8e0a6e15874cbfcfa007f53651d924b4f5dc70e6d58faa8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3367405,
+      "sha256": "065a566eae30da0ffe001c54dc5f27a4045c07b6dba2b7613196e7d0c64faff4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985816,
+      "sha256": "f7e5beac8f8b86cc15a1bd825d09ed5295e09f97f56d2638bddb88ce3a9b2264"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1309971,
+      "sha256": "7c6f0999345c77b3ebfbc0e19aecf7d8c6602cda6a283d2cb49d25d508c3a698"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945371,
+      "sha256": "1dd43f64526651b64685af814fdf917cb9a6678f773ab8f6259c911305cdec6f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 928189,
+      "sha256": "9506403e02bfc111208e4e91f4fc3b295cd3972d075ccd6b30849923bfec4050"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-b\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206373,
+      "sha256": "29078ac810fb0d5eb2676bdd6588178005e0ec9d7c18dad3cde75ba5962a27bf"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155683,
+      "sha256": "d8891d35d3eb4e6e9df813dbc39ceb6cf1780dc6590ef2820832c716fc2c15ac"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3258741,
+      "sha256": "37a95ab89fa0b47dee1f1072ee453ddf52eca933f295198c4917fc8e9804ab4d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC015HostProofCommandlet.cpp.obj",
+      "bytes": 691688,
+      "sha256": "0d6c3b46c7008a358c1835b4bab5e4670e4b48329c31afafc4d420bcae960265"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 54630,
+      "sha256": "00512b742230b02e08d806d6d96bd3de9cfc5c50900de0f5dd082eb0fced64aa"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923286,
+      "sha256": "ba7fcb5d9e193e4538e2e84e5f8002fcb86bdad82825901c9192392b787a377f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3367405,
+      "sha256": "81a379bde0307294cb70651284a88b9ff64713b0e2f9a989b704a02683b6b69e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985816,
+      "sha256": "c94170704e0a10a9ef4f73b97ec4f66796cbea9da9da7d1b94716996602f2ac4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1309971,
+      "sha256": "0fffc91dfe303b52f008fc559d6756e927d23afa97abf91cde1de88667681375"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945371,
+      "sha256": "48cd1ea9e18dfc9658d844018b4c1aa2124ebd79be286c1a88bd9246ef623a1e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 928189,
+      "sha256": "add4d5c713f2a670d00bf4b32c4e6eb51541a26333cf3c58dde7e583f80dab12"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1080736,
+      "sha256": "49af996dd6f11816e901734f7858b4cd1edb83df3cbfa3043ffb7a590a129165"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206373,
+      "sha256": "f8a4eabe7239781e88f3a0432b09b39228334d24180cd94e40bc27b4b6ee1856"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155806,
+      "sha256": "e91a927131babe80bb00ebbb24c0ba79b0e9d96e0e90cd771dd40012c21e5327"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3260711,
+      "sha256": "78bb9d05f2622942283be4e9ab85ab523254bd86d21317e296ae646ba3969933"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC015HostProofCommandlet.cpp.obj",
+      "bytes": 1355668,
+      "sha256": "a0f4c6d5f161c2be40046f4fd85e9e76a5069c7537f6fd1b74cf517b044214d3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 54885,
+      "sha256": "546560aae8096b7dde0c90cab337fdeebbe11707994bfd16e703bcf8b67b774b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923593,
+      "sha256": "7cc6db60563a041d9a3fbddea4798769005bcb1f395ffadc97cb8b8c6819a979"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3367720,
+      "sha256": "2c8f63397219f930c7abaf756539085a9cca869bb49d3bf95124ff1d1c0f9091"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 986123,
+      "sha256": "276e8edf1d0345935148dc7aeeebddae3e790d9208207742d4d8803a7c5c8099"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1310361,
+      "sha256": "8aa8f0a4766576933e9f640255c876ae844cf269c96df1c0f69e219e119523ea"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945618,
+      "sha256": "a647cd31f245ac6329b8c550920e3bed31e9a2c89811f5a479a0dfca4c877137"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 928591,
+      "sha256": "57d3f7101ea1573904f1b877b1c36f97ebf00d80e4423cd0aa1b7df0dd276416"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1080979,
+      "sha256": "bce0dd4861a4f1adc57bd6d945da184c8a34169eba7f8809a89feb14d07d8f86"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\client-projection-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206667,
+      "sha256": "ba1c4467439d53fcd701a7665c3f67db5a9f73b260f42ab7d6627bbdcca3a599"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155696,
+      "sha256": "1db65732de4737d037ebf4633cafacccc604a2360796bf7819418b72de83ab18"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3240521,
+      "sha256": "99787c60e80fadd764b26388aa9ce436825ce8fa3bd3f0d00313a06067962ba0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2153976,
+      "sha256": "15451a93ca7eb652c28ddc348cc0f5a15e872c9913be7d2e1ef627221bc264a2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923311,
+      "sha256": "0fd925694cc63e5e46010ebcaa30e2ec98ce4ef8b18768a73e6bc6cf00b3fd8c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3404572,
+      "sha256": "0ad27c680ac037f467d88443742310a29775551858d9a3ddfb22a7f3b10efb45"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985833,
+      "sha256": "e3c5a7d8690795f1e95dbc5ddd34dd05f920bde46e7763f53c0d87c549bdd2bb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1310001,
+      "sha256": "d4b28fcd791d6aade2f6e3379186fa5bcedc57e49d0356b27681dcc3782c5a71"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 429691,
+      "sha256": "c53dec557b392bf709d2842dc6717bce7da5c5e6bd48babaa19cf4bd5dc93c82"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945388,
+      "sha256": "10c9c59ae064ed89313762434a32d3a521f9b8ff56270c3d1eca265abf7d2f28"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1048423,
+      "sha256": "413c998ee0f6b43b87150831af997278621b914567d463d711b0b42349a0db29"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1085250,
+      "sha256": "b8d7582a53442d81472db6a691004db9055770c285b6878af890831e2495c209"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\package-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206395,
+      "sha256": "6a033c2bf520ac030add845de1688414d2d62b59838c733096ab4f59fa4859f2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155652,
+      "sha256": "822a50f19bb28d926d2ceee4a67170df7a10602a2f49d07b1ca8c02ea09d0e3e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3227523,
+      "sha256": "b2a6991d8e0972185b876d43b12da7080364ea605ce59e394f7506dc470a8616"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1618305,
+      "sha256": "39ed67cb6a651db33756ff5dbcd101eee9c737ea012bd25851da11ed20b7fc9b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923199,
+      "sha256": "4896083d797f9fd3b6669d4128fc6b1f303d75ccc076053797455c1f6c3bd44f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3367306,
+      "sha256": "91197e1d0b5a0d100dddf6c42dc11eee51a64e100850019b52de43a503413689"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985717,
+      "sha256": "fa441886aa555fe908ed866916413ac24595ee060c1450a5c155a9bd4935e498"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1309861,
+      "sha256": "da7087aa740c0082b813ff2c9e020ade6473653ef67489dbec8716910306d9fe"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945296,
+      "sha256": "44da82173e9e48700a2c85be50d69fb4db8a455f8edd0282cc81e96974bae72f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 928135,
+      "sha256": "11b7db24a7d39a9b8eff336e8866e44408cd788e74cbcc2a140165a7a699c86c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1080665,
+      "sha256": "283e0e7d67c35ce961fd804b0ad2855e3db0b5bd720529fb5946f0225d44c58b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206287,
+      "sha256": "80a9877c905292aac18e8f37ac3302c95bc19b673ea0ad34e5960e99131a6268"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155745,
+      "sha256": "5b824d5485e3ee4f488d0c8f877e2b061c4d69582a4136f54a5384e0847259bf"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3228959,
+      "sha256": "34ad33c9335bc0fcd50533b741647852d4093667e497fd82fa3410ca1369472e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1624250,
+      "sha256": "09ae1354722bf30dfd468bcb0c60e52abfa2bf38eb4bacc2cb1b3a8e24d8aca0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923448,
+      "sha256": "1a7242e328d69132fa6d24c08acbb207bd1b04a75770ac042f5c42eee7762e2b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3404717,
+      "sha256": "1a310dc77b0c0090c362f05b4786430783997324d99142709ac712e35da8e9e4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985978,
+      "sha256": "24f8ba39a8e3f9141dee43b06dec88689925c311a663757c15910bfc3580669d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1310179,
+      "sha256": "1e41203e23cc783cccde15a502c36b9c71b234618f423525348148cddfe1823f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 429812,
+      "sha256": "6372b718b5dba1e09e8a3f2e127b9227b6952d725b987b669b9bc4e68ec2d7d9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945501,
+      "sha256": "64490320acf7e150b2b4edea712d37da362fb627d6f0f6ddd036077ed9fa12db"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 931891,
+      "sha256": "5e51774dd3b271eb853775b9a4dfb741f9d8c731a3ab72f2e2b6ef8722d93df0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1085363,
+      "sha256": "8edd30e3c0b4fbee7428c641d492e2cc86259ad18b7d60a71227e4b2bc46219e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-approved-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206529,
+      "sha256": "4cfd918b8732a4160b48888611a7ba3217249d26f6429355d192e59a4e3d710b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155745,
+      "sha256": "95e3232736161c5dde6f00cdd11e0520baf9d48f7b09393b3c8959cd0b056ad7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3241078,
+      "sha256": "93f1b573536e61005c44f4e062135a830d19599bc56942fb8ca7cd1cdd37887c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2153929,
+      "sha256": "8fb7d82bbe7093112ea74e7a281b552d865cb7508abc7f6d805c4c53e7284e10"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923448,
+      "sha256": "7554c7b8e1b9ad63ab905eca334269ee93a7f0410dc18f8360b2d25240155c69"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3404717,
+      "sha256": "5610c24c43590bb718b5b96fa6221da65262336c460881c4469935a60086c11e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985978,
+      "sha256": "1f1d203810e1ae78c6003ec2d12270433c14601a590ad32e8ca5151715992185"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1310179,
+      "sha256": "f1cce1b40b830168f1ff965e6dd24c2449671b16f21e76e600ea7eab01d65577"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 429812,
+      "sha256": "1eff2dcdd8da8203e627bc48ea6ee0edcd4869f9d8acd7657ea07719ce38874b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945501,
+      "sha256": "aea1edf5a979aabf1d116bbb4fe8a291af48cf3a6b080812827222772241b3cb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 999424,
+      "sha256": "acebfb5f8812bff34ebf35d440c3a0a74ce8339924fdf080f2299c59fa5c8796"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1085363,
+      "sha256": "af3bbab9822c44931bb9e03e424a4865bbcce66dc2617ac5cdb4a29595aa0039"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261026\\pie-playback-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206529,
+      "sha256": "9ac34c0a8de21884c1436e0e32faa43f2282987fb62280fe68941c2444fa7523"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680829,
+      "sha256": "55dea3c7a658f4e07c56d6360419d7c04769b8fbe0497321c22c7779431b80d8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71156055,
+      "sha256": "9831c2e8fe1ea625036f578f2a146af443a9280d0e2e4def0494f1dbedad579a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53737,
+      "sha256": "3dae039ca689c9d9e9eeb798a3e39031afc76d2581aaeea5cab6c2e81aa3578a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93176,
+      "sha256": "53e6249558f652c0be94a5748da8ea73d9ec1a0d8a6013f361a4d94a2f37ff9e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83489,
+      "sha256": "dfad9f405b980f6b992fc44ccee5b2a9133de944e193e0dec6c185a3502c0cdd"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3298769,
+      "sha256": "07857b58703e80c2dcf3b8163f4e668214c84760fd290bfcf546053ca839d1d5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 1487696,
+      "sha256": "906d33ad66a9f24c64853e5fd6d76fc34b79f56590f9f4304d98ad4ae8586a37"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2251080,
+      "sha256": "28b27bdeeebc4d322121290064a4ded83761a625c0f72b88458a9e303d5e1bae"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921842,
+      "sha256": "6e70ca45d29b853ae1191a57302fe6d16d19741866a2eb128057c08fc8f0ecd4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3403059,
+      "sha256": "9241613d91bf6200a7309b5334b075cc51bb97d2cc2952cc2e7a1214b05d9cee"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984368,
+      "sha256": "ef3ff76e054649900386b1e7ce184630d53316d758dc75e80164dad42414a325"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308634,
+      "sha256": "3a68143a5fbb900b26ba697ea308f0fb0df9a9fd314d4e5155852280c9ae70b3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 447009,
+      "sha256": "64bf44ceb0beb3b99bcae23900653a85e5124acc7724d16b47dbd3375cf7e6d5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943879,
+      "sha256": "6a362bc70c772783f3c966c4b2d623654ce67a4a93cc55ee7c7ffeed23bacbe1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 1478733,
+      "sha256": "ca57c6b0ff2ac1131e7104c0c76e8a9d39ccdb12f17711dabc3fef720359f909"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1298437,
+      "sha256": "4f0bc3e1a1067b65dbf2afd7c0484a8704c9b2d5e516680135f6ed8c120b0389"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083729,
+      "sha256": "28433fc5a1e39e5323c38abc0e1bc46b4d548fc690f100321a6420561d679ca3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204920,
+      "sha256": "1916325d931f9ef76d950681e1c08ff32652d52704232ad40dd8f2c9e862b4c5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2763219,
+      "sha256": "6e83e47c0d0408f5c9c9131a1df4b0d011449a160cac93f458081e38199fabd9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 119264,
+      "sha256": "7da33ad6cc32a1d30e5e11a93ba1f5acbf5a56e4a2880d74104a47a05980933d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1331460,
+      "sha256": "07b42e559780be2fa817832d8b3330a1bf6e0d89b55825bae104b637578578f3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723757,
+      "sha256": "2df3e25a61bab4adf2c527a0298addfb6571f617a5a8632b54996d76962f1ade"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2963056,
+      "sha256": "5c8e17ff0a30b355159b51e3339cf3474a3ac7cc09216007f4d7fb68e73cbff0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828911,
+      "sha256": "8f567a7007fd2c521555538c50907a594a271153b95fbf6170d6acffb7770a8f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129712,
+      "sha256": "bd8d33849df2cf73e5f459309e7f69a869c7a7dce70868c959fc9387b6c77cef"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 349117,
+      "sha256": "ea2767f94f36a4286cbdf7be43427787f9eaf80a0ae58cf093de134dafff566c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356234,
+      "sha256": "e257682b3112a831e3df17b47fd386601036d3235301748ae45a1a18167b8c81"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 119550,
+      "sha256": "d2b094b6e09dfc89b8e7f3a8eb2a85f71b533db62836ad64f8afaa9aebf46105"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1080396,
+      "sha256": "978da762fcc1ccf9359adbd319550993d7e4280fe61f0cd8bc0b3d77397b5012"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859533,
+      "sha256": "06758c8b25d9de863bb429aea44105a26e67c15a4669af5406aea2b239e549d2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\build-wrapper-a\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680468,
+      "sha256": "d7773e9ce1fc73fd959ada0e82787c9ec88930a73633b778d63b03fa9249ee4d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155696,
+      "sha256": "64a48a0635d505a73bd94438db688626bd530af187736d3504d69523ea0d4940"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3240521,
+      "sha256": "70db3cee4dcc3105c11e9cb0d2632c5ecdc29770bc6a1040e1a4b05d88589037"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2153976,
+      "sha256": "dc2ff4be1713564acd14db7068d88ef4d8fedda3403f6b4954de9cca01e7ce25"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1923311,
+      "sha256": "ee0e42c12a71d173445a434c93b9b0a424e9f0fe57d01736b5c6ecf9c95db9ff"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3404572,
+      "sha256": "414ae55b4f0a5555bd53e7f80ad280e65ee86e5ea0a399056a6560019b80ba99"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 985833,
+      "sha256": "7554352c7f9aceef4effd7f3420314820b2b8735f27d4f1df0ddb1c2a05721a0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1310001,
+      "sha256": "28338142e035c739822b45ae05012bd58192720f1591992a9d62c4f2dfd6b5ec"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 429691,
+      "sha256": "b2c0e718302b9da7ccfbb0ff0fcc37b259e551810b4a6c6f17f8eb149b61e1f8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1945388,
+      "sha256": "7be015bcbbc4be0e493b0d278e57b145171ed9267a3b414802292111418c5590"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1200152,
+      "sha256": "e9ad0bc0b81a952a1bcda24f94d29c904cdc7cc0af9ec404f93cc4aa1fd0e68e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1085250,
+      "sha256": "afe963a1921ca7c723ed6e57dc4162cde856d81f98bdb8532aa69cf802751f6f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-c\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2206395,
+      "sha256": "e5d0d6128ffbba10d18cb30f76734a407a754d027db014a2a53bb9654cba10ef"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680759,
+      "sha256": "885c177381f41aad1526520f2ed0ca79623993219f89bc2d2949c5f873dba45c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.obj",
+      "bytes": 71155696,
+      "sha256": "971520970dc2b3ecb6bd8605cb8ea7884de3a53b2129862af67340c3ee5a771b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71155989,
+      "sha256": "5761e3c7d81da4b669903b5643d699386ed18e1d05b6b27e5a6595b1efddb1df"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53627,
+      "sha256": "3046e2818c1784bf43fe37125f22b450850ab5301bbde184e455f1b7ab782a89"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93058,
+      "sha256": "e46f6439244c7fd43dcf7b3fdaf4e04c842083fbeaf805df50cf15eeadd71523"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83367,
+      "sha256": "70d38f0c694423d49027705b18b935dd43c486df2117db286c2126e2fe775d5e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3238842,
+      "sha256": "3c0149f7e724935766f6f876a027376eb44b46588b461a435ac0e9d502ec0392"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2243298,
+      "sha256": "16cfe90479de06d9dfcf289bc88038608462bfefb101059e3e247347fc3002ab"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921672,
+      "sha256": "6c6f8a8911263e06ada6e13c1ee839a1925c0136e044abd32c85efd7153ee6b2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3402877,
+      "sha256": "4bf3791d750e50ca3ce6ff8de1b32f97aa4f992273e1ad60f661db116794fefb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984190,
+      "sha256": "1e99b09237b7094be5776234897cf11023c1c0af7e7d48f80e2a924632cfce01"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308410,
+      "sha256": "ed8fb8b569d149146fcefe9c86f313564674c328fee2b12d2c2a08f9b8a9f832"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 428044,
+      "sha256": "56f6afdd20869b1853296f9fe5babebd8db3046b1b8ff00097214f23115a7db8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943737,
+      "sha256": "f59e4d8b87f18bf4a78a1419553a72c98c07c1d50865981e24f54a4adc3f611d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1198517,
+      "sha256": "0d735aacc552d395f9634d8e966570ff6469250b43c4a5f85cfb6702344b68f4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083587,
+      "sha256": "8f1fb2b4bf740c89fa2bd8269188d5cb69d2320ddf3b196108eefeda036b2e10"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204752,
+      "sha256": "51267cf6a5c0be02aae97ccb20e71a585bdc77911eea57a76ed7ea6c9dac3365"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2710269,
+      "sha256": "0a996e605fe4e6507771801a940db45d198254906baaabd42f0b07179d251ab5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 982644,
+      "sha256": "542616359967d770161055df4b98af89d9d64b614f691c78996661e3dd903c63"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723591,
+      "sha256": "b2a9cedd623754d04d8fdf807f1e40db5f1e819766c4bf73705ba29fa7b927ee"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2962870,
+      "sha256": "1d6d70c3c221ea8fb77b909d16374feda75d232e65dbc3e898ac43523d74eb01"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828733,
+      "sha256": "689f2131ec28a5976bb4d1144ec29e618698be4de9cecfd9a4430d2329bbeeef"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129496,
+      "sha256": "49965fed7146a65ee3a6d7e1a108697f2a7fc29407f1d75ac250bb3272bd154c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 347927,
+      "sha256": "fd12fe5c4f46fa49ee96b742b0684aa2cf8cd01d20f0fc6117dccac3b03e2676"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356092,
+      "sha256": "d70c1ac64b6afd69af3d2034b1af3f152d52807842eb2c1d99a9fcc616f3db15"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1010805,
+      "sha256": "c22791ab645ddcf4ccf98246050cab2e3e49e89461eeb75b210a6da67a723441"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859399,
+      "sha256": "8dae5a9f0b54a7c7132527bbc13b5f8f2b220f399298631046157c138956c554"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-d\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680304,
+      "sha256": "2e29bd77603bc1cc6e09acf97c117c8cf909fee9af6fb7ff8bba9ed57dca9756"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680763,
+      "sha256": "eb0d19d3f7d8c8e9e736ef788a2540d1f682bf776484ab3882e6c9205e0d6608"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71155989,
+      "sha256": "05a45b70d023b32ecb97cfdc25ce817023ac2c78daf9812202df3618e9f9b107"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53627,
+      "sha256": "f05547056f3c15183754acb01aae45d9e00ade873eeac99e2af7a37a31f5441b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93058,
+      "sha256": "300e47ee1d13a6ac03b362caed23a7d78eb756ab2f311da776f719331b7852c6"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83367,
+      "sha256": "78460a9251e55b761e598b6cb6985daaffd83883bafcb3e304cf0516f2a4fefe"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3238842,
+      "sha256": "7a5a9fdc067aaf652023e61b0ba3d94b2d9d6b173383b04486bcb0d677a80d27"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2243298,
+      "sha256": "336639582e4257f53c0b680986ebb6aa797684f3e9782f48cd6784b0aa996a0e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921672,
+      "sha256": "d54c80909bef5faf38976c874be8ff8a1f43387095b1100f5589ee8785a52c43"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3402877,
+      "sha256": "796fc5889bdb9e1e1f94636b1725ec79707cc495c09ab3358ed996cd69b1c992"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984190,
+      "sha256": "8613fcb84ab816c83c0a4a6e88044d9ccc9d80df64db8d05def271a8c604c739"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308410,
+      "sha256": "ab18598f0844cee00d5c8020c17383f7fe09cc0163176dc92c665cc8b756169f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 428044,
+      "sha256": "e7f4ec824906a75cd6761a612f04cff720ad9846182f99e48701228e3613d888"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943737,
+      "sha256": "bdafae5a0949e87061199e2493faa1dc02289209f3f73eeab0ba595fb302d9e9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1198517,
+      "sha256": "4ac62b22171f081ee8a406ec9b84b2212258f94a031ade22ff197f6f82f84ab6"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083587,
+      "sha256": "73ecd594041669ee7ceecc406d76749a7b9da7f1190a63f47e50856d2439113c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204751,
+      "sha256": "d3dde25e4dd179dbc4ee4759771bec0943ec26d29c9b1fb00b830403e26b62e9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2710269,
+      "sha256": "6345460b2621adea86a09628a76523eb86d3c11cda81c52313c30dd95fecda23"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1008619,
+      "sha256": "74dd08a14ee37a2282b0bdedad08fec4342025275d0c3c8c79fb3beb499a7953"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723591,
+      "sha256": "0a9264ae0000267ca7d172f17057a6dd8cf8d281ac511ad67d5e3e16409a1b55"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2962870,
+      "sha256": "582630a61d4cb24cb55c90ef7d6aac75c7108c088991fdea1c0717f9b9587c5b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828733,
+      "sha256": "1efcf2938dbfa902f713b44a71929684f6ae46379aa305d6c53778a024727ab2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129496,
+      "sha256": "a57a202516fe5e6aa81617ac10499a8384579532c51d9a2d067154d8f968cfc8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 347927,
+      "sha256": "8e4bc2b6cde41a4bb3433da5811958e35b1d823e0f3259b01ba0bef5b3fc907e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356092,
+      "sha256": "38a1d066e1672c017373ec063dea9a1809ed7743e24b367a6a6776b632eb2d2d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1010805,
+      "sha256": "7c0f49f61a148a897ca6bc3f33a7be432cc23e7f10434026eac297878f6245db"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859399,
+      "sha256": "930740f47751018178b182c01e0c436366007482e4bf8b2f05b3084c240ffc24"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-g\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680303,
+      "sha256": "33535ccf247b0c3786c2b01606cfd7cfb3b8a97e802b7be5eaa4b1a70541aebc"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680763,
+      "sha256": "d0c952b3355986300fd348d79294cb83e25bfc896ebc8a44857ecf0055ae0bcc"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71155989,
+      "sha256": "c0cde0cd8231a81b3c7827722bcccdea8c47f1c852cd907daf05c73c174e35a3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53627,
+      "sha256": "c905cb502d2a082f45cfc06655ecdb5f96a01ca2bf86e574b06c7e11ccddf1aa"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93058,
+      "sha256": "35fd31579e8d6aa8115a23c3c505dd066fbf10693205f73f90bc71c531d03e0c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83367,
+      "sha256": "f246fb61be5b5d413e5c5a08262a3aa6387e445d909b2c305864c7b2281e0f34"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3297444,
+      "sha256": "64208e94f561c46fd90e6df0ecd6a661c330a6186fc0a00f2ca8eeecd1935438"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 1487478,
+      "sha256": "9094db029fde66ad43dad44c585ed26b7091dd76b85a556a257c37743a251aee"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2243298,
+      "sha256": "479ad06cf043e4f28971ddc187b4a82a4c21dfe573ac6d9a111c2b6b67113952"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921672,
+      "sha256": "6864e52e9aeffd604f057401fb33e61834b4f9c0c489b7c7dff64e3a6486e755"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3402877,
+      "sha256": "aba095839b86cdc50dd4efdae1050b495b3c2b4001026f87580b5281ee40509e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984190,
+      "sha256": "63744f6627d6785e33ce1260a0da3e746b987c29ed4805382244a7839196b176"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308410,
+      "sha256": "5b3acee7964ffcc09bc4261fd9f631478b950e4634f3093130dc678f73bd3607"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 428044,
+      "sha256": "5355315af3657da2f55b599690f9a20afcc8d9f1796a0682a0b1b81f088918c3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943737,
+      "sha256": "410da0f7db13701908febe01393bad0b366b44f5b2c36094e522573601795199"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 1478497,
+      "sha256": "c825cad0b79453cd8abd47ebe40b2a713f248832add08d1668bf2f4b0482dc22"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1258554,
+      "sha256": "6af8df5d2d9d5bb46546411a1cecc5c4900844fd1380083bc9df35e7dbf450f7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083587,
+      "sha256": "a3f21dbee5e750391c5e1277612ca3c722cf44dfc60a03d912c716ad92327399"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204752,
+      "sha256": "fdfa83683bdb1344db5c02ee8bfad294e175b859dd9a91f38c5f9e1e9da60b14"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2761937,
+      "sha256": "b58945d7f8fe81ae79dae9a3788af5c8c3f0be89c420bfe7c68939ed8406da4a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 119122,
+      "sha256": "4a886bf3586e16c5e91c0f4a6d5105532769fc8aa9a75d22c386e52b4528a231"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1009145,
+      "sha256": "6b904dcf14110cdb2ffecfb71e69147729f79d3c1e9f8a8f368e43b5a2a2a3e8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723591,
+      "sha256": "156b34fae58277584995be9111c75e7eff00a261ce6428dacdfd21713d545ba5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2962870,
+      "sha256": "3eb6b13e62b938afd0ae73a6c842f6fdbf81684e545ff30f1e21f7f5be147780"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828733,
+      "sha256": "c07332109ecdd58c97701de8615463966a16d7410014df346ce9337d4e612d44"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129496,
+      "sha256": "37ed695c2915a871ae1cc545b2be7b6a2f01bc7bc390e84e9a35637b31072633"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 347927,
+      "sha256": "797fc95ce5dba2197905c2c5f1501f6acecfabecaf8d42d895b7a94aa582d812"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356092,
+      "sha256": "5c7f77efa514670109392fffa1e7671048afeebc38c1c07fcaeacc15a1146235"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 119408,
+      "sha256": "5f165ac0fcc07d574ffed4d6353f21b7c107d452ec1e8a64a63e6d2fd3a38b95"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1053556,
+      "sha256": "7db08f1d91dbd59f6e9190ed496659f19ed75d1a69ba7b2bcd85f0301258b3f9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859399,
+      "sha256": "db44f5002e9216496dc1370e4a1aa78a8e6aca7a9012942af4a169b759174c93"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-h\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680304,
+      "sha256": "1f9ebab7bc42b0e0d4cc53ccf622ebb5282d9bd8e2b51a087560244635caa2ba"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680759,
+      "sha256": "109a02f0ba2232d9555bcc98acc8bf022dc3a3d23bd1af1f3dfc9f5fdbeb96ee"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71155989,
+      "sha256": "f55773d16545b0aec07c3f5825ccba15e8023675bcbf3bdc4d540bd7f282411a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53627,
+      "sha256": "de9345b444c0ffb53cb5f9de99b7a5b313b06446d17f058bcd332a42520c5540"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93058,
+      "sha256": "624a40df80317cefeb5100c72d880ba0b40303da29f096673202a2906e010cf7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83367,
+      "sha256": "c3b5d7cec728b85ed9dae57fd4adf89e6e51c6478e6591efbf9edfe275f0deb5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3297573,
+      "sha256": "95661b3d1fd19c917eea95f6f28de952b99930062f6b86b0b2ba88294aa756f3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 1487478,
+      "sha256": "2c52fed9a31bbfc53ebf13d4dafa68bffdeabef1d0ab7ba1f45d5e1f602f0d14"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2243350,
+      "sha256": "bfb02e53b5c30ac3c756d342b198bd1ec7f62b7d60fafc7acbcbf24e04687a32"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921672,
+      "sha256": "6ff311f9542f4922949babbfc460b5dc5ee52dee37dd5538aa76e591d142cddb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3402877,
+      "sha256": "52f429f15dd5acdb4d600bb6938d8fa73325477c9cefcce532966b110fb0d260"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984190,
+      "sha256": "83259ec89b93aaf0b2ea5cc668d4f66dadd84baf33eaa651068daf65d2b690a1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308410,
+      "sha256": "9207c7d3df2b7bb3c0c0b75472a47d3ad19af3cce3099d9683a7f3db0ac72bbd"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 428044,
+      "sha256": "b52f0965d78b8244b599ba6b3417074ab4683aed3c242fca0be425d321dd9f44"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943737,
+      "sha256": "b209ae10b5709442e00194ec76da504d95bbaa1b07b0b64a7657a75555cd2025"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 1478497,
+      "sha256": "cf12d630950562a9468608d26a5a0efd719132877fa9c5b0dd80f6c631fa686e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1288814,
+      "sha256": "7bcd0aec4ddce1eb500a4633eb406287424c21207db75f1bf10e6fe83a26f6ca"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083587,
+      "sha256": "5dbacd3ecca10327b3f9d97f4d4d09b1dab57065529c6f8b7eed68c016502baf"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204752,
+      "sha256": "0e76b0490d5727554295b87a44bee319dde11fbf0dfceefb47b6f05f59632990"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2762031,
+      "sha256": "55c1fd78ae538269aaeb293ffe1ed5e56714e9e0bd0f281e499256e309b8fc49"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 119122,
+      "sha256": "ccdd5fe3a15785471f375ed054897cf09b9e90162418a879f92a9ecdea2a0a84"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1009201,
+      "sha256": "056e6deb47e988bd261481f334aff06182c31dacedb8c35dca26da7311444ca7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723591,
+      "sha256": "d8ae5114b8eb8d7ed6f23b25cc51543c90a488850a5145c1c11537afc85b489d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2962870,
+      "sha256": "ecf7a3a079648b9a5ca87e11744f94670975f187491c3e45539adb89d96917d6"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828733,
+      "sha256": "ac1a9d441a170cb270e010ad363032802bfc3109ccbf5805a0f20650ffc3dd5e"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129496,
+      "sha256": "77ed727f094390406cb9e8ca0a235e7c97b414d13cb294edf4932a6583cef8ef"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 347927,
+      "sha256": "e7cb7a3ddad13f4e77915f45470e5f9a1bf73f1b5d5430213bc9633dfdd3ee11"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356092,
+      "sha256": "e32fe34d867e5b50512c9ed31511f681d0431f86dbdf46d536e9826e362c8c68"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 119408,
+      "sha256": "651be4987386acfcdcc3754842ec727b75a30c240b48d7d5c80f36a048672c84"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1076528,
+      "sha256": "15b00b65a2438dd38db5495d5de729fbff4836a3e0191b4707c4b39cf6635e2d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859399,
+      "sha256": "9e50be9ac9234fe3ca8f288c3e0fd905831d9f37a9f92af42a767a536bb31827"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-i\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680304,
+      "sha256": "27ead5991b3c73b0ccc8f714df28b1853fe2de43a99bb3ff976c217a3382886d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Intermediate\\Build\\Win64\\x64\\NEC015\\Development\\Engine\\SharedPCH.Engine.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 58680763,
+      "sha256": "03a3b1331ba6c43fe64d2ea6d7ffe40964d3c23a3d8d8d14fb6eb0a3798bd567"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Intermediate\\Build\\Win64\\x64\\NEC015Editor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.h.obj",
+      "bytes": 71155989,
+      "sha256": "c76eb9fdae16e0c630cda6d49da6ac3fe6552a5b2ab8cc7f3333bbb86d008b05"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 53627,
+      "sha256": "80eb55a753666c4f695b2e129275ef1c788555d24558d0970af04969812cb7c2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\NEC015\\PerModuleInline.gen.cpp.obj",
+      "bytes": 93058,
+      "sha256": "f7d9679e18e9dcc21ec3e96c7c8deae880fea0922d834b6764c9e29a7ca862a3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\NEC015\\NEC015.cpp.obj",
+      "bytes": 83367,
+      "sha256": "17791831d82304276bd758b8449e81e7bc38f77478979beeae378bb0c19cd3ac"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 3297573,
+      "sha256": "e12cd870b576d843633852be94dcd2166b95e5e9ec69cb68684685950c61de49"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 1487478,
+      "sha256": "09b6aaa2e7eaa514daf72492e7f3e0b54bdc18ae0fbff4edd88aea1289d93e8f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 2250818,
+      "sha256": "5884170d964a88b3ac971f3ecec1a0c6052fa7bce260a347c2a8822f5704a1d1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1921672,
+      "sha256": "fa45b70bd6d8b16b38b3227dfb75d1c58ac4b4bbf9d698771e1b5686f67d5c70"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 3402877,
+      "sha256": "f0effaadd4914a8f3f5a5fe1f47205ac6ea0c60a780036c8ea256bc3a3879083"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 984190,
+      "sha256": "0286094c7ce0876ea692150f3aa269c0e6d1d7936f38e6f32d0bbfa8a75f305a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1308410,
+      "sha256": "d51d66aa1577c35b14d8e632e823317def86e47683709ab7648aa71a05449597"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 445766,
+      "sha256": "71c7e0a86316d7ce4f25930fbfd890a115573d8e07ec4ea8f5967489a799bb37"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1943737,
+      "sha256": "bfe50604810b36990f64bb87b9c2ad18edff7c6c1585dd41458b373b9118075c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 1478497,
+      "sha256": "6a4bbff9d523ae8106d891400572de45b59ded06f297bc9f3a2e0adc6901ceb9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1288814,
+      "sha256": "70398367112c0394168642a5cc10d50b4b5b574030f34bcde5a5453a055e21b4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 1083587,
+      "sha256": "2f94e192b3113cfede08b7cf27377bcca76bd69e4477e8ec5d9c11208fa57226"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 2204752,
+      "sha256": "2d0391eefaeabc9ec79a176eadd171c181fee179fd68132e14d7d35d5b636cf0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\Module.XACEAdapter.cpp.obj",
+      "bytes": 2762031,
+      "sha256": "14f3ae4356849971b9a405837cd379b5ff4bf259d039056ebc01b6be00d1f34f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\NEC011FidelityCommandlet.cpp.obj",
+      "bytes": 119122,
+      "sha256": "44c72ec40ccfd62129eb23ede526a68f747eeac4c6933f5a43c33b88ff6f1990"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XACEAdapterModule.cpp.obj",
+      "bytes": 1331210,
+      "sha256": "5bfbe301811604303557cc4d87b793b6921b780fc024afe5fc2dde048bc59e56"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceConsoleWidget.cpp.obj",
+      "bytes": 1723591,
+      "sha256": "4e85f1659db6fd2bb0dd1bb537168de1ca7db69261929762595c0d16e5eac33f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceDeltaApplicator.cpp.obj",
+      "bytes": 2962870,
+      "sha256": "186257d060fa9d6806272be8bc314eea52f81bc63e129cd1f359863a61cdf8fe"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceInputCollector.cpp.obj",
+      "bytes": 828733,
+      "sha256": "117a3f2b3369b5e5fda240c09d3b32c069c20bd22135736f3ac9432cfd50b2eb"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceLiveValidationCommandlet.cpp.obj",
+      "bytes": 1129496,
+      "sha256": "02f9a2a6a0adaed371d10482abfc33c0463bc658c1c5edf9354acf79dd9352d8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeApproval.cpp.obj",
+      "bytes": 347927,
+      "sha256": "569be00bdfa0831f6c10f97bc2b1c809b5417cdcee383a2ab7dca344fd57db7c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContract.cpp.obj",
+      "bytes": 1356092,
+      "sha256": "bd819d1b973fa8131eb4b410f437ba08c17afe3094260e447ad278a7ccf88535"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeContractProofCommandlet.cpp.obj",
+      "bytes": 119408,
+      "sha256": "df00a1f29c0c7509128e01bb865904cdfe1e8b5de3d23d68aff337b172ccbb21"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHost.cpp.obj",
+      "bytes": 1076528,
+      "sha256": "a9fa8ac0c108f17083f51dbf3ed7d06238a0a79e4e6110338de4759479be57ee"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceNativeHostClient.cpp.obj",
+      "bytes": 859399,
+      "sha256": "60ec76a3f9ed1412d4bc692f62e44ca88ae7a013aeada975eab9949499ac6688"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec015\\20261027\\package-j\\project\\Plugins\\XACE\\Intermediate\\Build\\Win64\\x64\\UnrealGame\\Development\\XACEAdapter\\XaceTransport.cpp.obj",
+      "bytes": 1680304,
+      "sha256": "6c6891c66f3fc310e6770470fa3992edfa8b39d09fba11852a3e64aada4a74e4"
+    }
+  ],
+  "total_bytes": 1869064219
+}
