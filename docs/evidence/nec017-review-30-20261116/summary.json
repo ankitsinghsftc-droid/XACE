@@ -1,0 +1,14 @@
+{
+  "measured_review_p95_seconds": {
+    "godot": 6.148116500000469,
+    "unity": 6.871073799964506,
+    "unreal": 8.338022899988573
+  },
+  "sample_count_per_engine": 30,
+  "objects": 1000,
+  "edits_per_sample": 100,
+  "startup_included": true,
+  "import_compile_time_subtracted": false,
+  "under_two_seconds_passed": false,
+  "full_nec017_complete": false
+}
