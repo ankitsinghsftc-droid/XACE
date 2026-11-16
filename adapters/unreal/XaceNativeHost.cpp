@@ -40,7 +40,9 @@ void UXaceNativeHostComponent::BeginPlay()
  if(PreflightReport.IsEmpty()){Projection->bSendLiveValidationFeedback=false;Projection->RegisterComponent();GetOwner()->AddInstanceComponent(Projection);}
  const FString Local=FPlatformMisc::GetEnvironmentVariable(TEXT("LOCALAPPDATA"));
  if(Local.IsEmpty()||FPaths::IsRelative(Local)){Fail(TEXT("Absolute per-user directory required"));return;}
- State=TEXT("queued");Deadline=FPlatformTime::Seconds()+20;
+ // BeginPlay can precede a long engine/shader bootstrap before the first tick.
+ // Queue waiting starts when the host can actually participate in activation.
+ State=TEXT("queued");Deadline=0;
 }
 void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorComponentTickFunction* Tick)
 {
@@ -48,6 +50,7 @@ void UXaceNativeHostComponent::TickComponent(float Delta,ELevelTick Type,FActorC
  // Activation updates one per-game release-state folder. Serialize startup in this
  // engine process; release the lease at handshake/Stop, never serialize gameplay.
  if(State==TEXT("queued")){
+  if(Deadline==0)Deadline=FPlatformTime::Seconds()+20;
   if(FPlatformTime::Seconds()>Deadline){Fail(TEXT("Native startup queue timeout"));return;}
   if(NativeStartingOwner.IsValid()&&NativeStartingOwner.Get()!=this)return;
   NativeStartingOwner=this;

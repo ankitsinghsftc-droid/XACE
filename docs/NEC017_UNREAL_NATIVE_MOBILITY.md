@@ -15,3 +15,7 @@ The streaming hash retains bounded memory, refuses failed/short reads and size c
 ## Bounded creator rebuild configuration
 
 The checked native build helper accepts an explicit `disable_pch=True` creator option, records the choice, and passes UnrealBuildTool's supported -NoPCH flag. Default builds retain their original PCH behavior and6GiB admission reserve. The no-PCH profile requires4GiB before Game-only compilation and retains continuous2GiB abort protection. It trades compiler time for avoiding multi-gigabyte generated PCH caches; runtime/package/source-approval/preflight/checksum requirements are unchanged. Editor compilation also uses -NoPCH in the independent continuity proof. Native verification is required before claiming the alternate build configuration passed.
+
+## Cold creator startup queue budget
+
+Native host queue waiting begins on its first activation tick. BeginPlay may precede engine/shader bootstrap that blocks all ticks; counting that idle period produces a false queue timeout before any owner/verifier can start. BeginPlay leaves the queue deadline unset; the first queued tick starts the unchanged20-second wait budget. Verifier/handshake deadlines remain unchanged. Fresh restored-source preflight must pass; long waits behind another active owner must still be bounded. The failed restored c preflight recorded queue timeout with verifier_pid=0 and no authority; it remains retained.
