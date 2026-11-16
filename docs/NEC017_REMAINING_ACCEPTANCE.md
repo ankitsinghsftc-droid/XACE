@@ -1,3 +1,5 @@
+> LOCAL CLOSEOUT2026-11-16: required declared-profile verification is complete;34final audit groups pass. The earlier dated execution ledger below is historical and superseded by [NEC017_COMPLETION.md](NEC017_COMPLETION.md). External release gates and only the dated2s target deferral remain. NEC018 not started.
+
 # NEC-017 remaining acceptance
 
 Current status: incomplete. This live list narrows execution to the approved supported profiles; it does not add tasks. The dated amendment below defers only the two-second speed target. NEC-018 is not started.

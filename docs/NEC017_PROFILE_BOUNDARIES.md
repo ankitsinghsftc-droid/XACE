@@ -1,6 +1,6 @@
 # NEC-017 current profile boundaries
 
-Status: incomplete. This is a live implementation addendum; historical NEC evidence and the recovered XP-022 seal are unchanged.
+Status: complete for declared local profiles. This is a live implementation addendum; historical NEC evidence and the recovered XP-022 seal are unchanged.
 
 | Capability | Current boundary | Evidence / remaining verification |
 | --- | --- | --- |
@@ -22,6 +22,8 @@ A selected CGS candidate can compile while excluded critical native behavior sti
 
 The collider choice must supply exactly matching BOX shape, fixed-point size/offset and trigger state in component4, with the existing required World profile. Mismatch, unsupported hierarchy and unsupported reader geometry are refused. Projection detects subsequent collider divergence; it does not silently leave CGS geometry stale.
 
-Remaining NEC-017 closeout: complete all-engine existing-project Play/build/continuity loops; satisfy actual capture-to-review and repeated-build measurements; complete the compatibility/fault matrix and source/evidence acceptance audit. Only the dated <2s target deferral applies; all other required criteria remain. User-deferred clean-machine certification and other external release gates remain open. NEC-018 has not started.
+NEC-017 local closeout passes all-engine imported Play/build/continuity, required measured review/rebuild samples and the final source/evidence audit. Only the dated <2s target deferral applies; all other required criteria remain. User-deferred clean-machine certification and other external release gates remain open. NEC-018 has not started.
 
 Unreal native projection requires Movable roots on all bound actors (docs/NEC017_UNREAL_NATIVE_MOBILITY.md). Original Static roots are not silently converted. Actual refusal and explicit-copy success are verified in20261116/unreal-existing-play-c; Windows packaging, physical cooked-resource tamper refusal and restored checked rebuild/gameplay now pass.
+
+Final integrated native structural checks certify explicit refusals for unsupported publication, not automatic deletion/duplication/reparenting. Scene-file move requires explicit scope reselection; Unreal move proof is an Outliner folder. See docs/NEC017_COMPLETION.md.

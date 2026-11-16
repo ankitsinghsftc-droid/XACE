@@ -1,3 +1,5 @@
+> CURRENT2026-11-16: NEC017 complete for declared local profiles;34verification groups pass. External release gates open; NEC018 not started. [Completion](docs/NEC017_COMPLETION.md), [evidence](docs/evidence/nec017-completion-20261116/summary.json). Raw artifacts/seal local-only.
+
 > NEC017 remaining mandatory work and permitted deferrals: docs/NEC017_REMAINING_ACCEPTANCE.md. User requested prioritizing essential gates; no acceptance waiver inferred and no NEC018 started.
 
 > NEC017 2026-11-05 native profile update: Unity root collider and Godot static-material adoption/edit-loop proofs PASS; task remains INCOMPLETE. See docs/evidence/nec017-native-profiles-20261105 and docs/NEC017_PROFILE_BOUNDARIES.md.

@@ -1,0 +1,60 @@
+{
+  "schema": "xace.nec017.local_completion.v1",
+  "status": "complete_for_declared_local_profiles",
+  "date": "2026-11-16",
+  "source_checkpoint": "90c9962378f0dbe7b23e1a8ae25f17e788d72c4d",
+  "tracked_worktree_files": 3615,
+  "tracked_worktree_digest": "c732d56d430a61f176dedd4bbbce723228b05a81b1bc91aede7c6a5f226f4115",
+  "production_native_source_files": 147,
+  "verification_groups_passed": 34,
+  "local_open_cells": [],
+  "regression_tests": [
+    370,
+    127
+  ],
+  "regressions_rerun": false,
+  "regression_source_hashes_unchanged": 185,
+  "engines": [
+    "Godot4.6.3",
+    "Unity6000.4.9f1",
+    "Unreal5.7.4"
+  ],
+  "authoring_scale": 1000,
+  "review_samples_per_engine": 30,
+  "review_edits_per_batch": 100,
+  "measured_p95_seconds": {
+    "godot": 6.1481165,
+    "unity": 6.8710738,
+    "unreal": 8.3380229
+  },
+  "under_two_seconds": false,
+  "latency_target_only_deferred": true,
+  "native_rebuilds_per_engine": 3,
+  "rebuild_scope": "Serialized authoring-data rebuild/readback, compiler caches reused; no1,000-object gameplay/graphics certification",
+  "all_engine_imported_workflow_native_play_build_continuity": true,
+  "structural_scope": "Identity preservation plus explicit refusals for unsupported structural publication; no inferred deletion/automatic duplication/reparenting",
+  "existing_gameplay_scope": "Fresh explicitly selected trusted reference gameplay fork, not automatic native script/Blueprint translation",
+  "runtime_dependency_retained": true,
+  "save_compatibility_scope": "Admission/refusal, not state restoration or automatic migration",
+  "full_release_certified": false,
+  "external_gates": [
+    "clean Windows VM/PC",
+    "signing",
+    "external first-time testers",
+    "external networking",
+    "actual Steam evidence",
+    "public redistribution approval"
+  ],
+  "recovered_seal": {
+    "original_seal": false,
+    "manifest": "C:/Users/ankit/XACE-Recovery/baselines/xp022-recovered-20261015/baseline.json",
+    "sha256": "44b38aea2503731b455377221385821228916b5ea843b094e9cd01d4847a90fc",
+    "protected_files": 55,
+    "source_archive_entries": 1575,
+    "unchanged": true
+  },
+  "cache_cleanup_bytes": 41794540764,
+  "free_bytes_at_closeout": 32837107712,
+  "backup": "Source/compact receipts in completion commit; verify remote after push. Raw binaries, fixtures, archives and recovered seal local-only",
+  "nec018_started": false
+}
