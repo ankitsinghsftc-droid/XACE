@@ -1,4 +1,5 @@
 #include "XaceNativeHostClient.h"
+#include "Policies/CondensedJsonPrintPolicy.h"
 #include "Misc/FileHelper.h"
 #include "HAL/FileManager.h"
 #include "HAL/PlatformFileManager.h"

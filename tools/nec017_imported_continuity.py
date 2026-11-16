@@ -15,8 +15,22 @@ def main(engine,out):
  out.mkdir(parents=True);inputs=out/'inputs';inputs.mkdir();build=ROOT/'evidence/nec017/20261116'/('unreal-existing-play-d' if engine=='unreal' else 'unity-existing-play-e')
  proof=ROOT/'evidence/nec017/20261116/unreal-cooked-integrity-c/proof.json' if engine=='unreal' else build/'proof.json';require(json.loads(proof.read_bytes())['ok'],'retained gameplay proof must pass')
  source=build/'project';runtime=build/('archive/Windows' if engine=='unreal' else 'shipping');runtime_before=table(runtime)
- native=io(inputs/'native');shutil.copytree(io(source),native,symlinks=True,ignore=shutil.ignore_patterns('Library','Temp','obj','Logs','Binaries','Intermediate','Saved','DerivedDataCache','.git'))
+ native=io(inputs/'native');shutil.copytree(io(source),native,symlinks=True,ignore=shutil.ignore_patterns('Library','Temp','obj','Logs','Binaries','Intermediate','Saved','DerivedDataCache','.git','XACEApproval.json'))
+ prior_approval=(source/'XACEApproval.json').read_bytes();source_changes={}
+ if engine=='unreal':
+  from tools.nec015_build import inventory as approved_inventory
+  for current in (ROOT/'adapters/unreal').iterdir():
+   if current.suffix in ['.cpp','.h']:
+    target=native/'Plugins/XACE/Source/XACEAdapter'/('Public' if current.suffix=='.h' else 'Private')/current.name
+    require(target.exists(),'native adapter source missing')
+    if current.name=='XaceNativeContractProofCommandlet.cpp':require(current.read_text(encoding='utf-8') in target.read_text(encoding='utf-8'),'editor-only wrapper differs');continue
+    if file_hash(target)!=file_hash(current):source_changes[target.relative_to(native).as_posix()]=dict(before=file_hash(target),after=file_hash(current));shutil.copyfile(current,target)
+  reviewed=json.loads(prior_approval.decode('utf-8-sig'));reviewed['files']=approved_inventory(native)
+  (native/'XACEApproval.json').write_bytes(canonical(reviewed))
+ else:(native/'XACEApproval.json').write_bytes(prior_approval)
  native_before=table(native)
+ (out/'explicit-source-revision-review.json').write_bytes(canonical(dict(scope='New private test-owner native source copy only',previous_approval_sha256=__import__('hashlib').sha256(prior_approval).hexdigest(),new_approval_sha256=file_hash(native/'XACEApproval.json'),changes=source_changes,original_source_changed=False,action='Explicitly approve copied adapter include fixes before compilation; retain previous approval in inert history')))
+
  # Preserve complete creator compiler/package source plus the exact prior executor.
  creator=io(inputs/'creator');creator.mkdir();names=[n for n in subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode().split('\0') if n]
  for name in names:
@@ -25,7 +39,7 @@ def main(engine,out):
  executor=io(inputs/'executor');exact=io(ROOT/'evidence/nec017/20261116/godot-existing-continuity-b/independent/payload/executor');shutil.copytree(exact,executor,symlinks=True)
  receipt=json.loads((executor/'original-executor-receipt.json').read_bytes());require(all(file_hash(executor/name)==expected for name,expected in receipt['source_files'].items()),'exact executor source mismatch')
  project=inputs/'project';project.mkdir();release=source/('release' if engine=='unreal' else 'Assets/StreamingAssets/XACERelease');shutil.copyfile(release/'package/game.cgs.json',project/'game.cgs.json')
- history=io(inputs/'history');history.mkdir();authoring=ROOT/'evidence/nec017/20261105'/('unreal-existing-publish-b' if engine=='unreal' else 'unity-existing-publish-b')/'project/.xace';shutil.copytree(io(authoring),history/'authoring',symlinks=True)
+ history=io(inputs/'history');history.mkdir();(history/'previous-native-source-approval.json').write_bytes(prior_approval);authoring=ROOT/'evidence/nec017/20261105'/('unreal-existing-publish-b' if engine=='unreal' else 'unity-existing-publish-b')/'project/.xace';shutil.copytree(io(authoring),history/'authoring',symlinks=True)
  for name in ['user-data','player-user-data']:
   path=build/name/'XACE'
   if path.exists():shutil.copytree(io(path),history/name,symlinks=True)

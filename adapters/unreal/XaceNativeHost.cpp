@@ -1,4 +1,5 @@
 #include "XaceNativeHost.h"
+#include "Engine/World.h"
 #include "XaceNativeApproval.h"
 #include "Misc/Paths.h"
 #include "Misc/CommandLine.h"
