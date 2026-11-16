@@ -1,0 +1,13 @@
+# NEC-018: clean-machine shipping and private-alpha gate
+
+Started 2026-11-16, authorized after NEC-017 local closeout at0ecb252d6bacbcca65ff9f741971c90292c6a045. Active checkout C:/Users/ankit/XACE-Recovery/worktrees/xace, branch recovery/xp022. Historical artifacts and the recovered XP-022 seal remain immutable.
+
+Status: IN PROGRESS. No clean PC/VM is available. Owner confirmed three independent testers and a code-signing certificate are not available; prepare handoff tools while retaining all external gates. No external transfer, invitations, certificate purchase, VM creation or public release is authorized by this task start.
+
+The roadmap acceptance remains unchanged: actual clean Windows installation for all three engine builds; no Builder/editor/development toolchain; offline canonical behavior and owned-process cleanup; per-game saves independent of installation/update/uninstall; failed-update retention/rollback and deterministic migration or unchanged refusal; three independent developer walkthroughs without terminal repair; signed release identities and explicit redistribution/continuing-use approval. REL01-05 remain separate, as do actual Steam installation/update/client-lifecycle evidence. Same-laptop automation cannot close those gates.
+
+Local work: freeze exact tested artifact identities into an unsigned private engineering handoff; create a self-contained Windows PowerShell environment/gameplay collector that needs no Python/engine SDK; validate imported evidence against an independently pinned candidate digest; prepare developer/clean-machine/update/save/rollback scripts and the exact support/loss/exit matrix. Run meaningful adversarial tests and a same-laptop rehearsal, preserving failures. Do not infer clean-machine, external-human or signing passes.
+
+Initial code reconciliation found an additional REL04 prerequisite: native_executor_contract.py validate requires both independent build hashes to equal the final executable hash; Rust native_release.rs enforces the same rule. Authenticode signing changes executable bytes. Current v1 has no explicit unsigned-build-to-signed-artifact derivation contract. Never overwrite historical unsigned build hashes or relax admission to pretend signing passed. A versioned derivation/admission change plus actual certificate-backed tests is required before signed distribution. Record a concrete impact estimate; this remains NEC-018 work, not a new roadmap program.
+
+Evidence and unique files stay in evidence/nec018 and docs/evidence/nec018-* inside the persistent recovery worktree. Test copies are create-only. No cleanup, original-repository changes or sealed-artifact modification.

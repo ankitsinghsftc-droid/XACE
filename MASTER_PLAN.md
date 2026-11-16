@@ -1,3 +1,5 @@
+> CURRENT2026-11-16: NEC018 STARTED at0ecb252, explicitly authorized. Preparing unsigned private handoff/clean-machine/evidence tools. No clean VM/PC, testers or signing certificate available; external gates OPEN. NEC017 local closeout preserved. [Acceptance](docs/NEC018_ACCEPTANCE.md). Raw archives/binaries/seal local-only. Earlier entries below are historical.
+
 > CURRENT2026-11-16: NEC017 complete for declared local profiles;34verification groups pass. External release gates open; NEC018 not started. [Completion](docs/NEC017_COMPLETION.md), [evidence](docs/evidence/nec017-completion-20261116/summary.json). Raw artifacts/seal local-only.
 
 > NEC017 remaining mandatory work and permitted deferrals: docs/NEC017_REMAINING_ACCEPTANCE.md. User requested prioritizing essential gates; no acceptance waiver inferred and no NEC018 started.

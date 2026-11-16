@@ -1,0 +1,11 @@
+{
+  "status": "INCOMPLETE_HANDOFF_PREPARATION",
+  "project_system_tests": 385,
+  "schema_factory_tests": 127,
+  "external_gates": "ALL_OPEN",
+  "clean_machine_certified": false,
+  "release_certified": false,
+  "steam_certified": false,
+  "failed_rehearsal_retained": "evidence/nec018/20261116/rehearsal-a",
+  "signing_derivation_implemented": false
+}
