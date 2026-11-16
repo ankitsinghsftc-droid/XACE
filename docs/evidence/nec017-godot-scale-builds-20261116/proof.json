@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "engine": "Godot4.6.3",
+  "objects": 1000,
+  "rebuilds": 3,
+  "samples": [
+    {
+      "build": 0,
+      "measurement": {
+        "seconds": 3.0719225999782793,
+        "returncode": 0,
+        "root_memory": {
+          "peak_working_set_bytes": 7290880,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 1339392
+        },
+        "descendants": [
+          {
+            "pid": 34128,
+            "parent_pid": 6796,
+            "executable": "conhost.exe",
+            "peak_working_set_bytes": 8507392,
+            "working_set_bytes": 36864,
+            "peak_pagefile_bytes": 1273856
+          },
+          {
+            "pid": 20940,
+            "parent_pid": 6796,
+            "executable": "Godot_v4.6.3-stable_win64.exe",
+            "peak_working_set_bytes": 640053248,
+            "working_set_bytes": 32768,
+            "peak_pagefile_bytes": 576389120
+          }
+        ],
+        "sampled_descendant_peak_bytes": 648024064,
+        "sampling_ms": 100,
+        "aggregate_peak_exact": false
+      },
+      "player": {
+        "exported": true,
+        "objects": 1000,
+        "ok": true,
+        "profile": "static serialized transform nodes; no XACE gameplay runtime or graphics workload",
+        "scene": "res://XACEGenerated/World.tscn"
+      },
+      "output_bytes": 105340168
+    },
+    {
+      "build": 1,
+      "measurement": {
+        "seconds": 3.1957383999833837,
+        "returncode": 0,
+        "root_memory": {
+          "peak_working_set_bytes": 7282688,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 1327104
+        },
+        "descendants": [
+          {
+            "pid": 35332,
+            "parent_pid": 38120,
+            "executable": "conhost.exe",
+            "peak_working_set_bytes": 8511488,
+            "working_set_bytes": 36864,
+            "peak_pagefile_bytes": 1286144
+          },
+          {
+            "pid": 37612,
+            "parent_pid": 38120,
+            "executable": "Godot_v4.6.3-stable_win64.exe",
+            "peak_working_set_bytes": 627634176,
+            "working_set_bytes": 32768,
+            "peak_pagefile_bytes": 564342784
+          }
+        ],
+        "sampled_descendant_peak_bytes": 635490304,
+        "sampling_ms": 100,
+        "aggregate_peak_exact": false
+      },
+      "player": {
+        "exported": true,
+        "objects": 1000,
+        "ok": true,
+        "profile": "static serialized transform nodes; no XACE gameplay runtime or graphics workload",
+        "scene": "res://XACEGenerated/World.tscn"
+      },
+      "output_bytes": 105340168
+    },
+    {
+      "build": 2,
+      "measurement": {
+        "seconds": 2.850158100016415,
+        "returncode": 0,
+        "root_memory": {
+          "peak_working_set_bytes": 7286784,
+          "working_set_bytes": 32768,
+          "peak_pagefile_bytes": 1331200
+        },
+        "descendants": [
+          {
+            "pid": 16760,
+            "parent_pid": 36116,
+            "executable": "conhost.exe",
+            "peak_working_set_bytes": 8515584,
+            "working_set_bytes": 36864,
+            "peak_pagefile_bytes": 1277952
+          },
+          {
+            "pid": 32484,
+            "parent_pid": 36116,
+            "executable": "Godot_v4.6.3-stable_win64.exe",
+            "peak_working_set_bytes": 637882368,
+            "working_set_bytes": 32768,
+            "peak_pagefile_bytes": 574435328
+          }
+        ],
+        "sampled_descendant_peak_bytes": 645939200,
+        "sampling_ms": 100,
+        "aggregate_peak_exact": false
+      },
+      "player": {
+        "exported": true,
+        "objects": 1000,
+        "ok": true,
+        "profile": "static serialized transform nodes; no XACE gameplay runtime or graphics workload",
+        "scene": "res://XACEGenerated/World.tscn"
+      },
+      "output_bytes": 105340168
+    }
+  ],
+  "original_unchanged": true,
+  "scene_bytes_unchanged": true,
+  "source_unchanged": true,
+  "scale_scope": "Native serialized transform-node rebuild/readback only; authoring/edit/recovery measured separately",
+  "gameplay_runtime_scale_certified": false,
+  "graphics_scale_certified": false,
+  "full_nec017_complete": false
+}

@@ -14,9 +14,9 @@ Status: INCOMPLETE. This is a current-state checklist; historical receipts are i
 | Actual imported gameplay compilation/admission/execution/replay | PASS12ticks | PASS12ticks | PASS12ticks |
 | Imported native editor Play | PASS50 | PASS51,3cycles incl. domain reload disabled | PASS50 after explicit Movable-root disposition and Static-root refusal |
 | Imported native build/relocated game | PASS50, two exports | PASS51, Windows Mono and save admission/refusal | PASS50 relocated gameplay and archived-resource tamper refusal |
-| Imported continuity archive/restore/native rebuild | PASS1,010 archived files,270 exact executor sources | OPEN | OPEN |
+| Imported continuity archive/restore/native rebuild | PASS1,010 archived files,270 exact executor sources | OPEN | Archive/restore and short-path editor rebuild PASS; checked package rebuild awaits disk reserve |
 | Actual30 capture/review measurements at1,000 objects/100edits | PASS measured p95 6.148s | PASS measured p95 6.871s | PASS measured p95 8.338s |
-| Repeated native rebuild/resource/history certification at declared scale | OPEN final coverage audit | OPEN final coverage audit | OPEN final coverage audit |
+| Repeated native rebuild/resource/history certification at declared scale | PASS3 native data rebuild/readbacks at1,000 objects; final coverage audit open | OPEN final coverage audit | OPEN final coverage audit |
 | Full new/existing rename/move/delete/duplicate/reparent/conflict/Play-again chain | OPEN final current-source coverage audit | OPEN final current-source coverage audit | OPEN final current-source coverage audit |
 | Unusual-mechanic state/snapshot/replay and shipping/update/save fault matrix | OPEN final source-identity/coverage audit | OPEN final source-identity/coverage audit | OPEN final source-identity/coverage audit |
 
@@ -27,3 +27,5 @@ All supported copies explicitly remove/disposition unsupported original native a
 Evidence anchors: docs/evidence/nec017-review-30-20261116, docs/evidence/nec017-godot-existing-play-20261106, docs/evidence/nec017-godot-continuity-20261116, docs/evidence/nec017-package-review-20261106, docs/evidence/nec017-unreal-adoption-20261105, and the dated certification history. Final audit must resolve OPEN cells with exact source/artifact references, not infer passes from adjacent tests.
 
 External gates remain open and deferred: actual clean Windows VM/PC, signing, external first-time testers, external networking and actual Steam evidence. Same-laptop PATH isolation is not clean-machine certification. Public redistribution approval remains separate from private technical notice completeness.
+
+Current Unreal include/startup revision has restored editor compilation and source preflight evidence; its full current cooked gameplay revalidation remains pending. Earlier50-object native Play/cooked proofs retain their exact historical source identities. Larger jobs are currently held by disk headroom, not marked passed.

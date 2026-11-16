@@ -1,0 +1,30 @@
+{
+  "seconds": 3.1957383999833837,
+  "returncode": 0,
+  "root_memory": {
+    "peak_working_set_bytes": 7282688,
+    "working_set_bytes": 32768,
+    "peak_pagefile_bytes": 1327104
+  },
+  "descendants": [
+    {
+      "pid": 35332,
+      "parent_pid": 38120,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8511488,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1286144
+    },
+    {
+      "pid": 37612,
+      "parent_pid": 38120,
+      "executable": "Godot_v4.6.3-stable_win64.exe",
+      "peak_working_set_bytes": 627634176,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 564342784
+    }
+  ],
+  "sampled_descendant_peak_bytes": 635490304,
+  "sampling_ms": 100,
+  "aggregate_peak_exact": false
+}
