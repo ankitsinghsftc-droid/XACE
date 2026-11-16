@@ -1,0 +1,11 @@
+{
+  "schema": "xace.checkpoint_backup.v1",
+  "completion_checkpoint": "1d1888c445b2f6f6dcf940313c602110505bc338",
+  "remote": "https://github.com/ankitsinghsftc-droid/XACE.git",
+  "ref": "refs/heads/recovery/xp022",
+  "exact_remote_ref_verified": true,
+  "source_and_compact_evidence_off_device": true,
+  "raw_artifacts_archives_recovered_seal_off_device": false,
+  "implementation_changes": false,
+  "nec018_started": false
+}
