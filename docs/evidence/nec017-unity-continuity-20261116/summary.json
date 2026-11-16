@@ -1,0 +1,101 @@
+{
+  "archive": {
+    "archive_sha256": "779091d094d1a3be736e08123c60f4709c984454c6ff68abe2972059c33a5c2f",
+    "declared_closure_complete": true,
+    "manifest_sha256": "bcd858b34b26cccfc968df749ecfd04efd63933028cc405c7f7c80901191bd66",
+    "rebuild_verified": false,
+    "schema": "xace.continuity_archive_receipt.v1"
+  },
+  "checked_native_build": true,
+  "clean_machine": false,
+  "creator_source_files": 3566,
+  "engine": "unity",
+  "exact_executor_sources": 270,
+  "executor_compiler_rerun": false,
+  "explicit_nonessential_omissions": [
+    {
+      "path": "player-user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-c0e667d1-2540-4f29-afcb-b2ac2ce2402a/native-ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "player-user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-c0e667d1-2540-4f29-afcb-b2ac2ce2402a/ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-79f83fec-08ce-4a3e-926c-627612a48979/native-ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-79f83fec-08ce-4a3e-926c-627612a48979/ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-cbe3dcc6-0cc6-40ea-b22a-d5d06e9f461c/native-ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-cbe3dcc6-0cc6-40ea-b22a-d5d06e9f461c/ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-f50b2e11-3c79-440d-a55d-6c6ead09b487/native-ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": "user-data/NativeGames/game-nec017-existing-unity/native-history/native-session-f50b2e11-3c79-440d-a55d-6c6ead09b487/ticket.json",
+      "reason": "Ephemeral authentication ticket; fresh admission issues new credentials",
+      "root": "history"
+    },
+    {
+      "path": ".env.example",
+      "reason": "Nonessential environment configuration example; omitted under credential-name gate, original source remains unchanged",
+      "root": "creator"
+    }
+  ],
+  "full_nec017_complete": false,
+  "installation_unchanged": true,
+  "native_compiler_rerun": true,
+  "ok": true,
+  "original_executor_reproducibility_receipt_preserved": true,
+  "original_runtime_unchanged": true,
+  "player": {
+    "authority_stopped": false,
+    "entities": 51,
+    "error": "",
+    "fault": "",
+    "frozen": false,
+    "hierarchy": true,
+    "incompatible_save_retained": true,
+    "input_moves_authority": true,
+    "native_identity": true,
+    "ok": true,
+    "owner_pid": 39256,
+    "positions": true,
+    "required_playback": false,
+    "runtime_animation_started": false,
+    "runtime_audio_started": false,
+    "runtime_pid": 22432,
+    "save_compatible_not_restored": true,
+    "save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-imported-continuity-a\\player-user-data\\XACE/NativeGames\\game-nec017-existing-unity\\saves",
+    "tick": 121,
+    "unity": "6000.4.9f1"
+  },
+  "public_redistribution_approved": false,
+  "restoration": {
+    "archive_sha256": "779091d094d1a3be736e08123c60f4709c984454c6ff68abe2972059c33a5c2f",
+    "declared_closure_complete": true,
+    "executed_payload": false,
+    "files": 4822,
+    "manifest_sha256": "bcd858b34b26cccfc968df749ecfd04efd63933028cc405c7f7c80901191bd66",
+    "rebuild_verified": false,
+    "schema": "xace.continuity_restore_receipt.v1"
+  },
+  "runtime_dependency_retained": true
+}
