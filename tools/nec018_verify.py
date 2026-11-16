@@ -1,9 +1,10 @@
-﻿"""Fresh NEC018 focused/regression/syntax receipts; no Windows policy changes."""
+"""Fresh NEC018 focused/regression/syntax receipts; no Windows policy changes."""
 from pathlib import Path
 import hashlib,json,subprocess,sys
 ROOT=Path(__file__).resolve().parents[1]
 def main(out):
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec018') and not out.exists();out.mkdir(parents=True)
+ for script in sorted((ROOT/'tools').glob('nec018*.py')):compile(script.read_bytes(),str(script),'exec')
  files=sorted({*list((ROOT/'packages/project-system').rglob('*.py')),*list((ROOT/'packages/schema-factory/src').rglob('*.py')),*list((ROOT/'packages/gde/src').rglob('*.py')),*list((ROOT/'tools').glob('nec018*'))});pins={p.relative_to(ROOT).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in files};(out/'source-pins.json').write_text(json.dumps(pins,indent=2));results=[]
  commands=[('project-system',[sys.executable,'-B','-m','unittest','discover','-s','packages/project-system/tests','-v']),('schema-factory',[sys.executable,'-B','-m','pytest','packages/schema-factory/src/tests','-q','-p','no:cacheprovider'])]
  for label,command in commands:

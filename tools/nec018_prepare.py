@@ -1,4 +1,4 @@
-ï»¿"""Prepare immutable unsigned engineering artifacts; never distribute or sign them."""
+"""Prepare immutable unsigned engineering artifacts; never distribute or sign them."""
 from pathlib import Path
 import json,shutil,subprocess,sys,zipfile
 ROOT=Path(__file__).resolve().parents[1];sys.path[:0]=[str(ROOT),str(ROOT/'packages/project-system')]
