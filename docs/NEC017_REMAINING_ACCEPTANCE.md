@@ -4,7 +4,7 @@ Current status: incomplete. This live list narrows execution to the approved sup
 
 | Required closeout | Verified so far | Still needed |
 | --- | --- | --- |
-| Existing-project development workflows | Independent original fixtures in all three engines; real enrollment; Godot static-material and Unity root-collider adoption/edit loops; Unreal static adoption and both transform-edit directions pass | Godot imported native Play and two exports now pass; Unity license restoration pending; finish Unity/Unreal imported native Play/build and all-engine continuity checks |
+| Existing-project development workflows | Independent original fixtures in all three engines; real enrollment; Godot static-material and Unity root-collider adoption/edit loops; Unreal static adoption and both transform-edit directions pass | Godot imported native Play and two exports now pass; Unity license restoration pending; finish Unity/Unreal imported native Play/build and Unity/Unreal continuity checks; Godot independent archive/restore/rebuild passes |
 | Scale and performance | 1,000-object setup, repeated bidirectional editing, actual 100-operation batches, local Git merge/rebase/recovery, 42 native journal-crash cells and representative larger recovery | 30-batch measurements now complete (p95 Godot6.148s/Unity6.871s/Unreal8.338s); <2s target deferred under the dated conditional-user-decision amendment, repeated native builds and resource/history measurements. Planner-only timings do not close this gate |
 | Final evidence and compatibility audit | 370 project-system and 127 schema-factory tests pass; fresh structured replay proof; recovered XP022 seal unchanged | Tie each required supported workflow/fault/shipping/update/save cell to exact current or valid carried-forward source/artifact identities; repair uncovered failures; final checkpoint |
 
@@ -12,7 +12,7 @@ Not new NEC-017 blockers: unrestricted Blueprint/script translation, broader phy
 
 Already deferred external gates remain open: clean Windows machine/VM, signing, external first-time testers, external networking and actual Steam certification. Their unavailability need not block local NEC-017 work, but NEC-018/full release cannot claim those proofs.
 
-Schedule: remaining work is substantive engineering plus native certification, not merely documentation. A reliable hour-level ETA is not established. Plan for multiple working sessions/days, with the full capture-to-review path the largest uncertainty. Current closed-editor startup costs must be measured rather than silently excluded or a planner-only result substituted. Any larger architectural prerequisite must be called out explicitly before expanding scope.
+Schedule: remaining work is substantive engineering plus native certification, not merely documentation. A reliable hour-level ETA is not established. Plan for multiple working sessions/days, with Unreal compilation/cooking and imported-game workflow verification the largest uncertainties. Current closed-editor startup costs must be measured rather than silently excluded or a planner-only result substituted. Any larger architectural prerequisite must be called out explicitly before expanding scope.
 
 See [profile boundaries](NEC017_PROFILE_BOUNDARIES.md), [certification record](NEC017_CERTIFICATION.md), and the historical acceptance and dated amendment in section14/NEC-017 of [the program](XACE_NATIVE_ENGINE_CONTINUITY_PROGRAM.md).
 

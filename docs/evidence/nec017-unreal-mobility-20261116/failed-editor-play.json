@@ -1,0 +1,14 @@
+{
+	"objects": 50,
+	"tick": 30,
+	"native_identity": true,
+	"exact_projection": false,
+	"mesh_material_retained": true,
+	"static_objects_unchanged": true,
+	"authoritative_input": false,
+	"ok": false,
+	"error": "Native identity/projection/resource/input mismatch",
+	"runtime_pid": 22648,
+	"owner_pid": 30796,
+	"packaged": false
+}
