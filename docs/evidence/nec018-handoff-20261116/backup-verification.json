@@ -1,0 +1,11 @@
+{
+  "recorded_utc": "2026-11-16T12:41:06.139528+00:00",
+  "checkpoint": "d6982e2777d8017c82496bf9d7d6b2f4135817cc",
+  "remote": "d6982e2777d8017c82496bf9d7d6b2f4135817cc",
+  "branch": "recovery/xp022",
+  "remote_identity_verified": true,
+  "source_and_compact_evidence_off_device": true,
+  "raw_archives_native_binaries_logs_and_recovered_seal_off_device": false,
+  "all_verified_source_pins_unchanged": true,
+  "nec018_complete": false
+}
