@@ -1,6 +1,8 @@
 #include "XaceNativeHostClient.h"
 #include "Misc/FileHelper.h"
 #include "HAL/FileManager.h"
+#include "HAL/PlatformFileManager.h"
+#include "HAL/PlatformFile.h"
 #include "Misc/Paths.h"
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
@@ -14,12 +16,18 @@ FString Quote(const FString& S) { FString Result=TEXT("\"");int32 Slashes=0;for(
 }
 FString FXaceNativeHostClient::FileHash(const FString& Path)
 {
-    TUniquePtr<FArchive> Reader(IFileManager::Get().CreateFileReader(*Path));if(!Reader)return TEXT("");
+    // Integrity is over installed bytes. Cooked PakFile hides loose source-asset
+    // extensions, so its virtual reader cannot verify an external native package.
+    const FString Physical=FPaths::ConvertRelativePathToFull(Path);
+    TUniquePtr<IFileHandle> Reader(FPlatformFileManager::Get().GetPlatformPhysical().OpenRead(*Physical));if(!Reader)return TEXT("");
+    const int64 Size=Reader->Size();if(Size<0)return TEXT("");
     SHA256_CTX Context;if(SHA256_Init(&Context)!=1)return TEXT("");TArray<uint8> Buffer;Buffer.SetNumUninitialized(1024*1024);
-    while(Reader->Tell()<Reader->TotalSize()){
-        const int64 Count=FMath::Min<int64>(Buffer.Num(),Reader->TotalSize()-Reader->Tell());Reader->Serialize(Buffer.GetData(),Count);
-        if(Reader->IsError()||SHA256_Update(&Context,Buffer.GetData(),Count)!=1)return TEXT("");
+    int64 Remaining=Size;
+    while(Remaining>0){
+        const int64 Count=FMath::Min<int64>(Buffer.Num(),Remaining);
+        if(!Reader->Read(Buffer.GetData(),Count)||SHA256_Update(&Context,Buffer.GetData(),Count)!=1)return TEXT("");Remaining-=Count;
     }
+    if(Reader->Size()!=Size)return TEXT("");
     uint8 Digest[SHA256_DIGEST_LENGTH];return SHA256_Final(Digest,&Context)==1?BytesToHex(Digest,SHA256_DIGEST_LENGTH).ToLower():TEXT("");
 }
 bool FXaceNativeHostClient::Start(const FString& Launcher,const FString& LauncherHash,const FString& Release,const FString& ReleaseHash,const FString& History,uint64 Controller)
