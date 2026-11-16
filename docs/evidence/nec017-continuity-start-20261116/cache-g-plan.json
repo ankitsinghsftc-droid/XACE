@@ -1,0 +1,256 @@
+{
+  "scope": "Regenerable hashed Cargo test/dependency debug symbols only; named runtime/executor/launcher symbols and all executables/source/evidence retained",
+  "files": [
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\candidate-3b0ca77bc1c29b2f.pdb",
+      "bytes": 113258496,
+      "sha256": "6023a3032d4657edd340c265f77cace9615b2194da7003554f220d4a36f84ec3"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\candidate-74399ceb21c1ee5d.pdb",
+      "bytes": 140226560,
+      "sha256": "b0bbf9e2e877e3dfbcd85577c1fad036752f662d0e2dcba73e99830d820848dd"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\candidate-bbec4225e8be40ef.pdb",
+      "bytes": 112988160,
+      "sha256": "6caebb6d0eb0f6494dc989528938b79c29f2e41f07d4ed902c86938e8977fc1b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\candidate-ca6e30d10200fa2d.pdb",
+      "bytes": 10047488,
+      "sha256": "d67855cf5ac0d3ba9df9d7041460e4c142958c09ca046bb988fa54bf4986a25c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\clap_derive-0315638f8ebb704d.pdb",
+      "bytes": 2879488,
+      "sha256": "2b41ac61b3c6313c0f0c22f660bfffa5cad7f898d9fb1c76fd0f5e3a20b33ef7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\clap_derive-80669902128bab9a.pdb",
+      "bytes": 2879488,
+      "sha256": "7e7b779b8fbc6c04d7e638784e91fadf86fb6e1e9aedd497486f23d2be53056a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\clap_derive-a2bd778236eaa20a.pdb",
+      "bytes": 2879488,
+      "sha256": "9955ddb7459ee54643938c0a4f5d483f0270b9fe5e487745734d0a4ee0a51b77"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\mod-439d528ec934c2ad.pdb",
+      "bytes": 106180608,
+      "sha256": "934f899decb45074d1fe9306da6a23a44694f5432f8f5a1fd76af0c72333b0c4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\player_host-1a96893188f4cc44.pdb",
+      "bytes": 135933952,
+      "sha256": "dd6af1dd920db42a0ea3963c958cad13120657e65302033e79e1bd4e213a6d3c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\player_host-34ca9e540cfa051b.pdb",
+      "bytes": 110800896,
+      "sha256": "62726017487a359484aa6b2eebd5424bdd5d9e6b883a7a6952a5e64b38bd3487"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\player_host-d522958b4a4b5a76.pdb",
+      "bytes": 114143232,
+      "sha256": "122d64b1e9c727b367098cc4618d295cb578aa8487c978d27bea9d9510a13861"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\player_host-f73f3a979993454a.pdb",
+      "bytes": 9302016,
+      "sha256": "29f236f111d37d5bb2e9ad4c2dcd10accb5557ffeb60ab183e9a9e97061e5694"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\player_session-dce1e253884591c5.pdb",
+      "bytes": 6205440,
+      "sha256": "48cf2e0fcdf326783ee433d4cf8f2aa795d2569623c1ff7ec395f8822071e4ed"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\presentation_events-add8c5bd591c7bb0.pdb",
+      "bytes": 108007424,
+      "sha256": "fd77e61fa4200c2b364ab6b779d2068fa3a4df007a3b369f783ba1d42937bfab"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\proof-133a0fb6340428eb.pdb",
+      "bytes": 100388864,
+      "sha256": "f46606e96378fbe39b24279140ad36e25f22fc04a19e488917806f520819a6c1"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\proof-34c98ba691def5fc.pdb",
+      "bytes": 6754304,
+      "sha256": "0ba95dea0cd7e7a18050cc0a06737aa8c9b7c9dd334c920296cc4376a4758374"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\proof-be342a94593a891d.pdb",
+      "bytes": 122302464,
+      "sha256": "50e168a0ef4221cb9b48ba9e38f53d67e103143f1e9985bc0e942ad751f9a3a9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\proof-c2a38acddbb75510.pdb",
+      "bytes": 98496512,
+      "sha256": "4a3addedac68f64db884bcd2de6056c1322a90b3ac574110c2e6876047a857d5"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\runtime-5affe6ddc8bf28bb.pdb",
+      "bytes": 116322304,
+      "sha256": "3bbcba2c0ce128af01ded7351aa210ed67f39aedbf97b049ae3eaf1818e1b4af"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\serde_derive-61a4e4634febbd8a.pdb",
+      "bytes": 3108864,
+      "sha256": "d6869371817c293d5dec7d18907148226806fc704e330061c7c8c65b275440ad"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\serde_derive-84a4373a8dcac737.pdb",
+      "bytes": 3108864,
+      "sha256": "1fadfd6609b175eef0db4dbd14ac09c51ac65fcc7aa13c5335562df9a15da2b9"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\serde_derive-dec3ae297fc155bc.pdb",
+      "bytes": 2772992,
+      "sha256": "4d466433a42d98455fb3cb3f89e0bca1e419fe0ff62f9da4edb73adc7e0df7de"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\serde_derive-e218ff31e708f7bb.pdb",
+      "bytes": 3092480,
+      "sha256": "1b332cdd039d2360ffa278539cc7243684607c4777b5e499bb3e7ee6ffc59724"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_archetype-289bf5c97c37d806.pdb",
+      "bytes": 104509440,
+      "sha256": "4041f4c633f23481a6cf768caea70abf97d1ceda4d756941c0b4ffb3b09821be"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_d3_preservation-797c2a379c4d16b9.pdb",
+      "bytes": 104329216,
+      "sha256": "fbb8fee50fa0035e05c9767127d4c0973fc3bae529d05185de4e14acaef89ecc"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_geometry_v1-964b93b7010e4863.pdb",
+      "bytes": 116051968,
+      "sha256": "76a7233570c031a84f294ded56d7bb81f3735a8f2e2a9925b771316d397915ff"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_native_world_fixture-a9d8c841ff99006c.pdb",
+      "bytes": 23801856,
+      "sha256": "82f93be2d83d4c14f96bdcdce94f63e03b351f04f520490c19e2d378cf9e920a"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_session_contract-4564767fdf6024b5.pdb",
+      "bytes": 26636288,
+      "sha256": "3c2f22e1f52f8f346bee5ab4671bd35587221811541d33b36b5fa263a82dd2ed"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_session_contract_versions-c2c04f62627d10c4.pdb",
+      "bytes": 103354368,
+      "sha256": "29e31c09dffecbe90856e653876c7392e2aee0503410c17497357f270eedcd51"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_storage_router-a49e8b45cc03937e.pdb",
+      "bytes": 103165952,
+      "sha256": "7b1aafd45fc0a8467070d42e578e0233e78be8b5f19c82aec134e78c92415e56"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\test_world_contract_v3-1c88a7b2a202bd75.pdb",
+      "bytes": 26521600,
+      "sha256": "b22e7379ba0d59abdff1f93edc683f3285cb6bb1ddc9284622d8146d79934478"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\thiserror_impl-3897d8a8b7fc2f42.pdb",
+      "bytes": 2805760,
+      "sha256": "a09a5b65ece5948896cdd3e82c976308fff2baad873aa63448b4f21d4d09f546"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\thiserror_impl-46dcc27175446d47.pdb",
+      "bytes": 2469888,
+      "sha256": "f8d3bc3bda314229a820412f82490c38689423fa9a0dfdf096e0c768cd21aed6"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\thiserror_impl-9516304b62c3d97a.pdb",
+      "bytes": 2813952,
+      "sha256": "11b8004344196d2104d116ffe5071ebf1a3e2002931528109d68a373908755c0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\thiserror_impl-e9e2f69c8d7538f7.pdb",
+      "bytes": 2813952,
+      "sha256": "30842e355312c2c542127f1ef489a02c183f30415686e8f00a1229eba48e47e4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\tokio_macros-4bb7d29227c23622.pdb",
+      "bytes": 2691072,
+      "sha256": "e87e7a1eddb50fff4d927b4c2751095523bc44b2f3200bb0a9f3a1092276f05d"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\tokio_macros-888c6d56326c8e96.pdb",
+      "bytes": 2666496,
+      "sha256": "eb1bc1a2eb14fa2ee5f8a724f5541c6e007ed0a692b2a8f40d3bad75370a5f6f"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\tokio_macros-dd22543279439a42.pdb",
+      "bytes": 2666496,
+      "sha256": "93b462c1775ec273e2861cbec90b76bef7486cb8af855a74e97a4a0f61c33585"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_echo_host-5761fd8d4c887231.pdb",
+      "bytes": 3108864,
+      "sha256": "19bcc20fb662255808e383c95f6a9393ae6c7964bceded4979323ff68e8fbac7"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_nec011_echo-8af2ec428374d663.pdb",
+      "bytes": 25980928,
+      "sha256": "46d00ed9f308e7d8fd9cec8aabd7b0ccd56d6181488669f1cc327b9fe5d14c80"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_player_launcher-cb2b588ad92d9418.pdb",
+      "bytes": 39112704,
+      "sha256": "cca847d746d0d1f31c62b225f229a2388bff7092dcae4c8d302cd46abe5ba864"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_host-7773437d67c3a050.pdb",
+      "bytes": 3010560,
+      "sha256": "bfa5963fb137b153219fa060ef9c72a13c7f849b71d5e48703ea7310df152036"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_host-b16b48d982b316d9.pdb",
+      "bytes": 3100672,
+      "sha256": "3b92281e50816e87425122a9a2cea7151869048b76ce3f019ba4c5a848e8ddcf"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_host-f21862ec724c5f0b.pdb",
+      "bytes": 2985984,
+      "sha256": "60c5cee9eda7a2b75e5942506bb2ed6ff9642d89e2d76de69b64bf7bbc310cca"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_mechanic-09733115b07e338a.pdb",
+      "bytes": 3010560,
+      "sha256": "27ecb4c99a2b98bcb3c8c6631d7f5b9c501d7258b71cfe4ea9d03d892349edea"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_mechanic-4f4a8746436e801a.pdb",
+      "bytes": 2985984,
+      "sha256": "6309bed2a040fb10c5f06ea20310cde65e039b337365b442a022f1cbbc5474ae"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_reference_mechanic-50bd31dfe8655c89.pdb",
+      "bytes": 3100672,
+      "sha256": "a88021bcf1f9d95edac9c302527afd6d8b14dc5685f584847ffd26b753be2a12"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_runtime-8b3ce89fc5469a62.pdb",
+      "bytes": 3100672,
+      "sha256": "2d7a818bee97457aa0d000457ba3bb23ed433b9f61673f91005073a5f3e75a5b"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\xace_runtime_core-8e6a15e26629d80f.pdb",
+      "bytes": 144781312,
+      "sha256": "04c61d81f9c4ca92dab3cec15ecc9d0735d98549db301cfc90a6f17b3b12fbc8"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\build-output\\cargo\\debug\\deps\\zerocopy_derive-b0feb108d2c3599a.pdb",
+      "bytes": 2863104,
+      "sha256": "fd481f6b9d0347688d8c2684a1d9bbdcb14ab3b2c106a976609fa9d8aa56a737"
+    }
+  ],
+  "total_bytes": 2296520704
+}

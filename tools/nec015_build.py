@@ -46,22 +46,23 @@ def preflight(command,out,env,name,cooked):
  require(proof.get('schema')=='xace.unreal.native_preflight.v1' and proof.get('ok') is True and proof.get('package_admitted') is True and proof.get('authority_started') is False and proof.get('cooked') is cooked,'Native preflight receipt refused')
  return proof
 
-def build(uproject,out,engine,map_name,release_relative='release'):
+def build(uproject,out,engine,map_name,release_relative='release',*,disable_pch=False):
+ require(type(disable_pch) is bool,'Explicit Boolean PCH choice required')
  uproject=uproject.resolve();project=uproject.parent;out=out.resolve();engine=engine.resolve()
  require(uproject.is_file() and not out.exists() and not out.is_relative_to(project),'Fresh persistent output outside project required')
  require(map_name.startswith('/Game/') and '..' not in map_name,'Native map path required')
  approval=validate(project);relative=Path(release_relative)
  require(not relative.is_absolute() and '..' not in relative.parts,'Release must be project-relative')
  source=(project/relative).resolve();require(source.is_relative_to(project),'Release escapes project')
- require(shutil.disk_usage(project).free>6*1024**3,'Need 6 GiB for Game-only build with precompiled Editor; no cleanup')
- out.mkdir(parents=True);receipt=dict(schema='xace.unreal.native_build.v1',status='staging',source=str(uproject),approval_sha256=sha(project/'XACEApproval.json'),unreal=approval['unreal'],clean_machine=False)
+ require(shutil.disk_usage(project).free>(4 if disable_pch else 6)*1024**3,'Need 4 GiB without PCH or6 GiB with PCH for Game-only build; no cleanup')
+ out.mkdir(parents=True);receipt=dict(schema='xace.unreal.native_build.v1',status='staging',source=str(uproject),approval_sha256=sha(project/'XACEApproval.json'),unreal=approval['unreal'],clean_machine=False,pch_enabled=not disable_pch)
  env=dict(os.environ);env['LOCALAPPDATA']=str(out/'user-data')
  def verify_approval():
   require(sha(project/'XACEApproval.json')==receipt['approval_sha256'] and validate(project)==approval,'Approval/source changed during build')
  try:
   preflight([str(engine/'Binaries/Win64/UnrealEditor-Cmd.exe'),str(uproject),map_name,'-game'],out,env,'source-preflight',False)
   verify_approval()
-  command=[str(engine/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(engine/'Binaries/DotNET/AutomationTool/AutomationTool.dll'),'BuildCookRun',f'-project={uproject}','-nop4','-unattended','-utf8output','-platform=Win64','-clientconfig=Development','-build','-cook','-stage','-pak','-archive',f'-archivedirectory={out/"shipping"}',f'-map={map_name}','-nocompileeditor','-skipbuildeditor','-nodebuginfo','-UbtArgs=-NoUBA -MaxParallelActions=1']
+  command=[str(engine/'Binaries/ThirdParty/DotNet/8.0.412/win-x64/dotnet.exe'),str(engine/'Binaries/DotNET/AutomationTool/AutomationTool.dll'),'BuildCookRun',f'-project={uproject}','-nop4','-unattended','-utf8output','-platform=Win64','-clientconfig=Development','-build','-cook','-stage','-pak','-archive',f'-archivedirectory={out/"shipping"}',f'-map={map_name}','-nocompileeditor','-skipbuildeditor','-nodebuginfo','-UbtArgs=-NoUBA -MaxParallelActions=1'+(' -NoPCH' if disable_pch else '')]
   (out/'build-command.json').write_text(json.dumps(command),encoding='utf-8');run(command,out/'build.log',env,3600)
   verify_approval()
   windows=out/'shipping/Windows';game=windows/uproject.stem;require(game.is_dir(),'Cooked native game missing')
@@ -75,4 +76,7 @@ def build(uproject,out,engine,map_name,release_relative='release'):
  except Exception as error:receipt.update(status='failed',error=str(error));raise
  finally:(out/'receipt.json').write_text(json.dumps(receipt,indent=2),encoding='utf-8')
  return receipt
-if __name__=='__main__':print(json.dumps(build(Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4],sys.argv[5] if len(sys.argv)>5 else 'release')))
+if __name__=='__main__':
+ options=sys.argv[5:];require(all(not v.startswith('--') or v=='--no-pch' for v in options),'Unknown build option')
+ relative=[v for v in options if v!='--no-pch'];require(len(relative)<=1,'At most one relative release directory')
+ print(json.dumps(build(Path(sys.argv[1]),Path(sys.argv[2]),Path(sys.argv[3]),sys.argv[4],relative[0] if relative else 'release',disable_pch='--no-pch' in options)))
