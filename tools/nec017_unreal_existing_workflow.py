@@ -12,7 +12,13 @@ GODOT=ENGINE/'Binaries/Win64/UnrealEditor-Cmd.exe'
 def main(engine,out):
  assert engine=='unreal','other engine drivers not yet implemented'
  out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists() and shutil.disk_usage(ROOT).free>4*2**30;out.mkdir(parents=True)
- source=ROOT/'evidence/nec017/20261105/unreal-existing-publish-b/project';root=out/'project';source_files={p.relative_to(source).as_posix():sha(p.read_bytes()) for p in source.rglob('*') if p.is_file() and 'Intermediate' not in p.parts and '.xace' not in p.parts and (p.relative_to(source).parts[0] in ['Content','Config','Plugins','SourceContent'] or p.name in ['game.cgs.json','NEC017Existing.uproject'])};root.mkdir()
+ source=ROOT/'evidence/nec017/20261105/unreal-existing-publish-b/project';root=out/'project';source_files={};root.mkdir()
+ for folder in ['Content','Config','Plugins','SourceContent']:
+  for directory,dirs,files in os.walk(source/folder):
+   dirs[:]=[n for n in dirs if n not in ['Intermediate','Saved','DerivedDataCache','.git','.xace']]
+   for name in files:
+    p=Path(directory)/name;source_files[p.relative_to(source).as_posix()]=sha(p.read_bytes())
+ for name in ['game.cgs.json','NEC017Existing.uproject']:source_files[name]=sha((source/name).read_bytes())
  for name in source_files:
   target=root/name;target.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,target)
  addons=root/'Plugins/XACEAuthoring'

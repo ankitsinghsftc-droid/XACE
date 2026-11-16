@@ -1,0 +1,3325 @@
+{
+  "ok": true,
+  "engine": "unity",
+  "objects": 51,
+  "native_mutations": [
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": [
+        {
+          "code": "native_code_retained",
+          "field": "opaque",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000038",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000039",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000038",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000039",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        }
+      ],
+      "native_editor": true,
+      "phase": "rename",
+      "refusal": null,
+      "reviewable": true
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": null,
+      "native_editor": true,
+      "phase": "move",
+      "refusal": "native authoring failed: System.IO.InvalidDataException: Unsaved document\r\n  at Xace.Authoring.Editor.AuthoringJson.Need (System.Boolean condition, System.String message) [0x0000a] in C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-workflow-b\\project\\Assets\\XaceAuthoring\\Editor\\AuthoringJson.cs:16 \r\n  at Xace.Authoring.Editor.AuthoringScope..ctor (System.Collections.Generic.IEnumerable`1[T] approvedSavedDocuments) [0x000bb] in C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-workflow-b\\project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringReader.cs:26 \r\n  at Xace.Authoring.Editor.UnityAuthoringCommand.Run () [0x00179] in C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-workflow-b\\project\\Assets\\XaceAuthoring\\Editor\\UnityAuthoringCommand.cs:23 ",
+      "reviewable": false
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": [
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:0:UnityEngine.MeshFilter",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Native serialized properties retained; only declared fields are mapped",
+          "field": "component:1:UnityEngine.MeshRenderer",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000038",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "00000000000000000000000000000039",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned GameObject properties retained",
+          "field": "native.gameobject",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000038",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "00000000000000000000000000000039",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned Transform properties retained",
+          "field": "native.transform",
+          "object_id": "0000000000000000000000000000003d",
+          "severity": "info"
+        },
+        {
+          "code": "structural_materialization_requires_coordinator",
+          "field": "",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "blocking"
+        }
+      ],
+      "native_editor": true,
+      "phase": "reparent",
+      "refusal": null,
+      "reviewable": false
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": true,
+      "explicit_distinct_identity": true,
+      "identity_preserved": false,
+      "losses": null,
+      "native_editor": true,
+      "phase": "duplicate",
+      "refusal": "unknown metadata identity",
+      "reviewable": false
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": false,
+      "losses": null,
+      "native_editor": true,
+      "phase": "delete",
+      "refusal": "scope change requires explicit enrollment; absence is not deletion",
+      "reviewable": false
+    }
+  ],
+  "native_edit_and_canonical_conflict_refused": true,
+  "explicit_resolution_and_reviewed_restore": true,
+  "fresh_explicit_gameplay_choice": true,
+  "arbitrary_native_gameplay_conversion": false,
+  "gameplay_execution_replay": {
+    "explicit_trusted_gameplay_choice": true,
+    "moving_entities": 1,
+    "native_capture": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-workflow-b\\project\\.xace\\native-authoring-calls\\af98c333f2774881801de7828251aeb1\\result.json",
+    "native_capture_sha256": "db45dd1ed738b044711d82a8fc34a11268612bb9c33c15e9561ea9124bf80c5d",
+    "native_editor_play_verified": false,
+    "objects": 51,
+    "ok": true,
+    "replayed_ticks": 12,
+    "stable_entities": true,
+    "world_hashes": [
+      "0323da2773cf7bf1dfb7d723f643568e581f9b0a58f83487af5ade2840965780",
+      "54ac6b2d4e151d3be2152b8fb1900a7a32b787d16f719738869a4e11aacdf5ec",
+      "f819b23f6488f31a31eae93770e3ce301047c4c3977d89967e27bb6c56adb3fa",
+      "b645dc8f817716c3d2b0abdcd55361681df4bebfe85d986dc2abafc59597b945",
+      "c0070dbd7d31babe9ceefbc5a4f7e9d40f6aaad6c61d8dbcd2875d85bd48ce9f",
+      "e7b5cfc610121a594ed673e9e2028d0a2fee68f7e23fe3e605493fd9c2f5cf98",
+      "6e254cadb2a882c9d7470009242f754b9b47351a2d041636726e102b7e28c5be",
+      "ed239de80475466e4f228019d9ceafa017a67f99d1481e71300d8c6e452e8048",
+      "12b1ad135e62d0c4ec125c0c9dc0f12014deab35dacd79eedaad2cfedd3da689",
+      "f76a6a6da431c4a88a2cc73df62f4f9713291e5c5b89c35be661efa8a99950e3",
+      "5decc811a27c8c55054818d1b13cc88e903c494817f079cee2848ffdbab862a2",
+      "c3a02228e97b7367fb796d58f3ec07b9488a920f52610712d9332e87756f72a1"
+    ]
+  },
+  "native_play_again_build": {
+    "build_seconds": 80.10166070004925,
+    "clean_machine": false,
+    "editor_play": {
+      "cycles": 3,
+      "domain_reload_disabled": true,
+      "entities": 51,
+      "error": "",
+      "hierarchy": true,
+      "input_moves_authority": true,
+      "native_identity": true,
+      "no_mirrors": true,
+      "ok": true,
+      "owner_pid": 9660,
+      "process_cleanup": true,
+      "projection_positions": true,
+      "required_playback": false,
+      "runtime_animation_started": false,
+      "runtime_audio_started": false,
+      "runtime_pid": 22892,
+      "tick": 12,
+      "version": "6000.4.9f1"
+    },
+    "full_nec017_complete": false,
+    "objects": 51,
+    "ok": true,
+    "only_original_asset_changed": "Game/World.unity: explicit runtime identity bindings",
+    "original_source_unchanged": true,
+    "player": {
+      "authority_stopped": false,
+      "entities": 51,
+      "error": "",
+      "fault": "",
+      "frozen": false,
+      "hierarchy": true,
+      "incompatible_save_retained": true,
+      "input_moves_authority": true,
+      "native_identity": true,
+      "ok": true,
+      "owner_pid": 920,
+      "positions": true,
+      "required_playback": false,
+      "runtime_animation_started": false,
+      "runtime_audio_started": false,
+      "runtime_pid": 13112,
+      "save_compatible_not_restored": true,
+      "save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-workflow-b\\play-again\\player-user-data\\XACE/NativeGames\\game-nec017-existing-unity\\saves",
+      "tick": 113,
+      "unity": "6000.4.9f1"
+    },
+    "source_stable": true
+  },
+  "structural_scope": "Native identity preservation and explicit fail-closed refusal where materialization unsupported; no dynamic spawn/despawn/reparent certification",
+  "clean_machine": false,
+  "full_nec017_complete": false,
+  "source_and_compact_off_device": false
+}
