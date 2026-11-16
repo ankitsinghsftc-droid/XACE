@@ -1,0 +1,16 @@
+{
+	"objects": 50,
+	"tick": 30,
+	"native_identity": true,
+	"exact_projection": true,
+	"mesh_material_retained": true,
+	"static_objects_unchanged": true,
+	"authoritative_input": true,
+	"process_cleanup": true,
+	"static_root_refused": true,
+	"ok": true,
+	"error": "",
+	"runtime_pid": 35728,
+	"owner_pid": 21820,
+	"packaged": false
+}

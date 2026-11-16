@@ -24,6 +24,7 @@ static bool StaticRootRefused=false,FinalOk=true;static FString FinalError;
 static TSharedPtr<FJsonObject> Result; static TMap<FString,FVector> Initial; static FString Moving;
 static bool Gone(uint32 Id){auto Handle=FPlatformProcess::OpenProcess(Id);bool R=!Handle.IsValid()||!FPlatformProcess::IsProcRunning(Handle);if(Handle.IsValid())FPlatformProcess::CloseProc(Handle);return R;}
 static bool Finish(bool Ok,const FString& Error){
+ if(!Result)Result=MakeShared<FJsonObject>();
  #if WITH_EDITOR
  if(GEditor&&GEditor->PlayWorld){FinalOk=Ok;FinalError=Error;GEditor->RequestEndPlayMap();Stage=2;Deadline=FPlatformTime::Seconds()+30;return true;}
 #endif
@@ -48,7 +49,7 @@ static bool Tick(float){
   FXaceLiveInputBinding Binding;Binding.Action=TEXT("move_x");Binding.NativeSelector=TEXT("proof.move");Host->InputBindings.Add(Binding);
   for(auto Value:Definition->GetArrayField(TEXT("objects"))){auto Object=Value->AsObject();FString Id=Object->GetStringField(TEXT("id"));auto Actor=Actors.FindRef(Id);if(!Actor)return Finish(false,TEXT("Original identity not found: ")+Id);Host->NativeObjects.Add(Id,Actor);Initial.Add(Id,Actor->GetActorLocation());if(Actor->GetActorLabel()==TEXT("Crate0"))Moving=Id;}
   if(Host->NativeObjects.Num()!=50||Moving.IsEmpty())return Finish(false,TEXT("Imported selection differs"));
-  auto RefusalProbe=NewObject<UXaceDeltaApplicatorComponent>(Owner);FString Refusal;StaticRootRefused=!RefusalProbe->BindNativeActors(Host->NativeObjects,Definition,Refusal)&&Refusal==TEXT("Native projection requires movable native root")&&RefusalProbe->GetEntityCount()==0;for(auto Pair:Host->NativeObjects)StaticRootRefused&=Pair.Value->GetActorLocation().Equals(Initial[Pair.Key],0.001);if(!StaticRootRefused)return Finish(false,TEXT("Static-root admission was not safely refused"));
+  auto RefusalProbe=NewObject<UXaceDeltaApplicatorComponent>(Owner);FString Refusal;StaticRootRefused=!RefusalProbe->BindNativeActors(Host->NativeObjects,Definition,Refusal)&&Refusal==TEXT("Native projection requires movable native root")&&RefusalProbe->GetEntityCount()==0;for(auto Pair:Host->NativeObjects)StaticRootRefused&=Pair.Value->GetActorLocation().Equals(Initial[Pair.Key],0.001);if(!StaticRootRefused)return Finish(false,TEXT("Static-root admission was not safely refused"));RefusalProbe->DestroyComponent();
   // Explicit test-owner native authoring choice, before save and source approval.
   for(auto Pair:Host->NativeObjects)Pair.Value->GetRootComponent()->SetMobility(EComponentMobility::Movable);
   if(!UEditorLoadingAndSavingUtils::SaveMap(World,TEXT("/Game/World")))return Finish(false,TEXT("Explicit runtime host integration save failed"));

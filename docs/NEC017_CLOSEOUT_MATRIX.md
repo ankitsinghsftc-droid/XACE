@@ -12,8 +12,8 @@ Status: INCOMPLETE. This is a current-state checklist; historical receipts are i
 | Independent original2-scene/map50-object native fixture and unsupported-dependency refusal | PASS | PASS | PASS |
 | Explicit supported-copy adoption, both transform-edit directions, preservation/cold no-op | PASS50 | PASS51 including hierarchy root | PASS50 |
 | Actual imported gameplay compilation/admission/execution/replay | PASS12ticks | PASS12ticks | PASS12ticks |
-| Imported native editor Play | PASS50 | OPEN: attempt blocked by license exit198 | RUNNING: new observer compiled, no Play pass yet |
-| Imported native build/relocated game | PASS50, two exports | OPEN | OPEN |
+| Imported native editor Play | PASS50 | OPEN: attempt blocked by license exit198 | PASS50 after explicit Movable-root disposition and Static-root refusal |
+| Imported native build/relocated game | PASS50, two exports | OPEN | RUNNING: Windows compile/cook, no packaged pass yet |
 | Imported continuity archive/restore/native rebuild | PASS1,010 archived files,270 exact executor sources | OPEN | OPEN |
 | Actual30 capture/review measurements at1,000 objects/100edits | PASS measured p95 6.148s | PASS measured p95 6.871s | PASS measured p95 8.338s |
 | Repeated native rebuild/resource/history certification at declared scale | OPEN final coverage audit | OPEN final coverage audit | OPEN final coverage audit |
