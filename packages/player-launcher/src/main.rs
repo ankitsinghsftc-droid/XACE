@@ -3,6 +3,8 @@ mod distribution;
 mod job;
 mod lifecycle;
 mod native_release;
+mod native_signed;
+mod authenticode;
 mod native_host;
 mod native_storage;
 mod session;
@@ -330,7 +332,7 @@ fn main() {
     if let Err(error) = run() {
         let _ = emit(json!({"ok":false,"state":"failed","message":error.to_string()}));
         #[cfg(windows)]
-        if !std::env::args().any(|arg| arg == "--serve" || arg == "--native-host" || arg == "--native-verify") {
+        if !std::env::args().any(|arg| arg == "--serve" || arg == "--native-host" || arg == "--native-verify" || arg == "--authenticode-inspect") {
             use std::os::windows::ffi::OsStrExt;
             #[link(name = "user32")]
             extern "system" {
@@ -364,6 +366,10 @@ fn run() -> Result<()> {
             .find(|pair| pair[0] == name)
             .map(|pair| pair[1].clone())
     };
+    if args.iter().any(|a| a == "--authenticode-inspect") {
+        let path=PathBuf::from(value("--source").context("PE source required")?);
+        return emit(serde_json::to_value(authenticode::inspect(&path)?)?);
+    }
     if args.iter().any(|a| a == "--native-verify") {
         let root = PathBuf::from(value("--source").context("Native release root required")?);
         let expected = value("--expected").context("Out-of-band native release identity required")?;

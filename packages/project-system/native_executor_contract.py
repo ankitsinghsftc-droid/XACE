@@ -39,6 +39,9 @@ def portable_path(path):
 
 
 def validate(receipt):
+    if type(receipt) is dict and receipt.get("schema")=="xace.native_executor_build.v2":
+        from signed_executor import validate as signed_validate
+        return signed_validate(receipt)
     require(type(receipt) is dict and set(receipt) == {'schema','executor_id','source_files','toolchain','build','executable_sha256','systems','capabilities','compatibility','state_policy','shipping'}, 'Invalid executor receipt fields')
     require(receipt['schema'] == SCHEMA, 'Unsupported executor receipt')
     require(type(receipt['executor_id']) is str and receipt['executor_id'].endswith('.v1'), 'Versioned executor identity required')
@@ -100,11 +103,14 @@ def validate(receipt):
     return copy.deepcopy(receipt)
 
 
-def admit(receipt, *, expected_receipt_digest, executable, required_capabilities, expected_compatibility, package):
+def admit(receipt, *, expected_receipt_digest, executable, required_capabilities, expected_compatibility, package, publisher_policy=None):
     hash_value(expected_receipt_digest)
     require(digest(receipt)==expected_receipt_digest, 'Receipt differs from trusted host identity')
     value=validate(receipt)
     require(sha(Path(executable).read_bytes())==value['executable_sha256'], 'Executable changed')
+    if value['schema']=='xace.native_executor_build.v2':
+        from signed_executor import verify as verify_signed
+        verify_signed(value,executable,publisher_policy)
     require(type(required_capabilities) in (list,tuple) and all(type(v) is str and v for v in required_capabilities),'Explicit required capability list required')
     require(set(required_capabilities)<=set(value['capabilities']), 'Missing required executor capability')
     require(value['compatibility']==expected_compatibility, 'Executor state/backend compatibility mismatch')
@@ -120,7 +126,7 @@ class TrustedExecutor:
     planning call. The host pins its independently reviewed receipt digest and
     compatibility identity; a capability string in CGS is never authority.
     """
-    def __init__(self, receipt, *, expected_receipt_digest, executable, expected_compatibility):
+    def __init__(self, receipt, *, expected_receipt_digest, executable, expected_compatibility, publisher_policy=None):
         import json
         hash_value(expected_receipt_digest)
         require(digest(receipt)==expected_receipt_digest,'Receipt differs from trusted host identity')
@@ -128,6 +134,7 @@ class TrustedExecutor:
         self._expected=expected_receipt_digest
         self._executable=str(Path(executable).resolve())
         self._compatibility=canonical(expected_compatibility)
+        self._publisher_policy=canonical(publisher_policy)
 
     @property
     def receipt_digest(self):return self._expected
@@ -136,4 +143,4 @@ class TrustedExecutor:
         import json
         return admit(json.loads(self._receipt),expected_receipt_digest=self._expected,
                      executable=self._executable,required_capabilities=['native.structured_transform.v1'],
-                     expected_compatibility=json.loads(self._compatibility),package=package)
+                     expected_compatibility=json.loads(self._compatibility),package=package,publisher_policy=json.loads(self._publisher_policy))

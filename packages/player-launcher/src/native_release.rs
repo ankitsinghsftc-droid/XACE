@@ -32,6 +32,10 @@ pub struct Release {
     pub required_capabilities: Vec<String>,
     pub resources: Vec<FileRecord>,
     pub save_schema: String,
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub publisher_policy: Option<crate::native_signed::PublisherPolicy>,
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub launcher_derivation: Option<crate::native_signed::LauncherDerivation>,
 }
 pub struct AdmittedRelease {
     pub receipt: Release,
@@ -91,14 +95,19 @@ impl Compatibility {
 pub fn admit(root: &Path, expected: &str) -> Result<AdmittedRelease> {
     let bytes = pinned(root, "native-release.json", expected, 4*1024*1024)?;
     let receipt: Release = serde_json::from_slice(&bytes)?;
-    ensure!(receipt.schema == "xace.native_release.v1", "Unsupported native release");
+    ensure!(["xace.native_release.v1","xace.native_release.v2"].contains(&receipt.schema.as_str()), "Unsupported native release");
     ensure!(["Unity", "Unreal", "Godot"].contains(&receipt.engine.as_str()), "Unsupported engine");
     ensure!(!receipt.game_id.is_empty() && receipt.game_id.len() <= 128
         && receipt.game_id.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-' || b == b'_'), "Invalid stable game identity");
     ensure!(receipt.save_schema.ends_with(".v1"), "Versioned save schema required");
     receipt.compatibility.validate()?;
     let executor: Value = serde_json::from_slice(&pinned(root, "executor-receipt.json", &receipt.executor_receipt_sha256, 4*1024*1024)?)?;
-    ensure!(executor["schema"] == "xace.native_executor_build.v1", "Unsupported creator receipt");
+    if receipt.schema=="xace.native_release.v1" {
+        ensure!(receipt.publisher_policy.is_none() && receipt.launcher_derivation.is_none() && executor["schema"]=="xace.native_executor_build.v1","Unsigned release cannot admit signed executor or publisher-policy downgrade");
+    } else {
+        receipt.publisher_policy.as_ref().context("Approved publisher policy required")?.validate()?;
+        ensure!(executor["schema"]=="xace.native_executor_build.v2","Signed release requires signed executor derivation");
+    }
     validate_creator(&executor)?;
     let compatibility: Compatibility = serde_json::from_value(executor["compatibility"].clone())?;
     ensure!(compatibility == receipt.compatibility, "Executor compatibility differs from approved release");
@@ -110,7 +119,7 @@ pub fn admit(root: &Path, expected: &str) -> Result<AdmittedRelease> {
     ensure!(builds.len() == 2 && builds[0]["build_id"].as_str().is_some_and(|s| !s.is_empty())
         && builds[1]["build_id"].as_str().is_some_and(|s| !s.is_empty())
         && builds[0]["build_id"] != builds[1]["build_id"]
-        && builds.iter().all(|b| b["executable_sha256"] == executable), "Unreproduced creator executable");
+        && builds.iter().all(|b| b["executable_sha256"] == if receipt.schema=="xace.native_release.v2" {executor["derivation"]["unsigned_receipt"]["executable_sha256"].clone()} else {Value::String(executable.into())}), "Unreproduced creator executable");
     let capabilities = executor["capabilities"].as_array().context("Missing executor capabilities")?;
     ensure!(receipt.required_capabilities.windows(2).all(|w| w[0] < w[1])
         && receipt.required_capabilities.iter().all(|c| !c.is_empty() && capabilities.contains(&Value::String(c.clone()))), "Missing required executor capability");
@@ -124,7 +133,10 @@ pub fn admit(root: &Path, expected: &str) -> Result<AdmittedRelease> {
     }
     let gameplay = &manifest["gameplay"];
     ensure!(gameplay["runtime_sha256"] == executable, "Package requires a different executable");
-    pinned(&package, "runtime/xace_runtime.exe", executable, 128*1024*1024)?;
+    let runtime_bytes=pinned(&package, "runtime/xace_runtime.exe", executable, 128*1024*1024)?;
+    if let Some(policy)=&receipt.publisher_policy {
+        crate::native_signed::verify(&executor,policy,&package.join("runtime/xace_runtime.exe"),&runtime_bytes)?;
+    }
     for (key, expected) in [("runtime_abi", &compatibility.runtime_abi), ("simulation_profile", &compatibility.simulation_profile),
         ("input_schema", &compatibility.input_schema), ("event_schema", &compatibility.event_schema), ("platform", &compatibility.platform)] {
         ensure!(gameplay[key].as_str() == Some(expected.as_str()), "Package compatibility mismatch: {key}");
@@ -140,6 +152,9 @@ pub fn admit(root: &Path, expected: &str) -> Result<AdmittedRelease> {
     ensure!(shipping.get("runtime/xace_runtime.exe").and_then(Value::as_str) == Some(executable), "Missing shipping executable");
     for (path, sha) in shipping { pinned(&package, path, sha.as_str().context("Invalid shipping identity")?, 128*1024*1024)?; }
     records(root, &receipt.resources)?;
+    if let Some(policy)=&receipt.publisher_policy {
+        crate::native_signed::verify_launcher(root,receipt.launcher_derivation.as_ref().context("Signed launcher derivation required")?,policy,&receipt.resources)?;
+    }
     Ok(AdmittedRelease { receipt, package, identity: expected.into(), manifest })
 }
 
@@ -203,7 +218,9 @@ fn creator_path(path: &str) -> Result<()> {
     }
     Ok(())
 }
-fn validate_creator(executor: &Value) -> Result<()> {
+pub(crate) fn validate_creator(executor: &Value) -> Result<()> {
+    if executor["schema"]=="xace.native_executor_build.v2" {return crate::native_signed::validate(executor);}
+    ensure!(executor["schema"]=="xace.native_executor_build.v1","Unsupported creator receipt");
     keys(executor, &["schema","executor_id","source_files","toolchain","build","executable_sha256","systems","capabilities","compatibility","state_policy","shipping"])?;
     ensure!(executor["executor_id"].as_str().is_some_and(|s| s.ends_with(".v1")), "Versioned executor identity required");
     let sources = executor["source_files"].as_object().context("Build source inventory required")?;
