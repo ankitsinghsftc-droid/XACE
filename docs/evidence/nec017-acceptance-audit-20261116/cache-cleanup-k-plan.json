@@ -1,0 +1,76 @@
+{
+  "root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011",
+  "scope": "Only14 obsolete Unreal precompiled compiler-header caches; not source, symbols, game/editor binaries, archives, logs or sealed evidence",
+  "files": [
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-fidelity-b\\compiled\\HostProject\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "032f34ed188c936cd90178323fc461687fa245e546aea23a98ea5b8a504a50a0"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-fidelity-c\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "96d93971cc3b757c359eb3c393e9862685f748bf5121a41564d510919409553c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-fidelity-d\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "35b79ead7909d6d3d0059edda8bb543c6716c1746f6c01f01ab3d17fb3611c60"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-fidelity-f\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "5a0698170f16cbd806b5e8936d03ae362a781292b73d68939cc7158454801985"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-fidelity-g\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "8f2e3cdc12371a6d0fef882be47b5ee561e08de221ea70336c89dee140fb9922"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-hierarchy-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "27a1b3406d92fdd6c7027688e828ea6a288c408f8db3daa0370ef396338427fa"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-hierarchy-b\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "f0fc159bee6386bc9a0840355d6eec255be02743d8f2c44412c723503ca0b405"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-hierarchy-c\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "066aedcafd753208621b4f2327e6148fea0839a1673938e54a4febd2f5ddf13c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261021\\unreal-readiness-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "c581f882b08cc5c9447fe32ad50fa2a48ef70efee1c0036964f93aad4430b10c"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261022\\unreal-required-contract-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "a72dfd0019e2b6650525deee5f832ba438cbbd31a2293ec7a776e95a5d0baa88"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-event-input-a\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "7e6eef1199fd86b00c68a903346b1f53fc3629e18c1be93358653b2f0c7967c6"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-event-input-b\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "ee24d966e9bc8394784baa64b713896ba4ff3aaca068c4c6b1bc6b060f900da4"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-replacement-final\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "4d4e40eb62b13cdc6436de5f7766d81504e0953ad495b3f092f0409a407cb4d2"
+    },
+    {
+      "path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec011\\20261023\\unreal-replacement-final-b\\project\\Intermediate\\Build\\Win64\\x64\\UnrealEditor\\Development\\UnrealEd\\SharedPCH.UnrealEd.Cpp20.h.pch",
+      "bytes": 2416508928,
+      "sha256": "e2d21e70c113a2b3f000bd9fff27c8679a54ad0197abfb6680b491a7feae1179"
+    }
+  ]
+}

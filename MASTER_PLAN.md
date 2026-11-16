@@ -2137,3 +2137,7 @@ Current185 project-system/schema-factory/GDE Python source/test hashes still mat
 > NEC0172026-11-16 all3 imported native continuity loops PASS. Unity51-object restored native build/gameplay joins Godot/Unreal. Remaining Unity/Unreal scale builds and final acceptance audit. NoNEC018. docs/evidence/nec017-unity-continuity-20261116.
 
 > NEC0172026-11-16 Unity3 native data build/readbacks at1,000 objects PASS. Unreal measurements running; final workflow/fault audit pending. docs/evidence/nec017-unity-scale-builds-20261116. NoNEC018.
+
+> NEC0172026-11-16 all-engine3 native data build/readbacks at1,000 objects PASS; imported continuity PASS. Final integrated workflow/fault acceptance audit remains OPEN. NoNEC018. docs/evidence/nec017-unreal-scale-builds-20261116.
+
+> NEC0172026-11-16 source/evidence audit30PASS/3integrated native workflow chains OPEN; no completion claim. Recovered seal unchanged. Safe cache cleanup recovered31.508GiB;34.31GiB free. docs/evidence/nec017-acceptance-audit-20261116. NoNEC018.

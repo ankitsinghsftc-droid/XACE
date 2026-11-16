@@ -1,0 +1,190 @@
+{
+  "seconds": 22.11130079999566,
+  "returncode": 0,
+  "root_memory": {
+    "peak_working_set_bytes": 197218304,
+    "working_set_bytes": 40960,
+    "peak_pagefile_bytes": 115691520
+  },
+  "descendants": [
+    {
+      "pid": 10280,
+      "parent_pid": 21536,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8499200,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 10056,
+      "parent_pid": 21536,
+      "executable": "dotnet.exe",
+      "peak_working_set_bytes": 260313088,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 255770624
+    },
+    {
+      "pid": 32420,
+      "parent_pid": 10056,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8511488,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1282048
+    },
+    {
+      "pid": 27260,
+      "parent_pid": 21536,
+      "executable": "UnrealEditor-Cmd.exe",
+      "peak_working_set_bytes": 2073206784,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 2049650688
+    },
+    {
+      "pid": 35264,
+      "parent_pid": 27260,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 9531392,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1486848
+    },
+    {
+      "pid": 26100,
+      "parent_pid": 27260,
+      "executable": "UnrealTraceServer.exe",
+      "peak_working_set_bytes": 10670080,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1630208
+    },
+    {
+      "pid": 23848,
+      "parent_pid": 27260,
+      "executable": "zen.exe",
+      "peak_working_set_bytes": 18464768,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 41558016
+    },
+    {
+      "pid": 5736,
+      "parent_pid": 23848,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8507392,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1286144
+    },
+    {
+      "pid": 23736,
+      "parent_pid": 23848,
+      "executable": "crashpad_handler.exe",
+      "peak_working_set_bytes": 11640832,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 2605056
+    },
+    {
+      "pid": 5468,
+      "parent_pid": 27260,
+      "executable": "zen.exe",
+      "peak_working_set_bytes": 18452480,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 41578496
+    },
+    {
+      "pid": 28532,
+      "parent_pid": 5468,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8511488,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1290240
+    },
+    {
+      "pid": 33244,
+      "parent_pid": 5468,
+      "executable": "crashpad_handler.exe",
+      "peak_working_set_bytes": 11612160,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 2588672
+    },
+    {
+      "pid": 15396,
+      "parent_pid": 27260,
+      "executable": "zenserver.exe",
+      "peak_working_set_bytes": 37945344,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 113975296
+    },
+    {
+      "pid": 31420,
+      "parent_pid": 15396,
+      "executable": "crashpad_handler.exe",
+      "peak_working_set_bytes": 11640832,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 2625536
+    },
+    {
+      "pid": 27480,
+      "parent_pid": 27260,
+      "executable": "zen.exe",
+      "peak_working_set_bytes": 18575360,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 41725952
+    },
+    {
+      "pid": 31900,
+      "parent_pid": 27480,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8515584,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1290240
+    },
+    {
+      "pid": 6804,
+      "parent_pid": 27480,
+      "executable": "crashpad_handler.exe",
+      "peak_working_set_bytes": 11624448,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 2609152
+    },
+    {
+      "pid": 8636,
+      "parent_pid": 27260,
+      "executable": "zen.exe",
+      "peak_working_set_bytes": 18468864,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 41594880
+    },
+    {
+      "pid": 28260,
+      "parent_pid": 8636,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8511488,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1286144
+    },
+    {
+      "pid": 38696,
+      "parent_pid": 8636,
+      "executable": "crashpad_handler.exe",
+      "peak_working_set_bytes": 11603968,
+      "working_set_bytes": 28672,
+      "peak_pagefile_bytes": 2600960
+    },
+    {
+      "pid": 37724,
+      "parent_pid": 21536,
+      "executable": "UnrealPak.exe",
+      "peak_working_set_bytes": 544489472,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 799916032
+    },
+    {
+      "pid": 19580,
+      "parent_pid": 37724,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 9531392,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1478656
+    }
+  ],
+  "sampled_descendant_peak_bytes": 2082648064,
+  "sampling_ms": 100,
+  "aggregate_peak_exact": false
+}

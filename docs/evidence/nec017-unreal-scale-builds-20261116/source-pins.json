@@ -1,0 +1,19 @@
+{
+  "files": {
+    "Config": {
+      "DefaultEngine.ini": "e84c21222ae5b45728fb7e19af6af98cbe665bfbfdfde729e345d2dea4bab73c",
+      "DefaultGame.ini": "a0a08791353e75d3ce7d92a3afcea58eaa8d99970074da50c0c9d7a6acd5171c"
+    },
+    "Content": {
+      "XACEGenerated/World.umap": "b5ce2a0becd57dfdd4963a7d6174df919aab08bc4a6da5cd50fbd3654db9b15f"
+    },
+    "Source": {
+      "NEC017Scale.Target.cs": "eba12bfba3448089a7b87225356275a1fae4b5488d0fe96768b8b5121d16dacb",
+      "NEC017Scale/NEC017Scale.Build.cs": "d4a46359481df2b1d80e3b62e39568dcbab646ff4a1d38e51dedfc0b0bb8b82b",
+      "NEC017Scale/NEC017Scale.cpp": "1ca4c7b62b5da6515c118b0727c917b8c7bd75c906058feefd1720c5fa3f1453",
+      "NEC017ScaleEditor.Target.cs": "01585ddfde03bd4a571645349b09d8e2ba1ccfe0bf49a12b7034da646b0d93ca"
+    }
+  },
+  "project": "C:\\Users\\ankit\\XACE-Recovery\\continuity\\ue17scaleb",
+  "uproject_sha256": "fcda6c7903683d139e807d28c38847ce2febaa1a49ffcabdfd577e6a196472f7"
+}
