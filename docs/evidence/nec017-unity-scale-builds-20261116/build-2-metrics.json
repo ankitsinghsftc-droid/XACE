@@ -1,0 +1,206 @@
+{
+  "seconds": 6.962181699927896,
+  "returncode": 0,
+  "root_memory": {
+    "peak_working_set_bytes": 407789568,
+    "working_set_bytes": 53248,
+    "peak_pagefile_bytes": 540798976
+  },
+  "descendants": [
+    {
+      "pid": 23508,
+      "parent_pid": 24716,
+      "executable": "UnityCrashHandler64.exe",
+      "peak_working_set_bytes": 10522624,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1830912
+    },
+    {
+      "pid": 31788,
+      "parent_pid": 24716,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 16347136,
+      "working_set_bytes": 16347136,
+      "peak_pagefile_bytes": 2600960
+    },
+    {
+      "pid": 25260,
+      "parent_pid": 24716,
+      "executable": "Unity.Licensing.Client.exe",
+      "peak_working_set_bytes": 97837056,
+      "working_set_bytes": 97820672,
+      "peak_pagefile_bytes": 33304576
+    },
+    {
+      "pid": 23792,
+      "parent_pid": 24716,
+      "executable": "UnityPackageManager.exe",
+      "peak_working_set_bytes": 96280576,
+      "working_set_bytes": 266240,
+      "peak_pagefile_bytes": 238329856
+    },
+    {
+      "pid": 42224,
+      "parent_pid": 23792,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 13299712,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 2256896
+    },
+    {
+      "pid": 35392,
+      "parent_pid": 24716,
+      "executable": "Unity.ILPP.Runner.exe",
+      "peak_working_set_bytes": 53202944,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 15962112
+    },
+    {
+      "pid": 31904,
+      "parent_pid": 24716,
+      "executable": "UnityAutoQuitter.exe",
+      "peak_working_set_bytes": 6750208,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 1150976
+    },
+    {
+      "pid": 34780,
+      "parent_pid": 24716,
+      "executable": "Unity.ILPP.Trigger.exe",
+      "peak_working_set_bytes": 18518016,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 7061504
+    },
+    {
+      "pid": 6056,
+      "parent_pid": 24716,
+      "executable": "UnityShaderCompiler.exe",
+      "peak_working_set_bytes": 28282880,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 22462464
+    },
+    {
+      "pid": 14524,
+      "parent_pid": 24716,
+      "executable": "bee_backend.exe",
+      "peak_working_set_bytes": 7897088,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 91332608
+    },
+    {
+      "pid": 19876,
+      "parent_pid": 24716,
+      "executable": "bee_backend.exe",
+      "peak_working_set_bytes": 9113600,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 93364224
+    },
+    {
+      "pid": 19144,
+      "parent_pid": 19876,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8347648,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1277952
+    },
+    {
+      "pid": 21780,
+      "parent_pid": 24716,
+      "executable": "bee_backend.exe",
+      "peak_working_set_bytes": 6275072,
+      "working_set_bytes": 28672,
+      "peak_pagefile_bytes": 54267904
+    },
+    {
+      "pid": 20596,
+      "parent_pid": 24716,
+      "executable": "netcorerun.exe",
+      "peak_working_set_bytes": 52105216,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 25952256
+    },
+    {
+      "pid": 24140,
+      "parent_pid": 20596,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8335360,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1273856
+    },
+    {
+      "pid": 38468,
+      "parent_pid": 24716,
+      "executable": "bee_backend.exe",
+      "peak_working_set_bytes": 12365824,
+      "working_set_bytes": 32768,
+      "peak_pagefile_bytes": 99266560
+    },
+    {
+      "pid": 37312,
+      "parent_pid": 38468,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8339456,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 1273856
+    },
+    {
+      "pid": 29280,
+      "parent_pid": 38468,
+      "executable": "cmd.exe",
+      "peak_working_set_bytes": 8491008,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 7770112
+    },
+    {
+      "pid": 41120,
+      "parent_pid": 29280,
+      "executable": "netcorerun.exe",
+      "peak_working_set_bytes": 30060544,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 9752576
+    },
+    {
+      "pid": 35212,
+      "parent_pid": 24716,
+      "executable": "Analytics.exe",
+      "peak_working_set_bytes": 41107456,
+      "working_set_bytes": 40960,
+      "peak_pagefile_bytes": 17825792
+    },
+    {
+      "pid": 22428,
+      "parent_pid": 24716,
+      "executable": "cmd.exe",
+      "peak_working_set_bytes": 9216000,
+      "working_set_bytes": 9179136,
+      "peak_pagefile_bytes": 8028160
+    },
+    {
+      "pid": 2372,
+      "parent_pid": 22428,
+      "executable": "conhost.exe",
+      "peak_working_set_bytes": 8142848,
+      "working_set_bytes": 8142848,
+      "peak_pagefile_bytes": 1359872
+    },
+    {
+      "pid": 3120,
+      "parent_pid": 22428,
+      "executable": "taskkill.exe",
+      "peak_working_set_bytes": 13713408,
+      "working_set_bytes": 36864,
+      "peak_pagefile_bytes": 2424832
+    },
+    {
+      "pid": 32988,
+      "parent_pid": 22428,
+      "executable": "taskkill.exe",
+      "peak_working_set_bytes": 13725696,
+      "working_set_bytes": 13725696,
+      "peak_pagefile_bytes": 2465792
+    }
+  ],
+  "sampled_descendant_peak_bytes": 365780992,
+  "sampling_ms": 100,
+  "aggregate_peak_exact": false
+}

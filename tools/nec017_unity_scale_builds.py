@@ -1,4 +1,4 @@
-﻿"""Three real Unity builds/readbacks of1,000 serialized authoring objects."""
+"""Three real Unity builds/readbacks of1,000 serialized authoring objects."""
 from pathlib import Path
 import json,os,shutil,subprocess,sys,time
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT))
@@ -24,10 +24,10 @@ using Xace.Authoring;
 public sealed class NEC017ScaleProbe:MonoBehaviour {
  [Serializable]public sealed class Expected{public Item[] items;}
  [Serializable]public sealed class Item{public string id;public float x,y,z;}
- [Serializable]public sealed class Result{public bool ok,exported;public int objects;public string scope="Static serialized transforms; no XACE gameplay runtime or graphics workload";}
+ [Serializable]public sealed class Result{public bool ok,exported;public int objects;public int scene_identities;public string scope="Static serialized transforms; no XACE gameplay runtime or graphics workload";}
  [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]static void Init(){new GameObject("NEC017 Data Observer").AddComponent<NEC017ScaleProbe>();}
- void Start(){var expected=JsonUtility.FromJson<Expected>(Resources.Load<TextAsset>("scale-expected").text);var objects=UnityEngine.Object.FindObjectsByType<XaceAuthoringIdentity>(FindObjectsInactive.Include,FindObjectsSortMode.None);var map=new System.Collections.Generic.Dictionary<string,GameObject>();bool ok=objects.Length==1000;foreach(var item in objects){if(map.ContainsKey(item.name))ok=false;else map.Add(item.name,item.gameObject);}foreach(var item in expected.items){if(!map.TryGetValue(item.id,out var go)){ok=false;continue;}ok &= Vector3.Distance(go.transform.position,new Vector3(item.x,item.y,item.z))<0.00001f && Vector3.Distance(go.transform.localScale,Vector3.one)<0.00001f && Quaternion.Angle(go.transform.rotation,Quaternion.identity)<0.00001f;}
- var result=new Result{ok=ok&&expected.items.Length==1000,exported=!Application.isEditor,objects=objects.Length};var args=Environment.GetCommandLineArgs();File.WriteAllText(args[Array.IndexOf(args,"-scaleReport")+1],JsonUtility.ToJson(result));Application.Quit(result.ok?0:1);}
+ void Start(){var expected=JsonUtility.FromJson<Expected>(Resources.Load<TextAsset>("scale-expected").text);var all=UnityEngine.Object.FindObjectsByType<XaceAuthoringIdentity>(FindObjectsInactive.Include,FindObjectsSortMode.None);var objects=Array.FindAll(all,x=>x.Kind=="object");int scenes=Array.FindAll(all,x=>x.Kind=="scene").Length;var map=new System.Collections.Generic.Dictionary<string,GameObject>();bool ok=objects.Length==1000 && all.Length==1001 && scenes==1;foreach(var item in objects){if(map.ContainsKey(item.name))ok=false;else map.Add(item.name,item.gameObject);}foreach(var item in expected.items){if(!map.TryGetValue(item.id,out var go)){ok=false;continue;}ok &= Vector3.Distance(go.transform.position,new Vector3(item.x,item.y,item.z))<0.00001f && Vector3.Distance(go.transform.localScale,Vector3.one)<0.00001f && Quaternion.Angle(go.transform.rotation,Quaternion.identity)<0.00001f;}
+ var result=new Result{ok=ok&&expected.items.Length==1000,exported=!Application.isEditor,objects=objects.Length,scene_identities=scenes};var args=Environment.GetCommandLineArgs();File.WriteAllText(args[Array.IndexOf(args,"-scaleReport")+1],JsonUtility.ToJson(result));Application.Quit(result.ok?0:1);}
 }
 '''
 def run(command,out,name,env,timeout=900):
