@@ -1,0 +1,1318 @@
+{
+  "ok": true,
+  "engine": "unreal",
+  "objects": 50,
+  "native_mutations": [
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": [
+        {
+          "code": "native_code_retained",
+          "field": "opaque",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        }
+      ],
+      "native_editor": true,
+      "phase": "rename",
+      "refusal": null,
+      "reviewable": true
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": [
+        {
+          "code": "native_code_retained",
+          "field": "opaque",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        }
+      ],
+      "native_editor": true,
+      "phase": "move",
+      "refusal": null,
+      "reviewable": true
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": true,
+      "losses": [
+        {
+          "code": "native_code_retained",
+          "field": "opaque",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000001",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000002",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000003",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000004",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000005",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000006",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000007",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000008",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000009",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000000f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000010",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000011",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000013",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000014",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000015",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000016",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000017",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000018",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000019",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000001f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000020",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000021",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000022",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000023",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000024",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000025",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000026",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000027",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000028",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000029",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002a",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002b",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002c",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002d",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002e",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "0000000000000000000000000000002f",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000030",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000031",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000032",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000033",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000034",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000035",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000036",
+          "severity": "info"
+        },
+        {
+          "code": "retained_native",
+          "detail": "Unowned native properties retained",
+          "field": "native.properties",
+          "object_id": "00000000000000000000000000000037",
+          "severity": "info"
+        },
+        {
+          "code": "structural_materialization_requires_coordinator",
+          "field": "",
+          "object_id": "00000000000000000000000000000012",
+          "severity": "blocking"
+        }
+      ],
+      "native_editor": true,
+      "phase": "reparent",
+      "refusal": null,
+      "reviewable": false
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": true,
+      "explicit_distinct_identity": true,
+      "identity_preserved": false,
+      "losses": null,
+      "native_editor": true,
+      "phase": "duplicate",
+      "refusal": "unknown metadata identity",
+      "reviewable": false
+    },
+    {
+      "canonical_and_baseline_unchanged": true,
+      "collision_refused": null,
+      "explicit_distinct_identity": null,
+      "identity_preserved": false,
+      "losses": null,
+      "native_editor": true,
+      "phase": "delete",
+      "refusal": "scope change requires explicit enrollment; absence is not deletion",
+      "reviewable": false
+    }
+  ],
+  "native_edit_and_canonical_conflict_refused": true,
+  "explicit_resolution_and_reviewed_restore": true,
+  "fresh_explicit_gameplay_choice": true,
+  "arbitrary_native_gameplay_conversion": false,
+  "gameplay_execution_replay": {
+    "explicit_trusted_gameplay_choice": true,
+    "moving_entities": 1,
+    "native_capture": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unreal-existing-workflow-b\\project\\.xace\\native-authoring-calls\\0b455c9c84a342c3a408f89813a05021\\result.json",
+    "native_capture_sha256": "de84e186e8ad6b9095379b1fb610aef7f351bf1dea5a42cde436491707b01db3",
+    "native_editor_play_verified": false,
+    "objects": 50,
+    "ok": true,
+    "replayed_ticks": 12,
+    "stable_entities": true,
+    "world_hashes": [
+      "9cbe57c65ac9b032c33edbd9c9568640b6f15195561c76b806a5fc2d0faca5dc",
+      "3c36fd23996d78ee57554d1e52e3e7bd5cb361199df41389682beeef6efdd302",
+      "039754dff35231d74b5edd5fe37db91209ee7d4d82fb26b67496992eab85c4e9",
+      "998a1585fb80eb044b640b458ea6ca7a41307f9aa3d37bce0a525c82fb2937b7",
+      "642d3b0e1288c3b381a92f52fefe9d6ee73e6f99332ef32facc820d30ba24747",
+      "81fe598ef7d14cbeba4bb04fe80dda4ccef5e9834ebc29c838a415d858dc7bdf",
+      "2993180136550c5ff303bd3059115d4f3c4ba751f3a9c86f12a4e7aa68ac6362",
+      "030f6c77a8cc04ad7643e29c29d3178a4e0e715727b83b572076ea47fa045897",
+      "a28c06a598e092af79188fb81452ddbf0e187ab0bcf56c6841fd1dc75c06e31a",
+      "258eb193072b272af424a5225ece2da7251fc8324bf1161badb65e4745854351",
+      "df06b6dc87ee7f2c2e53ac2e962246b9a300d84638c2676e11dea87d903f8e71",
+      "9afd72278e27d7d0e43cd9d3e38fcb05a60aac12e88e8e4fb8f060b2abc924ef"
+    ]
+  },
+  "native_play_again_build": {
+    "clean_machine": false,
+    "editor": {
+      "authoritative_input": true,
+      "error": "",
+      "exact_projection": true,
+      "mesh_material_retained": true,
+      "native_identity": true,
+      "objects": 50,
+      "ok": true,
+      "owner_pid": 6116,
+      "packaged": false,
+      "process_cleanup": true,
+      "runtime_pid": 27672,
+      "static_objects_unchanged": true,
+      "static_root_refused": true,
+      "tick": 30
+    },
+    "full_nec017_complete": false,
+    "installation_unchanged": true,
+    "ok": true,
+    "original_unchanged": true,
+    "package_seconds": 182.07717890001368,
+    "player": {
+      "authoritative_input": true,
+      "error": "",
+      "exact_projection": true,
+      "mesh_material_retained": true,
+      "native_identity": true,
+      "objects": 50,
+      "ok": true,
+      "owner_pid": 22000,
+      "packaged": true,
+      "process_cleanup": true,
+      "runtime_pid": 25020,
+      "static_objects_unchanged": true,
+      "static_root_refused": false,
+      "tick": 30
+    },
+    "source_stable": true
+  },
+  "structural_scope": "Native identity preservation and explicit fail-closed refusal where materialization unsupported; no dynamic spawn/despawn/reparent certification",
+  "clean_machine": false,
+  "full_nec017_complete": false,
+  "source_and_compact_off_device": false
+}

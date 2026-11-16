@@ -41,11 +41,29 @@ def main(out):
   proof(engine+' three actual native data build/readbacks at1,000objects',name,lambda d:d['ok'] and d['objects']==1000 and d['rebuilds']==3 and all(s['player']['ok'] and s['player']['objects']==1000 and s['player']['exported'] for s in d['samples']) and not d['gameplay_runtime_scale_certified'])
  for engine,name in [('godot','evidence/nec017/20261106/godot-existing-play-b/proof.json'),('unity','evidence/nec017/20261116/unity-existing-play-e/proof.json'),('unreal','evidence/nec017/20261116/unreal-cooked-integrity-c/proof.json')]:proof(engine+' imported real native Play/build/gameplay',name)
  for engine,name in [('godot','evidence/nec017/20261116/godot-existing-continuity-b/proof.json'),('unity','evidence/nec017/20261116/unity-imported-continuity-a/proof.json'),('unreal','evidence/nec017/20261116/unreal-short-build-b/proof.json')]:proof(engine+' imported archive/restore/native rebuild/gameplay',name)
- for engine,attempt in [('godot','c'),('unity','b'),('unreal','a')]:
+ for engine,attempt in [('godot','c'),('unity','b'),('unreal','b')]:
   proof(engine+' integrated existing-project native identity/refusal/conflict/Play-again chain','evidence/nec017/20261116/'+engine+'-existing-workflow-'+attempt+'/proof.json',lambda d:d['ok'] and len(d['native_mutations'])==5 and d['native_edit_and_canonical_conflict_refused'] and d['explicit_resolution_and_reviewed_restore'] and d['gameplay_execution_replay']['replayed_ticks']==12 and d['native_play_again_build']['ok'])
+ native_sources={}
+ for engine,attempt,prefix,target in [('godot','c','adapters/godot/authoring','addons/xace_authoring'),('unity','b','adapters/unity/Authoring','Assets/XaceAuthoring'),('unreal','b','adapters/unreal/Authoring','Plugins/XACEAuthoring')]:
+  fixture=ROOT/'evidence/nec017/20261116'/(engine+'-existing-workflow-'+attempt)/'project'
+  for source in (ROOT/prefix).rglob('*'):
+   if not source.is_file():continue
+   if engine=='godot' and source.name=='plugin.cfg':continue # Explicit test-only subclass; production reader/writer/plugin implementation still exact.
+   copied=fixture/target/source.relative_to(ROOT/prefix);assert copied.is_file() and sha(source)==sha(copied),'Native authoring source differs: '+str(source)
+   native_sources[source.relative_to(ROOT).as_posix()]=sha(source)
+  played=ROOT/'evidence/nec017/20261116'/(engine+'-existing-workflow-'+attempt)/'play-again/source-pins.json'
+  if played.exists():
+   for name,expected in json.loads(played.read_bytes()).items():
+    if name.startswith('adapters/') or name.startswith('packages/project-system/'):
+     assert sha(ROOT/name)==expected,'Native Play production source differs: '+name;native_sources[name]=expected
+ checks.append(dict(cell='Current production authoring/native Play source copies',status='PASS',files=len(native_sources),godot_test_plugin_cfg_explicit=True))
  seal=verify_seal();(out/'seal.json').write_text(json.dumps(seal,indent=2));checks.append(dict(cell='Recovered XP022 immutable baseline',status='PASS',protected_files=len(seal['protected_files']),source_archive_entries=seal['source_archive_entries'],original_seal=False,manifest_sha256=seal['baseline_manifest_sha256']))
  checks.append(dict(cell='External clean-machine/signing/tester/network/Steam certification',status='EXTERNAL_OPEN',reason='User-deferred availability; required for release; no pass claimed'))
  checks.append(dict(cell='p95 capture/review under2seconds',status='DEFERRED',reason='Only dated conditional-user-decision acceptance amendment; actual timings retained, target not passed'))
- open_cells=[c for c in checks if c['status']=='OPEN'];result=dict(schema='xace.nec017.acceptance_audit.v1',source_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),local_acceptance_complete=not open_cells,release_certified=False,checks=checks,open_cells=open_cells,references=references,source_hashes=pins,shared_launcher_source_hashes=d['source_files'] if 'source_files' in d else json.loads(shared.read_bytes())['source_files'],launcher_sha256=sha(launcher),raw_artifacts_off_device=False,nec018_started=False)
+ tracked=[n for n in subprocess.check_output(['git','ls-files','-z'],cwd=ROOT).decode('utf-8').split('\0') if n];tree={}
+ for name in tracked:
+  path=ROOT/name;assert path.is_file() and not path.is_symlink(),'Missing/link tracked file: '+name;tree[name]=sha(path)
+ tree_bytes=json.dumps(tree,sort_keys=True,separators=(',',':')).encode();(out/'tracked-worktree-source-manifest.json').write_text(json.dumps(tree,sort_keys=True,indent=2))
+ open_cells=[c for c in checks if c['status']=='OPEN'];result=dict(schema='xace.nec017.acceptance_audit.v1',source_head=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),local_acceptance_complete=not open_cells,release_certified=False,tracked_worktree_files=len(tree),tracked_worktree_digest=hashlib.sha256(tree_bytes).hexdigest(),checks=checks,open_cells=open_cells,references=references,native_source_hashes=native_sources,source_hashes=pins,shared_launcher_source_hashes=d['source_files'] if 'source_files' in d else json.loads(shared.read_bytes())['source_files'],launcher_sha256=sha(launcher),raw_artifacts_off_device=False,nec018_started=False)
  (out/'audit.json').write_text(json.dumps(result,indent=2));print(json.dumps(dict(passed=sum(c['status']=='PASS' for c in checks),open_cells=open_cells,local_acceptance_complete=not open_cells),indent=2))
 if __name__=='__main__':main(Path(sys.argv[1]))
