@@ -1,0 +1,70 @@
+{
+  "schema": "xace.nec018.portable_independence.v1",
+  "ok": true,
+  "launcher_sha256": "9f973dc9409fb8592fb5c0df37b84c495ddef7a7078f5bb86832df30c871a409",
+  "engines": {
+    "godot": {
+      "two_distinct_native_package_revisions": true,
+      "actual_authority_started": true,
+      "separate_game_namespaces": true,
+      "compatible_save_admitted_without_restore": true,
+      "incompatible_save_refused_unchanged": true,
+      "failed_ready_update_preserves_activation": true,
+      "interrupted_update_preserves_activation": true,
+      "prior_revision_retained": true,
+      "explicit_rollback": true,
+      "reversible_portable_removal_preserves_saves_and_other_game": true,
+      "restored_installation_relaunches": true,
+      "original_release_unchanged": true,
+      "failure": {
+        "message": "Authority exited before readiness",
+        "ok": false,
+        "state": "refused"
+      }
+    },
+    "unity": {
+      "two_distinct_native_package_revisions": true,
+      "actual_authority_started": true,
+      "separate_game_namespaces": true,
+      "compatible_save_admitted_without_restore": true,
+      "incompatible_save_refused_unchanged": true,
+      "failed_ready_update_preserves_activation": true,
+      "interrupted_update_preserves_activation": true,
+      "prior_revision_retained": true,
+      "explicit_rollback": true,
+      "reversible_portable_removal_preserves_saves_and_other_game": true,
+      "restored_installation_relaunches": true,
+      "original_release_unchanged": true,
+      "failure": {
+        "message": "Authority exited before readiness",
+        "ok": false,
+        "state": "refused"
+      }
+    },
+    "unreal": {
+      "two_distinct_native_package_revisions": true,
+      "actual_authority_started": true,
+      "separate_game_namespaces": true,
+      "compatible_save_admitted_without_restore": true,
+      "incompatible_save_refused_unchanged": true,
+      "failed_ready_update_preserves_activation": true,
+      "interrupted_update_preserves_activation": true,
+      "prior_revision_retained": true,
+      "explicit_rollback": true,
+      "reversible_portable_removal_preserves_saves_and_other_game": true,
+      "restored_installation_relaunches": true,
+      "original_release_unchanged": true,
+      "failure": {
+        "message": "Authority exited before readiness",
+        "ok": false,
+        "state": "refused"
+      }
+    }
+  },
+  "clean_machine": false,
+  "msi_or_general_installer": false,
+  "native_engine_rebuilds": false,
+  "native_engine_player_ui_retested": false,
+  "scope": "Real common native-host authority and portable filesystem operations on development laptop; final native clean-PC matrix remains mandatory",
+  "release_certified": false
+}

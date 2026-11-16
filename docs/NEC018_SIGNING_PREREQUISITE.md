@@ -1,3 +1,5 @@
+> CURRENT 2026-11-16: The signed-artifact code prerequisite is now implemented and locally verified; first-party continuity scope is explicitly approved. Actual publisher-backed XACE signing and external certification remain open. See [current implementation and remaining gates](NEC018_LOCAL_IMPLEMENTATION_STATUS.md). Earlier status/planning text below is retained as historical context; existing archive/evidence copies remain unchanged.
+
 # NEC-018 signed-artifact identity prerequisite
 
 Code-confirmed blocker, not a failed signing attempt. No certificate is currently available and no private key/certificate store was changed.

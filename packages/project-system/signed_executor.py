@@ -39,7 +39,9 @@ def verify(receipt,executable,policy):
     from native_executor_contract import sha
     raw=Path(executable).read_bytes();require(sha(raw)==r['executable_sha256'],'Signed executor bytes changed')
     d=r['derivation'];verify_pe(raw,unsigned_sha256=d['unsigned_receipt']['executable_sha256'],unsigned_length=d['unsigned_length'],unsigned_pe_checksum=d['unsigned_pe_checksum'])
-    return windows_verify(executable,cert)
+    report=windows_verify(executable,cert)
+    require(report['executable_sha256']==r['executable_sha256'],'Signed executor changed during admission')
+    return report
 
 def derive(unsigned_receipt,*,expected_unsigned_digest,unsigned_executable,signed_executable,policy):
     from native_executor_contract import validate as unsigned_validate,digest,sha

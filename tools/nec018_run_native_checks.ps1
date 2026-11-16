@@ -20,7 +20,9 @@ $CandidateRoot=(Resolve-Path -LiteralPath $CandidateRoot).Path;Assert-Plain $Can
 $manifest=Join-Path $CandidateRoot 'candidate.json';Assert-Plain $manifest
 if((Get-FileHash -LiteralPath $manifest -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedCandidateSha256){throw 'Candidate differs from independently supplied digest'}
 $candidate=Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json
-if($candidate.schema -ne 'xace.nec018.handoff.v1' -or $candidate.classification -ne 'unsigned_private_engineering_not_release_certified'){throw 'Unsupported candidate classification'}
+$signed=($candidate.schema -eq 'xace.nec018.handoff.v2' -and $candidate.classification -eq 'signed_private_engineering_not_release_certified')
+if(-not $signed -and ($candidate.schema -ne 'xace.nec018.handoff.v1' -or $candidate.classification -ne 'unsigned_private_engineering_not_release_certified')){throw 'Unsupported candidate classification'}
+if($signed -and ($candidate.publisher_policy.schema -ne 'xace.publisher_policy.v1' -or $candidate.publisher_policy.trust_policy -ne 'windows_authenticode_cached_chain.v1' -or -not $candidate.publisher_policy.allowed_signer_certificate_sha256)){throw 'Explicit approved publisher policy required'}
 foreach($name in @($candidate.tools.PSObject.Properties.Name)){if((Get-FileHash -LiteralPath (Child $CandidateRoot $name) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $candidate.tools.$name){throw 'Handoff tool changed'}}
 $EvidenceRoot=[IO.Path]::GetFullPath($EvidenceRoot)
 if((Test-Path -LiteralPath $EvidenceRoot) -or $EvidenceRoot.StartsWith($CandidateRoot+'\',[StringComparison]::OrdinalIgnoreCase) -or $CandidateRoot.StartsWith($EvidenceRoot+'\',[StringComparison]::OrdinalIgnoreCase) -or $EvidenceRoot.Split('\') -match '^(target|build|dist|tmp|temp|\.cache)$'){throw 'Fresh persistent output outside candidate required'}
@@ -32,6 +34,15 @@ try{
  foreach($engine in $Engines){
   $profile=$candidate.profiles.$engine;if($profile.root -ne ('payload/'+$engine)){throw 'Unexpected engine root'};$root=Child $CandidateRoot $profile.root;Verify-Inventory $root $profile.files
   foreach($name in @($profile.files.PSObject.Properties.Name | Where-Object {$_ -match '\.exe$'})){$sig=Get-AuthenticodeSignature -LiteralPath (Child $root $name);$signatures.Add(@{engine=$engine;path=$name;status=$sig.Status.ToString();signer_thumbprint=if($sig.SignerCertificate){$sig.SignerCertificate.Thumbprint}else{$null}})}
+  if($signed){
+   $required=@($profile.required_signed_executables)+@(($profile.common_release_root+'/xace-player-launcher.exe'),($profile.common_release_root+'/package/runtime/xace_runtime.exe'))
+   foreach($relative in $required){
+    $signature=Get-AuthenticodeSignature -LiteralPath (Child $root $relative)
+    if($signature.Status -ne 'Valid' -or $signature.SignatureType.ToString() -ne 'Authenticode' -or -not $signature.SignerCertificate -or -not $signature.TimeStamperCertificate){throw ('Valid timestamped embedded signature required: '+$relative)}
+    $algorithm=[Security.Cryptography.SHA256]::Create();try{$certificate=([BitConverter]::ToString($algorithm.ComputeHash($signature.SignerCertificate.RawData))).Replace('-','').ToLowerInvariant()}finally{$algorithm.Dispose()}
+    if($certificate -notin $candidate.publisher_policy.allowed_signer_certificate_sha256){throw ('Publisher differs from independently approved candidate: '+$relative)}
+   }
+  }
   for($n=0;$n -lt $Launches;$n++){
    $case=Join-Path $EvidenceRoot ($engine+'-'+$n);$null=New-Item -ItemType Directory -Path $case;$report=Join-Path $case 'player.json';$log=Join-Path $case 'engine.log'
    $env:PATH=Join-Path $env:SystemRoot 'System32';$env:LOCALAPPDATA=Join-Path $EvidenceRoot 'isolated-user-data';$null=New-Item -ItemType Directory -Path $env:LOCALAPPDATA -Force

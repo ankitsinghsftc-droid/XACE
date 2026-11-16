@@ -14,7 +14,7 @@ from release_handoff import tree,sha
 from continuity_contract import plain
 
 def persistent_output(path,source):
-    path=Path(path).absolute();source=Path(source).resolve(strict=True)
+    path=Path(path).resolve(strict=False);source=Path(source).resolve(strict=True)
     require(not path.exists() and not path.is_relative_to(source) and not source.is_relative_to(path),'Fresh output outside original source required')
     require(not any(p.casefold() in {'target','build','dist','tmp','temp','.cache'} for p in path.parts),'Persistent creator output required')
     for parent in path.parents:
@@ -38,9 +38,9 @@ def finalize(source,output,*,expected_release_sha256,policy,expected_policy_sha2
     native_verify(verifier,expected_verifier_sha256,source,expected_release_sha256)
     native=json.loads((source/'native-release.json').read_bytes());require(native['schema']=='xace.native_release.v1','Unsigned v1 release required')
     original=json.loads((source/'executor-receipt.json').read_bytes());compiled,_=pp.compiled_artifacts(json.loads((source/'package/game.cgs.json').read_bytes()))
-    original_support=executor.admit(original,expected_receipt_digest=native['executor_receipt_sha256'],executable=source/'package/runtime/xace_runtime.exe',required_capabilities=native['required_capabilities'],expected_compatibility=native['compatibility'],package=compiled)
+    original_support=executor.admit(original,expected_receipt_digest=executor.digest(original),executable=source/'package/runtime/xace_runtime.exe',required_capabilities=native['required_capabilities'],expected_compatibility=native['compatibility'],package=compiled)
     original_files={name:(source/'package'/name).read_bytes() for name in tree(source/'package')};old_manifest=pp.verify_files(original_files,original_support)
-    receipt=derive(original,expected_unsigned_digest=native['executor_receipt_sha256'],unsigned_executable=source/'package/runtime/xace_runtime.exe',signed_executable=signed_executor,policy=policy)
+    receipt=derive(original,expected_unsigned_digest=executor.digest(original),unsigned_executable=source/'package/runtime/xace_runtime.exe',signed_executable=signed_executor,policy=policy)
     launcher=derive_launcher(unsigned_launcher,signed_launcher,expected_unsigned_sha256=expected_unsigned_launcher_sha256,policy=policy)
     support=executor.admit(receipt,expected_receipt_digest=executor.digest(receipt),executable=signed_executor,required_capabilities=native['required_capabilities'],expected_compatibility=native['compatibility'],package=compiled,publisher_policy=policy)
     archive=pp.build_package(json.loads(original_files['game.cgs.json']),original_files['execution_plan.json'],Path(signed_executor).read_bytes(),support,package_id=old_manifest['package_id'],version=version,presentation_files={n:b for n,b in original_files.items() if n.startswith('presentation/')})

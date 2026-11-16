@@ -1,0 +1,30 @@
+{
+  "schema": "xace.nec018.signed_handoff_contract_proof.v1",
+  "ok": true,
+  "real_windows_signature_native_common_and_delivery_verification": true,
+  "all_three_delivery_layouts": {
+    "godot": {
+      "native_derivation_passed": true,
+      "unrelated_edit_refused": true,
+      "positive_copy_retained": true
+    },
+    "unity": {
+      "native_derivation_passed": true,
+      "unrelated_edit_refused": true,
+      "positive_copy_retained": true
+    },
+    "unreal": {
+      "native_derivation_passed": true,
+      "unrelated_edit_refused": true,
+      "positive_copy_retained": true
+    }
+  },
+  "signed_archive_preparation_verified": true,
+  "original_limits_retained": true,
+  "all_gates_remain_open": true,
+  "inert_fixture_executed": false,
+  "synthetic_creator_and_engine_metadata": true,
+  "actual_signed_xace_gameplay": false,
+  "clean_machine_certified": false,
+  "release_certified": false
+}

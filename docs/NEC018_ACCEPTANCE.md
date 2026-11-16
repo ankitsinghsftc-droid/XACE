@@ -1,3 +1,5 @@
+> CURRENT 2026-11-16: The signed-artifact code prerequisite is now implemented and locally verified; first-party continuity scope is explicitly approved. Actual publisher-backed XACE signing and external certification remain open. See [current implementation and remaining gates](NEC018_LOCAL_IMPLEMENTATION_STATUS.md). Earlier status/planning text below is retained as historical context; existing archive/evidence copies remain unchanged.
+
 # NEC-018: clean-machine shipping and private-alpha gate
 
 Started 2026-11-16, authorized after NEC-017 local closeout at0ecb252d6bacbcca65ff9f741971c90292c6a045. Active checkout C:/Users/ankit/XACE-Recovery/worktrees/xace, branch recovery/xp022. Historical artifacts and the recovered XP-022 seal remain immutable.

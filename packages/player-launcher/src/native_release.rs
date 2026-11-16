@@ -246,6 +246,12 @@ pub(crate) fn validate_creator(executor: &Value) -> Result<()> {
         else { canonical.push(c); }
     }
     ensure!(build["source_digest"] == digest(canonical.as_bytes()), "Creator source inventory changed");
+    let original_executable=executor["executable_sha256"].as_str().context("Creator executable identity required")?;
+    hash(original_executable)?;
+    let outputs=build["independent_outputs"].as_array().context("Two independent creator builds required")?;
+    ensure!(outputs.len()==2,"Two independent creator builds required");
+    for output in outputs {keys(output,&["build_id","executable_sha256"])?;ensure!(output["build_id"].as_str().is_some_and(|s|!s.is_empty()) && output["executable_sha256"]==original_executable,"Unreproduced creator executable");}
+    ensure!(outputs[0]["build_id"]!=outputs[1]["build_id"],"Independent creator build identities required");
     ordered_strings(&executor["capabilities"])?;
     let shipping = &executor["shipping"];
     keys(shipping, &["player_compilation","required_files","notices"])?;
@@ -254,10 +260,16 @@ pub(crate) fn validate_creator(executor: &Value) -> Result<()> {
     names.clear();
     for (path, sha) in required { creator_path(path)?; hash(sha.as_str().context("Shipping hash required")?)?;
         ensure!(names.insert(path.to_lowercase()), "Aliased shipping files"); }
+    ensure!(required.get("runtime/xace_runtime.exe").and_then(Value::as_str)==Some(original_executable),"Unsigned shipping executable differs from reproduced build");
     let systems = executor["systems"].as_array().context("System census required")?;
     ensure!(!systems.is_empty(), "Empty executor census");
     let mut previous = "";
     for system in systems {
+        let fields=system.as_object().context("System contract object required")?;
+        let required=["id","phase","reads","writes","depends_on","deterministic"];
+        ensure!(required.iter().all(|k|fields.contains_key(*k)) && fields.keys().all(|k|required.contains(&k.as_str()) || ["display_name","version","description"].contains(&k.as_str())),"Exact SGC system contract required");
+        for key in ["display_name","description"] {if let Some(value)=fields.get(key) {ensure!(value.is_string(),"Invalid SGC metadata");}}
+        if let Some(version)=fields.get("version") {keys(version,&["major","minor"])?;ensure!(version["major"].as_u64().is_some() && version["minor"].as_u64().is_some(),"Invalid SGC system version");}
         let id = system["id"].as_str().context("System identity required")?;
         ensure!(id > previous && system["deterministic"] == true, "Sorted deterministic systems required"); previous = id;
         ensure!(system["phase"].as_str().is_some_and(|s| ["Initialization","Input","Simulation","PostSimulation","Cleanup"].contains(&s)), "Unsupported system phase");

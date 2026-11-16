@@ -1,3 +1,5 @@
+> CURRENT 2026-11-16: The signed-artifact code prerequisite is now implemented and locally verified; first-party continuity scope is explicitly approved. Actual publisher-backed XACE signing and external certification remain open. See [current implementation and remaining gates](NEC018_LOCAL_IMPLEMENTATION_STATUS.md). Earlier status/planning text below is retained as historical context; existing archive/evidence copies remain unchanged.
+
 # NEC-018 local handoff status ? 2026-11-16
 
 NEC-018 is INCOMPLETE. Local handoff preparation is verified; it is not clean-machine, private-alpha, public-release or Steam certification. Owner confirmed no clean Windows machine, three independent developer testers or signing certificate are currently available. All eight gate-ledger entries remain OPEN. No acceptance criteria were weakened or new roadmap tasks created.

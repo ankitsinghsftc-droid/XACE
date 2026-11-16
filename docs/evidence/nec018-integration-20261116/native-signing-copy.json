@@ -1,0 +1,37 @@
+{
+  "schema": "xace.nec018.native_signing_copy_proof.v1",
+  "ok": true,
+  "checks": {
+    "godot": {
+      "actual_windows_signature_verified": true,
+      "code_preserving_derivation": true,
+      "original_unchanged": true,
+      "notice_preserved": true,
+      "unsafe_output_and_foreign_pin_refused": true,
+      "unrelated_source_edit_refused_even_with_updated_manifest": true,
+      "unreal_cooked_inventory_reissued": false
+    },
+    "unity": {
+      "actual_windows_signature_verified": true,
+      "code_preserving_derivation": true,
+      "original_unchanged": true,
+      "notice_preserved": true,
+      "unsafe_output_and_foreign_pin_refused": true,
+      "unrelated_source_edit_refused_even_with_updated_manifest": true,
+      "unreal_cooked_inventory_reissued": false
+    },
+    "unreal": {
+      "actual_windows_signature_verified": true,
+      "code_preserving_derivation": true,
+      "original_unchanged": true,
+      "notice_preserved": true,
+      "unsafe_output_and_foreign_pin_refused": true,
+      "unrelated_source_edit_refused_even_with_updated_manifest": true,
+      "unreal_cooked_inventory_reissued": true
+    }
+  },
+  "fixture_scope": "INERT vendor PE bytes and synthetic checked-build records; not XACE signed games",
+  "inert_fixtures_executed": false,
+  "actual_native_engine_builds_signed": false,
+  "release_certified": false
+}

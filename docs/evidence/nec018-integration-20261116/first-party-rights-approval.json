@@ -1,0 +1,13 @@
+{
+  "schema": "xace.nec018.first_party_rights_approval.v1",
+  "date": "2026-11-16",
+  "authority_and_approval_statement": "I have authority and approve the proposed scope",
+  "source": "Explicit user answer to NEC018 first-party rights review question in this conversation",
+  "approved_proposal_sha256": "4c4109b762f4ac9a773874d4a256d22ab2b31c3b0359b69209835d7ce6e7d4de",
+  "terms_path": "docs/XACE_GAME_CONTINUITY_TERMS.md",
+  "terms_sha256": "d037ef238a2cc760e8f14fe32a0128248b9c387dc861cdddcbbde2059a384aeb",
+  "first_party_policy_approved": true,
+  "third_party_rights_approved": false,
+  "final_candidate_approved": false,
+  "release_certified": false
+}

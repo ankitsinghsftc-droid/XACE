@@ -71,7 +71,7 @@ class SignedExecutorTests(unittest.TestCase):
             exe=Path(tmp)/'signed.exe';exe.write_bytes(after)
             host=contract.TrustedExecutor(r,expected_receipt_digest=contract.digest(r),executable=exe,expected_compatibility=r['compatibility'],publisher_policy=p)
             p['allowed_signer_certificate_sha256'].clear()
-            with patch('windows_authenticode.verify',return_value={'test_only':True}) as verifier:
+            with patch('windows_authenticode.verify',return_value={'executable_sha256':contract.sha(after)}) as verifier:
                 host.require_structured_transform(package);self.assertEqual(verifier.call_args.args[1],'a'*64)
             exe.write_bytes(after+b'changed')
             with self.assertRaisesRegex(ValueError,'Executable changed'):host.require_structured_transform(package)
@@ -85,6 +85,21 @@ class SignedExecutorTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'pinned'):signed.derive(original,**{**args,'expected_unsigned_digest':'0'*64})
                 altered=bytearray(after);altered[600]^=1;s.write_bytes(altered)
                 with self.assertRaisesRegex(ValueError,'reproduced'):signed.derive(original,**args)
+    def test_verifier_cannot_return_a_different_signed_image(self):
+        r,_,after,_=signed_fixture()
+        with tempfile.TemporaryDirectory() as tmp:
+            exe=Path(tmp)/'signed.exe';exe.write_bytes(after)
+            with patch('windows_authenticode.verify',return_value={'executable_sha256':'f'*64}):
+                with self.assertRaisesRegex(ValueError,'changed during admission'):signed.verify(r,exe,policy())
+    def test_output_aliases_cannot_write_into_original_or_disposable_tree(self):
+        from signed_release import persistent_output
+        persistent=Path(__file__).resolve().parents[3]/'evidence/nec018';persistent.mkdir(parents=True,exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=persistent,prefix='path-guard-test-') as tmp:
+            source=Path(tmp)/'source';source.mkdir()
+            self.assertEqual(persistent_output(Path(tmp)/'new-output',source),(Path(tmp)/'new-output').resolve())
+            for output in [source/'child',Path(tmp)/'other'/'..'/'source'/'child',source/'..'/'build'/'child',source/'..',source]:
+                with self.subTest(path=str(output)),self.assertRaises(ValueError):persistent_output(output,source)
+            self.assertEqual(list(source.iterdir()),[])
     def test_policy_has_no_disable_or_empty_allowlist(self):
         for value in [None,{},dict(policy(),allowed_signer_certificate_sha256=[]),dict(policy(),trust_policy='skip'),dict(policy(),extra=True),dict(policy(),allowed_signer_certificate_sha256=['a'*64,'a'*64])]:
             with self.assertRaises(ValueError):signed.publisher_policy(value)

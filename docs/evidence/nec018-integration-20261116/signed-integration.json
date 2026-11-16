@@ -1,0 +1,85 @@
+{
+  "schema": "xace.nec018.signed_integration_proof.v1",
+  "ok": true,
+  "source_commit": "78e49ced353fcf19fc8b390675f1bb99118c32f1",
+  "native_verifier_sha256": "9f973dc9409fb8592fb5c0df37b84c495ddef7a7078f5bb86832df30c871a409",
+  "actual_vendor_signature": {
+    "policy": "windows_authenticode_cached_chain.v1",
+    "executable_sha256": "4952e19700d27850d8cf4ca8d58b2815d0528e6517f1e098f1003e6bf1ebc423",
+    "signer_certificate_sha256": "6045e624888e299179d5ae0ceda57c9874ff6ccf889fa14b2d50f751bfb9e2f8",
+    "timestamp_verified": true
+  },
+  "python_rust_signer_hash_timestamp_agree": true,
+  "real_windows_signed_inert_fixture_admitted": true,
+  "inert_fixture_executed": false,
+  "synthetic_creator_receipts_only_for_verifier_test": true,
+  "creator_finalization_and_notice_preservation": true,
+  "refusals": {
+    "missing_publisher": {
+      "message": "Approved publisher policy required",
+      "ok": false,
+      "state": "failed"
+    },
+    "unsigned_release_downgrade": {
+      "message": "Unsigned release cannot admit signed executor or publisher-policy downgrade",
+      "ok": false,
+      "state": "failed"
+    },
+    "forged_capability": {
+      "message": "Signing cannot alter source/build/system/capability/compatibility contracts",
+      "ok": false,
+      "state": "failed"
+    },
+    "changed_original_receipt": {
+      "message": "Creator source inventory changed",
+      "ok": false,
+      "state": "failed"
+    },
+    "unapproved_publisher": {
+      "message": "Signed executor publisher is not approved by host",
+      "ok": false,
+      "state": "failed"
+    },
+    "wrong_verified_publisher": {
+      "message": "Authenticode publisher differs from approved certificate",
+      "ok": false,
+      "state": "failed"
+    },
+    "missing_launcher_derivation": {
+      "message": "Signed launcher derivation required",
+      "ok": false,
+      "state": "failed"
+    },
+    "wrong_launcher_derivation": {
+      "message": "Signed bytes do not derive from reproduced unsigned PE",
+      "ok": false,
+      "state": "failed"
+    },
+    "wrong_policy_pin": "Publisher policy differs from independent approval",
+    "wrong_unsigned_launcher_pin": "Unsigned launcher differs from trusted build identity"
+  },
+  "legacy_actual_authority": {
+    "godot": {
+      "actual_authority_started": true,
+      "runtime_pid": 35592,
+      "clean_shutdown": true,
+      "original_release_unchanged": true
+    },
+    "unity": {
+      "actual_authority_started": true,
+      "runtime_pid": 24500,
+      "clean_shutdown": true,
+      "original_release_unchanged": true
+    },
+    "unreal": {
+      "actual_authority_started": true,
+      "runtime_pid": 32748,
+      "clean_shutdown": true,
+      "original_release_unchanged": true
+    }
+  },
+  "publisher_backed_xace_binaries_signed": false,
+  "final_three_engine_signed_builds_verified": false,
+  "clean_machine_certified": false,
+  "release_certified": false
+}

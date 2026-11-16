@@ -62,4 +62,24 @@ class HandoffTests(unittest.TestCase):
  def test_unknown_argument_interpolation_refused(self):
   m=copy.deepcopy(self.m);m['profiles']['unity']['argv'].append('{execute_arbitrary_script}')
   with self.assertRaisesRegex(HandoffError,'placeholder'):validate(m)
+class SignedHandoffTests(unittest.TestCase):
+ setUp=HandoffTests.setUp
+ def signed_manifest(self):
+  from signed_executor import POLICY
+  m=copy.deepcopy(self.m);m.update(schema=SIGNED_SCHEMA,classification='signed_private_engineering_not_release_certified',publisher_policy=dict(schema='xace.publisher_policy.v1',trust_policy=POLICY,allowed_signer_certificate_sha256=['a'*64]))
+  for p in m['profiles'].values():p.update(signed_delivery_sha256='c'*64,common_release_root='release',common_release_sha256='e'*64,required_signed_executables=['Game.exe'],native_proof_scope='unsigned_context_only_fresh_signed_execution_required')
+  return m
+ def test_signed_schema_is_explicit_and_retains_open_gates(self):
+  m=self.signed_manifest();self.assertEqual(validate(m),m);self.assertEqual(set(initial_ledger(m)['gates'].values()),{'OPEN'})
+ def test_signed_declaration_without_real_native_verification_refused(self):
+  m=self.signed_manifest();(self.root/'candidate.json').write_bytes(canonical(m))
+  with self.assertRaisesRegex(HandoffError,'native verifier'):verify_handoff(self.root,digest(m))
+ def test_signed_handoff_cannot_relabel_prior_unsigned_proofs(self):
+  m=self.signed_manifest();m['profiles']['godot']['native_proof_scope']='already_signed_and_certified'
+  with self.assertRaisesRegex(HandoffError,'relabel'):validate(m)
+ def test_signed_profile_requires_entry_signature_and_approved_policy(self):
+  m=self.signed_manifest();m['profiles']['unity']['required_signed_executables']=[]
+  with self.assertRaises(HandoffError):validate(m)
+  m=self.signed_manifest();m['publisher_policy']['allowed_signer_certificate_sha256']=[]
+  with self.assertRaises(ValueError):validate(m)
 if __name__=='__main__':unittest.main()

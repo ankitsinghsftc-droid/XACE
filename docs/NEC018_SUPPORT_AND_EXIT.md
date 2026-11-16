@@ -1,3 +1,5 @@
+> CURRENT 2026-11-16: The signed-artifact code prerequisite is now implemented and locally verified; first-party continuity scope is explicitly approved. Actual publisher-backed XACE signing and external certification remain open. See [current implementation and remaining gates](NEC018_LOCAL_IMPLEMENTATION_STATUS.md). Earlier status/planning text below is retained as historical context; existing archive/evidence copies remain unchanged.
+
 # NEC-018 support, loss and exit disclosure
 
 Status: unsigned private engineering candidate only. No three-engine private-alpha/public-release approval, clean-machine certification or Steam certification. The selected Windows x64 profiles are Godot4.6.3 standard GDScript, Unity6000.4.9f1 Mono and Unreal5.7.4 D3D11 Development. Other versions/platforms are untested.

@@ -7,6 +7,7 @@ import hashlib,json
 from continuity_contract import canonical,portable_path,plain,SECRET_NAMES
 
 SCHEMA='xace.nec018.handoff.v1'
+SIGNED_SCHEMA='xace.nec018.handoff.v2'
 GATES=('clean_windows','offline_execution','updates_saves_uninstall','signing','three_developers','external_lan','external_internet','redistribution_approval')
 PROFILES={'godot':('4.6.3',50),'unity':('6000.4.9f1',51),'unreal':('5.7.4',50)}
 CHECKS={
@@ -41,14 +42,25 @@ def tree(root):
  visit(root);need(bool(result),'Empty artifact');return result
 
 def validate(manifest):
- need(type(manifest) is dict and set(manifest)=={'schema','classification','source_commit','development_machine_id','profiles','tools','required_gates','limitations'},'Invalid handoff fields')
- need(manifest['schema']==SCHEMA and manifest['classification']=='unsigned_private_engineering_not_release_certified','Not an approved handoff class')
+ need(type(manifest) is dict,'Invalid handoff fields')
+ signed=manifest.get('schema')==SIGNED_SCHEMA
+ fields={'schema','classification','source_commit','development_machine_id','profiles','tools','required_gates','limitations'}
+ need(set(manifest)==fields|({'publisher_policy'} if signed else set()),'Invalid handoff fields')
+ need((signed and manifest['classification']=='signed_private_engineering_not_release_certified') or (manifest['schema']==SCHEMA and manifest['classification']=='unsigned_private_engineering_not_release_certified'),'Not an approved handoff class')
+ if signed:
+  from signed_executor import publisher_policy
+  publisher_policy(manifest['publisher_policy'])
  need(type(manifest['source_commit']) is str and len(manifest['source_commit'])==40 and all(c in '0123456789abcdef' for c in manifest['source_commit']),'Git source identity required');hash_value(manifest['development_machine_id'])
  need(manifest['required_gates']==list(GATES),'Mandatory gate set changed');need(type(manifest['limitations']) is list and manifest['limitations'],'Support limits required')
  need(type(manifest['profiles']) is dict and set(manifest['profiles'])==set(PROFILES),'All three engine profiles required')
  for engine,p in manifest['profiles'].items():
-  need(type(p) is dict and set(p)=={'engine_version','objects','root','entry','argv','files','native_proof_sha256','game_id','save_policy'},'Invalid profile fields')
+  need(type(p) is dict and set(p)=={'engine_version','objects','root','entry','argv','files','native_proof_sha256','game_id','save_policy'}|({'signed_delivery_sha256','common_release_root','common_release_sha256','required_signed_executables','native_proof_scope'} if signed else set()),'Invalid profile fields')
   need((p['engine_version'],p['objects'])==PROFILES[engine],'Unsupported engine/profile');need(p['root']=='payload/'+engine,'Invalid payload root');portable_path(p['entry']);need(p['entry'].lower().endswith('.exe'),'Native executable required');hash_value(p['native_proof_sha256'])
+  if signed:
+   hash_value(p['signed_delivery_sha256']);hash_value(p['common_release_sha256']);portable_path(p['common_release_root'])
+   need(p['native_proof_scope']=='unsigned_context_only_fresh_signed_execution_required','Do not relabel prior unsigned proofs')
+   required=p['required_signed_executables'];need(type(required) is list and required==sorted(set(required)) and p['entry'] in required,'Explicit signed native executables required')
+   for path in required:portable_path(path);need(path in p['files'] and path.lower().endswith('.exe'),'Missing signed native executable')
   need(type(p['argv']) is list and p['argv'] and all(type(v) is str and '"' not in v and not any(c in v for c in ['\r','\n','\0']) for v in p['argv']),'Fixed native argument vector required')
   need(any('{report}' in v for v in p['argv']),'Structured native report required');need(all('{' not in v.replace('{report}','').replace('{log}','') and '}' not in v.replace('{report}','').replace('{log}','') for v in p['argv']),'Unknown argument placeholder')
   need(type(p['files']) is dict and p['entry'] in p['files'],'Native file inventory required');aliases=set()
@@ -60,10 +72,21 @@ def validate(manifest):
  need({'Run-NativeChecks.ps1','Collect-Environment.ps1'}<=set(manifest['tools']),'Self-contained Windows tools required')
  return manifest
 
-def verify_handoff(root,expected_digest):
+def verify_handoff(root,expected_digest,*,native_verifier=None,native_verifier_sha256=None):
  root=Path(root);hash_value(expected_digest);p=root/'candidate.json';plain(p);raw=p.read_bytes();need(digest_bytes(raw)==expected_digest,'Candidate differs from independently trusted digest');m=validate(json.loads(raw))
  for engine,profile in m['profiles'].items():need(tree(root/profile['root'])==profile['files'],'Payload changed: '+engine)
  for name,value in m['tools'].items():need(sha(root/name)==value,'Handoff tool changed: '+name)
+ if m['schema']==SIGNED_SCHEMA:
+  from native_artifact_signing import verify_native
+  from signed_release import native_verify
+  need(native_verifier is not None and native_verifier_sha256 is not None,'Independently pinned native verifier required for signed handoff')
+  for engine,profile in m['profiles'].items():
+   payload=root/profile['root'];r=verify_native(payload,profile['signed_delivery_sha256'])
+   need(r['engine']==engine and r['publisher_policy']==m['publisher_policy'],'Signed native publisher/profile mismatch')
+   need(set(profile['required_signed_executables'])<=set(r['signed_executables']),'Required native signing derivation missing')
+   common=payload/profile['common_release_root'];release=json.loads((common/'native-release.json').read_bytes())
+   need(release['schema']=='xace.native_release.v2' and release['publisher_policy']==m['publisher_policy'],'Signed common release/publisher required')
+   native_verify(Path(native_verifier),native_verifier_sha256,common,profile['common_release_sha256'])
  return m
 
 @dataclass(frozen=True)
@@ -85,7 +108,7 @@ def assess_evidence(manifest,evidence,context):
  for name,value in evidence['attachments'].items():portable_path(name);hash_value(value)
  if evidence['gate'] in ['clean_windows','offline_execution','updates_saves_uninstall']:
   need(evidence['machine_id']!=manifest['development_machine_id'],'Development laptop is not a clean-machine proof')
- if evidence['gate']=='signing':raise HandoffError('Unsigned candidate cannot close signing; signed-derivation/admission and new exact candidate required')
+ if evidence['gate']=='signing':need(manifest['schema']==SIGNED_SCHEMA,'Unsigned candidate cannot close signing; signed-derivation/admission and new exact candidate required')
  return dict(status='eligible_for_owner_review',gate=evidence['gate'],candidate_digest=context.candidate_digest,release_certified=False,attachments_require_manual_validation=True)
 
 def initial_ledger(manifest):

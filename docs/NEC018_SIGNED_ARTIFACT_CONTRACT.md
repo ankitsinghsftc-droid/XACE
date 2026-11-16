@@ -1,4 +1,6 @@
-﻿# NEC-018 signed artifact contract
+> Implemented and locally verified on 16 November 2026. The derivation also records unsigned_length and unsigned_pe_checksum so both languages reconstruct the original unsigned PE hash from final signed bytes. Actual publisher-backed XACE game signing remains unverified. [Current evidence/scope](NEC018_LOCAL_IMPLEMENTATION_STATUS.md).
+
+# NEC-018 signed artifact contract
 
 Status: implementation in progress, not publisher certification. Historical v1 receipts and sealed outputs remain unchanged.
 
