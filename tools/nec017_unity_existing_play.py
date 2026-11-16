@@ -9,6 +9,8 @@ from native_executor_contract import admit,digest
 UNITY='C:/Program Files/Unity/Hub/Editor/6000.4.9f1/Editor/Unity.exe'
 SETUP=r'''    public static void Setup()
     {
+        PlayerSettings.SetScriptingBackend(UnityEditor.Build.NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
+        PlayerSettings.runInBackground=true;
         string release=Path.Combine(Application.streamingAssetsPath,"XACERelease");
         var world=XaceCanonical.Parse(File.ReadAllText(Path.Combine(release,"package/world.json")));
         var objects=(List<object>)world["objects"];
@@ -35,9 +37,10 @@ public static class NEC017ExistingBuild {
  [Serializable]public sealed class Outcome{public bool ok=true;public bool clean_machine=false;}
  static string Arg(string name){var args=Environment.GetCommandLineArgs();return args[Array.IndexOf(args,name)+1];}
  public static void Run(){try{
-  PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone,ScriptingImplementation.Mono2x);
-  PlayerSettings.runInBackground=true;
-  AssetDatabase.SaveAssets();XaceNativeBuild.RecordApproval();XaceNativeBuild.Validate();
+  // Cold batch editor must explicitly open the saved approved scene.
+  UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Game/World.unity",UnityEditor.SceneManagement.OpenSceneMode.Single);
+  // Build the already approved source revision; never refresh/overwrite approval.
+  XaceNativeBuild.Validate();
   var report=BuildPipeline.BuildPlayer(new BuildPlayerOptions{scenes=new[]{"Assets/Game/World.unity"},locationPathName=Arg("-xaceBuild"),target=BuildTarget.StandaloneWindows64,options=BuildOptions.None});
   if(report.summary.result!=BuildResult.Succeeded)throw new Exception("Build failed");
   XaceNativeBuild.RequireBuildReceipt(Arg("-xaceBuild"));File.WriteAllText(Arg("-xaceReport"),JsonUtility.ToJson(new Outcome()));EditorApplication.Exit(0);
@@ -45,7 +48,7 @@ public static class NEC017ExistingBuild {
 }
 '''
 def main(out):
- out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert shutil.disk_usage(ROOT).free>5*1024**3;out.mkdir(parents=True)
+ out=out.resolve();assert out.is_relative_to(ROOT/'evidence/nec017') and not out.exists();assert shutil.disk_usage(ROOT).free>4*1024**3;out.mkdir(parents=True)
  source=ROOT/'evidence/nec017/20261105/unity-existing-publish-b/project';before={folder:inventory(source/folder) for folder in ['Assets','Packages','ProjectSettings']};project=out/'project'
  for name in before:shutil.copytree(source/name,project/name)
  # Explicit reviewed runtime prerequisites in this copied project; originals remain untouched.
@@ -76,7 +79,12 @@ def main(out):
  def run(method,name,extra=[]):
   command=[UNITY,'-batchmode','-nographics','-projectPath',str(project),'-executeMethod',method,'-xaceReport',str(out/(name+'.json')),'-logFile',str(out/(name+'.log'))]+extra
   (out/(name+'-command.json')).write_bytes(pp.encode(command));start=time.perf_counter()
-  with (out/(name+'-run.log')).open('wb') as log:r=subprocess.run(command,env=env,stdout=log,stderr=subprocess.STDOUT,timeout=900,creationflags=subprocess.CREATE_NO_WINDOW)
+  with (out/(name+'-run.log')).open('wb') as log:
+   r=subprocess.Popen(command,env=env,stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW)
+   while r.poll() is None:
+    if shutil.disk_usage(ROOT).free<2*1024**3 or time.perf_counter()-start>900:
+     subprocess.run(['taskkill','/PID',str(r.pid),'/T','/F'],capture_output=True);raise RuntimeError('Owned Unity stopped at2GiB reserve/timeout; outputs retained')
+    time.sleep(1)
   assert r.returncode==0,name+' failed; log retained';result=json.loads((out/(name+'.json')).read_text(encoding='utf-8-sig'));assert result['ok'];return time.perf_counter()-start
  run('NEC017UnityPlayProof.Run','editor-play');print('Existing Unity editor Play passed',flush=True)
  seconds=run('NEC017ExistingBuild.Run','build',['-xaceBuild',str(out/'shipping/NativeGame.exe')]);game=out/'relocated';shutil.copytree(out/'shipping',game);installation=inventory(game)

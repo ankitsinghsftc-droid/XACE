@@ -1,0 +1,22 @@
+{
+    "ok": true,
+    "error": "",
+    "unity": "6000.4.9f1",
+    "tick": 112,
+    "entities": 51,
+    "runtime_pid": 12048,
+    "owner_pid": 14552,
+    "native_identity": true,
+    "hierarchy": true,
+    "positions": true,
+    "input_moves_authority": true,
+    "save_compatible_not_restored": true,
+    "incompatible_save_retained": true,
+    "save_root": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec017\\20261116\\unity-existing-play-e\\player-user-data\\XACE/NativeGames\\game-nec017-existing-unity\\saves",
+    "fault": "",
+    "authority_stopped": false,
+    "frozen": false,
+    "required_playback": false,
+    "runtime_audio_started": false,
+    "runtime_animation_started": false
+}
