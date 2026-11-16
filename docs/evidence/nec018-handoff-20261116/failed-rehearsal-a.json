@@ -1,0 +1,40 @@
+{
+    "schema":  "xace.nec018.native_run.v1",
+    "candidate_digest":  "c94bbe5dd082778f325c1040cb019b50262a06625ee0553ff07a37b32a85911b",
+    "machine_id":  "0c414efc56daa2c6ddac24deded1d9657231c296c986ef91b7a79bc3b9180f0a",
+    "same_development_machine":  true,
+    "technical_checks_passed":  false,
+    "failure":  "Native game exited ",
+    "runs":  [
+
+             ],
+    "signatures":  [
+                       {
+                           "path":  "NativeGame.exe",
+                           "engine":  "godot",
+                           "status":  "NotSigned",
+                           "signer_thumbprint":  null
+                       },
+                       {
+                           "path":  "release/package/runtime/xace_runtime.exe",
+                           "engine":  "godot",
+                           "status":  "NotSigned",
+                           "signer_thumbprint":  null
+                       },
+                       {
+                           "path":  "release/xace-player-launcher.exe",
+                           "engine":  "godot",
+                           "status":  "NotSigned",
+                           "signer_thumbprint":  null
+                       }
+                   ],
+    "launches_per_engine":  1,
+    "environment_eligible_for_clean_review":  false,
+    "offline_interfaces_observed":  false,
+    "clean_machine_certified":  false,
+    "release_certified":  false,
+    "steam_certified":  false,
+    "human_walkthrough_performed":  false,
+    "update_uninstall_matrix_performed":  false,
+    "notes":  "Structured fixture probes use automated declared input. This is not physical-device, fresh-OS, packet-capture, human-workflow, signing or update/uninstall certification."
+}

@@ -1,0 +1,36 @@
+{
+  "ok": true,
+  "source_stable": true,
+  "tests": [
+    {
+      "name": "project-system",
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "packages/project-system/tests",
+        "-v"
+      ],
+      "returncode": 0
+    },
+    {
+      "name": "schema-factory",
+      "command": [
+        "C:\\Users\\ankit\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "-B",
+        "-m",
+        "pytest",
+        "packages/schema-factory/src/tests",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "returncode": 0
+    }
+  ],
+  "powershell_syntax_passed": true,
+  "external_certification": false
+}

@@ -1,0 +1,62 @@
+{
+  "all_external_gates": {
+    "clean_windows": "OPEN",
+    "external_internet": "OPEN",
+    "external_lan": "OPEN",
+    "offline_execution": "OPEN",
+    "redistribution_approval": "OPEN",
+    "signing": "OPEN",
+    "three_developers": "OPEN",
+    "updates_saves_uninstall": "OPEN"
+  },
+  "archive_bytes": 387103206,
+  "archive_sha256": "ddc9ffac0cfb45c7b85015d4efea85f012f2fa6a4373f4c9835be452458e9876",
+  "candidate_digest": "42a50cff1bf9c0a3e19cf8437ecbfb5a598025a36bd45cbb7a89a8fd1f7a0cc0",
+  "candidate_source_commit": "903bd018794e6c8d22641fbe2f95d1f4b653c2a6",
+  "external_distribution_authorized": false,
+  "negative_integrity_tests": [
+    {
+      "before_output_or_launch": true,
+      "log_sha256": "62c1b1aec9212c93ea5ab3b7a3aca0f90985aaa2c3bde29eb90faffa181ca59b",
+      "name": "foreign-pin",
+      "refused": true
+    },
+    {
+      "before_output_or_launch": true,
+      "log_sha256": "10d49eedaddd1aabb6188381032c1ed7c058cec14482d9be7e0a131c7e6b52bf",
+      "name": "altered-tool",
+      "refused": true
+    }
+  ],
+  "ok": true,
+  "original_historical_seal_recovered": false,
+  "project_system_tests": 385,
+  "python_entry_points_compile": true,
+  "raw_evidence_off_device": false,
+  "recovered_xp022_seal_unchanged": true,
+  "regression_source_changes": [
+    "tools/nec018_prepare.py",
+    "tools/nec018_verify.py"
+  ],
+  "release_certified": false,
+  "schema": "xace.nec018.local_handoff_audit.v1",
+  "schema_factory_tests": 127,
+  "signing_derivation_implemented": false,
+  "status": "LOCAL_HANDOFF_PREPARED_NEC018_INCOMPLETE",
+  "steam_certified": false,
+  "three_native_smoke_launches": true,
+  "unchanged_original_native_artifacts": true,
+  "verification": "verification-d",
+  "final_verification_source_stable": true,
+  "raw_log_sha256": {
+    "evidence/nec018/20261116/verification-d/project-system.log": "30cfe5dc67c545e9a5f84bab872b9ed2811e30505c920af007d2676201f488b7",
+    "evidence/nec018/20261116/verification-d/schema-factory.log": "82dc93727d8e3539c44eb554829b2ebb4a06e43744f868a3e39071293bd3e8f5",
+    "evidence/nec018/20261116/verification-d/powershell-syntax.log": "5beb1e28b63668582138b7baadffa5340e6c4c4c9f7da81f1c71e39ab10b7d1c",
+    "evidence/nec018/20261116/audit-a/foreign-pin.log": "62c1b1aec9212c93ea5ab3b7a3aca0f90985aaa2c3bde29eb90faffa181ca59b",
+    "evidence/nec018/20261116/audit-a/altered-tool.log": "10d49eedaddd1aabb6188381032c1ed7c058cec14482d9be7e0a131c7e6b52bf"
+  },
+  "archive_path": "C:\\Users\\ankit\\XACE-Recovery\\worktrees\\xace\\evidence\\nec018\\20261116\\handoff-b\\NEC018-private-engineering.zip",
+  "rehearsal_launches_per_engine": 1,
+  "failed_attempts_preserved": true,
+  "backup_status": "See backup-verification.json; raw archive/binaries/seal remain local-only"
+}
